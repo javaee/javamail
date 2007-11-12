@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+#
+# Generate a new signature file.
+#
+# Usage: siggen -in mail.jar -package javax -out mail.sig
+#
+#CLASSPATH=/java/re/jct-tools/2.1.6/archive/fcs/binaries/apiCheck.jar
+# newer version...
+CLASSPATH=/java/re/jct-tools/3.1.4/archive/fcs/binaries/lib/apiCheck.jar
+JAVA_HOME=/java/re/jdk/1.3.1/archive/fcs/binaries/solsparc
+export CLASSPATH JAVA_HOME
+#${JAVA_HOME}/bin/java javasoft.sqe.apiCheck.Setup "$@"
+# options used by CTS...
+${JAVA_HOME}/bin/java javasoft.sqe.apiCheck.Setup -xpriv -constvalues "$@"

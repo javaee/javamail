@@ -1,0 +1,11 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/pop3/DefaultFolder.java \
+	$(TARGDIR)com/sun/mail/pop3/POP3Folder.java \
+	$(TARGDIR)com/sun/mail/pop3/POP3Message.java \
+	$(TARGDIR)com/sun/mail/pop3/POP3RemoteStore.java \
+	$(TARGDIR)com/sun/mail/pop3/POP3SSLStore.java \
+	$(TARGDIR)com/sun/mail/pop3/POP3Store.java \
+	$(TARGDIR)com/sun/mail/pop3/Protocol.java \
+	$(TARGDIR)com/sun/mail/pop3/Status.java

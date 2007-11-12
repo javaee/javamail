@@ -1,0 +1,6 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/remote/RemoteDefaultFolder.java \
+	$(TARGDIR)com/sun/mail/remote/RemoteInbox.java \
+	$(TARGDIR)com/sun/mail/remote/RemoteStore.java

@@ -1,0 +1,16 @@
+JavaMail 1.1.2 Release
+----------------------
+The JavaMail API provides a set of abstract classes that model a mail
+system. The API provides a platform independent and protocol
+independent framework to build Java based mail and messaging
+applications.
+
+The JavaMail API is implemented as a Java standard extension. 
+Sun provides a royalty-free reference implementation, in binary form,
+that developers will be able to use and ship. 
+
+This release contains version 1.1.2 of the JavaMail
+implementation. It includes implementations of the core JavaMail 
+packages - javax.mail and javax.mail.internet. Also included are
+implementations of the IMAP and SMTP service providers.
+Please see the CHANGES.txt file for changes made since the last release.

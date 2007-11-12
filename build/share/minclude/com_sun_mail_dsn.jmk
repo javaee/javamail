@@ -1,0 +1,12 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/dsn/DeliveryStatus.java \
+	$(TARGDIR)com/sun/mail/dsn/MessageHeaders.java \
+	$(TARGDIR)com/sun/mail/dsn/MultipartReport.java \
+	$(TARGDIR)com/sun/mail/dsn/message_deliverystatus.java \
+	$(TARGDIR)com/sun/mail/dsn/multipart_report.java \
+	$(TARGDIR)com/sun/mail/dsn/text_rfc822headers.java
+
+RESOURCES = \
+	$(TOPDIR)/src/share/classes/com/sun/mail/dsn/mailcap

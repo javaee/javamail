@@ -1,0 +1,268 @@
+#
+#
+# Common variables used by all the Java makefiles.  This file should not
+# contain rules.
+#
+
+include $(TOPDIR)/build/$(PLATFORM)/makefiles/Defs-$(PLATFORM).gmk
+
+
+SHARE_SRC    = $(TOPDIR)/src/share
+PLATFORM_SRC = $(TOPDIR)/src/$(PLATFORM)
+
+TARGDIR = 
+MINCLUDES = $(TOPDIR)/build/share/minclude/
+
+#
+# Default BOOTDIR
+#
+_BOOTDIR = /usr/local/java/latest
+
+#
+# Set BOOTDIR to _BOOTDIR if ALT_BOOTDIR isn't set. Otherwise, set
+# it to ALT_BOOTDIR
+#
+BOOTDIR = $(_BOOTDIR$(ALT_BOOTDIR))$(ALT_BOOTDIR)
+
+#
+# Default JAVAHOME
+#
+#_JAVAHOME = /usr/local/java/latest
+# (Comment the above, since we want to build on 1.1 - jmk)
+ifeq ($(ARCH), sparc)
+    _JAVAHOME = /java/re/jdk/1.4/archive/fcs/binaries/solsparc
+else
+    _JAVAHOME = /java/re/jdk/1.4/archive/fcs/binaries/solx86
+endif
+JDKVERSION = 1.4
+
+#
+# Set JAVAHOME to _JAVAHOME if ALT_JAVAHOME isn't set. Otherwise, set
+# it to ALT_JAVAHOME
+#
+JAVAHOME = $(_JAVAHOME$(ALT_JAVAHOME))$(ALT_JAVAHOME)
+
+JDK         = $(JAVAHOME$(JDK_HOME))$(JDK_HOME)
+JDK_BINDIR  = $(JDK)/bin
+JDK_INCLUDE  = $(JDK)/include
+ifeq ($(JDKVERSION), 1.1)
+JDK_LIBDIR  = $(JDK)/lib
+JDK_CLASSDIR = $(JDK)/classes
+JDK_ZIP      = $(JDK)/lib/classes.zip
+else
+JDK_LIBDIR  = $(JDK)/jre/lib
+endif
+BINDIR      = $(TOPDIR)/build/$(PLATFORM)/bin
+LIBDIR      = $(TOPDIR)/build/$(PLATFORM)/lib
+INCLUDEDIR  = $(TOPDIR)/build/$(PLATFORM)/include
+CLASSDIR    = $(TOPDIR)/build/$(PLATFORM)/classes
+RELEASEDIR  = $(TOPDIR)/build/$(PLATFORM)/release
+# Set CLASSBINDIR to CLASSDIR if ALT_CLASSBINDIR isn't set.  Otheriwse set
+# it to ALT_CLASSBINDIR
+CLASSBINDIR = $(CLASSDIR$(ALT_CLASSBINDIR))$(ALT_CLASSBINDIR)
+_SRCDIR     = .
+SRCDIR      = $(_SRCDIR$(ALT_SRCDIR))$(ALT_SRCDIR)
+
+# Location of JavaBean Activation Framework (JAF)
+ifndef JAF_JAR
+	JAF_JAR = /java/re/jaf/1.0.2/latest/binaries/activation.jar
+endif
+
+# Location of Swing for the Client
+ifndef SWING_JAR
+	SWING_JAR = /java/re/swing/1.1.1/archive/fcs/c/binary/swingall.jar
+endif
+
+# Location of servlet/JSP
+ifndef SERVLET_JAR
+	# XXX - must be something better
+	SERVLET_JAR = /java/re/tomcat/3.0.1/archive/rc/latest/binaries/solsparc/lib/servlet.jar
+endif
+
+# Location of JNDI, for building on pre-J2SE 1.3
+ifndef JNDI_JAR
+	# XXX - must be something better
+	JNDI_JAR = /java/re/jndi/1.2.1/archive/binaries/lib/jndi.jar
+endif
+
+INCLUDES = -I. -ICClassHeaders \
+	-I$(JDK_INCLUDE) -I$(JDK_INCLUDE)/$(PLATFORM) \
+	$(patsubst %,-I%,$(subst :, ,$(VPATH.h))) $(OTHER_INCLUDES)
+OTHER_CPPFLAGS = $(INCLUDES)
+
+#
+# vpaths.  These are the default locations searched for source files.
+# GNUmakefiles of individual areas often override the default settings.
+# There are no longer default vpath entries for C and assembler files
+# so we can ensure that libraries don't get their hands on JVM files.
+#
+# We define an intermediate variable for Java files because
+# we use its value later to help define $CLASSPATH
+#
+VPATH.java = $(PLATFORM_SRC)/classes/$(SRCDIR):$(SHARE_SRC)/classes/$(SRCDIR)
+
+vpath %.java $(VPATH.java)
+
+vpath %.class $(CLASSBINDIR)
+
+vpath %.o   $(OBJDIR)
+
+#
+# VPATH.h is used elsewhere to generate include flags.  By default, 
+# anyone has access to the include files that the JVM area exports,
+# namely jni.h, jvm.h, and jni_utils.h, plus their platform-specific
+# relatives.
+#
+VPATH.h =   $(PLATFORM_SRC)/javavm/export:$(SHARE_SRC)/javavm/export
+
+vpath %.h   $(VPATH.h)
+
+#
+# Object Directories
+# Create different object directories for green and native threads
+# so that both options can be built without clobbering each other
+
+# Directory name specific to type of threads: green or native
+# If THREADS_FLAG is not set or not equal to green or native, then no threads
+# specific object directories are made. This would enable to quickly move to
+# a build environment with a single threads type, in the future.
+# TSOBJDIR = Thread Specific object directory
+
+ifdef BUILD_REENTRANT_LIBS
+	TSOBJDIR = .
+else
+ifeq ($(THREADS_FLAG), native)
+	TSOBJDIR = native_threads
+else
+ifeq ($(THREADS_FLAG), green)
+	TSOBJDIR = green_threads
+else
+	TSOBJDIR = .
+endif
+endif
+endif
+
+#
+OBJDIR_NAME     = obj
+OBJDIR          = $(OBJDIR_NAME)$(SUFFIX)/$(ARCH)/$(TSOBJDIR)
+OBJDIRS         = $(OBJDIR_NAME)$(OPT_SUFFIX)/$(ARCH)/$(TSOBJDIR) \
+		  $(OBJDIR_NAME)$(DBG_SUFFIX)/$(ARCH)/$(TSOBJDIR)
+
+#
+# LIB_LOCATION must be defined in all cases so that we can link against
+# libjava in various places.
+#
+ifeq ($(JDKVERSION), 1.1)
+LIB_LOCATION =  $(LIBDIR)/$(ARCH)/$(TSOBJDIR)
+JDK_LIB_LOCATION =  $(JDK_LIBDIR)/$(ARCH)/$(TSOBJDIR)
+else
+LIB_LOCATION =  $(LIBDIR)/$(ARCH)
+JDK_LIB_LOCATION =  $(JDK_LIBDIR)/$(ARCH)
+endif
+
+# Compute the root of each of the object directories
+# used to delete whole object directories when making clean and/or clobber
+
+OBJROOTS = $(patsubst %/$(ARCH)/$(TSOBJDIR), %, $(OBJDIRS))
+
+#
+# Java header and stub variables
+#
+ifeq ($(PRODUCT), java)
+    CLASSPATH =	$(CLASSBINDIR):$(VPATH.java)
+else
+    PKG    = $(shell expr $(PACKAGE) : '\([a-z]*\)')
+    PKGDIR = $(shell echo $(PACKAGE) | sed 's:\.:/:g')
+    CLASSSRCDIR1 = $(PLATFORM_SRC)/classes/$(SRCDIR)
+    CLASSSRCDIR2 = $(SHARE_SRC)/classes/$(SRCDIR)
+    SRCPATH = $(CLASSSRCDIR1):$(CLASSSRCDIR2)
+ifeq ($(JDKVERSION), 1.1)
+    CLASSPATH = $(SRCPATH):$(CLASSBINDIR):$(JAF_JAR):$(DEPENDS):$(JDK_ZIP)
+else
+    CLASSPATH = $(SRCPATH):$(CLASSBINDIR):$(JAF_JAR):$(DEPENDS)
+endif
+endif
+
+CLASSHDRDIR =	CClassHeaders
+CLASSHDRS =     $(patsubst %,$(CLASSHDRDIR)/%.h,$(subst .,_,$(CLASSES.export)))
+CLASSSTUBOBJS = classstubs.o
+STUBPREAMBLE=   $(TOPDIR)/build/$(PLATFORM)/classes/StubPreamble.h
+
+#
+# Suffixes for various VARIANTs
+#
+OPT_SUFFIX      =
+DBG_SUFFIX      = _g
+SUFFIX          = $($(VARIANT)_SUFFIX)
+
+#
+# Java executables/scripts [I'm not sure whether we really want to be
+# getting the raw executables in the other cases rather than going
+# through the wrappers.  Adding JCMD to fix a problem in JAVAC_CMD is
+# conservative for now but may not be best.  It's also not clear that
+# JCMD should be java$(SUFFIX), but that may be needed for "gnumake
+# debug" to do the right thing.  Again, do no harm for now.]
+#
+ifeq ($(PRODUCT), java)
+    JAVA    = $(BINDIR)/$(ARCH)/$(TSOBJDIR)/java$(SUFFIX)
+    JAVAH   = $(BINDIR)/$(ARCH)/$(TSOBJDIR)/javah$(SUFFIX)
+    JAVAC   = $(BINDIR)/$(ARCH)/$(TSOBJDIR)/javac$(SUFFIX)
+    JAR     = $(BINDIR)/$(ARCH)/$(TSOBJDIR)/jar$(SUFFIX)
+    JCMD    = $(BINDIR)/java$(SUFFIX) -$(THREADS_FLAG)
+else
+ifeq ($(JDKVERSION), 1.1)
+    JAVA    = $(JDK_BINDIR)/java$(SUFFIX) -$(THREADS_FLAG)
+    JAVAC   = $(JDK_BINDIR)/javac$(SUFFIX) -$(THREADS_FLAG)
+    JAVAH   = $(JDK_BINDIR)/javah$(SUFFIX) -$(THREADS_FLAG)
+    JDB	    = $(JDK_BINDIR)/jdb$(SUFFIX) -$(THREADS_FLAG)
+else
+    JAVA    = $(JDK_BINDIR)/java$(SUFFIX)
+    JAVAC   = $(JDK_BINDIR)/javac$(SUFFIX)
+    JAVAH   = $(JDK_BINDIR)/javah$(SUFFIX)
+    JDB	    = $(JDK_BINDIR)/jdb$(SUFFIX)
+endif
+    JAVADOC = $(JDK_BINDIR)/javadoc$(SUFFIX)
+    JAR     = $(JDK_BINDIR)/jar$(SUFFIX)
+    JCMD    = $(JAVA)
+endif
+
+#
+# Invoking the Java compiler
+#
+ifeq ($(JDKVERSION), 1.1)
+JAVAC_CMD = $(JCMD) -ms16m -mx64m $(JIT_OPTION) \
+	-classpath $(JDK_ZIP) sun.tools.javac.Main
+else
+JAVAC_CMD = $(JAVAC) -source 1.4
+#JAVAC_CMD = $(JAVAC) -source 1.4 -Xlint
+endif
+
+ifeq ($(JDKVERSION), 1.1)
+# XXX - not used?
+#
+# Having $(BOOTDIR)/classes in the classpath makes it possible to bootstrap
+# from a working build, which doesn't have it's classes directory zipped,
+# when setting ALT_BOOTDIR.
+#
+JAVAC_BOOT_CMD = $(BOOTDIR)/bin/java$(SUFFIX) -ms16m -mx64m \
+	-classpath $(BOOTDIR)/classes:$(BOOTDIR)/lib/classes.zip sun.tools.javac.Main
+endif
+
+#
+# Set opt level to ALT_OPT if set otherwise _OPT
+#
+POPT = $(_OPT$(ALT_OPT))$(ALT_OPT)
+
+#
+# Tool flags
+#
+CFLAGS          = $(CFLAGS_$(VARIANT)) $(CFLAGS_COMMON) $(OTHER_CFLAGS)
+LCFLAGS         = $(CFLAGS_$(VARIANT)) $(LCFLAGS_COMMON) $(OTHER_CFLAGS)
+CPPFLAGS        = $(CPPFLAGS_$(VARIANT)) $(CPPFLAGS_COMMON) $(OTHER_CPPFLAGS) \
+		  $(DEFINES) $(OPTIONS:%=-D%)
+LCPPFLAGS       = $(CPPFLAGS_$(VARIANT)) $(LCPPFLAGS_COMMON) \
+		  $(OTHER_CPPFLAGS) $(DEFINES) $(OPTIONS:%=-D%)
+ASFLAGS         = $(ASFLAGS_$(VARIANT)) $(ASFLAGS_COMMON) $(OTHER_ASFLAGS)
+LDFLAGS         = $(LDFLAGS_$(VARIANT)) $(LDFLAGS_COMMON) $(OTHER_LDFLAGS)
+LDLIBS          = $(OTHER_LDLIBS) $(LDLIBS_$(VARIANT)) $(LDLIBS_COMMON)
+

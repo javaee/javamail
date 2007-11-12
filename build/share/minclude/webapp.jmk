@@ -1,0 +1,14 @@
+#
+#
+FILES_src = \
+	compose.jsp \
+	errordetails.jsp \
+	errorpage.jsp \
+	folders.jsp \
+	index.html \
+	login.jsp \
+	logout.jsp \
+	messagecontent.jsp \
+	messageheaders.jsp \
+	send.jsp \
+	WEB-INF/web.xml

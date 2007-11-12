@@ -1,0 +1,4 @@
+#!/bin/sh
+java decodetext < encodedheaders.data > x1
+java -Dmail.mime.decodetext.strict=false decodetext < encodedheaders.data > x2
+diff -c x1 x2

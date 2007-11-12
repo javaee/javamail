@@ -1,0 +1,10 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/handlers/text_html.java \
+	$(TARGDIR)com/sun/mail/handlers/text_plain.java \
+	$(TARGDIR)com/sun/mail/handlers/text_xml.java \
+	$(TARGDIR)com/sun/mail/handlers/image_gif.java \
+	$(TARGDIR)com/sun/mail/handlers/image_jpeg.java \
+	$(TARGDIR)com/sun/mail/handlers/multipart_mixed.java \
+	$(TARGDIR)com/sun/mail/handlers/message_rfc822.java

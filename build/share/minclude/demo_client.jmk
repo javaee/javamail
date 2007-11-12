@@ -1,0 +1,14 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)ComponentFrame.java \
+	$(TARGDIR)FolderModel.java \
+	$(TARGDIR)FolderTreeNode.java \
+	$(TARGDIR)FolderViewer.java \
+	$(TARGDIR)MessageViewer.java \
+	$(TARGDIR)MultipartViewer.java \
+	$(TARGDIR)SimpleClient.java \
+	$(TARGDIR)SimpleAuthenticator.java \
+	$(TARGDIR)StoreTreeNode.java \
+	$(TARGDIR)TextViewer.java
+

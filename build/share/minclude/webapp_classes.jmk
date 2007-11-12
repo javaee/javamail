@@ -1,0 +1,6 @@
+#
+#
+FILES_java = \
+	demo/AttachmentServlet.java \
+	demo/FilterServlet.java \
+	demo/MailUserBean.java

@@ -1,0 +1,7 @@
+#
+#
+# Generic definition of PLATFORM, and related, factored-out variables
+#
+
+PLATFORM = solaris
+TOPDIR = ../../$(BUILDDIR)

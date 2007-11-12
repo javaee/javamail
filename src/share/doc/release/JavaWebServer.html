@@ -1,0 +1,40 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="JavaSoftware">
+   <meta name="GENERATOR" content="Mozilla/4.61 [en] (WinNT; U) [Netscape]">
+   <title>JavaWebServer</title>
+</head>
+<body>
+If you don't already have Java Web Server installed and running,
+you'll need to download it
+<br>from the&nbsp; <a href="http://www.sun.com/software/jwebserver/index.html">Java
+Web Server</a>&nbsp; product page and install it. We tested the JavaMailServlet
+with
+<br>these configurations.
+<p>(on Solaris)
+<blockquote>JavaWebServer 2.0 (binary)</blockquote>
+(on NT)
+<blockquote>JavaWebServer 2.0 (binary)</blockquote>
+To run the JavaMailServlet, you must add the JavaMail and JavaBeans Activation
+Framework
+<br>jar files to the CLASSPATH environment variable (this is documented
+in the JavaMail README file
+<br>and additional Windows NT information is provided <a href="classpath-NT.html">here</a>).
+<p>Once this is done, restart the web server.
+<br>&nbsp;
+<p>Additional Notes
+<blockquote>If you run JavaWebServer 2.0 with the Java Runtime Environment
+(JRE) supplied with
+<br>JavaWebServer, no additional security policy is necessary. The security
+policy file
+<br>(i.e. jserv.policy) supplied with the JRE contains the necessary permissions
+for local servlets.</blockquote>
+
+<blockquote>If you run JavaWebServer 2.0 with another JRE (with an installed
+JDK for example), you
+<br>must add the necessay security policy for running under a SecurityManager.</blockquote>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+#
+#
+# Makefile Rule for generating javadocs
+#
+# Depends on JDK 1.2beta4 or later javadoc.
+#
+
+TITLE = 'JavaMail 1.2 API documentation'
+JAVADOC_OPTS += -use -splitIndex -windowtitle $(TITLE) -doctitle $(TITLE)
+
+docs:
+	rm -rf $(DOCDIR)
+	mkdir -p $(DOCDIR);
+	$(JAVADOC) $(JAVADOC_OPTS) -d $(DOCDIR) -sourcepath $(SRCPATH) \
+		-classpath $(DEPENDS) $(DOCPACKAGES)

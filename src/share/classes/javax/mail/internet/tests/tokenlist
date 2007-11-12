@@ -1,0 +1,718 @@
+Comment:
+	.
+	A set of test addresses stolen from the dtmail test suite,
+	with a few of my own.  Used here to test the header tokenizer.
+	Use with "tokenizertest -p <tokenlist".
+	.
+	CAREFUL: a blank line in this file causes everything following it
+		 to be ignored until a line starting with "From " (so that
+		 tokenizertest -p can be pointed at a real mailbox).
+Comment:
+	The following should all be tokenized successfully.
+To: ggere
+Expect: 1
+	ATOM	ggere
+To: /tmp/mail.out
+Expect: 1
+	ATOM	/tmp/mail.out
+To: +mailbox
+Expect: 1
+	ATOM	+mailbox
+To: ~user/mailbox
+Expect: 1
+	ATOM	~user/mailbox
+To: ~/mailbox
+Expect: 1
+	ATOM	~/mailbox
+To: /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+Expect: 3
+	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	SPECIAL	@
+	ATOM	mhs-mci.ebay
+To: ggere, /tmp/mail.out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+Expect: 13
+	ATOM	ggere
+	SPECIAL	,
+	ATOM	/tmp/mail.out
+	SPECIAL	,
+	ATOM	+mailbox
+	SPECIAL	,
+	ATOM	~user/mailbox
+	SPECIAL	,
+	ATOM	~/mailbox
+	SPECIAL	,
+	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	SPECIAL	@
+	ATOM	mhs-mci.ebay
+To: ggere /tmp/mail.out +mailbox ~user/mailbox ~/mailbox /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+Expect: 8
+	ATOM	ggere
+	ATOM	/tmp/mail.out
+	ATOM	+mailbox
+	ATOM	~user/mailbox
+	ATOM	~/mailbox
+	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	SPECIAL	@
+	ATOM	mhs-mci.ebay
+To: Mad Genius <george@boole>
+Expect: 7
+	ATOM	Mad
+	ATOM	Genius
+	SPECIAL	<
+	ATOM	george
+	SPECIAL	@
+	ATOM	boole
+	SPECIAL	>
+To: "C'est bien moche" <paris@france>
+Expect: 6
+	QUOTEDSTRING	C'est bien moche
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+	SPECIAL	>
+To: "know, any, famous" <french@physicists>
+Expect: 6
+	QUOTEDSTRING	know, any, famous
+	SPECIAL	<
+	ATOM	french
+	SPECIAL	@
+	ATOM	physicists
+	SPECIAL	>
+To: laborious (But Bug Free)
+Expect: 1
+	ATOM	laborious
+To: confused (about, being, french)
+Expect: 1
+	ATOM	confused
+To: it (takes, no (time, at) all)
+Expect: 1
+	ATOM	it
+To: two@weeks (It Will Take)
+Expect: 3
+	ATOM	two
+	SPECIAL	@
+	ATOM	weeks
+To: it@is (brilliant (genius, and) superb)
+Expect: 3
+	ATOM	it
+	SPECIAL	@
+	ATOM	is
+To: if@you (could, see (almost, as, (badly, you) would) agree)
+Expect: 3
+	ATOM	if
+	SPECIAL	@
+	ATOM	you
+To: cannot@waste (My, Intellectual, Cycles)
+Expect: 3
+	ATOM	cannot
+	SPECIAL	@
+	ATOM	waste
+To: users:get,what,they,deserve;
+Expect: 10
+	ATOM	users
+	SPECIAL	:
+	ATOM	get
+	SPECIAL	,
+	ATOM	what
+	SPECIAL	,
+	ATOM	they
+	SPECIAL	,
+	ATOM	deserve
+	SPECIAL	;
+To: "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail.out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
+Expect: 56
+	QUOTEDSTRING	C'est bien moche
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Mad
+	ATOM	Genius
+	SPECIAL	<
+	ATOM	george
+	SPECIAL	@
+	ATOM	boole
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	two
+	SPECIAL	@
+	ATOM	weeks
+	SPECIAL	,
+	ATOM	/tmp/mail.out
+	SPECIAL	,
+	ATOM	laborious
+	SPECIAL	,
+	ATOM	cannot
+	SPECIAL	@
+	ATOM	waste
+	SPECIAL	,
+	ATOM	users
+	SPECIAL	:
+	ATOM	get
+	SPECIAL	,
+	ATOM	what
+	SPECIAL	,
+	ATOM	they
+	SPECIAL	,
+	ATOM	deserve
+	SPECIAL	;
+	SPECIAL	,
+	ATOM	it
+	SPECIAL	,
+	ATOM	if
+	SPECIAL	@
+	ATOM	you
+	SPECIAL	,
+	QUOTEDSTRING	know, any, famous
+	SPECIAL	<
+	ATOM	French
+	SPECIAL	@
+	ATOM	physicists
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	it
+	SPECIAL	@
+	ATOM	is
+	SPECIAL	,
+	ATOM	confused
+To: ggere, /tmp/mail.out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay, "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail.out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
+Expect: 70
+	ATOM	ggere
+	SPECIAL	,
+	ATOM	/tmp/mail.out
+	SPECIAL	,
+	ATOM	+mailbox
+	SPECIAL	,
+	ATOM	~user/mailbox
+	SPECIAL	,
+	ATOM	~/mailbox
+	SPECIAL	,
+	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	SPECIAL	@
+	ATOM	mhs-mci.ebay
+	SPECIAL	,
+	QUOTEDSTRING	C'est bien moche
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Mad
+	ATOM	Genius
+	SPECIAL	<
+	ATOM	george
+	SPECIAL	@
+	ATOM	boole
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	two
+	SPECIAL	@
+	ATOM	weeks
+	SPECIAL	,
+	ATOM	/tmp/mail.out
+	SPECIAL	,
+	ATOM	laborious
+	SPECIAL	,
+	ATOM	cannot
+	SPECIAL	@
+	ATOM	waste
+	SPECIAL	,
+	ATOM	users
+	SPECIAL	:
+	ATOM	get
+	SPECIAL	,
+	ATOM	what
+	SPECIAL	,
+	ATOM	they
+	SPECIAL	,
+	ATOM	deserve
+	SPECIAL	;
+	SPECIAL	,
+	ATOM	it
+	SPECIAL	,
+	ATOM	if
+	SPECIAL	@
+	ATOM	you
+	SPECIAL	,
+	QUOTEDSTRING	know, any, famous
+	SPECIAL	<
+	ATOM	French
+	SPECIAL	@
+	ATOM	physicists
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	it
+	SPECIAL	@
+	ATOM	is
+	SPECIAL	,
+	ATOM	confused
+To: testa testb testc /tmp/mail.out ~ggere/mail.out testd teste
+Expect: 7
+	ATOM	testa
+	ATOM	testb
+	ATOM	testc
+	ATOM	/tmp/mail.out
+	ATOM	~ggere/mail.out
+	ATOM	testd
+	ATOM	teste
+To: testa, testb , testc /tmp/mail.out ,~ggere/mail.out, ,testd,teste,,,
+Expect: 16
+	ATOM	testa
+	SPECIAL	,
+	ATOM	testb
+	SPECIAL	,
+	ATOM	testc
+	ATOM	/tmp/mail.out
+	SPECIAL	,
+	ATOM	~ggere/mail.out
+	SPECIAL	,
+	SPECIAL	,
+	ATOM	testd
+	SPECIAL	,
+	ATOM	teste
+	SPECIAL	,
+	SPECIAL	,
+	SPECIAL	,
+To: testa testb <testc@testd>
+Expect: 7
+	ATOM	testa
+	ATOM	testb
+	SPECIAL	<
+	ATOM	testc
+	SPECIAL	@
+	ATOM	testd
+	SPECIAL	>
+To: Adam S Moskowitz <adamm@onion.inset.com>,
+        Andrew Gollan <adjg@softway.sw.OZ.AU>,
+        Bret Anthony Marquis <bam@trout.nosc.MIL>,
+        Bill Shannon <shannon@Sun.COM>, Bob Gray <rgray@UsWest.COM>,
+        Brian Ellis <bri@Boulder.Colorado.EDU>,
+        Don Coleman <coleman@legato.COM>,
+        Dennis Ritchie <dmr@research.ATT.COM>, Evi Nemeth <evi@Colorado.EDU>,
+        Lori Grob <grob@chorus.FR>, Paula Hawthorn <hawthorn@HPL.HP.COM>,
+        Andrew Hume <andrew@research.ATT.COM>,
+        Jaap Akkerhuis <jaap@research.ATT.COM>,
+        Jim R Oldroyd <jr@onion.inset.com>,
+        John Quarterman <jsq@longway.TIC.COM>,
+        Judy DesHarnais <judy@USENIX.ORG>, Karen Shannon <kas@Eng>,
+        Ken McDonell <kenj@Pyramid.COM>,
+        Rob Kolstad <kolstad@rmtc.Central.Sun.COM>,
+        Paul Kooros <kooros@tigger.cs.Colorado.EDU>,
+        Robert Elz <kre@Munnari.OZ.AU>,
+        Miriam Amos Nihart <miriam@decwet.enet.DEC.COM>,
+        "Mike O'Dell" <mo@gizmo.Bellcore.COM>,
+        Sharon Murrel <eowyn@research.ATT.COM>,
+        Peg Schafer <peg@media-lab.media.MIT.EDU>, Peter Salus <peter@SUG.ORG>,
+        Bill Shannon <shannon@Sun.COM>, Stu Feldman <sif@Bellcore.COM>,
+        Stephen Williams <stevew@netboss1.trg.saic.com>,
+        Teus Hagen <teus@oce.NL>, Trent Hein <trent@xor.COM>,
+        Thomas Alan Wood <twood@capmkt.COM>,
+        Michael Ubell <"mttam::ubell"@SFBay.ENet.DEC.COM>,
+        Martha Zimet <zimet@Corp>
+Expect: 275
+	ATOM	Adam
+	ATOM	S
+	ATOM	Moskowitz
+	SPECIAL	<
+	ATOM	adamm
+	SPECIAL	@
+	ATOM	onion.inset.com
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Andrew
+	ATOM	Gollan
+	SPECIAL	<
+	ATOM	adjg
+	SPECIAL	@
+	ATOM	softway.sw.OZ.AU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Bret
+	ATOM	Anthony
+	ATOM	Marquis
+	SPECIAL	<
+	ATOM	bam
+	SPECIAL	@
+	ATOM	trout.nosc.MIL
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Bill
+	ATOM	Shannon
+	SPECIAL	<
+	ATOM	shannon
+	SPECIAL	@
+	ATOM	Sun.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Bob
+	ATOM	Gray
+	SPECIAL	<
+	ATOM	rgray
+	SPECIAL	@
+	ATOM	UsWest.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Brian
+	ATOM	Ellis
+	SPECIAL	<
+	ATOM	bri
+	SPECIAL	@
+	ATOM	Boulder.Colorado.EDU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Don
+	ATOM	Coleman
+	SPECIAL	<
+	ATOM	coleman
+	SPECIAL	@
+	ATOM	legato.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Dennis
+	ATOM	Ritchie
+	SPECIAL	<
+	ATOM	dmr
+	SPECIAL	@
+	ATOM	research.ATT.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Evi
+	ATOM	Nemeth
+	SPECIAL	<
+	ATOM	evi
+	SPECIAL	@
+	ATOM	Colorado.EDU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Lori
+	ATOM	Grob
+	SPECIAL	<
+	ATOM	grob
+	SPECIAL	@
+	ATOM	chorus.FR
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Paula
+	ATOM	Hawthorn
+	SPECIAL	<
+	ATOM	hawthorn
+	SPECIAL	@
+	ATOM	HPL.HP.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Andrew
+	ATOM	Hume
+	SPECIAL	<
+	ATOM	andrew
+	SPECIAL	@
+	ATOM	research.ATT.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Jaap
+	ATOM	Akkerhuis
+	SPECIAL	<
+	ATOM	jaap
+	SPECIAL	@
+	ATOM	research.ATT.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Jim
+	ATOM	R
+	ATOM	Oldroyd
+	SPECIAL	<
+	ATOM	jr
+	SPECIAL	@
+	ATOM	onion.inset.com
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	John
+	ATOM	Quarterman
+	SPECIAL	<
+	ATOM	jsq
+	SPECIAL	@
+	ATOM	longway.TIC.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Judy
+	ATOM	DesHarnais
+	SPECIAL	<
+	ATOM	judy
+	SPECIAL	@
+	ATOM	USENIX.ORG
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Karen
+	ATOM	Shannon
+	SPECIAL	<
+	ATOM	kas
+	SPECIAL	@
+	ATOM	Eng
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Ken
+	ATOM	McDonell
+	SPECIAL	<
+	ATOM	kenj
+	SPECIAL	@
+	ATOM	Pyramid.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Rob
+	ATOM	Kolstad
+	SPECIAL	<
+	ATOM	kolstad
+	SPECIAL	@
+	ATOM	rmtc.Central.Sun.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Paul
+	ATOM	Kooros
+	SPECIAL	<
+	ATOM	kooros
+	SPECIAL	@
+	ATOM	tigger.cs.Colorado.EDU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Robert
+	ATOM	Elz
+	SPECIAL	<
+	ATOM	kre
+	SPECIAL	@
+	ATOM	Munnari.OZ.AU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Miriam
+	ATOM	Amos
+	ATOM	Nihart
+	SPECIAL	<
+	ATOM	miriam
+	SPECIAL	@
+	ATOM	decwet.enet.DEC.COM
+	SPECIAL	>
+	SPECIAL	,
+	QUOTEDSTRING	Mike O'Dell
+	SPECIAL	<
+	ATOM	mo
+	SPECIAL	@
+	ATOM	gizmo.Bellcore.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Sharon
+	ATOM	Murrel
+	SPECIAL	<
+	ATOM	eowyn
+	SPECIAL	@
+	ATOM	research.ATT.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Peg
+	ATOM	Schafer
+	SPECIAL	<
+	ATOM	peg
+	SPECIAL	@
+	ATOM	media-lab.media.MIT.EDU
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Peter
+	ATOM	Salus
+	SPECIAL	<
+	ATOM	peter
+	SPECIAL	@
+	ATOM	SUG.ORG
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Bill
+	ATOM	Shannon
+	SPECIAL	<
+	ATOM	shannon
+	SPECIAL	@
+	ATOM	Sun.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Stu
+	ATOM	Feldman
+	SPECIAL	<
+	ATOM	sif
+	SPECIAL	@
+	ATOM	Bellcore.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Stephen
+	ATOM	Williams
+	SPECIAL	<
+	ATOM	stevew
+	SPECIAL	@
+	ATOM	netboss1.trg.saic.com
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Teus
+	ATOM	Hagen
+	SPECIAL	<
+	ATOM	teus
+	SPECIAL	@
+	ATOM	oce.NL
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Trent
+	ATOM	Hein
+	SPECIAL	<
+	ATOM	trent
+	SPECIAL	@
+	ATOM	xor.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Thomas
+	ATOM	Alan
+	ATOM	Wood
+	SPECIAL	<
+	ATOM	twood
+	SPECIAL	@
+	ATOM	capmkt.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Michael
+	ATOM	Ubell
+	SPECIAL	<
+	QUOTEDSTRING	mttam::ubell
+	SPECIAL	@
+	ATOM	SFBay.ENet.DEC.COM
+	SPECIAL	>
+	SPECIAL	,
+	ATOM	Martha
+	ATOM	Zimet
+	SPECIAL	<
+	ATOM	zimet
+	SPECIAL	@
+	ATOM	Corp
+	SPECIAL	>
+To: '"a,b"'
+Expect: 3
+	ATOM	'
+	QUOTEDSTRING	a,b
+	ATOM	'
+To: 'a, b'
+Expect: 3
+	ATOM	'a
+	SPECIAL	,
+	ATOM	b'
+To: "a,b"
+Expect: 1
+	QUOTEDSTRING	a,b
+To: shakey!"a,b"
+Expect: 2
+	ATOM	shakey!
+	QUOTEDSTRING	a,b
+To: "foo bar"
+Expect: 1
+	QUOTEDSTRING	foo bar
+To: (Foo Bar) foo@bar
+Expect: 3
+	ATOM	foo
+	SPECIAL	@
+	ATOM	bar
+To: (Foo Bar) foo@bar, (My Name) my@name
+Expect: 7
+	ATOM	foo
+	SPECIAL	@
+	ATOM	bar
+	SPECIAL	,
+	ATOM	my
+	SPECIAL	@
+	ATOM	name
+To: ,
+Expect: 1
+	SPECIAL	,
+To: "C'est bien moche" <paris@france
+Expect: 5
+	QUOTEDSTRING	C'est bien moche
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+To: "C'est bien moche" paris@france>
+Expect: 5
+	QUOTEDSTRING	C'est bien moche
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+	SPECIAL	>
+To: "C'est bien moche" <paris@>
+Expect: 5
+	QUOTEDSTRING	C'est bien moche
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	SPECIAL	>
+To: laborious but (Bug Free)
+Expect: 2
+	ATOM	laborious
+	ATOM	but
+To: two@ (It Will Take)
+Expect: 2
+	ATOM	two
+	SPECIAL	@
+To: two@
+Expect: 2
+	ATOM	two
+	SPECIAL	@
+To: <paris@france
+Expect: 4
+	SPECIAL	<
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+To: paris@france>
+Expect: 4
+	ATOM	paris
+	SPECIAL	@
+	ATOM	france
+	SPECIAL	>
+To: @france
+Expect: 2
+	SPECIAL	@
+	ATOM	france
+To: @
+Expect: 1
+	SPECIAL	@
+To: <
+Expect: 1
+	SPECIAL	<
+To: >
+Expect: 1
+	SPECIAL	>
+Comment:
+	I'm not sure the following should be valid.
+To: )
+Expect: 1
+	ATOM	)
+To: friends-list:;@mastodon.CS.Berkeley.EDU
+Expect: 5
+	ATOM	friends-list
+	SPECIAL	:
+	SPECIAL	;
+	SPECIAL	@
+	ATOM	mastodon.CS.Berkeley.EDU
+Comment:
+	The following should all generate exceptions.
+To: "C'est bien moche <paris@france>
+Expect: Exception javax.mail.internet.ParseException: Unbalanced quoted string
+To: confused (about, being, french
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: it@is (brilliant (genius, and superb)
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: it@is (brilliant (genius), and superb
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: if@you (could, see (almost, as, (badly, you would) agree)
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: if@you (could, see (almost, as, (badly, you) would) agree
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: "
+Expect: Exception javax.mail.internet.ParseException: Unbalanced quoted string
+To: two@weeks (It Will Take
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments
+To: (
+Expect: Exception javax.mail.internet.ParseException: Unbalanced comments

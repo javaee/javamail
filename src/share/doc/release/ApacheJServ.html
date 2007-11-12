@@ -1,0 +1,80 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="JavaSoftware">
+   <meta name="GENERATOR" content="Mozilla/4.61 [en] (WinNT; U) [Netscape]">
+   <title>ApacheJServ</title>
+</head>
+<body>
+If you don't already have Apache web server and Apache JServ
+module installed and running,
+<br>you'll need to download them from the&nbsp; <a href="http://www.apache.org">Apache
+Software Foundation</a>&nbsp; and install them. We
+<br>were able to find binary versions of Apache web server for both the
+Solaris and Windows NT
+<br>operating systems, and Apache JServ 1.1.2 for Windows NT. However,
+for Solaris,
+<br>Apache JServ needed to be built from the source.
+<p>(on Solaris)
+<blockquote>Apache Web Server 1.3.9 (<a href="http://httpd.apache.org/dist/binaries/">binary</a>)
+<br>Apache JServ 1.1.2 (built from <a href="http://java.apache.org/">source</a>)</blockquote>
+(on NT)
+<blockquote>Apache Web Server&nbsp; 1.3.14 (<a href="http://httpd.apache.org/dist/binaries/">binary</a>)
+<br>Apache JServ 1.1.2 (<a href="http://java.apache.org/">binary</a>)</blockquote>
+To run the JavaMailServlet, you must add the JavaMail and JavaBeans Activation
+Framework
+<br>jar files to the web server's system classpath. Apache JServ also requires
+that the
+<br>Java Servlet Development Kit&nbsp; 2.0 (<a href="http://java.sun.com/products/servlet/archive.html">JSDK2.0</a>)
+is installed and also added to the web server's
+<br>system classpath. JSDK2.0 is a reference implementation of the Servlet
+API Specification Version 2.0.
+<p>When running Apache JServ in automatic mode, add wrapper.classpath properties
+for each
+<br>of these jar files to the servlet engine's propeties file. The default
+engine properties file is
+<br>jserv.properties and is usually found in Apache JServ's 'conf' directory.
+Wrapper properties
+<br>are used to automatically start the servlet engine.
+<p>(on Solaris)
+<blockquote>wrapper.classpath=/files/java/lib/JSDK2.0/lib/jsdk.jar
+<br>wrapper.classpath=/files/java/lib/javamail-1.2/mail.jar
+<br>wrapper.classpath=/files/java/lib/jaf-1.0.1/activation.jar</blockquote>
+(on NT)
+<blockquote>wrapper.classpath=d:\java\lib\jsdk2.0\lib\jsdk.jar
+<br>wrapper.classpath=d:\java\lib\javamail-1.2\mail.jar
+<br>wrapper.classpath=d:\java\lib\jaf-1.0.1\activation.jar</blockquote>
+When running Apache JServ in manual mode, add these jar files to the CLASSPATH
+<br>environment variable (this is documented in the JavaMail README file
+and additional
+<br>Windows NT information is provided <a href="classpath-NT.html">here</a>).
+<p>Once this is done, restart the web server.
+<br>&nbsp;
+<p>Additional Notes
+<blockquote>One thing to watch out for is how the web server is referenced
+when using the
+<br>JavaMailServlet on this web server.&nbsp; It is important to use the
+configured server
+<br>name (i.e. the name assigned with the ServerName directive) in the
+URL. If the
+<br>configured server name includes a domain, it must be referenced including
+the
+<br>domain, even if the JavaMail.html page can be accessed without it.
+<p>For example, Apache is configured with the ServerName set to 'shadygrove'.
+If the JavaMail demo is referenced by:
+<p>&nbsp;&nbsp;&nbsp; http://shadygrove.east/example/JavaMail.html
+<p>and the initail reference to the JavaMailServlet being:
+<p>&nbsp;&nbsp;&nbsp; http://shadygrove.east/example/JavaMailServlet
+<p>the user is successfully logged in. However, when an attempt is made
+to access the INBOX, the user is instructed to login because there is no
+current session. When this occurs, note that the URL referencing the JavaMailServlet
+no longer contains the domain originally used but the configured ServerName.
+<p>&nbsp;&nbsp;&nbsp; http://shadygrove/example/JavaMailServlet
+<br>&nbsp;
+<p>Also note that Apache JServ does not use a SecurityManager or enforce
+any Java
+<br>security policy.</blockquote>
+
+</body>
+</html>

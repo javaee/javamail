@@ -1,0 +1,97 @@
+Comment:
+        .
+        A set of test headers to test parameter list parsing and
+	especially RFC 2231 decoding.
+        Use with "paramtest -p <paramdata".
+	.
+	All tests assume "mail.mime.decodeparameters" is set to "true",
+	which is done at the start of paramtest.
+        .
+        CAREFUL: a blank line in this file causes everything following it
+                 to be ignored until a line starting with "From " (so that
+                 paramtest -p can be pointed at a real mailbox).
+Comment:
+	This set of headers are all good and test RFC 2231 decoding.
+Content-Type: application/x-stuff;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	title*2="isn't it!"
+Expect: 1
+	title=This is even more ***fun*** isn't it!
+Content-Type: application/x-stuff;
+	title*2="isn't it!";
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	title*0*=us-ascii'en'This%20is%20even%20more%20
+Expect: 1
+	title=This is even more ***fun*** isn't it!
+Content-Type: application/x-stuff;
+	title*2="isn't it!";
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	name*0="one ";
+	name*1="two ";
+	name*2="three";
+	p*=us-ascii'en'This%20is%20fun;
+Expect: 3
+	title=This is even more ***fun*** isn't it!
+	name=one two three
+	p=This is fun
+Content-Type: application/x-stuff;
+	title*2="isn't it!";
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	name*0="one ";
+	name*1="two ";
+	name*2="three";
+	p*=us-ascii'en'This%20is%20fun
+Expect: 3
+	title=This is even more ***fun*** isn't it!
+	name=one two three
+	p=This is fun
+Content-Type: application/x-stuff;
+	title*2="isn't it!";
+	name*1="two ";
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	name*0="one ";
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	name*2="three";
+	p*=us-ascii'en'This%20is%20fun
+Expect: 3
+	title=This is even more ***fun*** isn't it!
+	name=one two three
+	p=This is fun
+Comment:
+	These headers test error cases that don't generate parse exceptions.
+	.
+Content-Type: application/x-stuff;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	title*1*=%2A%2A%2Afun%2A%2A%2A;
+	title*3="isn't it!"
+Expect: 2
+	title=This is even more ***fun***
+	title*3=isn't it!
+Content-Type: application/x-stuff;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	title*1*=%2A%2A%2Afun%2A%2A%2A;
+	title*3*="isn't it!"
+Expect: 2
+	title=This is even more ***fun***
+	title*3=isn't it!
+Content-Type: application/x-stuff; title*3*=us-ascii'en'isn't%20it!
+Expect: 1
+	title*3=isn't it!
+Content-Type: application/x-stuff; title*3*=unknown'en'isn't%20it!
+Expect: 1
+	title*3=unknown'en'isn't%20it!
+Content-Type: application/x-stuff;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	title*1*=%XX%2A%2Afun%2A%2A%2A%20;
+	title*2="isn't it!"
+Expect: 1
+	title=This is even more %XX%2A%2Afun%2A%2A%2A%20isn't it!
+Content-Type: application/x-stuff;
+	title*0*=us-ascii'en'This%20is%20even%20more%20;
+	title*1="***fun***";
+	title*2*=%20isn't%20it!
+Expect: 1
+	title=This is even more ***fun*** isn't it!

@@ -1,0 +1,12 @@
+#
+#
+FILES_java = \
+	demo/AttachmentInfo.java \
+	demo/ListAttachmentsTEI.java \
+	demo/ListAttachmentsTag.java \
+	demo/ListMessagesTEI.java \
+	demo/ListMessagesTag.java \
+	demo/MessageInfo.java \
+	demo/MessageTEI.java \
+	demo/MessageTag.java \
+	demo/SendTag.java

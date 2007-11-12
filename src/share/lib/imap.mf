@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Extension-Name: com.sun.mail.imap
+Specification-Title: com.sun.mail.imap
+Specification-Version: %RELEASE%
+Specification-Vendor: Sun Microsystems, Inc.
+Implementation-Title: com.sun.mail.imap
+Implementation-Version: %RELEASE%
+Implementation-Vendor: Sun Microsystems, Inc.
+Implementation-Vendor-Id: com.sun

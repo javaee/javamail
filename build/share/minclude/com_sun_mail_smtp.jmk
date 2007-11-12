@@ -1,0 +1,11 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/smtp/DigestMD5.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPMessage.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPOutputStream.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPAddressFailedException.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPAddressSucceededException.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPSendFailedException.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPSSLTransport.java \
+	$(TARGDIR)com/sun/mail/smtp/SMTPTransport.java

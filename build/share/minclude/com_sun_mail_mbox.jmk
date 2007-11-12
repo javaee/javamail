@@ -1,0 +1,22 @@
+#
+#
+FILES_java = \
+	$(TARGDIR)com/sun/mail/mbox/ContentLengthCounter.java \
+	$(TARGDIR)com/sun/mail/mbox/ContentLengthUpdater.java \
+	$(TARGDIR)com/sun/mail/mbox/DefaultMailbox.java \
+	$(TARGDIR)com/sun/mail/mbox/FileInterface.java \
+	$(TARGDIR)com/sun/mail/mbox/InboxFile.java \
+	$(TARGDIR)com/sun/mail/mbox/LineCounter.java \
+	$(TARGDIR)com/sun/mail/mbox/MailFile.java \
+	$(TARGDIR)com/sun/mail/mbox/Mailbox.java \
+	$(TARGDIR)com/sun/mail/mbox/MboxFolder.java \
+	$(TARGDIR)com/sun/mail/mbox/MboxMessage.java \
+	$(TARGDIR)com/sun/mail/mbox/MboxStore.java \
+	$(TARGDIR)com/sun/mail/mbox/NewlineOutputStream.java \
+	$(TARGDIR)com/sun/mail/mbox/SolarisMailbox.java \
+	$(TARGDIR)com/sun/mail/mbox/SunOSMailbox.java \
+	$(TARGDIR)com/sun/mail/mbox/SunV3BodyPart.java \
+	$(TARGDIR)com/sun/mail/mbox/SunV3Multipart.java \
+	$(TARGDIR)com/sun/mail/mbox/UNIXFile.java \
+	$(TARGDIR)com/sun/mail/mbox/UNIXFolder.java \
+	$(TARGDIR)com/sun/mail/mbox/UNIXInbox.java

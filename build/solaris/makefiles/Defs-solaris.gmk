@@ -1,0 +1,194 @@
+#
+#
+# Makefile to specify compiler flags for programs and libraries
+# targeted to Solaris.  Should not contain any rules.
+#
+
+ARCH = $(shell uname -p)
+OS_VERSION = $(shell uname -r)
+
+WHOAMI=/usr/ucb/whoami
+ZIP=/usr/dist/local/exe/zip
+
+# This default is redefined during a release build.
+RELEASE = $(shell echo `$(WHOAMI)`:`date '+%m/%d/%y-%H:%M'`)
+FULL_VERSION = $(shell echo `$(WHOAMI)`:`date '+%m/%d/%y-%H:%M'`)
+
+## Section 1:	Define CC, CPP, AS and LD flags.
+
+# If -Xa is in CFLAGS_COMMON it will end up ahead of $(POPT) for the
+# optimized build, and that ordering of the flags completely freaks
+# out cc.  Hence, -Xa is instead in each CFLAGS variant.
+
+ifneq ($(CC_VERSION), gcc)
+CFLAGS_COMMON   = -v
+CFLAGS_OPT      = -Xa $(POPT)
+CFLAGS_DBG      = -Xa -g
+else
+CFLAGS_COMMON   = 
+CFLAGS_OPT      = $(POPT)
+CFLAGS_DBG      = -g
+endif
+
+# Java memory management is based on memory mapping by default, but a
+# system only assuming malloc/free can be built by adding -DUSE_MALLOC 
+
+ifneq ($(CC_VERSION), gcc)
+CPPFLAGS_COMMON = -D$(ARCH) -DSOLARIS2 -DRELEASE='"$(RELEASE)"' -DFULL_VERSION='"$(FULL_VERSION)"'
+else
+CPPFLAGS_COMMON = -D$(ARCH) -DHAVE_ALIGNED_LONGLONGS -DHAVE_ALIGNED_DOUBLES -DSOLARIS2 -DRELEASE='"$(RELEASE)"' -DFULL_VERSION='"$(FULL_VERSION)"'
+endif
+# [sbb] int32 scaffolding -- to be removed
+CPPFLAGS_COMMON += $(USE_INT32) 
+CPPFLAGS_OPT    = 
+CPPFLAGS_DBG    = -DDEBUG
+
+ASFLAGS_COMMON  = -P
+ASFLAGS_OPT     =
+ASFLAGS_DBG     =
+
+ifneq ($(LIBRARY),JdbcOdbc)
+LDFLAGS_COMMON  = -z defs
+else
+LDFLAGS_COMMON  =
+endif
+LDFLAGS_OPT     =
+LDFLAGS_DBG     =
+
+#
+# All libraries except libjava and libjvm itself link against libjvm
+# and libjava, the latter for its exported common utilities.  libjava
+# only links against libjvm.  Programs' makefiles take their own 
+# responsibility for adding other libs.
+#
+ifdef LIBRARY
+LDLIBS_COMMON   =
+ifneq ($(LIBRARY),jvm)
+ifneq ($(LIBRARY),java)
+# no libjvm in JDK 1.1
+#LDLIBS_OPT     = -L$(LIB_LOCATION) -ljvm -ljava
+#LDLIBS_DBG     = -L$(LIB_LOCATION) -ljvm_g -ljava_g
+LDLIBS_OPT     = -L$(LIB_LOCATION) -ljava
+# XXX LDLIBS_DBG     = -L$(LIB_LOCATION) -ljava_g
+LDLIBS_DBG     = -L$(LIB_LOCATION) -ljava
+else
+LDLIBS_OPT     = -L$(LIB_LOCATION) -ljvm
+LDLIBS_DBG     = -L$(LIB_LOCATION) -ljvm_g
+endif
+endif
+endif
+
+## Section 2:	Variables globally settable from the make
+##       	command line (default values in brackets):
+##		THREADS_FLAG (native), GPROF (false), JCOV (true).
+##		Eg: 	% gnumake THREADS_FLAG=green
+
+THREADS_FLAG=green
+
+ifdef LIBRARY
+ifeq ($(LIBRARY), jvm)
+# do nothing
+else
+ifeq ($(LIBRARY), agent)
+# do nothing
+else
+BUILD_REENTRANT_LIBS = true
+endif
+endif
+endif
+
+ifeq ($(JDKVERSION), 1.1)
+LDFLAGS_COMMON = -L$(JDK_LIBDIR)/$(ARCH)/$(THREADS_FLAG)_threads
+else
+LDFLAGS_COMMON = -L$(JDK_LIBDIR)/$(ARCH)
+endif
+ifdef BUILD_REENTRANT_LIBS
+CFLAGS_COMMON   += -D_REENTRANT
+ifeq ($(JDKVERSION), 1.1)
+#LDFLAGS_COMMON += -L$(LIBDIR)/$(ARCH)/$(THREADS_FLAG)_threads
+LDFLAGS_COMMON += -L$(LIBDIR)/$(ARCH)/$(TSOBJDIR)
+else
+LDFLAGS_COMMON += -L$(LIBDIR)/$(ARCH)
+endif
+else
+ifeq ($(THREADS_FLAG), native)
+    CFLAGS_COMMON   += -D_REENTRANT -DNATIVE
+    # Even though libjava.so is linked with -lthread, this makes sure that
+    # the executable sees libthread definitions of thr_* functions before
+    # libc definitions.  Starting in 2.5.1 the libc functions "do the
+    # right thing" when linked before libthread, but there is at least
+    # one bug in thr_stksegment that prevents it from working.  The
+    # following line could go away if we decide not to support Solaris
+    # releases prior to 2.5.1 *and* the libc thread stubs get fixed.
+    # Dean Long 3/24/97:
+    LDLIBS_COMMON   += -lthread
+endif
+endif
+
+GPROF = false
+ifeq ($(GPROF), true)
+    CFLAGS_COMMON += -DGPROF -xpg
+    LDLIBS_COMMON += -xpg
+endif
+
+JCOV = true
+ifeq ($(JCOV), true)
+ifeq ($(VARIANT), DBG)
+    CFLAGS_COMMON += -DJCOV
+endif
+endif
+
+ifdef LIBRARY
+    LDLIBS_COMMON += -lc
+endif
+
+
+## Section 3:	Are we building some piece of the runtime?
+
+# Java default optimization -x04
+ifeq ($(PRODUCT), java)
+ifneq ($(CC_VERSION), gcc)
+    _OPT = -xO4
+else
+    _OPT = -O3
+endif
+    CPPFLAGS_DBG    += -DLOGGING 
+    ASFLAGS_COMMON  += -D_ASM
+endif
+
+
+## Section 4:   Was your answer to Section 3 no?
+
+# Non-runtime default optimization -x02
+ifneq ($(PRODUCT), java)
+ifneq ($(CC_VERSION), gcc)
+    _OPT = -xO2
+else
+    _OPT = -O2
+endif
+endif
+
+
+## Section 5:	Tools
+
+ifneq ($(CC_VERSION), gcc)
+CC      = cc
+CPP     = cc -E
+CXX	= CC
+else
+CC      = gcc
+CPP     = gcc -E
+CXX	= g++
+endif
+
+AS	= as
+LD	= /usr/ccs/bin/ld
+OPENWINHOME = /usr/openwin
+LIBRARY_SUFFIX = so
+
+# SunSoft JIT
+ifneq ($(PRODUCT), java)
+ifeq ($(BUILD_USES_JIT), true)
+    JIT_OPTION=-Djava.compiler=sunwjit
+endif
+endif
