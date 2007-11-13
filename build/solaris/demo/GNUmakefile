@@ -19,10 +19,7 @@ include $(TOPDIR)/build/$(PLATFORM)/makefiles/Defs.gmk
 
 include $(MINCLUDES)demo.jmk
 
-all :: classes shellscripts
-
-shellscripts ::
-	chmod a+x $(TOPDIR)/src/share/classes/demo/client/simpleclient
+all :: classes
 
 clean clobber :: classes.clean
 
