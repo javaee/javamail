@@ -132,7 +132,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
 	}
 
 	// do bulk encoding a line at a time.
-	for (; off + lineLimit < end; off += lineLimit)
+	for (; off + lineLimit <= end; off += lineLimit)
 	    out.write(encode(b, off, lineLimit, outbuf));
 
 	// handle remaining partial line

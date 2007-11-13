@@ -4,6 +4,13 @@ Bug Database and looking up each bug you're interested in.
 	http://bugs.sun.com
 
 
+		  CHANGES IN THE 1.4.2 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.4.2 release.
+
+6629213	base64 encoder sometimes omits CRLF
+
+
 		  CHANGES IN THE 1.4.1 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.1 release.
