@@ -1,5 +1,0 @@
-#
-#
-FILES_c = \
-	$(TARGDIR)UNIXFile.c \
-	$(TARGDIR)UNIXInbox.c

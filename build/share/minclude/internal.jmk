@@ -1,7 +1,0 @@
-#
-#
-FILES_java = \
-        $(TARGDIR)TtyAuthenticator.java \
-        $(TARGDIR)answer.java \
-        $(TARGDIR)foldersplit.java \
-	$(TARGDIR)msgsperweek.java

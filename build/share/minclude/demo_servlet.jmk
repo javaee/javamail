@@ -1,4 +1,0 @@
-#
-#
-FILES_java = \
-	$(TARGDIR)JavaMailServlet.java

@@ -1,7 +1,7 @@
-^dist/
+^target/
+/target/
 ^nbproject/private/
-^src/share/doc/api/javadocs/
-^src/share/classes/javax/mail/Version\.java$
+^src/main/java/javax/mail/Version\.java$
 ^build/solaris/release/
 ^build/solaris/classes/
 ^build/solaris/demo_classes/

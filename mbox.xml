@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+ The contents of this file are subject to the terms
+ of the Common Development and Distribution License
+ (the "License").  You may not use this file except
+ in compliance with the License.
+
+ You can obtain a copy of the license at
+ glassfish/bootstrap/legal/CDDLv1.0.txt or
+ https://glassfish.dev.java.net/public/CDDLv1.0.html.
+ See the License for the specific language governing
+ permissions and limitations under the License.
+
+ When distributing Covered Code, include this CDDL
+ HEADER in each file and include the License file at
+ glassfish/bootstrap/legal/CDDLv1.0.txt.  If applicable,
+ add the following below this CDDL HEADER, with the
+ fields enclosed by brackets "[]" replaced with your
+ own identifying information: Portions Copyright [yyyy]
+ [name of copyright owner]
+-->
+<!DOCTYPE project [
+  <!ENTITY commonBuild SYSTEM "ant-common.xml">
+]>
+<project name="JavaMail" default="all" basedir="."
+	xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks">
+
+    <taskdef resource="cpptasks.tasks"/>
+    <typedef resource="cpptasks.types"/>
+
+<!-- ========== Initialize Properties =================================== -->
+
+    <!--
+        component.name: required property.  the value should be the
+                        name of the component directory
+    -->
+    <property name="component.name" value="mbox"/>
+
+    <property file="./build.properties"/>
+
+    <property name="cc.debug" value="false"/>
+    <property name="generated.dir" value="target/generated"/>
+    <property name="obj.dir" value="target/native/${os.name}-${os.arch}"/>
+    <property name="lib.dir" value="target/lib/${os.name}-${os.arch}"/>
+    <condition property="is-solaris">
+	<os name="SunOS"/>
+    </condition>
+    
+    &commonBuild;
+
+    <!-- all -->
+    <target name="all" depends="mboxcompile, mboxcc, mboxjar"
+            description="Build entire mbox component">
+    </target>
+
+    <!-- build -->
+    <target name="build" depends="mboxcompile, mboxcc, mboxjar"
+            description="Build entire mbox component">
+    </target>
+
+    <!-- init. Initialization involves creating publishing directories and
+         OS specific targets. -->
+    <target name="init" description="${component.name} initialization">
+        <tstamp>
+            <format property="start.time" pattern="MM/dd/yyyy hh:mm aa"/>
+        </tstamp>
+        <echo message="Building component ${component.name}"/>
+        <mkdir dir="${component.classes.mbox.dir}"/>
+        <mkdir dir="${generated.dir}"/>
+        <mkdir dir="${obj.dir}"/>
+        <mkdir dir="${lib.dir}"/>
+    </target>
+
+    <!-- prepare manifest files for jars -->
+    <target name="cook-manifest" depends="init"
+            description="Generate MANIFEST.MF files">
+        <mkdir dir="${basedir}/target/manifest"/>
+        <copy todir="${basedir}/target/manifest">
+            <fileset dir="${resources.dir}/META-INF" includes="*.mf" />
+            <filterset>
+                <filter token="SPECVERSION" value="${release.specversion}"/>
+                <filter token="VERSION" value="${release.version}"/>
+            </filterset>
+        </copy>
+    </target>
+
+    <!-- mbox compile -->
+    <target name="mboxcompile" depends="init"
+            description="Compile com/sun/mail/mbox sources">
+
+        <javac srcdir="${src.dir}"
+               destdir="${component.classes.mbox.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               target="${javac.target}">
+            <classpath>
+                <pathelement location="${component.classes.dir}"/>
+                <pathelement location="${activation.jar}"/>
+                <pathelement location="${javaee.jar}"/>
+            </classpath>
+            <include name="com/sun/mail/mbox/**"/>
+        </javac>
+    </target>
+
+    <target name="mboxheaders" depends="mboxcompile">
+	<javah destdir="${generated.dir}"
+		force="yes"
+		verbose="yes"
+		classpath="${component.classes.dir}">
+            <class name="com.sun.mail.mbox.UNIXFile"/>
+            <class name="com.sun.mail.mbox.UNIXInbox"/>
+	</javah>
+    </target>
+
+    <target name="mboxcc" depends="mboxheaders, mboxcc-solaris"/>
+
+    <!--
+    make-based build uses these compiler and linker options:
+
+    cc -Xa -xO2 -v -D_REENTRANT   -Dsparc -DSOLARIS2 
+
+    cc -G -o ../../../../../../build/solaris/lib/sparc/libmbox.so 
+	    obj/sparc/./UNIXFile.o obj/sparc/./UNIXInbox.o    
+	    -L/java/re/jdk/1.4/archive/fcs/binaries/solsparc/jre/lib/sparc 
+	    -L../../../../../../build/solaris/lib/sparc  
+	    -lmail 
+	    -L../../../../../../build/solaris/lib/sparc 
+	    -ljava  
+	    -lc
+    -->
+
+    <target name="mboxcc-solaris" depends="mboxheaders" if="is-solaris">
+	<cc debug="${cc.debug}"
+		link="shared"
+		outfile="${lib.dir}/mbox"
+		objdir="${obj.dir}">
+	    <compiler name="sunc89"/>
+	    <fileset dir="src/main/cpp" includes="**/*.c"/>
+	    <includepath location="${generated.dir}"/>
+	    <sysincludepath location="${java.home}/../include"/>
+	    <sysincludepath location="${java.home}/../include/solaris"/>
+	    <defineset>
+		<define name="_REENTRANT"/>
+		<!-- I don't think these are needed
+		<define name="sparc"/>
+		<define name="SOLARIS2"/>
+		-->
+	    </defineset>
+	    <compilerarg value="-Xa"/>
+	    <compilerarg value="-xO2"/>
+	    <linker name="sunc89">
+		<syslibset libs="mail,java,c"/>
+	    </linker>
+	</cc>
+    </target>
+
+    <target name="clean" description="Clean the build">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${component.classes.dir}"/>
+        </delete>
+    </target>
+
+    <!-- JavaMail bundle build targets -->
+
+    <target name="mboxrelease" depends="init, mboxjar, mboxcc">
+        <property name="mbox.zip" value="mbox.zip"/>
+        <delete file="${basedir}/${mbox.zip}"/>
+        <echo message="Creating JavaMail bundle ${basedir}/${mbox.zip}"/>
+        <zip destfile="${basedir}/${mbox.zip}">
+	    <zipfileset dir="${component.classes.dir}/META-INF" prefix="mbox"
+                     includes="LICENSE.txt"/>
+	    <zipfileset dir="${release.dir}/lib" prefix="mbox"
+		    includes="mbox.jar"/>
+            <zipfileset dir="${lib.dir}/.." prefix="mbox/lib"
+		    includes="**/*.so"/>
+        </zip>
+    </target>
+
+     <target name="mboxjar" depends="init, mboxcompile, cook-manifest">
+        <mkdir dir="${release.dir}/lib"/>
+        <jar jarfile="${release.mbox.jar}"
+		manifest="${basedir}/target/manifest/mbox.mf">
+            <metainf dir="${basedir}" includes="LICENSE.txt"/>
+            <fileset dir="${component.classes.dir}">
+                <include name="com/sun/mail/mbox/*.class"/>
+                <include name="com/sun/mail/mbox/mailcap"/>
+            </fileset>
+        </jar>
+     </target>
+
+    <target name="push-to-maven-prepare" depends="-push-to-maven-init, mboxjar"
+        description="creates an image for the 'push-to-maven' goal">
+        <delete dir="target/maven-repo" /><!-- clean it -->
+        <maven-repository-importer destdir="target/maven-repo"
+		version="${release.version}">
+            <artifact jar="target/release/mbox.jar" pom="mbox.pom"
+		    srczip="target/mbox.src.zip" />
+        </maven-repository-importer>
+    </target>
+
+    <target name="push-to-maven" depends="push-to-maven-prepare"
+        description="pushes jars to the java.net maven repository">
+        <cvs-import src="target/maven-repo" dest="glassfish/repo" />
+    </target>
+</project>
