@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>javax.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>${mail.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.mail</groupId>
+    <artifactId>dsn</artifactId>
+    <packaging>jar</packaging>
+    <version>${mail.version}</version>
+    <name>JavaMail API dsn support</name>
+    <description>JavaMail API dsn provider</description>
+    <url>http://java.sun.com/projects/javamail</url>
+
+    <build>
+        <plugins>
+	    <plugin>
+		<artifactId>maven-jar-plugin</artifactId>
+		<configuration>
+		    <archive>
+			<manifestFile>
+			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+			</manifestFile>
+		    </archive>
+		</configuration>
+	    </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+		<filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
+    </dependencies>
+</project>

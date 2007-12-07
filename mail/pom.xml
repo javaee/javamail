@@ -1,0 +1,77 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>javax.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>${mail.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.mail</groupId>
+    <artifactId>mail</artifactId>
+    <packaging>jar</packaging>
+    <version>${mail.version}</version>
+    <name>JavaMail API</name>
+    <description>JavaMail API</description>
+    <url>http://java.sun.com/projects/javamail</url>
+
+    <build>
+        <plugins>
+	    <!--
+		We use ant to copy the version template file and
+		expand the version string.
+	    -->
+	    <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+		    <execution>
+			<phase>process-sources</phase>
+			<configuration>
+			    <tasks>
+
+				<copy
+			file="src/main/java/javax/mail/Version.java.template"
+			toFile="src/main/java/javax/mail/Version.java">
+				    <filterset>
+					<filter token="VERSION"
+						  value="${mail.version}"/>
+				    </filterset>
+				</copy>
+
+			    </tasks>
+			</configuration>
+			<goals>
+			    <goal>run</goal>
+			</goals>
+		    </execution>
+                </executions>
+            </plugin>                                 
+
+	    <plugin>
+		<artifactId>maven-jar-plugin</artifactId>
+		<configuration>
+		    <archive>
+			<manifestFile>
+			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+			</manifestFile>
+		    </archive>
+		</configuration>
+	    </plugin>
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+		<filtering>true</filtering>
+<!--
+                <includes>
+                    <include>META-INF/javamail.charset.map</include>
+                    <include>META-INF/javamail.default.*</include>
+                    <include>META-INF/mailcap</include>
+                    <include>META-INF/MANIFEST.MF</include>
+                </includes>
+-->
+            </resource>
+        </resources>
+    </build>
+</project>

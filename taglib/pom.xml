@@ -1,0 +1,55 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>javax.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>${mail.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.mail</groupId>
+    <artifactId>taglib</artifactId>
+    <packaging>jar</packaging>
+    <version>${mail.version}</version>
+    <name>JavaMail API demo taglib</name>
+    <description>JavaMail API demo taglib</description>
+    <url>http://java.sun.com/projects/javamail</url>
+
+    <build>
+        <plugins>
+	    <plugin>
+		<artifactId>maven-jar-plugin</artifactId>
+		<configuration>
+		    <finalName>taglib</finalName>
+		    <!--
+		    <archive>
+			<manifestFile>
+			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
+			</manifestFile>
+		    </archive>
+		    -->
+		</configuration>
+	    </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.1</version>
+        </dependency>
+	<!-- XXX - javax.servlet.jsp should depend on this -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>2.5</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
+    </dependencies>
+</project>

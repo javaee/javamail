@@ -1,0 +1,171 @@
+<assembly>
+    <formats>
+	<format>zip</format>
+    </formats>
+    <baseDirectory>mail-${mail.version}</baseDirectory>
+    <moduleSets>
+	<!-- include LICENSE.txt from the legal module -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:legal</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/resources/META-INF</directory>
+			<outputDirectory></outputDirectory>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<!-- incude the main mail.jar file -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:mail</include>
+	    </includes>
+	    <binaries>
+		<includeDependencies>false</includeDependencies>
+		<unpack>false</unpack>
+	    </binaries>
+	</moduleSet>
+
+	<!-- incude jar files from these modules in the lib directory -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:mailapi</include>
+		<include>javax.mail:smtp</include>
+		<include>javax.mail:imap</include>
+		<include>javax.mail:pop3</include>
+		<include>javax.mail:dsn</include>
+		<include>javax.mail:mbox</include>
+	    </includes>
+	    <binaries>
+		<includeDependencies>false</includeDependencies>
+		<unpack>false</unpack>
+		<outputDirectory>lib</outputDirectory>
+	    </binaries>
+	</moduleSet>
+
+	<!-- include sources from the demo modules -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:demo</include>
+	    </includes>
+	    <sources>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<excludes>
+			    <exclude>internal/**</exclude>
+			</excludes>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:client</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<outputDirectory>demo/client</outputDirectory>
+			<excludes>
+			    <exclude>internal/**</exclude>
+			</excludes>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:servlet</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<outputDirectory>demo/servlet</outputDirectory>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:webapp</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<outputDirectory>demo/webapp/classes</outputDirectory>
+		    </fileSet>
+		    <fileSet>
+			<directory>src/main/webapp</directory>
+			<outputDirectory>demo/webapp/docroot</outputDirectory>
+		    </fileSet>
+		    <fileSet>
+			<directory></directory>
+			<outputDirectory>demo/webapp</outputDirectory>
+			<includes>
+			    <include>build.*</include>
+			    <include>webapp.README.txt</include>
+			</includes>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:taglib</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<outputDirectory>demo/webapp/taglib</outputDirectory>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+    </moduleSets>
+
+    <!-- include docs, specs, and javadocs -->
+    <fileSets>
+	<fileSet>
+	    <directory>doc/release</directory>
+	    <outputDirectory></outputDirectory>
+	    <includes>
+		<include>*.txt</include>
+	    </includes>
+	</fileSet>
+	<fileSet>
+	    <directory>doc/spec</directory>
+	    <outputDirectory>docs</outputDirectory>
+	</fileSet>
+	<fileSet>
+	    <!-- only works within Sun -->
+	    <directory>/net/anybodys.sfbay/export6/javamail/spec</directory>
+	    <outputDirectory>docs</outputDirectory>
+	    <includes>
+		<include>JavaMail-1.4.pdf</include>
+		<include>Providers.pdf</include>
+	    </includes>
+	</fileSet>
+	<fileSet>
+	    <directory>target/site/apidocs</directory>
+	    <outputDirectory>docs/javadocs</outputDirectory>
+	</fileSet>
+    </fileSets>
+</assembly>

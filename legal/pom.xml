@@ -1,0 +1,34 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>javax.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>${mail.version}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.mail</groupId>
+    <artifactId>legal</artifactId>
+    <packaging>jar</packaging>
+    <version>${mail.version}</version>
+    <name>JavaMail API license</name>
+    <description>JavaMail API license</description>
+    <url>http://java.sun.com/projects/javamail</url>
+
+    <build>
+	<plugins>
+	    <!-- Turn this into a lifecycle -->
+	    <plugin>      
+		<artifactId>maven-remote-resources-plugin</artifactId>        
+		<executions>
+		    <execution>
+			<goals>
+			    <goal>bundle</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
+	</plugins>
+    </build>
+</project>

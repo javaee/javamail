@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Extension-Name: javax.mail
+Specification-Title: JavaMail(TM) API Design Specification
+Specification-Version: ${mail.spec.version}
+Specification-Vendor: Sun Microsystems, Inc.
+Implementation-Title: javax.mail
+Implementation-Version: ${mail.version}
+Implementation-Vendor: Sun Microsystems, Inc.
+Implementation-Vendor-Id: com.sun
