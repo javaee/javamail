@@ -21,7 +21,7 @@
 	    <plugin>
 		<artifactId>maven-jar-plugin</artifactId>
 		<configuration>
-		    <finalName>taglib</finalName>
+		    <finalName>${project.artifactId}</finalName>
 		    <!--
 		    <archive>
 			<manifestFile>

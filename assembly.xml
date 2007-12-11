@@ -28,6 +28,9 @@
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
 		<unpack>false</unpack>
+		<outputFileNameMapping>
+		    ${artifactId}.${extension}
+		</outputFileNameMapping>
 	    </binaries>
 	</moduleSet>
 
@@ -45,6 +48,9 @@
 		<includeDependencies>false</includeDependencies>
 		<unpack>false</unpack>
 		<outputDirectory>lib</outputDirectory>
+		<outputFileNameMapping>
+		    ${artifactId}.${extension}
+		</outputFileNameMapping>
 	    </binaries>
 	</moduleSet>
 

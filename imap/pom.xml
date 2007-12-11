@@ -51,6 +51,7 @@
 	    <plugin>
 		<artifactId>maven-jar-plugin</artifactId>
 		<configuration>
+		    <finalName>${project.artifactId}</finalName>
 		    <archive>
 			<manifestFile>
 			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
