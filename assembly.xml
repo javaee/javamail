@@ -20,7 +20,7 @@
 	    </sources>
 	</moduleSet>
 
-	<!-- incude the main mail.jar file -->
+	<!-- include the main mail.jar file -->
 	<moduleSet>
 	    <includes>
 		<include>javax.mail:mail</include>
@@ -34,7 +34,7 @@
 	    </binaries>
 	</moduleSet>
 
-	<!-- incude jar files from these modules in the lib directory -->
+	<!-- include jar files from these modules in the lib directory -->
 	<moduleSet>
 	    <includes>
 		<include>javax.mail:mailapi</include>
@@ -113,11 +113,15 @@
 		<fileSets>
 		    <fileSet>
 			<directory>src/main/java</directory>
-			<outputDirectory>demo/webapp/classes</outputDirectory>
+			<outputDirectory>
+			    demo/webapp/src/classes
+			</outputDirectory>
 		    </fileSet>
 		    <fileSet>
 			<directory>src/main/webapp</directory>
-			<outputDirectory>demo/webapp/docroot</outputDirectory>
+			<outputDirectory>
+			    demo/webapp/src/docroot
+			</outputDirectory>
 		    </fileSet>
 		    <fileSet>
 			<directory></directory>
@@ -140,7 +144,9 @@
 		<fileSets>
 		    <fileSet>
 			<directory>src/main/java</directory>
-			<outputDirectory>demo/webapp/taglib</outputDirectory>
+			<outputDirectory>
+			    demo/webapp/src/taglib
+			</outputDirectory>
 		    </fileSet>
 		</fileSets>
 	    </sources>
