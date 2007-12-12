@@ -1,0 +1,50 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>javax.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>${mail.version}</version>
+	<relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>javax.mail</groupId>
+    <artifactId>mboxdist</artifactId>
+    <packaging>pom</packaging>
+    <version>${mail.version}</version>
+    <name>JavaMail API mbox distribution</name>
+    <description>JavaMail API mbox distribution</description>
+    <url>http://java.sun.com/projects/javamail</url>
+
+    <modules>
+	<module>../../legal</module>
+	<module>..</module>	<!-- mbox module itself -->
+	<module>../native</module>
+    </modules>
+    <build>
+        <plugins>
+	    <!--
+		This is the rule that creates the zip file for distribution.
+	    -->
+	    <plugin>
+		<artifactId>maven-assembly-plugin</artifactId>
+		<inherited>false</inherited>
+		<executions>
+		    <execution>
+			<phase>package</phase>
+			<goals>
+			    <goal>attached</goal>
+			</goals>
+			<configuration>
+			    <finalName>mbox-${mail.version}</finalName>
+			    <descriptors>
+				<descriptor>assembly.xml</descriptor>
+			    </descriptors>
+			</configuration>
+		    </execution>
+		</executions>
+	    </plugin>
+        </plugins>
+    </build>
+</project>

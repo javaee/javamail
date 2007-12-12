@@ -1,0 +1,52 @@
+<assembly>
+    <formats>
+	<format>zip</format>
+    </formats>
+    <baseDirectory>mbox-${mail.version}</baseDirectory>
+    <moduleSets>
+	<!-- include LICENSE.txt from the legal module -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:legal</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/resources/META-INF</directory>
+			<outputDirectory></outputDirectory>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
+	<!-- include the main mbox.jar file -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:mbox</include>
+	    </includes>
+	    <binaries>
+		<includeDependencies>false</includeDependencies>
+		<unpack>false</unpack>
+		<outputFileNameMapping>
+		    ${artifactId}.${extension}
+		</outputFileNameMapping>
+	    </binaries>
+	</moduleSet>
+
+	<!-- include the native code library in the lib directory -->
+	<moduleSet>
+	    <includes>
+		<include>javax.mail:libmbox</include>
+	    </includes>
+	    <binaries>
+		<includeDependencies>false</includeDependencies>
+		<unpack>false</unpack>
+		<outputDirectory>lib/sparc</outputDirectory>
+		<outputFileNameMapping>
+		    ${artifactId}.${extension}
+		</outputFileNameMapping>
+	    </binaries>
+	</moduleSet>
+    </moduleSets>
+</assembly>
