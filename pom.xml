@@ -260,13 +260,32 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
             <version>4.3.1</version>
 	    <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.2-SNAPSHOT</version>
+	    <scope>test</scope>
+        </dependency>
     </dependencies>
 
-    <!-- following two needed to make <includes> work in dependency plugin  -->
+    <!--
+	Following two needed to make <includes> work in dependency plugin
+	and <excludes> work in jar plugin.
+    -->
     <pluginRepositories>
 	<pluginRepository>
 	    <id>Maven Snapshots</id>
 	    <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+	    <snapshots>
+		<enabled>true</enabled>
+	    </snapshots>
+	    <releases>
+		<enabled>false</enabled>
+	    </releases>
+	</pluginRepository>
+	<pluginRepository>
+	    <id>Codehaus Maven Snapshots</id>
+	    <url>http://snapshots.repository.codehaus.org</url>
 	    <snapshots>
 		<enabled>true</enabled>
 	    </snapshots>
@@ -280,6 +299,16 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
         <repository>
 	    <id>Maven Snapshots</id>
 	    <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+	    <snapshots>
+		<enabled>true</enabled>
+	    </snapshots>
+	    <releases>
+		<enabled>false</enabled>
+	    </releases>
+	</repository>
+        <repository>
+	    <id>Codehaus Maven Snapshots</id>
+	    <url>http://snapshots.repository.codehaus.org</url>
 	    <snapshots>
 		<enabled>true</enabled>
 	    </snapshots>

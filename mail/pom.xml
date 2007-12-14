@@ -18,38 +18,10 @@
 
     <build>
         <plugins>
-	    <!--
-		We use ant to copy the version template file and
-		expand the version string.
-	    -->
-	    <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-		    <execution>
-			<phase>process-sources</phase>
-			<configuration>
-			    <tasks>
-
-				<copy
-			file="src/main/java/javax/mail/Version.java.template"
-			toFile="src/main/java/javax/mail/Version.java">
-				    <filterset>
-					<filter token="VERSION"
-						  value="${mail.version}"/>
-				    </filterset>
-				</copy>
-
-			    </tasks>
-			</configuration>
-			<goals>
-			    <goal>run</goal>
-			</goals>
-		    </execution>
-                </executions>
-            </plugin>                                 
-
 	    <plugin>
 		<artifactId>maven-jar-plugin</artifactId>
+		<!-- need at least this version to make excludes work -->
+		<version>2.2-SNAPSHOT</version>
 		<configuration>
 		    <finalName>${project.artifactId}</finalName>
 		    <archive>
@@ -57,6 +29,12 @@
 			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
 			</manifestFile>
 		    </archive>
+		    <excludes>
+			<!--
+			<exclude>javax/mail/Version.java</exclude>
+			-->
+			<exclude>**/*.java</exclude>
+		    </excludes>
 		</configuration>
 	    </plugin>
         </plugins>
@@ -64,14 +42,14 @@
             <resource>
                 <directory>src/main/resources</directory>
 		<filtering>true</filtering>
-<!--
+		<!--
                 <includes>
                     <include>META-INF/javamail.charset.map</include>
                     <include>META-INF/javamail.default.*</include>
                     <include>META-INF/mailcap</include>
                     <include>META-INF/MANIFEST.MF</include>
                 </includes>
--->
+		-->
             </resource>
         </resources>
     </build>

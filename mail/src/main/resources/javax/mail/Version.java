@@ -42,5 +42,5 @@ package javax.mail;
  * at build time.
  */
 class Version {
-    public static final String version = "@VERSION@";
+    public static final String version = "${mail.version}";
 }
