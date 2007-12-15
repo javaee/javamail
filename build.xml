@@ -60,7 +60,8 @@
     <target name="compile" depends="init"
             description="Compile JavaMail sources">
 
-        <copy file="${src.dir}/javax/mail/Version.java.template"
+	<!-- XXX - following filtering doesn't currently work -->
+        <copy file="${resources.dir}/javax/mail/Version.java"
 		toFile="${src.dir}/javax/mail/Version.java">
             <filterset>
                 <filter token="VERSION" value="${release.version}"/>
@@ -79,29 +80,90 @@
             </classpath>
             <include name="javax/mail/**"/>
             <include name="com/sun/mail/**"/>
-            <exclude name="com/sun/mail/dsn/**"/>
         </javac>
     </target>
     
     <!-- prepare manifest files for jars -->
     <target name="cook-manifest" depends="init"
             description="Generate MANIFEST.MF files">
-        <mkdir dir="${basedir}/target/manifest"/>
-        <copy todir="${basedir}/target/manifest">
-            <fileset dir="${resources.dir}/META-INF" includes="*.mf" />
-            <filterset>
-                <filter token="SPECVERSION" value="${release.specversion}"/>
-                <filter token="VERSION" value="${release.version}"/>
+	<!--
+
+	    Could make this simpler with ant-contrib foreach task...
+
+	<foreach list=",imap.,pop3.,smtp.,dsn." target="cook-manifest-file"
+	    param="mf"/>
+	-->
+        <mkdir dir="${component.classes.dir}/manifest"/>
+        <copy file="${resources.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
+        <mkdir dir="${component.classes.imap.dir}/manifest"/>
+        <copy file="${resources.imap.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.imap.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
+        <mkdir dir="${component.classes.pop3.dir}/manifest"/>
+        <copy file="${resources.pop3.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.pop3.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
+        <mkdir dir="${component.classes.smtp.dir}/manifest"/>
+        <copy file="${resources.smtp.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.smtp.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
+        <mkdir dir="${component.classes.dsn.dir}/manifest"/>
+        <copy file="${resources.dsn.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.dsn.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
             </filterset>
         </copy>
     </target>
+
+    <!--
+
+	This could be used with foreach, above.
+	XXX - do nested variable references work?
+
+    <target name="cook-manifest-file">
+        <mkdir dir="${component.classes.${mf}dir}/manifest"/>
+        <copy file="${resources.${mf}dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.${mf}dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
+    </target>
+    -->
 
     <!-- dsn compile -->
     <target name="dsncompile" depends="init"
             description="Compile com/sun/mail/dsn sources">
 
         <mkdir dir="${component.classes.dsn.dir}"/>
-        <javac srcdir="${src.dir}"
+        <javac srcdir="${src.dsn.dir}"
                destdir="${component.classes.dsn.dir}"
                debug="${javac.debug}"
                optimize="${javac.optimize}"
@@ -195,18 +257,29 @@
 
     <!-- JavaMail bundle build targets -->
 
-    <target name="release" depends="init, democompile, jars, docs">
-	<!-- XXX - should incorporate version number into prop and dir -->
-        <property name="javamail.zip" value="javamail.zip"/>
-        <delete file="${basedir}/${javamail.zip}"/>
-        <echo message="Creating JavaMail bundle ${basedir}/${javamail.zip}"/>
-        <zip destfile="${javamail.zip}">
-             <zipfileset dir="${release.dir}" prefix="javamail"/>
-             <zipfileset dir="${src.demo.dir}" prefix="javamail/demo"
+    <target name="release" depends="init, jars, democompile, docs">
+	<!-- XXX - need to replace "." with "_" in release.version -->
+        <property name="rel" value="javamail-${release.version}"/>
+        <property name="zipname" value="${rel}.zip"/>
+        <delete file="${basedir}/target/${zipname}"/>
+        <echo message="Creating JavaMail bundle ${basedir}/target/${zipname}"/>
+        <zip destfile="${basedir}/target/${zipname}">
+	    <zipfileset dir="${release.dir}" prefix="${rel}"/>
+            <zipfileset dir="${src.demo.dir}" prefix="${rel}/demo"
                 excludes="**/internal/**"/>
-             <zipfileset dir="${src.client.dir}" prefix="javamail/demo/client"/>
-             <zipfileset dir="${src.servlet.dir}" prefix="javamail/demo/servlet"/>
-             <zipfileset dir="${src.webapp.dir}" prefix="javamail/demo/webapp"/>
+            <zipfileset dir="${src.client.dir}" prefix="${rel}/demo/client"/>
+            <zipfileset dir="${src.servlet.dir}"
+		prefix="${rel}/demo/servlet"/>
+            <zipfileset dir="webapp" prefix="${rel}/demo/webapp"
+		excludes="src/**,pom.xml"/>
+            <zipfileset dir="${src.webapp.dir}"
+		prefix="${rel}/demo/webapp/src/classes"/>
+            <zipfileset dir="${docroot.webapp.dir}"
+		prefix="${rel}/demo/webapp/src/docroot"/>
+            <zipfileset dir="${src.taglib.dir}"
+		prefix="${rel}/demo/webapp/src/taglib"/>
+            <zipfileset dir="${resources.taglib.dir}"
+		prefix="${rel}/demo/webapp/src/taglib"/>
         </zip>
     </target>
 
@@ -218,14 +291,14 @@
     <target name="jar" depends="init, compile, cook-manifest">
         <mkdir dir="${release.dir}"/>
         <jar jarfile="${release.mail.jar}"
-		manifest="${basedir}/target/manifest/javamail.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
+		manifest="${component.classes.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
             <metainf dir="${resources.dir}/META-INF"
                     includes="javamail.charset.map,javamail.default.*,mailcap"/>
             <fileset dir="${component.classes.dir}">
                 <include name="javax/mail/**/*.class"/>
                 <include name="com/sun/mail/**/*.class"/>
-                <exclude name="com/sun/mail/dsn/*.class"/>
             </fileset>
         </jar>
     </target>
@@ -241,92 +314,87 @@
     </target>
 
     <target name="imapjar" depends="init, compile, cook-manifest">
-        <copy file="${resources.dir}/META-INF/javamail.imap.provider"
-                tofile="${component.classes.dir}/META-INF/javamail.providers"/>
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.imap.jar}"
-		manifest="${basedir}/target/manifest/imap.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
-            <metainf dir="${component.classes.dir}/META-INF"
-                     includes="javamail.providers"/>
+		manifest="${component.classes.imap.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <metainf dir="${resources.imap.dir}/META-INF"
+		    includes="javamail.providers"/>
             <fileset dir="${component.classes.dir}">
                 <include name="com/sun/mail/iap/*.class"/>
                 <include name="com/sun/mail/imap/*.class"/>
+                <include name="com/sun/mail/imap/protocol/*.class"/>
             </fileset>
         </jar>
-        <delete file="${component.classes.dir}/META-INF/javamail.providers"/>
-     </target>
+    </target>
 
     <target name="pop3jar" depends="init, compile, cook-manifest">
-        <copy file="${resources.dir}/META-INF/javamail.pop3.provider"
-                tofile="${component.classes.dir}/META-INF/javamail.providers"/>
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.pop3.jar}"
-		manifest="${basedir}/target/manifest/pop3.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
-            <metainf dir="${component.classes.dir}/META-INF"
-                     includes="javamail.providers"/>
+		manifest="${component.classes.pop3.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <metainf dir="${resources.pop3.dir}/META-INF"
+		    includes="javamail.providers"/>
             <fileset dir="${component.classes.dir}">
                 <include name="com/sun/mail/pop3/*.class"/>
-                <exclude name="com/sun/mail/pop3/POP3RemoteStore.class"/>
             </fileset>
         </jar>
-        <delete file="${component.classes.dir}/META-INF/javamail.providers"/>
      </target>
 
      <target name="smtpjar" depends="init, compile, cook-manifest">
-        <copy file="${resources.dir}/META-INF/javamail.smtp.provider"
-                tofile="${component.classes.dir}/META-INF/javamail.providers"/>
-        <copy file="${resources.dir}/META-INF/javamail.smtp.address.map"
-                tofile="${component.classes.dir}/META-INF/javamail.address.map"/>
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.smtp.jar}"
-		manifest="${basedir}/target/manifest/smtp.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
-            <metainf dir="${component.classes.dir}/META-INF"
-                     includes="javamail.providers, javamail.address.map"/>
+		manifest="${component.classes.smtp.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <metainf dir="${resources.smtp.dir}/META-INF"
+		    includes="javamail.providers,javamail.address.map"/>
             <fileset dir="${component.classes.dir}">
                 <include name="com/sun/mail/smtp/*.class"/>
             </fileset>
         </jar>
-        <delete file="${component.classes.dir}/META-INF/javamail.providers"/>
-        <delete file="${component.classes.dir}/META-INF/javamail.address.map"/>
      </target>
 
      <target name="dsnjar" depends="init, dsncompile, cook-manifest">
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.dsn.jar}"
-		manifest="${basedir}/target/manifest/dsn.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
+		manifest="${component.classes.dsn.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <metainf dir="${resources.dsn.dir}/META-INF"
+		    includes="mailcap"/>
             <fileset dir="${component.classes.dsn.dir}">
                 <include name="com/sun/mail/dsn/*.class"/>
-                <include name="com/sun/mail/dsn/mailcap"/>
             </fileset>
         </jar>
      </target>
 
-
      <target name="mailapijar" depends="init, compile, cook-manifest">
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.mailapi.jar}"
-		manifest="${basedir}/target/manifest/javamail.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
+		manifest="${component.classes.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
             <metainf dir="${resources.dir}/META-INF"
-          includes="javamail.default.providers, javamail.default.address.map"/>
+		    includes="javamail.charset.map, mailcap"/>
             <fileset dir="${component.classes.dir}">
                 <include name="javax/mail/**/*.class"/>
                 <include name="com/sun/mail/util/*.class"/>
                 <include name="com/sun/mail/handlers/*.class"/>
             </fileset>
         </jar>
-     </target>
+    </target>
 
 
     <!-- javadocs -->
     <target name="docs" depends="init, jar, jar">
+        <copy todir="${release.dir}">
+            <fileset dir="${basedir}/doc/release" includes="*.txt" />
+        </copy>
         <mkdir dir="${release.docs.dir}"/>
         <copy todir="${release.docs.dir}">
-            <fileset dir="${basedir}/doc/release" includes="*.txt" />
             <fileset dir="${basedir}/doc/spec" includes="*.txt" />
             <fileset dir="${spec.dir}"
 		    includes="JavaMail-1.4.pdf,Providers.pdf" />
@@ -340,9 +408,9 @@
                                com.sun.mail.smtp,
                                com.sun.mail.dsn"
             destdir="${release.javadocs.dir}"
-            classpath="${activation.jar}:${release.mail.jar}"
-            author="true"
-            version="true"
+            classpath="${activation.jar}:${release.mail.jar}:${release.dsn.jar}"
+            author="false"
+            version="false"
             use="true"
             overview="${src.dir}/overview.html"
             windowtitle="JavaMail API documentation"

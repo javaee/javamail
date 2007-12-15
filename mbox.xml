@@ -39,9 +39,9 @@
     <property file="./build.properties"/>
 
     <property name="cc.debug" value="false"/>
-    <property name="generated.dir" value="target/generated"/>
-    <property name="obj.dir" value="target/native/${os.name}-${os.arch}"/>
-    <property name="lib.dir" value="target/lib/${os.name}-${os.arch}"/>
+    <property name="generated.dir" value="mbox/target/generated"/>
+    <property name="obj.dir" value="mbox/target/native/${os.name}-${os.arch}"/>
+    <property name="lib.dir" value="mbox/target/lib/${os.name}-${os.arch}"/>
     <condition property="is-solaris">
 	<os name="SunOS"/>
     </condition>
@@ -74,12 +74,13 @@
     <!-- prepare manifest files for jars -->
     <target name="cook-manifest" depends="init"
             description="Generate MANIFEST.MF files">
-        <mkdir dir="${basedir}/target/manifest"/>
-        <copy todir="${basedir}/target/manifest">
-            <fileset dir="${resources.dir}/META-INF" includes="*.mf" />
-            <filterset>
-                <filter token="SPECVERSION" value="${release.specversion}"/>
-                <filter token="VERSION" value="${release.version}"/>
+        <mkdir dir="${component.classes.mbox.dir}/manifest"/>
+        <copy file="${resources.mbox.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.mbox.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
             </filterset>
         </copy>
     </target>
@@ -88,7 +89,7 @@
     <target name="mboxcompile" depends="init"
             description="Compile com/sun/mail/mbox sources">
 
-        <javac srcdir="${src.dir}"
+        <javac srcdir="${src.mbox.dir}"
                destdir="${component.classes.mbox.dir}"
                debug="${javac.debug}"
                optimize="${javac.optimize}"
@@ -99,9 +100,10 @@
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${activation.jar}"/>
-                <pathelement location="${javaee.jar}"/>
             </classpath>
+	    <!--
             <include name="com/sun/mail/mbox/**"/>
+	    -->
         </javac>
     </target>
 
@@ -109,7 +111,7 @@
 	<javah destdir="${generated.dir}"
 		force="yes"
 		verbose="yes"
-		classpath="${component.classes.dir}">
+		classpath="${component.classes.mbox.dir}:${component.classes.dir}">
             <class name="com.sun.mail.mbox.UNIXFile"/>
             <class name="com.sun.mail.mbox.UNIXInbox"/>
 	</javah>
@@ -138,16 +140,12 @@
 		outfile="${lib.dir}/mbox"
 		objdir="${obj.dir}">
 	    <compiler name="sunc89"/>
-	    <fileset dir="src/main/cpp" includes="**/*.c"/>
+	    <fileset dir="mbox/src/main/cpp" includes="**/*.c"/>
 	    <includepath location="${generated.dir}"/>
 	    <sysincludepath location="${java.home}/../include"/>
 	    <sysincludepath location="${java.home}/../include/solaris"/>
 	    <defineset>
 		<define name="_REENTRANT"/>
-		<!-- I don't think these are needed
-		<define name="sparc"/>
-		<define name="SOLARIS2"/>
-		-->
 	    </defineset>
 	    <compilerarg value="-Xa"/>
 	    <compilerarg value="-xO2"/>
@@ -159,22 +157,23 @@
 
     <target name="clean" description="Clean the build">
         <delete includeEmptyDirs="true" failonerror="false">
-            <fileset dir="${component.classes.dir}"/>
+            <fileset dir="${component.classes.mbox.dir}"/>
         </delete>
     </target>
 
     <!-- JavaMail bundle build targets -->
 
     <target name="mboxrelease" depends="init, mboxjar, mboxcc">
-        <property name="mbox.zip" value="mbox.zip"/>
-        <delete file="${basedir}/${mbox.zip}"/>
-        <echo message="Creating JavaMail bundle ${basedir}/${mbox.zip}"/>
-        <zip destfile="${basedir}/${mbox.zip}">
-	    <zipfileset dir="${component.classes.dir}/META-INF" prefix="mbox"
-                     includes="LICENSE.txt"/>
-	    <zipfileset dir="${release.dir}/lib" prefix="mbox"
+        <property name="rel" value="mbox-${release.version}"/>
+        <property name="zipname" value="${rel}.zip"/>
+        <delete file="${basedir}/mbox/target/${zipname}"/>
+        <echo message="Creating mbox bundle ${basedir}/mbox/target/${zipname}"/>
+        <zip destfile="${basedir}/mbox/target/${zipname}">
+	    <zipfileset dir="${resources.legal.dir}/META-INF" prefix="${rel}"
+                    includes="LICENSE.txt"/>
+	    <zipfileset dir="${release.dir}/lib" prefix="${rel}"
 		    includes="mbox.jar"/>
-            <zipfileset dir="${lib.dir}/.." prefix="mbox/lib"
+            <zipfileset dir="${lib.dir}/.." prefix="${rel}/lib"
 		    includes="**/*.so"/>
         </zip>
     </target>
@@ -182,9 +181,10 @@
      <target name="mboxjar" depends="init, mboxcompile, cook-manifest">
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.mbox.jar}"
-		manifest="${basedir}/target/manifest/mbox.mf">
-            <metainf dir="${basedir}" includes="LICENSE.txt"/>
-            <fileset dir="${component.classes.dir}">
+		manifest="${component.classes.mbox.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <fileset dir="${component.classes.mbox.dir}">
                 <include name="com/sun/mail/mbox/*.class"/>
                 <include name="com/sun/mail/mbox/mailcap"/>
             </fileset>
