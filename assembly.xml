@@ -42,7 +42,6 @@
 		<include>javax.mail:imap</include>
 		<include>javax.mail:pop3</include>
 		<include>javax.mail:dsn</include>
-		<include>javax.mail:mbox</include>
 	    </includes>
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
@@ -144,6 +143,12 @@
 		<fileSets>
 		    <fileSet>
 			<directory>src/main/java</directory>
+			<outputDirectory>
+			    demo/webapp/src/taglib
+			</outputDirectory>
+		    </fileSet>
+		    <fileSet>
+			<directory>src/main/resources</directory>
 			<outputDirectory>
 			    demo/webapp/src/taglib
 			</outputDirectory>
