@@ -8,7 +8,11 @@ Bug Database and looking up each bug you're interested in.
 		  ----------------------------
 The following bugs have been fixed in the 1.4.2 release.
 
+6621377	unexpected result when uuencode data has any line starting with
+	"END" characters
 6629213	base64 encoder sometimes omits CRLF
+<no id>	ignore socket timeout while waiting in IMAP IDLE
+<no id>	fix bug in MailDateFormat parsing in non-lenient mode
 
 
 		  CHANGES IN THE 1.4.1 RELEASE
