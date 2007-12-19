@@ -262,10 +262,9 @@ public class MailDateFormat extends SimpleDateFormat {
 	    int minutes = 0;
 	    int seconds = 0;
 	    int offset = 0;
-		
-			
-	    MailDateParser p = new MailDateParser(orig);
-			
+
+	    MailDateParser p = new MailDateParser(orig, pos.getIndex());
+
 	    // get the day
 	    p.skipUntilNumber();
 	    day = p.parseNumber();
@@ -347,7 +346,8 @@ public class MailDateFormat extends SimpleDateFormat {
 	cal.set(Calendar.MONTH, mon);
 	cal.set(Calendar.DATE, mday);
 	cal.set(Calendar.HOUR_OF_DAY, hour);
-	cal.set(Calendar.MINUTE, min + tzoffset);  // adjusted for the timezone
+	cal.set(Calendar.MINUTE, min);
+	cal.add(Calendar.MINUTE, tzoffset);	// adjust for the timezone
 	cal.set(Calendar.SECOND, sec);
 
 	return cal.getTime();
@@ -365,7 +365,6 @@ public class MailDateFormat extends SimpleDateFormat {
     public void setNumberFormat(NumberFormat newNumberFormat) {
 	throw new RuntimeException("Method setNumberFormat() shouldn't be called");
     }
-    
 
     /* test code for MailDateFormat */
     /*
@@ -454,8 +453,9 @@ class MailDateParser {
     int index = 0;
     char[] orig = null;
 
-    public MailDateParser(char[] orig) {
+    public MailDateParser(char[] orig, int index) {
 	this.orig = orig;
+	this.index = index;
     }
 
     /**
@@ -797,8 +797,11 @@ class MailDateParser {
 	} else if (first != '-') {
 	    throw new ParseException("Bad Numeric TimeZone", index);	
 	}
-		
+
+	int oindex = index;
 	int tz = parseNumber();
+	if (tz >= 2400)
+	    throw new ParseException("Numeric TimeZone out of range", oindex);	
 	int offset = (tz / 100) * 60  + (tz % 100);
 	if (switchSign) {
 	    return -offset;

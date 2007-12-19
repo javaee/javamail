@@ -83,7 +83,6 @@ public class BASE64MailboxDecoder {
 				      CharacterIterator iter) {
 	boolean firsttime = true;
 	int leftover = -1;
-	char testing = 0;
 
 	while(true) {
 	    // get the first byte
@@ -152,7 +151,6 @@ public class BASE64MailboxDecoder {
 	    
 	    // use the leftover to create a Unicode Character (2 bytes)
 	    if (leftover != -1) {
-	    testing = (char)((int)leftover << 8 | ((int) current & 0xff));
 		buffer[offset++] = (char)(leftover << 8 | (current & 0xff));
 		leftover = -1;
 	    } else {
