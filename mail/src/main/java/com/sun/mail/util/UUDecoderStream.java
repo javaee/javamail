@@ -155,7 +155,7 @@ public class UUDecoderStream extends FilterInputStream {
 	    s = lin.readLine(); // NOTE: readLine consumes CRLF pairs too
 	    if (s == null)
 		throw new IOException("UUDecoder error: No Begin");
-	    if (s.regionMatches(true, 0, "begin", 0, 5)) {
+	    if (s.regionMatches(false, 0, "begin", 0, 5)) {
 		try {
 		    mode = Integer.parseInt(s.substring(6,9));
 		} catch (NumberFormatException ex) {
@@ -184,7 +184,7 @@ public class UUDecoderStream extends FilterInputStream {
 	     */
 	    if (line == null)
 		throw new IOException("Missing End");
-	    if (line.regionMatches(true, 0, "end", 0, 3)) {
+	    if (line.equals("end")) {
 		gotEnd = true;
 		return false;
 	    }
@@ -203,7 +203,7 @@ public class UUDecoderStream extends FilterInputStream {
 
 	if (count == 0) {
 	    line = lin.readLine();
-	    if (line == null || !line.regionMatches(true, 0, "end", 0, 3))
+	    if (line == null || !line.equals("end"))
 		throw new IOException("Missing End");
 	    gotEnd = true;
 	    return false;

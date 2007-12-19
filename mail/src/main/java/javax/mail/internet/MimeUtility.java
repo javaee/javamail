@@ -47,8 +47,13 @@ import com.sun.mail.util.*;
  * functionality. <p>
  *
  * There are a set of methods to encode and decode MIME headers as 
- * per RFC 2047. A brief description on handling such headers is
- * given below: <p>
+ * per RFC 2047.  Note that, in general, these methods are
+ * <strong>not</strong> needed when using methods such as
+ * <code>setSubject</code> and <code>setRecipients</code>; JavaMail
+ * will automatically encode and decode data when using these "higher
+ * level" methods.  The methods below are only needed when maniuplating
+ * raw MIME headers using <code>setHeader</code> and <code>getHeader</code>
+ * methods.  A brief description on handling such headers is given below: <p>
  *
  * RFC 822 mail headers <strong>must</strong> contain only US-ASCII
  * characters. Headers that contain non US-ASCII characters must be
