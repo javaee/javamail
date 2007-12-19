@@ -1,0 +1,154 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>com.sun.mail</groupId>
+	<artifactId>all</artifactId>
+	<version>1.4.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>javadoc</artifactId>
+    <packaging>pom</packaging>
+    <version>1.4.2-SNAPSHOT</version>
+    <name>JavaMail API javadocs</name>
+    <description>${project.name}</description>
+
+    <build>
+        <plugins>
+	    <!--
+		To allow us to generate javadocs that only include some
+		classes in certain packages, we need to copy the sources
+		to another location and run javadoc against that subset
+		of the sources.  This ant task does the copy.
+	    -->
+	    <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+		<inherited>false</inherited>
+                <executions>
+		    <execution>
+			<phase>package</phase>
+			<configuration>
+			    <tasks>
+
+				<copy todir="target/javadoc">
+				    <fileset dir="../mail/src/main/java">
+					<include name="**/*.html"/>
+					<include name="javax/mail/**"/>
+				    </fileset>
+				    <fileset dir="../mail/src/main/java"
+					includes="
+			com/sun/mail/imap/IMAPFolder.java,
+			com/sun/mail/imap/IMAPMessage.java,
+			com/sun/mail/imap/IMAPStore.java,
+			com/sun/mail/imap/IMAPSSLStore.java
+			com/sun/mail/imap/ACL.java,
+			com/sun/mail/imap/Rights.java,
+			com/sun/mail/imap/Quota.java,
+			com/sun/mail/pop3/POP3Store.java,
+			com/sun/mail/pop3/POP3SSLStore.java,
+			com/sun/mail/pop3/POP3Folder.java,
+			com/sun/mail/pop3/POP3Message.java,
+			com/sun/mail/smtp/SMTPMessage.java,
+			com/sun/mail/smtp/SMTPAddressFailedException.java,
+			com/sun/mail/smtp/SMTPAddressSucceededException.java,
+			com/sun/mail/smtp/SMTPSendFailedException.java,
+			com/sun/mail/smtp/SMTPTransport.java,
+			com/sun/mail/smtp/SMTPSSLTransport.java
+					"/>
+				    <fileset dir="../dsn/src/main/java"
+					includes="
+			com/sun/mail/dsn/DeliveryStatus.java,
+			com/sun/mail/dsn/MessageHeaders.java,
+			com/sun/mail/dsn/MultipartReport.java
+					"/>
+				</copy>
+
+			    </tasks>
+			</configuration>
+			<goals>
+			    <goal>run</goal>
+			</goals>
+		    </execution>
+                </executions>
+            </plugin>                                 
+
+	    <plugin>
+		<artifactId>maven-javadoc-plugin</artifactId>
+		<inherited>false</inherited>
+                <executions>
+		    <execution>
+			<phase>package</phase>
+			<goals>
+			    <goal>javadoc</goal>
+			</goals>
+			<configuration>
+			    <!-- aggregate not really needed -->
+			    <aggregate>false</aggregate>
+			    <additionalJOption>-J-Xmx32m</additionalJOption>
+			    <author>false</author>
+			    <description>
+				JavaMail API documentation
+			    </description>
+			    <doctitle>
+				JavaMail API documentation
+			    </doctitle>
+			    <windowtitle>
+				JavaMail API documentation
+			    </windowtitle>
+			    <splitindex>true</splitindex>
+			    <use>true</use>
+			    <overview>
+				${basedir}/target/javadoc/overview.html
+			    </overview>
+			    <groups>
+				<group>
+				    <title>JavaMail API Packages</title>
+				    <packages>javax.*</packages>
+				</group>
+				<group>
+				    <title>Sun-specific Packages</title>
+				    <packages>com.sun.*</packages>
+				</group>
+			    </groups>
+			    <subpackages>
+javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
+			    </subpackages>
+			    <!-- XXX - following should work, but doesn't -->
+			    <excludePackageNames>
+				com.sun.mail.imap.protocol
+			    </excludePackageNames>
+			    <!-- have to kludge it with this instead...  -->
+			    <additionalparam>
+				-exclude com.sun.mail.imap.protocol
+			    </additionalparam>
+			    <sourcepath>${basedir}/target/javadoc</sourcepath>
+			</configuration>
+		    </execution>
+                </executions>
+	    </plugin>
+	</plugins>
+
+	<!--
+	<resources>
+	    <resource>
+		<directory>../src/main/resources</directory>
+	    </resource>
+	</resources>
+	-->
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>dsn</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
+    </dependencies>
+</project>

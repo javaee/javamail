@@ -3,68 +3,19 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-	<groupId>javax.mail</groupId>
-	<artifactId>all</artifactId>
-	<version>${mail.version}</version>
+	<groupId>com.sun.mail</groupId>
+	<artifactId>parent-distrib</artifactId>
+	<version>1.4.2-SNAPSHOT</version>
+	<relativePath>../parent-distrib/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>imap</artifactId>
     <packaging>jar</packaging>
-    <version>${mail.version}</version>
     <name>JavaMail API imap provider</name>
-    <description>JavaMail API imap provider</description>
-    <url>http://java.sun.com/projects/javamail</url>
 
-    <build>
-        <plugins>
-	    <plugin>
-		<artifactId>maven-dependency-plugin</artifactId>
-		<!-- following needed to make <includes> work  -->
-		<version>2.0-alpha-5-SNAPSHOT</version>
-		<executions>
-		    <execution>
-			<id>unpack</id>
-			<phase>process-sources</phase>
-			<goals>
-			    <goal>unpack</goal>
-			</goals>
-		    </execution>
-		</executions>
-		<configuration>
-		    <artifactItems>
-			<artifactItem>
-			    <groupId>javax.mail</groupId>
-			    <artifactId>mail</artifactId>
-			    <version>${mail.version}</version>
-			</artifactItem>
-		    </artifactItems>
-		    <outputDirectory>
-			${project.build.outputDirectory}
-		    </outputDirectory>
-		    <includes>
-			com/sun/mail/iap/**,
-			com/sun/mail/imap/**
-		    </includes>
-		</configuration>
-	    </plugin>
-	    <plugin>
-		<artifactId>maven-jar-plugin</artifactId>
-		<configuration>
-		    <finalName>${project.artifactId}</finalName>
-		    <archive>
-			<manifestFile>
-			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
-			</manifestFile>
-		    </archive>
-		</configuration>
-	    </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-		<filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
+    <properties>
+	<mail.extraClasses>com/sun/mail/iap/**</mail.extraClasses>
+    </properties>
+
 </project>

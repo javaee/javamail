@@ -4,27 +4,24 @@
     </formats>
     <baseDirectory>mail-${mail.version}</baseDirectory>
     <moduleSets>
-	<!-- include LICENSE.txt from the legal module -->
+	<!-- include the main mail.jar file -->
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:legal</include>
+		<include>javax.mail:mail</include>
 	    </includes>
+	    <!-- include LICENSE.txt from the mail module -->
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
 		<fileSets>
 		    <fileSet>
 			<directory>src/main/resources/META-INF</directory>
 			<outputDirectory></outputDirectory>
+			<includes>
+			    <include>LICENSE.txt</include>
+			</includes>
 		    </fileSet>
 		</fileSets>
 	    </sources>
-	</moduleSet>
-
-	<!-- include the main mail.jar file -->
-	<moduleSet>
-	    <includes>
-		<include>javax.mail:mail</include>
-	    </includes>
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
 		<unpack>false</unpack>
@@ -38,10 +35,10 @@
 	<moduleSet>
 	    <includes>
 		<include>javax.mail:mailapi</include>
-		<include>javax.mail:smtp</include>
-		<include>javax.mail:imap</include>
-		<include>javax.mail:pop3</include>
-		<include>javax.mail:dsn</include>
+		<include>com.sun.mail:smtp</include>
+		<include>com.sun.mail:imap</include>
+		<include>com.sun.mail:pop3</include>
+		<include>com.sun.mail:dsn</include>
 	    </includes>
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
@@ -56,7 +53,7 @@
 	<!-- include sources from the demo modules -->
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:demo</include>
+		<include>com.sun.mail:demo</include>
 	    </includes>
 	    <sources>
 		<fileSets>
@@ -72,7 +69,7 @@
 
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:client</include>
+		<include>com.sun.mail:client</include>
 	    </includes>
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
@@ -90,7 +87,7 @@
 
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:servlet</include>
+		<include>com.sun.mail:servlet</include>
 	    </includes>
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
@@ -105,7 +102,7 @@
 
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:webapp</include>
+		<include>com.sun.mail:webapp</include>
 	    </includes>
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
@@ -136,7 +133,7 @@
 
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:taglib</include>
+		<include>com.sun.mail:taglib</include>
 	    </includes>
 	    <sources>
 		<includeModuleDirectory>false</includeModuleDirectory>
@@ -181,7 +178,7 @@
 	    </includes>
 	</fileSet>
 	<fileSet>
-	    <directory>target/site/apidocs</directory>
+	    <directory>javadoc/target/site/apidocs</directory>
 	    <outputDirectory>docs/javadocs</outputDirectory>
 	</fileSet>
     </fileSets>

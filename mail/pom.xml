@@ -3,54 +3,25 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-	<groupId>javax.mail</groupId>
+	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>${mail.version}</version>
+	<version>1.4.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.mail</groupId>
     <artifactId>mail</artifactId>
     <packaging>jar</packaging>
-    <version>${mail.version}</version>
     <name>JavaMail API</name>
-    <description>JavaMail API</description>
-    <url>http://java.sun.com/projects/javamail</url>
 
-    <build>
-        <plugins>
-	    <plugin>
-		<artifactId>maven-jar-plugin</artifactId>
-		<!-- need at least this version to make excludes work -->
-		<version>2.2-SNAPSHOT</version>
-		<configuration>
-		    <finalName>${project.artifactId}</finalName>
-		    <archive>
-			<manifestFile>
-			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
-			</manifestFile>
-		    </archive>
-		    <excludes>
-			<!--
-			<exclude>javax/mail/Version.java</exclude>
-			-->
-			<exclude>**/*.java</exclude>
-		    </excludes>
-		</configuration>
-	    </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-		<filtering>true</filtering>
-		<!--
-                <includes>
-                    <include>META-INF/javamail.charset.map</include>
-                    <include>META-INF/javamail.default.*</include>
-                    <include>META-INF/mailcap</include>
-                    <include>META-INF/MANIFEST.MF</include>
-                </includes>
-		-->
-            </resource>
-        </resources>
-    </build>
+    <properties>
+	<mail.extensionName>
+	    javax.mail
+	</mail.extensionName>
+	<mail.specificationTitle>
+	    JavaMail(TM) API Design Specification
+	</mail.specificationTitle>
+	<mail.implementationTitle>
+	    javax.mail
+	</mail.implementationTitle>
+    </properties>
 </project>

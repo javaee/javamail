@@ -8,15 +8,16 @@
 	<version>1.4.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
-    <artifactId>mailapi</artifactId>
-    <packaging>jar</packaging>
-    <name>JavaMail API jar</name>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>parent-distrib</artifactId>
+    <packaging>pom</packaging>
+    <name>JavaMail API ${project.artifactId} provider</name>
 
     <build>
         <plugins>
 	    <plugin>
 		<artifactId>maven-dependency-plugin</artifactId>
+		<!-- following needed to make <includes> work  -->
 		<version>2.0-alpha-5-SNAPSHOT</version>
 		<executions>
 		    <execution>
@@ -39,25 +40,10 @@
 			${project.build.outputDirectory}
 		    </outputDirectory>
 		    <includes>
-			javax/**,
-			com/sun/mail/util/**,
-			com/sun/mail/handlers/**,
-			META-INF/*
+			META-INF/LICENSE.txt,
+			com/sun/mail/${project.artifactId}/**,
+			${mail.extraClasses}
 		    </includes>
-		    <excludes>
-			META-INF/javamail.default.*
-		    </excludes>
-		</configuration>
-	    </plugin>
-	    <plugin>
-		<artifactId>maven-jar-plugin</artifactId>
-		<configuration>
-		    <finalName>${project.artifactId}</finalName>
-		    <archive>
-			<manifestFile>
-			  ${project.build.outputDirectory}/META-INF/MANIFEST.MF
-			</manifestFile>
-		    </archive>
 		</configuration>
 	    </plugin>
         </plugins>

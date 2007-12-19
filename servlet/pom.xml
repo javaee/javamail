@@ -3,18 +3,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-	<groupId>javax.mail</groupId>
+	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>${mail.version}</version>
+	<version>1.4.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>servlet</artifactId>
     <packaging>jar</packaging>
-    <version>${mail.version}</version>
     <name>JavaMail API demo servlet</name>
-    <description>JavaMail API demo servlet</description>
-    <url>http://java.sun.com/projects/javamail</url>
 
     <dependencies>
         <dependency>

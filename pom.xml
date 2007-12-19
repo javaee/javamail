@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>${mail.version}</version>
+    <version>1.4.2-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
-    <description>JavaMail API distribution</description>
+    <description>${project.name}</description>
     <url>http://java.sun.com/projects/javamail</url>
 
     <licenses>
@@ -20,7 +20,7 @@
       </license>
       <license>
         <name>GPLv2+CE</name>
-        <url>http://XXX</url>
+        <url>https://glassfish.dev.java.net/public/CDDL+GPL.html</url>
         <distribution>repo</distribution>
         <comments>GPL version 2 plus the Classpath Exception</comments>
       </license>
@@ -35,6 +35,16 @@
 	<mail.version>1.4.2-SNAPSHOT</mail.version>
 	<mail.spec.version>1.4</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
+	<!-- defaults that are overridden in mail module -->
+	<mail.extensionName>
+	    ${project.groupId}.${project.artifactId}
+	</mail.extensionName>
+	<mail.specificationTitle>
+	    ${project.groupId}.${project.artifactId}
+	</mail.specificationTitle>
+	<mail.implementationTitle>
+	    ${project.groupId}.${project.artifactId}
+	</mail.implementationTitle>
     </properties>
 
     <developers>
@@ -49,7 +59,6 @@
     </developers>
 
     <modules>
-	<module>legal</module>
 	<module>mail</module>
 	<module>mailapi</module>
 	<module>smtp</module>
@@ -62,6 +71,7 @@
 	<module>servlet</module>
 	<module>webapp</module>
 	<module>taglib</module>
+	<module>javadoc</module>
     </modules>
 
     <build>
@@ -74,143 +84,43 @@
                 </configuration>
 	    </plugin>
 
-	    <!--
-		To allow us to generate javadocs that only include some
-		classes in certain packages, we need to copy the sources
-		to another location and run javadoc against that subset
-		of the sources.  This ant task does the copy.
-	    -->
 	    <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-		<inherited>false</inherited>
-                <executions>
-		    <execution>
-			<phase>package</phase>
-			<configuration>
-			    <tasks>
-
-				<copy todir="target/javadoc">
-				    <fileset dir="mail/src/main/java">
-					<include name="**/*.html"/>
-					<include name="javax/mail/**"/>
-				    </fileset>
-				    <fileset dir="mail/src/main/java"
-					includes="
-			com/sun/mail/imap/IMAPFolder.java,
-			com/sun/mail/imap/IMAPMessage.java,
-			com/sun/mail/imap/IMAPStore.java,
-			com/sun/mail/imap/IMAPSSLStore.java
-			com/sun/mail/imap/ACL.java,
-			com/sun/mail/imap/Rights.java,
-			com/sun/mail/imap/Quota.java,
-			com/sun/mail/pop3/POP3Store.java,
-			com/sun/mail/pop3/POP3SSLStore.java,
-			com/sun/mail/pop3/POP3Folder.java,
-			com/sun/mail/pop3/POP3Message.java,
-			com/sun/mail/smtp/SMTPMessage.java,
-			com/sun/mail/smtp/SMTPAddressFailedException.java,
-			com/sun/mail/smtp/SMTPAddressSucceededException.java,
-			com/sun/mail/smtp/SMTPSendFailedException.java,
-			com/sun/mail/smtp/SMTPTransport.java,
-			com/sun/mail/smtp/SMTPSSLTransport.java
-					"/>
-				    <fileset dir="dsn/src/main/java"
-					includes="
-			com/sun/mail/dsn/DeliveryStatus.java,
-			com/sun/mail/dsn/MessageHeaders.java,
-			com/sun/mail/dsn/MultipartReport.java
-					"/>
-				</copy>
-
-			    </tasks>
-			</configuration>
-			<goals>
-			    <goal>run</goal>
-			</goals>
-		    </execution>
-                </executions>
-            </plugin>                                 
-
-	    <plugin>
-		<artifactId>maven-javadoc-plugin</artifactId>
-		<inherited>false</inherited>
-                <executions>
-		    <execution>
-			<phase>package</phase>
-			<goals>
-			    <goal>javadoc</goal>
-			</goals>
-			<configuration>
-			    <!-- aggregate not really needed -->
-			    <aggregate>true</aggregate>
-			    <additionalJOption>-J-Xmx32m</additionalJOption>
-			    <author>false</author>
-			    <description>
-				JavaMail API documentation
-			    </description>
-			    <doctitle>
-				JavaMail API documentation
-			    </doctitle>
-			    <windowtitle>
-				JavaMail API documentation
-			    </windowtitle>
-			    <splitindex>true</splitindex>
-			    <use>true</use>
-			    <overview>
-				${basedir}/target/javadoc/overview.html
-			    </overview>
-			    <groups>
-				<group>
-				    <title>JavaMail API Packages</title>
-				    <packages>javax.*</packages>
-				</group>
-				<group>
-				    <title>Sun-specific Packages</title>
-				    <packages>com.sun.*</packages>
-				</group>
-			    </groups>
-			    <subpackages>
-javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
-			    </subpackages>
-			    <!-- XXX - following should work, but doesn't -->
-			    <excludePackageNames>
-				com.sun.mail.imap.protocol
-			    </excludePackageNames>
-			    <!-- have to kludge it with this instead...  -->
-			    <additionalparam>
-				-exclude com.sun.mail.imap.protocol
-			    </additionalparam>
-			    <sourcepath>${basedir}/target/javadoc</sourcepath>
-			</configuration>
-		    </execution>
-                </executions>
-	    </plugin>
-
-	    <!--
-		This rule ensures that all submodules get
-		META-INF/LICENSE.txt included in their jar files.
-	    -->
-	    <plugin>
-		<artifactId>maven-remote-resources-plugin</artifactId>
-		<executions>
-		    <execution>
-			<goals>
-			    <goal>process</goal>
-			</goals>
-			<configuration>
-			    <resourceBundles>
-				<resourceBundle>
-				    javax.mail:legal:${mail.version}
-				</resourceBundle>
-			    </resourceBundles>
-			    <!--
-			    <resources>
-				<resource>META-INF/LICENSE.txt</resource>
-			    </resources>
-			    -->
-			</configuration>
-		    </execution>
-		</executions>
+		<artifactId>maven-jar-plugin</artifactId>
+		<!-- need at least this version to make excludes work -->
+		<version>2.2-SNAPSHOT</version>
+		<configuration>
+		    <finalName>${project.artifactId}</finalName>
+		    <archive>
+			<manifestEntries>
+			    <Extension-Name>
+				${mail.extensionName}
+			    </Extension-Name>
+			    <Specification-Title>
+				${mail.specificationTitle}
+			    </Specification-Title>
+			    <Specification-Version>
+				${mail.spec.version}</Specification-Version>
+			    <Specification-Vendor>
+				${project.organization.name}
+			    </Specification-Vendor>
+			    <Implementation-Title>
+				${mail.implementationTitle}
+			    </Implementation-Title>
+			    <Implementation-Version>
+				${project.version}
+			    </Implementation-Version>
+			    <Implementation-Vendor>
+				${project.organization.name}
+			    </Implementation-Vendor>
+			    <Implementation-Vendor-Id>
+				com.sun
+			    </Implementation-Vendor-Id>
+			</manifestEntries>
+		    </archive>
+		    <excludes>
+			<exclude>**/*.java</exclude>
+		    </excludes>
+		</configuration>
 	    </plugin>
 
 	    <!--
