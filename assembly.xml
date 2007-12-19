@@ -9,19 +9,6 @@
 	    <includes>
 		<include>javax.mail:mail</include>
 	    </includes>
-	    <!-- include LICENSE.txt from the mail module -->
-	    <sources>
-		<includeModuleDirectory>false</includeModuleDirectory>
-		<fileSets>
-		    <fileSet>
-			<directory>src/main/resources/META-INF</directory>
-			<outputDirectory></outputDirectory>
-			<includes>
-			    <include>LICENSE.txt</include>
-			</includes>
-		    </fileSet>
-		</fileSets>
-	    </sources>
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
 		<unpack>false</unpack>
