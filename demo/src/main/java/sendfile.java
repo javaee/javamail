@@ -89,7 +89,7 @@ public class sendfile {
 	    // create the second message part
 	    MimeBodyPart mbp2 = new MimeBodyPart();
 
-            // attach the file to the message
+	    // attach the file to the message
 	    mbp2.attachFile(filename);
 
 	    /*
@@ -97,7 +97,7 @@ public class sendfile {
 	     * you want to control the MIME type of the attached file.
 	     * Normally you should never need to do this.
 	     *
-   	    FileDataSource fds = new FileDataSource(filename) {
+	    FileDataSource fds = new FileDataSource(filename) {
 		public String getContentType() {
 		    return "application/octet-stream";
 		}

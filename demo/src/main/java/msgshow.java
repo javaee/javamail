@@ -109,9 +109,9 @@ public class msgshow {
 	    }
 	}
 
-        try {
+	try {
 	    if (optind < argv.length)
-	         msgnum = Integer.parseInt(argv[optind]);
+		 msgnum = Integer.parseInt(argv[optind]);
 
 	    // Get a Properties object
 	    Properties props = System.getProperties();
@@ -167,16 +167,16 @@ public class msgshow {
 
 	    Folder folder = store.getDefaultFolder();
 	    if (folder == null) {
-	        System.out.println("No default folder");
-	        System.exit(1);
+		System.out.println("No default folder");
+		System.exit(1);
 	    }
 
 	    if (mbox == null)
 		mbox = "INBOX";
 	    folder = folder.getFolder(mbox);
 	    if (folder == null) {
-	        System.out.println("Invalid folder");
-	        System.exit(1);
+		System.out.println("Invalid folder");
+		System.exit(1);
 	    }
 
 	    // try to open read/write and if that fails try read-only

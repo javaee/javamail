@@ -136,7 +136,7 @@ public class folderlist {
 
     static void dumpFolder(Folder folder, boolean recurse, String tab)
 					throws Exception {
-    	System.out.println(tab + "Name:      " + folder.getName());
+	System.out.println(tab + "Name:      " + folder.getName());
 	System.out.println(tab + "Full Name: " + folder.getFullName());
 	System.out.println(tab + "URL:       " + folder.getURLName());
 

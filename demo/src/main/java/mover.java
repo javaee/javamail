@@ -122,8 +122,8 @@ public class mover {
 	    // Open source Folder
 	    Folder folder = store.getFolder(src);
 	    if (folder == null || !folder.exists()) {
-	        System.out.println("Invalid folder: " + src);
-	        System.exit(1);
+		System.out.println("Invalid folder: " + src);
+		System.exit(1);
 	    }
 
 	    folder.open(Folder.READ_WRITE);

@@ -58,7 +58,7 @@ public class search {
 
 	String subject = null;
 	String from = null;
-    	boolean or = false;
+	boolean or = false;
 	boolean today = false;
 
 	for (optind = 0; optind < argv.length; optind++) {
@@ -98,7 +98,7 @@ public class search {
 	    }
 	}
 
-        try {
+	try {
 
 	    if ((subject == null) && (from == null) && !today) {
 		System.out.println("Specify either -subject, -from or -today");
@@ -136,14 +136,14 @@ public class search {
 
 	    Folder folder = store.getDefaultFolder();
 	    if (folder == null) {
-	        System.out.println("Cant find default namespace");
-	        System.exit(1);
+		System.out.println("Cant find default namespace");
+		System.exit(1);
 	    }
 
 	    folder = folder.getFolder(mbox);
 	    if (folder == null) {
-	        System.out.println("Invalid folder");
-	        System.exit(1);
+		System.out.println("Invalid folder");
+		System.exit(1);
 	    }
 
 	    folder.open(Folder.READ_ONLY);

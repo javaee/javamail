@@ -49,7 +49,7 @@ public class monitor {
 	}
 	System.out.println("\nTesting monitor\n");
 
-        try {
+	try {
 	    Properties props = System.getProperties();
 
 	    // Get a Session object

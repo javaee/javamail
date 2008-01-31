@@ -49,8 +49,8 @@ public class populate {
     static boolean dontPreserveFlags = false;
 
     public static void main(String argv[]) {
-    	String srcURL = null;
-    	String dstURL = null;
+	String srcURL = null;
+	String dstURL = null;
 	boolean debug = false;
 
 	int optind;
@@ -208,7 +208,7 @@ public class populate {
 		}
 		copy(srcFolders[i], dst.getFolder(srcFolders[i].getName()));
 	    }
-    	}
+	}
     }
 
     /**
@@ -233,8 +233,8 @@ public class populate {
 	System.out.println("populate [-D] [-f] [-S] [-c] " +
 			   "-s source_url -d dest_url");
 	System.out.println("URLs are of the form: " +
-		  	   "protocol://username:password@hostname/foldername");
+			   "protocol://username:password@hostname/foldername");
 	System.out.println("The destination URL does not need a foldername," +
-		  	   " in which case, the source foldername is used");
+			   " in which case, the source foldername is used");
     }
 }

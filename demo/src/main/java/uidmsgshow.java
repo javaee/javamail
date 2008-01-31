@@ -84,9 +84,9 @@ public class uidmsgshow {
 	    }
 	}
 
-        try {
+	try {
 	    if (optind < argv.length)
-	         uid = Long.parseLong(argv[optind]);
+		 uid = Long.parseLong(argv[optind]);
 
 	    // Get a Properties object
 	    Properties props = System.getProperties();
@@ -119,20 +119,20 @@ public class uidmsgshow {
 
 	    Folder folder = store.getDefaultFolder();
 	    if (folder == null) {
-	        System.out.println("No default folder");
-	        System.exit(1);
+		System.out.println("No default folder");
+		System.exit(1);
 	    }
 
 	    folder = folder.getFolder(mbox);
 	    if (!folder.exists()) {
-	        System.out.println(mbox + "  does not exist");
-	        System.exit(1);
+		System.out.println(mbox + "  does not exist");
+		System.exit(1);
 	    }
 
 	    if (!(folder instanceof UIDFolder)) {
-	        System.out.println(
+		System.out.println(
 		    "This Provider or this folder does not support UIDs");
-	        System.exit(1);
+		System.exit(1);
 	    }
 
 	    UIDFolder ufolder = (UIDFolder)folder;
