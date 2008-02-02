@@ -55,106 +55,106 @@ public class MailUserBean {
      * Returns the javax.mail.Folder object.
      */
     public Folder getFolder() {
-        return folder;
+	return folder;
     }
     
     /**
      * Returns the number of messages in the folder.
      */
     public int getMessageCount() throws MessagingException {
-        return folder.getMessageCount();
+	return folder.getMessageCount();
     }
 
     /**
      * hostname getter method.
      */
     public String getHostname() {
-        return hostname;
+	return hostname;
     }
     
     /**
      * hostname setter method.
      */
     public void setHostname(String hostname) {
-        this.hostname = hostname;
+	this.hostname = hostname;
     }
 	
     /**
      * username getter method.
      */
     public String getUsername() {
-        return username;
+	return username;
     }
 
     /**
      * username setter method.
      */
     public void setUsername(String username) {
-        this.username = username;
+	this.username = username;
     }
 
     /**
      * password getter method.
      */
     public String getPassword() {
-        return password;
+	return password;
     }
 
     /**
      * password setter method.
      */
     public void setPassword(String password) {
-        this.password = password;
+	this.password = password;
     }
 
     /**
      * session getter method.
      */
     public Session getSession() {
-        return session;
+	return session;
     }
 
     /**
      * session setter method.
      */
     public void setSession(Session session) {
-        this.session = session;
+	this.session = session;
     }
 
     /**
      * store getter method.
      */
     public Store getStore() {
-        return store;
+	return store;
     }
 
     /**
      * store setter method.
      */
     public void setStore(Store store) {
-        this.store = store;
+	this.store = store;
     }
 
     /**
      * url getter method.
      */
     public URLName getUrl() {
-        return url;
+	return url;
     }
 
     /**
      * Method for checking if the user is logged in.
      */
     public boolean isLoggedIn() {
-        return store.isConnected();
+	return store.isConnected();
     }
       
     /**
      * Method used to login to the mail host.
      */
     public void login() throws Exception {
-        url = new URLName(protocol, getHostname(), -1, mbox, 
-                          getUsername(), getPassword());
+	url = new URLName(protocol, getHostname(), -1, mbox, 
+			  getUsername(), getPassword());
 	/*
 	 * First, try to get the session from JNDI,
 	 * as would be done under J2EE.
@@ -177,34 +177,34 @@ public class MailUserBean {
 	    }
 	    session = Session.getInstance(props, null);
 	}
-        store = session.getStore(url);
-        store.connect();
-        folder = store.getFolder(url);
-        
-        folder.open(Folder.READ_WRITE);
+	store = session.getStore(url);
+	store.connect();
+	folder = store.getFolder(url);
+	
+	folder.open(Folder.READ_WRITE);
     }
 
     /**
      * Method used to login to the mail host.
      */
     public void login(String hostname, String username, String password) 
-        throws Exception {
-            
-        this.hostname = hostname;
-        this.username = username;
-        this.password = password;
+	throws Exception {
 	    
-        login();
+	this.hostname = hostname;
+	this.username = username;
+	this.password = password;
+	    
+	login();
     }
 
     /**
      * Method used to logout from the mail host.
      */
     public void logout() throws MessagingException {
-        folder.close(false);
-        store.close();
-        store = null;
-        session = null;
+	folder.close(false);
+	store.close();
+	store = null;
+	session = null;
     }
 }
 
