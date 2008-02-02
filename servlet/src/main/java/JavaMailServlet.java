@@ -73,16 +73,16 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
     public  void doPost(HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 
-        // get the session
+	// get the session
 	HttpSession ssn = req.getSession(true);
 
 	String send = req.getParameter("send");
-        String host = req.getParameter("hostname");
-        String user = req.getParameter("username");
-        String passwd = req.getParameter("password");
-        URLName url = new URLName(protocol, host, -1, mbox, user, passwd);
+	String host = req.getParameter("hostname");
+	String user = req.getParameter("username");
+	String passwd = req.getParameter("password");
+	URLName url = new URLName(protocol, host, -1, mbox, user, passwd);
 
-        ServletOutputStream out = res.getOutputStream();
+	ServletOutputStream out = res.getOutputStream();
 	res.setContentType("text/html");
 	out.println("<html><body bgcolor=\"#CCCCFF\">");
 
@@ -168,8 +168,8 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
     public void doGet (HttpServletRequest req, HttpServletResponse res)
 	throws ServletException, IOException {
 
-        HttpSession ses = req.getSession(false); // before we write to out
-        ServletOutputStream out = res.getOutputStream();
+	HttpSession ses = req.getSession(false); // before we write to out
+	ServletOutputStream out = res.getOutputStream();
 	MailUserData mud = getMUD(ses);
 
 	if (mud == null) {
@@ -193,7 +193,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 	// get url parameters
 	String msgStr = req.getParameter("message");
-        String logout = req.getParameter("logout");
+	String logout = req.getParameter("logout");
 	String compose = req.getParameter("compose");
 	String part = req.getParameter("part");
 	int msgNum = -1;
@@ -206,29 +206,29 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 	    if (part == null) {
 		// display message "msgStr"
-                res.setContentType("text/html");
+		res.setContentType("text/html");
 		displayMessage(mud, req, out, msgNum);
 
 	    } else if (part != null) {
 		// display part "part" in message "msgStr"
 		partNum = Integer.parseInt(part);
-                displayPart(mud, msgNum, partNum, out, res);
+		displayPart(mud, msgNum, partNum, out, res);
 	    }
 
 	} else if (compose != null) {
 	    // display compose form
 	    compose(mud, res, out);
 
-        } else if (logout != null) {
+	} else if (logout != null) {
 	    // process logout
-            try {
-                mud.getFolder().close(false);
-                mud.getStore().close();
+	    try {
+		mud.getFolder().close(false);
+		mud.getStore().close();
 		ses.invalidate();
-                out.println("<html><body>Logged out OK</body></html>");
-            } catch (MessagingException mex) {
-                out.println(mex.toString());
-            }
+		out.println("<html><body>Logged out OK</body></html>");
+	    } catch (MessagingException mex) {
+		out.println(mex.toString());
+	    }
 
 	} else {
 	    // display headers
@@ -242,7 +242,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 	throws IOException {
 	    
 	out.println("<html>");
-        out.println("<HEAD><TITLE>JavaMail Servlet</TITLE></HEAD>");
+	out.println("<HEAD><TITLE>JavaMail Servlet</TITLE></HEAD>");
 	out.println("<BODY bgcolor=\"#ccccff\">");
 	out.print("<center><font face=\"Arial,Helvetica\" ");
 	out.println("font size=\"+3\"><b>");
@@ -258,7 +258,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 	    // and now, handle the content
 	    Object o = msg.getContent();
-            
+	    
 	    //if (o instanceof String) {
 	    if (msg.isMimeType("text/plain")) {
 		out.println("<pre>");
@@ -297,7 +297,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 	if (partNum != 0)
 	    out.println("<p><hr>");
 
-        try {
+	try {
 
 	    String sct = part.getContentType();
 	    if (sct == null) {
@@ -349,7 +349,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 	Part part = null;
 	
-        try {
+	try {
 	    Message msg = mud.getFolder().getMessage(msgNum);
 
 	    Multipart mp = (Multipart)msg.getContent();
@@ -385,44 +385,44 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 	try {
 	    out.println("<b>Date:</b> " + msg.getSentDate() + "<br>");
 
-            Address[] fr = msg.getFrom();
-            if (fr != null) {
-                boolean tf = true;
-                out.print("<b>From:</b> ");
-                for (int i = 0; i < fr.length; i++) {
-                    out.print(((tf) ? " " : ", ") + getDisplayAddress(fr[i]));
-                    tf = false;
-                }
-                out.println("<br>");
-            }
+	    Address[] fr = msg.getFrom();
+	    if (fr != null) {
+		boolean tf = true;
+		out.print("<b>From:</b> ");
+		for (int i = 0; i < fr.length; i++) {
+		    out.print(((tf) ? " " : ", ") + getDisplayAddress(fr[i]));
+		    tf = false;
+		}
+		out.println("<br>");
+	    }
 
-            Address[] to = msg.getRecipients(Message.RecipientType.TO);
-            if (to != null) {
-                boolean tf = true;
-                out.print("<b>To:</b> ");
-                for (int i = 0; i < to.length; i++) {
-                    out.print(((tf) ? " " : ", ") + getDisplayAddress(to[i]));
-                    tf = false;
-                }
-                out.println("<br>");
-            }
+	    Address[] to = msg.getRecipients(Message.RecipientType.TO);
+	    if (to != null) {
+		boolean tf = true;
+		out.print("<b>To:</b> ");
+		for (int i = 0; i < to.length; i++) {
+		    out.print(((tf) ? " " : ", ") + getDisplayAddress(to[i]));
+		    tf = false;
+		}
+		out.println("<br>");
+	    }
 
-            Address[] cc = msg.getRecipients(Message.RecipientType.CC);
-            if (cc != null) {
-                boolean cf = true;
-                out.print("<b>CC:</b> ");
-                for (int i = 0; i < cc.length; i++) {
-                    out.print(((cf) ? " " : ", ") + getDisplayAddress(cc[i]));
+	    Address[] cc = msg.getRecipients(Message.RecipientType.CC);
+	    if (cc != null) {
+		boolean cf = true;
+		out.print("<b>CC:</b> ");
+		for (int i = 0; i < cc.length; i++) {
+		    out.print(((cf) ? " " : ", ") + getDisplayAddress(cc[i]));
 		    cf = false;
 		}
-                out.println("<br>");
-            }
-            
+		out.println("<br>");
+	    }
+	    
 	    out.print("<b>Subject:</b> " + 
 		      ((msg.getSubject() !=null) ? msg.getSubject() : "") + 
 		      "<br>");
 
-        } catch (MessagingException mex) {
+	} catch (MessagingException mex) {
 	    out.println(msg.toString());
 	}
     }
@@ -433,13 +433,13 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
      */
     private void displayHeaders(MailUserData mud,
 				HttpServletRequest req, 
-                                ServletOutputStream out)
+				ServletOutputStream out)
 	throws IOException {
 
-        SimpleDateFormat df = new SimpleDateFormat("EE M/d/yy");
+	SimpleDateFormat df = new SimpleDateFormat("EE M/d/yy");
 
-        out.println("<html>");
-        out.println("<HEAD><TITLE>JavaMail Servlet</TITLE></HEAD>");
+	out.println("<html>");
+	out.println("<HEAD><TITLE>JavaMail Servlet</TITLE></HEAD>");
 	out.println("<BODY bgcolor=\"#ccccff\"><hr>");
 	out.print("<center><font face=\"Arial,Helvetica\" font size=\"+3\">");
 	out.println("<b>Folder " + mud.getStore().getURLName() + 
@@ -447,17 +447,17 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 	// URL's for the commands that are available
 	out.println("<font face=\"Arial,Helvetica\" font size=\"+3\"><b>");
-        out.println("<a href=\"" +
+	out.println("<a href=\"" +
 		    HttpUtils.getRequestURL(req) +
 		    "?logout=true\">Logout</a>");
-        out.println("<a href=\"" +
+	out.println("<a href=\"" +
 		    HttpUtils.getRequestURL(req) +
 		    "?compose=true\" target=\"compose\">Compose</a>");
 	out.println("</b></font>");
 	out.println("<hr>");
 
 	// List headers in a table
-        out.print("<table cellpadding=1 cellspacing=1 "); // table
+	out.print("<table cellpadding=1 cellspacing=1 "); // table
 	out.println("width=\"100%\" border=1>");          // settings
 
 	// sender column header
@@ -479,41 +479,41 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 	    Message m = null;
 	    // for each message, show its headers
 	    for (int i = 1; i <= msgCount; i++) {
-                m = f.getMessage(i);
+		m = f.getMessage(i);
 		
 		// if message has the DELETED flag set, don't display it
 		if (m.isSet(Flags.Flag.DELETED))
 		    continue;
 
 		// from 
-                out.println("<tr valigh=middle>");
-                out.print("<td width=\"25%\" bgcolor=\"ffffff\">");
+		out.println("<tr valigh=middle>");
+		out.print("<td width=\"25%\" bgcolor=\"ffffff\">");
 		out.println("<font face=\"Arial,Helvetica\">" + 
 			    ((m.getFrom() != null) ? 
-			               m.getFrom()[0].toString() : 
-			               "" ) +
+				       m.getFrom()[0].toString() : 
+				       "" ) +
 			    "</font></td>");
 
 		// date
-                out.print("<td nowrap width=\"15%\" bgcolor=\"ffffff\">");
+		out.print("<td nowrap width=\"15%\" bgcolor=\"ffffff\">");
 		out.println("<font face=\"Arial,Helvetica\">" + 
-                            df.format((m.getSentDate()!=null) ? 
+			    df.format((m.getSentDate()!=null) ? 
 				      m.getSentDate() : m.getReceivedDate()) +
 			    "</font></td>");
 
 		// subject & link
-                out.print("<td bgcolor=\"ffffff\">");
+		out.print("<td bgcolor=\"ffffff\">");
 		out.println("<font face=\"Arial,Helvetica\">" + 
-		            "<a href=\"" +
+			    "<a href=\"" +
 			    HttpUtils.getRequestURL(req) + 
-                            "?message=" +
-                            i + "\">" +
-                            ((m.getSubject() != null) ? 
-			           m.getSubject() :
-			           "<i>No Subject</i>") +
-                            "</a>" +
-                            "</font></td>");
-                out.println("</tr>");
+			    "?message=" +
+			    i + "\">" +
+			    ((m.getSubject() != null) ? 
+				   m.getSubject() :
+				   "<i>No Subject</i>") +
+			    "</a>" +
+			    "</font></td>");
+		out.println("</tr>");
 	    }
 	} catch (MessagingException mex) {
 	    out.println("<tr><td>" + mex.toString() + "</td></tr>");
@@ -546,7 +546,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 		      ServletOutputStream out, HttpSession ssn)
 	throws IOException {
 	    
-        String to = req.getParameter("to");
+	String to = req.getParameter("to");
 	String cc = req.getParameter("cc");
 	String subj = req.getParameter("subject");
 	String text = req.getParameter("text");
@@ -595,16 +595,16 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
     // utility method; returns a string suitable for msg header display
     private String getDisplayAddress(Address a) {
-        String pers = null;
-        String addr = null;
-        if (a instanceof InternetAddress &&
-            ((pers = ((InternetAddress)a).getPersonal()) != null)) {
+	String pers = null;
+	String addr = null;
+	if (a instanceof InternetAddress &&
+	    ((pers = ((InternetAddress)a).getPersonal()) != null)) {
 	    
 	    addr = pers + "  "+"&lt;"+((InternetAddress)a).getAddress()+"&gt;";
-        } else 
-            addr = a.toString();
-        
-        return addr;
+	} else 
+	    addr = a.toString();
+	
+	return addr;
     }
 
     // utility method; retrieve the MailUserData 
@@ -624,7 +624,7 @@ public class JavaMailServlet extends HttpServlet implements SingleThreadModel {
 
 
     public String getServletInfo() {
-        return "A mail reader servlet";
+	return "A mail reader servlet";
     }
 
     /**
