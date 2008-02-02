@@ -88,7 +88,7 @@ public class FolderModel extends AbstractTableModel {
     
 
     public int getColumnCount() {
-        return columnNames.length; 
+	return columnNames.length; 
     }
 
     public int getRowCount() {

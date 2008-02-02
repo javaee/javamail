@@ -61,7 +61,7 @@ public class FolderTreeNode extends DefaultMutableTreeNode {
     public boolean isLeaf() {
 	try {
 	    if ((folder.getType() & Folder.HOLDS_FOLDERS) == 0)
-	    	return true;
+		return true;
 	} catch (MessagingException me) { }
 	
 	// otherwise it does hold folders, and therefore not

@@ -80,7 +80,7 @@ public class SimpleClient {
 	    System.exit(1);
 	}
 
-        try {
+	try {
 	    // Set up our Mailcap entries.  This will allow the JAF
 	    // to locate our viewers.
 	    File capfile = new File("simple.mailcap");
@@ -93,9 +93,9 @@ public class SimpleClient {
 	    CommandMap.setDefaultCommandMap( new MailcapCommandMap(
 		new FileInputStream(capfile)));
 		
- 	    JFrame frame = new JFrame("Simple JavaMail Client");
- 	    frame.addWindowListener(new WindowAdapter() {
- 		public void windowClosing(WindowEvent e) {System.exit(0);}});
+	    JFrame frame = new JFrame("Simple JavaMail Client");
+	    frame.addWindowListener(new WindowAdapter() {
+		public void windowClosing(WindowEvent e) {System.exit(0);}});
 	    //frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 	    // Get a Store object
@@ -104,7 +104,7 @@ public class SimpleClient {
 		Session.getDefaultInstance(System.getProperties(), auth);
 	    //session.setDebug(true);
 
- 	    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
+	    DefaultMutableTreeNode root = new DefaultMutableTreeNode("Root");
 
 	    // create a node for each store we have
 	    for (Enumeration e = url.elements() ; e.hasMoreElements() ;) {

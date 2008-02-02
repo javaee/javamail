@@ -119,13 +119,13 @@ public class MessageViewer extends JPanel implements CommandObject {
 	gb.anchor = GridBagConstraints.WEST;
 	gb.weightx = 0.0;
 	gb.weighty = 0.0;
-  	gb.insets = new Insets(4,4,4,4);
+	gb.insets = new Insets(4,4,4,4);
 
 	// structure button
 	gb.gridwidth = GridBagConstraints.REMAINDER; // only for the last one
 	Button b = new Button("Structure");
 	b.addActionListener( new StructureAction());
- 	add(b, gb);
+	add(b, gb);
     }
 
     protected void loadHeaders() {
@@ -151,14 +151,14 @@ public class MessageViewer extends JPanel implements CommandObject {
 		sb.append(adds[0].toString());
 	    }
 	    sb.append("\n");
-	
+
 	    // to
 	    sb.append("To: ");
 	    adds = displayed.getRecipients(Message.RecipientType.TO);
 	    if (adds != null && adds.length > 0) {
 		sb.append(adds[0].toString());
 	    }
-	    sb.append("\n");	
+	    sb.append("\n");
 
 	    // subject
 	    sb.append("Subject: ");
@@ -181,7 +181,7 @@ public class MessageViewer extends JPanel implements CommandObject {
 		throw new MessagingException("view command failed on: " +
 					     displayed.getContentType());
 	    }
-	
+
 	    Object bean = dh.getBean(ci);
 	    if (bean instanceof Component) {
 		return (Component)bean;
@@ -202,7 +202,7 @@ public class MessageViewer extends JPanel implements CommandObject {
 				  DataHandler dh) throws IOException {
 	this.verb = verb;
 	dataHandler = dh;
-	
+
 	Object o = dh.getContent();
 	if (o instanceof Message) {
 	    setMessage((Message)o);
@@ -219,7 +219,7 @@ public class MessageViewer extends JPanel implements CommandObject {
 
     class StructureAction implements ActionListener {
 	StringBuffer sb;
-	
+
 	public void actionPerformed(ActionEvent e) {
 	    System.out.println("\n\nMessage Structure");
 	    dumpPart("", displayed);
@@ -232,7 +232,7 @@ public class MessageViewer extends JPanel implements CommandObject {
 				   "Content-Type: " + p.getContentType());
 		System.out.println(prefix + 
 				   "Class: " + p.getClass().toString());
-	   		    
+			    
 		Object o = p.getContent();
 		if (o == null) {
 		    System.out.println(prefix + "Content:  is null");
@@ -240,7 +240,7 @@ public class MessageViewer extends JPanel implements CommandObject {
 		    System.out.println(prefix +
 				       "Content: " + o.getClass().toString());
 		}
-		
+
 		if (o instanceof Multipart) {
 		    String newpref = prefix + "\t";
 		    Multipart mp = (Multipart)o;

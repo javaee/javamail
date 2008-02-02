@@ -145,7 +145,7 @@ public class SimpleAuthenticator extends Authenticator {
     }
 
     private Component constrain(Component cmp,
-        			GridBagLayout gb, GridBagConstraints c) {
+				GridBagLayout gb, GridBagConstraints c) {
 	gb.setConstraints(cmp, c);
 	return (cmp);
     }
