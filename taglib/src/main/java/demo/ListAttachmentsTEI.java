@@ -42,14 +42,14 @@ import javax.servlet.jsp.tagext.*;
 public class ListAttachmentsTEI extends TagExtraInfo {
     
     public ListAttachmentsTEI() {
-        super();
+	super();
     }
     
     public VariableInfo[] getVariableInfo(TagData data) {
-        VariableInfo info = new VariableInfo(data.getId(),"AttachmentInfo",
-            true, VariableInfo.NESTED);
-        VariableInfo[] varInfo = { info };
-        return varInfo;
+	VariableInfo info = new VariableInfo(data.getId(),"AttachmentInfo",
+	    true, VariableInfo.NESTED);
+	VariableInfo[] varInfo = { info };
+	return varInfo;
     }
 }
 

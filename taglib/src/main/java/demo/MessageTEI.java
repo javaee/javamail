@@ -42,14 +42,14 @@ import javax.servlet.jsp.tagext.*;
 public class MessageTEI extends TagExtraInfo {
     
     public MessageTEI() {
-        super();
+	super();
     }
     
     public VariableInfo[] getVariableInfo(TagData data) {
-        VariableInfo info = new VariableInfo(data.getId(),"MessageInfo",
-            true, VariableInfo.AT_END);
-        VariableInfo[] varInfo = { info };
-        return varInfo;
+	VariableInfo info = new VariableInfo(data.getId(),"MessageInfo",
+	    true, VariableInfo.AT_END);
+	VariableInfo[] varInfo = { info };
+	return varInfo;
     }
 }
 

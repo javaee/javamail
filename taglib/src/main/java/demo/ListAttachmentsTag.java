@@ -54,69 +54,69 @@ public class ListAttachmentsTag extends BodyTagSupport {
      * messageinfo attribute getter method.
      */
     public String getMessageinfo() {
-        return messageinfo;
+	return messageinfo;
     }
     
     /**
      * messageinfo attribute setter method.
      */
     public void setMessageinfo(String messageinfo) {
-        this.messageinfo = messageinfo;
+	this.messageinfo = messageinfo;
     }
 
     /**
      * Method for processing the start of the tag.
      */
     public int doStartTag() throws JspException {
-        messageInfo = (MessageInfo)pageContext.getAttribute(getMessageinfo());
-        attachmentinfo = new AttachmentInfo();
-        
-        try {
-            multipart = (Multipart)messageInfo.getMessage().getContent();
-            numParts = multipart.getCount();
-        } catch (Exception ex) {
-            throw new JspException(ex.getMessage());
-        }
+	messageInfo = (MessageInfo)pageContext.getAttribute(getMessageinfo());
+	attachmentinfo = new AttachmentInfo();
+	
+	try {
+	    multipart = (Multipart)messageInfo.getMessage().getContent();
+	    numParts = multipart.getCount();
+	} catch (Exception ex) {
+	    throw new JspException(ex.getMessage());
+	}
 
-        getPart();
+	getPart();
 
-        return BodyTag.EVAL_BODY_TAG;
+	return BodyTag.EVAL_BODY_TAG;
     }
    
     /**
      * Method for processing the body content of the tag.
      */
     public int doAfterBody() throws JspException {
-        
-        BodyContent body = getBodyContent();
-        try {
-            body.writeOut(getPreviousOut());
-        } catch (IOException e) {
-            throw new JspTagException("IterationTag: " + e.getMessage());
-        }
-        
-        // clear up so the next time the body content is empty
-        body.clearBody();
+	
+	BodyContent body = getBodyContent();
+	try {
+	    body.writeOut(getPreviousOut());
+	} catch (IOException e) {
+	    throw new JspTagException("IterationTag: " + e.getMessage());
+	}
+	
+	// clear up so the next time the body content is empty
+	body.clearBody();
        
-        partNum++;
-        if (partNum < numParts) {
-            getPart();
-            return BodyTag.EVAL_BODY_TAG;
-        } else {
-            return BodyTag.SKIP_BODY;
-        }
+	partNum++;
+	if (partNum < numParts) {
+	    getPart();
+	    return BodyTag.EVAL_BODY_TAG;
+	} else {
+	    return BodyTag.SKIP_BODY;
+	}
     }
     
     /**
      * Helper method for retrieving message parts.
      */
     private void getPart() throws JspException {
-        try {
-            attachmentinfo.setPart(partNum, multipart.getBodyPart(partNum));
-            pageContext.setAttribute(getId(), attachmentinfo);
-        } catch (Exception ex) {
-            throw new JspException(ex.getMessage());
-        }
+	try {
+	    attachmentinfo.setPart(partNum, multipart.getBodyPart(partNum));
+	    pageContext.setAttribute(getId(), attachmentinfo);
+	} catch (Exception ex) {
+	    throw new JspException(ex.getMessage());
+	}
     }
 }
 

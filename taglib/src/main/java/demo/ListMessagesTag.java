@@ -56,84 +56,84 @@ public class ListMessagesTag extends BodyTagSupport {
      * folder attribute getter method.
      */
     public String getFolder() {
-        return folder;
+	return folder;
     }
     
     /**
      * session attribute getter method.
      */
     public String getSession() {
-        return session;
+	return session;
     }
     
     /**
      * folder setter method.
      */
     public void setFolder(String folder) {
-        this.folder = folder;
+	this.folder = folder;
     }
 
     /**
      * session attribute setter method.
      */
     public void setSession(String session) {
-        this.session = session;
+	this.session = session;
     }
 
     /**
      * Method for processing the start of the tag.
      */
     public int doStartTag() throws JspException {
-        messageinfo = new MessageInfo();
+	messageinfo = new MessageInfo();
        
-        try {
-            Folder folder = (Folder)pageContext.getAttribute(
+	try {
+	    Folder folder = (Folder)pageContext.getAttribute(
 		getFolder(), PageContext.SESSION_SCOPE);
-            FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
-            messages = folder.search(ft);
-            messageCount = messages.length;
+	    FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
+	    messages = folder.search(ft);
+	    messageCount = messages.length;
 	    msgNum = 0;
-        } catch (Exception ex) {
-            throw new JspException(ex.getMessage());
-        }
+	} catch (Exception ex) {
+	    throw new JspException(ex.getMessage());
+	}
 
-        if (messageCount > 0) {
-            getMessage();
-            return BodyTag.EVAL_BODY_TAG;
-        } else
-            return BodyTag.SKIP_BODY;
+	if (messageCount > 0) {
+	    getMessage();
+	    return BodyTag.EVAL_BODY_TAG;
+	} else
+	    return BodyTag.SKIP_BODY;
     }
    
     /**
      * Method for processing the body content of the tag.
      */
     public int doAfterBody() throws JspException {
-        
-        BodyContent body = getBodyContent();
-        try {
-            body.writeOut(getPreviousOut());
-        } catch (IOException e) {
-            throw new JspTagException("IterationTag: " + e.getMessage());
-        }
-        
-        // clear up so the next time the body content is empty
-        body.clearBody();
+	
+	BodyContent body = getBodyContent();
+	try {
+	    body.writeOut(getPreviousOut());
+	} catch (IOException e) {
+	    throw new JspTagException("IterationTag: " + e.getMessage());
+	}
+	
+	// clear up so the next time the body content is empty
+	body.clearBody();
        
-        if (msgNum < messageCount) {
-            getMessage();
-            return BodyTag.EVAL_BODY_TAG;
-        } else {
-            return BodyTag.SKIP_BODY;
-        }
+	if (msgNum < messageCount) {
+	    getMessage();
+	    return BodyTag.EVAL_BODY_TAG;
+	} else {
+	    return BodyTag.SKIP_BODY;
+	}
     }
     
     /**
      * Helper method for retrieving messages.
      */
     private void getMessage() throws JspException {
-        message = messages[msgNum++];
-        messageinfo.setMessage(message);
-        pageContext.setAttribute(getId(), messageinfo);
+	message = messages[msgNum++];
+	messageinfo.setMessage(message);
+	pageContext.setAttribute(getId(), messageinfo);
     }
 }
 
