@@ -5,14 +5,13 @@
     <parent>
 	<groupId>javax.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>${mail.version}</version>
+	<version>1.4.2-SNAPSHOT</version>
 	<relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>libmbox</artifactId>
     <packaging>so</packaging>
-    <version>${mail.version}</version>
     <name>JavaMail API mbox native library</name>
     <description>JavaMail API mbox native library</description>
     <url>http://java.sun.com/projects/javamail</url>
@@ -87,12 +86,10 @@
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>${mail.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mbox</artifactId>
-            <version>${mail.version}</version>
         </dependency>
     </dependencies>
 </project>

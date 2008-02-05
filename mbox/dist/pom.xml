@@ -5,14 +5,13 @@
     <parent>
 	<groupId>javax.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>${mail.version}</version>
+	<version>1.4.2-SNAPSHOT</version>
 	<relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>mboxdist</artifactId>
     <packaging>pom</packaging>
-    <version>${mail.version}</version>
     <name>JavaMail API mbox distribution</name>
     <description>JavaMail API mbox distribution</description>
     <url>http://java.sun.com/projects/javamail</url>

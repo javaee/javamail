@@ -158,6 +158,41 @@
         </plugins>
     </build>
 
+    <dependencyManagement>
+	<dependencies>
+	    <dependency>
+		<groupId>javax.mail</groupId>
+		<artifactId>mail</artifactId>
+		<version>${mail.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>dsn</artifactId>
+		<version>${mail.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>mbox</artifactId>
+		<version>${mail.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>taglib</artifactId>
+		<version>${mail.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>servlet-api</artifactId>
+		<version>2.5</version>
+	    </dependency>
+	    <dependency>
+		<groupId>javax.servlet.jsp</groupId>
+		<artifactId>jsp-api</artifactId>
+		<version>2.1</version>
+	    </dependency>
+	</dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>javax.activation</groupId>

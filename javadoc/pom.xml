@@ -143,12 +143,10 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
-            <version>${mail.version}</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>dsn</artifactId>
-            <version>${mail.version}</version>
         </dependency>
     </dependencies>
 </project>
