@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -85,7 +85,19 @@ import com.sun.mail.util.ASCIIUtility;
  * of the MimeMultipart does not include a <code>boundary</code> parameter.
  * If this property is set to <code>true</code> or not set, the multipart
  * parsing code will look for a line that looks like a bounary line and
- * use that as the boundary separating the parts.
+ * use that as the boundary separating the parts. <p>
+ *
+ * The current implementation also supports the following property: <p>
+ *
+ * Normally, when writing out a MimeMultipart that contains no body
+ * parts, or when trying to parse a multipart message with no body parts,
+ * a <code>MessagingException</code> is thrown.  The MIME spec does not allow
+ * multipart content with no body parts.  The
+ * <code>mail.mime.multipart.allowempty</code> System property may be set to
+ * <code>true</code> to override this behavior.
+ * When writing out such a MimeMultipart, a single empty part will be
+ * included.  When reading such a multipart, a MimeMultipart will be created
+ * with no body parts.
  *
  * @author  John Mani
  * @author  Bill Shannon
@@ -96,6 +108,7 @@ public class MimeMultipart extends Multipart {
 
     private static boolean ignoreMissingEndBoundary = true;
     private static boolean ignoreMissingBoundaryParameter = true;
+    private static boolean allowEmpty = true;
     private static boolean bmparse = true;
 
     static {
@@ -110,6 +123,10 @@ public class MimeMultipart extends Multipart {
 	    // default to true
 	    ignoreMissingBoundaryParameter =
 			s == null || !s.equalsIgnoreCase("false");
+	    s = System.getProperty(
+			"mail.mime.multipart.allowempty");
+	    // default to false
+	    allowEmpty = s != null && s.equalsIgnoreCase("true");
 	    s = System.getProperty(
 			"mail.mime.multipart.bmparse");
 	    // default to true
@@ -434,10 +451,21 @@ public class MimeMultipart extends Multipart {
 	    }
 	    // XXX - could force a blank line before start boundary
 	}
-	for (int i = 0; i < parts.size(); i++) {
-	    los.writeln(boundary); // put out boundary
-	    ((MimeBodyPart)parts.elementAt(i)).writeTo(os);
-	    los.writeln(); // put out empty line
+
+	if (parts.size() == 0) {
+	    if (allowEmpty) {
+		// write out a single empty body part
+		los.writeln(boundary); // put out boundary
+		los.writeln(); // put out empty line
+	    } else {
+		throw new MessagingException("Empty multipart: " + contentType);
+	    }
+	} else {
+	    for (int i = 0; i < parts.size(); i++) {
+		los.writeln(boundary); // put out boundary
+		((MimeBodyPart)parts.elementAt(i)).writeTo(os);
+		los.writeln(); // put out empty line
+	    }
 	}
 
 	// put out last boundary
@@ -509,6 +537,11 @@ public class MimeMultipart extends Multipart {
 		if (boundary != null) {
 		    if (line.equals(boundary))
 			break;
+		    if (line.length() == boundary.length() + 2 &&
+			    line.startsWith(boundary) && line.endsWith("--")) {
+			line = null;	// signal end of multipart
+			break;
+		    }
 		} else {
 		    /*
 		     * Boundary hasn't been defined, does this line
@@ -516,14 +549,18 @@ public class MimeMultipart extends Multipart {
 		     * the boundary and save it.
 		     */
 		    if (line.startsWith("--")) {
-			boundary = line;
+			if (line.endsWith("--")) {
+			    boundary = line.substring(0, line.length() - 2);
+			    line = null;	// signal end of multipart
+			} else
+			    boundary = line;
 			break;
 		    }
 		}
 
 		// save the preamble after skipping blank lines
 		if (line.length() > 0) {
-		    // if we haven't figured out what the line seprator
+		    // if we haven't figured out what the line separator
 		    // is, do it now
 		    if (lineSeparator == null) {
 			try {
@@ -539,11 +576,16 @@ public class MimeMultipart extends Multipart {
 		    preamblesb.append(line).append(lineSeparator);
 		}
 	    }
-	    if (line == null)
-		throw new MessagingException("Missing start boundary");
 
 	    if (preamblesb != null)
 		preamble = preamblesb.toString();
+
+	    if (line == null) {
+		if (allowEmpty)
+		    return;
+		else
+		    throw new MessagingException("Missing start boundary");
+	    }
 
 	    // save individual boundary bytes for easy comparison later
 	    byte[] bndbytes = ASCIIUtility.getBytes(boundary);
@@ -760,6 +802,11 @@ public class MimeMultipart extends Multipart {
 		if (boundary != null) {
 		    if (line.equals(boundary))
 			break;
+		    if (line.length() == boundary.length() + 2 &&
+			    line.startsWith(boundary) && line.endsWith("--")) {
+			line = null;	// signal end of multipart
+			break;
+		    }
 		} else {
 		    /*
 		     * Boundary hasn't been defined, does this line
@@ -767,14 +814,18 @@ public class MimeMultipart extends Multipart {
 		     * the boundary and save it.
 		     */
 		    if (line.startsWith("--")) {
-			boundary = line;
+			if (line.endsWith("--")) {
+			    boundary = line.substring(0, line.length() - 2);
+			    line = null;	// signal end of multipart
+			} else
+			    boundary = line;
 			break;
 		    }
 		}
 
 		// save the preamble after skipping blank lines
 		if (line.length() > 0) {
-		    // if we haven't figured out what the line seprator
+		    // if we haven't figured out what the line separator
 		    // is, do it now
 		    if (lineSeparator == null) {
 			try {
@@ -790,11 +841,16 @@ public class MimeMultipart extends Multipart {
 		    preamblesb.append(line).append(lineSeparator);
 		}
 	    }
-	    if (line == null)
-		throw new MessagingException("Missing start boundary");
 
 	    if (preamblesb != null)
 		preamble = preamblesb.toString();
+
+	    if (line == null) {
+		if (allowEmpty)
+		    return;
+		else
+		    throw new MessagingException("Missing start boundary");
+	    }
 
 	    // save individual boundary bytes for comparison later
 	    byte[] bndbytes = ASCIIUtility.getBytes(boundary);

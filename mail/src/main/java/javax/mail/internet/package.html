@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -195,7 +195,6 @@ message.
 </TD>
 </TR>
 
-
 <TR>
 <TD>mail.mime.multipart. ignoremissingboundaryparameter</TD>
 <TD>boolean</TD>
@@ -208,6 +207,22 @@ If this property is set to <code>"false"</code>, a
 <code>MessagingException</code> will be thrown if the Content-Type
 header doesn't specify a boundary parameter.
 The default is true.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. allowempty</TD>
+<TD>boolean</TD>
+<TD>
+Normally, when writing out a MimeMultipart that contains no body
+parts, or when trying to parse a multipart message with no body parts,
+a <code>MessagingException</code> is thrown.  The MIME spec does not allow
+multipart content with no body parts.  This
+System property may be set to <code>"true"</code> to override this behavior.
+When writing out such a MimeMultipart, a single empty part will be
+included.  When reading such a multipart, a MimeMultipart will be created
+with no body parts.
+The default value of this property is false.
 </TD>
 </TR>
 
