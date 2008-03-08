@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -580,7 +580,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		final boolean subscribed) throws MessagingException {
 	checkExists(); // insure that this folder does exist.
 	
-	if (!isDirectory()) // Why waste a roundtrip to the server ?
+	// Why waste a roundtrip to the server?
+	if (attributes != null && !isDirectory())
 	    return new Folder[0];
 
 	final char c = getSeparator();
