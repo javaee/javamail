@@ -13,6 +13,8 @@ The following bugs have been fixed in the 1.4.2 release.
 6629213	base64 encoder sometimes omits CRLF
 6671855	list on IMAP folder that can contain both messages and folders
 	might fail if folder is open
+6672359	SMTPTransport notifying both partially delivered and
+	not delivered methods
 <no id>	ignore socket timeout while waiting in IMAP IDLE
 <no id>	fix bug in MailDateFormat parsing in non-lenient mode
 <no id>	add mail.mime.multipart.allowempty system property to handle (illegal)

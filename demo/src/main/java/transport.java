@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2007 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -59,7 +59,7 @@ public class transport implements ConnectionListener, TransportListener {
     static String msgText2 = "\nThis was sent by transport.java demo program.";
 
     public static void main(String[] args) {
-	Properties props = new Properties();
+	Properties props = System.getProperties();
 	// parse the arguments
 	InternetAddress[] addrs = null;
 	InternetAddress from;
@@ -133,6 +133,7 @@ public class transport implements ConnectionListener, TransportListener {
 	    // give the EventQueue enough time to fire its events
 	    try {Thread.sleep(5);}catch(InterruptedException e) {}
 
+	    System.out.println("Sending failed with exception:");
 	    mex.printStackTrace();
 	    System.out.println();
 	    Exception ex = mex;
@@ -190,7 +191,7 @@ public class transport implements ConnectionListener, TransportListener {
 
     // implement TransportListener interface
     public void messageDelivered(TransportEvent e) {
-	System.out.print(">>> TransportListener.messageDelivered().");
+	System.out.println(">>> TransportListener.messageDelivered().");
 	System.out.println(" Valid Addresses:");
 	Address[] valid = e.getValidSentAddresses();
 	if (valid != null) {
@@ -199,7 +200,7 @@ public class transport implements ConnectionListener, TransportListener {
 	}
     }
     public void messageNotDelivered(TransportEvent e) {
-	System.out.print(">>> TransportListener.messageNotDelivered().");
+	System.out.println(">>> TransportListener.messageNotDelivered().");
 	System.out.println(" Invalid Addresses:");
 	Address[] invalid = e.getInvalidAddresses();
 	if (invalid != null) {
@@ -208,10 +209,31 @@ public class transport implements ConnectionListener, TransportListener {
 	}
     }
     public void messagePartiallyDelivered(TransportEvent e) {
-	// SMTPTransport doesn't partially deliver msgs
+	System.out.println(">>> TransportListener.messagePartiallyDelivered().");
+	System.out.println(" Valid Addresses:");
+	Address[] valid = e.getValidSentAddresses();
+	if (valid != null) {
+	    for (int i = 0; i < valid.length; i++) 
+		System.out.println("    " + valid[i]);
+	}
+	System.out.println(" Valid Unsent Addresses:");
+	Address[] unsent = e.getValidUnsentAddresses();
+	if (unsent != null) {
+	    for (int i = 0; i < unsent.length; i++) 
+		System.out.println("    " + unsent[i]);
+	}
+	System.out.println(" Invalid Addresses:");
+	Address[] invalid = e.getInvalidAddresses();
+	if (invalid != null) {
+	    for (int i = 0; i < invalid.length; i++) 
+		System.out.println("    " + invalid[i]);
+	}
     }
 
     private static void usage() {
-	System.out.println("usage: java transport \"<to1>[, <to2>]*\" <from> <smtp> true|false\nexample: java transport \"joe@machine, jane\" senderaddr smtphost false");
+	System.out.println(
+    "usage: java transport \"<to1>[, <to2>]*\" <from> <smtp> true|false");
+	System.out.println(
+    "example: java transport \"joe@machine, jane\" senderaddr smtphost false");
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -109,6 +109,7 @@ public class SMTPTransport extends Transport {
     private String localHostName;	// our own host name
     private String lastServerResponse;	// last SMTP response
     private int lastReturnCode;		// last SMTP return code
+    private boolean notificationDone;	// only notify once per send
 
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
@@ -677,6 +678,7 @@ public class SMTPTransport extends Transport {
 	    this.message = null;
 	    this.exception = null;
 	    sendPartiallyFailed = false;
+	    notificationDone = false;	// reset for next send
 	}
     }
 
@@ -755,6 +757,23 @@ public class SMTPTransport extends Transport {
 		closeConnection();
 	    } catch (MessagingException mex) { }	// ignore it
 	    return false;
+	}
+    }
+
+    /**
+     * Notify all TransportListeners.  Keep track of whether notification
+     * has been done so as to only notify once per send.
+     *
+     * @since	JavaMail 1.4.2
+     */
+    protected void notifyTransportListeners(int type, Address[] validSent,
+					    Address[] validUnsent,
+					    Address[] invalid, Message msg) {
+
+	if (!notificationDone) {
+	    super.notifyTransportListeners(type, validSent, validUnsent,
+		invalid, msg);
+	    notificationDone = true;
 	}
     }
 
