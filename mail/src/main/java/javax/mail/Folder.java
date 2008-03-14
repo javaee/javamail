@@ -90,6 +90,11 @@ import javax.mail.event.*;
  * multiple times will return the same Message object, until an 
  * expunge is done on this Folder. <p>
  *
+ * Message objects from a Folder are only valid while a Folder is open
+ * and should not be accessed after the Folder is closed, even if the
+ * Folder is subsequently reopened.  Instead, new Message objects must
+ * be fetched from the Folder after the Folder is reopened. <p>
+ *
  * Note that a Message's message number can change within a
  * session if the containing Folder is expunged using the expunge
  * method.  Clients that use message numbers as references to messages
