@@ -11,6 +11,7 @@ The following bugs have been fixed in the 1.4.2 release.
 6621377	unexpected result when uuencode data has any line starting with
 	"END" characters
 6629213	base64 encoder sometimes omits CRLF
+6670275	headers may not end up on top where they belong
 6671855	list on IMAP folder that can contain both messages and folders
 	might fail if folder is open
 6672359	SMTPTransport notifying both partially delivered and
