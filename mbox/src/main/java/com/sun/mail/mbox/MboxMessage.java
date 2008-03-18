@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -214,7 +214,7 @@ public class MboxMessage extends MimeMessage {
 	Flags oldFlags = (Flags)flags.clone();
 	super.setFlags(newFlags, set);
 	if (!flags.equals(oldFlags)) {
-	    setHeadersFromFlags();
+	    setHeadersFromFlags(this);
 	    if (folder != null)
 		((MboxFolder)folder).notifyMessageChangedListeners(
 				MessageChangedEvent.FLAGS_CHANGED, this);
@@ -333,17 +333,18 @@ public class MboxMessage extends MimeMessage {
     /**
      * Set the various header fields that represent the message flags.
      */
-    private synchronized void setHeadersFromFlags() {
+    static void setHeadersFromFlags(MimeMessage msg) {
 	try {
+	    Flags flags = msg.getFlags();
 	    StringBuffer status = new StringBuffer();
 	    if (flags.contains(Flags.Flag.SEEN))
 		status.append('R');
 	    if (!flags.contains(Flags.Flag.RECENT))
 		status.append('O');
-	    setHeader("Status", status.toString());
+	    msg.setHeader("Status", status.toString());
 
 	    boolean sims = false;
-	    String s = getHeader("X-Status", null);
+	    String s = msg.getHeader("X-Status", null);
 	    // is it a SIMS 2.0 format X-Status header?
 	    sims = s != null && s.length() == 4 && s.indexOf('$') >= 0;
 	    status.setLength(0);
@@ -363,7 +364,7 @@ public class MboxMessage extends MimeMessage {
 		status.append('T');
 	    else if (sims)
 		status.append('$');
-	    setHeader("X-Status", status.toString());
+	    msg.setHeader("X-Status", status.toString());
 
 	    String[] userFlags = flags.getUserFlags();
 	    if (userFlags.length > 0) {
@@ -371,13 +372,13 @@ public class MboxMessage extends MimeMessage {
 		for (int i = 0; i < userFlags.length; i++)
 		    status.append(userFlags[i]).append(' ');
 		status.setLength(status.length() - 1);	// smash trailing space
-		setHeader("X-Keywords", status.toString());
+		msg.setHeader("X-Keywords", status.toString());
 	    }
 	    if (flags.contains(Flags.Flag.DELETED)) {
-		s = getHeader("X-Dt-Delete-Time", null);
+		s = msg.getHeader("X-Dt-Delete-Time", null);
 		if (s == null)
 		    // XXX - should be time
-		    setHeader("X-Dt-Delete-Time", "1");
+		    msg.setHeader("X-Dt-Delete-Time", "1");
 	    }
 	} catch (MessagingException e) {
 	    // ignore it
@@ -386,7 +387,7 @@ public class MboxMessage extends MimeMessage {
 
     protected void updateHeaders() throws MessagingException {
 	super.updateHeaders();
-	setHeadersFromFlags();
+	setHeadersFromFlags(this);
     }
 
     /**

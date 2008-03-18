@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -496,6 +496,8 @@ e.printStackTrace();
 	    if (msg instanceof MboxMessage) {
 		((MboxMessage)msg).writeToFile(os);
 	    } else {
+		// XXX - modify the message to preserve the flags in headers
+		MboxMessage.setHeadersFromFlags(msg);
 		ContentLengthCounter cos = new ContentLengthCounter();
 		NewlineOutputStream nos = new NewlineOutputStream(cos);
 		msg.writeTo(nos);
