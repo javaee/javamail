@@ -693,7 +693,7 @@ public class SMTPTransport extends Transport {
 		sendCommand("QUIT");
 		if (quitWait) {
 		    int resp = readServerResponse();
-		    if (resp != 221 && resp != -1)
+		    if (resp != 221 && resp != -1 && debug)
 			out.println("DEBUG SMTP: QUIT failed with " + resp);
 		}
 	    }
