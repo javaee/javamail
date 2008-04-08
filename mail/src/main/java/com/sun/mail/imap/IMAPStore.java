@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -693,29 +693,8 @@ public class IMAPStore extends Store
                     out.println("DEBUG: no connections in the pool, " +
                                        "creating a new one");
                 try {
-		    /*
-		     * Some authentication systems use one time passwords
-		     * or tokens, so each authentication request requires
-		     * a new password.  This "kludge" allows a callback
-		     * to application code to get a new password.
-		     *
-		     * XXX - remove this when SASL support is added
-		     */
-		    if (forcePasswordRefresh) {
-			InetAddress addr;
-			try {
-			    addr = InetAddress.getByName(host);
-			} catch (UnknownHostException e) {
-			    addr = null;
-			}
-			PasswordAuthentication pa =
-			    session.requestPasswordAuthentication(addr, port,
-							name, null, user);
-			if (pa != null) {
-			    user = pa.getUserName();
-			    password = pa.getPassword();
-			}
-		    }
+		    if (forcePasswordRefresh)
+			refreshPassword();
                     // Use cached host, port and timeout values.
                     p = new IMAPProtocol(name, host, port,
                                          session.getDebug(),
@@ -819,6 +798,8 @@ public class IMAPStore extends Store
                     out.println("DEBUG: getStoreProtocol() - no connections " +
                         "in the pool, creating a new one");
                 try {
+		    if (forcePasswordRefresh)
+			refreshPassword();
                     // Use cached host, port and timeout values.
                     p = new IMAPProtocol(name, host, port,
                                          session.getDebug(),
@@ -871,6 +852,32 @@ public class IMAPStore extends Store
         }
 	}
 	return p;
+    }
+
+    /*
+     * Some authentication systems use one time passwords
+     * or tokens, so each authentication request requires
+     * a new password.  This "kludge" allows a callback
+     * to application code to get a new password.
+     *
+     * XXX - remove this when SASL support is added
+     */
+    private void refreshPassword() {
+	if (debug)
+	    out.println("DEBUG: refresh password, user: " + user);
+	InetAddress addr;
+	try {
+	    addr = InetAddress.getByName(host);
+	} catch (UnknownHostException e) {
+	    addr = null;
+	}
+	PasswordAuthentication pa =
+	    session.requestPasswordAuthentication(addr, port,
+					name, null, user);
+	if (pa != null) {
+	    user = pa.getUserName();
+	    password = pa.getPassword();
+	}
     }
 
     /**
