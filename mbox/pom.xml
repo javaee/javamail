@@ -13,6 +13,12 @@
     <packaging>jar</packaging>
     <name>JavaMail API mbox provider</name>
 
+    <properties>
+	<mail.packages.export>
+	    com.sun.mail.mbox; version=${mail.version}
+	</mail.packages.export>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>

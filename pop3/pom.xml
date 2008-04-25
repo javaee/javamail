@@ -14,4 +14,9 @@
     <packaging>jar</packaging>
     <name>JavaMail API pop3 provider</name>
 
+    <properties>
+	<mail.packages.export>
+	    com.sun.mail.pop3; version=${mail.version}
+	</mail.packages.export>
+    </properties>
 </project>

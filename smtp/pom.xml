@@ -14,4 +14,9 @@
     <packaging>jar</packaging>
     <name>JavaMail API smtp provider</name>
 
+    <properties>
+	<mail.packages.export>
+	    com.sun.mail.smtp; version=${mail.version}
+	</mail.packages.export>
+    </properties>
 </project>

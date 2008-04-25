@@ -16,6 +16,9 @@
 
     <properties>
 	<mail.extraClasses>com/sun/mail/iap/**</mail.extraClasses>
+	<mail.packages.export>
+	    com.sun.mail.imap; version=${mail.version}
+	</mail.packages.export>
     </properties>
 
 </project>

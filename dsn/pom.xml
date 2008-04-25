@@ -13,6 +13,12 @@
     <packaging>jar</packaging>
     <name>JavaMail API dsn support</name>
 
+    <properties>
+	<mail.packages.export>
+	    com.sun.mail.dsn; version=${mail.version}
+	</mail.packages.export>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>javax.mail</groupId>
