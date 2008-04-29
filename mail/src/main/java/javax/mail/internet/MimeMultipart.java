@@ -564,11 +564,16 @@ public class MimeMultipart extends Multipart {
 		     */
 		    if (line.startsWith("--")) {
 			if (line.endsWith("--")) {
-			    boundary = line.substring(0, line.length() - 2);
-			    line = null;	// signal end of multipart
-			} else
+			    /*
+			     * The first boundary-like line we find is
+			     * probably *not* the end-of-multipart boundary
+			     * line.  More likely it's a line full of dashes
+			     * in the preamble text.  Just keep reading.
+			     */
+			} else {
 			    boundary = line;
-			break;
+			    break;
+			}
 		    }
 		}
 
@@ -832,11 +837,16 @@ public class MimeMultipart extends Multipart {
 		     */
 		    if (line.startsWith("--")) {
 			if (line.endsWith("--")) {
-			    boundary = line.substring(0, line.length() - 2);
-			    line = null;	// signal end of multipart
-			} else
+			    /*
+			     * The first boundary-like line we find is
+			     * probably *not* the end-of-multipart boundary
+			     * line.  More likely it's a line full of dashes
+			     * in the preamble text.  Just keep reading.
+			     */
+			} else {
 			    boundary = line;
-			break;
+			    break;
+			}
 		    }
 		}
 
