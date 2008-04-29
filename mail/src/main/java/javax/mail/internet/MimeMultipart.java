@@ -87,7 +87,12 @@ import com.sun.mail.util.ASCIIUtility;
  * parsing code will look for a line that looks like a bounary line and
  * use that as the boundary separating the parts. <p>
  *
- * The current implementation also supports the following property: <p>
+ * The current implementation also supports the following properties: <p>
+ *
+ * The <code>mail.mime.multipart.ignoreexistingboundaryparameter</code>
+ * System property may be set to <code>true</code> to cause any boundary
+ * to be ignored and instead search for a boundary line in the message
+ * as with <code>mail.mime.multipart.ignoremissingboundaryparameter</code>. <p>
  *
  * Normally, when writing out a MimeMultipart that contains no body
  * parts, or when trying to parse a multipart message with no body parts,
@@ -108,6 +113,7 @@ public class MimeMultipart extends Multipart {
 
     private static boolean ignoreMissingEndBoundary = true;
     private static boolean ignoreMissingBoundaryParameter = true;
+    private static boolean ignoreExistingBoundaryParameter = false;
     private static boolean allowEmpty = true;
     private static boolean bmparse = true;
 
@@ -123,6 +129,11 @@ public class MimeMultipart extends Multipart {
 	    // default to true
 	    ignoreMissingBoundaryParameter =
 			s == null || !s.equalsIgnoreCase("false");
+	    s = System.getProperty(
+			"mail.mime.multipart.ignoreexistingboundaryparameter");
+	    // default to false
+	    ignoreExistingBoundaryParameter =
+			s != null && s.equalsIgnoreCase("true");
 	    s = System.getProperty(
 			"mail.mime.multipart.allowempty");
 	    // default to false
@@ -508,10 +519,13 @@ public class MimeMultipart extends Multipart {
 
 	ContentType cType = new ContentType(contentType);
 	String boundary = null;
-	String bp = cType.getParameter("boundary");
-	if (bp != null)
-	    boundary = "--" + bp;
-	else if (!ignoreMissingBoundaryParameter)
+	if (!ignoreExistingBoundaryParameter) {
+	    String bp = cType.getParameter("boundary");
+	    if (bp != null)
+		boundary = "--" + bp;
+	}
+	if (boundary == null && !ignoreMissingBoundaryParameter &&
+		!ignoreExistingBoundaryParameter)
 	    throw new MessagingException("Missing boundary parameter");
 
 	try {
@@ -773,10 +787,13 @@ public class MimeMultipart extends Multipart {
 
 	ContentType cType = new ContentType(contentType);
 	String boundary = null;
-	String bp = cType.getParameter("boundary");
-	if (bp != null)
-	    boundary = "--" + bp;
-	else if (!ignoreMissingBoundaryParameter)
+	if (!ignoreExistingBoundaryParameter) {
+	    String bp = cType.getParameter("boundary");
+	    if (bp != null)
+		boundary = "--" + bp;
+	}
+	if (boundary == null && !ignoreMissingBoundaryParameter &&
+		!ignoreExistingBoundaryParameter)
 	    throw new MessagingException("Missing boundary parameter");
 
 	try {
