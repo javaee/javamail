@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -166,6 +166,16 @@ public class QPDecoderStream extends FilterInputStream {
 	    buf[off+i] = (byte)c;
 	}
         return i;
+    }
+
+    /**
+     * Skips over and discards n bytes of data from this stream.
+     */
+    public long skip(long n) throws IOException {
+	long skipped = 0;
+	while (n-- > 0 && read() >= 0)
+	    skipped++;
+	return skipped;
     }
 
     /**

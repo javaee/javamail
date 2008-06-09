@@ -23,6 +23,7 @@ The following bugs have been fixed in the 1.4.2 release.
 	empty multiparts (see javax.mail.internet.MimeMultipart)
 <no id>	add mail.mime.multipart.ignoreexistingboundaryparameter system property
 	to allow parsing multiparts with incorrect boundary parameters
+<no id>	properly implement skip method for base64 and quoted-printable streams
 
 
 		  CHANGES IN THE 1.4.1 RELEASE
