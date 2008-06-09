@@ -111,42 +111,6 @@ import com.sun.mail.util.ASCIIUtility;
 
 public class MimeMultipart extends Multipart {
 
-    private static boolean ignoreMissingEndBoundary = true;
-    private static boolean ignoreMissingBoundaryParameter = true;
-    private static boolean ignoreExistingBoundaryParameter = false;
-    private static boolean allowEmpty = true;
-    private static boolean bmparse = true;
-
-    static {
-	try {
-	    String s = System.getProperty(
-			"mail.mime.multipart.ignoremissingendboundary");
-	    // default to true
-	    ignoreMissingEndBoundary =
-			s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty(
-			"mail.mime.multipart.ignoremissingboundaryparameter");
-	    // default to true
-	    ignoreMissingBoundaryParameter =
-			s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty(
-			"mail.mime.multipart.ignoreexistingboundaryparameter");
-	    // default to false
-	    ignoreExistingBoundaryParameter =
-			s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty(
-			"mail.mime.multipart.allowempty");
-	    // default to false
-	    allowEmpty = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty(
-			"mail.mime.multipart.bmparse");
-	    // default to true
-	    bmparse = s == null || !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
-
     /**
      * The DataSource supplying our InputStream.
      */
@@ -170,6 +134,16 @@ public class MimeMultipart extends Multipart {
      * occurs before the first boundary line.
      */
     private String preamble = null;
+
+    /**
+     * Flags to control parsing, initialized from System properties
+     * in the parse() method.
+     */
+    private boolean ignoreMissingEndBoundary = true;
+    private boolean ignoreMissingBoundaryParameter = true;
+    private boolean ignoreExistingBoundaryParameter = false;
+    private boolean allowEmpty = true;
+    private boolean bmparse = true;
 
     /**
      * Default constructor. An empty MimeMultipart object
@@ -495,6 +469,35 @@ public class MimeMultipart extends Multipart {
     protected synchronized void parse() throws MessagingException {
 	if (parsed)
 	    return;
+
+	// read properties that control parsing
+	try {
+	    String s = System.getProperty(
+			"mail.mime.multipart.ignoremissingendboundary");
+	    // default to true
+	    ignoreMissingEndBoundary =
+			s == null || !s.equalsIgnoreCase("false");
+	    s = System.getProperty(
+			"mail.mime.multipart.ignoremissingboundaryparameter");
+	    // default to true
+	    ignoreMissingBoundaryParameter =
+			s == null || !s.equalsIgnoreCase("false");
+	    s = System.getProperty(
+			"mail.mime.multipart.ignoreexistingboundaryparameter");
+	    // default to false
+	    ignoreExistingBoundaryParameter =
+			s != null && s.equalsIgnoreCase("true");
+	    s = System.getProperty(
+			"mail.mime.multipart.allowempty");
+	    // default to false
+	    allowEmpty = s != null && s.equalsIgnoreCase("true");
+	    s = System.getProperty(
+			"mail.mime.multipart.bmparse");
+	    // default to true
+	    bmparse = s == null || !s.equalsIgnoreCase("false");
+	} catch (SecurityException sex) {
+	    // ignore it
+	}
 
 	if (bmparse) {
 	    parsebm();
