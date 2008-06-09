@@ -1392,8 +1392,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	for (int i = 0; i < msgs.length; i++) {
 	    final Message m = msgs[i];
-	    final MessageLiteral mos;
+	    Date d = m.getReceivedDate(); // retain dates
+	    if (d == null)
+		d = m.getSentDate();
+	    final Date dd = d;
+	    final Flags f = m.getFlags();
 
+	    final MessageLiteral mos;
 	    try {
 		// if we know the message is too big, don't buffer any of it
 		mos = new MessageLiteral(m,
@@ -1405,11 +1410,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		continue; // just skip this expunged message
 	    }
 
-	    Date d = m.getReceivedDate(); // retain dates
-	    if (d == null)
-		d = m.getSentDate();
-	    final Date dd = d;
-	    final Flags f = m.getFlags();
 	    doCommand(new ProtocolCommand() {
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
@@ -2163,9 +2163,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @since	JavaMail 1.3.3
      */
     public String[] getAttributes() throws MessagingException {
+	checkExists();
 	if (attributes == null)
 	    exists();		// do a LIST to set the attributes
-	return (String[])(attributes.clone());
+	return attributes == null ? new String[0] :
+		(String[])(attributes.clone());
     }
 
     /**
