@@ -835,21 +835,32 @@ public class SMTPTransport extends Transport {
 		String enc = part.getEncoding();
 		if (enc != null && (enc.equalsIgnoreCase("quoted-printable") ||
 		    enc.equalsIgnoreCase("base64"))) {
-		    InputStream is = part.getInputStream();
-		    if (is8Bit(is)) {
-			/*
-			 * If the message was created using an InputStream
-			 * then we have to extract the content as an object
-			 * and set it back as an object so that the content
-			 * will be re-encoded.
-			 *
-			 * If the message was not created using an InputStream,
-			 * the following should have no effect.
-			 */
-			part.setContent(part.getContent(),
-					part.getContentType());
-			part.setHeader("Content-Transfer-Encoding", "8bit");
-			changed = true;
+		    InputStream is = null;
+		    try {
+			is = part.getInputStream();
+			if (is8Bit(is)) {
+			    /*
+			     * If the message was created using an InputStream
+			     * then we have to extract the content as an object
+			     * and set it back as an object so that the content
+			     * will be re-encoded.
+			     *
+			     * If the message was not created using an
+			     * InputStream, the following should have no effect.
+			     */
+			    part.setContent(part.getContent(),
+					    part.getContentType());
+			    part.setHeader("Content-Transfer-Encoding", "8bit");
+			    changed = true;
+			}
+		    } finally {
+			if (is != null) {
+			    try {
+				is.close();
+			    } catch (IOException ex2) {
+				// ignore it
+			    }
+			}
 		    }
 		}
 	    } else if (part.isMimeType("multipart/*")) {
