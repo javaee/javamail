@@ -3,6 +3,11 @@ Bug Database and looking up each bug you're interested in.
 
 	http://bugs.sun.com
 
+Bug IDs that start with "GF" can be found in the GlassFish Issue Tracker
+(after removing the "GF"):
+
+	https://glassfish.dev.java.net/issues
+
 
 		  CHANGES IN THE 1.4.2 RELEASE
 		  ----------------------------
@@ -17,13 +22,13 @@ The following bugs have been fixed in the 1.4.2 release.
 6672359	SMTPTransport notifying both partially delivered and
 	not delivered methods
 6679333	missing quotes around zero length parameter values
+GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 <no id>	ignore socket timeout while waiting in IMAP IDLE
 <no id>	fix bug in MailDateFormat parsing in non-lenient mode
 <no id>	add mail.mime.multipart.allowempty system property to handle (illegal)
 	empty multiparts (see javax.mail.internet.MimeMultipart)
 <no id>	add mail.mime.multipart.ignoreexistingboundaryparameter system property
 	to allow parsing multiparts with incorrect boundary parameters
-<no id>	properly implement skip method for base64 and quoted-printable streams
 
 
 		  CHANGES IN THE 1.4.1 RELEASE
