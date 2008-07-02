@@ -29,6 +29,7 @@ GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 	empty multiparts (see javax.mail.internet.MimeMultipart)
 <no id>	add mail.mime.multipart.ignoreexistingboundaryparameter system property
 	to allow parsing multiparts with incorrect boundary parameters
+<no id>	add mail.mime.uudecode.ignoreerrors system property
 
 
 		  CHANGES IN THE 1.4.1 RELEASE

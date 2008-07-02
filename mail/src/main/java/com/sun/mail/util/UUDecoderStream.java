@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -52,21 +52,43 @@ public class UUDecoderStream extends FilterInputStream {
     private String name;
     private int mode;
 
-    private byte[] buffer; 	// cache of decoded bytes
+    private byte[] buffer = new byte[45]; // max decoded chars in a line = 45
     private int bufsize = 0;	// size of the cache
     private int index = 0;	// index into the cache
     private boolean gotPrefix = false;
     private boolean gotEnd = false;
     private LineInputStream lin;
+    private boolean ignoreErrors;
+    private String readAhead;
 
     /**
-     * Create a UUdecoder that decodes the specified input stream
+     * Create a UUdecoder that decodes the specified input stream.
+     * The System property <code>mail.mime.uudecode.ignoreerrors</code>
+     * controls whether errors in the encoded data cause an exception
+     * or are ignored.  The default is false (errors cause exception).
      * @param in        the input stream
      */
     public UUDecoderStream(InputStream in) {
 	super(in);
 	lin = new LineInputStream(in);
-	buffer = new byte[45]; // max decoded chars in a line = 45
+	try {
+	    String s = System.getProperty("mail.mime.uudecode.ignoreerrors");
+	    // default to false
+	    ignoreErrors = s != null && !s.equalsIgnoreCase("false");
+	} catch (SecurityException sex) {
+	    // ignore it
+	}
+    }
+
+    /**
+     * Create a UUdecoder that decodes the specified input stream.
+     * @param in        	the input stream
+     * @param ignoreErrors	ignore errors?
+     */
+    public UUDecoderStream(InputStream in, boolean ignoreErrors) {
+	super(in);
+	lin = new LineInputStream(in);
+	this.ignoreErrors = ignoreErrors;
     }
 
     /**
@@ -82,7 +104,6 @@ public class UUDecoderStream extends FilterInputStream {
      * @exception  IOException  if an I/O error occurs.
      * @see        java.io.FilterInputStream#in
      */
-
     public int read() throws IOException {
 	if (index >= bufsize) {
 	    readPrefix();
@@ -149,21 +170,52 @@ public class UUDecoderStream extends FilterInputStream {
 	if (gotPrefix) // got the prefix
 	    return;
 
-	String s;
+	mode = 0666;		// defaults, overridden below
+	name = "encoder.buf";	// same default used by encoder
+	String line;
 	for (;;) {
 	    // read till we get the prefix: "begin MODE FILENAME"
-	    s = lin.readLine(); // NOTE: readLine consumes CRLF pairs too
-	    if (s == null)
-		throw new IOException("UUDecoder error: No Begin");
-	    if (s.regionMatches(false, 0, "begin", 0, 5)) {
-		try {
-		    mode = Integer.parseInt(s.substring(6,9));
-		} catch (NumberFormatException ex) {
-		    throw new IOException("UUDecoder error: " + ex.toString());
-		}
-		name = s.substring(10);
+	    line = lin.readLine(); // NOTE: readLine consumes CRLF pairs too
+	    if (line == null) {
+		if (!ignoreErrors)
+		    throw new IOException("UUDecoder error: No Begin");
+		// at EOF, fake it
 		gotPrefix = true;
-		return;
+		gotEnd = true;
+		break;
+	    }
+	    if (line.regionMatches(false, 0, "begin", 0, 5)) {
+		try {
+		    mode = Integer.parseInt(line.substring(6,9));
+		} catch (NumberFormatException ex) {
+		    if (!ignoreErrors)
+			throw new IOException("UUDecoder error in mode: " +
+						ex.toString());
+		}
+		if (line.length() > 10) {
+		    name = line.substring(10);
+		} else {
+		    if (!ignoreErrors)
+			throw new IOException("UUDecoder missing name: " +
+						line);
+		}
+		gotPrefix = true;
+		break;
+	    } else if (ignoreErrors) {
+		int count = line.charAt(0);
+		count = (count - ' ') & 0x3f;
+		int need = ((count * 8)+5)/6;
+		if (need == 0 || line.length() >= need + 1) {
+		    /*
+		     * Looks like a legitimate encoded line.
+		     * Pretend we saw the "begin" line and
+		     * save this line for later processing in
+		     * decode().
+		     */
+		    readAhead = line;
+		    gotPrefix = true;	// fake it
+		    break;
+		}
 	    }
 	}
     }
@@ -173,46 +225,72 @@ public class UUDecoderStream extends FilterInputStream {
 	if (gotEnd)
 	    return false;
 	bufsize = 0;
+	int count = 0;
 	String line;
-	do {
-	    line = lin.readLine();
+	for (;;) {
+	    /*
+	     * If we ignored a missing "begin", the first line
+	     * will be saved in readAhead.
+	     */
+	    if (readAhead != null) {
+		line = readAhead;
+		readAhead = null;
+	    } else
+		line = lin.readLine();
 
 	    /*
 	     * Improperly encoded data sometimes omits the zero length
 	     * line that starts with a space character, we detect the
 	     * following "end" line here.
 	     */
-	    if (line == null)
-		throw new IOException("Missing End");
+	    if (line == null) {
+		if (!ignoreErrors)
+		    throw new IOException("Missing End");
+		gotEnd = true;
+		return false;
+	    }
 	    if (line.equals("end")) {
 		gotEnd = true;
 		return false;
 	    }
-	} while (line.length() == 0);
-	int count = line.charAt(0);
-	if (count < ' ')
-	    throw new IOException("Buffer format error");
+	    if (line.length() == 0)
+		continue;
+	    count = line.charAt(0);
+	    if (count < ' ') {
+		if (!ignoreErrors)
+		    throw new IOException("Buffer format error");
+		continue;
+	    }
 
-	/*
-	 * The first character in a line is the number of original (not
-	 *  the encoded atoms) characters in the line. Note that all the
-	 *  code below has to handle the <SPACE> character that indicates
-	 *  end of encoded stream.
-	 */
-	count = (count - ' ') & 0x3f;
+	    /*
+	     * The first character in a line is the number of original (not
+	     *  the encoded atoms) characters in the line. Note that all the
+	     *  code below has to handle the <SPACE> character that indicates
+	     *  end of encoded stream.
+	     */
+	    count = (count - ' ') & 0x3f;
 
-	if (count == 0) {
-	    line = lin.readLine();
-	    if (line == null || !line.equals("end"))
-		throw new IOException("Missing End");
-	    gotEnd = true;
-	    return false;
-	}
+	    if (count == 0) {
+		line = lin.readLine();
+		if (line == null || !line.equals("end")) {
+		    if (!ignoreErrors)
+			throw new IOException("Missing End");
+		}
+		gotEnd = true;
+		return false;
+	    }
 
-	int need = ((count * 8)+5)/6;
+	    int need = ((count * 8)+5)/6;
 //System.out.println("count " + count + ", need " + need + ", len " + line.length());
-	if (line.length() < need + 1)
-	    throw new IOException("Short buffer error");
+	    if (line.length() < need + 1) {
+		if (!ignoreErrors)
+		    throw new IOException("Short buffer error");
+		continue;
+	    }
+
+	    // got a line we're committed to, break out and decode it
+	    break;
+	}
 	    
 	int i = 1;
 	byte a, b;
