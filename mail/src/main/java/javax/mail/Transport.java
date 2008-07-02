@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -82,15 +82,22 @@ public abstract class Transport extends Service {
      *
      * If any of the recipient addresses is detected to be invalid by
      * the Transport during message submission, a SendFailedException
-     * is thrown. Clients can get more detail about the failure by examining
-     * the exception. Whether or not the message is still sent succesfully to
-     * any valid addresses depends on the Transport implementation. See 
-     * SendFailedException for more details. Note also that success does 
+     * is thrown.  Clients can get more detail about the failure by examining
+     * the exception.  Whether or not the message is still sent successfully
+     * to any valid addresses depends on the Transport implementation.  See 
+     * SendFailedException for more details.  Note also that success does 
      * not imply that the message was delivered to the ultimate recipient,
      * as failures may occur in later stages of delivery.  Once a Transport 
      * accepts a message for delivery to a recipient, failures that occur later
      * should be reported to the user via another mechanism, such as
      * returning the undeliverable message. <p>
+     *
+     * In typical usage, a SendFailedException reflects an error detected
+     * by the server.  The details of the SendFailedException will usually
+     * contain the error message from the server (such as an SMTP error
+     * message).  An address may be detected as invalid for a variety of
+     * reasons - the address may not exist, the address may have invalid
+     * syntax, the address may have exceeded its quota, etc. <p>
      *
      * Note that <code>send</code> is a static method that creates and
      * manages its own connection.  Any connection associated with any
