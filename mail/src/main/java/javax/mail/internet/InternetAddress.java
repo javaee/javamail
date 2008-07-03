@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -127,8 +127,12 @@ public class InternetAddress extends Address implements Cloneable {
     public InternetAddress(String address, boolean strict)
 						throws AddressException {
 	this(address);
-	if (strict)
-	    checkAddress(this.address, true, true);
+	if (strict) {
+	    if (isGroup())
+		getGroup(true);	// throw away the result
+	    else
+		checkAddress(this.address, true, true);
+	}
     }
 
     /**
@@ -863,7 +867,10 @@ public class InternetAddress extends Address implements Cloneable {
      * @since		JavaMail 1.3
      */
     public void validate() throws AddressException {
-	checkAddress(getAddress(), true, true);
+	if (isGroup())
+	    getGroup(true);	// throw away the result
+	else
+	    checkAddress(getAddress(), true, true);
     }
 
     private static final String specialsNoDotNoAt = "()<>,;:\\\"[]";

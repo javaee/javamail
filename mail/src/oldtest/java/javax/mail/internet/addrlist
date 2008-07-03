@@ -225,6 +225,9 @@ Expect: 1
 To: A Group:Chris Jones <c@a.test>,joe@where.test,John <jdoe@one.test>; 
 Expect: 1
 	A Group:Chris Jones <c@a.test>,joe@where.test,John <jdoe@one.test>;
+To: Undisclosed-Recipients:;
+Expect: 1
+	Undisclosed-Recipients:;
 Comment:
 	All the following addresses are bad.
 To: ,
