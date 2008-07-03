@@ -119,7 +119,16 @@ import com.sun.mail.util.*;
  * applications will have no need to explicitly set the default MIME
  * charset.  In cases where the default MIME charset to be used for
  * mail messages is different than the charset used for files stored on
- * the system, this property should be set.
+ * the system, this property should be set. <p>
+ *
+ * The current implementation also supports the following System property.
+ * <p>
+ * The <code>mail.mime.ignoreunknownencoding</code> property controls
+ * whether unknown values in the <code>Content-Transfer-Encoding</code>
+ * header, as passed to the <code>decode</code> method, cause an exception.
+ * If set to <code>"true"</code>, unknown values are ignored and 8bit
+ * encoding is assumed.  Otherwise, unknown values cause a MessagingException
+ * to be thrown.
  *
  * @author  John Mani
  * @author  Bill Shannon
@@ -134,6 +143,13 @@ public class MimeUtility {
 
     private static boolean decodeStrict = true;
     private static boolean encodeEolStrict = false;
+    private static boolean ignoreUnknownEncoding = true;
+    /*
+     * The following two properties allow disabling the fold()
+     * and unfold() methods and reverting to the previous behavior.
+     * They should never need to be changed and are here only because
+     * of my paranoid concern with compatibility.
+     */
     private static boolean foldEncodedWords = false;
     private static boolean foldText = true;
 
@@ -151,6 +167,9 @@ public class MimeUtility {
 	    s = System.getProperty("mail.mime.foldtext");
 	    // default to true
 	    foldText = s == null || !s.equalsIgnoreCase("false");
+	    s = System.getProperty("mail.mime.ignoreunknownencoding");
+	    // default to false
+	    ignoreUnknownEncoding = s != null && s.equalsIgnoreCase("true");
 	} catch (SecurityException sex) {
 	    // ignore it
 	}
@@ -295,11 +314,17 @@ public class MimeUtility {
      * the decoded input stream. All the encodings defined in RFC 2045
      * are supported here. They include "base64", "quoted-printable",
      * "7bit", "8bit", and "binary". In addition, "uuencode" is also
-     * supported.
+     * supported. <p>
+     *
+     * In the current implementation, if the
+     * <code>mail.mime.ignoreunknownencoding</code> system property is set to
+     * <code>"true"</code>, unknown encoding values are ignored and the
+     * original InputStream is returned.
      *
      * @param	is		input stream
      * @param	encoding	the encoding of the stream.
      * @return			decoded input stream.
+     * @exception MessagingException	if the encoding is unknown
      */
     public static InputStream decode(InputStream is, String encoding)
 		throws MessagingException {
@@ -315,8 +340,11 @@ public class MimeUtility {
 		 encoding.equalsIgnoreCase("7bit") ||
 		 encoding.equalsIgnoreCase("8bit"))
 	    return is;
-	else
-	    throw new MessagingException("Unknown encoding: " + encoding);
+	else {
+	    if (!ignoreUnknownEncoding)
+		throw new MessagingException("Unknown encoding: " + encoding);
+	    return is;
+	}
     }
 
     /**
@@ -329,6 +357,7 @@ public class MimeUtility {
      * @param	encoding	the encoding of the stream. 
      * @return			output stream that applies the
      *				specified encoding.
+     * @exception MessagingException	if the encoding is unknown
      */
     public static OutputStream encode(OutputStream os, String encoding)
 		throws MessagingException {
