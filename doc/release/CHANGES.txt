@@ -32,6 +32,7 @@ GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 <no id>	add mail.mime.uudecode.ignoreerrors system property
 <no id>	add mail.mime.uudecode.ignoremissingbeginend system property
 <no id>	handle address of the form "Undisclosed-Recipients:;"
+<no id>	add com.sun.mail.util.DecodingException to distinguish decoding errors
 
 
 		  CHANGES IN THE 1.4.1 RELEASE

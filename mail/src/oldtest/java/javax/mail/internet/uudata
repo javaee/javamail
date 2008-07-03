@@ -22,7 +22,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
  
 end
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST no end
@@ -32,7 +32,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST no end, no empty line
@@ -41,7 +41,7 @@ begin 644 encoder.buf
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST no begin, ignore errors
@@ -80,7 +80,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
  
 end
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST bad mode, ignore errors
@@ -102,7 +102,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
  
 end
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST bad filename, ignore errors
@@ -125,7 +125,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
  
 end
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST garbage data (tab)
@@ -137,7 +137,7 @@ M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
  
 end
 EXPECT
-EXCEPTION java.io.IOException
+EXCEPTION com.sun.mail.util.DecodingException
 END
 
 TEST garbage data, ignore errors

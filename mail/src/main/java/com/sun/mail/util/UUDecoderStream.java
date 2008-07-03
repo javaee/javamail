@@ -188,7 +188,7 @@ public class UUDecoderStream extends FilterInputStream {
 	    line = lin.readLine(); // NOTE: readLine consumes CRLF pairs too
 	    if (line == null) {
 		if (!ignoreMissingBeginEnd)
-		    throw new IOException("UUDecoder error: No Begin");
+		    throw new DecodingException("UUDecoder: Missing begin");
 		// at EOF, fake it
 		gotPrefix = true;
 		gotEnd = true;
@@ -199,15 +199,15 @@ public class UUDecoderStream extends FilterInputStream {
 		    mode = Integer.parseInt(line.substring(6,9));
 		} catch (NumberFormatException ex) {
 		    if (!ignoreErrors)
-			throw new IOException("UUDecoder error in mode: " +
-						ex.toString());
+			throw new DecodingException(
+				"UUDecoder: Error in mode: " + ex.toString());
 		}
 		if (line.length() > 10) {
 		    name = line.substring(10);
 		} else {
 		    if (!ignoreErrors)
-			throw new IOException("UUDecoder missing name: " +
-						line);
+			throw new DecodingException(
+				"UUDecoder: Missing name: " + line);
 		}
 		gotPrefix = true;
 		break;
@@ -255,7 +255,8 @@ public class UUDecoderStream extends FilterInputStream {
 	     */
 	    if (line == null) {
 		if (!ignoreMissingBeginEnd)
-		    throw new IOException("Missing End at EOF");
+		    throw new DecodingException(
+					"UUDecoder: Missing end at EOF");
 		gotEnd = true;
 		return false;
 	    }
@@ -268,7 +269,8 @@ public class UUDecoderStream extends FilterInputStream {
 	    count = line.charAt(0);
 	    if (count < ' ') {
 		if (!ignoreErrors)
-		    throw new IOException("Buffer format error");
+		    throw new DecodingException(
+					"UUDecoder: Buffer format error");
 		continue;
 	    }
 
@@ -284,7 +286,8 @@ public class UUDecoderStream extends FilterInputStream {
 		line = lin.readLine();
 		if (line == null || !line.equals("end")) {
 		    if (!ignoreMissingBeginEnd)
-			throw new IOException("Missing End after count 0 line");
+			throw new DecodingException(
+				"UUDecoder: Missing End after count 0 line");
 		}
 		gotEnd = true;
 		return false;
@@ -294,7 +297,8 @@ public class UUDecoderStream extends FilterInputStream {
 //System.out.println("count " + count + ", need " + need + ", len " + line.length());
 	    if (line.length() < need + 1) {
 		if (!ignoreErrors)
-		    throw new IOException("Short buffer error");
+		    throw new DecodingException(
+					"UUDecoder: Short buffer error");
 		continue;
 	    }
 

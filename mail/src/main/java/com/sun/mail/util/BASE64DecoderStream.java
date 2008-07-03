@@ -253,7 +253,8 @@ public class BASE64DecoderStream extends FilterInputStream {
 			if (got == 0)
 			    return pos - pos0;
 			if (!ignoreErrors)
-			    throw new IOException("Error in encoded stream: " +
+			    throw new DecodingException(
+				"BASE64Decoder: Error in encoded stream: " +
 				"needed 4 valid base64 characters " +
 				"but only got " + got + " before EOF" +
 				recentChars());
@@ -262,7 +263,8 @@ public class BASE64DecoderStream extends FilterInputStream {
 			// found a padding character, we're at EOF
 			// XXX - should do something to make EOF "sticky"
 			if (got < 2 && !ignoreErrors)
-			    throw new IOException("Error in encoded stream: " +
+			    throw new DecodingException(
+				"BASE64Decoder: Error in encoded stream: " +
 				"needed at least 2 valid base64 characters," +
 				" but only got " + got +
 				" before padding character (=)" +
@@ -293,18 +295,18 @@ public class BASE64DecoderStream extends FilterInputStream {
 			    i = getByte();
 			    if (i == -1) {
 				if (!ignoreErrors)
-				    throw new IOException(
-					"Error in encoded stream: " +
-					"hit EOF while looking for " +
+				    throw new DecodingException(
+					"BASE64Decoder: Error in encoded " +
+					"stream: hit EOF while looking for " +
 					"padding characters (=)" +
 					recentChars());
 			    } else if (i != -2) {
 				if (!ignoreErrors)
-				    throw new IOException(
-					"Error in encoded stream: " +
-					"found valid base64 character after " +
-					"a padding character (=)" +
-					recentChars());
+				    throw new DecodingException(
+					"BASE64Decoder: Error in encoded " +
+					"stream: found valid base64 " +
+					"character after a padding character " +
+					"(=)" + recentChars());
 			    }
 			}
 			val <<= 6;
