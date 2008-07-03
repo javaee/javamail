@@ -30,6 +30,7 @@ GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 <no id>	add mail.mime.multipart.ignoreexistingboundaryparameter system property
 	to allow parsing multiparts with incorrect boundary parameters
 <no id>	add mail.mime.uudecode.ignoreerrors system property
+<no id>	add mail.mime.uudecode.ignoremissingbeginend system property
 <no id>	handle address of the form "Undisclosed-Recipients:;"
 
 

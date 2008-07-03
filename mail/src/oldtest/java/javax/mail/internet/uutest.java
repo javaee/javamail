@@ -37,6 +37,7 @@
 //package javax.mail.internet.tests;
 
 import java.io.*;
+import java.util.StringTokenizer;
 import com.sun.mail.util.UUDecoderStream;
 
 /**
@@ -52,6 +53,7 @@ public class uutest {
     static class TestCase {
 	public String name;
 	public boolean ignoreErrors;
+	public boolean ignoreMissingBeginEnd;
 	public byte[] input;
 	public byte[] expectedOutput;
 	public String expectedException;
@@ -110,10 +112,19 @@ public class uutest {
 	t.name = line.substring(i + 1);
 
 	line = in.readLine();
-	if (!line.startsWith("DATA"))
-	    throw new Exception("Bad test data format");
-	if (line.length() > 4)		// XXX - crude
-	    t.ignoreErrors = true;
+	StringTokenizer st = new StringTokenizer(line);
+	String tok = st.nextToken();
+	if (!tok.equals("DATA"))
+	    throw new Exception("Bad test data format: " + line);
+	while (st.hasMoreTokens()) {
+	    tok = st.nextToken();
+	    if (tok.equals("ignoreErrors"))
+		t.ignoreErrors = true;
+	    else if (tok.equals("ignoreMissingBeginEnd"))
+		t.ignoreMissingBeginEnd = true;
+	    else
+		throw new Exception("Bad DATA option in line: " + line);
+	}
 
 	ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	Writer os = new OutputStreamWriter(bos, "us-ascii");
@@ -152,7 +163,7 @@ public class uutest {
     public static void test(TestCase t) throws Exception {
 	InputStream in =
 	    new UUDecoderStream(new ByteArrayInputStream(t.input),
-				t.ignoreErrors);
+				t.ignoreErrors, t.ignoreMissingBeginEnd);
 
 	// two cases - either we're expecting an exception or we're not
 	if (t.expectedException != null) {

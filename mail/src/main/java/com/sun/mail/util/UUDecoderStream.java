@@ -59,12 +59,16 @@ public class UUDecoderStream extends FilterInputStream {
     private boolean gotEnd = false;
     private LineInputStream lin;
     private boolean ignoreErrors;
+    private boolean ignoreMissingBeginEnd;
     private String readAhead;
 
     /**
      * Create a UUdecoder that decodes the specified input stream.
      * The System property <code>mail.mime.uudecode.ignoreerrors</code>
      * controls whether errors in the encoded data cause an exception
+     * or are ignored.  The default is false (errors cause exception).
+     * The System property <code>mail.mime.uudecode.ignoremissingbeginend</code>
+     * controls whether a missing begin or end line cause an exception
      * or are ignored.  The default is false (errors cause exception).
      * @param in        the input stream
      */
@@ -75,6 +79,9 @@ public class UUDecoderStream extends FilterInputStream {
 	    String s = System.getProperty("mail.mime.uudecode.ignoreerrors");
 	    // default to false
 	    ignoreErrors = s != null && !s.equalsIgnoreCase("false");
+	    s = System.getProperty("mail.mime.uudecode.ignoremissingbeginend");
+	    // default to false
+	    ignoreMissingBeginEnd = s != null && !s.equalsIgnoreCase("false");
 	} catch (SecurityException sex) {
 	    // ignore it
 	}
@@ -84,11 +91,14 @@ public class UUDecoderStream extends FilterInputStream {
      * Create a UUdecoder that decodes the specified input stream.
      * @param in        	the input stream
      * @param ignoreErrors	ignore errors?
+     * @param ignoreMissingBeginEnd	ignore missing begin or end?
      */
-    public UUDecoderStream(InputStream in, boolean ignoreErrors) {
+    public UUDecoderStream(InputStream in, boolean ignoreErrors,
+				boolean ignoreMissingBeginEnd) {
 	super(in);
 	lin = new LineInputStream(in);
 	this.ignoreErrors = ignoreErrors;
+	this.ignoreMissingBeginEnd = ignoreMissingBeginEnd;
     }
 
     /**
@@ -177,7 +187,7 @@ public class UUDecoderStream extends FilterInputStream {
 	    // read till we get the prefix: "begin MODE FILENAME"
 	    line = lin.readLine(); // NOTE: readLine consumes CRLF pairs too
 	    if (line == null) {
-		if (!ignoreErrors)
+		if (!ignoreMissingBeginEnd)
 		    throw new IOException("UUDecoder error: No Begin");
 		// at EOF, fake it
 		gotPrefix = true;
@@ -201,7 +211,7 @@ public class UUDecoderStream extends FilterInputStream {
 		}
 		gotPrefix = true;
 		break;
-	    } else if (ignoreErrors) {
+	    } else if (ignoreMissingBeginEnd) {
 		int count = line.charAt(0);
 		count = (count - ' ') & 0x3f;
 		int need = ((count * 8)+5)/6;
@@ -244,8 +254,8 @@ public class UUDecoderStream extends FilterInputStream {
 	     * following "end" line here.
 	     */
 	    if (line == null) {
-		if (!ignoreErrors)
-		    throw new IOException("Missing End");
+		if (!ignoreMissingBeginEnd)
+		    throw new IOException("Missing End at EOF");
 		gotEnd = true;
 		return false;
 	    }
@@ -273,8 +283,8 @@ public class UUDecoderStream extends FilterInputStream {
 	    if (count == 0) {
 		line = lin.readLine();
 		if (line == null || !line.equals("end")) {
-		    if (!ignoreErrors)
-			throw new IOException("Missing End");
+		    if (!ignoreMissingBeginEnd)
+			throw new IOException("Missing End after count 0 line");
 		}
 		gotEnd = true;
 		return false;

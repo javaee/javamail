@@ -45,7 +45,7 @@ EXCEPTION java.io.IOException
 END
 
 TEST no begin, ignore errors
-DATA ignoreErrors
+DATA ignoreMissingBeginEnd
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
@@ -55,7 +55,7 @@ this is a very very very very very long line to test the decoder
 END
 
 TEST no end, ignore errors
-DATA ignoreErrors
+DATA ignoreMissingBeginEnd
 begin 644 encoder.buf
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
@@ -65,7 +65,7 @@ this is a very very very very very long line to test the decoder
 END
 
 TEST no begin, no end, ignore errors
-DATA ignoreErrors
+DATA ignoreMissingBeginEnd
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
 EXPECT
@@ -78,6 +78,7 @@ begin xxx encoder.buf
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 EXCEPTION java.io.IOException
 END
@@ -88,6 +89,7 @@ begin xxx encoder.buf
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 this is a very very very very very long line to test the decoder
 END
@@ -98,6 +100,7 @@ begin 644
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 EXCEPTION java.io.IOException
 END
@@ -108,6 +111,7 @@ begin 644
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 this is a very very very very very long line to test the decoder
 END
@@ -119,6 +123,7 @@ XXX
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 EXCEPTION java.io.IOException
 END
@@ -130,6 +135,7 @@ begin 644 encoder.buf
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
 EXPECT
 EXCEPTION java.io.IOException
 END
@@ -141,6 +147,16 @@ XXX
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
  
+end
+EXPECT
+this is a very very very very very long line to test the decoder
+END
+
+TEST ignore both kinds of errors
+DATA ignoreErrors ignoreMissingBeginEnd
+XXX
+M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
+4=&\@=&5S="!T:&4@9&5C;V1E<@H!
 EXPECT
 this is a very very very very very long line to test the decoder
 END
