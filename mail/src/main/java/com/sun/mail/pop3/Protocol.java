@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -199,8 +199,7 @@ class Protocol {
     }
 
     /**
-     * Close down the connection, sending the QUIT command
-     * if expunge is true.
+     * Close down the connection, sending the QUIT command.
      */
     synchronized boolean quit() throws IOException {
 	boolean ok = false;
@@ -346,14 +345,31 @@ class Protocol {
     private Response simpleCommand(String cmd) throws IOException {
 	if (socket == null)
 	    throw new IOException("Folder is closed");	// XXX
-	if (cmd != null) {
-	    if (debug)
-		out.println("C: " + cmd);
-	    cmd += CRLF;
-	    output.print(cmd);	// do it in one write
-	    output.flush();
+
+	String line = null;
+	try {
+	    if (cmd != null) {
+		if (debug)
+		    out.println("C: " + cmd);
+		cmd += CRLF;
+		output.print(cmd);	// do it in one write
+		output.flush();
+	    }
+	    line = input.readLine();	// XXX - readLine is deprecated
+	} catch (InterruptedIOException iioex) {
+	    /*
+	     * If we get a timeout while using the socket, we have no idea
+	     * what state the connection is in.  The server could still be
+	     * alive, but slow, and could still be sending data.  The only
+	     * safe way to recover is to drop the connection.  Later use
+	     * of the socket should get an EOFException.
+	     */
+	    try {
+		socket.close();
+	    } catch (IOException cex) { }
+	    throw iioex;
 	}
-	String line = input.readLine();	// XXX - readLine is deprecated
+
 	if (line == null) {
 	    if (debug)
 		out.println("S: EOF");
@@ -385,25 +401,35 @@ class Protocol {
 
 	SharedByteArrayOutputStream buf = new SharedByteArrayOutputStream(size);
 	int b, lastb = '\n';
-	while ((b = input.read()) >= 0) {
-	    if (lastb == '\n' && b == '.') {
+	try {
+	    while ((b = input.read()) >= 0) {
+		if (lastb == '\n' && b == '.') {
+		    if (debug)
+			out.write(b);
+		    b = input.read();
+		    if (b == '\r') {
+			if (debug)
+			    out.write(b);
+			// end of response, consume LF as well
+			b = input.read();
+			if (debug)
+			    out.write(b);
+			break;
+		    }
+		}
+		buf.write(b);
 		if (debug)
 		    out.write(b);
-		b = input.read();
-		if (b == '\r') {
-		    if (debug)
-			out.write(b);
-		    // end of response, consume LF as well
-		    b = input.read();
-		    if (debug)
-			out.write(b);
-		    break;
-		}
+		lastb = b;
 	    }
-	    buf.write(b);
-	    if (debug)
-		out.write(b);
-	    lastb = b;
+	} catch (InterruptedIOException iioex) {
+	    /*
+	     * As above in simpleCommand, close the socket to recover.
+	     */
+	    try {
+		socket.close();
+	    } catch (IOException cex) { }
+	    throw iioex;
 	}
 	if (b < 0)
 	    throw new EOFException("EOF on socket");
