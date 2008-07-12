@@ -1205,7 +1205,7 @@ public class SMTPTransport extends Transport {
 		    String _lsr = lastServerResponse; // else rset will nuke it
 		    int _lrc = lastReturnCode;
 		    if (serverSocket != null)	// hasn't already been closed
-			issueCommand("RSET", 250);
+			issueCommand("RSET", -1);
 		    lastServerResponse = _lsr;	// restore, for get
 		    lastReturnCode = _lrc;
 		    throw new SMTPAddressFailedException(ia, cmd, retCode,
@@ -1301,7 +1301,7 @@ public class SMTPTransport extends Transport {
 	    int lrc = lastReturnCode;
 	    try {
 		if (serverSocket != null)
-		    issueCommand("RSET", 250);
+		    issueCommand("RSET", -1);
 	    } catch (MessagingException ex) {
 		// if can't reset, best to close the connection
 		try {
@@ -1492,7 +1492,7 @@ public class SMTPTransport extends Transport {
      * is not received, throw a MessagingException.
      *
      * @param	cmd	the command to send
-     * @param	expect	the expected response code
+     * @param	expect	the expected response code (-1 means don't care)
      *
      * @since JavaMail 1.4.1
      */
@@ -1502,7 +1502,8 @@ public class SMTPTransport extends Transport {
 
 	// if server responded with an unexpected return code,
 	// throw the exception, notifying the client of the response
-	if (readServerResponse() != expect)
+	int resp = readServerResponse();
+	if (expect != -1 && resp != expect)
 	    throw new MessagingException(lastServerResponse);
     }
 
@@ -1534,7 +1535,7 @@ public class SMTPTransport extends Transport {
 	    String _lsr = lastServerResponse; // else rset will nuke it
 	    int _lrc = lastReturnCode;
 	    if (serverSocket != null)	// hasn't already been closed
-		issueCommand("RSET", 250);
+		issueCommand("RSET", -1);
 	    lastServerResponse = _lsr;	// restore, for get
 	    lastReturnCode = _lrc;
 	    throw new SMTPSendFailedException(cmd, ret, lastServerResponse,

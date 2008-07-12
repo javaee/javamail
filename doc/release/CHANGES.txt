@@ -34,6 +34,7 @@ GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 <no id>	handle address of the form "Undisclosed-Recipients:;"
 <no id>	add com.sun.mail.util.DecodingException to distinguish decoding errors
 <no id>	add mail.mime.ignoreunknownencoding system property (see MimeUtility)
+<no id>	ignore errors from SMTP RSET command
 
 
 		  CHANGES IN THE 1.4.1 RELEASE
