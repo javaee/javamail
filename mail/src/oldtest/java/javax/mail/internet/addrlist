@@ -1,12 +1,17 @@
 Comment:
-	.
+
 	A set of test addresses stolen from the dtmail test suite,
 	with a few of my own.
 	Use with "addrtest -p <addrlist".
-	.
+
+	grep for "Expected:" in output to find errors
+
 	CAREFUL: a blank line in this file causes everything following it
 		 to be ignored until a line starting with "From " (so that
 		 addrtest -p can be pointed at a real mailbox).
+
+From start here
+Strict: false
 Comment:
 	This first set of addresses are all good.
 To: ggere
@@ -43,6 +48,11 @@ Expect: 6
 	~user/mailbox
 	~/mailbox
 	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+Comment: as above, but strict
+Strict: true
+To: ggere /tmp/mail.out +mailbox ~user/mailbox ~/mailbox /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``ggere /tmp/mail.out +mailbox ~user/mailbox ~/mailbox /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay''
+Strict: false
 To: Mad Genius <george@boole>
 Expect: 1
 	george@boole
@@ -119,6 +129,11 @@ Expect: 7
 	~ggere/mail.out
 	testd
 	teste
+Comment: as above, but strict
+Strict: true
+To: testa testb testc /tmp/mail.out ~ggere/mail.out testd teste
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``testa testb testc /tmp/mail.out ~ggere/mail.out testd teste''
+Strict: false
 To: testa, testb , testc /tmp/mail.out ,~ggere/mail.out, ,testd,teste,,,
 Expect: 7
 	testa
@@ -128,6 +143,11 @@ Expect: 7
 	~ggere/mail.out
 	testd
 	teste
+Comment: as above, but strict
+Strict: true
+To: testa, testb , testc /tmp/mail.out ,~ggere/mail.out, ,testd,teste,,,
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``testa testb testc /tmp/mail.out ~ggere/mail.out testd teste''
+Strict: false
 To: testa testb <testc@testd>
 Expect: 1
 	testc@testd
@@ -228,53 +248,448 @@ Expect: 1
 To: Undisclosed-Recipients:;
 Expect: 1
 	Undisclosed-Recipients:;
+To:  "Mark Hapner" <mark.hapner@eng.sun.com>, <mark.himelstein@eng.sun.com>
+Expect: 2
+	mark.hapner@eng.sun.com
+	mark.himelstein@eng.sun.com
+To: <rem@rockit> (Ralph Miller), <shannon@datsun> (Bill Shannon)
+Expect: 2
+	rem@rockit
+	shannon@datsun
+To: "" <javamail@sun.com>
+Expect: 1
+	javamail@sun.com
+To: sun!joe (joe@sun)
+Expect: 1
+	sun!joe
+To: "john doe" (john.doe@a.com)
+Expect: 1
+	"john doe"
+Comment: parsed as a header, we pick out the address from the "comment"
+Header: true
+To: "john doe" (john.doe@a.com)
+Expect: 1
+	john.doe@a.com
+Header: false
 Comment:
 	All the following addresses are bad.
 To: ,
 Expect: 0
-To: "C'est bien moche <paris@france>
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '"' in string ``"C'est bien moche <paris@france>'' at position 32
-To: "C'est bien moche" <paris@france
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '>' in string ``"C'est bien moche" <paris@france'' at position 32
-To: "C'est bien moche" paris@france>
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '<' in string ``"C'est bien moche" paris@france>'' at position 31
-To: "C'est bien moche" <paris@>
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing domain in string ``paris@'' at position 0
-To: laborious but (Bug Free)
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Illegal whitespace in address in string ``laborious but'' at position 0
-To: confused (about, being, french
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``confused (about, being, french'' at position 30
-To: it@is (brilliant (genius, and superb)
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``it@is (brilliant (genius, and superb)'' at position 37
-To: it@is (brilliant (genius), and superb
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``it@is (brilliant (genius), and superb'' at position 37
-To: if@you (could, see (almost, as, (badly, you would) agree)
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``if@you (could, see (almost, as, (badly, you would) agree)'' at position 57
-To: if@you (could, see (almost, as, (badly, you) would) agree
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``if@you (could, see (almost, as, (badly, you) would) agree'' at position 57
-To: two@ (It Will Take)
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing domain in string ``two@'' at position 0
-To: two@
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing domain in string ``two@'' at position 0
-To: two@weeks (It Will Take
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``two@weeks (It Will Take'' at position 23
-To: <paris@france
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '>' in string ``<paris@france'' at position 13
-To: paris@france>
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '<' in string ``paris@france>'' at position 12
-To: @france
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing local name in string ``@france'' at position 0
-To: @
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing local name in string ``@'' at position 0
 To: <
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '>' in string ``<'' at position 1
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``<'' at position 1
 To: >
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '<' in string ``>'' at position 0
-To: (
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing ')' in string ``('' at position 1
-To: )
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '(' in string ``)'' at position 0
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``>'' at position 0
 To: "
-Expect: Exception sunw.jdt.mail.internet.InternetAddressException: Missing '"' in string ``"'' at position 1
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"'' at position 1
+To: >>>
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``>>>'' at position 0
+To: <<<
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``<<<'' at position 3
+To: paris@france>
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``paris@france>'' at position 12
+To: "C'est bien moche <paris@france>
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"C'est bien moche <paris@france>'' at position 32
+To: "C'est bien moche" <paris@france
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``"C'est bien moche" <paris@france'' at position 32
+To: "C'est bien moche" paris@france>
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``"C'est bien moche" paris@france>'' at position 31
+To: "C'est bien moche" <paris@>
+Expect: Exception javax.mail.internet.AddressException: Missing domain in string ``paris@''
+To: laborious but (Bug Free)
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``laborious but''
+To: confused (about, being, french
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``confused (about, being, french'' at position 30
+To: it@is (brilliant (genius, and superb)
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``it@is (brilliant (genius, and superb)'' at position 37
+To: it@is (brilliant (genius), and superb
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``it@is (brilliant (genius), and superb'' at position 37
+To: if@you (could, see (almost, as, (badly, you would) agree)
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``if@you (could, see (almost, as, (badly, you would) agree)'' at position 57
+To: if@you (could, see (almost, as, (badly, you) would) agree
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``if@you (could, see (almost, as, (badly, you) would) agree'' at position 57
+To: two@ (It Will Take)
+Expect: Exception javax.mail.internet.AddressException: Missing domain in string ``two@''
+To: two@
+Expect: Exception javax.mail.internet.AddressException: Missing domain in string ``two@''
+To: two@weeks (It Will Take
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``two@weeks (It Will Take'' at position 23
+To: <paris@france
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``<paris@france'' at position 13
+To: paris@france>
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``paris@france>'' at position 12
+To: @france
+Expect: Exception javax.mail.internet.AddressException: Missing local name in string ``@france''
+To: @
+Expect: Exception javax.mail.internet.AddressException: Missing local name in string ``@''
+To: <
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``<'' at position 1
+To: >
+Expect: Exception javax.mail.internet.AddressException: Missing '<' in string ``>'' at position 0
+To: (
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``('' at position 1
+To: )
+Expect: Exception javax.mail.internet.AddressException: Missing '(' in string ``)'' at position 0
+To: "
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"'' at position 1
 To: friends-list:;@mastodon.CS.Berkeley.EDU
-Expect: Exception
+Expect: Exception javax.mail.internet.AddressException: Missing local name in string ``@mastodon.CS.Berkeley.EDU''
+To: a@.com
+Expect: Exception javax.mail.internet.AddressException: Domain starts with dot in string ``a@.com''
+To: a@com.
+Expect: Exception javax.mail.internet.AddressException: Domain ends with dot in string ``a@com.''
+To: a@b..com
+Expect: Exception javax.mail.internet.AddressException: Domain contains dot-dot in string ``a@b..com''
+To: a@com
+Expect: Exception javax.mail.internet.AddressException: Domain contains control or whitespace in string ``a@com''
+To: a@b.com
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``a@b.com''
+To: ab
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``ab''
+To: @b.com
+Expect: Exception javax.mail.internet.AddressException: Missing local name in string ``@b.com''
+To: javamail@Sun.COM;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``javamail@Sun.COM;'' at position 16
+To: Undisclosed-Recipient:;@jupiter.activeisp.com;;;;;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``Undisclosed-Recipient:;@jupiter.activeisp.com;;;;;'' at position 45
+To: Undisclosed-Recipient:;@java.sun.com;;;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``Undisclosed-Recipient:;@java.sun.com;;;'' at position 36
+To: "bejjzcfr@aol.com
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"bejjzcfr@aol.com'' at position 17
+To: "butbp@msn.com
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"butbp@msn.com'' at position 14
+To: "@msn.com
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"@msn.com'' at position 9
+To: "@starband.net
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"@starband.net'' at position 14
+To: jko23l1@klds.java.sun.com;, ad@java.sun.com
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``jko23l1@klds.java.sun.com;, ad@java.sun.com'' at position 25
+To: jko23l1@klds;ad;;;;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``jko23l1@klds;ad;;;;'' at position 12
+To: mailto:mailto:snoa101custserv@hotmail.com
+Expect: Exception javax.mail.internet.AddressException: Nested group in string ``mailto:mailto:snoa101custserv@hotmail.com'' at position 13
+To: mailto:mailto:snoa101custserv@hotmail.com, foo@bar.com
+Expect: Exception javax.mail.internet.AddressException: Nested group in string ``mailto:mailto:snoa101custserv@hotmail.com, foo@bar.com'' at position 13
+To: "@foo.com, a@b.com
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"@foo.com, a@b.com'' at position 18
+To: <@foo.com, a@b.com
+Expect: Exception javax.mail.internet.AddressException: Missing '>' in string ``<@foo.com, a@b.com'' at position 18
+To: <a@b.com> <c@d.com>
+Expect: Exception javax.mail.internet.AddressException: Extra route-addr in string ``<a@b.com> <c@d.com>'' at position 10
+To: yyiohohjjlj[ojolhji@hotmail.com
+Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``yyiohohjjlj[ojolhji@hotmail.com'' at position 31
+To: www.adslexpress.com.tw--?????q?H?[?o??-0@kathmandu.sun.com
+Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``www.adslexpress.com.tw--?????q?H?[?o??-0@kathmandu.sun.com'' at position 58
+Cc: webmail.hinet.net@nwkea-mail-1.sun.com (中華網頁郵件),
+   www.adslexpress.com.tw--中華電信加油站-0@nwkea-mail-1.sun.com,
+   www.cityfamily.com.tw---網路同學會-0@nwkea-mail-1.sun.com
+Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``webmail.hinet.net@nwkea-mail-1.sun.com (?????????l??),
+   www.adslexpress.com.tw--?????q?H?[?o??-0@nwkea-mail-1.sun.com,
+   www.cityfamily.com.tw---?????P???|-0@nwkea-mail-1.sun.com'' at position 181
+From: 愛家中心@patan.sun.com
+Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``?R?a????@patan.sun.com''
+To: www.adslexpress.com.tw--中華電信加油站-0@patan.sun.com
+Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``www.adslexpress.com.tw--?????q?H?[?o??-0@patan.sun.com'' at position 54
+To: Giant.White.Beans;Great.Northern.Beans;Lima.Beans;Navy.Beans@4email-03;;;;;;;;;;;;;;;;;;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``Giant.White.Beans;Great.Northern.Beans;Lima.Beans;Navy.Beans@4email-03;;;;;;;;;;;;;;;;;;'' at position 17
+To: \(^^/@nwkea-mail-2.sun.com
+Expect: Exception javax.mail.internet.AddressException: Missing ')' in string ``\(^^/@nwkea-mail-2.sun.com'' at position 26
+Cc: <tom.ross@sun.com>, Cc: <javamail@sun.com>, Cc: <javahi@sun.com>,
+   Cc: <javadoc-tool@sun.com>, Cc: <javacard-feedback@sun.com>
+Expect: Exception javax.mail.internet.AddressException: Nested group in string ``<tom.ross@sun.com>, Cc: <javamail@sun.com>, Cc: <javahi@sun.com>,
+   Cc: <javadoc-tool@sun.com>, Cc: <javacard-feedback@sun.com>'' at position 46
+From: <hello@sun.com>, java2d-interest@sun.com, java3d-interest@sun.com,
+	javadoc-tool@sun.com, javamail@sun.com, javasound-interest@sun.com,
+	javaspeech-interest@sun.com, jdbc@sun.com, jim.cook@sun.com,
+	joachim.heck@sun.com, kammy@sun.com, kenneth.cheung@sun.com,
+	Wed@brmea-mail-3.sun.com, multipart/alternative@brmea-mail-3.sun.com,
+	text/html@brmea-mail-3.sun.com;
+Expect: Exception javax.mail.internet.AddressException: Illegal semicolon, not in group in string ``<hello@sun.com>, java2d-interest@sun.com, java3d-interest@sun.com,
+	javadoc-tool@sun.com, javamail@sun.com, javasound-interest@sun.com,
+	javaspeech-interest@sun.com, jdbc@sun.com, jim.cook@sun.com,
+	joachim.heck@sun.com, kammy@sun.com, kenneth.cheung@sun.com,
+	Wed@brmea-mail-3.sun.com, multipart/alternative@brmea-mail-3.sun.com,
+	text/html@brmea-mail-3.sun.com;'' at position 362
+To: "???Y???z???~?j?q?n??
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"???Y???z???~?j?q?n??'' at position 21
+To: "ZETA CELULARES
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"ZETA CELULARES'' at position 15
+To: "Investigaci?n para el desarrollo de micro-emprendimientos Schreiber TE 4431-7050
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"Investigaci?n para el desarrollo de micro-emprendimientos Schreiber TE 4431-7050'' at position 81
+To: "Aproveche*
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"Aproveche*'' at position 11
+To: "ULTIMA. OPORTUNIDAD*
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``"ULTIMA. OPORTUNIDAD*'' at position 21
+Cc: 55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,
+        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,
+        streetwalker!AA00159;, streetwalker!AA08484;, streetwalker!AA16178;,
+        streetwalker!Date:, streetwalker!EDT, streetwalker!Ecd.Sun.COM,
+        streetwalker!From, streetwalker!From:, streetwalker!Message-Id:,
+        streetwalker!Mon, streetwalker!Oct, streetwalker!PDT, streetwalker!RO,
+        streetwalker!Received:, streetwalker!Return-Path:,
+        streetwalker!Status:, streetwalker!To:, streetwalker!by,
+        streetwalker!from, streetwalker!id, streetwalker!oak.sunecd.com,
+        streetwalker!root, streetwalker!rr, streetwalker!streetwalker.sun.com
+Expect: Exception javax.mail.internet.AddressException: Nested group in string ``55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,
+        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,
+        streetwalker!AA00159;, streetwalker!AA08484;, streetwalker!AA16178;,
+        streetwalker!Date:, streetwalker!EDT, streetwalker!Ecd.Sun.COM,
+        streetwalker!From, streetwalker!From:, streetwalker!Message-Id:,
+        streetwalker!Mon, streetwalker!Oct, streetwalker!PDT, streetwalker!RO,
+        streetwalker!Received:, streetwalker!Return-Path:,
+        streetwalker!Status:, streetwalker!To:, streetwalker!by,
+        streetwalker!from, streetwalker!id, streetwalker!oak.sunecd.com,
+        streetwalker!root, streetwalker!rr, streetwalker!streetwalker.sun.com'' at position 12
+To: Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
+        iconv@cachaca, questions@cachaca
+Expect: Exception javax.mail.internet.AddressException: Nested group in string ``Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
+        iconv@cachaca, questions@cachaca'' at position 20
+Comment:
+	Now parse all the above bad addresses as if they were in a header,
+	expecting no failures.
+Header: true
+To: ,
+Expect: 0
+To: <
+Expect: 1
+	<
+To: >
+Expect: 1
+	>
+To: "
+Expect: 1
+	"
+To: >>>
+Expect: 1
+	>>>
+To: <<<
+Expect: 1
+	<<<
+To: paris@france>
+Expect: 1
+	paris@france>
+To: "C'est bien moche <paris@france>
+Expect: 1
+	paris@france
+To: "C'est bien moche" <paris@france
+Expect: 1
+	"C'est bien moche" <paris@france
+To: "C'est bien moche" paris@france>
+Expect: 1
+	"C'est bien moche" paris@france>
+To: "C'est bien moche" <paris@>
+Expect: 1
+	paris@
+To: laborious but (Bug Free)
+Expect: 1
+	laborious but
+To: confused (about, being, french
+Expect: 3
+	confused
+	being
+	french
+To: it@is (brilliant (genius, and superb)
+Expect: 1
+	it@is
+To: it@is (brilliant (genius), and superb
+Expect: 2
+	it@is
+	and superb
+To: if@you (could, see (almost, as, (badly, you would) agree)
+Expect: 2
+	if@you
+	see
+To: if@you (could, see (almost, as, (badly, you) would) agree
+Expect: 2
+	if@you
+	see
+To: two@ (It Will Take)
+Expect: 1
+	two@
+To: two@
+Expect: 1
+	two@
+To: two@weeks (It Will Take
+Expect: 1
+	two@weeks
+To: <paris@france
+Expect: 1
+	<paris@france
+To: paris@france>
+Expect: 1
+	paris@france>
+To: @france
+Expect: 1
+	@france
+To: @
+Expect: 1
+	@
+To: <
+Expect: 1
+	<
+To: >
+Expect: 1
+	>
+To: (
+Expect: 0
+To: )
+Expect: 1
+	)
+To: "
+Expect: 1
+	"
+To: friends-list:;@mastodon.CS.Berkeley.EDU
+Expect: 1
+	friends-list:;@mastodon.CS.Berkeley.EDU
+To: a@.com
+Expect: 1
+	a@.com
+To: a@com.
+Expect: 1
+	a@com.
+To: a@b..com
+Expect: 1
+	a@b..com
+To: a@com
+Expect: 1
+	a@com
+To: a@b.com
+Expect: 1
+	a@b.com
+To: ab
+Expect: 1
+	ab
+To: @b.com
+Expect: 1
+	@b.com
+To: javamail@Sun.COM;
+Expect: 1
+	javamail@Sun.COM
+To: Undisclosed-Recipient:;@jupiter.activeisp.com;;;;;
+Expect: 1
+	Undisclosed-Recipient:;@jupiter.activeisp.com
+To: Undisclosed-Recipient:;@java.sun.com;;;
+Expect: 1
+	Undisclosed-Recipient:;@java.sun.com
+To: "bejjzcfr@aol.com
+Expect: 1
+	"bejjzcfr@aol.com
+To: "butbp@msn.com
+Expect: 1
+	"butbp@msn.com
+To: "@msn.com
+Expect: 1
+	"@msn.com
+To: "@starband.net
+Expect: 1
+	"@starband.net
+To: jko23l1@klds.java.sun.com;, ad@java.sun.com
+Expect: 2
+	jko23l1@klds.java.sun.com
+	ad@java.sun.com
+To: jko23l1@klds;ad;;;;
+Expect: 2
+	jko23l1@klds
+	ad
+To: mailto:mailto:snoa101custserv@hotmail.com
+Expect: 1
+	snoa101custserv@hotmail.com
+To: mailto:mailto:snoa101custserv@hotmail.com, foo@bar.com
+Expect: 2
+	snoa101custserv@hotmail.com
+	foo@bar.com
+To: "@foo.com, a@b.com
+Expect: 2
+	"@foo.com
+	a@b.com
+To: <@foo.com, a@b.com
+Expect: 2
+	<@foo.com
+	a@b.com
+To: <a@b.com> <c@d.com>
+Expect: 2
+	a@b.com
+	c@d.com
+To: yyiohohjjlj[ojolhji@hotmail.com
+Expect: 1
+	yyiohohjjlj[ojolhji@hotmail.com
+To: www.adslexpress.com.tw--?????q?H?[?o??-0@kathmandu.sun.com
+Expect: 1
+	www.adslexpress.com.tw--?????q?H?[?o??-0@kathmandu.sun.com
+Cc: webmail.hinet.net@nwkea-mail-1.sun.com (中華網頁郵件),
+   www.adslexpress.com.tw--中華電信加油站-0@nwkea-mail-1.sun.com,
+   www.cityfamily.com.tw---網路同學會-0@nwkea-mail-1.sun.com
+Expect: 3
+	webmail.hinet.net@nwkea-mail-1.sun.com
+	www.adslexpress.com.tw--中華電信加油站-0@nwkea-mail-1.sun.com
+	www.cityfamily.com.tw---網路同學會-0@nwkea-mail-1.sun.com
+From: ?R?a????@patan.sun.com
+Expect: 1
+	?R?a????@patan.sun.com
+To: www.adslexpress.com.tw--?????q?H?[?o??-0@patan.sun.com
+Expect: 1
+	www.adslexpress.com.tw--?????q?H?[?o??-0@patan.sun.com
+To: Giant.White.Beans;Great.Northern.Beans;Lima.Beans;Navy.Beans@4email-03;;;;;;;;;;;;;;;;;;
+Expect: 4
+	Giant.White.Beans
+	Great.Northern.Beans
+	Lima.Beans
+	Navy.Beans@4email-03
+To: \(^^/@nwkea-mail-2.sun.com
+Expect: 1
+	\
+Cc: <tom.ross@sun.com>, Cc: <javamail@sun.com>, Cc: <javahi@sun.com>,
+   Cc: <javadoc-tool@sun.com>, Cc: <javacard-feedback@sun.com>
+Expect: 5
+	tom.ross@sun.com
+	javamail@sun.com
+	javahi@sun.com
+	javadoc-tool@sun.com
+	javacard-feedback@sun.com
+From: <hello@sun.com>, java2d-interest@sun.com, java3d-interest@sun.com,
+	javadoc-tool@sun.com, javamail@sun.com, javasound-interest@sun.com,
+	javaspeech-interest@sun.com, jdbc@sun.com, jim.cook@sun.com,
+	joachim.heck@sun.com, kammy@sun.com, kenneth.cheung@sun.com,
+	Wed@brmea-mail-3.sun.com, multipart/alternative@brmea-mail-3.sun.com,
+	text/html@brmea-mail-3.sun.com;
+Expect: 15
+	hello@sun.com
+	java2d-interest@sun.com
+	java3d-interest@sun.com
+	javadoc-tool@sun.com
+	javamail@sun.com
+	javasound-interest@sun.com
+	javaspeech-interest@sun.com
+	jdbc@sun.com
+	jim.cook@sun.com
+	joachim.heck@sun.com
+	kammy@sun.com
+	kenneth.cheung@sun.com
+	Wed@brmea-mail-3.sun.com
+	multipart/alternative@brmea-mail-3.sun.com
+	text/html@brmea-mail-3.sun.com
+To: "???Y???z???~?j?q?n??
+Expect: 1
+	"???Y???z???~?j?q?n??
+To: "ZETA CELULARES
+Expect: 1
+	"ZETA CELULARES
+To: "Investigaci?n para el desarrollo de micro-emprendimientos Schreiber TE 4431-7050
+Expect: 1
+	"Investigaci?n para el desarrollo de micro-emprendimientos Schreiber TE 4431-7050
+To: "Aproveche*
+Expect: 1
+	"Aproveche*
+To: "ULTIMA. OPORTUNIDAD*
+Expect: 1
+	"ULTIMA. OPORTUNIDAD*
+To: Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
+        iconv@cachaca, questions@cachaca
+Expect: 7
+	@cachaca
+	@cachaca
+	and@cachaca
+	getmclist@cachaca
+	glenn@ivrel
+	iconv@cachaca
+	questions@cachaca
+Header: false

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,7 @@ public class addrtest {
     static boolean strict = false;		// enforce strict RFC822 syntax
     static boolean gen_test_input = false;	// output good for input to -p
     static boolean parse_mail = false;		// parse input in mail format
+    static boolean parse_header = false;	// use parseHeader method?
     static int errors = 0;			// number of errors detected
 
     public static void main(String argv[]) throws Exception {
@@ -60,6 +61,8 @@ public class addrtest {
 		// ignore
 	    } else if (argv[optind].equals("-g")) {
 		gen_test_input = true;
+	    } else if (argv[optind].equals("-h")) {
+		parse_header = true;
 	    } else if (argv[optind].equals("-p")) {
 		parse_mail = true;
 	    } else if (argv[optind].equals("-s")) {
@@ -69,7 +72,7 @@ public class addrtest {
 		break;
 	    } else if (argv[optind].startsWith("-")) {
 		System.out.println(
-		    "Usage: addrtest [-g] [-p] [-s] [-] [address ...]");
+		    "Usage: addrtest [-g] [-h] [-p] [-s] [-] [address ...]");
 		System.exit(1);
 	    } else {
 		break;
@@ -123,7 +126,11 @@ public class addrtest {
 		}
 	    }
 	    // "s" is the next header, "header" is the last complete header
-	    if (header.startsWith("From: ") ||
+	    if (header.startsWith("Strict: ")) {
+		strict = Boolean.parseBoolean(value(header));
+	    } else if (header.startsWith("Header: ")) {
+		parse_header = Boolean.parseBoolean(value(header));
+	    } else if (header.startsWith("From: ") ||
 		    header.startsWith("To: ") ||
 		    header.startsWith("Cc: ")) {
 		int i;
@@ -150,7 +157,7 @@ public class addrtest {
 		    test(header.substring(0, i), header.substring(i + 2),
 			expect);
 		} catch (StringIndexOutOfBoundsException e) {
-		    // ignore
+		    e.printStackTrace(System.out);
 		}
 	    }
 	    if (s == null)
@@ -167,6 +174,10 @@ public class addrtest {
 	}
     }
 
+    private static String value(String header) {
+	return header.substring(header.indexOf(':') + 1).trim();
+    }
+
     /**
      * Test the header's value to see if we can parse it as expected.
      */
@@ -179,7 +190,11 @@ public class addrtest {
 	    out.println("Test: " + value);
 
 	try {
-	    InternetAddress[] al = InternetAddress.parse(value, strict);
+	    InternetAddress[] al;
+	    if (parse_header)
+		al = InternetAddress.parseHeader(value, strict);
+	    else
+		al = InternetAddress.parse(value, strict);
 	    if (gen_test_input)
 		out.println("Expect: " + al.length);
 	    else {
@@ -209,8 +224,12 @@ public class addrtest {
 	     * then parse it again, to see if we get the same thing back.
 	     */
 	    try {
-		InternetAddress[] al2 = InternetAddress.parse(
-					InternetAddress.toString(al), strict);
+		InternetAddress[] al2;
+		String ta = InternetAddress.toString(al);
+		if (parse_header)
+		    al2 = InternetAddress.parseHeader(ta, strict);
+		else
+		    al2 = InternetAddress.parse(ta, strict);
 		if (al.length != al2.length) {
 		    out.println("toString FAILED!!!");
 		    out.println("Expected length " + al.length +

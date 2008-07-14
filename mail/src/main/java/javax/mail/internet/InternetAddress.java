@@ -39,7 +39,8 @@ package javax.mail.internet;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Locale;
 import javax.mail.*;
@@ -74,6 +75,19 @@ public class InternetAddress extends Address implements Cloneable {
     protected String encodedPersonal;
 
     private static final long serialVersionUID = -7507595530758302903L;
+
+    private static boolean ignoreBogusGroupName = true;
+
+    static {
+	try {
+	    String s = System.getProperty(
+				"mail.mime.address.ignorebogusgroupname");
+	    // default to true
+	    ignoreBogusGroupName = s == null || !s.equalsIgnoreCase("false");
+	} catch (SecurityException sex) {
+	    // ignore it
+	}
+    }
 
     /**
      * Default constructor.
@@ -607,11 +621,12 @@ public class InternetAddress extends Address implements Cloneable {
 	int start, end, index, nesting;
 	int start_personal = -1, end_personal = -1;
 	int length = s.length();
+	boolean ignoreErrors = parseHdr && !strict;
 	boolean in_group = false;	// we're processing a group term
 	boolean route_addr = false;	// address came from route-addr term
 	boolean rfc822 = false;		// looks like an RFC822 address
 	char c;
-	Vector v = new Vector();
+	List v = new ArrayList();
 	InternetAddress ma;
 
 	for (start = end = -1, index = 0; index < length; index++) {
@@ -624,8 +639,7 @@ public class InternetAddress extends Address implements Cloneable {
 		rfc822 = true;
 		if (start >= 0 && end == -1)
 		    end = index;
-		if (start_personal == -1)
-		    start_personal = index + 1;
+		int pindex = index;
 		for (index++, nesting = 1; index < length && nesting > 0;
 		  index++) {
 		    c = s.charAt(index);
@@ -643,27 +657,68 @@ public class InternetAddress extends Address implements Cloneable {
 			break;
 		    }
 		}
-		if (nesting > 0)
-		    throw new AddressException("Missing ')'", s, index);
+		if (nesting > 0) {
+		    if (!ignoreErrors)
+			throw new AddressException("Missing ')'", s, index);
+		    // pretend the first paren was a regular character and
+		    // continue parsing after it
+		    index = pindex + 1;
+		    break;
+		}
 		index--;	// point to closing paren
+		if (start_personal == -1)
+		    start_personal = pindex + 1;
 		if (end_personal == -1)
 		    end_personal = index;
 		break;
 
 	    case ')':
-		throw new AddressException("Missing '('", s, index);
+		if (!ignoreErrors)
+		    throw new AddressException("Missing '('", s, index);
+		// pretend the left paren was a regular character and
+		// continue parsing
+		if (start == -1)
+		    start = index;
+		break;
 
 	    case '<':
 		rfc822 = true;
-		if (route_addr)
-		    throw new AddressException("Extra route-addr", s, index);
-		if (!in_group) {
-		    start_personal = start;
-		    if (start_personal >= 0)
-			end_personal = index;
-		    start = index + 1;
+		if (route_addr) {
+		    if (!ignoreErrors)
+			throw new AddressException(
+						"Extra route-addr", s, index);
+
+		    // assume missing comma between addresses
+		    if (start == -1) {
+			route_addr = false;
+			rfc822 = false;
+			start = end = -1;
+			break;	// nope, nothing there
+		    }
+		    if (!in_group) {
+			// got a token, add this to our InternetAddress vector
+			if (end == -1)	// should never happen
+			    end = index;
+			String addr = s.substring(start, end).trim();
+
+			ma = new InternetAddress();
+			ma.setAddress(addr);
+			if (start_personal >= 0) {
+			    ma.encodedPersonal = unquote(
+				s.substring(start_personal, end_personal).
+								trim());
+			}
+			v.add(ma);
+
+			route_addr = false;
+			rfc822 = false;
+			start = end = -1;
+			start_personal = end_personal = -1;
+			// continue processing this new address...
+		    }
 		}
 
+		int rindex = index;
 		boolean inquote = false;
 	      outf:
 		for (index++; index < length; index++) {
@@ -683,19 +738,56 @@ public class InternetAddress extends Address implements Cloneable {
 			break;
 		    }
 		}
-		if (index >= length) {
-		    if (inquote)
+
+		// did we find a matching quote?
+		if (inquote) {
+		    if (!ignoreErrors)
 			throw new AddressException("Missing '\"'", s, index);
-		    else
+		    // didn't find matching quote, try again ignoring quotes
+		    // (e.g., ``<"@foo.com>'')
+		  outq:
+		    for (index = rindex + 1; index < length; index++) {
+			c = s.charAt(index);
+			if (c == '\\')	// XXX - is this needed?
+			    index++;	// skip both '\' and the escaped char
+			else if (c == '>')
+			    break;
+		    }
+		}
+
+		// did we find a terminating '>'?
+		if (index >= length) {
+		    if (!ignoreErrors)
 			throw new AddressException("Missing '>'", s, index);
+		    // pretend the "<" was a regular character and
+		    // continue parsing after it (e.g., ``<@foo.com'')
+		    index = rindex + 1;
+		    if (start == -1)
+			start = rindex;	// back up to include "<"
+		    break;
+		}
+
+		if (!in_group) {
+		    start_personal = start;
+		    if (start_personal >= 0)
+			end_personal = rindex;
+		    start = rindex + 1;
 		}
 		route_addr = true;
 		end = index;
 		break;
+
 	    case '>':
-		throw new AddressException("Missing '<'", s, index);
+		if (!ignoreErrors)
+		    throw new AddressException("Missing '<'", s, index);
+		// pretend the ">" was a regular character and
+		// continue parsing (e.g., ``>@foo.com'')
+		if (start == -1)
+		    start = index;
+		break;
 
 	    case '"':	// parse quoted string
+		int qindex = index;
 		rfc822 = true;
 		if (start == -1)
 		    start = index;
@@ -712,12 +804,18 @@ public class InternetAddress extends Address implements Cloneable {
 			break;
 		    }
 		}
-		if (index >= length)
-		    throw new AddressException("Missing '\"'", s, index);
+		if (index >= length) {
+		    if (!ignoreErrors)
+			throw new AddressException("Missing '\"'", s, index);
+		    // pretend the quote was a regular character and
+		    // continue parsing after it (e.g., ``"@foo.com'')
+		    index = qindex + 1;
+		}
 		break;
 
 	    case '[':	// a domain-literal, probably
 		rfc822 = true;
+		int lindex = index;
 	      outb:
 		for (index++; index < length; index++) {
 		    c = s.charAt(index);
@@ -731,9 +829,50 @@ public class InternetAddress extends Address implements Cloneable {
 			break;
 		    }
 		}
-		if (index >= length)
-		    throw new AddressException("Missing ']'", s, index);
+		if (index >= length) {
+		    if (!ignoreErrors)
+			throw new AddressException("Missing ']'", s, index);
+		    // pretend the "[" was a regular character and
+		    // continue parsing after it (e.g., ``[@foo.com'')
+		    index = lindex + 1;
+		}
 		break;
+
+	    case ';':
+		if (start == -1) {
+		    route_addr = false;
+		    rfc822 = false;
+		    start = end = -1;
+		    break;	// nope, nothing there
+		}
+		if (in_group) {
+		    in_group = false;
+		    /*
+		     * If parsing headers, but not strictly, peek ahead.
+		     * If next char is "@", treat the group name
+		     * like the local part of the address, e.g.,
+		     * "Undisclosed-Recipient:;@java.sun.com".
+		     */
+		    if (parseHdr && !strict &&
+			    index + 1 < length && s.charAt(index + 1) == '@')
+			break;
+		    ma = new InternetAddress();
+		    end = index + 1;
+		    ma.setAddress(s.substring(start, end).trim());
+		    v.add(ma);
+
+		    route_addr = false;
+		    rfc822 = false;
+		    start = end = -1;
+		    start_personal = end_personal = -1;
+		    break;
+		}
+		if (!ignoreErrors)
+		    throw new AddressException(
+			    "Illegal semicolon, not in group", s, index);
+
+		// otherwise, parsing a header; treat semicolon like comma
+		// fall through to comma case...
 
 	    case ',':	// end of an address, probably
 		if (start == -1) {
@@ -749,18 +888,36 @@ public class InternetAddress extends Address implements Cloneable {
 		// got a token, add this to our InternetAddress vector
 		if (end == -1)
 		    end = index;
+
 		String addr = s.substring(start, end).trim();
+		String pers = null;
+		if (rfc822 && start_personal >= 0) {
+		    pers = unquote(
+			    s.substring(start_personal, end_personal).trim());
+		    if (pers.trim().length() == 0)
+			pers = null;
+		}
+
+		/*
+		 * If the personal name field has an "@" and the address
+		 * field does not, assume they were reversed, e.g.,
+		 * ``"joe doe" (john.doe@example.com)''.
+		 */
+		if (parseHdr && !strict && pers != null &&
+			pers != null && pers.indexOf('@') >= 0 &&
+			addr.indexOf('@') < 0 && addr.indexOf('!') < 0) {
+		    String tmp = addr;
+		    addr = pers;
+		    pers = tmp;
+		}
 		if (rfc822 || strict || parseHdr) {
-		    if (strict || !parseHdr)
+		    if (!ignoreErrors)
 			checkAddress(addr, route_addr, false);
 		    ma = new InternetAddress();
 		    ma.setAddress(addr);
-		    if (start_personal >= 0) {
-			ma.encodedPersonal = unquote(
-			    s.substring(start_personal, end_personal).trim());
-			start_personal = end_personal = -1;
-		    }
-		    v.addElement(ma);
+		    if (pers != null)
+			ma.encodedPersonal = pers;
+		    v.add(ma);
 		} else {
 		    // maybe we passed over more than one space-separated addr
 		    StringTokenizer st = new StringTokenizer(addr);
@@ -769,40 +926,70 @@ public class InternetAddress extends Address implements Cloneable {
 			checkAddress(a, false, false);
 			ma = new InternetAddress();
 			ma.setAddress(a);
-			v.addElement(ma);
+			v.add(ma);
 		    }
 		}
 
 		route_addr = false;
 		rfc822 = false;
 		start = end = -1;
+		start_personal = end_personal = -1;
 		break;
 
 	    case ':':
 		rfc822 = true;
 		if (in_group)
-		    throw new AddressException("Nested group", s, index);
-		in_group = true;
+		    if (!ignoreErrors)
+			throw new AddressException("Nested group", s, index);
 		if (start == -1)
 		    start = index;
-		break;
+		if (parseHdr && !strict) {
+		    /*
+		     * If next char is a special character that can't occur at
+		     * the start of a valid address, treat the group name
+		     * as the entire address, e.g., "Date:, Tue", "Re:@foo".
+		     */
+		    if (index + 1 < length) {
+			String addressSpecials = ")>[]:@\\,.";
+			char nc = s.charAt(index + 1);
+			if (addressSpecials.indexOf(nc) >= 0) {
+			    if (nc != '@')
+				break;	// don't change in_group
+			    /*
+			     * Handle a common error:
+			     * ``Undisclosed-Recipient:@example.com;''
+			     *
+			     * Scan ahead.  If we find a semicolon before
+			     * one of these other special characters,
+			     * consider it to be a group after all.
+			     */
+			    for (int i = index + 2; i < length; i++) {
+				nc = s.charAt(i);
+				if (nc == ';')
+				    break;
+				if (addressSpecials.indexOf(nc) >= 0)
+				    break;
+			    }
+			    if (nc == ';')
+				break;	// don't change in_group
+			}
+		    }
 
-	    case ';':
-		if (start == -1)
-		    start = index;
-		if (!in_group)
-		    throw new AddressException(
-			    "Illegal semicolon, not in group", s, index);
-		in_group = false;
-		if (start == -1)
-		    start = index;
-		ma = new InternetAddress();
-		end = index + 1;
-		ma.setAddress(s.substring(start, end).trim());
-		v.addElement(ma);
-
-		route_addr = false;
-		start = end = -1;
+		    // ignore bogus "mailto:" prefix in front of an address,
+		    // or bogus mail header name included in the address field
+		    String gname = s.substring(start, index);
+		    if (ignoreBogusGroupName &&
+			(gname.equalsIgnoreCase("mailto") ||
+			gname.equalsIgnoreCase("From") ||
+			gname.equalsIgnoreCase("To") ||
+			gname.equalsIgnoreCase("Cc") ||
+			gname.equalsIgnoreCase("Subject") ||
+			gname.equalsIgnoreCase("Re")))
+			start = -1;	// we're not really in a group
+		    else
+			in_group = true;
+		} else
+		    in_group = true;
 		break;
 
 	    // Ignore whitespace
@@ -826,18 +1013,37 @@ public class InternetAddress extends Address implements Cloneable {
 	     * block above for "case ','".
 	     */
 	    if (end == -1)
-		end = index;
+		end = length;
+
 	    String addr = s.substring(start, end).trim();
+	    String pers = null;
+	    if (rfc822 && start_personal >= 0) {
+		pers = unquote(
+			s.substring(start_personal, end_personal).trim());
+		if (pers.trim().length() == 0)
+		    pers = null;
+	    }
+
+	    /*
+	     * If the personal name field has an "@" and the address
+	     * field does not, assume they were reversed, e.g.,
+	     * ``"joe doe" (john.doe@example.com)''.
+	     */
+	    if (parseHdr && !strict &&
+		    pers != null && pers.indexOf('@') >= 0 &&
+		    addr.indexOf('@') < 0 && addr.indexOf('!') < 0) {
+		String tmp = addr;
+		addr = pers;
+		pers = tmp;
+	    }
 	    if (rfc822 || strict || parseHdr) {
-		if (strict || !parseHdr)
+		if (!ignoreErrors)
 		    checkAddress(addr, route_addr, false);
 		ma = new InternetAddress();
 		ma.setAddress(addr);
-		if (start_personal >= 0) {
-		    ma.encodedPersonal = unquote(
-			    s.substring(start_personal, end_personal).trim());
-		}
-		v.addElement(ma);
+		if (pers != null)
+		    ma.encodedPersonal = pers;
+		v.add(ma);
 	    } else {
 		// maybe we passed over more than one space-separated addr
 		StringTokenizer st = new StringTokenizer(addr);
@@ -846,13 +1052,13 @@ public class InternetAddress extends Address implements Cloneable {
 		    checkAddress(a, false, false);
 		    ma = new InternetAddress();
 		    ma.setAddress(a);
-		    v.addElement(ma);
+		    v.add(ma);
 		}
 	    }
 	}
 
 	InternetAddress[] a = new InternetAddress[v.size()];
-	v.copyInto(a);
+	v.toArray(a);
 	return a;
     }
 
@@ -887,9 +1093,16 @@ public class InternetAddress extends Address implements Cloneable {
 				boolean routeAddr, boolean validate)
 				throws AddressException {
 	int i, start = 0;
-	if (addr.indexOf('"') >= 0)
-	    return;			// quote in address, too hard to check
-	if (routeAddr) {
+
+	int len = addr.length();
+	if (len == 0)
+	    throw new AddressException("Empty address", addr);
+
+	/*
+	 * routeAddr indicates that the address is allowed
+	 * to have an RFC 822 "route".
+	 */
+	if (routeAddr && addr.charAt(0) == '@') {
 	    /*
 	     * Check for a legal "route-addr":
 	     *		[@domain[,@domain ...]:]local@domain
@@ -905,50 +1118,100 @@ public class InternetAddress extends Address implements Cloneable {
 		}
 	    }
 	}
+
 	/*
 	 * The rest should be "local@domain", but we allow simply "local"
 	 * unless called from validate.
+	 *
+	 * local-part must follow RFC 822 - no specials except '.'
+	 * unless quoted.
 	 */
-	String local;
-	String domain;
-	if ((i = addr.indexOf('@', start)) >= 0) {
-	    if (i == start)
-		throw new AddressException("Missing local name", addr);
-	    if (i == addr.length() - 1)
-		throw new AddressException("Missing domain", addr);
-	    local = addr.substring(start, i);
-	    domain = addr.substring(i + 1);
-	} else {
-	    /*
-	     * Note that the MimeMessage class doesn't remember addresses
-	     * as separate objects; it writes them out as headers and then
-	     * parses the headers when the addresses are requested.
-	     * In order to support the case where a "simple" address is used,
-	     * but the address also has a personal name and thus looks like
-	     * it should be a valid RFC822 address when parsed, we only check
-	     * this if we're explicitly called from the validate method.
-	     */
+
+	char c = (char)-1;
+	char lastc = (char)-1;
+	boolean inquote = false;
+	for (i = start; i < len; i++) {
+	    lastc = c;
+	    c = addr.charAt(i);
+	    // a quoted-pair is only supposed to occur inside a quoted string,
+	    // but some people use it outside so we're more lenient
+	    if (c == '\\' || lastc == '\\')
+		continue;
+	    if (c == '"') {
+		if (inquote) {
+		    // peek ahead, next char must be "@"
+		    if (validate && i + 1 < len && addr.charAt(i + 1) != '@')
+			throw new AddressException(
+				"Quote not at end of local address", addr);
+		    inquote = false;
+		} else {
+		    if (validate && i != 0)
+			throw new AddressException(
+				"Quote not at start of local address", addr);
+		    inquote = true;
+		}
+		continue;
+	    }
+	    if (inquote)
+		continue;
+	    if (c == '@') {
+		if (i == 0)
+		    throw new AddressException("Missing local name", addr);
+		break;		// done with local part
+	    }
+	    if (c <= 040 || c >= 0177)
+		throw new AddressException(
+			"Local address contains control or whitespace", addr);
+	    if (specialsNoDot.indexOf(c) >= 0)
+		throw new AddressException(
+			"Local address contains illegal character", addr);
+	}
+	if (inquote)
+	    throw new AddressException("Unterminated quote", addr);
+
+	/*
+	 * Done with local part, now check domain.
+	 *
+	 * Note that the MimeMessage class doesn't remember addresses
+	 * as separate objects; it writes them out as headers and then
+	 * parses the headers when the addresses are requested.
+	 * In order to support the case where a "simple" address is used,
+	 * but the address also has a personal name and thus looks like
+	 * it should be a valid RFC822 address when parsed, we only check
+	 * this if we're explicitly called from the validate method.
+	 */
+
+	if (c != '@') {
 	    if (validate)
 		throw new AddressException("Missing final '@domain'", addr);
+	    return;
+	}
 
-	    /*
-	     * No '@' so it's not *really* an RFC822 address, but still
-	     * we allow some simple forms.
-	     */
-	    local = addr;
-	    domain = null;
-	}
-	// there better not be any whitespace in it
-	if (indexOfAny(addr, " \t\n\r") >= 0)
-	    throw new AddressException("Illegal whitespace in address", addr);
-	// local-part must follow RFC822, no specials except '.'
-	if (indexOfAny(local, specialsNoDot) >= 0)
-	    throw new AddressException("Illegal character in local name", addr);
 	// check for illegal chars in the domain, but ignore domain literals
-	if (domain != null && domain.indexOf('[') < 0) {
-	    if (indexOfAny(domain, specialsNoDot) >= 0)
-		throw new AddressException("Illegal character in domain", addr);
+
+	start = i + 1;
+	if (start >= len)
+	    throw new AddressException("Missing domain", addr);
+
+	if (addr.charAt(start) == '.')
+	    throw new AddressException("Domain starts with dot", addr);
+	for (i = start; i < len; i++) {
+	    c = addr.charAt(i);
+	    if (c == '[')
+		return;		// domain literal, don't validate
+	    if (c <= 040 || c >= 0177)
+		throw new AddressException(
+				"Domain contains control or whitespace", addr);
+	    if (specialsNoDot.indexOf(c) >= 0)
+		throw new AddressException(
+				"Domain contains illegal character", addr);
+	    if (c == '.' && lastc == '.')
+		throw new AddressException(
+				"Domain contains dot-dot", addr);
+	    lastc = c;
 	}
+	if (lastc == '.')
+	    throw new AddressException("Domain ends with dot", addr);
     }
 
     /**
@@ -986,7 +1249,6 @@ public class InternetAddress extends Address implements Cloneable {
      * @since		JavaMail 1.3
      */
     public InternetAddress[] getGroup(boolean strict) throws AddressException {
-	Vector groups = null;
 	String addr = getAddress();
 	// groups are of the form "name:addr,addr,...;"
 	if (!addr.endsWith(";"))
