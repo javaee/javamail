@@ -146,6 +146,9 @@ how the string is interpreted.  For example, use
 </PRE>
 to set the <CODE>mail.smtp.port</CODE> property, which is of type int.
 <P>
+Note that if you're using the "smtps" protocol to access SMTP over SSL,
+all the properties would be named "mail.smtps.*".
+<P>
 <TABLE BORDER>
 <TR>
 <TH>Name</TH>
@@ -330,6 +333,18 @@ successfully.
 </TR>
 
 <TR>
+<TD>mail.smtp.socketFactory</TD>
+<TD>SocketFactory</TD>
+<TD>
+If set to a class that implements the
+<code>javax.net.SocketFactory</code> interface, this class
+will be used to create SMTP sockets.  Note that this is an
+instance of a class, not a name, and must be set using the
+<code>put</code> method, not the <code>setProperty</code> method.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.smtp.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
@@ -352,6 +367,38 @@ Defaults to true.
 
 <TR>
 <TD>mail.smtp.socketFactory.port</TD>
+<TD>int</TD>
+<TD>
+Specifies the port to connect to when using the specified socket
+factory.
+If not set, the default port will be used.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.SSLSocketFactory</TD>
+<TD>SSLSocketFactory</TD>
+<TD>
+If set to a class that extends the
+<code>javax.net.ssl.SSLSocketFactory</code> class, this class
+will be used to create SMTP SSL sockets.  Note that this is an
+instance of a class, not a name, and must be set using the
+<code>put</code> method, not the <code>setProperty</code> method.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.SSLSocketFactory.class</TD>
+<TD>String</TD>
+<TD>
+If set, specifies the name of a class that extends the
+<code>javax.net.ssl.SSLSocketFactory</code> class.  This class
+will be used to create SMTP SSL sockets.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.SSLSocketFactory.port</TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket

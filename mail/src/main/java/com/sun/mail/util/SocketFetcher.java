@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,14 +64,29 @@ public class SocketFetcher {
      * socket factories and other socket characteristics.  The properties
      * used are: <p>
      * <ul>
+     * <li> <i>prefix</i>.socketFactory
      * <li> <i>prefix</i>.socketFactory.class
      * <li> <i>prefix</i>.socketFactory.fallback
      * <li> <i>prefix</i>.socketFactory.port
+     * <li> <i>prefix</i>.SSLSocketFactory
+     * <li> <i>prefix</i>.SSLSocketFactory.class
+     * <li> <i>prefix</i>.SSLSocketFactory.port
      * <li> <i>prefix</i>.timeout
      * <li> <i>prefix</i>.connectiontimeout
      * <li> <i>prefix</i>.localaddress
      * <li> <i>prefix</i>.localport
      * </ul> <p>
+     * If we're making an SSL connection, the SSLSocketFactory
+     * properties are used first, if set. <p>
+     *
+     * If the socketFactory property is set, the value is an
+     * instance of a SocketFactory class, not a string.  The
+     * instance is used directly.  If the socketFactory property
+     * is not set, the socketFactory.class property is considered.
+     * (Note that the SocketFactory property must be set using the
+     * <code>put</code> method, not the <code>setProperty</code>
+     * method.) <p>
+     *
      * If the socketFactory.class property isn't set, the socket
      * returned is an instance of java.net.Socket connected to the
      * given host and port. If the socketFactory.class property is set,
@@ -87,9 +102,8 @@ public class SocketFetcher {
      * through the socket factory.  If unset, the port argument will be
      * used.  <p>
      *
-     * If the connectiontimeout property is set, we use a separate thread
-     * to make the connection so that we can timeout that connection attempt.
-     * <p>
+     * If the connectiontimeout property is set, the timeout is passed
+     * to the socket connect method. <p>
      *
      * If the timeout property is set, it is used to set the socket timeout.
      * <p>
@@ -139,14 +153,48 @@ public class SocketFetcher {
 	    props.getProperty(prefix + ".socketFactory.fallback", null);
 	fb = fallback == null || (!fallback.equalsIgnoreCase("false"));
 
-	String sfClass =
-	    props.getProperty(prefix + ".socketFactory.class", null);
 	int sfPort = -1;
+	String sfErr = "unknown socket factory";
 	try {
-	    SocketFactory sf = getSocketFactory(sfClass);
+	    /*
+	     * If using SSL, first look for SSL-specific class name or
+	     * factory instance.
+	     */
+	    SocketFactory sf = null;
+	    String sfPortName = null;
+	    if (useSSL) {
+		Object sfo = props.get(prefix + ".SSLSocketFactory");
+		if (sfo instanceof SocketFactory) {
+		    sf = (SocketFactory)sfo;
+		    sfErr = "SSL socket factory instance " + sf;
+		}
+		if (sf == null) {
+		    String sfClass =
+			props.getProperty(prefix + ".SSLSocketFactory.class");
+		    sf = getSocketFactory(sfClass);
+		    sfErr = "SSL socket factory class " + sfClass;
+		}
+		sfPortName = ".SSLSocketFactory.port";
+	    }
+
+	    if (sf == null) {
+		Object sfo = props.get(prefix + ".socketFactory");
+		if (sfo instanceof SocketFactory) {
+		    sf = (SocketFactory)sfo;
+		    sfErr = "socket factory instance " + sf;
+		}
+		if (sf == null) {
+		    String sfClass =
+			props.getProperty(prefix + ".socketFactory.class");
+		    sf = getSocketFactory(sfClass);
+		    sfErr = "socket factory class " + sfClass;
+		}
+		sfPortName = ".socketFactory.port";
+	    }
+
+	    // if we now have a socket factory, use it
 	    if (sf != null) {
-		String sfPortStr =
-		    props.getProperty(prefix + ".socketFactory.port", null);
+		String sfPortStr = props.getProperty(prefix + sfPortName);
 		if (sfPortStr != null) {
 		    try {
 			sfPort = Integer.parseInt(sfPortStr);
@@ -172,8 +220,8 @@ public class SocketFetcher {
 		if (ex instanceof IOException)
 		    throw (IOException)ex;
 		IOException ioex = new IOException(
-				    "Couldn't connect using \"" + sfClass + 
-				    "\" socket factory to host, port: " +
+				    "Couldn't connect using " + sfErr +
+				    " to host, port: " +
 				    host + ", " + sfPort +
 				    "; Exception: " + ex);
 		ioex.initCause(ex);

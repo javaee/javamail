@@ -90,6 +90,9 @@ how the string is interpreted.  For example, use
 </PRE>
 to set the <CODE>mail.imap.port</CODE> property, which is of type int.
 <P>
+Note that if you're using the "imaps" protocol to access IMAP over SSL,
+all the properties would be named "mail.imaps.*".
+<P>
 <TABLE BORDER>
 <TR>
 <TH>Name</TH>
@@ -284,10 +287,22 @@ If not set, the authentication ID (user name) is used.
 </TR>
 
 <TR>
-<TD>mail.smtp.sasl.realm</TD>
+<TD>mail.imap.sasl.realm</TD>
 <TD>String</TD>
 <TD>The realm to use with SASL authentication mechanisms that
 require a realm, such as DIGEST-MD5.</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.socketFactory</TD>
+<TD>SocketFactory</TD>
+<TD>
+If set to a class that implements the
+<code>javax.net.SocketFactory</code> interface, this class
+will be used to create IMAP sockets.  Note that this is an
+instance of a class, not a name, and must be set using the
+<code>put</code> method, not the <code>setProperty</code> method.
+</TD>
 </TR>
 
 <TR>
@@ -313,6 +328,38 @@ Defaults to true.
 
 <TR>
 <TD>mail.imap.socketFactory.port</TD>
+<TD>int</TD>
+<TD>
+Specifies the port to connect to when using the specified socket
+factory.
+If not set, the default port will be used.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.SSLSocketFactory</TD>
+<TD>SSLSocketFactory</TD>
+<TD>
+If set to a class that extends the
+<code>javax.net.ssl.SSLSocketFactory</code> class, this class
+will be used to create IMAP SSL sockets.  Note that this is an
+instance of a class, not a name, and must be set using the
+<code>put</code> method, not the <code>setProperty</code> method.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.SSLSocketFactory.class</TD>
+<TD>String</TD>
+<TD>
+If set, specifies the name of a class that extends the
+<code>javax.net.ssl.SSLSocketFactory</code> class.  This class
+will be used to create IMAP SSL sockets.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.SSLSocketFactory.port</TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket
