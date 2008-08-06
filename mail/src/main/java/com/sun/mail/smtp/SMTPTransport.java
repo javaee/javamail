@@ -143,21 +143,21 @@ public class SMTPTransport extends Transport {
 
 	// setting mail.smtp.quitwait to false causes us to not wait for the
 	// response from the QUIT command
-	String s = session.getProperty("mail." + name + ".quitwait");
-	quitWait = s == null || s.equalsIgnoreCase("true");
+	quitWait = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".quitwait", true);
 
 	// mail.smtp.reportsuccess causes us to throw an exception on success
-	s = session.getProperty("mail." + name + ".reportsuccess");
-	reportSuccess = s != null && s.equalsIgnoreCase("true");
+	reportSuccess = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".reportsuccess", false);
 
 	// mail.smtp.starttls.enable enables use of STARTTLS command
-	s = session.getProperty("mail." + name + ".starttls.enable");
-	useStartTLS = s != null && s.equalsIgnoreCase("true");
+	useStartTLS = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".starttls.enable", false);
 
 	// mail.smtp.userset causes us to use RSET instead of NOOP
 	// for isConnected
-	s = session.getProperty("mail." + name + ".userset");
-	useRset = s != null && s.equalsIgnoreCase("true");
+	useRset = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".userset", false);
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -165,7 +165,7 @@ public class SMTPTransport extends Transport {
 	    new PlainAuthenticator(),
 	    new DigestMD5Authenticator()
 	};
-	StringBuilder sb = new StringBuilder();
+	StringBuffer sb = new StringBuffer();
 	for (int i = 0; i < a.length; i++) {
 	    authenticators.put(a[i].getMechanism(), a[i]);
 	    sb.append(a[i].getMechanism()).append(' ');
@@ -373,18 +373,18 @@ public class SMTPTransport extends Transport {
     protected boolean protocolConnect(String host, int port, String user,
 			      String passwd) throws MessagingException {
 	// setting mail.smtp.ehlo to false disables attempts to use EHLO
-	String ehloStr = session.getProperty("mail." + name + ".ehlo");
-	boolean useEhlo = ehloStr == null || !ehloStr.equalsIgnoreCase("false");
+	boolean useEhlo =  PropUtil.getBooleanSessionProperty(session,
+					"mail." + name + ".ehlo", true);
 	// setting mail.smtp.auth to true enables attempts to use AUTH
-	String authStr = session.getProperty("mail." + name + ".auth");
-	boolean useAuth = authStr != null && authStr.equalsIgnoreCase("true");
+	boolean useAuth = PropUtil.getBooleanSessionProperty(session,
+					"mail." + name + ".auth", false);
 	// setting mail.smtp.auth.mechanisms controls which mechanisms will
 	// be used, and in what order they'll be considered.  only the first
 	// match is used.
 	String mechs = session.getProperty("mail." + name + ".auth.mechanisms");
 	if (mechs == null)
 	    mechs = defaultAuthenticationMechanisms;
-	DigestMD5 md5;
+
 	if (debug)
 	    out.println("DEBUG SMTP: useEhlo " + useEhlo +
 				", useAuth " + useAuth);
@@ -402,14 +402,11 @@ public class SMTPTransport extends Transport {
 	 * If port is not specified, set it to value of mail.smtp.port
          * property if it exists, otherwise default to 25.
 	 */
-        if (port == -1) {
-	    String portstring = session.getProperty("mail." + name + ".port");
-	    if (portstring != null) {
-		port = Integer.parseInt(portstring);
-	    } else {
-		port = defaultPort;
-	    }
-	}
+        if (port == -1)
+	    port = PropUtil.getIntSessionProperty(session,
+					"mail." + name + ".port", -1);
+        if (port == -1)
+	    port = defaultPort;
 
 	if (host == null || host.length() == 0)
 	    host = "localhost";
@@ -676,11 +673,9 @@ public class SMTPTransport extends Transport {
 	boolean use8bit = false;
 	if (message instanceof SMTPMessage)
 	    use8bit = ((SMTPMessage)message).getAllow8bitMIME();
-	if (!use8bit) {
-	    String ebStr =
-		    session.getProperty("mail." + name + ".allow8bitmime");
-	    use8bit = ebStr != null && ebStr.equalsIgnoreCase("true");
-	}
+	if (!use8bit)
+	    use8bit = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".allow8bitmime", false);
 	if (debug)
 	    out.println("DEBUG SMTP: use8bit " + use8bit);
 	if (use8bit && supportsExtension("8BITMIME")) {
@@ -1181,10 +1176,9 @@ public class SMTPTransport extends Transport {
 	boolean sendPartial = false;
 	if (message instanceof SMTPMessage)
 	    sendPartial = ((SMTPMessage)message).getSendPartial();
-	if (!sendPartial) {
-	    String sp = session.getProperty("mail." + name + ".sendpartial");
-	    sendPartial = sp != null && sp.equalsIgnoreCase("true");
-	}
+	if (!sendPartial)
+	    sendPartial = PropUtil.getBooleanSessionProperty(session,
+					"mail." + name + ".sendpartial", false);
 	if (debug && sendPartial)
 	    out.println("DEBUG SMTP: sendPartial set");
 
@@ -1532,12 +1526,10 @@ public class SMTPTransport extends Transport {
 
 
     private void initStreams() throws IOException {
-	Properties props = session.getProperties();
 	PrintStream out = session.getDebugOut();
 	boolean debug = session.getDebug();
-
-	String s = props.getProperty("mail.debug.quote");
-	boolean quote = s != null && s.equalsIgnoreCase("true");
+	boolean quote = PropUtil.getBooleanSessionProperty(session,
+					"mail.debug.quote", false);
 
 	TraceInputStream traceInput =
 	    new TraceInputStream(serverSocket.getInputStream(), out);
@@ -1817,7 +1809,6 @@ public class SMTPTransport extends Transport {
 	assert Thread.holdsLock(this);
 	if (extMap == null)
 	    return false;
-	// hack for buggy servers that advertise capability incorrectly
 	String a = (String)extMap.get("AUTH");
 	if (a == null)
 	    return false;
@@ -1827,6 +1818,7 @@ public class SMTPTransport extends Transport {
 	    if (tok.equalsIgnoreCase(auth))
 		return true;
 	}
+	// hack for buggy servers that advertise capability incorrectly
 	if (auth.equalsIgnoreCase("LOGIN") && supportsExtension("AUTH=LOGIN")) {
 	    out.println("DEBUG SMTP: use AUTH=LOGIN hack");
 	    return true;
