@@ -210,22 +210,6 @@ The default is true.
 </TD>
 </TR>
 
-<TR>
-<TD>mail.mime.multipart. allowempty</TD>
-<TD>boolean</TD>
-<TD>
-Normally, when writing out a MimeMultipart that contains no body
-parts, or when trying to parse a multipart message with no body parts,
-a <code>MessagingException</code> is thrown.  The MIME spec does not allow
-multipart content with no body parts.  This
-System property may be set to <code>"true"</code> to override this behavior.
-When writing out such a MimeMultipart, a single empty part will be
-included.  When reading such a multipart, a MimeMultipart will be created
-with no body parts.
-The default value of this property is false.
-</TD>
-</TR>
-
 </TABLE>
 
 
@@ -301,6 +285,57 @@ forgetting to quote the parameter value.  If this property is
 set to <code>"true"</code>, JavaMail will try to detect this
 situation when parsing parameters and work around it.
 The default is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime. ignoreunknownencoding</TD>
+<TD>boolean</TD>
+<TD>
+If set to <code>"true"</code>, an unknown value in the
+<code>Content-Transfer-Encoding</code> header will be ignored
+when reading a message and an encoding of "8bit" will be assumed.
+If set to <code>"false"</code>, an exception is thrown for an
+unknown encoding value.  The default is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.uudecode. ignoreerrors</TD>
+<TD>boolean</TD>
+<TD>
+If set to <code>"true"</code>, errors in the encoded format of a
+uuencoded document will be ignored when reading a message part.
+If set to <code>"false"</code>, an exception is thrown for an
+incorrectly encoded message part.  The default is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.uudecode. ignoremissingbeginend</TD>
+<TD>boolean</TD>
+<TD>
+If set to <code>"true"</code>, a missing "being" or "end" line in a
+uuencoded document will be ignored when reading a message part.
+If set to <code>"false"</code>, an exception is thrown for a
+uuencoded message part without the required "begin" and "end" lines.
+The default is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. allowempty</TD>
+<TD>boolean</TD>
+<TD>
+Normally, when writing out a MimeMultipart that contains no body
+parts, or when trying to parse a multipart message with no body parts,
+a <code>MessagingException</code> is thrown.  The MIME spec does not allow
+multipart content with no body parts.  This
+System property may be set to <code>"true"</code> to override this behavior.
+When writing out such a MimeMultipart, a single empty part will be
+included.  When reading such a multipart, a MimeMultipart will be created
+with no body parts.
+The default value of this property is false.
 </TD>
 </TR>
 
