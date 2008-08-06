@@ -265,6 +265,21 @@ public class IMAPStore extends Store
  
     private ConnectionPool pool = new ConnectionPool();
 
+    /**
+     * A special response handler for connections in the pool that
+     * DOESN'T cause the store to be cleaned up if a BYE is seen.
+     * The BYE may be real or synthetic and in either case just indicates
+     * that the pooled connection is dead.
+     */
+    private ResponseHandler poolResponseHandler = new ResponseHandler() {
+	public void handleResponse(Response r) {
+	    // Any of these responses may have a response code.
+	    if (r.isOK() || r.isNO() || r.isBAD() || r.isBYE())
+		handleResponseCode(r);
+	    if (debug && r.isBYE())
+		out.println("DEBUG: IMAPStore pool connection dead");
+	}
+    };
  
     /**
      * Constructor that takes a Session object and a URLName that
@@ -727,12 +742,19 @@ public class IMAPStore extends Store
 		long lastUsed = System.currentTimeMillis() - p.getTimestamp();
 		if (lastUsed > pool.serverTimeoutInterval) {
 		    try {
-			// note that store is still the response handler,
-			// in case we get any alerts
+			/*
+			 * Swap in a special response handler that will handle
+			 * alerts, but won't cause the store to be closed and
+			 * cleaned up if the connection is dead.
+			 */
+			p.removeResponseHandler(this);
+			p.addResponseHandler(poolResponseHandler);
 			p.noop();
+			p.removeResponseHandler(poolResponseHandler);
+			p.addResponseHandler(this);
 		    } catch (ProtocolException pex) {
 			try {
-			    p.removeResponseHandler(this);
+			    p.removeResponseHandler(poolResponseHandler);
 			    p.disconnect();
 			} finally {
 			    // don't let any exception stop us
