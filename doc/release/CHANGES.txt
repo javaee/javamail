@@ -22,6 +22,8 @@ The following bugs have been fixed in the 1.4.2 release.
 6672359	SMTPTransport notifying both partially delivered and
 	not delivered methods
 6679333	missing quotes around zero length parameter values
+6720896	add mail.mime.uudecode.ignoreerrors system property
+6720896	add mail.mime.uudecode.ignoremissingbeginend system property
 6730637	deadlock when mail.imap.connectionpoolsize greater than 1
 GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
@@ -31,8 +33,6 @@ GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
 	empty multiparts (see javax.mail.internet.MimeMultipart)
 <no id>	add mail.mime.multipart.ignoreexistingboundaryparameter system property
 	to allow parsing multiparts with incorrect boundary parameters
-<no id>	add mail.mime.uudecode.ignoreerrors system property
-<no id>	add mail.mime.uudecode.ignoremissingbeginend system property
 <no id>	handle address of the form "Undisclosed-Recipients:;"
 <no id>	add com.sun.mail.util.DecodingException to distinguish decoding errors
 <no id>	add mail.mime.ignoreunknownencoding system property (see MimeUtility)
