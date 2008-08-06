@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@ import javax.mail.*;
 import javax.activation.*;
 import java.io.*;
 import java.net.UnknownServiceException;
+import com.sun.mail.util.PropUtil;
 
 /**
  * A utility class that implements a DataSource out of
@@ -60,17 +61,9 @@ public class MimePartDataSource implements DataSource, MessageAware {
 
     private MessageContext context;
 
-    private static boolean ignoreMultipartEncoding = true;
-
-    static {
-	try {
-	    String s = System.getProperty("mail.mime.ignoremultipartencoding");
-	    // default to true
-	    ignoreMultipartEncoding = s == null || !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
+    private static boolean ignoreMultipartEncoding =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.ignoremultipartencoding", true);
 
     /**
      * Constructor, that constructs a DataSource from a MimePart.

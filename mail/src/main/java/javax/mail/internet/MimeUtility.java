@@ -141,40 +141,24 @@ public class MimeUtility {
 
     public static final int ALL = -1;
 
-    private static boolean decodeStrict = true;
-    private static boolean encodeEolStrict = false;
-    private static boolean ignoreUnknownEncoding = true;
+    private static boolean decodeStrict =
+	PropUtil.getBooleanSystemProperty("mail.mime.decodetext.strict", true);
+    private static boolean encodeEolStrict =
+	PropUtil.getBooleanSystemProperty("mail.mime.encodeeol.strict", false);
+    private static boolean ignoreUnknownEncoding =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.ignoreunknownencoding", false);
     /*
      * The following two properties allow disabling the fold()
      * and unfold() methods and reverting to the previous behavior.
      * They should never need to be changed and are here only because
      * of my paranoid concern with compatibility.
      */
-    private static boolean foldEncodedWords = false;
-    private static boolean foldText = true;
+    private static boolean foldEncodedWords =
+	PropUtil.getBooleanSystemProperty("mail.mime.foldencodedwords", false);
+    private static boolean foldText =
+	PropUtil.getBooleanSystemProperty("mail.mime.foldtext", true);
 
-    static {
-	try {
-	    String s = System.getProperty("mail.mime.decodetext.strict");
-	    // default to true
-	    decodeStrict = s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty("mail.mime.encodeeol.strict");
-	    // default to false
-	    encodeEolStrict = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty("mail.mime.foldencodedwords");
-	    // default to false
-	    foldEncodedWords = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty("mail.mime.foldtext");
-	    // default to true
-	    foldText = s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty("mail.mime.ignoreunknownencoding");
-	    // default to false
-	    ignoreUnknownEncoding = s != null && s.equalsIgnoreCase("true");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
-		
 
     /**
      * Get the content-transfer-encoding that should be applied

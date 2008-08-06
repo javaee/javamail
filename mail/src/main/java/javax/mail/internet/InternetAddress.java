@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.Locale;
 import javax.mail.*;
+import com.sun.mail.util.PropUtil;
 
 /**
  * This class represents an Internet email address using the syntax
@@ -76,18 +77,9 @@ public class InternetAddress extends Address implements Cloneable {
 
     private static final long serialVersionUID = -7507595530758302903L;
 
-    private static boolean ignoreBogusGroupName = true;
-
-    static {
-	try {
-	    String s = System.getProperty(
-				"mail.mime.address.ignorebogusgroupname");
-	    // default to true
-	    ignoreBogusGroupName = s == null || !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
+    private static boolean ignoreBogusGroupName =
+	PropUtil.getBooleanSystemProperty(
+			    "mail.mime.address.ignorebogusgroupname", true);
 
     /**
      * Default constructor.

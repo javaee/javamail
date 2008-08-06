@@ -75,16 +75,12 @@ public class UUDecoderStream extends FilterInputStream {
     public UUDecoderStream(InputStream in) {
 	super(in);
 	lin = new LineInputStream(in);
-	try {
-	    String s = System.getProperty("mail.mime.uudecode.ignoreerrors");
-	    // default to false
-	    ignoreErrors = s != null && !s.equalsIgnoreCase("false");
-	    s = System.getProperty("mail.mime.uudecode.ignoremissingbeginend");
-	    // default to false
-	    ignoreMissingBeginEnd = s != null && !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
+	// default to false
+	ignoreErrors = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.uudecode.ignoreerrors", false);
+	// default to false
+	ignoreMissingBeginEnd = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.uudecode.ignoremissingbeginend", false);
     }
 
     /**

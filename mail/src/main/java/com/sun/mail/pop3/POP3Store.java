@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,8 @@ import javax.mail.internet.*;
 import java.io.IOException;
 import java.io.EOFException;
 
+import com.sun.mail.util.PropUtil;
+
 /**
  * A POP3 Message Store.  Contains only one folder, "INBOX".
  *
@@ -83,19 +85,16 @@ public class POP3Store extends Store {
 	this.defaultPort = defaultPort;
 	this.isSSL = isSSL;
 
-	String s = session.getProperty("mail." + name + ".rsetbeforequit");
-	if (s != null && s.equalsIgnoreCase("true"))
-	    rsetBeforeQuit = true;
+	rsetBeforeQuit = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".rsetbeforequit", false);
 
-	s = session.getProperty("mail." + name + ".disabletop");
-	if (s != null && s.equalsIgnoreCase("true"))
-	    disableTop = true;
+	disableTop = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".disabletop", false);
 
-	s = session.getProperty("mail." + name + ".forgettopheaders");
-	if (s != null && s.equalsIgnoreCase("true"))
-	    forgetTopHeaders = true;
+	forgetTopHeaders = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".forgettopheaders", false);
 
-	s = session.getProperty("mail." + name + ".message.class");
+	String s = session.getProperty("mail." + name + ".message.class");
 	if (s != null) {
 	    if (session.getDebug())
 		session.getDebugOut().println(
@@ -136,11 +135,9 @@ public class POP3Store extends Store {
 
 	// if port is not specified, set it to value of mail.pop3.port
         // property if it exists, otherwise default to 110
-        if (portNum == -1) {
-	    String portstring = session.getProperty("mail." + name + ".port");
-	    if (portstring != null)
-		portNum = Integer.parseInt(portstring);
-	}
+        if (portNum == -1)
+	    portNum = PropUtil.getIntSessionProperty(session,
+				"mail." + name + ".port", -1);
 
 	if (portNum == -1)
 	    portNum = defaultPort;

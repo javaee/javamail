@@ -126,32 +126,18 @@ public class SocketFetcher {
 	    prefix = "socket";
 	if (props == null)
 	    props = new Properties();	// empty
-	String s = props.getProperty(prefix + ".connectiontimeout", null);
-	int cto = -1;
-	if (s != null) {
-	    try {
-		cto = Integer.parseInt(s);
-	    } catch (NumberFormatException nfex) { }
-	}
-
+	int cto = PropUtil.getIntProperty(props,
+					prefix + ".connectiontimeout", -1);
 	Socket socket = null;
-	String timeout = props.getProperty(prefix + ".timeout", null);
 	String localaddrstr = props.getProperty(prefix + ".localaddress", null);
 	InetAddress localaddr = null;
 	if (localaddrstr != null)
 	    localaddr = InetAddress.getByName(localaddrstr);
-	String localportstr = props.getProperty(prefix + ".localport", null);
-	int localport = 0;
-	if (localportstr != null) {
-	    try {
-		localport = Integer.parseInt(localportstr);
-	    } catch (NumberFormatException nfex) { }
-	}
+	int localport = PropUtil.getIntProperty(props,
+					prefix + ".localport", 0);
 
-	boolean fb = false;
-	String fallback =
-	    props.getProperty(prefix + ".socketFactory.fallback", null);
-	fb = fallback == null || (!fallback.equalsIgnoreCase("false"));
+	boolean fb = PropUtil.getBooleanProperty(props,
+				prefix + ".socketFactory.fallback", true);
 
 	int sfPort = -1;
 	String sfErr = "unknown socket factory";
@@ -194,12 +180,8 @@ public class SocketFetcher {
 
 	    // if we now have a socket factory, use it
 	    if (sf != null) {
-		String sfPortStr = props.getProperty(prefix + sfPortName);
-		if (sfPortStr != null) {
-		    try {
-			sfPort = Integer.parseInt(sfPortStr);
-		    } catch (NumberFormatException nfex) { }
-		}
+		sfPort = PropUtil.getIntProperty(props,
+						prefix + sfPortName, -1);
 
 		// if port passed in via property isn't valid, use param
 		if (sfPort == -1)
@@ -233,12 +215,7 @@ public class SocketFetcher {
 	    socket = createSocket(localaddr, localport,
 				host, port, cto, null, useSSL);
 
-	int to = -1;
-	if (timeout != null) {
-	    try {
-		to = Integer.parseInt(timeout);
-	    } catch (NumberFormatException nfex) { }
-	}
+	int to = PropUtil.getIntProperty(props, prefix + ".timeout", -1);
 	if (to >= 0)
 	    socket.setSoTimeout(to);
 

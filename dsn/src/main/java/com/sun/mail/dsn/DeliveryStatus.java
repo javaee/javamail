@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,7 @@ import javax.mail.*;
 import javax.mail.internet.*;
 
 import com.sun.mail.util.LineOutputStream;	// XXX
+import com.sun.mail.util.PropUtil;
 
 /**
  * A message/delivery-status message content, as defined in
@@ -51,17 +52,8 @@ import com.sun.mail.util.LineOutputStream;	// XXX
  */
 public class DeliveryStatus {
 
-    private static boolean debug = false;
-
-    static {
-	try {
-	    String s = System.getProperty("mail.dsn.debug");
-	    // default to false
-	    debug = s != null && !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
+    private static boolean debug =
+	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false);
 
     /**
      * The DSN fields for the message.

@@ -72,13 +72,9 @@ public class BASE64DecoderStream extends FilterInputStream {
      */
     public BASE64DecoderStream(InputStream in) {
 	super(in);
-	try {
-	    String s = System.getProperty("mail.mime.base64.ignoreerrors");
-	    // default to false
-	    ignoreErrors = s != null && !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
+	// default to false
+	ignoreErrors = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.base64.ignoreerrors", false);
     }
 
     /** 

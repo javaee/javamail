@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -100,8 +100,8 @@ public class Protocol {
 	    this.prefix = prefix;
 
 	    socket = SocketFetcher.getSocket(host, port, props, prefix, isSSL);
-	    String s = props.getProperty("mail.debug.quote");
-	    quote = s != null && s.equalsIgnoreCase("true");
+	    quote = PropUtil.getBooleanProperty(props,
+					"mail.debug.quote", false);
 
 	    initStreams(out);
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -78,43 +78,25 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
-    private static boolean setDefaultTextCharset = true;
+    private static boolean setDefaultTextCharset =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.setdefaulttextcharset", true);
 
-    private static boolean setContentTypeFileName = true;
+    private static boolean setContentTypeFileName =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.setcontenttypefilename", true);
 
-    private static boolean encodeFileName = false;
-    private static boolean decodeFileName = false;
+    private static boolean encodeFileName =
+	PropUtil.getBooleanSystemProperty("mail.mime.encodefilename", false);
+    private static boolean decodeFileName =
+	PropUtil.getBooleanSystemProperty("mail.mime.decodefilename", false);
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
-    static boolean cacheMultipart = true;	// accessed by MimeMessage
+    static boolean cacheMultipart = 		// accessed by MimeMessage
+	PropUtil.getBooleanSystemProperty("mail.mime.cachemultipart", true);
 
-    static {
-	try {
-	    String s = System.getProperty("mail.mime.setdefaulttextcharset");
-	    // default to true
-	    setDefaultTextCharset = s == null || !s.equalsIgnoreCase("false");
 
-	    s = System.getProperty("mail.mime.setcontenttypefilename");
-	    // default to true
-	    setContentTypeFileName = s == null || !s.equalsIgnoreCase("false");
-
-	    s = System.getProperty("mail.mime.encodefilename");
-	    // default to false
-	    encodeFileName = s != null && !s.equalsIgnoreCase("false");
-
-	    s = System.getProperty("mail.mime.decodefilename");
-	    // default to false
-	    decodeFileName = s != null && !s.equalsIgnoreCase("false");
-
-	    s = System.getProperty("mail.mime.cachemultipart");
-	    // default to true
-	    cacheMultipart = s == null || !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
-   
     /**
      * The DataHandler object representing this Part's content.
      */

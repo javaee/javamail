@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,6 +38,7 @@ package javax.mail.internet;
 
 import java.util.*;
 import java.io.*;
+import com.sun.mail.util.PropUtil;
 
 /**
  * This class holds MIME parameters (attribute-value pairs).
@@ -121,29 +122,16 @@ public class ParameterList {
      */
     private String lastName = null;
 
-    private static boolean encodeParameters = false;
-    private static boolean decodeParameters = false;
-    private static boolean decodeParametersStrict = false;
-    private static boolean applehack = false;
+    private static boolean encodeParameters =
+	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", false);
+    private static boolean decodeParameters =
+	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", false);
+    private static boolean decodeParametersStrict =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.decodeparameters.strict", false);
+    private static boolean applehack =
+	PropUtil.getBooleanSystemProperty("mail.mime.applefilenames", false);
 
-    static {
-	try {
-	    String s = System.getProperty("mail.mime.encodeparameters");
-	    // default to false
-	    encodeParameters = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty("mail.mime.decodeparameters");
-	    // default to false
-	    decodeParameters = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty("mail.mime.decodeparameters.strict");
-	    // default to false
-	    decodeParametersStrict = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty("mail.mime.applefilenames");
-	    // default to false
-	    applehack = s != null && s.equalsIgnoreCase("true");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
 
     /**
      * A struct to hold an encoded value.

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -300,10 +300,9 @@ public class MimeMessage extends Message implements MimePart {
      * Set the strict flag based on property.
      */
     private void initStrict() {
-	if (session != null) {
-	    String s = session.getProperty("mail.mime.address.strict");
-	    strict = s == null || !s.equalsIgnoreCase("false");
-	}
+	if (session != null)
+	    strict = PropUtil.getBooleanSessionProperty(session,
+				    "mail.mime.address.strict", true);
     }
 
     /**
@@ -1584,10 +1583,10 @@ public class MimeMessage extends Message implements MimePart {
 				InternetAddress.parse(alternates, false));
 	    // should we Cc all other original recipients?
 	    String replyallccStr = null;
+	    boolean replyallcc = false;
 	    if (session != null)
-		replyallccStr = session.getProperty("mail.replyallcc");
-	    boolean replyallcc =
-		replyallccStr != null && replyallccStr.equalsIgnoreCase("true");
+		replyallcc = PropUtil.getBooleanSessionProperty(session,
+						"mail.replyallcc", false);
 	    // add the recipients from the To field so far
 	    eliminateDuplicates(v, a);
 	    a = getRecipients(Message.RecipientType.TO);

@@ -43,6 +43,7 @@ import java.io.*;
 import com.sun.mail.util.LineOutputStream;
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.ASCIIUtility;
+import com.sun.mail.util.PropUtil;
 
 /**
  * The MimeMultipart class is an implementation of the abstract Multipart
@@ -142,7 +143,7 @@ public class MimeMultipart extends Multipart {
     private boolean ignoreMissingEndBoundary = true;
     private boolean ignoreMissingBoundaryParameter = true;
     private boolean ignoreExistingBoundaryParameter = false;
-    private boolean allowEmpty = true;
+    private boolean allowEmpty = false;
     private boolean bmparse = true;
 
     /**
@@ -471,33 +472,22 @@ public class MimeMultipart extends Multipart {
 	    return;
 
 	// read properties that control parsing
-	try {
-	    String s = System.getProperty(
-			"mail.mime.multipart.ignoremissingendboundary");
-	    // default to true
-	    ignoreMissingEndBoundary =
-			s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty(
-			"mail.mime.multipart.ignoremissingboundaryparameter");
-	    // default to true
-	    ignoreMissingBoundaryParameter =
-			s == null || !s.equalsIgnoreCase("false");
-	    s = System.getProperty(
-			"mail.mime.multipart.ignoreexistingboundaryparameter");
-	    // default to false
-	    ignoreExistingBoundaryParameter =
-			s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty(
-			"mail.mime.multipart.allowempty");
-	    // default to false
-	    allowEmpty = s != null && s.equalsIgnoreCase("true");
-	    s = System.getProperty(
-			"mail.mime.multipart.bmparse");
-	    // default to true
-	    bmparse = s == null || !s.equalsIgnoreCase("false");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
+
+	// default to true
+	ignoreMissingEndBoundary = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoremissingendboundary", true);
+	// default to true
+	ignoreMissingBoundaryParameter = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoremissingboundaryparameter", true);
+	// default to false
+	ignoreExistingBoundaryParameter = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoreexistingboundaryparameter", false);
+	// default to false
+	allowEmpty = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.allowempty", false);
+	// default to true
+	bmparse = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.bmparse", true);
 
 	if (bmparse) {
 	    parsebm();

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -39,6 +39,7 @@ package com.sun.mail.imap.protocol;
 import java.util.Vector;
 import javax.mail.internet.ParameterList;
 import com.sun.mail.iap.*; 
+import com.sun.mail.util.PropUtil;
 
 /**
  * A BODYSTRUCTURE response.
@@ -76,17 +77,9 @@ public class BODYSTRUCTURE implements Item {
     private int processedType;	// MULTI | SINGLE | NESTED
 
     // special debugging output to debug parsing errors
-    private static boolean parseDebug = false;
+    private static boolean parseDebug =
+	PropUtil.getBooleanSystemProperty("mail.imap.parse.debug", false);
 
-    static {
-	try {
-	    String s = System.getProperty("mail.imap.parse.debug");
-	    // default to false
-	    parseDebug = s != null && s.equalsIgnoreCase("true");
-	} catch (SecurityException sex) {
-	    // ignore it
-	}
-    }
 
     public BODYSTRUCTURE(FetchResponse r) throws ParsingException {
 	if (parseDebug)

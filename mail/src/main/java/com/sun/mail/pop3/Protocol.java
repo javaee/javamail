@@ -43,6 +43,7 @@ import java.security.*;
 
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.SocketFetcher;
+import com.sun.mail.util.PropUtil;
 import javax.mail.util.SharedByteArrayInputStream;
 
 class Response {
@@ -78,8 +79,8 @@ class Protocol {
 	this.debug = debug;
 	this.out = out;
 	Response r;
-	String apop = props.getProperty(prefix + ".apop.enable");
-	boolean enableAPOP = apop != null && apop.equalsIgnoreCase("true");
+	boolean enableAPOP = PropUtil.getBooleanProperty(props,
+					prefix + ".apop.enable", false);
 	try {
 	    if (port == -1)
 		port = POP3_PORT;

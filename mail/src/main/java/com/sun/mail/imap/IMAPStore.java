@@ -48,6 +48,7 @@ import javax.mail.event.*;
 
 import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
+import com.sun.mail.util.PropUtil;
 
 /**
  * This class provides access to an IMAP message store. <p>
@@ -308,87 +309,64 @@ public class IMAPStore extends Store
 	if (out == null)	// should never happen
 	    out = System.out;
 
-        String s = session.getProperty(
-	    "mail." + name + ".connectionpool.debug");        
+        pool.debug = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".connectionpool.debug", false);
 
-        if (s != null && s.equalsIgnoreCase("true"))
-            pool.debug = true;
-
-	s = session.getProperty("mail." + name + ".partialfetch");
-
-	if (s != null && s.equalsIgnoreCase("false")) {
-	    // property exits and is set to false
-	    blksize = -1; // turn off partial-fetch
+	boolean partialFetch = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".partialfetch", true);
+	if (!partialFetch) {
+	    blksize = -1;
 	    if (debug)
 		out.println("DEBUG: mail.imap.partialfetch: false");
-	} else { // either property doesn't exist, or its set to true
-	    if ((s = session.getProperty("mail." + name +".fetchsize"))
-		     != null)
-		// Set the block size to be used in FETCH requests
-		blksize = Integer.parseInt(s);
-                if (debug)
-                    out.println("DEBUG: mail.imap.fetchsize: " + blksize);
+	} else {
+	    blksize = PropUtil.getIntSessionProperty(session,
+		"mail." + name +".fetchsize", blksize);
+	    if (debug)
+		out.println("DEBUG: mail.imap.fetchsize: " + blksize);
 	}
 
-	s = session.getProperty("mail." + name + ".statuscachetimeout");
-	if (s != null) {
-	    statusCacheTimeout = Integer.parseInt(s);
-	    if (debug)
-		out.println("DEBUG: mail.imap.statuscachetimeout: " +
+	statusCacheTimeout = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".statuscachetimeout", statusCacheTimeout);
+	if (debug)
+	    out.println("DEBUG: mail.imap.statuscachetimeout: " +
 						statusCacheTimeout);
-	}
-	s = session.getProperty("mail." + name + ".appendbuffersize");
-	if (s != null) {
-	    appendBufferSize = Integer.parseInt(s);
-	    if (debug)
-		out.println("DEBUG: mail.imap.appendbuffersize: " +
+
+	appendBufferSize = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".appendbuffersize", appendBufferSize);
+	if (debug)
+	    out.println("DEBUG: mail.imap.appendbuffersize: " +
 						appendBufferSize);
-	}
-	s = session.getProperty("mail." + name + ".minidletime");
-	if (s != null) {
-	    minIdleTime = Integer.parseInt(s);
-	    if (debug)
-		out.println("DEBUG: mail.imap.minidletime: " + minIdleTime);
-	}
+
+	minIdleTime = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".minidletime", minIdleTime);
+	if (debug)
+	    out.println("DEBUG: mail.imap.minidletime: " + minIdleTime);
 
         // check if the default connection pool size is overridden
-        s = session.getProperty("mail." + name + ".connectionpoolsize");
-        if (s != null) {
-            try {
-                int size = Integer.parseInt(s);
-                if (size > 0)
-                    pool.poolSize = size;
-            } catch (NumberFormatException nfe) {
-            }
+	int size = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".connectionpoolsize", -1);
+	if (size > 0) {
+	    pool.poolSize = size;
             if (pool.debug)
                 out.println("DEBUG: mail.imap.connectionpoolsize: " +
                     pool.poolSize);
         }
 
-
         // check if the default client-side timeout value is overridden
-        s = session.getProperty("mail." + name + ".connectionpooltimeout");
-        if (s != null) {
-            try {
-                int connectionPoolTimeout = Integer.parseInt(s);
-                if (connectionPoolTimeout > 0)
-                    pool.clientTimeoutInterval = connectionPoolTimeout;
-            } catch (NumberFormatException nfe) {
-            }
+	int connectionPoolTimeout = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".connectionpooltimeout", -1);
+	if (connectionPoolTimeout > 0) {
+	    pool.clientTimeoutInterval = connectionPoolTimeout;
             if (pool.debug)
                 out.println("DEBUG: mail.imap.connectionpooltimeout: " +
                     pool.clientTimeoutInterval);
         } 
 
         // check if the default server-side timeout value is overridden
-        s = session.getProperty("mail." + name + ".servertimeout");
-        if (s != null) {
-            try {
-                int serverTimeout = Integer.parseInt(s);
-                if (serverTimeout > 0)
-                    pool.serverTimeoutInterval = serverTimeout;
-            } catch (NumberFormatException nfe) {
-            }
+	int serverTimeout = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".servertimeout", -1);
+	if (serverTimeout > 0) {
+	    pool.serverTimeoutInterval = serverTimeout;
             if (pool.debug)
                 out.println("DEBUG: mail.imap.servertimeout: " +
                     pool.serverTimeoutInterval);
@@ -396,15 +374,14 @@ public class IMAPStore extends Store
  
         // check to see if we should use a separate (i.e. dedicated)
         // store connection
-        s = session.getProperty("mail." + name + ".separatestoreconnection");
-        if (s != null && s.equalsIgnoreCase("true")) {
-            if (pool.debug)
-                out.println("DEBUG: dedicate a store connection");
-            pool.separateStoreConnection = true;
-        }
+	pool.separateStoreConnection =
+	    PropUtil.getBooleanSessionProperty(session,
+		"mail." + name + ".separatestoreconnection", false);
+	if (pool.debug && pool.separateStoreConnection)
+	    out.println("DEBUG: dedicate a store connection");
 
 	// check if we should do a PROXYAUTH login
-	s = session.getProperty("mail." + name + ".proxyauth.user");
+	String s = session.getProperty("mail." + name + ".proxyauth.user");
 	if (s != null) {
 	    proxyAuthUser = s;
 	    if (debug)
@@ -413,36 +390,28 @@ public class IMAPStore extends Store
 	}
 
 	// check if AUTH=LOGIN is disabled
-	s = session.getProperty("mail." + name + ".auth.login.disable");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: disable AUTH=LOGIN");
-	    disableAuthLogin = true;
-	}
+	disableAuthLogin = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".auth.login.disable", false);
+	if (debug && disableAuthLogin)
+	    out.println("DEBUG: disable AUTH=LOGIN");
 
 	// check if AUTH=PLAIN is disabled
-	s = session.getProperty("mail." + name + ".auth.plain.disable");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: disable AUTH=PLAIN");
-	    disableAuthPlain = true;
-	}
+	disableAuthPlain = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".auth.plain.disable", false);
+	if (debug && disableAuthPlain)
+	    out.println("DEBUG: disable AUTH=PLAIN");
 
 	// check if STARTTLS is enabled
-	s = session.getProperty("mail." + name + ".starttls.enable");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: enable STARTTLS");
-	    enableStartTLS = true;
-	}
+	enableStartTLS = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".starttls.enable", false);
+	if (debug && enableStartTLS)
+	    out.println("DEBUG: enable STARTTLS");
 
 	// check if SASL is enabled
-	s = session.getProperty("mail." + name + ".sasl.enable");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: enable SASL");
-	    enableSASL = true;
-	}
+	enableSASL = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".sasl.enable", false);
+	if (debug && enableSASL)
+	    out.println("DEBUG: enable SASL");
 
 	// check if SASL mechanisms are specified
 	if (enableSASL) {
@@ -480,20 +449,16 @@ public class IMAPStore extends Store
 	}
 
 	// check if forcePasswordRefresh is enabled
-	s = session.getProperty("mail." + name + ".forcepasswordrefresh");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: enable forcePasswordRefresh");
-	    forcePasswordRefresh = true;
-	}
+	forcePasswordRefresh = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".forcepasswordrefresh", false);
+	if (debug && forcePasswordRefresh)
+	    out.println("DEBUG: enable forcePasswordRefresh");
 
 	// check if enableimapevents is enabled
-	s = session.getProperty("mail." + name + ".enableimapevents");
-	if (s != null && s.equalsIgnoreCase("true")) {
-	    if (debug)
-		out.println("DEBUG: enable IMAP events");
-	    enableImapEvents = true;
-	}
+	enableImapEvents = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".enableimapevents", false);
+	if (debug && enableImapEvents)
+	    out.println("DEBUG: enable IMAP events");
     }
 
     /**
@@ -527,10 +492,8 @@ public class IMAPStore extends Store
 	if (pport != -1) {
 	    port = pport;
 	} else {
-	    String portstring = session.getProperty("mail."+name+".port");
-	    if (portstring != null) {
-		port = Integer.parseInt(portstring);
-	    }
+	    port = PropUtil.getIntSessionProperty(session,
+					"mail." + name + ".port", port);
 	} 
 	
 	// use the default if needed
@@ -908,9 +871,8 @@ public class IMAPStore extends Store
      * do we allow the open to succeed?
      */
     boolean allowReadOnlySelect() {
-	String s = session.getProperty("mail." + name + 
-	    ".allowreadonlyselect");        
-	return s != null && s.equalsIgnoreCase("true");
+	return PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".allowreadonlyselect", false);
     }
 
     /**
