@@ -249,6 +249,18 @@ Defaults to false.</TD>
 </TR>
 
 <TR>
+<TD>mail.smtp.auth.mechanisms</TD>
+<TD>String</TD>
+<TD>
+If set, lists the authentication mechanisms to consider, and the order
+in which to consider them.  Only mechanisms supported by the server and
+supported by the current implementation will be used.
+The default is <code>"LOGIN PLAIN DIGEST-MD5"</code>, which includes all
+the authentication mechanisms supported by the current implementation.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.smtp.submitter</TD>
 <TD>String</TD>
 <TD>The submitter to use in the AUTH tag in the MAIL FROM command.

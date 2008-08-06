@@ -98,6 +98,9 @@ public class SMTPTransport extends Transport {
     // Map of SMTP service extensions supported by server, if EHLO used.
     private Hashtable extMap;
 
+    private Map authenticators = new HashMap();
+    private String defaultAuthenticationMechanisms;	// set in constructor
+
     private boolean quitWait = false;	// true if we should wait
     private String saslRealm = UNKNOWN;
 
@@ -155,6 +158,19 @@ public class SMTPTransport extends Transport {
 	// for isConnected
 	s = session.getProperty("mail." + name + ".userset");
 	useRset = s != null && s.equalsIgnoreCase("true");
+
+	// created here, because they're inner classes that reference "this"
+	Authenticator[] a = new Authenticator[] {
+	    new LoginAuthenticator(),
+	    new PlainAuthenticator(),
+	    new DigestMD5Authenticator()
+	};
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0; i < a.length; i++) {
+	    authenticators.put(a[i].getMechanism(), a[i]);
+	    sb.append(a[i].getMechanism()).append(' ');
+	}
+	defaultAuthenticationMechanisms = sb.toString();
     }
 
     /**
@@ -336,14 +352,6 @@ public class SMTPTransport extends Transport {
 	return lastReturnCode;
     }
 
-    private DigestMD5 md5support;
-
-    private synchronized DigestMD5 getMD5() {
-	if (md5support == null)
-	    md5support = new DigestMD5(debug ? out : null);
-	return md5support;
-    }
-
     /**
      * Performs the actual protocol-specific connection attempt.
      * Will attempt to connect to "localhost" if the host was null. <p>
@@ -370,6 +378,12 @@ public class SMTPTransport extends Transport {
 	// setting mail.smtp.auth to true enables attempts to use AUTH
 	String authStr = session.getProperty("mail." + name + ".auth");
 	boolean useAuth = authStr != null && authStr.equalsIgnoreCase("true");
+	// setting mail.smtp.auth.mechanisms controls which mechanisms will
+	// be used, and in what order they'll be considered.  only the first
+	// match is used.
+	String mechs = session.getProperty("mail." + name + ".auth.mechanisms");
+	if (mechs == null)
+	    mechs = defaultAuthenticationMechanisms;
 	DigestMD5 md5;
 	if (debug)
 	    out.println("DEBUG SMTP: useEhlo " + useEhlo +
@@ -426,122 +440,177 @@ public class SMTPTransport extends Transport {
 	      (supportsExtension("AUTH") || supportsExtension("AUTH=LOGIN"))) {
 	    if (debug) {
 		out.println("DEBUG SMTP: Attempt to authenticate");
-		if (!supportsAuthentication("LOGIN") &&
-			supportsExtension("AUTH=LOGIN"))
-		    out.println("DEBUG SMTP: use AUTH=LOGIN hack");
+		out.println("DEBUG SMTP: check mechanisms: " + mechs);
+	    }
+
+	    /*
+	     * Loop through the list of mechanisms supplied by the user
+	     * (or defaulted) and try each in turn.  If the server supports
+	     * the mechanism and we have an authenticator for the mechanism,
+	     * use it.
+	     */
+	    StringTokenizer st = new StringTokenizer(mechs);
+	    while (st.hasMoreTokens()) {
+		String m = st.nextToken().toUpperCase(Locale.ENGLISH);
+		if (!supportsAuthentication(m)) {
+		    if (debug)
+			out.println("DEBUG SMTP: mechanism " + m +
+						" not supported by server");
+		    continue;
+		}
+		Authenticator a = (Authenticator)authenticators.get(m);
+		if (a == null) {
+		    if (debug)
+			out.println("DEBUG SMTP: " +
+			    "no authenticator for mechanism " + m);
+		    continue;
+		}
+		// only first supported mechanism is used
+		return a.authenticate(host, user, passwd);
 	    }
 	    // if authentication fails, close connection and return false
-	    if (supportsAuthentication("LOGIN") ||
-		    supportsExtension("AUTH=LOGIN")) {
-		// XXX - could use "initial response" capability
-		int resp = simpleCommand("AUTH LOGIN");
-
-		/*
-		 * A 530 response indicates that the server wants us to
-		 * issue a STARTTLS command first.  Do that and try again.
-		 */
-		if (resp == 530) {
-		    startTLS();
-		    resp = simpleCommand("AUTH LOGIN");
-		}
-
-		/*
-		 * Wrap a BASE64Encoder around a ByteArrayOutputstream
-		 * to craft b64 encoded username and password strings.
-		 *
-		 * Also note that unlike the B64 definition in MIME, CRLFs 
-		 * should *not* be inserted during the encoding process.
-		 * So I use Integer.MAX_VALUE (0x7fffffff (> 1G)) as the
-		 * bytesPerLine, which should be sufficiently large!
-		 */
-		try {
-		    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    OutputStream b64os =
-				new BASE64EncoderStream(bos, Integer.MAX_VALUE);
-
-		    if (resp == 334) {
-			// obtain b64 encoded bytes
-			b64os.write(ASCIIUtility.getBytes(user));
-			b64os.flush(); 	// complete the encoding
-
-			// send username
-			resp = simpleCommand(bos.toByteArray());
-			bos.reset(); 	// reset buffer
-		    }
-		    if (resp == 334) {
-			// obtain b64 encoded bytes
-			b64os.write(ASCIIUtility.getBytes(passwd));
-			b64os.flush(); 	// complete the encoding
-
-			// send passwd
-			resp = simpleCommand(bos.toByteArray());
-			bos.reset(); 	// reset buffer
-		    }
-		} catch (IOException ex) {	// should never happen, ignore
-		} finally {
-		    if (resp != 235) {
-			closeConnection();
-			return false;
-		    }
-		}
-	    } else if (supportsAuthentication("PLAIN")) {
-		// XXX - could use "initial response" capability
-		int resp = simpleCommand("AUTH PLAIN");
-		try {
-		    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		    OutputStream b64os =
-				new BASE64EncoderStream(bos, Integer.MAX_VALUE);
-		    if (resp == 334) {
-			// send "<NUL>user<NUL>passwd"
-			// XXX - we don't send an authorization identity
-			b64os.write(0);
-			b64os.write(ASCIIUtility.getBytes(user));
-			b64os.write(0);
-			b64os.write(ASCIIUtility.getBytes(passwd));
-			b64os.flush(); 	// complete the encoding
-
-			// send username
-			resp = simpleCommand(bos.toByteArray());
-		    }
-		} catch (IOException ex) {	// should never happen, ignore
-		} finally {
-		    if (resp != 235) {
-			closeConnection();
-			return false;
-		    }
-		}
-	    } else if (supportsAuthentication("DIGEST-MD5") &&
-		    (md5 = getMD5()) != null) {
-		int resp = simpleCommand("AUTH DIGEST-MD5");
-		try {
-		    if (resp == 334) {
-			byte[] b = md5.authClient(host, user, passwd,
-					    getSASLRealm(), lastServerResponse);
-			resp = simpleCommand(b);
-			if (resp == 334) { // client authenticated by server
-			    if (!md5.authServer(lastServerResponse)) {
-				// server NOT authenticated by client !!!
-				resp = -1;
-			    } else {
-				// send null response
-				resp = simpleCommand(new byte[0]);
-			    }
-			}
-		    }
-		} catch (Exception ex) {	// should never happen, ignore
-		    if (debug)
-			out.println("DEBUG SMTP: DIGEST-MD5: " + ex);
-		} finally {
-		    if (resp != 235) {
-			closeConnection();
-			return false;
-		    }
-		}
-	    }
 	}
 
 	// we connected correctly
 	return true;
+    }
+
+    /**
+     * Abstract base class for SMTP authentication mechanism implementations.
+     */
+    private abstract class Authenticator {
+	protected int resp;	// the response code, used by subclasses
+	private String mech;	// the mechanism name, set in the constructor
+
+	Authenticator(String mech) {
+	    this.mech = mech.toUpperCase(Locale.ENGLISH);
+	}
+
+	String getMechanism() {
+	    return mech;
+	}
+
+	/**
+	 * Start the authentication handshake by issuing the AUTH command.
+	 * Delegate to the doAuth method to do the mechanism-specific
+	 * part of the handshake.
+	 */
+	boolean authenticate(String host, String user, String passwd)
+				throws MessagingException {
+	    // XXX - could use "initial response" capability
+	    resp = simpleCommand("AUTH " + mech);
+
+	    /*
+	     * A 530 response indicates that the server wants us to
+	     * issue a STARTTLS command first.  Do that and try again.
+	     */
+	    if (resp == 530) {
+		startTLS();
+		resp = simpleCommand("AUTH " + mech);
+	    }
+	    try {
+		if (resp == 334)
+		    doAuth(host, user, passwd);
+	    } catch (IOException ex) {	// should never happen, ignore
+		if (debug)
+		    out.println("DEBUG: SMTP: " + mech + " failed: " + ex);
+	    } finally {
+		if (resp != 235) {
+		    closeConnection();
+		    return false;
+		}
+	    }
+	    return true;
+	}
+
+	abstract void doAuth(String host, String user, String passwd)
+				throws MessagingException, IOException;
+    }
+
+    /**
+     * Perform the authentication handshake for LOGIN authentication.
+     */
+    private class LoginAuthenticator extends Authenticator {
+	LoginAuthenticator() {
+	    super("LOGIN");
+	}
+
+	void doAuth(String host, String user, String passwd)
+				    throws MessagingException, IOException {
+	    // send username
+	    resp = simpleCommand(
+		BASE64EncoderStream.encode(ASCIIUtility.getBytes(user)));
+	    if (resp == 334) {
+		// send passwd
+		resp = simpleCommand(
+		    BASE64EncoderStream.encode(ASCIIUtility.getBytes(passwd)));
+	    }
+	}
+    }
+
+    /**
+     * Perform the authentication handshake for PLAIN authentication.
+     */
+    private class PlainAuthenticator extends Authenticator {
+	PlainAuthenticator() {
+	    super("PLAIN");
+	}
+
+	void doAuth(String host, String user, String passwd)
+				    throws MessagingException, IOException {
+	    // send "<NUL>user<NUL>passwd"
+	    // XXX - we don't send an authorization identity
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	    OutputStream b64os =
+			new BASE64EncoderStream(bos, Integer.MAX_VALUE);
+	    b64os.write(0);
+	    b64os.write(ASCIIUtility.getBytes(user));
+	    b64os.write(0);
+	    b64os.write(ASCIIUtility.getBytes(passwd));
+	    b64os.flush(); 	// complete the encoding
+
+	    // send username
+	    resp = simpleCommand(bos.toByteArray());
+	}
+    }
+
+    /**
+     * Perform the authentication handshake for DIGEST-MD5 authentication.
+     */
+    private class DigestMD5Authenticator extends Authenticator {
+	private DigestMD5 md5support;	// only create if needed
+
+	DigestMD5Authenticator() {
+	    super("DIGEST-MD5");
+	}
+
+	private synchronized DigestMD5 getMD5() {
+	    if (md5support == null)
+		md5support = new DigestMD5(debug ? out : null);
+	    return md5support;
+	}
+
+	void doAuth(String host, String user, String passwd)
+				    throws MessagingException, IOException {
+	    DigestMD5 md5 = getMD5();
+	    if (md5 == null) {
+		resp = -1;
+		return;		// XXX - should never happen
+	    }
+
+	    byte[] b = md5.authClient(host, user, passwd, getSASLRealm(),
+					getLastServerResponse());
+	    resp = simpleCommand(b);
+	    if (resp == 334) { // client authenticated by server
+		if (!md5.authServer(getLastServerResponse())) {
+		    // server NOT authenticated by client !!!
+		    resp = -1;
+		} else {
+		    // send null response
+		    resp = simpleCommand(new byte[0]);
+		}
+	    }
+	}
     }
 
 
@@ -1748,6 +1817,7 @@ public class SMTPTransport extends Transport {
 	assert Thread.holdsLock(this);
 	if (extMap == null)
 	    return false;
+	// hack for buggy servers that advertise capability incorrectly
 	String a = (String)extMap.get("AUTH");
 	if (a == null)
 	    return false;
@@ -1756,6 +1826,10 @@ public class SMTPTransport extends Transport {
 	    String tok = st.nextToken();
 	    if (tok.equalsIgnoreCase(auth))
 		return true;
+	}
+	if (auth.equalsIgnoreCase("LOGIN") && supportsExtension("AUTH=LOGIN")) {
+	    out.println("DEBUG SMTP: use AUTH=LOGIN hack");
+	    return true;
 	}
 	return false;
     }
