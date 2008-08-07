@@ -2,8 +2,15 @@
 		----------------------------------
 
 JavaMail now supports accessing mail servers over connections secured
-using SSL or TLS.  To simplify such access, three new protocols have
-been added.  In addition to the non-SSL JavaMail protocols "imap",
+using SSL or TLS.  To simplify such access, there are two alternative
+approaches to enable use of SSL.
+
+First, and perhaps the simplest, is to set a property to enable use
+of SSL.  For example, to enable use of SSL for SMTP connections, set
+the property "mail.smtp.ssl.enable" to "true".
+
+Alternatively, you can configure JavaMail to use one of the SSL-enabled
+protocol names.  In addition to the non-SSL JavaMail protocols "imap",
 "pop3", and "smtp", the protocols "imaps", "pop3s", and "smtps" can
 be used to connect to the corresponding services using an SSL
 connection.
@@ -13,11 +20,11 @@ STARTTLS command (see RFC 2487 and RFC 3501) to switch the connection
 to be secured by TLS.
 
 Use of the STARTTLS command is preferred in cases where the server
-supports both methods described above.
+supports both SSL and non-SSL connections.
 
 This SSL/TLS support in JavaMail works only when JavaMail is used on
 a version of J2SE that includes SSL support.  We have tested this
-support on J2SE 1.4 and J2SE 1.5, which include SSL support.  The
+support on J2SE 1.4 and newer, which include SSL support.  The
 SSL support is provided by the JSSE package, which is also available
 for earlier versions of J2SE.  We have not tested such configurations.
 
@@ -36,14 +43,18 @@ information.
 When using the new protocol names, configuration properties must also use
 these protocol names.  For instance, set the property "mail.smtps.host"
 to specify the host name of the machine to connect to when using the
-SMTP protocol over SSL.  Similarly, to set the IMAP protocol timeout
-when using the IMAP over SSL protocol, set the property
+"smtps" protocol for SMTP over SSL.  Similarly, to set the IMAP protocol
+timeout when using the "imaps" protocol for IMAP over SSL, set the property
 "mail.imaps.timeout".  See the package documentation for the different
 protocol packages for the list of available properties, which are
 always set using property names of the form mail.<protocol>.<property>.
 
 The Transport.send method will use the default transport protocol,
-which remains "smtp".  To change the default transport protocol 
+which remains "smtp".  To enable SMTP connections over SSL, set the
+"mail.smtp.ssl.enable" property to "true".  This is usually the easiest
+approach.
+
+Alternatively, to change the default transport protocol 
 returned by the Session.getTransport() method to SMTP over SSL, set
 the property "mail.transport.protocol" to "smtps".  To change the
 transport used for internet addresses (as returned by the
@@ -92,7 +103,7 @@ common for servers used within a company.
 	java -Djavax.net.ssl.trustStore=$HOME/.keystore ...
 
    See the JSSE Reference Guide for details:
-   http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#CustomizingStores
+   http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
 
 A future release of JavaMail may support the trust algorithm described
 in section 2.4 of RFC 2595.
@@ -103,7 +114,7 @@ in section 2.4 of RFC 2595.
 Debugging problems with certificates and keystores can be difficult.
 The JSSE Reference Guide contains information on debugging utilities
 that can help.  See:
-http://java.sun.com/j2se/1.5.0/docs/guide/security/jsse/JSSERefGuide.html#Debug
+http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#Debug
 
 There are some debugging options in the JDK that can help, depending
 on the sorts of problems you're having.  Setting the following system
@@ -133,7 +144,7 @@ Java keystore using keytool.
 
 For more information on using the keytool command, see the keytool
 reference pages at:
-http://java.sun.com/j2se/1.5.0/docs/tooldocs/index.html#security
+http://java.sun.com/javase/6/docs/technotes/guides/security/index.html
 
 
 -- Configuring Your Own Trust Manager
@@ -249,23 +260,13 @@ public class DummyTrustManager implements X509TrustManager {
     }
 }
 
-Finally, you need to configure the system to use your SSLSocketFactory.
-In J2SE 1.5, this is fairly easy.  You need to add the following line
-to your program (note that you'll require permission to set security
-properties):
+Finally, you need to configure JavaMail to use your SSLSocketFactory.
+Set the appropriate protocol-specific property, e.g.,
 
-    java.security.Security.setProperty("ssl.SocketFactory.provider",
+    props.setProperty("mail.imap.ssl.enable", "true");
+    props.setProperty("mail.imap.ssl.socketFactory.class",
 					"DummySSLSocketFactory");
-
-In J2SE 1.4, you're not allowed to override the default SSLSocketFactory.
-Instead, you have to tell JavaMail to use your socket factory instead of
-the default by setting the appropriate properties:
-
-    props.setProperty("mail.imaps.socketFactory.class",
-					"DummySSLSocketFactory");
-    props.setProperty("mail.imaps.socketFactory.fallback", "false");
+    props.setProperty("mail.imap.ssl.socketFactory.fallback", "false");
     Session session = Session.getInstance(props, null);
 
 Similar properties would need to be set to use other protocols.
-Note that this technique does not allow control over the SSLSocketFactory
-that's used with the STARTTLS command.

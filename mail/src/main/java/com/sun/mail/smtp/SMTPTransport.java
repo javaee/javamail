@@ -124,19 +124,25 @@ public class SMTPTransport extends Transport {
      * that represents a specific SMTP server.
      */
     public SMTPTransport(Session session, URLName urlname) {
-	this(session, urlname, "smtp", 25, false);
+	this(session, urlname, "smtp", false);
     }
 
     /**
      * Constructor used by this class and by SMTPSSLTransport subclass.
      */
     protected SMTPTransport(Session session, URLName urlname,
-				String name, int defaultPort, boolean isSSL) {
+				String name, boolean isSSL) {
 	super(session, urlname);
 	if (urlname != null)
 	    name = urlname.getProtocol();
 	this.name = name;
-	this.defaultPort = defaultPort;
+	if (!isSSL)
+	    isSSL = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".ssl.enable", false);
+	if (isSSL)
+	    this.defaultPort = 465;
+	else
+	    this.defaultPort = 25;
 	this.isSSL = isSSL;
 
 	out = session.getDebugOut();

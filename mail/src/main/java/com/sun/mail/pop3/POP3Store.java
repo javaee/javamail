@@ -73,16 +73,22 @@ public class POP3Store extends Store {
     Constructor messageConstructor = null;
 
     public POP3Store(Session session, URLName url) {
-	this(session, url, "pop3", 110, false);
+	this(session, url, "pop3", false);
     }
 
     public POP3Store(Session session, URLName url,
-				String name, int defaultPort, boolean isSSL) {
+				String name, boolean isSSL) {
 	super(session, url);
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
-	this.defaultPort = defaultPort;
+	if (!isSSL)
+	    isSSL = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".ssl.enable", false);
+	if (isSSL)
+	    this.defaultPort = 995;
+	else
+	    this.defaultPort = 110;
 	this.isSSL = isSSL;
 
 	rsetBeforeQuit = PropUtil.getBooleanSessionProperty(session,

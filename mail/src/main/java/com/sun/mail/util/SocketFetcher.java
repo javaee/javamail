@@ -68,15 +68,15 @@ public class SocketFetcher {
      * <li> <i>prefix</i>.socketFactory.class
      * <li> <i>prefix</i>.socketFactory.fallback
      * <li> <i>prefix</i>.socketFactory.port
-     * <li> <i>prefix</i>.SSLSocketFactory
-     * <li> <i>prefix</i>.SSLSocketFactory.class
-     * <li> <i>prefix</i>.SSLSocketFactory.port
+     * <li> <i>prefix</i>.ssl.socketFactory
+     * <li> <i>prefix</i>.ssl.socketFactory.class
+     * <li> <i>prefix</i>.ssl.socketFactory.port
      * <li> <i>prefix</i>.timeout
      * <li> <i>prefix</i>.connectiontimeout
      * <li> <i>prefix</i>.localaddress
      * <li> <i>prefix</i>.localport
      * </ul> <p>
-     * If we're making an SSL connection, the SSLSocketFactory
+     * If we're making an SSL connection, the ssl.socketFactory
      * properties are used first, if set. <p>
      *
      * If the socketFactory property is set, the value is an
@@ -149,18 +149,18 @@ public class SocketFetcher {
 	    SocketFactory sf = null;
 	    String sfPortName = null;
 	    if (useSSL) {
-		Object sfo = props.get(prefix + ".SSLSocketFactory");
+		Object sfo = props.get(prefix + ".ssl.socketFactory");
 		if (sfo instanceof SocketFactory) {
 		    sf = (SocketFactory)sfo;
 		    sfErr = "SSL socket factory instance " + sf;
 		}
 		if (sf == null) {
 		    String sfClass =
-			props.getProperty(prefix + ".SSLSocketFactory.class");
+			props.getProperty(prefix + ".ssl.socketFactory.class");
 		    sf = getSocketFactory(sfClass);
 		    sfErr = "SSL socket factory class " + sfClass;
 		}
-		sfPortName = ".SSLSocketFactory.port";
+		sfPortName = ".ssl.socketFactory.port";
 	    }
 
 	    if (sf == null) {

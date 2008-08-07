@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -280,7 +280,16 @@ If not set, the default port will be used.
 </TR>
 
 <TR>
-<TD>mail.pop3.SSLSocketFactory</TD>
+<TD>mail.pop3.ssl.enable</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, use SSL to connect and use the SSL port by default.
+Defaults to false for the "pop3" protocol and true for the "pop3s" protocol.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>
 If set to a class that extends the
@@ -292,7 +301,7 @@ instance of a class, not a name, and must be set using the
 </TR>
 
 <TR>
-<TD>mail.pop3.SSLSocketFactory.class</TD>
+<TD>mail.pop3.ssl.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
 If set, specifies the name of a class that extends the
@@ -302,12 +311,32 @@ will be used to create POP3 SSL sockets.
 </TR>
 
 <TR>
-<TD>mail.pop3.SSLSocketFactory.port</TD>
+<TD>mail.pop3.ssl.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket
 factory.
 If not set, the default port will be used.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.ssl.protocols</TD>
+<TD>string</TD>
+<TD>
+Specifies the SSL protocols that will be enabled for SSL connections.
+The property value is a whitespace separated list of tokens acceptable
+to the <code>javax.net.ssl.SSLSocket.setEnabledProtocols</code> method.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.ssl.ciphersuites</TD>
+<TD>string</TD>
+<TD>
+Specifies the SSL cipher suites that will be enabled for SSL connections.
+The property value is a whitespace separated list of tokens acceptable
+to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TD>
 </TR>
 

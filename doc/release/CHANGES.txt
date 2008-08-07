@@ -38,7 +38,8 @@ GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
 <no id>	add mail.mime.ignoreunknownencoding system property (see MimeUtility)
 <no id>	ignore errors from SMTP RSET command
 <no id>	InternetAddress - detect more errors when strict, accept more when not
-<no id>	add mail.<protocol>.socketFactory and .SSLSocketFactory properties
+<no id>	add mail.<protocol>.socketFactory and .ssl.socketFactory properties
+<no id>	add mail.<protocol>.ssl.enable property
 <no id>	add mail.mime.parameters.strict property to control ParameterList parse
 
 

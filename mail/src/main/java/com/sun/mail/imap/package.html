@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -337,7 +337,16 @@ If not set, the default port will be used.
 </TR>
 
 <TR>
-<TD>mail.imap.SSLSocketFactory</TD>
+<TD>mail.imap.ssl.enable</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, use SSL to connect and use the SSL port by default.
+Defaults to false for the "imap" protocol and true for the "imaps" protocol.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>
 If set to a class that extends the
@@ -349,7 +358,7 @@ instance of a class, not a name, and must be set using the
 </TR>
 
 <TR>
-<TD>mail.imap.SSLSocketFactory.class</TD>
+<TD>mail.imap.ssl.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
 If set, specifies the name of a class that extends the
@@ -359,7 +368,7 @@ will be used to create IMAP SSL sockets.
 </TR>
 
 <TR>
-<TD>mail.imap.SSLSocketFactory.port</TD>
+<TD>mail.imap.ssl.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket

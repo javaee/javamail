@@ -287,19 +287,25 @@ public class IMAPStore extends Store
      * represents a specific IMAP server.
      */
     public IMAPStore(Session session, URLName url) {
-	this(session, url, "imap", 143, false);
+	this(session, url, "imap", false);
     }
 
     /**
      * Constructor used by this class and by IMAPSSLStore subclass.
      */
     protected IMAPStore(Session session, URLName url,
-				String name, int defaultPort, boolean isSSL) {
+				String name, boolean isSSL) {
 	super(session, url); // call super constructor
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
-	this.defaultPort = defaultPort;
+	if (!isSSL)
+	    isSSL = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".ssl.enable", false);
+	if (isSSL)
+	    this.defaultPort = 993;
+	else
+	    this.defaultPort = 143;
 	this.isSSL = isSSL;
 
         pool.lastTimePruned = System.currentTimeMillis();
