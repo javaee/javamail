@@ -277,6 +277,20 @@ The default is true.
 </TR>
 
 <TR>
+<TD>mail.mime.parameters.strict</TD>
+<TD>boolean</TD>
+<TD>
+If set to false, when reading a message, parameter values in header fields
+such as <code>Content-Type</code> and <code>Content-Disposition</code>
+are allowed to contain whitespace and other special characters without
+being quoted; the parameter value ends at the next semicolon.
+If set to true (the default), parameter values are required to conform
+to the MIME specification and must be quoted if they contain whitespace
+or special characters.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.mime.applefilenames</TD>
 <TD>boolean</TD>
 <TD>
@@ -285,6 +299,9 @@ forgetting to quote the parameter value.  If this property is
 set to <code>"true"</code>, JavaMail will try to detect this
 situation when parsing parameters and work around it.
 The default is false.
+Note that this property handles a subset of the cases handled
+by setting the mail.mime.parameters.strict property to false.
+This property will likely be removed in a future release.
 </TD>
 </TR>
 

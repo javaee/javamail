@@ -53,7 +53,16 @@ import com.sun.mail.util.PropUtil;
  * <code>mail.mime.decodeparameters.strict</code> to <code>"true"</code>
  * will cause a <code>ParseException</code> to be thrown for errors
  * detected while decoding encoded parameters.  By default, if any
- * decoding errors occur, the original (undecoded) string is used.
+ * decoding errors occur, the original (undecoded) string is used. <p>
+ *
+ * The current implementation supports the System property
+ * <code>mail.mime.parameters.strict</code>, which if set to false
+ * when parsing a parameter list allows parameter values
+ * to contain whitespace and other special characters without
+ * being quoted; the parameter value ends at the next semicolon.
+ * If set to true (the default), parameter values are required to conform
+ * to the MIME specification and must be quoted if they contain whitespace
+ * or special characters.
  *
  * @author  John Mani
  * @author  Bill Shannon
@@ -131,6 +140,8 @@ public class ParameterList {
 	    "mail.mime.decodeparameters.strict", false);
     private static boolean applehack =
 	PropUtil.getBooleanSystemProperty("mail.mime.applefilenames", false);
+    private static boolean parametersStrict = 
+	PropUtil.getBooleanSystemProperty("mail.mime.parameters.strict", true);
 
 
     /**
@@ -231,7 +242,10 @@ public class ParameterList {
 					    "got \"" + tk.getValue() + "\"");
 
 		// expect parameter value
-		tk = h.next();
+		if (parametersStrict)
+		    tk = h.next();
+		else
+		    tk = h.next(';');
 		type = tk.getType();
 		// parameter value must be a MIME Atom or Quoted String
 		if (type != HeaderTokenizer.Token.ATOM &&
@@ -252,10 +266,12 @@ public class ParameterList {
 		// This may not be correct but it shouldn't matter too much.
 		// Note: AppleMail encodes filenames with non-ascii characters 
 		// correctly, so we don't need to worry about the name* subkeys.
-		if (applehack && type == HeaderTokenizer.Token.ATOM &&
-			lastName != null &&
-			(lastName.equals("name") ||
-			 lastName.equals("filename"))) {
+		if (type == HeaderTokenizer.Token.ATOM && lastName != null &&
+			    ((applehack &&
+				(lastName.equals("name") ||
+				 lastName.equals("filename"))) ||
+			    !parametersStrict)
+			 ) {
 		    // Add value to previous value
 		    String lastValue = (String)list.get(lastName);
 		    value = lastValue + " " + tk.getValue();

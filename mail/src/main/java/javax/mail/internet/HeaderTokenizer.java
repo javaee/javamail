@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -199,7 +199,18 @@ public class HeaderTokenizer {
 	Token tk;
 
 	currentPos = nextPos; // setup currentPos
-	tk = getNext();
+	tk = getNext('\0');
+	nextPos = peekPos = currentPos; // update currentPos and peekPos
+	return tk;
+    }
+
+    // package-private
+    // can't be public until JavaMail 1.5
+    Token next(char endOfAtom) throws ParseException { 
+	Token tk;
+
+	currentPos = nextPos; // setup currentPos
+	tk = getNext(endOfAtom);
 	nextPos = peekPos = currentPos; // update currentPos and peekPos
 	return tk;
     }
@@ -217,7 +228,7 @@ public class HeaderTokenizer {
 	Token tk;
 
 	currentPos = peekPos; // setup currentPos
-	tk = getNext();
+	tk = getNext('\0');
 	peekPos = currentPos; // update peekPos
 	return tk;
     }
@@ -237,7 +248,7 @@ public class HeaderTokenizer {
      * parse, 'currentPos' is updated to point to the start of the 
      * next token.
      */
-    private Token getNext() throws ParseException {
+    private Token getNext(char endOfAtom) throws ParseException {
 	// If we're already at end of string, return EOF
 	if (currentPos >= maxPos)
 	    return EOFToken;
@@ -295,26 +306,8 @@ public class HeaderTokenizer {
 	// Check for quoted-string and position currentPos 
 	//  beyond the terminating quote
 	if (c == '"') {
-	    for (start = ++currentPos; currentPos < maxPos; currentPos++) {
-		c = string.charAt(currentPos);
-		if (c == '\\') { // Escape sequence
-		    currentPos++;
-		    filter = true;
-		} else if (c == '\r')
-		    filter = true;
-		else if (c == '"') {
-		    currentPos++;
-		    String s;
-
-		    if (filter)
-			s = filterToken(string, start, currentPos-1);
-		    else
-			s = string.substring(start,currentPos-1);
-
-		    return new Token(Token.QUOTEDSTRING, s);
-		}
-	    }
-	    throw new ParseException("Unbalanced quoted string");
+	    currentPos++;	// skip initial quote
+	    return collectString('"');
 	}
 	
 	// Check for SPECIAL or CTL
@@ -331,10 +324,58 @@ public class HeaderTokenizer {
 	    // ATOM is delimited by either SPACE, CTL, "(", <"> 
 	    // or the specified SPECIALS
 	    if (c < 040 || c >= 0177 || c == '(' || c == ' ' ||
-		c == '"' || delimiters.indexOf(c) >= 0)
+			c == '"' || delimiters.indexOf(c) >= 0) {
+		if (endOfAtom > 0 && c != endOfAtom) {
+		    // not the expected atom after all;
+		    // back up and pretend it's a quoted string
+		    currentPos = start;
+		    return collectString(endOfAtom);
+		}
 		break;
+	    }
 	}
 	return new Token(Token.ATOM, string.substring(start, currentPos));
+    }
+
+    private Token collectString(char eos) throws ParseException {
+	int start;
+	boolean filter = false;
+	for (start = currentPos; currentPos < maxPos; currentPos++) {
+	    char c = string.charAt(currentPos);
+	    if (c == '\\') { // Escape sequence
+		currentPos++;
+		filter = true;
+	    } else if (c == '\r')
+		filter = true;
+	    else if (c == eos) {
+		currentPos++;
+		String s;
+
+		if (filter)
+		    s = filterToken(string, start, currentPos-1);
+		else
+		    s = string.substring(start, currentPos-1);
+
+		if (c != '"')
+		    currentPos--;
+
+		return new Token(Token.QUOTEDSTRING, s);
+	    }
+	}
+
+	// ran off the end of the string
+
+	// if we're looking for a matching quote, that's an error
+	if (eos == '"')
+	    throw new ParseException("Unbalanced quoted string");
+
+	// otherwise, just return whatever's left
+	String s;
+	if (filter)
+	    s = filterToken(string, start, currentPos);
+	else
+	    s = string.substring(start, currentPos);
+	return new Token(Token.QUOTEDSTRING, s);
     }
 
     // Skip SPACE, HT, CR and NL
