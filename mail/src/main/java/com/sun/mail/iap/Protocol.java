@@ -76,7 +76,7 @@ public class Protocol {
      * because we depend on it always existing and depend
      * on the synchronization that Vector provides.
      */
-    private volatile Vector handlers = new Vector(); // response handlers
+    private final Vector handlers = new Vector(); // response handlers
 
     private volatile long timestamp;
 
