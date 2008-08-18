@@ -73,7 +73,15 @@ public abstract class Service {
     protected boolean	debug = false;
 
     private boolean	connected = false;
-    private Vector	connectionListeners = null;
+
+    /*
+     * connectionListeners is a Vector, initialized here,
+     * because we depend on it always existing and depend
+     * on the synchronization that Vector provides.
+     * (Sychronizing on the Service object itself can cause
+     * deadlocks when notifying listeners.)
+     */
+    private Vector	connectionListeners = new Vector();
 
     /**
      * Constructor.
@@ -474,9 +482,7 @@ public abstract class Service {
      * @param l         the Listener for Connection events
      * @see             javax.mail.event.ConnectionEvent
      */
-    public synchronized void addConnectionListener(ConnectionListener l) {
-   	if (connectionListeners == null)
-	    connectionListeners = new Vector();
+    public void addConnectionListener(ConnectionListener l) {
 	connectionListeners.addElement(l);
     }
 
@@ -489,9 +495,8 @@ public abstract class Service {
      * @param l         the listener
      * @see             #addConnectionListener
      */
-    public synchronized void removeConnectionListener(ConnectionListener l) {
-        if (connectionListeners != null)
-	    connectionListeners.removeElement(l);
+    public void removeConnectionListener(ConnectionListener l) {
+	connectionListeners.removeElement(l);
     }
 
     /**
@@ -504,8 +509,13 @@ public abstract class Service {
      * ConnectionListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
      */
-    protected synchronized void notifyConnectionListeners(int type) {
-   	if (connectionListeners != null) {
+    protected void notifyConnectionListeners(int type) {
+	/*
+	 * Don't bother queuing an event if there's no listeners.
+	 * Yes, listeners could be removed after checking, which
+	 * just makes this an expensive no-op.
+	 */
+	if (connectionListeners.size() > 0) {
 	    ConnectionEvent e = new ConnectionEvent(this, type);
 	    queueEvent(e, connectionListeners);
 	}
