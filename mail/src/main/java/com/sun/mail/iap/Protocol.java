@@ -71,7 +71,12 @@ public class Protocol {
 
     private int tagCounter = 0;
 
-    private volatile Vector handlers = null; // response handlers
+    /*
+     * handlers is a Vector, initialized here,
+     * because we depend on it always existing and depend
+     * on the synchronization that Vector provides.
+     */
+    private volatile Vector handlers = new Vector(); // response handlers
 
     private volatile long timestamp;
 
@@ -170,25 +175,22 @@ public class Protocol {
     /**
      * Adds a response handler.
      */
-    public synchronized void addResponseHandler(ResponseHandler h) {
-	if (handlers == null)
-	    handlers = new Vector();
+    public void addResponseHandler(ResponseHandler h) {
 	handlers.addElement(h);
     }
 
     /**
      * Removed the specified response handler.
      */
-    public synchronized void removeResponseHandler(ResponseHandler h) {
-	if (handlers != null)
-	    handlers.removeElement(h);
+    public void removeResponseHandler(ResponseHandler h) {
+	handlers.removeElement(h);
     }
 
     /**
      * Notify response handlers
      */
     public void notifyResponseHandlers(Response[] responses) {
-	if (handlers == null)
+	if (handlers.size() == 0)
 	    return;
 	
 	for (int i = 0; i < responses.length; i++) { // go thru responses
@@ -198,17 +200,15 @@ public class Protocol {
 	    if (r == null)
 		continue;
 
-	    int size = handlers.size();
-	    if (size == 0)
-		return;
 	    // Need to copy handlers list because handlers can be removed
 	    // when handling a response.
-	    Object[] h = new Object[size];
-	    handlers.copyInto(h);
+	    Object[] h = handlers.toArray();
 
 	    // dispatch 'em
-	    for (int j = 0; j < size; j++)
-		((ResponseHandler)h[j]).handleResponse(r);
+	    for (int j = 0; j < h.length; j++) {
+		if (h[j] != null)
+		    ((ResponseHandler)h[j]).handleResponse(r);
+	    }
 	}
     }
 
