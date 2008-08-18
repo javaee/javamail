@@ -26,6 +26,7 @@ The following bugs have been fixed in the 1.4.2 release.
 6720896	add mail.mime.uudecode.ignoremissingbeginend system property
 6730637	deadlock when mail.imap.connectionpoolsize greater than 1
 6738454	deadlock when connection is broken
+6738468	javadocs use fully qualified names
 GF 3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
 GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
