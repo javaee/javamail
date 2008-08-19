@@ -81,7 +81,7 @@ public abstract class Service {
      * (Sychronizing on the Service object itself can cause
      * deadlocks when notifying listeners.)
      */
-    private Vector	connectionListeners = new Vector();
+    private final Vector connectionListeners = new Vector();
 
     /**
      * Constructor.
