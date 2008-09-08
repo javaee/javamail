@@ -905,8 +905,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	// Request store for our own protocol connection.
 	protocol = ((IMAPStore)store).getProtocol(this);
 
-	CommandFailedException exc = null;
-    lock:
 	synchronized(messageCacheLock) { // Acquire messageCacheLock
 
 	    /*
@@ -923,11 +921,30 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		else
 		    mi = protocol.select(fullName);
 	    } catch (CommandFailedException cex) {
-		// got a NO; connection still good, return it
-		releaseProtocol(true);
-		protocol = null;
-		exc = cex;
-		break lock;
+		/*
+		 * Handle SELECT or EXAMINE failure.
+		 * Try to figure out why the operation failed so we can
+		 * report a more reasonable exception.
+		 *
+		 * Will use our existing protocol object.
+		 */
+		try {
+		    checkExists(); // throw exception if folder doesn't exist
+
+		    if ((type & HOLDS_MESSAGES) == 0)
+			throw new MessagingException(
+			    "folder cannot contain messages");
+		    throw new MessagingException(cex.getMessage(), cex);
+
+		} finally {
+		    // folder not open, don't keep this information
+		    exists = false;
+		    attributes = null;
+		    type = 0;
+		    // connection still good, return it
+		    releaseProtocol(true);
+		}
+		// NOTREACHED
 	    } catch (ProtocolException pex) {
 		// got a BAD or a BYE; connection may be bad, close it
 		try {
@@ -936,7 +953,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    // ignore
 		} finally {
 		    releaseProtocol(false);
-		    protocol = null;
 		    throw new MessagingException(pex.getMessage(), pex);
 		}
 	    }
@@ -960,7 +976,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			    releaseProtocol(false);
 			}
 		    } finally {
-			protocol = null;
 			throw new ReadOnlyFolderException(this,
 				      "Cannot open in desired mode");
 		    }
@@ -986,19 +1001,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		messageCache.addElement(new IMAPMessage(this, i+1, i+1));
 
 	} // Release lock
-
-	/*
-	 * Handle SELECT or EXAMINE failure after lock is released.
-	 * Try to figure out why the operation failed so we can
-	 * report a more reasonable exception.
-	 */
-	if (exc != null) {
-	    checkExists();	// throw exception if folder doesn't exist
-
-	    if ((type & HOLDS_MESSAGES) == 0)
-		throw new MessagingException("folder cannot contain messages");
-	    throw new MessagingException(exc.getMessage(), exc);
-	}
 
 	exists = true;		// if we opened it, it must exist
 	attributes = null;	// but we don't yet know its attributes
@@ -1137,7 +1139,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     // invocations are from within messageCacheLock-ed areas.
     private void cleanup(boolean returnToPool) {
         releaseProtocol(returnToPool);
-        protocol = null;
 	messageCache = null;
 	uidTable = null;
 	exists = false; // to force a recheck in exists().
@@ -2442,7 +2443,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    out.println("DEBUG: getStoreProtocol() - " + 
 		"borrowing a connection");
 	}
-	return ((IMAPStore)store).getStoreProtocol();
+	return ((IMAPStore)store).getFolderStoreProtocol();
     }
 
     /**
@@ -2621,8 +2622,12 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     protected Object doProtocolCommand(ProtocolCommand cmd)
 				throws ProtocolException {
 	synchronized (this) {
-	    // XXX - why does "&& !hasSeparateStoreConnection" make sense?
-	    if (opened && !((IMAPStore)store).hasSeparateStoreConnection()) {
+	    /*
+	     * Check whether we have a protocol object, not whether we're
+	     * opened, to allow use of the exsting protocol object in the
+	     * open method before the state is changed to "opened".
+	     */
+	    if (protocol != null) {
 		synchronized (messageCacheLock) {
 		    return cmd.doCommand(getProtocol());
 		}
@@ -2647,7 +2652,12 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     protected synchronized void releaseStoreProtocol(IMAPProtocol p) {
         if (p != protocol)
-            ((IMAPStore)store).releaseStoreProtocol(p);
+            ((IMAPStore)store).releaseFolderStoreProtocol(p);
+	else {
+	    // XXX - should never happen
+	    if (debug)
+		out.println("DEBUG: releasing our protocol as store protocol?");
+	}
     }
 
     /**
@@ -2662,8 +2672,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
             if (returnToPool)
                 ((IMAPStore)store).releaseProtocol(this, protocol);
-            else
+            else {
+		protocol.disconnect();	// make sure it's disconnected
                 ((IMAPStore)store).releaseProtocol(this, null);
+	    }
+	    protocol = null;
         }
     }
     
@@ -2686,11 +2699,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
         if (keepStoreAlive && ((IMAPStore)store).hasSeparateStoreConnection()) {
             IMAPProtocol p = null;
 	    try {
-		p = ((IMAPStore)store).getStoreProtocol();
+		p = ((IMAPStore)store).getFolderStoreProtocol();
 		if (System.currentTimeMillis() - p.getTimestamp() > 1000)
 		    p.noop();
 	    } finally {
-		((IMAPStore)store).releaseStoreProtocol(p);
+		((IMAPStore)store).releaseFolderStoreProtocol(p);
 	    }
         }
     }

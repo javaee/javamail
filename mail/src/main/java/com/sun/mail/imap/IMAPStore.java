@@ -86,6 +86,15 @@ import com.sun.mail.util.PropUtil;
  * pool is not over capacity. The pool size can be configured by setting
  * the mail.imap.connectionpoolsize property. <p>
  *
+ * Note that all connections in the connection pool have their response
+ * handler set to be the Store.  When the connection is removed from the
+ * pool for use by a folder, the response handler is removed and then set
+ * to either the Folder or to the special nonStoreResponseHandler, depending
+ * on how the connection is being used.  This is probably excessive.
+ * Better would be for the Protocol object to support only a single
+ * response handler, which would be set before the connection is used
+ * and cleared when the connection is in the pool and can't be used. <p>
+ *
  * A mechanism is provided for timing out idle connection pool IMAP
  * protocol objects. Timed out connections are closed and removed (pruned)
  * from the connection pool. The time out interval can be configured via
@@ -120,10 +129,17 @@ import com.sun.mail.util.PropUtil;
  * applicable in the store's cleanup method. It's important that the
  * connection pool lock is not held when calling into folder objects.
  * The locking hierarchy is that a folder lock must be acquired before
- * any connection pool operations are performed. <p>
+ * any connection pool operations are performed.  You never need to hold
+ * all three locks, but if you hold more than one this is the order you
+ * have to acquire them in. <p>
+ *
+ * That is: Store > Folder, Folder > pool, Store > pool <p>
  *
  * The IMAPStore implements the ResponseHandler interface and listens to
- * BYE or untagged OK-notification events from the server. <p>
+ * BYE or untagged OK-notification events from the server as a result of
+ * Store operations.  IMAPFolder forwards notifications that result from
+ * Folder operations using the store connection; the IMAPStore ResponseHandler
+ * is not used directly in this case. <p>
  */
 
 public class IMAPStore extends Store 
@@ -172,11 +188,22 @@ public class IMAPStore extends Store
 
     /*
      * Track our connected state.  Set on successful return from
-     * protocolConnect and reset in cleanup.  Field is volatile
-     * so that it can be tested in handleResponse without holding
-     * any locks.
+     * protocolConnect and reset in cleanup.
      */
-    private volatile boolean connected = false;
+    private boolean connected = false;
+
+    /*
+     * This field is set in the Store's response handler if we see
+     * a BYE response.  The releaseStore method checks this field
+     * and if set it cleans up the Store.  Field is volatile because
+     * there's no lock we consistently hold while manipulating it.
+     *
+     * Because volatile doesn't really work before JDK 1.5,
+     * use a lock to protect these two fields.
+     */
+    private volatile boolean connectionFailed = false;
+    private volatile boolean forceClose = false;
+    private final Object connectionFailedLock = new Object();
 
     private PrintStream out;		// debug output stream
 
@@ -267,18 +294,19 @@ public class IMAPStore extends Store
     private ConnectionPool pool = new ConnectionPool();
 
     /**
-     * A special response handler for connections in the pool that
-     * DOESN'T cause the store to be cleaned up if a BYE is seen.
+     * A special response handler for connections that are being used
+     * to perform operations on behalf of an object other than the Store.
+     * It DOESN'T cause the Store to be cleaned up if a BYE is seen.
      * The BYE may be real or synthetic and in either case just indicates
-     * that the pooled connection is dead.
+     * that the connection is dead.
      */
-    private ResponseHandler poolResponseHandler = new ResponseHandler() {
+    private ResponseHandler nonStoreResponseHandler = new ResponseHandler() {
 	public void handleResponse(Response r) {
 	    // Any of these responses may have a response code.
 	    if (r.isOK() || r.isNO() || r.isBAD() || r.isBYE())
 		handleResponseCode(r);
 	    if (debug && r.isBYE())
-		out.println("DEBUG: IMAPStore pool connection dead");
+		out.println("DEBUG: IMAPStore non-store connection dead");
 	}
     };
  
@@ -717,13 +745,13 @@ public class IMAPStore extends Store
 			 * cleaned up if the connection is dead.
 			 */
 			p.removeResponseHandler(this);
-			p.addResponseHandler(poolResponseHandler);
+			p.addResponseHandler(nonStoreResponseHandler);
 			p.noop();
-			p.removeResponseHandler(poolResponseHandler);
+			p.removeResponseHandler(nonStoreResponseHandler);
 			p.addResponseHandler(this);
 		    } catch (ProtocolException pex) {
 			try {
-			    p.removeResponseHandler(poolResponseHandler);
+			    p.removeResponseHandler(nonStoreResponseHandler);
 			    p.disconnect();
 			} finally {
 			    // don't let any exception stop us
@@ -769,13 +797,9 @@ public class IMAPStore extends Store
      *         // handle it
      *     } finally {
      *         releaseStoreProtocol(p);
-     *         if (p == null) {	// failed to get a Store connection
-     *             // have to force Store to be closed
-     *             cleanup();
-     *         }
      *     }
      */
-    IMAPProtocol getStoreProtocol() throws ProtocolException {
+    private IMAPProtocol getStoreProtocol() throws ProtocolException {
         IMAPProtocol p = null;
 
 	while (p == null) {
@@ -842,6 +866,16 @@ public class IMAPStore extends Store
             timeoutConnections();
         }
 	}
+	return p;
+    }
+
+    /**
+     * Get a store protocol object for use by a folder.
+     */
+    IMAPProtocol getFolderStoreProtocol() throws ProtocolException {
+	IMAPProtocol p = getStoreProtocol();
+	p.removeResponseHandler(this);
+	p.addResponseHandler(nonStoreResponseHandler);
 	return p;
     }
 
@@ -948,16 +982,61 @@ public class IMAPStore extends Store
     /**
      * Release the store connection.
      */
-    void releaseStoreProtocol(IMAPProtocol protocol) {
+    private void releaseStoreProtocol(IMAPProtocol protocol) {
 
-	if (protocol == null)
+	// will be called from idle() without the Store lock held,
+	// but cleanup is synchronized and will acquire the Store lock
+
+	if (protocol == null) {
+	    cleanup();		// failed to ever get the connection
 	    return;		// nothing to release
+	}
+
+	/*
+	 * Read out the flag that says whether this connection failed
+	 * before releasing the protocol object for others to use.
+	 */
+	boolean failed;
+	synchronized (connectionFailedLock) {
+	    failed = connectionFailed;
+	    connectionFailed = false;	// reset for next use
+	}
+
+	// now free the store connection
         synchronized (pool) {
 	    pool.storeConnectionInUse = false;
 	    pool.notifyAll();	// in case anyone waiting
 
 	    if (pool.debug)
 		out.println("DEBUG: releaseStoreProtocol()");
+
+            timeoutConnections();
+        }
+
+	/*
+	 * If the connection died while we were using it, clean up.
+	 * It's critical that the store connection be freed and the
+	 * connection pool not be locked while we do this.
+	 */
+	assert !Thread.holdsLock(pool);
+	if (failed)
+	    cleanup();
+    }
+
+    /**
+     * Release a store protocol object that was being used by a folder.
+     */
+    void releaseFolderStoreProtocol(IMAPProtocol protocol) {
+	if (protocol == null)
+	    return;		// should never happen
+	protocol.removeResponseHandler(nonStoreResponseHandler);
+	protocol.addResponseHandler(this);
+        synchronized (pool) {
+	    pool.storeConnectionInUse = false;
+	    pool.notifyAll();	// in case anyone waiting
+
+	    if (pool.debug)
+		out.println("DEBUG: releaseFolderStoreProtocol()");
 
             timeoutConnections();
         }
@@ -1094,10 +1173,6 @@ public class IMAPStore extends Store
 	    p = getStoreProtocol();
             return p.hasCapability(capability);
 	} catch (ProtocolException pex) {
-	    if (p == null) {	// failed to get a Store connection
-		// have to force Store to be closed
-		cleanup();
-	    }
 	    throw new MessagingException(pex.getMessage(), pex);
         } finally {
             releaseStoreProtocol(p);
@@ -1137,10 +1212,6 @@ public class IMAPStore extends Store
 	    p = getStoreProtocol();
             p.noop();
 	} catch (ProtocolException pex) {
-	    if (p == null) {	// failed to get a Store connection
-		// have to force Store to be closed
-		cleanup();
-	    }
 	    // will return false below
         } finally {
             releaseStoreProtocol(p);
@@ -1203,13 +1274,13 @@ public class IMAPStore extends Store
 	     * to LOGOUT). In fact, even if protocol.logout() fails
 	     * with an IOException (if the server connection is dead),
 	     * iap.Protocol.command() converts that exception into a 
-	     * BYE response. So, I depend on my BYE handler to do the
+	     * BYE response. So, I depend on my BYE handler to set the
+	     * flag that causes releaseStoreProtocol to do the
 	     * Store cleanup.
 	     */
 	    protocol.logout();
 	} catch (ProtocolException pex) { 
 	    // Hmm .. will this ever happen ?
-	    cleanup();
 	    throw new MessagingException(pex.getMessage(), pex);
         } finally {
             releaseStoreProtocol(protocol);
@@ -1221,23 +1292,32 @@ public class IMAPStore extends Store
 	close();
     }
 
-    // Cleanup before dying.
-    private void cleanup() {
-	cleanup(false);
-    }
-
     /**
      * Cleanup before dying.
-     * If force is true, we force the folders to close
-     * abruptly without waiting for the server.  Used when
-     * the store connection times out.
-     *
-     * Not synchronized so that it can be safely called from handleResponse.
      */
-    private void cleanup(boolean force) {
+    private synchronized void cleanup() {
+	// if we're not connected, someone beat us to it
+	if (!connected) {
+	    if (debug)
+		out.println("DEBUG: IMAPStore cleanup, not connected");
+	    return;
+	}
+
+	/*
+	 * If forceClose is true, some thread ran into an error that suggests
+	 * the server might be dead, so we force the folders to close
+	 * abruptly without waiting for the server.  Used when
+	 * the store connection times out, for example.
+	 */
+	boolean force;
+	synchronized (connectionFailedLock) {
+	    force = forceClose;
+	    forceClose = false;
+	    connectionFailed = false;
+	}
 	if (debug)
 	    out.println("DEBUG: IMAPStore cleanup, force " + force);
-        
+
         Vector foldersCopy = null;
         boolean done = true;
 
@@ -1379,10 +1459,6 @@ public class IMAPStore extends Store
 		throw new MessagingException(pex.getMessage(), pex);
 	    } finally {
 		releaseStoreProtocol(p);
-		if (p == null) {	// failed to get a Store connection
-		    // have to force Store to be closed
-		    cleanup();
-		}
 	    }
 	}
 	return namespaces;
@@ -1440,10 +1516,6 @@ public class IMAPStore extends Store
 	    throw new MessagingException(pex.getMessage(), pex);
 	} finally {
 	    releaseStoreProtocol(p);
-	    if (p == null) {	// failed to get a Store connection
-		// have to force Store to be closed
-		cleanup();
-	    }
 	}
 	return qa;
     }
@@ -1471,10 +1543,6 @@ public class IMAPStore extends Store
 	    throw new MessagingException(pex.getMessage(), pex);
 	} finally {
 	    releaseStoreProtocol(p);
-	    if (p == null) {	// failed to get a Store connection
-		// have to force Store to be closed
-		cleanup();
-	    }
 	}
     }
 
@@ -1496,9 +1564,13 @@ public class IMAPStore extends Store
 	if (r.isBYE()) {
 	    if (debug)
 		out.println("DEBUG: IMAPStore connection dead");
-	    // Store's IMAP connection is dead, cleanup.
-	    if (connected) // Check if its already closed
-		cleanup(r.isSynthetic());
+	    // Store's IMAP connection is dead, save the response so that
+	    // releaseStoreProtocol will cleanup later.
+	    synchronized (connectionFailedLock) {
+		connectionFailed = true;
+		if (r.isSynthetic())
+		    forceClose = true;
+	    }
 	    return;
 	}
     }
@@ -1616,10 +1688,6 @@ public class IMAPStore extends Store
 		pool.idleProtocol = null;
 	    }
 	    releaseStoreProtocol(p);
-	    if (p == null) {	// failed to get a Store connection
-		// have to force Store to be closed
-		cleanup();
-	    }
 	}
     }
 

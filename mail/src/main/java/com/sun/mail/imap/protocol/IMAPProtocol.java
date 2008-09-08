@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -302,14 +302,16 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.1.3"
      */
     public void logout() throws ProtocolException {
-	// XXX - what happens if exception is thrown?
-	Response[] r = command("LOGOUT", null);
+	try {
+	    Response[] r = command("LOGOUT", null);
 
-	authenticated = false;
-	// dispatch any unsolicited responses.
-	//  NOTE that the BYE response is dispatched here as well
-	notifyResponseHandlers(r);
-	disconnect();
+	    authenticated = false;
+	    // dispatch any unsolicited responses.
+	    //  NOTE that the BYE response is dispatched here as well
+	    notifyResponseHandlers(r);
+	} finally {
+	    disconnect();
+	}
     }
 
     /**

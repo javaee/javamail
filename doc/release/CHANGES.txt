@@ -24,7 +24,7 @@ The following bugs have been fixed in the 1.4.2 release.
 6679333	missing quotes around zero length parameter values
 6720896	add mail.mime.uudecode.ignoreerrors system property
 6720896	add mail.mime.uudecode.ignoremissingbeginend system property
-6730637	deadlock when mail.imap.connectionpoolsize greater than 1
+6730637	deadlocks in IMAP provider when connections fail
 6738454	deadlock when connection is broken
 6738468	javadocs use fully qualified names
 GF 3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
