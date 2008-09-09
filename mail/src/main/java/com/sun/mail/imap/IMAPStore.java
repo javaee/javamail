@@ -151,21 +151,21 @@ public class IMAPStore extends Store
      */
     public static final int RESPONSE = 1000;
 
-    // XXX - most of these should be final, initialized only in constructor
-    private String name = "imap";	// name of this protocol
-    private int defaultPort = 143;	// default IMAP port
-    private boolean isSSL = false;	// use SSL?
+    private final String name;		// name of this protocol
+    private final int defaultPort;	// default IMAP port
+    private final boolean isSSL;	// use SSL?
 
-    private int port = -1;		// port to use
-    private int blksize = 1024 * 16;	// Block size for data requested
+    private final int blksize;		// Block size for data requested
 					// in FETCH requests. Defaults to
 					// 16K
 
-    private int statusCacheTimeout = 1000;	// cache Status for 1 second
+    private final int statusCacheTimeout;	// cache Status for 1 second
 
-    private int appendBufferSize = -1;	// max size of msg buffered for append
+    private final int appendBufferSize;	// max size of msg buffered for append
 
-    private int minIdleTime = 10;	// minimum idle time
+    private final int minIdleTime;	// minimum idle time
+
+    private int port = -1;		// port to use
 
     // Auth info
     private String host;
@@ -217,31 +217,31 @@ public class IMAPStore extends Store
         // vectore of open folders
         private Vector folders;
 
-        // flag to indicate whether there is a dedicated connection for
-        // store commands
-        private boolean separateStoreConnection = false;
-
         // is the store connection being used?
         private boolean storeConnectionInUse = false; 
-
-        //default client timeout interval
-        private long clientTimeoutInterval = 45 * 1000;		// 45 seconds
-
-        //default server timeout interval
-        private long serverTimeoutInterval = 30 *60 * 1000;	// 30 minutes
 
         // the last time (in millis) the pool was checked for timed out
         // connections
         private long lastTimePruned;
 
-        // default size of the connection pool
-        private int poolSize = 1;
+        // flag to indicate whether there is a dedicated connection for
+        // store commands
+        private final boolean separateStoreConnection;
 
-        // default interval for checking for timed out connections
-        private long pruningInterval = 60000;
+        // client timeout interval
+        private final long clientTimeoutInterval;
+
+        // server timeout interval
+        private final long serverTimeoutInterval;
+
+        // size of the connection pool
+        private final int poolSize;
+
+        // interval for checking for timed out connections
+        private final long pruningInterval;
     
         // connection pool debug flag
-        private boolean debug = false;
+        private final boolean debug;
 
 	/*
 	 * The idleState field supports the IDLE command.
@@ -289,9 +289,73 @@ public class IMAPStore extends Store
 	private static final int ABORTING = 2;	// IDLE command aborting
 	private int idleState = RUNNING;
 	private IMAPProtocol idleProtocol;	// protocol object when IDLE
+
+	ConnectionPool(String name, Session session) {
+	    lastTimePruned = System.currentTimeMillis();
+
+	    PrintStream out = session.getDebugOut();
+	    if (out == null)	// should never happen
+		out = System.out;
+
+	    debug = PropUtil.getBooleanSessionProperty(session,
+		"mail." + name + ".connectionpool.debug", false);
+
+	    // check if the default connection pool size is overridden
+	    int size = PropUtil.getIntSessionProperty(session,
+		"mail." + name + ".connectionpoolsize", -1);
+	    if (size > 0) {
+		poolSize = size;
+		if (debug)
+		    out.println("DEBUG: mail.imap.connectionpoolsize: " +
+			poolSize);
+	    } else
+		poolSize = 1;
+
+	    // check if the default client-side timeout value is overridden
+	    int connectionPoolTimeout = PropUtil.getIntSessionProperty(session,
+		"mail." + name + ".connectionpooltimeout", -1);
+	    if (connectionPoolTimeout > 0) {
+		clientTimeoutInterval = connectionPoolTimeout;
+		if (debug)
+		    out.println("DEBUG: mail.imap.connectionpooltimeout: " +
+			clientTimeoutInterval);
+	    } else 
+		clientTimeoutInterval = 45 * 100;	// 45 seconds
+
+	    // check if the default server-side timeout value is overridden
+	    int serverTimeout = PropUtil.getIntSessionProperty(session,
+		"mail." + name + ".servertimeout", -1);
+	    if (serverTimeout > 0) {
+		serverTimeoutInterval = serverTimeout;
+		if (debug)
+		    out.println("DEBUG: mail.imap.servertimeout: " +
+			serverTimeoutInterval);
+	    }  else
+		serverTimeoutInterval = 30 * 60 * 1000;	// 30 minutes
+
+	    // check if the default server-side timeout value is overridden
+	    int pruning = PropUtil.getIntSessionProperty(session,
+		"mail." + name + ".pruninginterval", -1);
+	    if (pruning > 0) {
+		pruningInterval = pruning;
+		if (debug)
+		    out.println("DEBUG: mail.imap.pruninginterval: " +
+			pruningInterval);
+	    }  else
+		pruningInterval = 60 * 1000;		// 1 minute
+     
+	    // check to see if we should use a separate (i.e. dedicated)
+	    // store connection
+	    separateStoreConnection =
+		PropUtil.getBooleanSessionProperty(session,
+		    "mail." + name + ".separatestoreconnection", false);
+	    if (debug && separateStoreConnection)
+		out.println("DEBUG: dedicate a store connection");
+
+	}
     }
  
-    private ConnectionPool pool = new ConnectionPool();
+    private final ConnectionPool pool;
 
     /**
      * A special response handler for connections that are being used
@@ -336,15 +400,10 @@ public class IMAPStore extends Store
 	    this.defaultPort = 143;
 	this.isSSL = isSSL;
 
-        pool.lastTimePruned = System.currentTimeMillis();
-
         debug = session.getDebug();
 	out = session.getDebugOut();
 	if (out == null)	// should never happen
 	    out = System.out;
-
-        pool.debug = PropUtil.getBooleanSessionProperty(session,
-	    "mail." + name + ".connectionpool.debug", false);
 
 	boolean partialFetch = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".partialfetch", true);
@@ -354,65 +413,27 @@ public class IMAPStore extends Store
 		out.println("DEBUG: mail.imap.partialfetch: false");
 	} else {
 	    blksize = PropUtil.getIntSessionProperty(session,
-		"mail." + name +".fetchsize", blksize);
+		"mail." + name +".fetchsize", 1024 * 16);
 	    if (debug)
 		out.println("DEBUG: mail.imap.fetchsize: " + blksize);
 	}
 
 	statusCacheTimeout = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".statuscachetimeout", statusCacheTimeout);
+	    "mail." + name + ".statuscachetimeout", 1000);
 	if (debug)
 	    out.println("DEBUG: mail.imap.statuscachetimeout: " +
 						statusCacheTimeout);
 
 	appendBufferSize = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".appendbuffersize", appendBufferSize);
+	    "mail." + name + ".appendbuffersize", -1);
 	if (debug)
 	    out.println("DEBUG: mail.imap.appendbuffersize: " +
 						appendBufferSize);
 
 	minIdleTime = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".minidletime", minIdleTime);
+	    "mail." + name + ".minidletime", 10);
 	if (debug)
 	    out.println("DEBUG: mail.imap.minidletime: " + minIdleTime);
-
-        // check if the default connection pool size is overridden
-	int size = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".connectionpoolsize", -1);
-	if (size > 0) {
-	    pool.poolSize = size;
-            if (pool.debug)
-                out.println("DEBUG: mail.imap.connectionpoolsize: " +
-                    pool.poolSize);
-        }
-
-        // check if the default client-side timeout value is overridden
-	int connectionPoolTimeout = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".connectionpooltimeout", -1);
-	if (connectionPoolTimeout > 0) {
-	    pool.clientTimeoutInterval = connectionPoolTimeout;
-            if (pool.debug)
-                out.println("DEBUG: mail.imap.connectionpooltimeout: " +
-                    pool.clientTimeoutInterval);
-        } 
-
-        // check if the default server-side timeout value is overridden
-	int serverTimeout = PropUtil.getIntSessionProperty(session,
-	    "mail." + name + ".servertimeout", -1);
-	if (serverTimeout > 0) {
-	    pool.serverTimeoutInterval = serverTimeout;
-            if (pool.debug)
-                out.println("DEBUG: mail.imap.servertimeout: " +
-                    pool.serverTimeoutInterval);
-        } 
- 
-        // check to see if we should use a separate (i.e. dedicated)
-        // store connection
-	pool.separateStoreConnection =
-	    PropUtil.getBooleanSessionProperty(session,
-		"mail." + name + ".separatestoreconnection", false);
-	if (pool.debug && pool.separateStoreConnection)
-	    out.println("DEBUG: dedicate a store connection");
 
 	// check if we should do a PROXYAUTH login
 	String s = session.getProperty("mail." + name + ".proxyauth.user");
@@ -493,6 +514,8 @@ public class IMAPStore extends Store
 	    "mail." + name + ".enableimapevents", false);
 	if (debug && enableImapEvents)
 	    out.println("DEBUG: enable IMAP events");
+
+	pool = new ConnectionPool(name, session);
     }
 
     /**

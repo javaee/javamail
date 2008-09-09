@@ -164,7 +164,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     protected IMAPProtocol protocol; 	// this folder's own protocol object
     protected Vector messageCache;  	// message cache
-    protected Object messageCacheLock; 	// accessor lock for message cache
+    // accessor lock for message cache
+    protected final Object messageCacheLock = new Object();
 
     protected Hashtable uidTable;	// UID->Message hashtable
 
@@ -315,7 +316,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    throw new NullPointerException("Folder name is null");
 	this.fullName = fullName;
 	this.separator = separator;
-	messageCacheLock = new Object();
         debug = store.getSession().getDebug();
         connectionPoolDebug = ((IMAPStore)store).getConnectionPoolDebug();
 	out = store.getSession().getDebugOut();
@@ -1138,6 +1138,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     // Connection.CLOSED events are not generated. Also both
     // invocations are from within messageCacheLock-ed areas.
     private void cleanup(boolean returnToPool) {
+	assert Thread.holdsLock(messageCacheLock);
         releaseProtocol(returnToPool);
 	messageCache = null;
 	uidTable = null;
