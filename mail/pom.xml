@@ -77,4 +77,16 @@
 	    </resource>
 	</resources>
     </build>
+
+    <reporting>
+	<plugins>
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<configuration>
+		    <threshold>Normal</threshold>
+		</configuration>
+	    </plugin>
+	</plugins>
+    </reporting>
 </project>
