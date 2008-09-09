@@ -221,6 +221,8 @@ public class MimeMessage extends Message implements MimePart {
     public MimeMessage(MimeMessage source) throws MessagingException {
 	super(source.session);
 	flags = source.getFlags();
+	if (flags == null)	// make sure flags is always set
+	    flags = new Flags();
 	ByteArrayOutputStream bos;
 	int size = source.getSize();
 	if (size > 0)

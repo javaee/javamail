@@ -44,6 +44,7 @@ GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
 <no id>	add mail.<protocol>.socketFactory and .ssl.socketFactory properties
 <no id>	add mail.<protocol>.ssl.enable property
 <no id>	add mail.mime.parameters.strict property to control ParameterList parse
+<no id>	fix possible NPE in MimeMessage if flags is not set in copy constructor
 
 
 		  CHANGES IN THE 1.4.1 RELEASE
