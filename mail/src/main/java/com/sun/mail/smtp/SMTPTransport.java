@@ -106,6 +106,7 @@ public class SMTPTransport extends Transport {
 
     private boolean reportSuccess;	// throw an exception even on success
     private boolean useStartTLS;	// use STARTTLS command
+    private boolean requireStartTLS;	// require STARTTLS command
     private boolean useRset;		// use RSET instead of NOOP
 
     private PrintStream out;		// debug output stream
@@ -159,6 +160,10 @@ public class SMTPTransport extends Transport {
 	// mail.smtp.starttls.enable enables use of STARTTLS command
 	useStartTLS = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".starttls.enable", false);
+
+	// mail.smtp.starttls.required requires use of STARTTLS command
+	requireStartTLS = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".starttls.required", false);
 
 	// mail.smtp.userset causes us to use RSET instead of NOOP
 	// for isConnected
@@ -309,6 +314,28 @@ public class SMTPTransport extends Transport {
     }
 
     /**
+     * Should we require the STARTTLS command to secure the connection?
+     *
+     * @return	true if the STARTTLS command will be required
+     *
+     * @since JavaMail 1.4.2
+     */
+    public synchronized boolean getRequireStartTLS() {
+	return requireStartTLS;
+    }
+
+    /**
+     * Set whether the STARTTLS command should be required.
+     *
+     * @param	requireStartTLS	should we require the STARTTLS command?
+     *
+     * @since JavaMail 1.4.2
+     */
+    public synchronized void setRequireStartTLS(boolean requireStartTLS) {
+	this.requireStartTLS = requireStartTLS;
+    }
+
+    /**
      * Should we use the RSET command instead of the NOOP command
      * in the @{link #isConnected isConnected} method?
      *
@@ -429,14 +456,21 @@ public class SMTPTransport extends Transport {
 	if (!succeed)
 	    helo(getLocalHost());
 
-	if (useStartTLS && supportsExtension("STARTTLS")) {
-	    startTLS();
-	    /*
-	     * Have to issue another EHLO to update list of extensions
-	     * supported, especially authentication mechanisms.
-	     * Don't know if this could ever fail, but we ignore failure.
-	     */
-	    ehlo(getLocalHost());
+	if (useStartTLS || requireStartTLS) {
+	    if (supportsExtension("STARTTLS")) {
+		startTLS();
+		/*
+		 * Have to issue another EHLO to update list of extensions
+		 * supported, especially authentication mechanisms.
+		 * Don't know if this could ever fail, but we ignore failure.
+		 */
+		ehlo(getLocalHost());
+	    } else if (requireStartTLS) {
+		if (debug)
+		    out.println(
+			"DEBUG SMTP: STARTTLS required but not supported");
+		return false;
+	    }
 	}
 
 	if ((useAuth || (user != null && passwd != null)) &&
