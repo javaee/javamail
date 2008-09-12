@@ -180,6 +180,7 @@ public class IMAPStore extends Store
     private boolean disableAuthLogin = false;	// disable AUTH=LOGIN
     private boolean disableAuthPlain = false;	// disable AUTH=PLAIN
     private boolean enableStartTLS = false;	// enable STARTTLS
+    private boolean requireStartTLS = false;	// require STARTTLS
     private boolean enableSASL = false;		// enable SASL authentication
     private String[] saslMechanisms;
     private boolean forcePasswordRefresh = false;
@@ -462,6 +463,12 @@ public class IMAPStore extends Store
 	if (debug && enableStartTLS)
 	    out.println("DEBUG: enable STARTTLS");
 
+	// check if STARTTLS is required
+	requireStartTLS = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".starttls.required", false);
+	if (debug && requireStartTLS)
+	    out.println("DEBUG: require STARTTLS");
+
 	// check if SASL is enabled
 	enableSASL = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".sasl.enable", false);
@@ -608,11 +615,18 @@ public class IMAPStore extends Store
 
     private void login(IMAPProtocol p, String u, String pw) 
 		throws ProtocolException {
-	// turn on TLS if it's been enabled and is supported
-	if (enableStartTLS && p.hasCapability("STARTTLS")) {
-	    p.startTLS();
-	    // if startTLS succeeds, refresh capabilities
-	    p.capability();
+	// turn on TLS if it's been enabled or required and is supported
+	if (enableStartTLS || requireStartTLS) {
+	    if (p.hasCapability("STARTTLS")) {
+		p.startTLS();
+		// if startTLS succeeds, refresh capabilities
+		p.capability();
+	    } else if (requireStartTLS) {
+		if (debug)
+                    out.println("DEBUG: STARTTLS required but not supported");
+		throw new ProtocolException(
+		    "STARTTLS required but not supported by server");
+	    }
 	}
 	if (p.isAuthenticated())
 	    return;		// no need to login

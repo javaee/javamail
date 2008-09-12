@@ -30,7 +30,7 @@ The following bugs have been fixed in the 1.4.2 release.
 GF 3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
 GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
-GF 5861	add mail.smtp.starttls.required property to require use of STARTTLS
+GF 5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
 <no id>	ignore socket timeout while waiting in IMAP IDLE
 <no id>	fix bug in MailDateFormat parsing in non-lenient mode
 <no id>	add mail.mime.multipart.allowempty system property to handle (illegal)
