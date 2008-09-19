@@ -46,6 +46,7 @@ GF 5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
 <no id>	add mail.<protocol>.ssl.enable property
 <no id>	add mail.mime.parameters.strict property to control ParameterList parse
 <no id>	fix possible NPE in MimeMessage if flags is not set in copy constructor
+<no id>	SMTP I/O failure incorrectly reports valid sent addresses
 
 
 		  CHANGES IN THE 1.4.1 RELEASE

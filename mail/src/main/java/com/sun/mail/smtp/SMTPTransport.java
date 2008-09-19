@@ -756,6 +756,7 @@ public class SMTPTransport extends Transport {
 	} catch (MessagingException mex) {
 	    if (debug)
 		mex.printStackTrace(out);
+	    addressesFailed();
 	    notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED,
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
@@ -769,6 +770,7 @@ public class SMTPTransport extends Transport {
 	    try {
 		closeConnection();
 	    } catch (MessagingException mex) { /* ignore it */ }
+	    addressesFailed();
 	    notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED,
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
@@ -783,6 +785,27 @@ public class SMTPTransport extends Transport {
 	    this.exception = null;
 	    sendPartiallyFailed = false;
 	    notificationDone = false;	// reset for next send
+	}
+    }
+
+    /**
+     * The send failed, fix the address arrays to report the failure correctly.
+     */
+    private void addressesFailed() {
+	if (validSentAddr != null) {
+	    if (validUnsentAddr != null) {
+		Address newa[] =
+		    new Address[validSentAddr.length + validUnsentAddr.length];
+		System.arraycopy(validSentAddr, 0,
+			newa, 0, validSentAddr.length);
+		System.arraycopy(validUnsentAddr, 0,
+			newa, validSentAddr.length, validUnsentAddr.length);
+		validSentAddr = null;
+		validUnsentAddr = newa;
+	    } else {
+		validUnsentAddr = validSentAddr;
+		validSentAddr = null;
+	    }
 	}
     }
 
