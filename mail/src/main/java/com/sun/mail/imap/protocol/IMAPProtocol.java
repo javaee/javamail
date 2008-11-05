@@ -73,8 +73,12 @@ public class IMAPProtocol extends Protocol {
     // WARNING: authenticated may be set to true in superclass
     //		constructor, don't initialize it here.
 
-    private Map capabilities = null;
-    private List authmechs = null;
+    private Map capabilities;
+    // WARNING: capabilities may be initialized as a result of superclass
+    //		constructor, don't initialize it here.
+    private List authmechs;
+    // WARNING: authmechs may be initialized as a result of superclass
+    //		constructor, don't initialize it here.
     private String[] searchCharsets; 	// array of search charsets
 
     private String name;
