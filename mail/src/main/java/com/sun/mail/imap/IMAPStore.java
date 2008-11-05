@@ -188,12 +188,6 @@ public class IMAPStore extends Store
     private boolean enableImapEvents = false;
 
     /*
-     * Track our connected state.  Set on successful return from
-     * protocolConnect and reset in cleanup.
-     */
-    private boolean connected = false;
-
-    /*
      * This field is set in the Store's response handler if we see
      * a BYE response.  The releaseStore method checks this field
      * and if set it cleans up the Store.  Field is volatile because
@@ -614,9 +608,7 @@ public class IMAPStore extends Store
 	    throw new MessagingException(ioex.getMessage(), ioex);
 	} 
 
-	connected = true;
         return true;
-
     }
 
     private void login(IMAPProtocol p, String u, String pw) 
@@ -1234,10 +1226,9 @@ public class IMAPStore extends Store
      * method, to actually ping our server connection.
      */
     public synchronized boolean isConnected() {
-	if (!connected) {
+	if (!super.isConnected()) {
 	    // if we haven't been connected at all, don't bother with
 	    // the NOOP.
-	    super.setConnected(false);	// just in case
 	    return false;
 	}
 
@@ -1347,7 +1338,7 @@ public class IMAPStore extends Store
      */
     private synchronized void cleanup() {
 	// if we're not connected, someone beat us to it
-	if (!connected) {
+	if (!super.isConnected()) {
 	    if (debug)
 		out.println("DEBUG: IMAPStore cleanup, not connected");
 	    return;
@@ -1423,8 +1414,10 @@ public class IMAPStore extends Store
 	    emptyConnectionPool(force);
 	}
 
-	connected = false;
-	notifyConnectionListeners(ConnectionEvent.CLOSED);
+	// to set the state and send the closed connection event
+	try {
+	    super.close();
+	} catch (MessagingException mex) { }
 	if (debug)
 	    out.println("DEBUG: IMAPStore cleanup done");
     }
@@ -1598,10 +1591,8 @@ public class IMAPStore extends Store
 
     private void checkConnected() {
 	assert Thread.holdsLock(this);
-	if (!connected) {
-	    super.setConnected(false);	// just in case
+	if (!super.isConnected())
 	    throw new IllegalStateException("Not connected");
-	}
     }
 
     /**
