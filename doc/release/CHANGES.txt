@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.4.2 release.
 	might fail if folder is open
 6672359	SMTPTransport notifying both partially delivered and
 	not delivered methods
+6676257	cannot specify two custom ssl socket factories for starttls usage
 6679333	missing quotes around zero length parameter values
 6720896	add mail.mime.uudecode.ignoreerrors system property
 6720896	add mail.mime.uudecode.ignoremissingbeginend system property
