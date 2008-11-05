@@ -208,6 +208,8 @@ public class IMAPStore extends Store
 
     private PrintStream out;		// debug output stream
 
+    private boolean messageCacheDebug;
+
     // Connection pool info
 
     static class ConnectionPool {
@@ -521,6 +523,10 @@ public class IMAPStore extends Store
 	    "mail." + name + ".enableimapevents", false);
 	if (debug && enableImapEvents)
 	    out.println("DEBUG: enable IMAP events");
+
+	// check if message cache debugging set
+	messageCacheDebug = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".messagecache.debug", false);
 
 	pool = new ConnectionPool(name, session);
     }
@@ -964,6 +970,13 @@ public class IMAPStore extends Store
      */ 
     boolean getConnectionPoolDebug() {
         return pool.debug; 
+    } 
+ 
+    /** 
+     * Report whether message cache debugging is enabled. 
+     */ 
+    boolean getMessageCacheDebug() {
+        return messageCacheDebug; 
     } 
  
     /**

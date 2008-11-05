@@ -163,7 +163,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     protected String[] attributes;	// name attributes from LIST response
 
     protected IMAPProtocol protocol; 	// this folder's own protocol object
-    protected Vector messageCache;  	// message cache
+    protected MessageCache messageCache;// message cache
     // accessor lock for message cache
     protected final Object messageCacheLock = new Object();
 
@@ -254,6 +254,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     private Status cachedStatus = null;
     private long cachedStatusTime = 0;
+
+    private boolean hasMessageCountListener = false;	// optimize notification
 
     private boolean debug = false;
     private PrintStream out;		// debug output stream
@@ -441,7 +443,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	} // Release lock
 
 	if (msgno > total) // Still out of range ? Throw up ...
-	    throw new IndexOutOfBoundsException();
+	    throw new IndexOutOfBoundsException(msgno + " > " + total);
     }
 
     /*
@@ -994,11 +996,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    uidvalidity = mi.uidvalidity;
 	    uidnext = mi.uidnext;
 
-	    // Create the message cache vector of appropriate size
-	    messageCache = new Vector(total);
-	    // Fill up the cache with light-weight IMAPMessage objects
-	    for (int i = 0; i < total; i++)
-		messageCache.addElement(new IMAPMessage(this, i+1, i+1));
+	    // Create the message cache of appropriate size
+	    messageCache = new MessageCache(this, (IMAPStore)store, total);
 
 	} // Release lock
 
@@ -1375,7 +1374,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	checkOpened();
 	checkRange(msgnum);
 
-	return (Message)messageCache.elementAt(msgnum-1);
+	return messageCache.getMessage(msgnum);
     }
 
     /**
@@ -1578,6 +1577,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    fetch(msgs, fp);
 	}
 
+	IMAPMessage[] rmsgs;
 	synchronized(messageCacheLock) {
 	    doExpungeNotification = false; // We do this ourselves later
 	    try {
@@ -1602,45 +1602,26 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		doExpungeNotification = true;
 	    }
 
-	    // Cleanup expunged messages and sync messageCache with 
-	    // reality.
-	    for (int i = 0; i < messageCache.size(); ) {
-		IMAPMessage m = (IMAPMessage)messageCache.elementAt(i);
-		if (m.isExpunged()) {
-		    v.addElement(m); // add into vector of expunged messages
-
-		    /* remove this message from the messageCache.
-		     *
-		     * Note that this also causes all succeeding messages
-		     * in the cache to shifted downward in the vector,
-		     * therby decrementing the vector's size. (and hence
-		     * we need to do messageCache.size() at the top of
-		     * this loop.
-		     */
-		    messageCache.removeElementAt(i);
-
+	    // Cleanup expunged messages and sync messageCache with reality.
+	    if (msgs != null)
+		rmsgs = messageCache.removeExpungedMessages(msgs);
+	    else
+		rmsgs = messageCache.removeExpungedMessages();
+	    if (uidTable != null) {
+		for (int i = 0; i < rmsgs.length; i++) {
+		    IMAPMessage m = rmsgs[i];
 		    /* remove this message from the UIDTable */
-		    if (uidTable != null) {
-			long uid = m.getUID();
-			if (uid != -1)
-			    uidTable.remove(new Long(uid));
-		    }
-		} else {
-		    /* Valid message, sync its message number with 
-		     * its sequence number.
-		     */
-		    m.setMessageNumber(m.getSequenceNumber());
-		    i++; // done; increment index, go check next message
+		    long uid = m.getUID();
+		    if (uid != -1)
+			uidTable.remove(new Long(uid));
 		}
 	    }
+
+	    // Update 'total'
+	    total = messageCache.size();
 	}
 
-	// Update 'total'
-	total = messageCache.size();
-
 	// Notify listeners. This time its for real, guys.
-	Message[] rmsgs = new Message[v.size()];
-	v.copyInto(rmsgs);
 	if (rmsgs.length > 0)
 	    notifyMessageRemovedListeners(true, rmsgs);
 	return rmsgs;
@@ -1724,6 +1705,18 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    // bug in our IMAP layer ?
 	    throw new MessagingException(pex.getMessage(), pex);
 	}
+    }
+
+    /*
+     * Override Folder method to keep track of whether we have any
+     * message count listeners.  Normally we won't have any, so we
+     * can avoid creating message objects to pass to the notify
+     * method.  It's too hard to keep track of when all listeners
+     * are removed, and that's a rare case, so we don't try.
+     */
+    public synchronized void addMessageCountListener(MessageCountListener l) { 
+	super.addMessageCountListener(l);
+	hasMessageCountListener = true;
     }
 
     /***********************************************************
@@ -2347,42 +2340,32 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    Message[] msgs = new Message[count];
 
 	    // Add 'count' new IMAPMessage objects into the messageCache
-	    for (int i = 0; i < count; i++) {
-		// Note that as a side-effect, we also increment
-		// total & realTotal
-		IMAPMessage msg = new IMAPMessage(this, ++total, ++realTotal);
-		msgs[i] = msg;
-		messageCache.addElement(msg);
-	    }
+	    messageCache.addMessages(count);
+	    int oldtotal = total;	// used in loop below
+	    realTotal += count;
+	    total += count;
 
-	    // Notify listeners.
-	    notifyMessageAddedListeners(msgs);
+	    // avoid instantiating Message objects if no listeners.
+	    if (hasMessageCountListener) {
+		for (int i = 0; i < count; i++)
+		    msgs[i] = messageCache.getMessage(++oldtotal);
+
+		// Notify listeners.
+		notifyMessageAddedListeners(msgs);
+	    }
 
 	} else if (ir.keyEquals("EXPUNGE")) {
 	    // EXPUNGE response.
 
-	    IMAPMessage msg = getMessageBySeqNumber(ir.getNumber());
-	    msg.setExpunged(true); // mark this message expunged.
-
-	    // Renumber the cache, starting from just beyond 
-	    // the expunged message.
-	    for (int i = msg.getMessageNumber(); i < total; i++) {
-		// Note that 'i' actually indexes the message
-		// beyond the expunged message.
-		IMAPMessage m = (IMAPMessage)messageCache.elementAt(i);
-		if (m.isExpunged()) // an expunged message, skip
-		    continue;
-
-		// Decrement this message's seqnum
-		m.setSequenceNumber(m.getSequenceNumber() - 1);
-	    } // Whew, done.
+	    int seqnum = ir.getNumber();
+	    messageCache.expungeMessage(seqnum);
 
 	    // decrement 'realTotal'; but leave 'total' unchanged
 	    realTotal--;
 
-	    if (doExpungeNotification) {
+	    if (doExpungeNotification && hasMessageCountListener) {
 		// Do the notification here.
-		Message[] msgs = {msg};
+		Message[] msgs = { getMessageBySeqNumber(seqnum) };
 		notifyMessageRemovedListeners(false, msgs);
 	    }
 
@@ -2717,16 +2700,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *  messageCacheLock
      */
     IMAPMessage getMessageBySeqNumber(int seqnum) {
-	/* Check messageCache for message matching the given
-	 * sequence number. We start the search from position (seqnum-1)
-	 * and continue down the vector till we get a match.
-	 */
-	for (int i = seqnum-1; i < total; i++) {
-	    IMAPMessage msg = (IMAPMessage)messageCache.elementAt(i);
-	    if (msg.getSequenceNumber() == seqnum)
-		return msg;
-	}
-	return null;
+	return messageCache.getMessageBySeqnum(seqnum);
     }
 
     private boolean isDirectory() {

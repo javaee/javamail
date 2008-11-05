@@ -83,8 +83,6 @@ public class IMAPMessage extends MimeMessage {
 
     private boolean peek;		// use BODY.PEEK when fetching content?
 
-    // this message's IMAP sequence number
-    private int seqnum;
     // this message's IMAP UID
     private long uid = -1;
 
@@ -116,9 +114,8 @@ public class IMAPMessage extends MimeMessage {
     /**
      * Constructor.
      */
-    protected IMAPMessage(IMAPFolder folder, int msgnum, int seqnum) {
+    protected IMAPMessage(IMAPFolder folder, int msgnum) {
 	super(folder, msgnum);
-	this.seqnum = seqnum;
 	flags = null;
     }
 
@@ -174,17 +171,7 @@ public class IMAPMessage extends MimeMessage {
      * 	messageCacheLock.
      */
     protected int getSequenceNumber() {
-	return seqnum;
-    }
-
-    /**
-     * Set this message's IMAP sequence number.
-     *
-     * ASSERT: This method must be called only when holding the
-     * 	messageCacheLock.
-     */
-    protected void setSequenceNumber(int seqnum) {
-	this.seqnum = seqnum;
+	return ((IMAPFolder)folder).messageCache.seqnumOf(getMessageNumber());
     }
 
     /**
@@ -203,10 +190,9 @@ public class IMAPMessage extends MimeMessage {
 	this.uid = uid;
     }
 
-    // overrides super.setExpunged()
+    // expose to MessageCache
     protected void setExpunged(boolean set) {
 	super.setExpunged(set);
-	seqnum = -1;
     }
 
     // Convenience routine
