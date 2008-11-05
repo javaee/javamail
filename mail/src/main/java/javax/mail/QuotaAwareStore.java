@@ -47,7 +47,7 @@ package javax.mail;
  */
 public interface QuotaAwareStore {
     /**
-     * Get the quotas for the named quota root.
+     * Get the quotas for the named folder.
      * Quotas are controlled on the basis of a quota root, not
      * (necessarily) a folder.  The relationship between folders
      * and quota roots depends on the server.  Some servers
@@ -57,12 +57,12 @@ public interface QuotaAwareStore {
      * quota roots, perhaps controlling quotas for different
      * resources.
      *
-     * @param	root	the name of the quota root
+     * @param	folder	the name of the folder
      * @return		array of Quota objects
      * @exception MessagingException	if the server doesn't support the
      *					QUOTA extension
      */
-    Quota[] getQuota(String root) throws MessagingException;
+    Quota[] getQuota(String folder) throws MessagingException;
 
     /**
      * Set the quotas for the quota root specified in the quota argument.
