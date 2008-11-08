@@ -45,18 +45,18 @@ import javax.mail.internet.*;
 
 
 /**
- * DataContentHandler for message/delivery-status MIME type.
+ * DataContentHandler for message/disposition-notification MIME type.
  * Applications should not use this class directly, it's used indirectly
  * through the JavaBeans Activation Framework.
  *
- * @since	JavaMail 1.4
+ * @since	JavaMail 1.4.2
  */
-public class message_deliverystatus implements DataContentHandler {
+public class message_dispositionnotification implements DataContentHandler {
 
     ActivationDataFlavor ourDataFlavor = new ActivationDataFlavor(
-	DeliveryStatus.class,
-	"message/delivery-status", 
-	"Delivery Status");
+	DispositionNotification.class,
+	"message/disposition-notification", 
+	"Disposition Notification");
 
     /**
      * return the DataFlavors for this <code>DataContentHandler</code>
@@ -85,7 +85,7 @@ public class message_deliverystatus implements DataContentHandler {
      * Return the content.
      */
     public Object getContent(DataSource ds) throws IOException {
-	// create a new DeliveryStatus
+	// create a new DispositionNotification
 	try {
 	    /*
 	    Session session;
@@ -100,12 +100,13 @@ public class message_deliverystatus implements DataContentHandler {
 		// nothing, but overall not a really good answer.
 		session = Session.getDefaultInstance(new Properties(), null);
 	    }
-	    return new DeliveryStatus(session, ds.getInputStream());
+	    return new DispositionNotification(session, ds.getInputStream());
 	    */
-	    return new DeliveryStatus(ds.getInputStream());
+	    return new DispositionNotification(ds.getInputStream());
 	} catch (MessagingException me) {
-	    throw new IOException("Exception creating DeliveryStatus in " +
-		    "message/delivery-status DataContentHandler: " +
+	    throw new IOException(
+		    "Exception creating DispositionNotification in " +
+		    "message/disposition-notification DataContentHandler: " +
 		    me.toString());
 	}
     }
@@ -114,11 +115,11 @@ public class message_deliverystatus implements DataContentHandler {
      */
     public void writeTo(Object obj, String mimeType, OutputStream os) 
 			throws IOException {
-	// if the object is a DeliveryStatus, we know how to write that out
-	if (obj instanceof DeliveryStatus) {
-	    DeliveryStatus ds = (DeliveryStatus)obj;
+	// if it's a DispositionNotification, we know how to write that out
+	if (obj instanceof DispositionNotification) {
+	    DispositionNotification dn = (DispositionNotification)obj;
 	    try {
-		ds.writeTo(os);
+		dn.writeTo(os);
 	    } catch (MessagingException me) {
 		throw new IOException(me.toString());
 	    }

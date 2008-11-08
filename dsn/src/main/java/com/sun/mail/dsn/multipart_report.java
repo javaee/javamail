@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,6 +43,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.*;
 
 
+/**
+ * DataContentHandler for multipart/report MIME type.
+ * Applications should not use this class directly, it's used indirectly
+ * through the JavaBeans Activation Framework.
+ *
+ * @since	JavaMail 1.4
+ */
 public class multipart_report implements DataContentHandler {
     private ActivationDataFlavor myDF = new ActivationDataFlavor(
 	    MultipartReport.class,

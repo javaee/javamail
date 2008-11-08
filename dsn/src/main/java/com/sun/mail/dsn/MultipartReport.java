@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,8 +48,7 @@ import javax.mail.internet.*;
  * <A HREF="http://www.ietf.org/rfc/rfc3462.txt">RFC 3462</A>.
  * A multipart/report content is a container for mail reports
  * of any kind, and is most often used to return a delivery
- * status report.  This class only supports that most common
- * usage. <p>
+ * status report or a disposition notification report. <p>
  *
  * A MultipartReport object is a special type of MimeMultipart
  * object with a restricted set of body parts.  A MultipartReport
@@ -57,7 +56,7 @@ import javax.mail.internet.*;
  * <ul>
  * <li>[Required] A human readable text message describing the
  * reason the report was generated.</li>
- * <li>[Required] A {@link DeliveryStatus} object containing the
+ * <li>[Required] A {@link Report} object containing the
  * details for why the report was generated.</li>
  * <li>[Optional] A returned copy of the entire message, or just
  * its headers, which caused the generation of this report.
@@ -65,6 +64,8 @@ import javax.mail.internet.*;
  * Many of the normal MimeMultipart operations are restricted to
  * ensure that the MultipartReport object always follows this
  * structure.
+ *
+ * @since	JavaMail 1.4
  */
 public class MultipartReport extends MimeMultipart {
     protected boolean constructed; // true when done with constructor
@@ -84,30 +85,33 @@ public class MultipartReport extends MimeMultipart {
 
     /**
      * Construct a multipart/report object with the specified plain
-     * text and delivery status to be returned to the user.
+     * text and report type (DeliveryStatus or DispositionNotification)
+     * to be returned to the user.
      */
-    public MultipartReport(String text, DeliveryStatus status)
+    public MultipartReport(String text, Report report)
 				throws MessagingException {
 	super("report");
 	ContentType ct = new ContentType(contentType);
-	ct.setParameter("report-type", "delivery-status");
+	String reportType = report.getType();
+	ct.setParameter("report-type", reportType);
 	contentType = ct.toString();
 	MimeBodyPart mbp = new MimeBodyPart();
 	mbp.setText(text);
 	setBodyPart(mbp, 0);
 	mbp = new MimeBodyPart();
-	mbp.setContent(status, "message/delivery-status");
+	ct = new ContentType("message", reportType, null);
+	mbp.setContent(report, ct.toString());
 	setBodyPart(mbp, 1);
 	constructed = true;
     }
 
     /**
      * Construct a multipart/report object with the specified plain
-     * text, delivery status, and original message to be returned to the user.
+     * text, report, and original message to be returned to the user.
      */
-    public MultipartReport(String text, DeliveryStatus status,
-				MimeMessage msg) throws MessagingException {
-	this(text, status);
+    public MultipartReport(String text, Report report, MimeMessage msg)
+				throws MessagingException {
+	this(text, report);
 	if (msg != null) {
 	    MimeBodyPart mbp = new MimeBodyPart();
 	    mbp.setContent(msg, "message/rfc822");
@@ -117,12 +121,12 @@ public class MultipartReport extends MimeMultipart {
 
     /**
      * Construct a multipart/report object with the specified plain
-     * text, delivery status, and headers from the original message
+     * text, report, and headers from the original message
      * to be returned to the user.
      */
-    public MultipartReport(String text, DeliveryStatus status,
-				InternetHeaders hdr) throws MessagingException {
-	this(text, status);
+    public MultipartReport(String text, Report report, InternetHeaders hdr)
+				throws MessagingException {
+	this(text, report);
 	if (hdr != null) {
 	    MimeBodyPart mbp = new MimeBodyPart();
 	    mbp.setContent(new MessageHeaders(hdr), "text/rfc822-headers");
@@ -210,7 +214,45 @@ public class MultipartReport extends MimeMultipart {
     }
 
     /**
+     * Get the report associated with this multipart/report.
+     *
+     * @since	JavaMail 1.4.2
+     */
+    public synchronized Report getReport() throws MessagingException {
+	if (getCount() < 2)
+	    return null;
+	BodyPart bp = getBodyPart(1);
+	try {
+	    Object content = bp.getContent();
+	    if (!(content instanceof Report))
+		return null;
+	    return (Report)content;
+	} catch (IOException ex) {
+	    throw new MessagingException("IOException getting Report", ex);
+	}
+    }
+
+    /**
+     * Set the report associated with this multipart/report.
+     *
+     * @since	JavaMail 1.4.2
+     */
+    public synchronized void setReport(Report report)
+				throws MessagingException {
+	MimeBodyPart mbp = new MimeBodyPart();
+	ContentType ct = new ContentType(contentType);
+	String reportType = report.getType();
+	ct.setParameter("report-type", reportType);
+	contentType = ct.toString();
+	ct = new ContentType("message", reportType, null);
+	mbp.setContent(report, ct.toString());
+	setBodyPart(mbp, 2);
+    }
+
+    /**
      * Get the delivery status associated with this multipart/report.
+     *
+     * @deprecated	use getReport instead
      */
     public synchronized DeliveryStatus getDeliveryStatus()
 				throws MessagingException {
@@ -229,6 +271,8 @@ public class MultipartReport extends MimeMultipart {
 
     /**
      * Set the delivery status associated with this multipart/report.
+     *
+     * @deprecated	use setReport instead
      */
     public synchronized void setDeliveryStatus(DeliveryStatus status)
 				throws MessagingException {

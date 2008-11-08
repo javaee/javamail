@@ -4,4 +4,5 @@
 #
 multipart/report;;	x-java-content-handler=com.sun.mail.dsn.multipart_report
 message/delivery-status;; x-java-content-handler=com.sun.mail.dsn.message_deliverystatus
+message/disposition-notification;; x-java-content-handler=com.sun.mail.dsn.message_dispositionnotification
 text/rfc822-headers;;	x-java-content-handler=com.sun.mail.dsn.text_rfc822headers

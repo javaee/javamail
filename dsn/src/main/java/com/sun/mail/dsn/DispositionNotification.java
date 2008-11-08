@@ -39,7 +39,6 @@ package com.sun.mail.dsn;
 import java.io.*;
 import java.util.*;
 
-import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 
@@ -47,114 +46,71 @@ import com.sun.mail.util.LineOutputStream;	// XXX
 import com.sun.mail.util.PropUtil;
 
 /**
- * A message/delivery-status message content, as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc3464.txt">RFC 3464</A>.
+ * A message/disposition-notification message content, as defined in
+ * <A HREF="http://www.ietf.org/rfc/rfc3798.txt">RFC 3798</A>.
  *
- * @since	JavaMail 1.4
+ * @since	JavaMail 1.4.2
  */
-public class DeliveryStatus extends Report {
+public class DispositionNotification extends Report {
 
     private static boolean debug =
 	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false);
 
     /**
-     * The DSN fields for the message.
+     * The disposition notification content fields.
      */
-    protected InternetHeaders messageDSN;
+    protected InternetHeaders notifications;
 
     /**
-     * The DSN fields for each recipient.
+     * Construct a disposition notification with no content.
      */
-    protected InternetHeaders[] recipientDSN;
-
-    /**
-     * Construct a delivery status notification with no content.
-     */
-    public DeliveryStatus() throws MessagingException {
-	super("delivery-status");
-	messageDSN = new InternetHeaders();
-	recipientDSN = new InternetHeaders[0];
+    public DispositionNotification() throws MessagingException {
+	super("disposition-notification");
+	notifications = new InternetHeaders();
     }
 
     /**
-     * Construct a delivery status notification by parsing the
+     * Construct a disposition notification by parsing the
      * supplied input stream.
      */
-    public DeliveryStatus(InputStream is)
+    public DispositionNotification(InputStream is)
 				throws MessagingException, IOException {
-	super("delivery-status");
-	messageDSN = new InternetHeaders(is);
+	super("disposition-notification");
+	notifications = new InternetHeaders(is);
 	if (debug)
-	    System.out.println("DSN: got messageDSN");
-	Vector v = new Vector();
-	try {
-	    while (is.available() > 0) {
-		InternetHeaders h = new InternetHeaders(is);
-		if (debug)
-		    System.out.println("DSN: got recipientDSN");
-		v.addElement(h);
-	    }
-	} catch (EOFException ex) {
-	    if (debug)
-		System.out.println("DSN: got EOFException");
-	}
-	if (debug)
-	    System.out.println("DSN: recipientDSN size " + v.size());
-	recipientDSN = new InternetHeaders[v.size()];
-	v.copyInto(recipientDSN);
+	    System.out.println("MDN: got notification content");
     }
 
     /**
-     * Return all the per-message fields in the delivery status notification.
+     * Return all the disposition notification fields in the
+     * disposition notification.
      * The fields are defined as:
      *
      * <pre>
-     *    per-message-fields =
-     *          [ original-envelope-id-field CRLF ]
-     *          reporting-mta-field CRLF
-     *          [ dsn-gateway-field CRLF ]
-     *          [ received-from-mta-field CRLF ]
-     *          [ arrival-date-field CRLF ]
-     *          *( extension-field CRLF )
+     *    disposition-notification-content =
+     *		[ reporting-ua-field CRLF ]
+     *		[ mdn-gateway-field CRLF ]
+     *		[ original-recipient-field CRLF ]
+     *		final-recipient-field CRLF
+     *		[ original-message-id-field CRLF ]
+     *		disposition-field CRLF
+     *		*( failure-field CRLF )
+     *		*( error-field CRLF )
+     *		*( warning-field CRLF )
+     *		*( extension-field CRLF )
      * </pre>
      */
     // XXX - could parse each of these fields
-    public InternetHeaders getMessageDSN() {
-	return messageDSN;
+    public InternetHeaders getNotifications() {
+	return notifications;
     }
 
     /**
-     * Set the per-message fields in the delivery status notification.
+     * Set the disposition notification fields in the
+     * disposition notification.
      */
-    public void setMessageDSN(InternetHeaders messageDSN) {
-	this.messageDSN = messageDSN;
-    }
-
-    /**
-     * Return the number of recipients for which we have
-     * per-recipient delivery status notification information.
-     */
-    public int getRecipientDSNCount() {
-	return recipientDSN.length;
-    }
-
-    /**
-     * Return the delivery status notification information for
-     * the specified recipient.
-     */
-    public InternetHeaders getRecipientDSN(int n) {
-	return recipientDSN[n];
-    }
-
-    /**
-     * Add deliver status notification information for another
-     * recipient.
-     */
-    public void addRecipientDSN(InternetHeaders h) {
-	InternetHeaders[] rh = new InternetHeaders[recipientDSN.length + 1];
-	System.arraycopy(recipientDSN, 0, rh, 0, recipientDSN.length);
-	recipientDSN = rh;
-	recipientDSN[recipientDSN.length - 1] = h;
+    public void setNotifications(InternetHeaders notifications) {
+	this.notifications = notifications;
     }
 
     public void writeTo(OutputStream os)
@@ -167,12 +123,8 @@ public class DeliveryStatus extends Report {
 	    los = new LineOutputStream(os);
 	}
 
-	writeInternetHeaders(messageDSN, los);
+	writeInternetHeaders(notifications, los);
 	los.writeln();
-	for (int i = 0; i < recipientDSN.length; i++) {
-	    writeInternetHeaders(recipientDSN[i], los);
-	    los.writeln();
-	}
     }
 
     private static void writeInternetHeaders(InternetHeaders h,
@@ -191,8 +143,7 @@ public class DeliveryStatus extends Report {
     }
 
     public String toString() {
-	return "DeliveryStatus: Reporting-MTA=" +
-	    messageDSN.getHeader("Reporting-MTA", null) + ", #Recipients=" +
-	    recipientDSN.length;
+	return "DispositionNotification: Reporting-UA=" +
+	    notifications.getHeader("Reporting-UA", null);
     }
 }
