@@ -306,15 +306,50 @@ public class SocketFetcher {
 	int port = socket.getPort();
 //System.out.println("SocketFetcher: startTLS host " + host + ", port " + port);
 
+	String sfErr = "unknown socket factory";
 	try {
-	    SSLSocketFactory ssf;
-	    String sfClass =
-		props.getProperty(prefix + ".socketFactory.class", null);
-	    SocketFactory sf = getSocketFactory(sfClass);
+	    SSLSocketFactory ssf = null;
+	    SocketFactory sf = null;
+
+	    // first, look for an SSL socket factory
+	    Object sfo = props.get(prefix + ".ssl.socketFactory");
+	    if (sfo instanceof SocketFactory) {
+		sf = (SocketFactory)sfo;
+		sfErr = "SSL socket factory instance " + sf;
+	    }
+	    if (sf == null) {
+		String sfClass =
+		    props.getProperty(prefix + ".ssl.socketFactory.class");
+		sf = getSocketFactory(sfClass);
+		sfErr = "SSL socket factory class " + sfClass;
+	    }
 	    if (sf != null && sf instanceof SSLSocketFactory)
 		ssf = (SSLSocketFactory)sf;
-	    else
+
+	    // next, look for a regular socket factory that happens to be
+	    // an SSL socket factory
+	    if (ssf == null) {
+		sfo = props.get(prefix + ".socketFactory");
+		if (sfo instanceof SocketFactory) {
+		    sf = (SocketFactory)sfo;
+		    sfErr = "socket factory instance " + sf;
+		}
+		if (sf == null) {
+		    String sfClass =
+			props.getProperty(prefix + ".socketFactory.class");
+		    sf = getSocketFactory(sfClass);
+		    sfErr = "socket factory class " + sfClass;
+		}
+		if (sf != null && sf instanceof SSLSocketFactory)
+		    ssf = (SSLSocketFactory)sf;
+	    }
+
+	    // finally, use the default SSL socket factory
+	    if (ssf == null) {
 		ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+		sfErr = "default SSL socket factory";
+	    }
+
 	    socket = ssf.createSocket(socket, host, port, true);
 	    configureSSLSocket(socket, props, prefix);
 	} catch (Exception ex) {
@@ -327,8 +362,11 @@ public class SocketFetcher {
 	    if (ex instanceof IOException)
 		throw (IOException)ex;
 	    // wrap anything else before sending it on
-	    IOException ioex = new IOException("Exception in startTLS: host " +
-				host + ", port " + port + "; Exception: " + ex);
+	    IOException ioex = new IOException(
+				"Exception in startTLS using " + sfErr +
+				": host, port: " +
+				host + ", " + port +
+				"; Exception: " + ex);
 	    ioex.initCause(ex);
 	    throw ioex;
 	}
