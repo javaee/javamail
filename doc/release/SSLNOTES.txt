@@ -105,8 +105,47 @@ common for servers used within a company.
    See the JSSE Reference Guide for details:
    http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
 
-A future release of JavaMail may support the trust algorithm described
-in section 2.4 of RFC 2595.
+
+-- Server Identity Check
+
+RFC 2595 specifies addition checks that must be performed on the
+server's certificate to ensure that the server you connected to is
+the server you intended to connect to.  This reduces the risk of
+"man in the middle" attacks.  For compatibility with earlier releases
+of JavaMail, these additional checks are disabled by default.  We
+strongly recommend that you enable these checks when using SSL.  To
+enable these checks, set the "mail.<protocol>.ssl.checkserveridentity"
+property to "true".
+
+
+-- Socket Factories
+
+In earlier releases it was necessary to explicitly set a socket
+factory property to enable use of SSL.  In almost all cases, this
+is no longer necessary.  SSL support is built in.  However, there
+is one case where a special socket factory may be needed.
+
+JavaMail now includes a special SSL socket factory that can simplify
+dealing with servers with self-signed certificates.  While the
+recommended approach is to include the certificate in your keystore
+as described above, the following approach may be simpler in some cases.
+
+The class com.sun.mail.util.MailSSLSocketFactory can be used as a
+simple socket factory that allows trusting all hosts or a specific set
+of hosts.  For example:
+
+	MailSSLSocketFactory sf = new MailSSLSocketFactory();
+	sf.setTrustAllHosts(true);
+	// or
+	// sf.setTrustedHosts(new String[] { "my-server" });
+	props.put("mail.smtp.ssl.enable", "true");
+	// also use following for additional safety
+	//props.put("mail.smtp.ssl.checkserveridentity", "true");
+	props.put("mail.smtp.ssl.socketFactory", sf);
+
+Use of MailSSLSocketFactory avoids the need to add the certificate to
+your keystore as described above, or configure your own TrustManager
+as described below.
 
 
 -- Debugging

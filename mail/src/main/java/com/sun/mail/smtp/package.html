@@ -397,6 +397,18 @@ Defaults to false for the "smtp" protocol and true for the "smtps" protocol.
 </TR>
 
 <TR>
+<TD>mail.smtp.ssl.checkserveridentity</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, check the server identity as specified by
+<A HREF="http://www.ietf.org/rfc/rfc2595.txt" TARGET="_top">RFC 2595</A>.
+These additional checks based on the content of the server's certificate
+are intended to prevent man-in-the-middle attacks.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.smtp.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>

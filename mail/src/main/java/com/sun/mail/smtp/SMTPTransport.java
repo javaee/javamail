@@ -82,6 +82,7 @@ public class SMTPTransport extends Transport {
     private String name = "smtp";	// Name of this protocol
     private int defaultPort = 25;	// default SMTP port
     private boolean isSSL = false;	// use SSL?
+    private String host;		// host we're connected to
 
     // Following fields valid only during the sendMessage method.
     private MimeMessage message;	// Message to be sent
@@ -1482,7 +1483,7 @@ public class SMTPTransport extends Transport {
 	issueCommand("STARTTLS", 220);
 	// it worked, now switch the socket into TLS mode
 	try {
-	    serverSocket = SocketFetcher.startTLS(serverSocket,
+	    serverSocket = SocketFetcher.startTLS(serverSocket, host,
 				session.getProperties(), "mail." + name);
 	    initStreams();
 	} catch (IOException ioex) {
@@ -1495,24 +1496,26 @@ public class SMTPTransport extends Transport {
     /////// primitives ///////
 
     /**
-     * Connect to server on port and start the SMTP protocol.
+     * Connect to host on port and start the SMTP protocol.
      */
-    private void openServer(String server, int port)
+    private void openServer(String host, int port)
 				throws MessagingException {
 
         if (debug)
-	    out.println("DEBUG SMTP: trying to connect to host \"" + server +
+	    out.println("DEBUG SMTP: trying to connect to host \"" + host +
 				"\", port " + port + ", isSSL " + isSSL);
 
 	try {
 	    Properties props = session.getProperties();
 
-	    serverSocket = SocketFetcher.getSocket(server, port,
+	    serverSocket = SocketFetcher.getSocket(host, port,
 		props, "mail." + name, isSSL);
 
 	    // socket factory may've chosen a different port,
 	    // update it for the debug messages that follow
 	    port = serverSocket.getPort();
+	    // save host name for startTLS
+	    this.host = host;
 
 	    initStreams();
 
@@ -1525,22 +1528,22 @@ public class SMTPTransport extends Transport {
 		lineInputStream = null;
 		if (debug)
 		    out.println("DEBUG SMTP: could not connect to host \"" +
-				    server + "\", port: " + port +
+				    host + "\", port: " + port +
 				    ", response: " + r + "\n");
 		throw new MessagingException(
-			"Could not connect to SMTP host: " + server +
+			"Could not connect to SMTP host: " + host +
 				    ", port: " + port +
 				    ", response: " + r);
 	    } else {
 		if (debug)
 		    out.println("DEBUG SMTP: connected to host \"" +
-				       server + "\", port: " + port + "\n");
+				       host + "\", port: " + port + "\n");
 	    }
 	} catch (UnknownHostException uhex) {
-	    throw new MessagingException("Unknown SMTP host: " + server, uhex);
+	    throw new MessagingException("Unknown SMTP host: " + host, uhex);
 	} catch (IOException ioe) {
 	    throw new MessagingException("Could not connect to SMTP host: " +
-				    server + ", port: " + port, ioe);
+				    host + ", port: " + port, ioe);
 	}
     }
 
@@ -1550,13 +1553,13 @@ public class SMTPTransport extends Transport {
      */
     private void openServer() throws MessagingException {
 	int port = -1;
-	String server = "UNKNOWN";
+	host = "UNKNOWN";
 	try {
 	    port = serverSocket.getPort();
-	    server = serverSocket.getInetAddress().getHostName();
+	    host = serverSocket.getInetAddress().getHostName();
 	    if (debug)
 		out.println("DEBUG SMTP: starting protocol to host \"" +
-					server + "\", port " + port);
+					host + "\", port " + port);
 
 	    initStreams();
 
@@ -1569,21 +1572,21 @@ public class SMTPTransport extends Transport {
 		lineInputStream = null;
 		if (debug)
 		    out.println("DEBUG SMTP: got bad greeting from host \"" +
-				    server + "\", port: " + port +
+				    host + "\", port: " + port +
 				    ", response: " + r + "\n");
 		throw new MessagingException(
-			"Got bad greeting from SMTP host: " + server +
+			"Got bad greeting from SMTP host: " + host +
 				    ", port: " + port +
 				    ", response: " + r);
 	    } else {
 		if (debug)
 		    out.println("DEBUG SMTP: protocol started to host \"" +
-				       server + "\", port: " + port + "\n");
+				       host + "\", port: " + port + "\n");
 	    }
 	} catch (IOException ioe) {
 	    throw new MessagingException(
 				    "Could not start protocol to SMTP host: " +
-				    server + ", port: " + port, ioe);
+				    host + ", port: " + port, ioe);
 	}
     }
 

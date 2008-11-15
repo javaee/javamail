@@ -366,7 +366,7 @@ public class Protocol {
     public synchronized void startTLS(String cmd)
 				throws IOException, ProtocolException {
 	simpleCommand(cmd, null);
-	socket = SocketFetcher.startTLS(socket, props, prefix);
+	socket = SocketFetcher.startTLS(socket, host, props, prefix);
 	initStreams(out);
     }
 

@@ -289,6 +289,18 @@ Defaults to false for the "pop3" protocol and true for the "pop3s" protocol.
 </TR>
 
 <TR>
+<TD>mail.pop3.ssl.checkserveridentity</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, check the server identity as specified by
+<A HREF="http://www.ietf.org/rfc/rfc2595.txt" TARGET="_top">RFC 2595</A>.
+These additional checks based on the content of the server's certificate
+are intended to prevent man-in-the-middle attacks.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.pop3.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>

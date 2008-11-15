@@ -93,6 +93,7 @@
 			com/sun/mail/smtp/SMTPSendFailedException.java,
 			com/sun/mail/smtp/SMTPTransport.java,
 			com/sun/mail/smtp/SMTPSSLTransport.java
+			com/sun/mail/util/MailSSLSocketFactory.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
 					includes="
