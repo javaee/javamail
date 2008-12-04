@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1061,6 +1061,8 @@ public final class Session {
 	    loader.load(clis);
 	    if (debug)
 		pr("DEBUG: successfully loaded file: " + name);
+	} catch (FileNotFoundException fex) {
+	    // ignore it
 	} catch (IOException e) {
 	    if (debug) {
 		pr("DEBUG: not loading file: " + name);
@@ -1091,8 +1093,10 @@ public final class Session {
 		if (debug)
 		    pr("DEBUG: successfully loaded resource: " + name);
 	    } else {
+		/*
 		if (debug)
 		    pr("DEBUG: not loading resource: " + name);
+		*/
 	    }
 	} catch (IOException e) {
 	    if (debug)
@@ -1142,6 +1146,8 @@ public final class Session {
 			    if (debug)
 				pr("DEBUG: not loading resource: " + url);
 			}
+		    } catch (FileNotFoundException fex) {
+			// ignore it
 		    } catch (IOException ioex) {
 			if (debug)
 			    pr("DEBUG: " + ioex);
@@ -1163,8 +1169,10 @@ public final class Session {
 
 	// if failed to load anything, fall back to old technique, just in case
 	if (!anyLoaded) {
+	    /*
 	    if (debug)
 		pr("DEBUG: !anyLoaded");
+	    */
 	    loadResource("/" + name, cl, loader);
 	}
     }
