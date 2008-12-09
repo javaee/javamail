@@ -53,6 +53,7 @@ GF 5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
 <no id>	avoid creating IMAPMessage objects until they're actually needed
 <no id>	IMAPStore.isConnected might return true even though not connected
 <no id>	add support for Message Delivery Notifications (RFC 3798) to dsn.jar
+<no id>	if mail.mime.parameters.strict=false, param vals can start with specials
 
 
 		  CHANGES IN THE 1.4.1 RELEASE

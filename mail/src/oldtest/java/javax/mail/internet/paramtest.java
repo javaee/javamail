@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -178,7 +178,7 @@ public class paramtest {
 			int nexpect = Integer.parseInt(s.substring(8));
 			expect = new String[nexpect];
 			for (i = 0; i < nexpect; i++)
-			    expect[i] = in.readLine().trim();
+			    expect[i] = trim(in.readLine());
 		    } catch (NumberFormatException e) {
 			try {
 			    if (s.substring(8, 17).equals("Exception")) {
@@ -210,6 +210,16 @@ public class paramtest {
 	    }
 	    header = s;
 	}
+    }
+
+    /**
+     * Like String.trim, but only the left side.
+     */
+    public static String trim(String s) {
+	int i = 0;
+	while (i < s.length() && s.charAt(i) <= ' ')
+	    i++;
+	return s.substring(i);
     }
 
     /**
@@ -376,7 +386,7 @@ public class paramtest {
 		int nexpect = Integer.parseInt(s.substring(8));
 		expect = new String[nexpect];
 		for (int i = 0; i < nexpect; i++)
-		    expect[i] = in.readLine().trim();
+		    expect[i] = trim(in.readLine());
 	    } catch (NumberFormatException e) {
 		try {
 		    if (s.substring(8, 17).equals("Exception")) {

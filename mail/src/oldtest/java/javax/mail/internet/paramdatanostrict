@@ -18,10 +18,37 @@ Expect: 3
 	creation-date=Tue, 22 Jul 2008 10:03:09 GMT
 	filename=test1kb.file
 	modification-date=Tue, 22 Jul 2008 10:03:24 GMT
+Comment: embedded whitespace
 Content-Type: text/plain; name=file name.txt
+Expect: 1
+	name=file name.txt
+Comment: trailing whitespace
+Content-Type: text/plain; name=file name.txt 
+Expect: 1
+	name=file name.txt
+Comment: leading and trailing whitespace
+Content-Type: text/plain; name= file name.txt 
+Expect: 1
+	name=file name.txt
+Comment: trailing newline
+Content-Type: text/plain; name=file name.txt
+	;
 Expect: 1
 	name=file name.txt
 Content-Type: text/plain; name=file name.txt ; time= now
 Expect: 2
-	name=file name.txt 
+	name=file name.txt
 	time=now
+Content-Type: text/plain; name=file name.txt ; 
+	time= now
+Expect: 2
+	name=file name.txt
+	time=now
+Content-Type: text/plain; name=file name.txt 
+	; time = now 
+Expect: 2
+	name=file name.txt
+	time=now
+Content-Type: text/plain; filename==?Windows-1251?B?8OXq4ujn6PL7IMjPLmRvYw?=
+Expect: 1
+	filename==?Windows-1251?B?8OXq4ujn6PL7IMjPLmRvYw?=

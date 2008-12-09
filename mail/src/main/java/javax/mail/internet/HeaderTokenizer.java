@@ -312,6 +312,11 @@ public class HeaderTokenizer {
 	
 	// Check for SPECIAL or CTL
 	if (c < 040 || c >= 0177 || delimiters.indexOf(c) >= 0) {
+	    if (endOfAtom > 0 && c != endOfAtom) {
+		// not expecting a special character here,
+		// pretend it's a quoted string
+		return collectString(endOfAtom);
+	    }
 	    currentPos++; // re-position currentPos
 	    char ch[] = new char[1];
 	    ch[0] = c;
@@ -356,8 +361,10 @@ public class HeaderTokenizer {
 		else
 		    s = string.substring(start, currentPos-1);
 
-		if (c != '"')
-		    currentPos--;
+		if (c != '"') {		// not a real quoted string
+		    s = trimWhiteSpace(s);
+		    currentPos--;	// back up before the eos char
+		}
 
 		return new Token(Token.QUOTEDSTRING, s);
 	    }
@@ -375,6 +382,7 @@ public class HeaderTokenizer {
 	    s = filterToken(string, start, currentPos);
 	else
 	    s = string.substring(start, currentPos);
+	s = trimWhiteSpace(s);
 	return new Token(Token.QUOTEDSTRING, s);
     }
 
@@ -386,6 +394,21 @@ public class HeaderTokenizer {
 		(c != '\t') && (c != '\r') && (c != '\n'))
 		return currentPos;
 	return Token.EOF;
+    }
+
+    // Trim SPACE, HT, CR and NL from end of string
+    private static String trimWhiteSpace(String s) {
+	char c;
+	int i;
+	for (i = s.length() - 1; i >= 0; i--) {
+	    if (((c = s.charAt(i)) != ' ') && 
+		(c != '\t') && (c != '\r') && (c != '\n'))
+		break;
+	}
+	if (i <= 0)
+	    return "";
+	else
+	    return s.substring(0, i + 1);
     }
 
     /* Process escape sequences and embedded LWSPs from a comment or
