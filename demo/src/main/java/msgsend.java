@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2007 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -62,6 +62,9 @@ public class msgsend {
 			new BufferedReader(new InputStreamReader(System.in));
 	int optind;
 
+	/*
+	 * Process command line arguments.
+	 */
 	for (optind = 0; optind < argv.length; optind++) {
 	    if (argv[optind].equals("-T")) {
 		protocol = argv[++optind];
@@ -106,6 +109,9 @@ public class msgsend {
 	}
 
 	try {
+	    /*
+	     * Prompt for To and Subject, if not specified.
+	     */
 	    if (optind < argv.length) {
 		// XXX - concatenate all remaining arguments
 		to = argv[optind];
@@ -123,6 +129,9 @@ public class msgsend {
 		System.out.println("Subject: " + subject);
 	    }
 
+	    /*
+	     * Initialize the JavaMail Session.
+	     */
 	    Properties props = System.getProperties();
 	    // XXX - could use Session.getTransport() and Transport.connect()
 	    // XXX - assume we're using SMTP
@@ -134,7 +143,9 @@ public class msgsend {
 	    if (debug)
 		session.setDebug(true);
 
-	    // construct the message
+	    /*
+	     * Construct the message and send it.
+	     */
 	    Message msg = new MimeMessage(session);
 	    if (from != null)
 		msg.setFrom(new InternetAddress(from));
@@ -179,8 +190,9 @@ public class msgsend {
 
 	    System.out.println("\nMail was sent successfully.");
 
-	    // Keep a copy, if requested.
-
+	    /*
+	     * Save a copy of the message, if requested.
+	     */
 	    if (record != null) {
 		// Get a Store object
 		Store store = null;
@@ -222,6 +234,9 @@ public class msgsend {
 	}
     }
 
+    /**
+     * Read the body of the message until EOF.
+     */
     public static String collect(BufferedReader in) throws IOException {
 	String line;
 	StringBuffer sb = new StringBuffer();
