@@ -50,7 +50,7 @@ import com.sun.mail.util.PropUtil;
  * This class represents an Internet email address using the syntax
  * of <a href="http://www.ietf.org/rfc/rfc822.txt">RFC822</a>.
  * Typical address syntax is of the form "user@host.domain" or
- * "Personal Name <user@host.domain>".
+ * "Personal Name &lt;user@host.domain&gt;".
  *
  * @author Bill Shannon
  * @author John Mani
