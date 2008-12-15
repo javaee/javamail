@@ -174,7 +174,10 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	byte[] CRLF = { (byte)'\r', (byte)'\n'};
 
 	// Hack for Novell GroupWise XGWTRUSTEDAPP authentication mechanism
-	boolean isXGWTRUSTEDAPP = sc.getMechanismName().equals("XGWTRUSTEDAPP");
+	boolean isXGWTRUSTEDAPP =
+	    sc.getMechanismName().equals("XGWTRUSTEDAPP") &&
+	    PropUtil.getBooleanProperty(props,
+		"mail." + name + ".sasl.xgwtrustedapphack.enable", true);
 	while (!done) { // loop till we are done
 	    try {
 		r = pr.readResponse();
