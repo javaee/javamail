@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -108,7 +108,7 @@ public class ResponseInputStream {
 	    }
 
 	    if (b == -1)
-		throw new IOException(); // connection broken ?
+		throw new IOException("Connection dropped by server?");
 
 	    // Now lets check for literals : {<digits>}CRLF
 	    // Note: index needs to >= 5 for the above sequence to occur

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -423,7 +423,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     private void checkRange(int msgno) throws MessagingException {
 	if (msgno < 1) // message-numbers start at 1
-	    throw new IndexOutOfBoundsException();
+	    throw new IndexOutOfBoundsException("message number < 1");
 
 	if (msgno <= total)
 	    return;

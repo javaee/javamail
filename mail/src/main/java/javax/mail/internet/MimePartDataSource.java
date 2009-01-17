@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -150,7 +150,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      * This implementation throws the UnknownServiceException.
      */
     public OutputStream getOutputStream() throws IOException {
-	throw new UnknownServiceException();
+	throw new UnknownServiceException("Writing not supported");
     }
 
     /**

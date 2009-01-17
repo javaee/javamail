@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -88,18 +88,20 @@ public class ContentType {
 	// First "type" ..
 	tk = h.next();
 	if (tk.getType() != HeaderTokenizer.Token.ATOM)
-	    throw new ParseException();
+	    throw new ParseException("Expected MIME type, got " +
+					tk.getValue());
 	primaryType = tk.getValue();
 
 	// The '/' separator ..
 	tk = h.next();
 	if ((char)tk.getType() != '/')
-	    throw new ParseException();
+	    throw new ParseException("Expected '/', got " + tk.getValue());
 
 	// Then "subType" ..
 	tk = h.next();
 	if (tk.getType() != HeaderTokenizer.Token.ATOM)
-	    throw new ParseException();
+	    throw new ParseException("Expected MIME subtype, got " +
+					tk.getValue());
 	subType = tk.getValue();
 
 	// Finally parameters ..
