@@ -28,6 +28,7 @@ The following bugs have been fixed in the 1.4.2 release.
 6730637	deadlocks in IMAP provider when connections fail
 6738454	deadlock when connection is broken
 6738468	javadocs use fully qualified names
+6797756	StringIndexOutOfBoundsError in InternetAddress.parseHeader()
 GF 3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
 GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
 GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
