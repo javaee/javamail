@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -70,8 +70,9 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	this.host = host;
     }
 
-    public boolean authenticate(String[] mechs, String realm, String authzid,
-				String u, String p) throws ProtocolException {
+    public boolean authenticate(String[] mechs, final String realm,
+				final String authzid, final String u,
+				final String p) throws ProtocolException {
 
 	synchronized (pr) {	// authenticate method should be synchronized
 	Vector v = new Vector();
@@ -86,9 +87,6 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	}
 
 	SaslClient sc;
-	final String r0 = realm;
-	final String u0 = u;
-	final String p0 = p;
 	CallbackHandler cbh = new CallbackHandler() {
 	    public void handle(Callback[] callbacks) {
 		if (debug)
@@ -100,24 +98,24 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 							callbacks[i]);
 		    if (callbacks[i] instanceof NameCallback) {
 			NameCallback ncb = (NameCallback)callbacks[i];
-			ncb.setName(u0);
+			ncb.setName(u);
 		    } else if (callbacks[i] instanceof PasswordCallback) {
 			PasswordCallback pcb = (PasswordCallback)callbacks[i];
-			pcb.setPassword(p0.toCharArray());
+			pcb.setPassword(p.toCharArray());
 		    } else if (callbacks[i] instanceof RealmCallback) {
 			RealmCallback rcb = (RealmCallback)callbacks[i];
-			rcb.setText(r0 != null ?
-			    r0 : rcb.getDefaultText());
+			rcb.setText(realm != null ?
+				    realm : rcb.getDefaultText());
 		    } else if (callbacks[i] instanceof RealmChoiceCallback) {
 			RealmChoiceCallback rcb =
 			    (RealmChoiceCallback)callbacks[i];
-			if (r0 == null)
+			if (realm == null)
 			    rcb.setSelectedIndex(rcb.getDefaultChoice());
 			else {
 			    // need to find specified realm in list
 			    String[] choices = rcb.getChoices();
 			    for (int k = 0; k < choices.length; k++) {
-				if (choices[k].equals(r0)) {
+				if (choices[k].equals(realm)) {
 				    rcb.setSelectedIndex(k);
 				    break;
 				}
@@ -254,6 +252,26 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	// Handle the final OK, NO, BAD or BYE response
 	pr.handleResult(r);
 	pr.setCapabilities(r);
+
+	/*
+	 * If we're using the Novell Groupwise XGWTRUSTEDAPP mechanism
+	 * we always have to issue a LOGIN command to select the user
+	 * we want to operate as.
+	 */
+	if (isXGWTRUSTEDAPP) {
+	    Argument args = new Argument();
+	    args.writeString(authzid != null ? authzid : u);
+
+	    responses = pr.command("LOGIN", args);
+
+	    // dispatch untagged responses
+	    pr.notifyResponseHandlers(responses);
+
+	    // Handle result of this command
+	    pr.handleResult(responses[responses.length-1]);
+	    // If the response includes a CAPABILITY response code, process it
+	    pr.setCapabilities(responses[responses.length-1]);
+	}
 	return true;
     }
     }
