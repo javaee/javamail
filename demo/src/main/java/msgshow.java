@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2007 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -355,6 +355,12 @@ public class msgshow {
 	if ((a = m.getFrom()) != null) {
 	    for (int j = 0; j < a.length; j++)
 		pr("FROM: " + a[j].toString());
+	}
+
+	// REPLY TO
+	if ((a = m.getReplyTo()) != null) {
+	    for (int j = 0; j < a.length; j++)
+		pr("REPLY TO: " + a[j].toString());
 	}
 
 	// TO
