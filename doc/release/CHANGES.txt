@@ -48,7 +48,6 @@ GF 5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
 <no id>	add mail.<protocol>.socketFactory and .ssl.socketFactory properties
 <no id>	add mail.<protocol>.ssl.enable property
 <no id>	add mail.<protocol>.ssl.checkserveridentity prop for RFC 2595 checks
-<no id>	add mail.<protocol>.ssl.checkserveridentity prop for RFC 2595 checks
 <no id>	add com.sun.mail.util.MailSSLSocketFactory class
 <no id>	fix possible NPE in MimeMessage if flags is not set in copy constructor
 <no id>	SMTP I/O failure incorrectly reports valid sent addresses
