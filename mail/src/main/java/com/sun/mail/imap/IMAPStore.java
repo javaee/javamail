@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -572,6 +572,9 @@ public class IMAPStore extends Store
             }
 
             if (poolEmpty) {
+		if (debug)
+		    out.println("DEBUG: trying to connect to host \"" + host +
+				"\", port " + port + ", isSSL " + isSSL);
                 protocol = new IMAPProtocol(name, host, port, 
 		    			    session.getDebug(),
 		    			    session.getDebugOut(),
