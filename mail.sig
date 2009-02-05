@@ -1,6 +1,6 @@
 //Java signature file
-//date: Thu Mar 09 21:46:10 PST 2006
-//classpath: mail.jar
+//date: Wed Feb 04 18:07:20 PST 2009
+//classpath: mail/target/mail.jar
 //package: javax
 
 
@@ -45,6 +45,7 @@ public class FetchProfile {
 
 	public static class Item {
 		protected Item(String);
+		public String toString();
 		public static final javax.mail.FetchProfile.Item CONTENT_INFO;
 		public static final javax.mail.FetchProfile.Item ENVELOPE;
 		public static final javax.mail.FetchProfile.Item FLAGS;
@@ -248,7 +249,7 @@ public class MessagingException extends Exception {
 	public synchronized Throwable getCause();
 	public synchronized Exception getNextException();
 	public synchronized boolean setNextException(Exception);
-	public String toString();
+	public synchronized String toString();
 }
 
 public class MethodNotSupportedException extends javax.mail.MessagingException {
@@ -260,14 +261,14 @@ public abstract class Multipart {
 	protected Multipart();
 	public synchronized void addBodyPart(javax.mail.BodyPart) throws javax.mail.MessagingException;
 	public synchronized void addBodyPart(javax.mail.BodyPart, int) throws javax.mail.MessagingException;
-	public javax.mail.BodyPart getBodyPart(int) throws javax.mail.MessagingException;
+	public synchronized javax.mail.BodyPart getBodyPart(int) throws javax.mail.MessagingException;
 	public String getContentType();
-	public int getCount() throws javax.mail.MessagingException;
-	public javax.mail.Part getParent();
-	public void removeBodyPart(int) throws javax.mail.MessagingException;
-	public boolean removeBodyPart(javax.mail.BodyPart) throws javax.mail.MessagingException;
-	protected void setMultipartDataSource(javax.mail.MultipartDataSource) throws javax.mail.MessagingException;
-	public void setParent(javax.mail.Part);
+	public synchronized int getCount() throws javax.mail.MessagingException;
+	public synchronized javax.mail.Part getParent();
+	public synchronized void removeBodyPart(int) throws javax.mail.MessagingException;
+	public synchronized boolean removeBodyPart(javax.mail.BodyPart) throws javax.mail.MessagingException;
+	protected synchronized void setMultipartDataSource(javax.mail.MultipartDataSource) throws javax.mail.MessagingException;
+	public synchronized void setParent(javax.mail.Part);
 	public abstract void writeTo(java.io.OutputStream) throws java.io.IOException, javax.mail.MessagingException;
 	protected String contentType;
 	protected javax.mail.Part parent;
@@ -376,21 +377,21 @@ public class SendFailedException extends javax.mail.MessagingException {
 
 public abstract class Service {
 	protected Service(javax.mail.Session, javax.mail.URLName);
-	public synchronized void addConnectionListener(javax.mail.event.ConnectionListener);
+	public void addConnectionListener(javax.mail.event.ConnectionListener);
 	public synchronized void close() throws javax.mail.MessagingException;
 	public void connect() throws javax.mail.MessagingException;
-	public void connect(String, int, String, String) throws javax.mail.MessagingException;
+	public synchronized void connect(String, int, String, String) throws javax.mail.MessagingException;
 	public void connect(String, String) throws javax.mail.MessagingException;
 	public void connect(String, String, String) throws javax.mail.MessagingException;
 	protected void finalize() throws Throwable;
-	public javax.mail.URLName getURLName();
-	public boolean isConnected();
-	protected synchronized void notifyConnectionListeners(int);
+	public synchronized javax.mail.URLName getURLName();
+	public synchronized boolean isConnected();
+	protected void notifyConnectionListeners(int);
 	protected boolean protocolConnect(String, int, String, String) throws javax.mail.MessagingException;
 	protected void queueEvent(javax.mail.event.MailEvent, java.util.Vector);
-	public synchronized void removeConnectionListener(javax.mail.event.ConnectionListener);
-	protected void setConnected(boolean);
-	protected void setURLName(javax.mail.URLName);
+	public void removeConnectionListener(javax.mail.event.ConnectionListener);
+	protected synchronized void setConnected(boolean);
+	protected synchronized void setURLName(javax.mail.URLName);
 	public String toString();
 	protected boolean debug;
 	protected javax.mail.Session session;
@@ -924,19 +925,23 @@ public class MimeMultipart extends javax.mail.Multipart {
 	public MimeMultipart();
 	public MimeMultipart(String);
 	public MimeMultipart(javax.activation.DataSource) throws javax.mail.MessagingException;
+	public synchronized void addBodyPart(javax.mail.BodyPart) throws javax.mail.MessagingException;
+	public synchronized void addBodyPart(javax.mail.BodyPart, int) throws javax.mail.MessagingException;
 	protected javax.mail.internet.InternetHeaders createInternetHeaders(java.io.InputStream) throws javax.mail.MessagingException;
 	protected javax.mail.internet.MimeBodyPart createMimeBodyPart(java.io.InputStream) throws javax.mail.MessagingException;
 	protected javax.mail.internet.MimeBodyPart createMimeBodyPart(javax.mail.internet.InternetHeaders, byte[]) throws javax.mail.MessagingException;
 	public synchronized javax.mail.BodyPart getBodyPart(int) throws javax.mail.MessagingException;
 	public synchronized javax.mail.BodyPart getBodyPart(String) throws javax.mail.MessagingException;
 	public synchronized int getCount() throws javax.mail.MessagingException;
-	public String getPreamble() throws javax.mail.MessagingException;
-	public boolean isComplete() throws javax.mail.MessagingException;
+	public synchronized String getPreamble() throws javax.mail.MessagingException;
+	public synchronized boolean isComplete() throws javax.mail.MessagingException;
 	protected synchronized void parse() throws javax.mail.MessagingException;
-	public void setPreamble(String) throws javax.mail.MessagingException;
+	public void removeBodyPart(int) throws javax.mail.MessagingException;
+	public boolean removeBodyPart(javax.mail.BodyPart) throws javax.mail.MessagingException;
+	public synchronized void setPreamble(String) throws javax.mail.MessagingException;
 	public synchronized void setSubType(String) throws javax.mail.MessagingException;
-	protected void updateHeaders() throws javax.mail.MessagingException;
-	public void writeTo(java.io.OutputStream) throws java.io.IOException, javax.mail.MessagingException;
+	protected synchronized void updateHeaders() throws javax.mail.MessagingException;
+	public synchronized void writeTo(java.io.OutputStream) throws java.io.IOException, javax.mail.MessagingException;
 	protected javax.activation.DataSource ds;
 	protected boolean parsed;
 }
