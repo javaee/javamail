@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -358,7 +358,10 @@ class SearchSequence {
     // A GregorianCalendar object in the current timezone
     private static Calendar cal = new GregorianCalendar();
 
-    private static String toIMAPDate(Date date) {
+    /*
+     * Synchronized to coordinate access to shared Calendar object.
+     */
+    private static synchronized String toIMAPDate(Date date) {
 	StringBuffer s = new StringBuffer();
 	cal.setTime(date);
 

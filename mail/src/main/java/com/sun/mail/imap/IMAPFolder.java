@@ -377,6 +377,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Ensure that this folder exists. If 'exists' has been set to true,
      * we don't attempt to validate it with the server again. Note that
      * this can result in a possible loss of sync with the server.
+     * ASSERT: Must be called with this folder's synchronization lock held.
      */
     private void checkExists() throws MessagingException {
 	// If the boolean field 'exists' is false, check with the
@@ -824,7 +825,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the named subfolder. <p>
      */
-    public Folder getFolder(String name) throws MessagingException {
+    public synchronized Folder getFolder(String name)
+				throws MessagingException {
 	// If we know that this folder is *not* a directory, don't
 	// send the request to the server at all ...
 	if (attributes != null && !isDirectory())
@@ -2157,7 +2159,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * @since	JavaMail 1.3.3
      */
-    public String[] getAttributes() throws MessagingException {
+    public synchronized String[] getAttributes() throws MessagingException {
 	checkExists();
 	if (attributes == null)
 	    exists();		// do a LIST to set the attributes
