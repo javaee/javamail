@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -409,7 +409,7 @@ public class MimeMultipart extends Multipart {
      * might itself want to track whether its internal state actually
      * did change, and do the header updating only if necessary.
      */
-    protected void updateHeaders() throws MessagingException {
+    protected synchronized void updateHeaders() throws MessagingException {
 	for (int i = 0; i < parts.size(); i++)
 	    ((MimeBodyPart)parts.elementAt(i)).updateHeaders();
     }
