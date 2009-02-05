@@ -1570,8 +1570,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				throws MessagingException {
 	checkOpened();
 
-	Vector v = new Vector(); // to collect expunged messages
-
 	if (msgs != null) {
 	    // call fetch to make sure we have all the UIDs
 	    FetchProfile fp = new FetchProfile();
