@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -481,8 +481,10 @@ public class SocketFetcher {
 		return;
 	} catch (SSLPeerUnverifiedException e) {
 	    sslSocket.close();
-	    throw new IOException(
-		"Can't verify identity of server: " + server, e);
+	    IOException ioex = new IOException(
+		"Can't verify identity of server: " + server);
+	    ioex.initCause(e);
+	    throw ioex;
 	}
 
 	// If we get here, there is nothing to consider the server as trusted.
