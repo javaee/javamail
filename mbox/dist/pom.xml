@@ -2,7 +2,7 @@
 <!--
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+    Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-	<groupId>javax.mail</groupId>
+	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
 	<version>1.4.2-SNAPSHOT</version>
 	<relativePath>../../pom.xml</relativePath>
@@ -54,7 +54,6 @@
     <url>http://java.sun.com/projects/javamail</url>
 
     <modules>
-	<module>../../legal</module>
 	<module>..</module>	<!-- mbox module itself -->
 	<module>../native</module>
     </modules>
