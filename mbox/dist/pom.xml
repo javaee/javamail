@@ -65,20 +65,30 @@
 	    <plugin>
 		<artifactId>maven-assembly-plugin</artifactId>
 		<inherited>false</inherited>
+		<!--
+		    I'd like this to be run as part of the
+		    package phase, but that doesn't work.
+		    Have to run it explicitly as:
+
+		    mvn package assembly:assembly
+
 		<executions>
 		    <execution>
 			<phase>package</phase>
 			<goals>
-			    <goal>attached</goal>
+			    <goal>assembly</goal>
 			</goals>
+		-->
 			<configuration>
 			    <finalName>mbox-${mail.version}</finalName>
 			    <descriptors>
 				<descriptor>assembly.xml</descriptor>
 			    </descriptors>
 			</configuration>
+		<!--
 		    </execution>
 		</executions>
+		-->
 	    </plugin>
         </plugins>
     </build>
