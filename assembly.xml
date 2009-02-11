@@ -39,7 +39,7 @@
     <formats>
 	<format>zip</format>
     </formats>
-    <baseDirectory>mail-${mail.version}</baseDirectory>
+    <baseDirectory>javamail-${mail.version}</baseDirectory>
     <moduleSets>
 	<!-- include the main mail.jar file -->
 	<moduleSet>
@@ -184,6 +184,7 @@
 	<fileSet>
 	    <directory>doc/release</directory>
 	    <outputDirectory></outputDirectory>
+	    <filtered>true</filtered>
 	    <includes>
 		<include>*.txt</include>
 	    </includes>

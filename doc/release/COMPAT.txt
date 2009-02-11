@@ -1,7 +1,7 @@
 			COMPATIBILITY NOTES
 			===================
 
-		    JavaMail(TM) API 1.4.1 release
+		    JavaMail(TM) API ${mail.version} release
 		    ------------------------------
 
 The JavaMail 1.4 specification is fully compatible with the JavaMail

@@ -4,7 +4,7 @@ Licensee/Company: Entity receiving Software.
 
 Effective Date: Date of delivery of the Software to You.
 
-Software: JavaMail 1.4.1.
+Software: JavaMail ${mail.version}
 
 License Term:  Perpetual (subject to termination under the SLA).
 

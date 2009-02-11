@@ -1,10 +1,10 @@
 			     NOTES
 			     =====
 
-		    JavaMail(TM) API 1.4.1 release
+		    JavaMail(TM) API ${mail.version} release
 		    ------------------------------
 
-Welcome to the 1.4.1 release of the JavaMail API implementation. 
+Welcome to the ${mail.version} release of the JavaMail API implementation. 
 
 Please refer to CHANGES.txt for a list of the changes since the 
 previous release.
@@ -67,6 +67,9 @@ and RFC 3464.  To make use of this support you need to include dsn.jar
 in your CLASSPATH along with mail.jar.  See the javadocs for the
 com.sun.mail.dsn package for more details.
 
+The DSN package also provides support for creating and parsing Message
+Disposition Notifications, as defined by RFC 3798.
+
 The APIs unique to this package should be considered EXPERIMENTAL.
 They may be changed in the future in ways that are incompatible with
 applications using the current APIs.
@@ -123,7 +126,9 @@ A list of the known limitations, bugs, issues:
 ----------------------------------------------
 
 1. This version of JavaMail will only work in applets when using
-   the Java(TM) Plug-in (http://java.sun.com/products/plugin).
+   the Java(TM) Plug-in (http://java.sun.com/products/plugin),
+   which is part of the current Java Runtime Environment (JRE)
+   available from Sun at http://java.sun.com/javase/downloads/index.jsp.
 
 2. Internationalization.  Parameter encoding in MIME headers, as
    specified by RFC2231, *has* been implemented.  Note that
@@ -170,12 +175,13 @@ Servers tested with:
 
   The IMAP implementation works with IMAP4 and IMAP4rev1 servers.
   The current release has been tested with:
-	Sun Java System Messaging Server version 6.3
+	Sun Java System Messaging Server version 7.0
 	UW IMAP4 server version 2003.339
 	Cyrus IMAP4 server version 1.6.19
 
   Previous releases have been tested with:
 	Sun Java System Messaging Server version 5.2
+	Sun Java System Messaging Server version 6.3
 	Sun Internet Mail Server version 2.0, 3.2, and 4.0
 	Netscape Messaging Server version 3.01 and 4.1
 	Microsoft Exchange
@@ -186,11 +192,12 @@ Servers tested with:
 
   The current release of the SMTP implementation has been tested with:
 	Sendmail version 8.13.8
-	Sun Java System Messaging Server version 6.3
+	Sun Java System Messaging Server version 7.0
 
   Previous releases have been tested with:
 	Sendmail version 8.6 and 8.9.1
 	Sun Java System Messaging Server version 5.2
+	Sun Java System Messaging Server version 6.3
 	Sun Internet Mail Server version 3.2 and 4.0
 	Netscape Messaging Server version 3.01 and 4.1
 	Microsoft Exchange
@@ -216,6 +223,10 @@ product updates and other relevant information):
 	javamail-announce@java.sun.com. 
 
 Instructions on how to subscribe are on our website.
+
+You can also find help in the JavaMail forum:
+
+	http://forums.sun.com/forum.jspa?forumID=43
 
 
 ------------------------------------------------------------------

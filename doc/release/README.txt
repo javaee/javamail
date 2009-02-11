@@ -1,10 +1,10 @@
 			README
 			======
 
-	    JavaMail(TM) API 1.4.1 release
+	    JavaMail(TM) API ${mail.version} release
 	    ------------------------------
 
-Welcome to the JavaMail API 1.4.1 release!  This release includes
+Welcome to the JavaMail API ${mail.version} release!  This release includes
 versions of the JavaMail API implementation, IMAP, SMTP, and POP3
 service providers, some examples, and documentation for the JavaMail
 API.
@@ -148,15 +148,16 @@ Installation
   UNIX/Linux
   ----------
 
-  1. Unzip the javamail-1_4_1.zip archive. (you may have already done this)
+  1. Unzip the javamail${mail.zipversion}.zip archive.
+     (You may have already done this.)
 
   2. Set your CLASSPATH to include the "mail.jar" file obtained from 
      the download, as well as the current directory. 
 
-     Assuming you unzipped javamail-1_4_1.zip in /u/me/download/ the
+     Assuming you unzipped javamail${mail.zipversion}.zip in /u/me/download/ the
      following would work:
 
-      export CLASSPATH=$CLASSPATH:/u/me/download/javamail-1.4.1/mail.jar:.
+      export CLASSPATH=$CLASSPATH:/u/me/download/javamail-${mail.version}/mail.jar:.
 
     Also include the "activation.jar" file that you obtained from
     downloading the Java Activation Framework, in your CLASSPATH.
@@ -190,15 +191,16 @@ Installation
   Windows
   -------
 
-  1. Unzip the javamail-1_4_1.zip archive. (you may have already done this)
+  1. Unzip the javamail${mail.zipversion}.zip archive.
+     (You may have already done this.)
 
   2. Set your CLASSPATH to include the "mail.jar" file obtained from 
      the download, as well as the current directory. 
 
-     Assuming you unzipped javamail-1_4_1.zip in c:\download the
+     Assuming you unzipped javamail${mail.zipversion}.zip in c:\download the
      following would work:
      
-      set CLASSPATH=%CLASSPATH%;c:\download\javamail-1.4.1\mail.jar;.
+      set CLASSPATH=%CLASSPATH%;c:\download\javamail-${mail.version}\mail.jar;.
 
     Also include the "activation.jar" file that you obtained from
     downloading the JavaBeans Activation Framework, in your CLASSPATH.
