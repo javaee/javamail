@@ -358,16 +358,19 @@ class SearchSequence {
     // A GregorianCalendar object in the current timezone
     private static Calendar cal = new GregorianCalendar();
 
-    /*
-     * Synchronized to coordinate access to shared Calendar object.
-     */
     private static synchronized String toIMAPDate(Date date) {
 	StringBuffer s = new StringBuffer();
-	cal.setTime(date);
 
-	s.append(cal.get(Calendar.DATE)).append("-");
-	s.append(monthTable[cal.get(Calendar.MONTH)]).append('-');
-	s.append(cal.get(Calendar.YEAR));
+	/*
+	 * Synchronized to coordinate access to shared Calendar object.
+	 */
+	synchronized (cal) {
+	    cal.setTime(date);
+
+	    s.append(cal.get(Calendar.DATE)).append("-");
+	    s.append(monthTable[cal.get(Calendar.MONTH)]).append('-');
+	    s.append(cal.get(Calendar.YEAR));
+	}
 
 	return s.toString();
     }
