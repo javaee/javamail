@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -352,6 +352,22 @@ System property may be set to <code>"true"</code> to override this behavior.
 When writing out such a MimeMultipart, a single empty part will be
 included.  When reading such a multipart, a MimeMultipart will be created
 with no body parts.
+The default value of this property is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. ignoreexistingboundaryparameter</TD>
+<TD>boolean</TD>
+<TD>
+Normally the boundary parameter in the Content-Type header of a multipart
+body part is used to specify the separator between parts of the multipart
+body.  This System property may be set to <code>"true"</code> to cause
+the parser to look for a line in the multipart body that looks like a
+boundary line and use that value as the separator between subsequent parts.
+This may be useful in cases where a broken anti-virus product has rewritten
+the message incorrectly such that the boundary parameter and the actual
+boundary value no longer match.
 The default value of this property is false.
 </TD>
 </TR>
