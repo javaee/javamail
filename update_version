@@ -14,8 +14,8 @@ do
 	q
 	EOF
 done
-zip1=`echo "$1" | sed -e s/\\./_/`
-zip2=`echo "$2" | sed -e s/\\./_/`
+zip1=`echo "$1" | sed -e 's/\\./_/g'`
+zip2=`echo "$2" | sed -e 's/\\./_/g'`
 ed - pom.xml <<-EOF
 g:<mail.version>$1</mail.version>:s::<mail.version>$2</mail.version>:
 g:<mail.zipversion>$zip1</mail.zipversion>:s::<mail.zipversion>$zip2</mail.zipversion>:
