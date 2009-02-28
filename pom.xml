@@ -43,7 +43,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.2</version>
+    <version>1.4.3-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://java.sun.com/projects/javamail</url>
@@ -69,9 +69,9 @@
     </organization>
 
     <properties>
-	<mail.version>1.4.2</mail.version>
+	<mail.version>1.4.3-SNAPSHOT</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_4_2</mail.zipversion>
+	<mail.zipversion>1_4_3-SNAPSHOT</mail.zipversion>
 	<mail.spec.version>1.4</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
