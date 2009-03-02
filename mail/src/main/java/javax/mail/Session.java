@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -757,12 +757,14 @@ public final class Session {
 	    ClassLoader ccl = getContextClassLoader();
 	    if (ccl != null)
 		try {
-		    serviceClass = ccl.loadClass(provider.getClassName());
+		    serviceClass =
+			Class.forName(provider.getClassName(), false, ccl);
 		} catch (ClassNotFoundException ex) {
 		    // ignore it
 		}
 	    if (serviceClass == null)
-		serviceClass = cl.loadClass(provider.getClassName());
+		serviceClass =
+		    Class.forName(provider.getClassName(), false, cl);
 	} catch (Exception ex1) {
 	    // That didn't work, now try the "system" class loader.
 	    // (Need both of these because JDK 1.1 class loaders

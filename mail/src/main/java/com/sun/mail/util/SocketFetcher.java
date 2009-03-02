@@ -298,7 +298,7 @@ public class SocketFetcher {
 	Class clsSockFact = null;
 	if (cl != null) {
 	    try {
-		clsSockFact = cl.loadClass(sfClass);
+		clsSockFact = Class.forName(sfClass, false, cl);
 	    } catch (ClassNotFoundException cex) { }
 	}
 	if (clsSockFact == null)
