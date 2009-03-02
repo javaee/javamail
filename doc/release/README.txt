@@ -19,8 +19,8 @@ currently tested this implementation with JDK 1.4, 1.5, and 1.6.
 
 While JavaMail will work with JAF 1.0.2, we recommend the use of JAF 1.1
 or newer.  JAF 1.1.1 is currently the newest version.  Note that JAF 1.1
-is included in JDK 1.6 and JAF 1.1.1 will be included in a future JDK 1.6
-update release.
+is included in JDK 1.6 and JAF 1.1.1 is included in JDK 1.6.0_10 and
+later.
 
 
 Protocols supported
