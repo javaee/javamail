@@ -318,6 +318,12 @@ public abstract class Service {
 	if (!connected) {
 	    if (authEx != null)
 		throw authEx;
+	    else if (user == null)
+		throw new AuthenticationFailedException(
+			"failed to connect, no user name specified?");
+	    else if (password == null)
+		throw new AuthenticationFailedException(
+			"failed to connect, no password specified?");
 	    else
 		throw new AuthenticationFailedException("failed to connect");
 	}
