@@ -98,8 +98,10 @@
 				    <fileset dir="../dsn/src/main/java"
 					includes="
 			com/sun/mail/dsn/DeliveryStatus.java,
+			com/sun/mail/dsn/DispositionNotification.java,
 			com/sun/mail/dsn/MessageHeaders.java,
-			com/sun/mail/dsn/MultipartReport.java
+			com/sun/mail/dsn/MultipartReport.java,
+			com/sun/mail/dsn/Report.java
 					"/>
 				</copy>
 
