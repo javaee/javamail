@@ -9,6 +9,13 @@ Bug IDs that start with "GF" can be found in the GlassFish Issue Tracker
 	https://glassfish.dev.java.net/issues
 
 
+		  CHANGES IN THE 1.4.3 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.4.3 release.
+
+<no id>	add starttls support to POP3
+
+
 		  CHANGES IN THE 1.4.2 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.2 release.

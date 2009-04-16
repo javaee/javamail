@@ -43,6 +43,8 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.IOException;
 import java.io.EOFException;
+import java.util.Collections;
+import java.util.Map;
 
 import com.sun.mail.util.PropUtil;
 
@@ -70,6 +72,9 @@ public class POP3Store extends Store {
     boolean rsetBeforeQuit = false;
     boolean disableTop = false;
     boolean forgetTopHeaders = false;
+    boolean useStartTLS = false;
+    boolean requireStartTLS = false;
+    Map capabilities;
     Constructor messageConstructor = null;
 
     public POP3Store(Session session, URLName url) {
@@ -100,11 +105,19 @@ public class POP3Store extends Store {
 	forgetTopHeaders = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".forgettopheaders", false);
 
+	// mail.pop3.starttls.enable enables use of STLS command
+	useStartTLS = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".starttls.enable", false);
+
+	// mail.pop3.starttls.required requires use of STLS command
+	requireStartTLS = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".starttls.required", false);
+
 	String s = session.getProperty("mail." + name + ".message.class");
 	if (s != null) {
 	    if (session.getDebug())
 		session.getDebugOut().println(
-		    "DEBUG: POP3 message class: " + s);
+		    "DEBUG POP3: message class: " + s);
 	    try {
 		ClassLoader cl = this.getClass().getClassLoader();
 
@@ -127,7 +140,7 @@ public class POP3Store extends Store {
 	    } catch (Exception ex) {
 		if (session.getDebug())
 		    session.getDebugOut().println(
-			"DEBUG: failed to load POP3 message class: " + ex);
+			"DEBUG POP3: failed to load message class: " + ex);
 	    }
 	}
     }
@@ -214,6 +227,39 @@ public class POP3Store extends Store {
 	    session.getDebugOut(), session.getProperties(), "mail." + name,
 	    isSSL);
 
+	if (useStartTLS || requireStartTLS) {
+	    if (p.hasCapability("STLS")) {
+		p.stls();
+		// refresh capabilities
+		p.setCapabilities(p.capa());
+	    } else if (requireStartTLS) {
+		if (debug)
+		    session.getDebugOut().println(
+			"DEBUG POP3: STLS required but not supported");
+		try {
+		    p.quit();
+		} catch (IOException ioex) {
+		} finally {
+		    throw new EOFException("STLS required but not supported");
+		}
+	    }
+	}
+
+	capabilities = p.getCapabilities();	// save for later, may be null
+
+	/*
+	 * If we haven't explicitly disabled use of the TOP command,
+	 * and the server has provided its capabilities,
+	 * and the server doesn't support the TOP command,
+	 * disable the TOP command.
+	 */
+	if (!disableTop &&
+		capabilities != null && capabilities.containsKey("TOP")) {
+	    disableTop = true;
+	    session.getDebugOut().println(
+		    "DEBUG POP3: server doesn't support TOP, disabling it");
+	}
+
 	String msg = null;
 	if ((msg = p.login(user, passwd)) != null) {
 	    try {
@@ -277,6 +323,27 @@ public class POP3Store extends Store {
     public Folder getFolder(URLName url) throws MessagingException {
 	checkConnected();
 	return new POP3Folder(this, url.getFile());
+    }
+
+    /**
+     * Return a Map of the capabilities the server provided,
+     * as per RFC 2449.  If the server doesn't support RFC 2449,
+     * an emtpy Map is returned.  The returned Map can not be modified.
+     * The key to the Map is the upper case capability name as
+     * a String.  The value of the entry is the entire String
+     * capability line returned by the server. <p>
+     *
+     * For example, to check if the server supports the STLS capability, use:
+     * <code>if (store.capabilities().containsKey("STLS")) ...</code>
+     *
+     * @return	Map of capabilities
+     * @since	JavaMail 1.4.3
+     */
+    public Map capabilities() throws MessagingException {
+	if (capabilities != null)
+	    return Collections.unmodifiableMap(capabilities);
+	else
+	    return Collections.emptyMap();
     }
 
     protected void finalize() throws Throwable {

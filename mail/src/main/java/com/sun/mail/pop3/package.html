@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -351,6 +351,31 @@ The property value is a whitespace separated list of tokens acceptable
 to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TD>
 </TR>
+
+<TR>
+<TD>mail.pop3.starttls.enable</TD>
+<TD>boolean</TD>
+<TD>
+If true, enables the use of the <code>STLS</code> command (if
+supported by the server) to switch the connection to a TLS-protected
+connection before issuing any login commands.  Note that an appropriate
+trust store must configured so that the client will trust the server's
+certificate.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.starttls.required</TD>
+<TD>boolean</TD>
+<TD>
+If true, requires the use of the <code>STLS</code> command.
+If the server doesn't support the STLS command, or the command
+fails, the connect method will fail.
+Defaults to false.
+</TD>
+</TR>
+
 
 <TR>
 <TD>mail.pop3.disabletop</TD>

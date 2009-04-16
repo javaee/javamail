@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,6 +62,9 @@ class Response {
  */
 class Protocol {
     private Socket socket;		// POP3 socket
+    private String host;		// host we're connected to
+    private Properties props;		// session properties
+    private String prefix;		// protocol name prefix, for props
     private DataInputStream input;	// input buf
     private PrintWriter output;		// output buf
     private static final int POP3_PORT = 110; // standard POP3 port
@@ -69,6 +72,7 @@ class Protocol {
     private boolean debug = false;
     private PrintStream out;
     private String apopChallenge = null;
+    private Map capabilities = null;
 
     /** 
      * Open a connection to the POP3 server.
@@ -78,6 +82,9 @@ class Protocol {
 			throws IOException {
 	this.debug = debug;
 	this.out = out;
+	this.host = host;
+	this.props = props;
+	this.prefix = prefix;
 	Response r;
 	boolean enableAPOP = PropUtil.getBooleanProperty(props,
 					prefix + ".apop.enable", false);
@@ -89,15 +96,7 @@ class Protocol {
 				"\", port " + port + ", isSSL " + isSSL);
 
 	    socket = SocketFetcher.getSocket(host, port, props, prefix, isSSL);
-
-	    input = new DataInputStream(
-		new BufferedInputStream(socket.getInputStream()));
-	    output = new PrintWriter(
-			new BufferedWriter(
-			    new OutputStreamWriter(socket.getOutputStream(),
-				"iso-8859-1")));
-				// should be US-ASCII, but not all JDK's support
-
+	    initStreams();
 	    r = simpleCommand(null);
 	} catch (IOException ioe) {
 	    try {
@@ -122,6 +121,19 @@ class Protocol {
 	    if (debug)
 		out.println("DEBUG POP3: APOP challenge: " + apopChallenge);
 	}
+
+	// if server supports RFC 2449, set capabilities
+	setCapabilities(capa());
+    }
+
+    private void initStreams() throws IOException {
+	input = new DataInputStream(
+	    new BufferedInputStream(socket.getInputStream()));
+	output = new PrintWriter(
+		    new BufferedWriter(
+			new OutputStreamWriter(socket.getOutputStream(),
+			    "iso-8859-1")));
+			    // should be US-ASCII, but not all JDK's support
     }
 
     protected void finalize() throws Throwable {
@@ -129,6 +141,48 @@ class Protocol {
 	if (socket != null) { // Forgot to logout ?!
 	    quit();
 	}
+    }
+
+    /**
+     * Parse the capabilities from a CAPA response.
+     */
+    synchronized void setCapabilities(InputStream in) {
+	if (in == null) {
+	    capabilities = null;
+	    return;
+	}
+
+	capabilities = new HashMap(10);
+	BufferedReader r = new BufferedReader(new InputStreamReader(in));
+	String s;
+	try {
+	    while ((s = r.readLine()) != null) {
+		String cap = s;
+		int i = cap.indexOf(' ');
+		if (i > 0)
+		    cap = cap.substring(0, i);
+		capabilities.put(cap.toUpperCase(Locale.ENGLISH), s);
+	    }
+	} catch (IOException ex) {
+	    // should never happen
+	}
+    }
+
+    /**
+     * Check whether the given capability is supported by
+     * this server. Returns <code>true</code> if so, otherwise
+     * returns false.
+     */
+    synchronized boolean hasCapability(String c) {
+	return capabilities != null &&
+		capabilities.containsKey(c.toUpperCase(Locale.ENGLISH));
+    }
+
+    /**
+     * Return the map of capabilities returned by the server.
+     */
+    synchronized Map getCapabilities() {
+	return capabilities;
     }
 
     /**
@@ -338,6 +392,41 @@ class Protocol {
     synchronized boolean rset() throws IOException {
 	Response r = simpleCommand("RSET");
 	return r.ok;
+    }
+
+    /**
+     * Start TLS using STLS command specified by RFC 2595.
+     */
+    synchronized boolean stls() throws IOException {
+	Response r = simpleCommand("STLS");
+	if (r.ok) {
+	    // it worked, now switch the socket into TLS mode
+	    try {
+		socket = SocketFetcher.startTLS(socket, host, props, prefix);
+		initStreams();
+	    } catch (IOException ioex) {
+		try {
+		    socket.close();
+		} finally {
+		    socket = null;
+		    input = null;
+		    output = null;
+		}
+		throw new IOException("Could not convert socket to TLS", ioex);
+	    }
+	}
+	return r.ok;
+    }
+
+    /**
+     * Get server capabilities using CAPA command specified by RFC 2449.
+     * Returns null if not supported.
+     */
+    synchronized InputStream capa() throws IOException {
+	Response r = multilineCommand("CAPA", 128); // 128 == output size est
+	if (!r.ok)
+	    return null;
+	return r.bytes;
     }
 
     /**
