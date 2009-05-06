@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -362,7 +362,8 @@ public class POP3Folder extends Folder {
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 				throws MessagingException {
 	checkReadable();
-	if (!doneUidl && fp.contains(UIDFolder.FetchProfileItem.UID)) {
+	if (!doneUidl && ((POP3Store)store).supportsUidl &&
+		fp.contains(UIDFolder.FetchProfileItem.UID)) {
 	    /*
 	     * Since the POP3 protocol only lets us fetch the UID
 	     * for a single message or for all messages, we go ahead
@@ -415,6 +416,8 @@ public class POP3Folder extends Folder {
 	checkOpen();
 	POP3Message m = (POP3Message)msg;
 	try {
+	    if (!((POP3Store)store).supportsUidl)
+		return null;
 	    if (m.uid == POP3Message.UNKNOWN)
 		m.uid = port.uidl(m.getMessageNumber());
 	    return m.uid;

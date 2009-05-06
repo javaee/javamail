@@ -69,13 +69,16 @@ public class POP3Store extends Store {
     private int portNum = -1;
     private String user = null;
     private String passwd = null;
-    boolean rsetBeforeQuit = false;
-    boolean disableTop = false;
-    boolean forgetTopHeaders = false;
-    boolean useStartTLS = false;
-    boolean requireStartTLS = false;
-    Map capabilities;
-    Constructor messageConstructor = null;
+    private boolean useStartTLS = false;
+    private boolean requireStartTLS = false;
+    private Map capabilities;
+
+    // following set here and accessed by other classes in this package
+    volatile Constructor messageConstructor = null;
+    volatile boolean rsetBeforeQuit = false;
+    volatile boolean disableTop = false;
+    volatile boolean forgetTopHeaders = false;
+    volatile boolean supportsUidl = true;
 
     public POP3Store(Session session, URLName url) {
 	this(session, url, "pop3", false);
@@ -260,6 +263,8 @@ public class POP3Store extends Store {
 		    "DEBUG POP3: server doesn't support TOP, disabling it");
 	}
 
+	supportsUidl = capabilities == null || capabilities.containsKey("UIDL");
+
 	String msg = null;
 	if ((msg = p.login(user, passwd)) != null) {
 	    try {
@@ -340,8 +345,9 @@ public class POP3Store extends Store {
      * @since	JavaMail 1.4.3
      */
     public Map capabilities() throws MessagingException {
-	if (capabilities != null)
-	    return Collections.unmodifiableMap(capabilities);
+	Map c = capabilities;	// atomic read of pointer
+	if (c != null)
+	    return Collections.unmodifiableMap(c);
 	else
 	    return Collections.emptyMap();
     }
