@@ -15,6 +15,7 @@ The following bugs have been fixed in the 1.4.3 release.
 
 <no id>	add starttls support to POP3
 <no id>	fix deadlock in IMAP IDLE support
+<no id>	add mail.transport.protocol.<address-type> property
 
 
 		  CHANGES IN THE 1.4.2 RELEASE

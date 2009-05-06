@@ -671,7 +671,7 @@ public final class Session {
     }
 
     /**
-     * Get a Transport object that can transport a Message to the
+     * Get a Transport object that can transport a Message of the
      * specified address type.
      *
      * @param	address
@@ -683,13 +683,16 @@ public final class Session {
     public Transport getTransport(Address address) 
 	                                     throws NoSuchProviderException {
 
-	String transportProtocol = (String)addressMap.get(address.getType());
-	if (transportProtocol == null) {
-	    throw new NoSuchProviderException("No provider for Address type: "+
-					      address.getType());
-	} else {
+	String transportProtocol;
+	transportProtocol =
+	    getProperty("mail.transport.protocol." + address.getType());
+	if (transportProtocol != null)
 	    return getTransport(transportProtocol);
-	}
+	transportProtocol = (String)addressMap.get(address.getType());
+	if (transportProtocol != null)
+	    return getTransport(transportProtocol);
+	throw new NoSuchProviderException("No provider for Address type: "+
+						address.getType());
     }
 
     /**
