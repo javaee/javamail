@@ -2237,11 +2237,17 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    Response r = protocol.readIdleResponse();
 	    try {
 		synchronized (messageCacheLock) {
-		    if (r == null || protocol == null ||
-			    !protocol.processIdleResponse(r)) {
+		    try {
+			if (r == null || protocol == null ||
+				!protocol.processIdleResponse(r)) {
+			    idleState = RUNNING;
+			    messageCacheLock.notifyAll();
+			    break;
+			}
+		    } catch (ProtocolException pex) {
 			idleState = RUNNING;
 			messageCacheLock.notifyAll();
-			break;
+			throw pex;
 		    }
 		}
 	    } catch (ConnectionException cex) {
