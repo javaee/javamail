@@ -424,8 +424,10 @@ class Protocol {
 		    input = null;
 		    output = null;
 		}
-		throw new IOException("Could not convert socket to TLS: " +
-					ioex);
+		IOException sioex =
+		    new IOException("Could not convert socket to TLS");
+		sioex.initCause(ioex);
+		throw sioex;
 	    }
 	}
 	return r.ok;
