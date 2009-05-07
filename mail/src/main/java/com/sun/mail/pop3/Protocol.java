@@ -424,7 +424,8 @@ class Protocol {
 		    input = null;
 		    output = null;
 		}
-		throw new IOException("Could not convert socket to TLS", ioex);
+		throw new IOException("Could not convert socket to TLS: " +
+					ioex);
 	    }
 	}
 	return r.ok;
