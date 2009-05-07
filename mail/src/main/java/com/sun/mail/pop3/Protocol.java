@@ -280,7 +280,19 @@ class Protocol {
     synchronized Status stat() throws IOException {
 	Response r = simpleCommand("STAT");
 	Status s = new Status();
-	if (r.ok && r.data != null) {
+
+	/*
+	 * Normally the STAT command shouldn't fail but apparently it
+	 * does when accessing Hotmail too often, returning:
+	 * -ERR login allowed only every 15 minutes
+	 * (Why it doesn't just fail the login, I don't know.)
+	 * This is a serious failure that we don't want to hide
+	 * from the user.
+	 */
+	if (!r.ok)
+	    throw new IOException("STAT command failed: " + r.data);
+
+	if (r.data != null) {
 	    try {
 		StringTokenizer st = new StringTokenizer(r.data);
 		s.total = Integer.parseInt(st.nextToken());
