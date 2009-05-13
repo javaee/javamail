@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- FindBugs exclude list for JavaMail -->
+
+<FindBugsFilter>
+    <!--
+	There are a bunch of places where FindBugs complains about
+	exposing internal representations.  We exclude cases where
+	this only happens in internal classes that are never visible
+	through the public JavaMail API, or cases where the user
+	passes in an object (usually an array) and can only hurt
+	themselves by modifying the array while a method is in progress,
+	or where the implementation is passing the data back to the user
+	(e.g., in an Exception) and never uses it again.
+    -->
+    <Match>
+	<Or>
+	    <Class name="com.sun.mail.iap.ByteArray"/>
+	    <Class name="javax.mail.SendFailedException"/>
+	    <Class name="javax.mail.event.MessageCountEvent"/>
+	    <Class name="javax.mail.event.TransportEvent"/>
+	</Or>
+	<Or>
+	    <Bug pattern="EI_EXPOSE_REP"/>
+	    <Bug pattern="EI_EXPOSE_REP2"/>
+	</Or>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport"/>
+	<Method name="sendMessage"/>
+	<!-- passed in Address array -->
+	<Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.internet.MimeBodyPart"/>
+	<Method name="&lt;init&gt;"/> <!-- match constructor -->
+	<!-- passed in byte array -->
+	<Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.util.ByteArrayDataSource"/>
+	<Method name="&lt;init&gt;"/> <!-- match constructor -->
+	<!-- passed in byte array -->
+	<Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.util.MailSSLSocketFactory"/>
+	<Method name="setTrustManagers"/>
+	<!-- passed in TrustManager array -->
+	<Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.util.MailSSLSocketFactory"/>
+	<Method name="getTrustManagers"/>
+	<!-- returned TrustManager array -->
+	<Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.INTERNALDATE"/>
+	<Method name="getDate"/>
+	<!--
+	    Returned Date object; it's only ever stored in
+	    IMAPMessage.receivedDate and is always used to
+	    construct a new Date object before returning to
+	    users.
+	-->
+	<Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <!--
+	A few places where it complains about wait not being in a loop.
+	This purposely doesn't loop so that the application
+	calling idle can check whether the idle should continue.
+    -->
+    <Match>
+	<!-- an anonymous inner class of the idle method -->
+	<Class name="~com\.sun\.mail\.imap\.IMAPFolder.*"/>
+	<Method name="doCommand"/>
+	<Bug pattern="WA_NOT_IN_LOOP"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPStore"/>
+	<Method name="idle"/>
+	<Bug pattern="WA_NOT_IN_LOOP"/>
+    </Match>
+
+    <!--
+	A few places where we catch Exception even though it's not
+	explicitly thrown.  We need to make sure that if anything
+	goes wrong we clean things up.  Perhaps these should be
+	converted to a finally block and a boolean "success" flag?
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPStore"/>
+	<Method name="getProtocol"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPStore"/>
+	<Method name="getStoreProtocol"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.IMAPSaslAuthenticator"/>
+	<Method name="authenticate"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.pop3.POP3Folder"/>
+	<Method name="createMessage"/>
+	<Or>
+	    <Bug pattern="REC_CATCH_EXCEPTION"/>
+	    <Bug pattern="DE_MIGHT_IGNORE"/>
+	</Or>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.util.SocketFetcher"/>
+	<Method name="startTLS"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.Session"/>
+	<Method name="loadAllResources"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+
+    <!--
+	FindBugs complains about a possible double check of headersLoaded,
+	but it seems to be just wrong; I don't see it.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPMessage"/>
+	<Method name="loadHeaders"/>
+	<Bug pattern="DC_DOUBLECHECK"/>
+    </Match>
+
+    <!--
+	These IMAP-specific subclasses of standard classes don't override
+	equals because all they add are constructors and optimized access
+	methods; everything else, including the way to test for equality,
+	is the same.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.FLAGS"/>
+	<Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.IMAPAddress"/>
+	<!-- defined in ENVELOPE.java -->
+	<Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+    </Match>
+
+    <!--
+	FindBugs complains of an unitialized read of the "capabilities"
+	field.  Since the superclass might initialize the field (via a
+	call into the overridden processGreeting method), any initialization
+	done in the IMAPProtocol class will undo any initialization done
+	as a side effect of calling the superclass constructor.  Thus, we
+	need to depend on the field being initialized to the default value.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.IMAPProtocol"/>
+	<Method name="&lt;init&gt;"/> <!-- match constructor -->
+	<Bug pattern="UR_UNINIT_READ"/>
+    </Match>
+
+    <!--
+	This use of string concatenation only occurs when creating a
+	string for an error message in an exception.  The simpler code
+	is better here; performance is not an issue.
+    -->
+    <Match>
+	<Class name="com.sun.mail.util.BASE64DecoderStream"/>
+	<Method name="recentChars"/>
+	<Bug pattern="SBSC_USE_STRINGBUFFER_CONCATENATION"/>
+    </Match>
+
+    <!--
+	Yes, the "next" element in my linked list isn't ever actually
+	used, but it feels weird to only have a "prev" element.
+    -->
+    <Match>
+	<Class name="javax.mail.EventQueue$QueueElement"/>
+	<Field name="next"/>
+	<Bug pattern="URF_UNREAD_FIELD"/>
+    </Match>
+
+    <!--
+	Stupid Serializable EventObject class causes FindBugs to complain
+	about transient fields in subclasses.  I don't know why it's
+	complaining about these fields but not others, but since I don't
+	really expect anyone to serialize these events I'm just ignoring
+	this complaint.
+    -->
+    <Match>
+	<Class name="javax.mail.event.TransportEvent"/>
+	<Or>
+	    <Field name="invalid"/>
+	    <Field name="validSent"/>
+	    <Field name="validUnsent"/>
+	</Or>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
+
+    <!--
+	This string comparison using == is just an optimization.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.InternetAddress"/>
+	<Method name="equals"/>
+	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+    </Match>
+
+    <!--
+	This string comparison using == is to determine whether the
+	String object is a different String object.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.MimeUtility"/>
+	<Method name="decodeText"/>
+	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+    </Match>
+
+    <!--
+	ByteArrayInputStream.available guarantees to return the full number
+	of bytes left in the buffer, and ByteArrayInputStream.read guarantees
+	to read all the bytes, so we don't really need to check the return
+	value.  Ignore this complaint.
+    -->
+    <Match>
+	<Class name="com.sun.mail.util.ASCIIUtility"/>
+	<Method name="getBytes"/>
+	<Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+
+    <!--
+	We extract the "lang" field of an encoded string but we don't
+	currently do anything with it.  Ignore this complaint.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.ParameterList"/>
+	<Method name="decodeValue"/>
+	<Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+    </Match>
+
+    <!--
+	The call ParameterList.set(null, "DONE") is a kludge used by the
+	IMAP provider to indicate that it's done setting parameters.
+	In other cases we *want* a null name to cause a NullPointerException.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.ParameterList"/>
+	<Method name="set"/>
+	<Bug pattern="NP_NULL_ON_SOME_PATH"/>
+    </Match>
+
+    <!--
+	We purposely don't close these streams, which are just wrappers
+	around the original stream that needs to remain open.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.MimeMultipart"/>
+	<Or>
+	    <Method name="parse"/>
+	    <Method name="parsebm"/>
+	</Or>
+	<Bug pattern="OS_OPEN_STREAM"/>
+    </Match>
+</FindBugsFilter>
