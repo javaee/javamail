@@ -196,22 +196,20 @@ public class POP3Store extends Store {
 	    // if we haven't been connected at all, don't bother with
 	    // the NOOP.
 	    return false;
-	synchronized (this) {
+	try {
+	    if (port == null)
+		port = getPort(null);
+	    else if (!port.noop())
+		throw new IOException("NOOP failed");
+	    return true;
+	} catch (IOException ioex) {
+	    // no longer connected, close it down
 	    try {
-		if (port == null)
-		    port = getPort(null);
-		else
-		    port.noop();
-		return true;
-	    } catch (IOException ioex) {
-		// no longer connected, close it down
-		try {
-		    super.close();		// notifies listeners
-		} catch (MessagingException mex) {
-		    // ignore it
-		} finally {
-		    return false;
-		}
+		super.close();		// notifies listeners
+	    } catch (MessagingException mex) {
+		// ignore it
+	    } finally {
+		return false;
 	    }
 	}
     }

@@ -263,15 +263,22 @@ public class POP3Folder extends Folder {
 	}
     }
 
-    public boolean isOpen() {
+    public synchronized boolean isOpen() {
 	if (!opened)
 	    return false;
-	if (store.isConnected())
-	    return true;
 	try {
-	    close(false);
-	} catch (MessagingException ex) { }
-	return false;
+	    if (!port.noop())
+		throw new IOException("NOOP failed");
+	} catch (IOException ioex) {
+	    try {
+		close(false);
+	    } catch (MessagingException mex) {
+		// ignore it
+	    } finally {
+		return false;
+	    }
+	}
+	return true;
     }
 
     /**

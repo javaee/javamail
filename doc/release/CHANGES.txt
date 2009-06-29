@@ -18,6 +18,7 @@ The following bugs have been fixed in the 1.4.3 release.
 <no id>	fix deadlock in IMAP IDLE support
 <no id>	add mail.transport.protocol.<address-type> property
 <no id>	fail POP3Folder.open if STAT command fails
+<no id>	fix POP3Folder.isOpen if POP3 server fails and is then reconnected
 
 
 		  CHANGES IN THE 1.4.2 RELEASE
