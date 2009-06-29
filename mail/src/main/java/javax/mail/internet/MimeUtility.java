@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -755,15 +755,15 @@ public class MimeUtility {
     }
 
     /**
-     * The string is parsed using the rules in RFC 2047 for parsing
-     * an "encoded-word". If the parse fails, a ParseException is 
+     * The string is parsed using the rules in RFC 2047 and RFC 2231 for
+     * parsing an "encoded-word".  If the parse fails, a ParseException is 
      * thrown. Otherwise, it is transfer-decoded, and then 
      * charset-converted into Unicode. If the charset-conversion
      * fails, an UnsupportedEncodingException is thrown.<p>
      *
      * @param	eword	the encoded value
      * @exception       ParseException if the string is not an
-     *			encoded-word as per RFC 2047.
+     *			encoded-word as per RFC 2047 and RFC 2231.
      * @exception       UnsupportedEncodingException if the charset
      *			conversion failed.
      */
@@ -779,7 +779,11 @@ public class MimeUtility {
 	if ((pos = eword.indexOf('?', start)) == -1)
 	    throw new ParseException(
 		"encoded word does not include charset: " + eword);
-	String charset = javaCharset(eword.substring(start, pos));
+	String charset = eword.substring(start, pos);
+	int lpos = charset.indexOf('*');	// RFC 2231 language specified?
+	if (lpos >= 0)				// yes, throw it away
+	    charset = charset.substring(0, lpos);
+	charset = javaCharset(charset);
 
 	// get encoding
 	start = pos+1;
