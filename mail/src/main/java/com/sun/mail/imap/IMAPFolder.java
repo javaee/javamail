@@ -2364,16 +2364,20 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    // EXPUNGE response.
 
 	    int seqnum = ir.getNumber();
+	    Message[] msgs = null;
+	    if (doExpungeNotification && hasMessageCountListener) {
+		// save the Message object first; can't look it
+		// up after it's expunged
+		msgs = new Message[] { getMessageBySeqNumber(seqnum) };
+	    }
+
 	    messageCache.expungeMessage(seqnum);
 
 	    // decrement 'realTotal'; but leave 'total' unchanged
 	    realTotal--;
 
-	    if (doExpungeNotification && hasMessageCountListener) {
-		// Do the notification here.
-		Message[] msgs = { getMessageBySeqNumber(seqnum) };
+	    if (msgs != null)	// Do the notification here.
 		notifyMessageRemovedListeners(false, msgs);
-	    }
 
 	} else if (ir.keyEquals("FETCH")) {
 	    // The only unsolicited FETCH response that makes sense

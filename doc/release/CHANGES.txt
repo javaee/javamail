@@ -13,6 +13,7 @@ Bug IDs that start with "GF" can be found in the GlassFish Issue Tracker
 		  ----------------------------
 The following bugs have been fixed in the 1.4.3 release.
 
+6850882	IMAPMessage returns wrong getMessageNumber() from messageRemovedEvent
 <no id>	add starttls support to POP3
 <no id>	fix deadlock in IMAP IDLE support
 <no id>	add mail.transport.protocol.<address-type> property
