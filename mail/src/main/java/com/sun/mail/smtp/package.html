@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -125,9 +125,10 @@ a "multipart/report"
 message type with a "message/delivery-status"
 (<A HREF="http://www.ietf.org/rfc/rfc1894.txt" TARGET="_top">RFC 1894</A>)
 part.
-JavaMail does not currently provide direct support for these new MIME types,
-but you can process them as any other "multipart" or "message" content,
-using <code>MimeMultipart</code> and <code>MimeMessage</code> objects.
+You can use the classes in the {@link com.sun.mail.dsn} package to
+handle these MIME types.
+Note that you'll need to include <code>dsn.jar</code> in your CLASSPATH
+as this support is not included in <code>mail.jar</code>.
 <P>
 See below for the properties to enable these features.
 <P>
