@@ -432,7 +432,7 @@ public class SocketFetcher {
      * mail.<protocol>.ssl.ciphersuites properties.
      */
     private static void configureSSLSocket(Socket socket, Properties props,
-				String prefix) {
+				String prefix) throws IOException {
 	if (!(socket instanceof SSLSocket))
 	    return;
 	SSLSocket sslsocket = (SSLSocket)socket;
@@ -458,6 +458,13 @@ public class SocketFetcher {
 	    System.out.println("DEBUG SocketFetcher: SSL ciphers after " +
 		Arrays.asList(sslsocket.getEnabledCipherSuites()));
 	}
+
+	/*
+	 * Force the handshake to be done now so that we can report any
+	 * errors (e.g., certificate errors) to the caller of the startTLS
+	 * method.
+	 */
+	sslsocket.startHandshake();
     }
 
     /**

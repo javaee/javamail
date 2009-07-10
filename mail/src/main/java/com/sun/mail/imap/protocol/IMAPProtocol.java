@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -610,16 +610,21 @@ public class IMAPProtocol extends Protocol {
 	try {
 	    super.startTLS("STARTTLS");
 	} catch (ProtocolException pex) {
+	    if (debug)
+		out.println("IMAP DEBUG: STARTTLS ProtocolException: " + pex);
 	    // ProtocolException just means the command wasn't recognized,
 	    // or failed.  This should never happen if we check the
 	    // CAPABILITY first.
 	    throw pex;
 	} catch (Exception ex) {
+	    if (debug)
+		out.println("IMAP DEBUG: STARTTLS Exception: " + ex);
 	    // any other exception means we have to shut down the connection
 	    // generate an artificial BYE response and disconnect
 	    Response[] r = { Response.byeResponse(ex) };
 	    notifyResponseHandlers(r);
 	    disconnect();
+	    throw new ProtocolException("STARTTLS failure", ex);
 	}
     }
 
