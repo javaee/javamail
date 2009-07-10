@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,10 +54,20 @@ public class ProtocolException extends Exception {
 
     /**
      * Constructs a ProtocolException with the specified detail message.
-     * @param s		the detail message
+     * @param message		the detail message
      */
-    public ProtocolException(String s) {
-	super(s);
+    public ProtocolException(String message) {
+	super(message);
+    }
+
+    /**
+     * Constructs a ProtocolException with the specified detail message
+     * and cause.
+     * @param message		the detail message
+     * @param cause		the cause
+     */
+    public ProtocolException(String message, Throwable cause) {
+	super(message, cause);
     }
 
     /**
