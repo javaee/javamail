@@ -555,7 +555,8 @@ public class SMTPTransport extends Transport {
 	    } finally {
 		if (resp != 235) {
 		    closeConnection();
-		    return false;
+		    throw new AuthenticationFailedException(
+					    getLastServerResponse());
 		}
 	    }
 	    return true;
