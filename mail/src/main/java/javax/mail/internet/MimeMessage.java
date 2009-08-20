@@ -1360,7 +1360,8 @@ public class MimeMessage extends Message implements MimePart {
     public synchronized DataHandler getDataHandler() 
 		throws MessagingException {
 	if (dh == null)
-	    dh = new DataHandler(new MimePartDataSource(this));
+	    dh = new MimeBodyPart.MimePartDataHandler(
+						new MimePartDataSource(this));
 	return dh;
     }
 

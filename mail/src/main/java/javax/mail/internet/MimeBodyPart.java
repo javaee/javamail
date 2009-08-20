@@ -597,7 +597,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      */  
     public DataHandler getDataHandler() throws MessagingException {
 	if (dh == null)
-	    dh = new DataHandler(new MimePartDataSource(this));
+	    dh = new MimePartDataHandler(new MimePartDataSource(this));
 	return dh;
     }
 
@@ -1260,6 +1260,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	DataHandler dh = part.getDataHandler();
 	if (dh == null) // Huh ?
 	    return;
+	if (dh instanceof MimePartDataHandler)
+	    return;	// can't update it
 
 	try {
 	    String type = dh.getContentType();
@@ -1380,5 +1382,18 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	os = MimeUtility.encode(os, part.getEncoding());
 	part.getDataHandler().writeTo(os);
 	os.flush(); // Needed to complete encoding
+    }
+
+    /**
+     * A special DataHandler used only as a marker to indicate that
+     * the source of the data is a MimePart.  This prevents updateHeaders
+     * from trying to change the headers for such data.  In particular,
+     * the original Content-Transfer-Encoding for the data must be preserved.
+     * Otherwise the data would need to be decoded and reencoded.
+     */
+    static class MimePartDataHandler extends DataHandler {
+	public MimePartDataHandler(DataSource ds) {
+	    super(ds);
+	}
     }
 }

@@ -410,6 +410,7 @@ public class MimeMultipart extends Multipart {
      * did change, and do the header updating only if necessary.
      */
     protected synchronized void updateHeaders() throws MessagingException {
+	parse();
 	for (int i = 0; i < parts.size(); i++)
 	    ((MimeBodyPart)parts.elementAt(i)).updateHeaders();
     }
