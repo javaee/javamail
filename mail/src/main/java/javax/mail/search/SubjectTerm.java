@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -39,8 +39,9 @@ package javax.mail.search;
 import javax.mail.Message;
 
 /**
- * This class implements comparisons for the Message Subject header.
- * The comparison is case-insensitive.
+ * This class implements comparisons for the message Subject header.
+ * The comparison is case-insensitive.  The pattern is a simple string
+ * that must appear as a substring in the Subject.
  *
  * @author Bill Shannon
  * @author John Mani

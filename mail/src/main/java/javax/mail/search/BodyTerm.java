@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -39,8 +39,10 @@ package javax.mail.search;
 import javax.mail.*;
 
 /**
- * This class implements searches on a Message Body.
+ * This class implements searches on a message body.
  * All parts of the message that are of MIME type "text/*" are searched.
+ * The pattern is a simple string that must appear as a substring in
+ * the message body.
  * 
  * @author Bill Shannon
  * @author John Mani

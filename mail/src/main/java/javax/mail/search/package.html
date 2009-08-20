@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -49,6 +49,16 @@ expression to search a folder for messages matching the expression;
 see the {@link javax.mail.Folder#search search} method on
 {@link javax.mail.Folder javax.mail.Folder}.
 See {@link javax.mail.search.SearchTerm SearchTerm}.
+<P>
+Note that the exact search capabilities depend on the protocol,
+provider, and server in use.  For the POP3 protocol, all searching is
+done on the client side using the JavaMail classes.  For IMAP, all
+searching is done on the server side and is limited by the search
+capabilities of the IMAP protocol and the IMAP server being used.
+For example, IMAP date based searches have only day granularity.
+<P>
+In general, all of the string patterns supported by search terms are
+just simple strings; no regular expressions are supported.
 
 </BODY>
 </HTML>
