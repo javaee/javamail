@@ -22,6 +22,7 @@ The following bugs have been fixed in the 1.4.3 release.
 <no id>	fix POP3Folder.isOpen if POP3 server fails and is then reconnected
 <no id>	better handle modifying messages created from input streams
 <no id>	include server error message in exception when SMTP authentication fails
+<no id>	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
 
 
 		  CHANGES IN THE 1.4.2 RELEASE
