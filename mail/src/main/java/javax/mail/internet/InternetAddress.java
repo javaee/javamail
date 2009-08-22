@@ -1194,7 +1194,20 @@ public class InternetAddress extends Address implements Cloneable {
 	    if (c <= 040 || c >= 0177)
 		throw new AddressException(
 				"Domain contains control or whitespace", addr);
-	    if (specialsNoDot.indexOf(c) >= 0)
+	    // RFC 2822 rule
+	    //if (specialsNoDot.indexOf(c) >= 0)
+	    /*
+	     * RFC 1034 rule is more strict
+	     * the full rule is:
+	     * 
+	     * <domain> ::= <subdomain> | " "
+	     * <subdomain> ::= <label> | <subdomain> "." <label>
+	     * <label> ::= <letter> [ [ <ldh-str> ] <let-dig> ]
+	     * <ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
+	     * <let-dig-hyp> ::= <let-dig> | "-"
+	     * <let-dig> ::= <letter> | <digit>
+	     */
+	    if (!(Character.isLetterOrDigit(c) || c == '-' || c == '.'))
 		throw new AddressException(
 				"Domain contains illegal character", addr);
 	    if (c == '.' && lastc == '.')
