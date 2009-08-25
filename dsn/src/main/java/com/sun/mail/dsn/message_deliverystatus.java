@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -117,11 +117,7 @@ public class message_deliverystatus implements DataContentHandler {
 	// if the object is a DeliveryStatus, we know how to write that out
 	if (obj instanceof DeliveryStatus) {
 	    DeliveryStatus ds = (DeliveryStatus)obj;
-	    try {
-		ds.writeTo(os);
-	    } catch (MessagingException me) {
-		throw new IOException(me.toString());
-	    }
+	    ds.writeTo(os);
 	    
 	} else {
 	    throw new IOException("unsupported object");

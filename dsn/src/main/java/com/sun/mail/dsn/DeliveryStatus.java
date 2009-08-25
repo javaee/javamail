@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -157,8 +157,7 @@ public class DeliveryStatus extends Report {
 	recipientDSN[recipientDSN.length - 1] = h;
     }
 
-    public void writeTo(OutputStream os)
-				throws IOException, MessagingException {
+    public void writeTo(OutputStream os) throws IOException {
 	// see if we already have a LOS
 	LineOutputStream los = null;
 	if (os instanceof LineOutputStream) {
@@ -178,16 +177,8 @@ public class DeliveryStatus extends Report {
     private static void writeInternetHeaders(InternetHeaders h,
 				LineOutputStream los) throws IOException {
 	Enumeration e = h.getAllHeaderLines();
-	try {
-	    while (e.hasMoreElements())
-		los.writeln((String)e.nextElement());
-	} catch (MessagingException mex) {
-	    Exception ex = mex.getNextException();
-	    if (ex instanceof IOException)
-		throw (IOException)ex;
-	    else
-		throw new IOException("Exception writing headers: " + mex);
-	}
+	while (e.hasMoreElements())
+	    los.writeln((String)e.nextElement());
     }
 
     public String toString() {

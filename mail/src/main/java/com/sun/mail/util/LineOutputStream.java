@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,7 +37,6 @@
 package com.sun.mail.util;
 
 import java.io.*;
-import javax.mail.MessagingException;
 
 /**
  * This class is to support writing out Strings as a sequence of bytes
@@ -63,21 +62,13 @@ public class LineOutputStream extends FilterOutputStream {
 	super(out);
     }
 
-    public void writeln(String s) throws MessagingException {
-	try {
-	    byte[] bytes = ASCIIUtility.getBytes(s);
-	    out.write(bytes);
-	    out.write(newline);
-	} catch (Exception ex) {
-	    throw new MessagingException("IOException", ex);
-	}
+    public void writeln(String s) throws IOException {
+	byte[] bytes = ASCIIUtility.getBytes(s);
+	out.write(bytes);
+	out.write(newline);
     }
 
-    public void writeln() throws MessagingException {
-	try {
-	    out.write(newline);
-	} catch (Exception ex) {
-	    throw new MessagingException("IOException", ex);
-	}
+    public void writeln() throws IOException {
+	out.write(newline);
     }
 }

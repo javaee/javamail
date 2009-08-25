@@ -16,6 +16,7 @@ The following bugs have been fixed in the 1.4.3 release.
 6850882	IMAPMessage returns wrong getMessageNumber() from messageRemovedEvent
 6857090	JavaMail is not sending HELO / EHLO according to specs
 6872072	QPEncoderStream write method eats up trailing white space of a string
+6875367	LineOutputStream wraps IOException instead of throwing it directly
 <no id>	add starttls support to POP3
 <no id>	fix deadlock in IMAP IDLE support
 <no id>	add mail.transport.protocol.<address-type> property
