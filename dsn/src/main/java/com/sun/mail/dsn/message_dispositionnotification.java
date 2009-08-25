@@ -118,12 +118,7 @@ public class message_dispositionnotification implements DataContentHandler {
 	// if it's a DispositionNotification, we know how to write that out
 	if (obj instanceof DispositionNotification) {
 	    DispositionNotification dn = (DispositionNotification)obj;
-	    try {
-		dn.writeTo(os);
-	    } catch (MessagingException me) {
-		throw new IOException(me.toString());
-	    }
-	    
+	    dn.writeTo(os);
 	} else {
 	    throw new IOException("unsupported object");
 	}
