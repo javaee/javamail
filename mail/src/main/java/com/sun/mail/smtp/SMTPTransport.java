@@ -201,7 +201,7 @@ public class SMTPTransport extends Transport {
 			session.getProperty("mail." + name + ".localaddress");
 	    if (localHostName == null || localHostName.length() <= 0) {
 		InetAddress localHost = InetAddress.getLocalHost();
-		localHostName = localHost.getHostName();
+		localHostName = localHost.getCanonicalHostName();
 		// if we can't get our name, use local address literal
 		if (localHostName == null)
 		    // XXX - not correct for IPv6
