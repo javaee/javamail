@@ -92,7 +92,7 @@
 			com/sun/mail/smtp/SMTPAddressSucceededException.java,
 			com/sun/mail/smtp/SMTPSendFailedException.java,
 			com/sun/mail/smtp/SMTPTransport.java,
-			com/sun/mail/smtp/SMTPSSLTransport.java
+			com/sun/mail/smtp/SMTPSSLTransport.java,
 			com/sun/mail/util/MailSSLSocketFactory.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
@@ -153,7 +153,7 @@
 				</group>
 			    </groups>
 			    <subpackages>
-javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn
+javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util
 			    </subpackages>
 			    <!-- XXX - following should work, but doesn't -->
 			    <excludePackageNames>
