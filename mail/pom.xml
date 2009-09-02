@@ -65,7 +65,8 @@
 	    com.sun.mail.imap; version=${mail.version},
 	    com.sun.mail.pop3; version=${mail.version},
 	    com.sun.mail.smtp; version=${mail.version},
-	    com.sun.mail.util; version=${mail.version}
+	    com.sun.mail.util; version=${mail.version},
+	    com.sun.mail.handlers; version=${mail.version}
 	</mail.packages.export>
     </properties>
 
