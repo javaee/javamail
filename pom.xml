@@ -285,6 +285,23 @@
 -->
         </plugins>
 
+	<pluginManagement>
+	    <plugins>
+		<plugin>
+		    <!--
+			By default, disable the FindBugs plugin for all modules.
+			It's enabled in the "mail" module, which is the only
+			module where we actually want to run it.
+		    -->
+		    <groupId>org.codehaus.mojo</groupId>
+		    <artifactId>findbugs-maven-plugin</artifactId>
+		    <configuration>
+			<skip>true</skip>
+		    </configuration>
+		</plugin>
+	    </plugins>
+	</pluginManagement>
+
 	<extensions>
 	    <extension>
 		<groupId>org.jvnet.wagon-svn</groupId>
