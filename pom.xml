@@ -172,16 +172,6 @@
 			<Private-Package>
 			    ${mail.packages.private}
 			</Private-Package>
-			<!--
-			    The following entry makes this jar an HK2 jar as
-			    well.  This is needed because GlassFish currently
-			    picks up only OSGi bundles that have this entry.
-			    Remove this when GlassFish does not have this
-			    limitation.
-			-->
-			<HK2-Bundle-Name>
-			     ${project.groupId}:${project.artifactId}
-			</HK2-Bundle-Name>
 		    </instructions>
 		</configuration>
 		<!--
