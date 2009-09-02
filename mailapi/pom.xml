@@ -50,6 +50,14 @@
     <packaging>jar</packaging>
     <name>JavaMail API jar</name>
 
+    <properties>
+	<mail.packages.export>
+	    javax.mail.*; version=${mail.spec.version},
+	    com.sun.mail.util; version=${mail.version},
+	    com.sun.mail.handlers; version=${mail.version}
+	</mail.packages.export>
+    </properties>
+
     <build>
         <plugins>
 	    <plugin>
