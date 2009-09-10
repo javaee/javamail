@@ -126,6 +126,7 @@
 		<module>servlet</module>
 		<module>webapp</module>
 		<module>taglib</module>
+		<module>logging</module>
 		<module>javadoc</module>
 	    </modules>
 	    <activation>

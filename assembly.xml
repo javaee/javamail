@@ -177,6 +177,22 @@
 		</fileSets>
 	    </sources>
 	</moduleSet>
+
+	<moduleSet>
+	    <includes>
+		<include>com.sun.mail:logging</include>
+	    </includes>
+	    <sources>
+		<includeModuleDirectory>false</includeModuleDirectory>
+		<fileSets>
+		    <fileSet>
+			<directory>src/main/java</directory>
+			<outputDirectory>demo/logging</outputDirectory>
+		    </fileSet>
+		</fileSets>
+	    </sources>
+	</moduleSet>
+
     </moduleSets>
 
     <!-- include docs, specs, and javadocs -->

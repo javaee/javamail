@@ -45,85 +45,20 @@
 	<version>1.4.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
-    <artifactId>mail</artifactId>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>logging</artifactId>
     <packaging>jar</packaging>
-    <name>JavaMail API</name>
-
-    <properties>
-	<mail.extensionName>
-	    javax.mail
-	</mail.extensionName>
-	<mail.specificationTitle>
-	    JavaMail(TM) API Design Specification
-	</mail.specificationTitle>
-	<mail.implementationTitle>
-	    javax.mail
-	</mail.implementationTitle>
-	<mail.packages.export>
-	    javax.mail.*; version=${mail.spec.version},
-	    com.sun.mail.imap; version=${mail.version},
-	    com.sun.mail.pop3; version=${mail.version},
-	    com.sun.mail.smtp; version=${mail.version},
-	    com.sun.mail.util; version=${mail.version},
-	    com.sun.mail.util.logging; version=${mail.version},
-	    com.sun.mail.handlers; version=${mail.version}
-	</mail.packages.export>
-    </properties>
-
-    <build>
-	<resources>
-	    <resource>
-		<directory>src/main/resources</directory>
-		<filtering>true</filtering>
-	    </resource>
-	</resources>
-	<plugins>
-	    <!--
-		Configure FindBugs to run with "mvn findbugs:findbugs"
-		and generate XML output that can be used by the Hudson
-		FindBugs plugin.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
-		<configuration>
-		    <skip>false</skip>
-		    <threshold>Normal</threshold>
-		    <excludeFilterFile>exclude.xml</excludeFilterFile>
-		    <findbugsXmlOutput>true</findbugsXmlOutput>
-		    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-		</configuration>
-	    </plugin>
-	</plugins>
-    </build>
+    <name>JavaMail API logging demo</name>
 
     <dependencies>
-	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>4.3.1</version>
-	    <scope>test</scope>
-	    <optional>true</optional>
-	</dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>demo</artifactId>
+	    <version>1.4.3-SNAPSHOT</version>
+        </dependency>
     </dependencies>
-
-    <reporting>
-	<plugins>
-	    <!--
-		Configure FindBugs to run with "mvn site" and
-		generate html output that can be viewed directly.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
-		<configuration>
-		    <skip>false</skip>
-		    <threshold>Normal</threshold>
-		    <excludeFilterFile>exclude.xml</excludeFilterFile>
-		</configuration>
-	    </plugin>
-	</plugins>
-    </reporting>
-
 </project>

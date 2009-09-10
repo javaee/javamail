@@ -128,6 +128,8 @@ Contents
 			web browser to read and send mail
     demo/servlet/README.txt
 			README file that describes the JavaMailServlet
+    demo/logging/	source files for demo program showing use of the
+			com.sun.mail.util.logging.MailHandler class
 
 
 Requirements

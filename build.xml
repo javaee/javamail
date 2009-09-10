@@ -2,7 +2,7 @@
 <!--
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+    Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -248,6 +248,23 @@
             <include name="*"/>
         </javac>
 
+        <mkdir dir="${component.classes.logging.dir}"/>
+        <javac srcdir="${src.logging.dir}"
+               destdir="${component.classes.logging.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               target="${javac.target}">
+            <classpath>
+                <pathelement location="${component.classes.dir}"/>
+                <pathelement location="${component.classes.demo.dir}"/>
+                <pathelement location="${activation.jar}"/>
+            </classpath>
+            <include name="*"/>
+        </javac>
+
 	<!-- XXX - still need to add rules to build webapp -->
 
     </target>
@@ -262,6 +279,7 @@
             <fileset dir="${component.classes.demo.dir}"/>
             <fileset dir="${component.classes.client.dir}"/>
             <fileset dir="${component.classes.servlet.dir}"/>
+            <fileset dir="${component.classes.logging.dir}"/>
         </delete>
     </target>
 
@@ -296,6 +314,8 @@
 		prefix="${rel}/demo/webapp/src/taglib"/>
             <zipfileset dir="${resources.taglib.dir}"
 		prefix="${rel}/demo/webapp/src/taglib"/>
+            <zipfileset dir="${src.logging.dir}"
+		prefix="${rel}/demo/logging"/>
         </zip>
     </target>
 

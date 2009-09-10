@@ -93,7 +93,8 @@
 			com/sun/mail/smtp/SMTPSendFailedException.java,
 			com/sun/mail/smtp/SMTPTransport.java,
 			com/sun/mail/smtp/SMTPSSLTransport.java,
-			com/sun/mail/util/MailSSLSocketFactory.java
+			com/sun/mail/util/MailSSLSocketFactory.java,
+			com/sun/mail/util/logging/MailHandler.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
 					includes="
@@ -153,7 +154,7 @@
 				</group>
 			    </groups>
 			    <subpackages>
-javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util
+javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util:com.sun.mail.util.logging
 			    </subpackages>
 			    <!-- XXX - following should work, but doesn't -->
 			    <excludePackageNames>
@@ -165,12 +166,8 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
 			    </additionalparam>
 			    <sourcepath>${basedir}/target/javadoc</sourcepath>
 			    <links>
-				<link>
-http://java.sun.com/j2se/1.4.2/docs/api
-				</link>
-				<link>
-http://java.sun.com/javase/technologies/desktop/javabeans/glasgow/javadocs
-				</link>
+				<link>http://java.sun.com/j2se/1.4.2/docs/api</link>
+				<link>http://java.sun.com/javase/technologies/desktop/javabeans/glasgow/javadocs</link>
 			    </links>
 			</configuration>
 		    </execution>
