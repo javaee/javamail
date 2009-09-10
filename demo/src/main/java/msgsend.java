@@ -30,7 +30,6 @@
  */
 
 import java.io.*;
-import java.net.InetAddress;
 import java.util.Properties;
 import java.util.Date;
 
