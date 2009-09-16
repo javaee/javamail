@@ -25,7 +25,7 @@ The following bugs have been fixed in the 1.4.3 release.
 <no id>	better handle modifying messages created from input streams
 <no id>	include server error message in exception when SMTP authentication fails
 <no id>	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
-<no id>	com.sun.mail.util.logging.MailLogHandler contributed by Jason Mehrens
+<no id>	com.sun.mail.util.logging.MailHandler contributed by Jason Mehrens
 
 
 		  CHANGES IN THE 1.4.2 RELEASE

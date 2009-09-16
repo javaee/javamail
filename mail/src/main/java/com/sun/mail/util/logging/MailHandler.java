@@ -34,7 +34,6 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.mail.util.logging;
 
 import java.io.*;
@@ -346,6 +345,8 @@ public class MailHandler extends Handler {
     /**
      * Creates a <tt>MailHandler</tt> that is configured by the
      * <tt>LogManager</tt> configuration properties.
+     * @throws SecurityException  if a security manager exists and the
+     * caller does not have <tt>LoggingPermission("control")</tt>.
      */
     public MailHandler() {
         init();
@@ -905,10 +906,9 @@ public class MailHandler extends Handler {
      * @param code   an error code defined in ErrorManager
      */
     protected void reportError(String msg, Exception ex, int code) {
-        if(msg != null) {
+        if (msg != null) {
             super.reportError(Level.SEVERE.getName() + ": " + msg, ex, code);
-        }
-        else {
+        } else {
             super.reportError(null, ex, code);
         }
     }
@@ -997,20 +997,20 @@ public class MailHandler extends Handler {
      * Expand or shrink the attachment name formatters.
      */
     private boolean fixUpAttachmentNames() {
-
         assert Thread.holdsLock(this);
 
-        final int size = this.attachmentFormatters.length;
-        if (this.attachmentNames.length != size) {
-            this.attachmentNames = (Formatter[]) copyOf(attachmentNames, size);
-            for (int i = 0; i < size; i++) {
+        final int expect = this.attachmentFormatters.length;
+        final int current = this.attachmentNames.length;
+        if (current != expect) {
+            this.attachmentNames = (Formatter[]) copyOf(attachmentNames, expect);
+            for (int i = 0; i < expect; i++) {
                 if (this.attachmentNames[i] == null) {
                     //use String.valueOf to ensure non null string.
                     this.attachmentNames[i] = new TailNameFormatter(
-                    String.valueOf(this.attachmentFormatters[i]));
+                            String.valueOf(this.attachmentFormatters[i]));
                 }
             }
-            return true;
+            return current != 0;
         }
         return false;
     }
@@ -1021,10 +1021,11 @@ public class MailHandler extends Handler {
     private boolean fixUpAttachmentFilters() {
         assert Thread.holdsLock(this);
 
-        final int size = this.attachmentFormatters.length;
-        if (this.attachmentFilters.length != size) {
-            this.attachmentFilters = (Filter[]) copyOf(attachmentFilters, size);
-            return true;
+        final int expect = this.attachmentFormatters.length;
+        final int current = this.attachmentFilters.length;
+        if (current != expect) {
+            this.attachmentFilters = (Filter[]) copyOf(attachmentFilters, expect);
+            return current != 0;
         }
         return false;
     }
@@ -1059,6 +1060,8 @@ public class MailHandler extends Handler {
             } else {
                 super.setLevel(Level.WARNING);
             }
+        } catch (final SecurityException SE) {
+            throw SE;
         } catch (final RuntimeException RE) {
             reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
             try {
@@ -1069,7 +1072,9 @@ public class MailHandler extends Handler {
         }
 
         try {
-            this.setFilter((Filter) initObject(p.concat(".filter"), Filter.class));
+            super.setFilter((Filter) initObject(p.concat(".filter"), Filter.class));
+        } catch (final SecurityException SE) {
+            throw SE;
         } catch (final RuntimeException RE) {
             reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
         }
@@ -1095,6 +1100,8 @@ public class MailHandler extends Handler {
 
         try {
             super.setEncoding(manager.getProperty(p.concat(".encoding")));
+        } catch (final SecurityException SE) {
+            throw SE;
         } catch (final UnsupportedEncodingException UEE) {
             reportError(UEE.getMessage(), UEE, ErrorManager.OPEN_FAILURE);
         } catch (final RuntimeException RE) {
@@ -1108,6 +1115,8 @@ public class MailHandler extends Handler {
             } else {
                 super.setFormatter(new SimpleFormatter());
             }
+        } catch (final SecurityException SE) {
+            throw SE;
         } catch (final RuntimeException RE) {
             reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
             try {
@@ -1122,7 +1131,6 @@ public class MailHandler extends Handler {
         } catch (final Exception RE) {
             reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
         }
-
 
         /*try {
             final String reverse = manager.getProperty(p.concat(".comparator.reverse"));
@@ -1581,11 +1589,10 @@ public class MailHandler extends Handler {
             final Class mail = MailHandler.class;
             final Class k = getClass();
             final String value;
-            if(k == mail) {
+            if (k == mail) {
                 value = mail.getName();
-            }
-            else {
-                value = mail.getName() +" using the "+ k.getName() +" extension.";
+            } else {
+                value = mail.getName() + " using the " + k.getName() + " extension.";
             }
             msg.setHeader("X-Mailer", value);
         } catch (final MessagingException ME) {
@@ -1710,7 +1717,7 @@ public class MailHandler extends Handler {
     }
 
     private static String atIndexMsg(int i) {
-        return "At index: "+ i +'.';
+        return "At index: " + i + '.';
     }
 
     /**

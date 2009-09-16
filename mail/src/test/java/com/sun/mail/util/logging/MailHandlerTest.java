@@ -1042,12 +1042,228 @@ public class MailHandlerTest extends TestCase {
         instance.setErrorManager(new ErrorManager() {
 
             public void error(String msg, Exception ex, int code) {
-                assertEquals(msg.indexOf(Level.SEVERE.getName()) > -1, true);
+                assertEquals(msg.indexOf(Level.SEVERE.getName()), 0);
             }
         });
 
         instance.reportError("simple message.", null, ErrorManager.GENERIC_FAILURE);
 
+    }
+
+    public void testSecurityManager() {
+        class LogSecurityManager extends SecurityManager {
+            boolean secure = false;
+            public void checkPermission(java.security.Permission perm) {
+                if(secure) {
+                    super.checkPermission(perm);
+                }
+            }
+
+            public void checkPermission(java.security.Permission perm, Object context) {
+                if(secure) {
+                    super.checkPermission(perm, context);
+                }
+            }
+        }
+
+        final LogSecurityManager manager = new LogSecurityManager();
+        System.setSecurityManager(manager);
+
+        manager.secure = false;
+        MailHandler h = new MailHandler();
+        manager.secure = true;
+
+        try {
+            h.setAttachmentFilters(new Filter[]{new ThrowFilter()});
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setAttachmentFormatters(new Formatter[]{new ThrowFormatter()});
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setAttachmentNames(new String[]{"error.txt"});
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setAttachmentNames(new Formatter[]{new ThrowFormatter()});
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setAuthenticator(null);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setComparator(null);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setLevel(Level.ALL);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setMailProperties(new Properties());
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setPushFilter(null);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setPushLevel(Level.OFF);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setSubject(new ThrowFormatter());
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setSubject("test");
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.getAuthenticator();
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.getMailProperties();
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.close();
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            h.setLevel(Level.ALL);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            new MailHandler();
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            new MailHandler(100);
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+
+        try {
+            new MailHandler(new Properties());
+            fail("Missing secure check.");
+        }
+        catch(SecurityException pass) {
+        }
+        catch(Exception fail) {
+            fail(fail.toString());
+        }
+        manager.secure = false;
+        System.setSecurityManager(null);
     }
 
     /**
@@ -1061,6 +1277,7 @@ public class MailHandlerTest extends TestCase {
             tmp = System.getProperty("user.home");
         }
 
+        final String p = MailHandler.class.getName();
         File dir = new File(tmp);
         assertTrue(dir.exists());
         assertTrue(dir.isDirectory());
@@ -1072,7 +1289,6 @@ public class MailHandlerTest extends TestCase {
                 Properties props = new Properties();
                 FileOutputStream out = new FileOutputStream(cfg);
                 try {
-                    final String p = MailHandler.class.getName();
                     props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
                     props.put(p.concat(".capacity"), "10");
                     props.put(p.concat(".level"), "ALL");
@@ -1122,6 +1338,24 @@ public class MailHandlerTest extends TestCase {
 
                 h.close();
                 assertEquals(em.exceptions.isEmpty(), true);
+
+                props.remove(p.concat(".attachment.filters"));
+                LogManager.getLogManager().readConfiguration();
+
+                h = new MailHandler();
+                em = (InternalErrorManager)h.getErrorManager();
+                assertTrue(em.exceptions.isEmpty());
+                assertEquals(h.getAttachmentFormatters().length, 3);
+                h.close();
+
+                props.remove(p.concat(".attachment.names"));
+                LogManager.getLogManager().readConfiguration();
+
+                h = new MailHandler();
+                em = (InternalErrorManager)h.getErrorManager();
+                assertTrue(em.exceptions.isEmpty());
+                assertEquals(h.getAttachmentFormatters().length, 3);
+                h.close();
             }
             finally {
                 //no way to clear a SystemProperty in 1.4
