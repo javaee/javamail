@@ -296,6 +296,7 @@
 		    -->
 		    <groupId>org.codehaus.mojo</groupId>
 		    <artifactId>findbugs-maven-plugin</artifactId>
+		    <version>RELEASE</version>
 		    <configuration>
 			<skip>true</skip>
 		    </configuration>
