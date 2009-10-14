@@ -191,14 +191,14 @@ public class SMTPTransport extends Transport {
      * which overrides what InetAddress would tell us.
      */
     public synchronized String getLocalHost() {
+	// get our hostname and cache it for future use
+	if (localHostName == null || localHostName.length() <= 0)
+	    localHostName =
+		    session.getProperty("mail." + name + ".localhost");
+	if (localHostName == null || localHostName.length() <= 0)
+	    localHostName =
+		    session.getProperty("mail." + name + ".localaddress");
 	try {
-	    // get our hostname and cache it for future use
-	    if (localHostName == null || localHostName.length() <= 0)
-		localHostName =
-			session.getProperty("mail." + name + ".localhost");
-	    if (localHostName == null || localHostName.length() <= 0)
-		localHostName =
-			session.getProperty("mail." + name + ".localaddress");
 	    if (localHostName == null || localHostName.length() <= 0) {
 		InetAddress localHost = InetAddress.getLocalHost();
 		localHostName = localHost.getCanonicalHostName();
@@ -208,6 +208,18 @@ public class SMTPTransport extends Transport {
 		    localHostName = "[" + localHost.getHostAddress() + "]";
 	    }
 	} catch (UnknownHostException uhex) {
+	}
+
+	// last chance, try to get our address from our socket
+	if (localHostName == null || localHostName.length() <= 0) {
+	    if (serverSocket != null && serverSocket.isBound()) {
+		InetAddress localHost = serverSocket.getLocalAddress();
+		localHostName = localHost.getCanonicalHostName();
+		// if we can't get our name, use local address literal
+		if (localHostName == null)
+		    // XXX - not correct for IPv6
+		    localHostName = "[" + localHost.getHostAddress() + "]";
+	    }
 	}
 	return localHostName;
     }
