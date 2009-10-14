@@ -2189,6 +2189,21 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @since	JavaMail 1.4.1
      */
     public void idle() throws MessagingException {
+	idle(false);
+    }
+
+    /**
+     * Like {@link #idle}, but if <code>once</code> is true, abort the
+     * IDLE command after the first notification, to allow the caller
+     * to process any notification synchronously.
+     *
+     * @exception MessagingException	if the server doesn't support the
+     *					IDLE extension
+     * @exception IllegalStateException	if the folder isn't open
+     *
+     * @since	JavaMail 1.4.3
+     */
+    public void idle(boolean once) throws MessagingException {
 	// ASSERT: Must NOT be called with this folder's
 	// synchronization lock held.
 	assert !Thread.holdsLock(this);
@@ -2248,6 +2263,12 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			idleState = RUNNING;
 			messageCacheLock.notifyAll();
 			throw pex;
+		    }
+		    if (once) {
+			if (idleState == IDLE) {
+			    protocol.idleAbort();
+			    idleState = ABORTING;
+			}
 		    }
 		}
 	    } catch (ConnectionException cex) {
@@ -2687,7 +2708,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
         if (System.currentTimeMillis() - protocol.getTimestamp() > 1000) {
 	    waitIfIdle();
-            protocol.noop(); 
+	    if (protocol != null)
+		protocol.noop(); 
 	}
 
         if (keepStoreAlive && ((IMAPStore)store).hasSeparateStoreConnection()) {
