@@ -12,6 +12,26 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.4.3 --
+
+- SMTPTransport.isConnected behavior changed
+
+	The SMTPTransport.isConnected method uses the SMTP NOOP command
+	to determine if the server is still alive.  Because many older
+	servers were broken in various ways, any response (other than
+	the 421 "connection timed out" response) was considered a
+	successful response and the server was considered to be still
+	alive.  Unfortunately, Microsoft Exchange has a bug that causes
+	it to return a response code of 451 when it times out a connection
+	instead of the expected 421 response code.  SMTPTransport.isConnected
+	now considers only a 250 response code to indicate success, per
+	the SMTP spec.  The old behavior can be restored by setting the
+	new mail.smtp.noop.strict property to false.
+
+
+
+-- JavaMail 1.4.2 --
+
 - mail.smtp.quitwait default changed
 
 	In previous releases, JavaMail would drop the SMTP connection

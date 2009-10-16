@@ -514,6 +514,28 @@ Defaults to false.
 </TD>
 </TR>
 
+<TR>
+<TD>mail.smtp.noop.strict</TD>
+<TD>boolean</TD>
+<TD>
+If set to true (the default), insist on a 250 response code from the NOOP
+command to indicate success.  The NOOP command is used by the
+{@link javax.mail.Transport#isConnected isConnected} method to determine
+if the connection is still alive.
+Some older servers return the wrong response code on success, some
+servers don't implement the NOOP command at all and so always return
+a failure code.  Set this property to false to handle servers
+that are broken in this way.
+Normally, when a server times out a connection, it will send a 421
+response code, which the client will see as the response to the next
+command it issues.
+Some servers send the wrong failure response code when timing out a
+connection.
+Do not set this property to false when dealing with servers that are
+broken in this way.
+</TD>
+</TR>
+
 </TABLE>
 <P>
 In general, applications should not need to use the classes in this

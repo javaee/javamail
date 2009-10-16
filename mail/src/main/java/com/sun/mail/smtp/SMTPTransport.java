@@ -109,6 +109,7 @@ public class SMTPTransport extends Transport {
     private boolean useStartTLS;	// use STARTTLS command
     private boolean requireStartTLS;	// require STARTTLS command
     private boolean useRset;		// use RSET instead of NOOP
+    private boolean noopStrict = true;	// NOOP must return 250 for success
 
     private PrintStream out;		// debug output stream
     private String localHostName;	// our own host name
@@ -170,6 +171,10 @@ public class SMTPTransport extends Transport {
 	// for isConnected
 	useRset = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".userset", false);
+
+	// mail.smtp.noop.strict requires 250 response to indicate success
+	noopStrict = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".noop.strict", true);
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -370,6 +375,30 @@ public class SMTPTransport extends Transport {
      */
     public synchronized void setUseRset(boolean useRset) {
 	this.useRset = useRset;
+    }
+
+    /**
+     * Is the NOOP command required to return a response code
+     * of 250 to indicate success?
+     *
+     * @return	true if NOOP must return 250
+     *
+     * @since JavaMail 1.4.3
+     */
+    public synchronized boolean getNoopStrict() {
+	return noopStrict;
+    }
+
+    /**
+     * Set whether the NOOP command is required to return a response code
+     * of 250 to indicate success.
+     *
+     * @param	noopStrict is NOOP required to return 250?
+     *
+     * @since JavaMail 1.4.3
+     */
+    public synchronized void setNoopStrict(boolean noopStrict) {
+	this.noopStrict = noopStrict;
     }
 
     /**
@@ -879,15 +908,24 @@ public class SMTPTransport extends Transport {
 		sendCommand("NOOP");
 	    int resp = readServerResponse();
 
-	    // NOOP should return 250 on success, however, SIMS 3.2 returns
-	    // 200, so we work around it.
-	    //
-	    // Hotmail doesn't implement the NOOP command at all so assume
-	    // any kind of response means we're still connected.
-	    // That is, any response except 421, which means the server
-	    // is shutting down the connection.
-	    //
-	    if (resp >= 0 && resp != 421) {
+	    /*
+	     * NOOP should return 250 on success, however, SIMS 3.2 returns
+	     * 200, so we work around it.
+	     *
+	     * Hotmail didn't used to implement the NOOP command at all so
+	     * assume any kind of response means we're still connected.
+	     * That is, any response except 421, which means the server
+	     * is shutting down the connection.
+	     *
+	     * Some versions of Exchange return 451 instead of 421 when
+	     * timing out a connection.
+	     *
+	     * Argh!
+	     *
+	     * If mail.smtp.noop.strict is set to false, be tolerant of
+	     * servers that return the wrong response code for success.
+	     */
+	    if (resp >= 0 && (noopStrict ? resp == 250 : resp != 421)) {
 		return true;
 	    } else {
 		try {

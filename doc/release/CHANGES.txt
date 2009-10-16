@@ -27,6 +27,7 @@ GF 9941	SMTPTransport violates RFC 2821 in HELO command
 <no id>	include server error message in exception when SMTP authentication fails
 <no id>	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
 <no id>	com.sun.mail.util.logging.MailHandler contributed by Jason Mehrens
+<no id>	add mail.smtp.noop.strict property, default true
 
 
 		  CHANGES IN THE 1.4.2 RELEASE
