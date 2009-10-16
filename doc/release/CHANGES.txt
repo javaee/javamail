@@ -17,9 +17,9 @@ The following bugs have been fixed in the 1.4.3 release.
 6857090	JavaMail is not sending HELO / EHLO according to specs
 6872072	QPEncoderStream write method eats up trailing white space of a string
 6875367	LineOutputStream wraps IOException instead of throwing it directly
+6829124	IMAPFolder deadlock using IMAP IDLE
 GF 9941	SMTPTransport violates RFC 2821 in HELO command
 <no id>	add starttls support to POP3
-<no id>	fix deadlock in IMAP IDLE support
 <no id>	add mail.transport.protocol.<address-type> property
 <no id>	fail POP3Folder.open if STAT command fails
 <no id>	fix POP3Folder.isOpen if POP3 server fails and is then reconnected
