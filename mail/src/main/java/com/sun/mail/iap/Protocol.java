@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -70,6 +70,8 @@ public class Protocol {
     private volatile DataOutputStream output;
 
     private int tagCounter = 0;
+
+    private String localHostName;
 
     /*
      * handlers is a Vector, initialized here,
@@ -382,6 +384,45 @@ public class Protocol {
 	    }
 	    socket = null;
 	}
+    }
+
+    /**
+     * Get the name of the local host.
+     * The property <prefix>.localhost overrides <prefix>.localaddress,
+     * which overrides what InetAddress would tell us.
+     */
+    protected synchronized String getLocalHost() {
+	// get our hostname and cache it for future use
+	if (localHostName == null || localHostName.length() <= 0)
+	    localHostName =
+		    props.getProperty(prefix + ".localhost");
+	if (localHostName == null || localHostName.length() <= 0)
+	    localHostName =
+		    props.getProperty(prefix + ".localaddress");
+	try {
+	    if (localHostName == null || localHostName.length() <= 0) {
+		InetAddress localHost = InetAddress.getLocalHost();
+		localHostName = localHost.getCanonicalHostName();
+		// if we can't get our name, use local address literal
+		if (localHostName == null)
+		    // XXX - not correct for IPv6
+		    localHostName = "[" + localHost.getHostAddress() + "]";
+	    }
+	} catch (UnknownHostException uhex) {
+	}
+
+	// last chance, try to get our address from our socket
+	if (localHostName == null || localHostName.length() <= 0) {
+	    if (socket != null && socket.isBound()) {
+		InetAddress localHost = socket.getLocalAddress();
+		localHostName = localHost.getCanonicalHostName();
+		// if we can't get our name, use local address literal
+		if (localHostName == null)
+		    // XXX - not correct for IPv6
+		    localHostName = "[" + localHost.getHostAddress() + "]";
+	    }
+	}
+	return localHostName;
     }
 
     /**
