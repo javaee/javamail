@@ -25,6 +25,7 @@ The following bugs have been fixed in the 1.4.3 release.
 6875367	LineOutputStream wraps IOException instead of throwing it directly
 6890265	SMTPTransport does not close socket if STARTTLS is req'd but not sup'd
 G  9941	SMTPTransport violates RFC 2821 in HELO command
+K   202	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
 K  1207	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
 <no id>	add starttls support to POP3
 <no id>	add mail.transport.protocol.<address-type> property
@@ -32,7 +33,6 @@ K  1207	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
 <no id>	fix POP3Folder.isOpen if POP3 server fails and is then reconnected
 <no id>	better handle modifying messages created from input streams
 <no id>	include server error message in exception when SMTP authentication fails
-<no id>	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
 <no id>	com.sun.mail.util.logging.MailHandler contributed by Jason Mehrens
 <no id>	add mail.smtp.noop.strict property, default true
 
