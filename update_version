@@ -6,7 +6,7 @@
 #
 # Usage:	update_version old-version new-version
 #
-for file in `find . -name '*.xml' `
+for file in `find . -name 'pom.xml' `
 do
 	ed - "$file" <<-EOF
 	g:<version>$1</version>:s::<version>$2</version>:
