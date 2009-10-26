@@ -511,7 +511,11 @@ public class SMTPTransport extends Transport {
 		if (debug)
 		    out.println(
 			"DEBUG SMTP: STARTTLS required but not supported");
-		return false;
+		try {
+		    closeConnection();
+		} catch (MessagingException mex) { /* ignore it */ }
+		throw new MessagingException(
+		    "STARTTLS is required but host does not support STARTTLS");
 	    }
 	}
 
