@@ -576,18 +576,25 @@ public class SMTPTransport extends Transport {
 	 */
 	boolean authenticate(String host, String user, String passwd)
 				throws MessagingException {
-	    // XXX - could use "initial response" capability
-	    resp = simpleCommand("AUTH " + mech);
-
-	    /*
-	     * A 530 response indicates that the server wants us to
-	     * issue a STARTTLS command first.  Do that and try again.
-	     */
-	    if (resp == 530) {
-		startTLS();
-		resp = simpleCommand("AUTH " + mech);
-	    }
 	    try {
+		// use "initial response" capability, if supported
+		String ir = getInitialResponse(host, user, passwd);
+		if (ir != null)
+		    resp = simpleCommand("AUTH " + mech + " " + ir);
+		else
+		    resp = simpleCommand("AUTH " + mech);
+
+		/*
+		 * A 530 response indicates that the server wants us to
+		 * issue a STARTTLS command first.  Do that and try again.
+		 */
+		if (resp == 530) {
+		    startTLS();
+		    if (ir != null)
+			resp = simpleCommand("AUTH " + mech + " " + ir);
+		    else
+			resp = simpleCommand("AUTH " + mech);
+		}
 		if (resp == 334)
 		    doAuth(host, user, passwd);
 	    } catch (IOException ex) {	// should never happen, ignore
@@ -601,6 +608,16 @@ public class SMTPTransport extends Transport {
 		}
 	    }
 	    return true;
+	}
+
+	/**
+	 * Provide the initial response to use in the AUTH command,
+	 * or null if not supported.  Subclasses that support the
+	 * initial response capability will override this method.
+	 */
+	String getInitialResponse(String host, String user, String passwd)
+				throws MessagingException, IOException {
+	    return null;
 	}
 
 	abstract void doAuth(String host, String user, String passwd)
@@ -692,7 +709,6 @@ public class SMTPTransport extends Transport {
 	    }
 	}
     }
-
 
     /**
      * Send the Message to the specified list of addresses.<p>
