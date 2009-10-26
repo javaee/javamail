@@ -45,6 +45,7 @@ import javax.mail.event.*;
 import javax.mail.internet.*;
 
 import com.sun.mail.util.*;
+import com.sun.mail.auth.*;
 
 /**
  * This class implements the Transport abstract class using SMTP for
@@ -72,6 +73,7 @@ import com.sun.mail.util.*;
  * @author Max Spivak
  * @author Bill Shannon
  * @author Dean Gibson (DIGEST-MD5 authentication)
+ * @author Luís Serralheiro (NTLM authentication)
  *
  * @see javax.mail.event.ConnectionEvent
  * @see javax.mail.event.TransportEvent
@@ -104,6 +106,7 @@ public class SMTPTransport extends Transport {
 
     private boolean quitWait = false;	// true if we should wait
     private String saslRealm = UNKNOWN;
+    private String ntlmDomain = UNKNOWN; // for ntlm authentication
 
     private boolean reportSuccess;	// throw an exception even on success
     private boolean useStartTLS;	// use STARTTLS command
@@ -180,7 +183,8 @@ public class SMTPTransport extends Transport {
 	Authenticator[] a = new Authenticator[] {
 	    new LoginAuthenticator(),
 	    new PlainAuthenticator(),
-	    new DigestMD5Authenticator()
+	    new DigestMD5Authenticator(),
+	    new NtlmAuthenticator()
 	};
 	StringBuffer sb = new StringBuffer();
 	for (int i = 0; i < a.length; i++) {
@@ -277,6 +281,33 @@ public class SMTPTransport extends Transport {
      */
     public synchronized void setSASLRealm(String saslRealm) {
 	this.saslRealm = saslRealm;
+    }
+
+    /**
+     * Gets the NTLM domain to be used for NTLM authentication.
+     *
+     * @return	the name of the domain to use for NTLM authentication.
+     *
+     * @since JavaMail 1.4.3
+     */
+    public synchronized String getNTLMDomain() {
+	if (ntlmDomain == UNKNOWN) {
+	    ntlmDomain =
+		session.getProperty("mail." + name + ".auth.ntlm.domain");
+	}
+	return ntlmDomain;
+    }
+
+    /**
+     * Sets the NTLM domain to be used for NTLM authentication.
+     *
+     * @param	ntlmDomain	the name of the domain to use for
+     *				NTLM authentication.
+     *
+     * @since JavaMail 1.4.3
+     */
+    public synchronized void setNTLMDomain(String ntlmDomain) {
+	this.ntlmDomain = ntlmDomain;
     }
 
     /**
@@ -551,7 +582,14 @@ public class SMTPTransport extends Transport {
 		// only first supported mechanism is used
 		return a.authenticate(host, user, passwd);
 	    }
-	    // if authentication fails, close connection and return false
+
+	    // if no authentication mechanism found, close connection and fail
+	    try {
+		closeConnection();
+	    } catch (MessagingException mex) { /* ignore it */ }
+	    throw new AuthenticationFailedException(
+		"No authentication mechansims supported by both " +
+		"server and client");
 	}
 
 	// we connected correctly
@@ -711,6 +749,54 @@ public class SMTPTransport extends Transport {
 		    resp = simpleCommand(new byte[0]);
 		}
 	    }
+	}
+    }
+
+    /**
+     * Perform the authentication handshake for NTLM authentication.
+     */
+    private class NtlmAuthenticator extends Authenticator {
+	private Ntlm ntlm;
+	private int flags;
+
+	NtlmAuthenticator() {
+	    super("NTLM");
+	}
+
+	private synchronized Ntlm getNtlm() {
+	    if (ntlm == null) {
+		ntlm = new Ntlm(debug ? out : null);
+	    }
+	    return ntlm;
+	}
+
+	String getInitialResponse(String host, String user, String passwd)
+		throws MessagingException, IOException {
+	    Ntlm ntlm = getNtlm();
+
+	    flags = PropUtil.getIntProperty(
+		    session.getProperties(),
+		    "mail." + name + ".auth.ntlm.flags", 0);
+	    boolean useUnicode = PropUtil.getBooleanProperty(
+		    session.getProperties(),
+		    "mail." + name + ".auth.ntlm.unicode", true);
+
+	    String type1 = ntlm.generateType1Msg(
+		    useUnicode, flags, getNTLMDomain(), getLocalHost());
+	    return type1;
+	}
+
+	void doAuth(String host, String user, String passwd)
+		throws MessagingException, IOException {
+	    int lmCompatibility = PropUtil.getIntProperty(
+		    session.getProperties(),
+		    "mail." + name + ".auth.ntlm.lmcompat", 3);
+	    String type3 = ntlm.generateType3Msg(user, passwd,
+		    getNTLMDomain(), getLocalHost(),
+		    getLastServerResponse().substring(4),
+		    flags, lmCompatibility);
+
+	    resp = simpleCommand(type3);
 	}
     }
 

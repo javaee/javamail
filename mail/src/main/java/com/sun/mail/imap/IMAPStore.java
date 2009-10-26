@@ -179,6 +179,7 @@ public class IMAPStore extends Store
 
     private boolean disableAuthLogin = false;	// disable AUTH=LOGIN
     private boolean disableAuthPlain = false;	// disable AUTH=PLAIN
+    private boolean disableAuthNtlm = false;	// disable AUTH=NTLM
     private boolean enableStartTLS = false;	// enable STARTTLS
     private boolean requireStartTLS = false;	// require STARTTLS
     private boolean enableSASL = false;		// enable SASL authentication
@@ -453,6 +454,12 @@ public class IMAPStore extends Store
 	if (debug && disableAuthPlain)
 	    out.println("DEBUG: disable AUTH=PLAIN");
 
+	// check if AUTH=NTLM is disabled
+	disableAuthNtlm = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".auth.ntlm.disable", false);
+	if (debug && disableAuthNtlm)
+	    out.println("DEBUG: disable AUTH=NTLM");
+
 	// check if STARTTLS is enabled
 	enableStartTLS = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".starttls.enable", false);
@@ -656,6 +663,8 @@ public class IMAPStore extends Store
 	else if ((p.hasCapability("AUTH-LOGIN") ||
 		p.hasCapability("AUTH=LOGIN")) && !disableAuthLogin)
 	    p.authlogin(u, pw);
+	else if (p.hasCapability("AUTH=NTLM") && !disableAuthNtlm)
+	    p.authntlm(authzid, u, pw);
 	else if (!p.hasCapability("LOGINDISABLED"))
 	    p.login(u, pw);
 	else

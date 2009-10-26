@@ -67,12 +67,12 @@ The SMTP provider also supports ESMTP
 (<A HREF="http://www.ietf.org/rfc/rfc1651.txt" TARGET="_top">RFC 1651</A>).
 It can optionally use SMTP Authentication 
 (<A HREF="http://www.ietf.org/rfc/rfc2554.txt" TARGET="_top">RFC 2554</A>)
-using the LOGIN, PLAIN, and DIGEST-MD5 mechanisms
+using the LOGIN, PLAIN, DIGEST-MD5, and NTLM mechanisms
 (<A HREF="http://www.ietf.org/rfc/rfc2592.txt" TARGET="_top">RFC 2592</A>
 and <A HREF="http://www.ietf.org/rfc/rfc2831.txt" TARGET="_top">RFC 2831</A>).
 <P>
 To use SMTP authentication you'll need to set the <code>mail.smtp.auth</code>
-property (see below) and provide the SMTP Transport
+property (see below) or provide the SMTP Transport
 with a username and password when connecting to the SMTP server.  You
 can do this using one of the following approaches:
 <P>
@@ -256,10 +256,51 @@ Defaults to false.</TD>
 If set, lists the authentication mechanisms to consider, and the order
 in which to consider them.  Only mechanisms supported by the server and
 supported by the current implementation will be used.
-The default is <code>"LOGIN PLAIN DIGEST-MD5"</code>, which includes all
+The default is <code>"LOGIN PLAIN DIGEST-MD5 NTLM"</code>, which includes all
 the authentication mechanisms supported by the current implementation.
 </TD>
 </TR>
+
+<TR>
+<TD>mail.smtp.auth.ntlm.domain</TD>
+<TD>String</TD>
+<TD>
+The NTLM authentication domain.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.auth.ntlm.flags</TD>
+<TD>int</TD>
+<TD>
+NTLM protocol-specific flags.
+See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
+http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
+</TD>
+</TR>
+
+<!--
+<TR>
+<TD>mail.smtp.auth.ntlm.unicode</TD>
+<TD>boolean</TD>
+<TD>
+Set this to "true" if the username or password may use
+Unicode UTF-8 encoded characters.  Default is "true".
+Currently has no effect.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.auth.ntlm.lmcompat</TD>
+<TD>int</TD>
+<TD>
+Sets the LM compatibility level, as described here:
+<A HREF="http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2" TARGET="_top">
+http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2</A>
+Defaults to "3".  Currently not used.
+</TD>
+</TR>
+-->
 
 <TR>
 <TD>mail.smtp.submitter</TD>

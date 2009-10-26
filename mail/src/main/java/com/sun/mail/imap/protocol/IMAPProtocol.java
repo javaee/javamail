@@ -47,6 +47,7 @@ import javax.mail.search.*;
 
 import com.sun.mail.util.*;
 import com.sun.mail.iap.*;
+import com.sun.mail.auth.Ntlm;
 
 import com.sun.mail.imap.ACL;
 import com.sun.mail.imap.Rights;
@@ -515,6 +516,119 @@ public class IMAPProtocol extends Protocol {
 	}
 
 	/* Dispatch untagged responses.
+	 * NOTE: in our current upper level IMAP classes, we add the
+	 * responseHandler to the Protocol object only *after* the
+	 * connection has been authenticated. So, for now, the below
+	 * code really ends up being just a no-op.
+	 */
+	Response[] responses = new Response[v.size()];
+	v.copyInto(responses);
+	notifyResponseHandlers(responses);
+
+	// Handle the final OK, NO, BAD or BYE response
+	handleResult(r);
+	// If the response includes a CAPABILITY response code, process it
+	setCapabilities(r);
+	// if we get this far without an exception, we're authenticated
+	authenticated = true;
+    }
+
+    /**
+     * The AUTHENTICATE command with AUTH=NTLM authentication scheme.
+     * This is based heavly on the {@link #authlogin} method.
+     *
+     * @param  authzid		the authorization id
+     * @param  u		the username
+     * @param  p		the password
+     * @throws ProtocolException as thrown by {@link Protocol#handleResult}.
+     * @see "RFC3501, section 6.2.2"
+     * @see "RFC2595, section 6"
+     * @since  JavaMail 1.4.3
+     */
+    public synchronized void authntlm(String authzid, String u, String p)
+				throws ProtocolException {
+	Vector v = new Vector();
+	String tag = null;
+	Response r = null;
+	boolean done = false;
+
+	/*
+	 * Generate the first response right away because Ntlm will
+	 * return null if the NTLM authentication support isn't
+	 * available and then we can fail cleanly without invoking
+	 * the AUTHENTICATE command.
+	 */
+	Ntlm ntlm = new Ntlm(debug ? out : null);
+	int flags = 0;
+	String domain = null;
+	String type1Msg = null;
+	try {
+	    flags = PropUtil.getIntProperty(props,
+		"mail." + name + ".auth.ntlm.flags", 0);
+	    boolean useUnicode = PropUtil.getBooleanProperty(props,
+		"mail." + name + ".auth.ntlm.unicode", true);
+	    domain = props.getProperty(
+		"mail." + name + ".auth.ntlm.domain", "");
+	    type1Msg = ntlm.generateType1Msg(useUnicode, flags,
+		domain, getLocalHost());
+	    if (type1Msg == null) {
+		if (debug)
+		    out.println("IMAP DEBUG: Can't load NTLM authenticator");
+		throw new ProtocolException("Can't load NTLM authenticator");
+	    }
+	} catch (IOException ex) {
+	    throw new ProtocolException("Error generating NTLM response", ex);
+	}
+
+	try {
+	    tag = writeCommand("AUTHENTICATE NTLM", null);
+	} catch (Exception ex) {
+	    // Convert this into a BYE response
+	    r = Response.byeResponse(ex);
+	    done = true;
+	}
+
+	OutputStream os = getOutputStream(); // stream to IMAP server
+	boolean first = true;
+
+	while (!done) { // loop till we are done
+	    try {
+		r = readResponse();
+	    	if (r.isContinuation()) {
+		    // Server challenge ..
+		    String s;
+		    if (first) {
+			s = type1Msg;
+			first = false;
+		    } else {
+			int lmCompatibility = PropUtil.getIntProperty(props,
+			    "mail." + name + ".auth.ntlm.lmcompat", 3);
+			s = ntlm.generateType3Msg(u, p,
+			    domain, getLocalHost(),
+			    r.getRest(),
+			    flags,
+			    lmCompatibility);
+		    }
+ 
+		    os.write(ASCIIUtility.getBytes(s));
+		    os.write(CRLF); 	// CRLF termination
+		    os.flush(); 	// flush the stream
+		} else if (r.isTagged() && r.getTag().equals(tag))
+		    // Ah, our tagged response
+		    done = true;
+		else if (r.isBYE()) // outta here
+		    done = true;
+		else // hmm .. unsolicited response here ?!
+		    v.addElement(r);
+	    } catch (Exception ioex) {
+		// convert this into a BYE response
+		r = Response.byeResponse(ioex);
+		done = true;
+	    }
+	}
+
+	/*
+	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the
 	 * connection has been authenticated. So, for now, the below

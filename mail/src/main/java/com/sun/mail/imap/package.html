@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -313,6 +313,47 @@ XGWTRUSTEDAPP SASL mechanism, when that mechanism is being used.
 Defaults to true.
 </TD>
 </TR>
+
+<TR>
+<TD>mail.imap.auth.ntlm.domain</TD>
+<TD>String</TD>
+<TD>
+The NTLM authentication domain.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.auth.ntlm.flags</TD>
+<TD>int</TD>
+<TD>
+NTLM protocol-specific flags.
+See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
+http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
+</TD>
+</TR>
+
+<!--
+<TR>
+<TD>mail.imap.auth.ntlm.unicode</TD>
+<TD>boolean</TD>
+<TD>
+Set this to "true" if the username or password may use
+Unicode UTF-8 encoded characters.  Default is "true".
+Currently has no effect.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.auth.ntlm.lmcompat</TD>
+<TD>int</TD>
+<TD>
+Sets the LM compatibility level, as described here:
+<A HREF="http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2" TARGET="_top">
+http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2</A>
+Defaults to "3".  Currently not used.
+</TD>
+</TR>
+-->
 
 <TR>
 <TD>mail.imap.socketFactory</TD>

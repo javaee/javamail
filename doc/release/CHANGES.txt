@@ -3,10 +3,15 @@ Bug Database and looking up each bug you're interested in.
 
 	http://bugs.sun.com
 
-Bug IDs that start with "GF" can be found in the GlassFish Issue Tracker
-(after removing the "GF"):
+Bug IDs that start with "G" can be found in the GlassFish Issue Tracker
+(after removing the "G"):
 
 	https://glassfish.dev.java.net/issues
+
+Bug IDs that start with "K" can be found in the Kenai Bugzilla
+(after removing the "K"):
+
+	https://kenai.com/bugzilla/
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
@@ -19,7 +24,8 @@ The following bugs have been fixed in the 1.4.3 release.
 6872072	QPEncoderStream write method eats up trailing white space of a string
 6875367	LineOutputStream wraps IOException instead of throwing it directly
 6890265	SMTPTransport does not close socket if STARTTLS is req'd but not sup'd
-GF 9941	SMTPTransport violates RFC 2821 in HELO command
+G  9941	SMTPTransport violates RFC 2821 in HELO command
+K  1207	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
 <no id>	add starttls support to POP3
 <no id>	add mail.transport.protocol.<address-type> property
 <no id>	fail POP3Folder.open if STAT command fails
@@ -52,10 +58,10 @@ The following bugs have been fixed in the 1.4.2 release.
 6738468	javadocs use fully qualified names
 6797756	StringIndexOutOfBoundsError in InternetAddress.parseHeader()
 6799810	getReplyTo() returns zero length array when ReplyTo hdr has no value
-GF 3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
-GF 4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
-GF 5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
-GF 5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
+G  3929	Inconsistent synchronization in com.sun.mail.iap.Protocol
+G  4997	BASE64DecoderStream.skip (etc) skips the wrong number of octets
+G  5189	Can't specify SSLSocketFactory for STARTTLS in Javamail 1.4
+G  5861	add mail.<protocol>.starttls.required prop to require use of STARTTLS
 <no id>	ignore socket timeout while waiting in IMAP IDLE
 <no id>	fix bug in MailDateFormat parsing in non-lenient mode
 <no id>	add mail.mime.multipart.allowempty system property to handle (illegal)
