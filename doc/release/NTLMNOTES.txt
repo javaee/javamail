@@ -10,8 +10,8 @@ latest jcifs jar file from the JCIFS site: http://jcifs.samba.org
 JCIFS is available under the LGPL license.
 
 This release of JavaMail was tested with the 1.3.12 version of JCIFS
-and Microsoft Exchange 5.5.  Note that the 1.2.x versions of JCIFS
-won't work as the API has changed incompatibly.
+and Microsoft Exchange 5.5 and 2007.  Note that the 1.2.x versions of
+JCIFS won't work as the API has changed incompatibly.
 
 The SMTP and IMAP providers support the use of NTLM authentication.
 The following properties can be used to configure the NTLM support:
