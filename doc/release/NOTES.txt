@@ -75,6 +75,21 @@ They may be changed in the future in ways that are incompatible with
 applications using the current APIs.
 
 
+NTLM Support
+------------
+
+This release of JavaMail includes EXPERIMENTAL support for the
+Microsoft NTLM authentication mechanism used by Exchange.  See the
+file NTLMNOTES.txt for details.
+
+
+OSGi Support
+------------
+
+The JavaMail jar files are now OSGi bundles.  Please let us know
+of any problems using JavaMail with OSGi.
+
+
 How to submit bug reports
 -------------------------
 
@@ -212,17 +227,6 @@ Please send your feedback to this email-address:
 	javamail@sun.com
 
 Check out our website at http://java.sun.com/products/javamail
-
-You can subscribe to our open discussion-list: 
-
-	javamail-interest@java.sun.com.
-
-Or you can subscribe to our low-volume mailing-list (where we announce
-product updates and other relevant information):
-
-	javamail-announce@java.sun.com. 
-
-Instructions on how to subscribe are on our website.
 
 You can also find help in the JavaMail forum:
 

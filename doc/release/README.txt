@@ -136,8 +136,9 @@ Requirements
 ------------
 
 Note that the JavaMail API requires the JavaBeans(TM) Activation
-Framework package to be installed as well.  Download the latest version
-of the JavaBeans Activation Framework from
+Framework package to be installed as well if you're using JDK 1.5
+or earlier.  Download the latest version of the JavaBeans Activation
+Framework from
 
 	http://java.sun.com/beans/glasgow/jaf.html
 
@@ -161,16 +162,16 @@ Installation
 
       export CLASSPATH=$CLASSPATH:/u/me/download/javamail-${mail.version}/mail.jar:.
 
-    Also include the "activation.jar" file that you obtained from
-    downloading the Java Activation Framework, in your CLASSPATH.
-    For example:
+    Also, if you're using JDK 1.5 or earlier, include the
+    "activation.jar" file that you obtained from downloading the
+    JavaBeans Activation Framework, in your CLASSPATH.  For example:
 
       export CLASSPATH=$CLASSPATH:/u/me/download/activation/activation.jar
 
     
   3. Go to the demo directory
 
-  4. Compile any demo using your java compiler. For example:
+  4. Compile any demo using your Java compiler. For example:
 
       javac msgshow.java
 
@@ -204,14 +205,15 @@ Installation
      
       set CLASSPATH=%CLASSPATH%;c:\download\javamail-${mail.version}\mail.jar;.
 
-    Also include the "activation.jar" file that you obtained from
-    downloading the JavaBeans Activation Framework, in your CLASSPATH.
+    Also, if you're using JDK 1.5 or earlier, include the
+    "activation.jar" file that you obtained from downloading the
+    JavaBeans Activation Framework, in your CLASSPATH.
 
       set CLASSPATH=%CLASSPATH%;c:\download\activation\activation.jar
     
   3. Go to the demo directory
 
-  4. Compile any demo using your java compiler. For example:
+  4. Compile any demo using your Java compiler. For example:
 
       javac msgshow.java
 
@@ -237,9 +239,7 @@ Problems?
 
 Our web page at http://java.sun.com/products/javamail has a pointer
 to the FAQ that includes information on protocols supported,
-installation problems, etc.  You'll also find information on how to
-subscribe to our discussion-list or announcement-list for announcements 
-of future JavaMail API releases.
+installation problems, etc.
 
 See the NOTES.txt file for information on how to report bugs.
 
