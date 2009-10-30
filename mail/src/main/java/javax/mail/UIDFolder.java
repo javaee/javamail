@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -132,7 +132,13 @@ public interface UIDFolder {
     /**
      * Get the Messages specified by the given range. The special
      * value LASTUID can be used for the <code>end</code> parameter
-     * to indicate the UID of the last message in the folder. 
+     * to indicate the UID of the last message in the folder. <p>
+     *
+     * Note that <code>end</code> need not be greater than <code>start</code>;
+     * the order of the range doesn't matter.
+     * Note also that, unless the folder is empty, use of LASTUID ensures
+     * that at least one message will be returned - the last message in the
+     * folder.
      *
      * @param start	start UID
      * @param end	end UID
