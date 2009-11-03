@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -36,75 +36,57 @@
 
 package com.sun.mail.imap.protocol;
 
-import com.sun.mail.iap.*;
+import com.sun.mail.iap.ParsingException;
+import com.sun.mail.iap.Response;
+import com.sun.mail.imap.protocol.Status;
+// XXX - need to work with JDK 1.4
+//import static org.junit.Assert.assertEquals;
+//import static org.junit.Assert.fail;
+import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
- * STATUS response.
- *
- * @author  John Mani
+ * @author tkrammer
  */
+public class StratoImapBugfixTest extends TestCase {
+    //@Test
+    public void testValidStatusResponseLeadingSpaces() throws Exception {
+	final Response response =
+		new Response("STATUS \"  Sent Items  \" (UIDNEXT 1)");
+	final Status status = new Status(response);
 
-public class Status { 
-    public String mbox = null;
-    public int total = -1;
-    public int recent = -1;
-    public long uidnext = -1;
-    public long uidvalidity = -1;
-    public int unseen = -1;
-
-    static final String[] standardItems =
-	{ "MESSAGES", "RECENT", "UNSEEN", "UIDNEXT", "UIDVALIDITY" };
-
-    public Status(Response r) throws ParsingException {
-	mbox = r.readAtomString(); // mailbox := astring
-
-	// Workaround buggy IMAP servers that don't quote folder names
-	// with spaces.
-	final StringBuffer buffer = new StringBuffer();
-	boolean onlySpaces = true;
-
-	while (r.peekByte() != '(' && r.peekByte() != 0) {
-	    final char next = (char)r.readByte();
-
-	    buffer.append(next);
-
-	    if (next != ' ') {
-		onlySpaces = false;
-	    }
-	}
-
-	if (!onlySpaces) {
-	    mbox = (mbox + buffer).trim();
-	}
-
-	if (r.readByte() != '(')
-	    throw new ParsingException("parse error in STATUS");
-	
-	do {
-	    String attr = r.readAtom();
-	    if (attr.equalsIgnoreCase("MESSAGES"))
-		total = r.readNumber();
-	    else if (attr.equalsIgnoreCase("RECENT"))
-		recent = r.readNumber();
-	    else if (attr.equalsIgnoreCase("UIDNEXT"))
-		uidnext = r.readLong();
-	    else if (attr.equalsIgnoreCase("UIDVALIDITY"))
-		uidvalidity = r.readLong();
-	    else if (attr.equalsIgnoreCase("UNSEEN"))
-		unseen = r.readNumber();
-	} while (r.readByte() != ')');
+	assertEquals("  Sent Items  ", status.mbox);
+	assertEquals(1, status.uidnext);
     }
 
-    public static void add(Status s1, Status s2) {
-	if (s2.total != -1)
-	    s1.total = s2.total;
-	if (s2.recent != -1)
-	    s1.recent = s2.recent;
-	if (s2.uidnext != -1)
-	    s1.uidnext = s2.uidnext;
-	if (s2.uidvalidity != -1)
-	    s1.uidvalidity = s2.uidvalidity;
-	if (s2.unseen != -1)
-	    s1.unseen = s2.unseen;
+    //@Test
+    public void testValidStatusResponse() throws Exception {
+	final Response response =
+		new Response("STATUS \"Sent Items\" (UIDNEXT 1)");
+	final Status status = new Status(response);
+
+	assertEquals("Sent Items", status.mbox);
+	assertEquals(1, status.uidnext);
+    }
+
+    //@Test
+    public void testInvalidStatusResponse() throws Exception {
+	Response response = new Response("STATUS Sent Items (UIDNEXT 1)");
+	final Status status = new Status(response);
+
+	assertEquals("Sent Items", status.mbox);
+	assertEquals(1, status.uidnext);
+    }
+
+    //@Test
+    public void testMissingBracket() throws Exception {
+	final Response response =
+		new Response("STATUS \"Sent Items\" UIDNEXT 1)");
+
+	try {
+	    new Status(response);
+	    fail("Must throw exception");
+	} catch(ParsingException e) {
+	}
     }
 }

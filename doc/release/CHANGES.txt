@@ -36,6 +36,7 @@ K  1207	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
 <no id>	com.sun.mail.util.logging.MailHandler contributed by Jason Mehrens
 <no id>	add mail.smtp.noop.strict property, default true
 <no id>	add mail.<protocol>.ssl.trust property to list hosts to be trusted
+<no id>	work around buggy IMAP servers that don't quote mbox name in STATUS resp
 
 
 		  CHANGES IN THE 1.4.2 RELEASE
