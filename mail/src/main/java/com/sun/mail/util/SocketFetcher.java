@@ -199,7 +199,7 @@ public class SocketFetcher {
 		if (sfPort == -1)
 		    sfPort = port;
 		socket = createSocket(localaddr, localport,
-				    host, sfPort, cto, sf, useSSL, idCheck);
+			host, sfPort, cto, props, prefix, sf, useSSL, idCheck);
 	    }
 	} catch (SocketTimeoutException sex) {
 	    throw sex;
@@ -225,7 +225,7 @@ public class SocketFetcher {
 
 	if (socket == null)
 	    socket = createSocket(localaddr, localport,
-				host, port, cto, null, useSSL, idCheck);
+			host, port, cto, props, prefix, null, useSSL, idCheck);
 
 	int to = PropUtil.getIntProperty(props, prefix + ".timeout", -1);
 	if (to >= 0)
@@ -248,6 +248,7 @@ public class SocketFetcher {
      */
     private static Socket createSocket(InetAddress localaddr, int localport,
 				String host, int port, int cto,
+				Properties props, String prefix,
 				SocketFactory sf, boolean useSSL,
 				boolean idCheck) throws IOException {
 	Socket socket;
@@ -255,7 +256,23 @@ public class SocketFetcher {
 	if (sf != null)
 	    socket = sf.createSocket();
 	else if (useSSL) {
-	    sf = SSLSocketFactory.getDefault();
+	    String trusted;
+	    if ((trusted = props.getProperty(prefix + ".ssl.trust")) != null) {
+		try {
+		    MailSSLSocketFactory msf = new MailSSLSocketFactory();
+		    if (trusted.equals("*"))
+			msf.setTrustAllHosts(true);
+		    else
+			msf.setTrustedHosts(trusted.split("\\s+"));
+		    sf = msf;
+		} catch (GeneralSecurityException gex) {
+		    IOException ioex = new IOException(
+				    "Can't create MailSSLSocketFactory");
+		    ioex.initCause(gex);
+		    throw ioex;
+		}
+	    } else
+		sf = SSLSocketFactory.getDefault();
 	    socket = sf.createSocket();
 	} else
 	    socket = new Socket();
@@ -274,7 +291,7 @@ public class SocketFetcher {
 		try {
 		    socket.close();
 		} finally {
-		    throw new IOException("Server is not trusted");
+		    throw new IOException("Server is not trusted: " + host);
 		}
 	    }
 	}
@@ -385,8 +402,27 @@ public class SocketFetcher {
 
 	    // finally, use the default SSL socket factory
 	    if (ssf == null) {
-		ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
-		sfErr = "default SSL socket factory";
+		String trusted;
+		if ((trusted = props.getProperty(prefix + ".ssl.trust")) !=
+			null) {
+		    try {
+			MailSSLSocketFactory msf = new MailSSLSocketFactory();
+			if (trusted.equals("*"))
+			    msf.setTrustAllHosts(true);
+			else
+			    msf.setTrustedHosts(trusted.split("\\s+"));
+			ssf = msf;
+			sfErr = "mail SSL socket factory";
+		    } catch (GeneralSecurityException gex) {
+			IOException ioex = new IOException(
+					"Can't create MailSSLSocketFactory");
+			ioex.initCause(gex);
+			throw ioex;
+		    }
+		} else {
+		    ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+		    sfErr = "default SSL socket factory";
+		}
 	    }
 
 	    socket = ssf.createSocket(socket, host, port, true);
@@ -400,7 +436,7 @@ public class SocketFetcher {
 		    try {
 			socket.close();
 		    } finally {
-			throw new IOException("Server is not trusted");
+			throw new IOException("Server is not trusted: " + host);
 		    }
 		}
 	    }

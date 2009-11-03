@@ -420,6 +420,18 @@ Defaults to false.
 </TR>
 
 <TR>
+<TD>mail.imap.ssl.trust</TD>
+<TD>String</TD>
+<TD>
+If set, and a socket factory hasn't been specified, enables use of a
+{@link com.sun.mail.util.MailSSLSocketFactory MailSSLSocketFactory}.
+If set to "*", all hosts are trusted.
+If set to a whitespace separated list of hosts, those hosts are trusted.
+Otherwise, trust depends on the certificate the server presents.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>
