@@ -285,6 +285,7 @@ public class Protocol {
      * @return		array of Response objects returned by the server
      */
     public synchronized Response[] command(String command, Argument args) {
+	commandStart(command);
 	Vector v = new Vector();
 	boolean done = false;
 	String tag = null;
@@ -325,6 +326,7 @@ public class Protocol {
 	Response[] responses = new Response[v.size()];
 	v.copyInto(responses);
         timestamp = System.currentTimeMillis();
+	commandEnd();
 	return responses;
     }
 
@@ -432,4 +434,10 @@ public class Protocol {
 	super.finalize();
 	disconnect();
     }
+
+    /*
+     * Probe points for GlassFish monitoring.
+     */
+    private void commandStart(String command) { }
+    private void commandEnd() { }
 }

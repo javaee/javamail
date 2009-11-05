@@ -838,6 +838,7 @@ public class SMTPTransport extends Transport {
     public synchronized void sendMessage(Message message, Address[] addresses)
 		    throws MessagingException, SendFailedException {
 
+	sendMessageStart(message != null ? message.getSubject() : "");
 	checkConnected();
 
 	// check if the message is a valid MIME/RFC822 message and that
@@ -937,6 +938,7 @@ public class SMTPTransport extends Transport {
 	    sendPartiallyFailed = false;
 	    notificationDone = false;	// reset for next send
 	}
+	sendMessageEnd();
     }
 
     /**
@@ -2096,4 +2098,10 @@ public class SMTPTransport extends Transport {
 	}
 	return sb != null ? sb.toString() : s;
     }
+
+    /*
+     * Probe points for GlassFish monitoring.
+     */
+    private void sendMessageStart(String subject) { }
+    private void sendMessageEnd() { }
 }

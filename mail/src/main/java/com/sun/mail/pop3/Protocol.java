@@ -448,6 +448,7 @@ class Protocol {
      * Issue a simple POP3 command and return the response.
      */
     private Response simpleCommand(String cmd) throws IOException {
+	simpleCommandStart(cmd);
 	if (socket == null)
 	    throw new IOException("Folder is closed");	// XXX
 
@@ -492,6 +493,7 @@ class Protocol {
 	int i;
 	if ((i = line.indexOf(' ')) >= 0)
 	    r.data = line.substring(i + 1);
+	simpleCommandEnd();
 	return r;
     }
 
@@ -500,9 +502,12 @@ class Protocol {
      * <code>size</code> is an estimate of the response size.
      */
     private Response multilineCommand(String cmd, int size) throws IOException {
+	multilineCommandStart(cmd);
 	Response r = simpleCommand(cmd);
-	if (!r.ok)
+	if (!r.ok) {
+	    multilineCommandEnd();
 	    return (r);
+	}
 
 	SharedByteArrayOutputStream buf = new SharedByteArrayOutputStream(size);
 	int b, lastb = '\n';
@@ -539,8 +544,17 @@ class Protocol {
 	if (b < 0)
 	    throw new EOFException("EOF on socket");
 	r.bytes = buf.toStream();
+	multilineCommandEnd();
 	return r;
     }
+
+    /*
+     * Probe points for GlassFish monitoring.
+     */
+    private void simpleCommandStart(String command) { }
+    private void simpleCommandEnd() { }
+    private void multilineCommandStart(String command) { }
+    private void multilineCommandEnd() { }
 }
 
 /**

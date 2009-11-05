@@ -90,6 +90,7 @@
 	<mail.packages.private>
 	    com.sun.mail.*
 	</mail.packages.private>
+	<mail.probeFile/>
     </properties>
 
     <developers>
@@ -237,6 +238,9 @@
 			    <Implementation-Vendor-Id>
 				com.sun
 			    </Implementation-Vendor-Id>
+			    <Probe-Provider-XML-File-Names>
+				${mail.probeFile}
+			    </Probe-Provider-XML-File-Names>
 			</manifestEntries>
 		    </archive>
 		    <excludes>

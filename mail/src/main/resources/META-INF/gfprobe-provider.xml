@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<probe-providers>
+  <probe-provider moduleProviderName="glassfish" moduleName="javamail"
+      probeProviderName="smtp-transport"
+      class="com.sun.mail.smtp.SMTPTransport">
+    <probe name="sendMessageStart">
+      <method>sendMessageStart</method>
+      <probe-param type="java.lang.String" name="subject" />
+      <return-param type="void" />
+    </probe>
+    <probe name="sendMessageEnd">
+      <method>sendMessageEnd</method>
+      <return-param type="void" />
+    </probe>
+  </probe-provider>
+  <probe-provider moduleProviderName="glassfish" moduleName="javamail"
+      probeProviderName="iap-protocol"
+      class="com.sun.mail.iap.Protocol">
+    <probe name="commandStart">
+      <method>commandStart</method>
+      <probe-param type="java.lang.String" name="command" />
+      <return-param type="void" />
+    </probe>
+    <probe name="commandEnd">
+      <method>commandEnd</method>
+      <return-param type="void" />
+    </probe>
+  </probe-provider>
+  <probe-provider moduleProviderName="glassfish" moduleName="javamail"
+      probeProviderName="pop3-protocol"
+      class="com.sun.mail.pop3.Protocol">
+    <probe name="simpleCommandStart">
+      <method>simpleCommandStart</method>
+      <probe-param type="java.lang.String" name="command" />
+      <return-param type="void" />
+    </probe>
+    <probe name="simpleCommandEnd">
+      <method>simpleCommandEnd</method>
+      <return-param type="void" />
+    </probe>
+    <probe name="multilineCommandStart">
+      <method>multilineCommandStart</method>
+      <probe-param type="java.lang.String" name="command" />
+      <return-param type="void" />
+    </probe>
+    <probe name="multilineCommandEnd">
+      <method>multilineCommandEnd</method>
+      <return-param type="void" />
+    </probe>
+  </probe-provider>
+</probe-providers>

@@ -69,6 +69,9 @@
 	    com.sun.mail.util.logging; version=${mail.version},
 	    com.sun.mail.handlers; version=${mail.version}
 	</mail.packages.export>
+	<mail.probeFile>
+	    META-INF/gfprobe-provider.xml
+	</mail.probeFile>
     </properties>
 
     <build>
