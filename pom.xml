@@ -87,6 +87,12 @@
 	<mail.packages.export>
 	    javax.mail.*; version=${mail.spec.version}
 	</mail.packages.export>
+	<mail.packages.import>
+	    javax.security.sasl;resolution:=optional,
+	    sun.security.util;resolution:=optional,
+	    jcifs.ntlmssp;resolution:=optional,
+	    *
+	</mail.packages.import>
 	<mail.packages.private>
 	    com.sun.mail.*
 	</mail.packages.private>
@@ -172,6 +178,9 @@
 			<Export-Package>
 			    ${mail.packages.export}
 			</Export-Package>
+			<Import-Package>
+			    ${mail.packages.import}
+			</Import-Package>
 			<Private-Package>
 			    ${mail.packages.private}
 			</Private-Package>
