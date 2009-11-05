@@ -42,7 +42,7 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>parent-distrib</artifactId>
-	<version>1.4.3-SNAPSHOT</version>
+	<version>1.4.3-rc1</version>
 	<relativePath>../parent-distrib/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
