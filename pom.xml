@@ -43,7 +43,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.3-rc1</version>
+    <version>1.4.3-rc2</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://java.sun.com/projects/javamail</url>
@@ -69,9 +69,9 @@
     </organization>
 
     <properties>
-	<mail.version>1.4.3-rc1</mail.version>
+	<mail.version>1.4.3-rc2</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_4_3-rc1</mail.zipversion>
+	<mail.zipversion>1_4_3-rc2</mail.zipversion>
 	<mail.spec.version>1.4</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
@@ -97,6 +97,8 @@
 	    com.sun.mail.*
 	</mail.packages.private>
 	<mail.probeFile/>
+	<!-- for the osgiversion-maven-plugin -->
+	<hk2.plugin.version>0.4.11</hk2.plugin.version>
     </properties>
 
     <developers>
@@ -201,6 +203,32 @@
 		    </execution>
 		</executions>
 	    </plugin>
+
+	    <!--
+		Since we don't want a qualifier like b05 or SNAPSHOT to
+		appear in the OSGi package version attribute, we use
+		the following plugin to populate a project property
+		with an OSGi version that is equivalent to the maven
+		version without the qualifier.
+	    -->
+	    <plugin>
+		<groupId>com.sun.enterprise</groupId>
+		<artifactId>osgiversion-maven-plugin</artifactId>
+		<version>${hk2.plugin.version}</version>
+		<configuration>
+		    <dropVersionComponent>qualifier</dropVersionComponent>
+		    <versionPropertyName>mail.osgiversion</versionPropertyName>
+		</configuration>
+		<executions>
+		    <execution>
+			<id>compute-osgi-version</id>
+			<goals>
+			    <goal>compute-osgi-version</goal>
+			</goals>
+		    </execution>
+		</executions>
+	    </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>

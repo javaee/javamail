@@ -4,21 +4,25 @@
 # version number in preparation for release, or to change back to
 # snapshot version number after release.
 #
-# Usage:	update_version old-version new-version
+# Usage:	update_version new-version
 #
+new=$1
+# find the first version string in pom.xml, which is the old version
+old=`grep '<version>.*</version>' pom.xml | head -1 | \
+	sed -e 's:.*<version>\(.*\)</version>.*:\1:'`
 for file in `find . -name 'pom.xml' `
 do
 	ed - "$file" <<-EOF
-	g:<version>$1</version>:s::<version>$2</version>:
+	g:<version>$old</version>:s::<version>$new</version>:
 	w
 	q
 	EOF
 done
-zip1=`echo "$1" | sed -e 's/\\./_/g'`
-zip2=`echo "$2" | sed -e 's/\\./_/g'`
+zipold=`echo "$old" | sed -e 's/\\./_/g'`
+zipnew=`echo "$new" | sed -e 's/\\./_/g'`
 ed - pom.xml <<-EOF
-g:<mail.version>$1</mail.version>:s::<mail.version>$2</mail.version>:
-g:<mail.zipversion>$zip1</mail.zipversion>:s::<mail.zipversion>$zip2</mail.zipversion>:
+g:<mail.version>$old</mail.version>:s::<mail.version>$new</mail.version>:
+g:<mail.zipversion>$zipold</mail.zipversion>:s::<mail.zipversion>$zipnew</mail.zipversion>:
 w
 q
 EOF

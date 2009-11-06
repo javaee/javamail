@@ -42,7 +42,7 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>1.4.3-rc1</version>
+	<version>1.4.3-rc2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>javax.mail</groupId>
@@ -62,12 +62,12 @@
 	</mail.implementationTitle>
 	<mail.packages.export>
 	    javax.mail.*; version=${mail.spec.version},
-	    com.sun.mail.imap; version=${mail.version},
-	    com.sun.mail.pop3; version=${mail.version},
-	    com.sun.mail.smtp; version=${mail.version},
-	    com.sun.mail.util; version=${mail.version},
-	    com.sun.mail.util.logging; version=${mail.version},
-	    com.sun.mail.handlers; version=${mail.version}
+	    com.sun.mail.imap; version=${mail.osgiversion},
+	    com.sun.mail.pop3; version=${mail.osgiversion},
+	    com.sun.mail.smtp; version=${mail.osgiversion},
+	    com.sun.mail.util; version=${mail.osgiversion},
+	    com.sun.mail.util.logging; version=${mail.osgiversion},
+	    com.sun.mail.handlers; version=${mail.osgiversion}
 	</mail.packages.export>
 	<mail.probeFile>
 	    META-INF/gfprobe-provider.xml
