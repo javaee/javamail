@@ -318,7 +318,7 @@ public class IMAPStore extends Store
 		    out.println("DEBUG: mail.imap.connectionpooltimeout: " +
 			clientTimeoutInterval);
 	    } else 
-		clientTimeoutInterval = 45 * 100;	// 45 seconds
+		clientTimeoutInterval = 45 * 1000;	// 45 seconds
 
 	    // check if the default server-side timeout value is overridden
 	    int serverTimeout = PropUtil.getIntSessionProperty(session,
