@@ -42,13 +42,13 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>1.4.3-rc2</version>
+	<version>1.4.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
     <artifactId>javadoc</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.3-rc2</version>
+    <version>1.4.3</version>
     <name>JavaMail API javadocs</name>
     <description>${project.name}</description>
 
