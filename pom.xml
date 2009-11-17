@@ -418,4 +418,12 @@
 	    <url>http://download.java.net/maven/2/</url>
 	</repository>
     </repositories>
+
+    <pluginRepositories>
+	<pluginRepository>
+	    <id>glassfish-repo-archive</id>
+	    <name>M2 repo for GlassFish project specific artifacts</name>
+	    <url>http://download.java.net/maven/glassfish/</url>
+	</pluginRepository>
+    </pluginRepositories>
 </project>
