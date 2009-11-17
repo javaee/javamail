@@ -12,39 +12,42 @@ Licensed Unit: Software Copy.
 
 Licensed unit Count: Unlimited.
 
-Permitted Uses:
+Permitted Uses: 
 
-1. You may reproduce and use the Software for Individual, Commercial,
-or Research and Instructional Use for the purposes of designing,
-developing, testing, and running Your applets and
-application("Programs").
+1. You may reproduce and use the Software for Your own Individual,
+Commercial and Research and Instructional Use only for the purposes of
+designing, developing, testing, and running Your applets and
+applications ("Programs").
 
 2. Subject to the terms and conditions of this Agreement and
 restrictions and exceptions set forth in the Software's documentation,
 You may reproduce and distribute portions of Software identified as a
-redistributable in the documentation ("Redistributable"), provided
-that:
+redistributable in the documentation (each a "Redistributable"),
+provided that You comply with the following (note that You may be
+entitled to reproduce and distribute other portions of the Software not
+defined in the documentation as a Redistributable under certain other
+licenses as described in the THIRDPARTYLICENSEREADME, if applicable):
 
-(a) you distribute Redistributable complete and unmodified and only
+(a) You distribute Redistributable complete and unmodified and only
 bundled as part of Your Programs,
 
-(b) your Programs add significant and primary functionality to the
+(b) Your Programs add significant and primary functionality to the
 Redistributable,
 
-(c) you distribute Redistributable for the sole purpose of running your
+(c) You distribute Redistributable for the sole purpose of running Your
 Programs,
 
-(d) you do not distribute additional software intended to replace any
+(d) You do not distribute additional software intended to replace any
 component(s) of the Redistributable,
 
-(e) you do not remove or alter any proprietary legends or notices
+(e) You do not remove or alter any proprietary legends or notices
 contained in or on the Redistributable.
 
-(f) you only distribute the Redistributable subject to a license
+(f) You only distribute the Redistributable subject to a license
 agreement that protects Sun's interests consistent with the terms
 contained in this Agreement, and
 
-(g) you agree to defend and indemnify Sun and its licensors from and
+(g) You agree to defend and indemnify Sun and its licensors from and
 against any damages, costs, liabilities, settlement amounts and/or
 expenses  (including attorneys' fees) incurred in connection with any
 claim, lawsuit or action by any third party that arises or results from
@@ -52,12 +55,40 @@ the use or distribution of any and all Programs and/or
 Redistributable.
 
 3. Java Technology Restrictions.  You may not create, modify, or change
-the behavior of, or authorize your licensees to create, modify, or
+the behavior of, or authorize Your licensees to create, modify, or
 change the behavior of, classes, interfaces, or subpackages that are in
 any way identified as "java", "javax", "sun" or similar convention as
 specified by Sun in any naming convention designation.
 
-B. Sun Microsystems, Inc. ("Sun")
+4. No Diagnostic, Maintenance, Repair or Technical Support Services.
+The scope of Your license does not include any right, express or
+implied, (i) to access, copy, distribute, display or use the Software
+to provide diagnostic, maintenance, repair or technical support
+services for Sun softwa re or Sun hardware on behalf of any third party
+for Your direct or indirect commercial gain or advantage, without Sun's
+prior written authorization, or (ii) for any third party to access,
+copy, distribute, display or use the Software to provide diagnostic,
+maintenance, repair or technical support services for Sun software or
+Sun hardware on Your behalf for such party's direct or indirect
+commercial gain or advantage, without Sun's prior written
+authorization. The limitations set forth in this paragraph apply to any
+and all error corrections, patches, updates, and upgrades to the
+Software You may receive, access, download or otherwise obtain from
+Sun.
+
+5. Records and Documentation.  During the term of the SLA and
+Entitlement, and for a period of three (3) years thereafter, You agree
+to keep proper records and documentation of Your compliance with the
+SLA and Entitlement. Upon Sun's reasonable request, You will provide
+copies of such records and documentation to Sun for the purpose of
+confirming Your compliance with the terms and conditions of the SLA and
+Entitlement. This section will survive any termination of the SLA and
+Entitlement. You may terminate this SLA and Entitlement at any time by
+destroying all copies of the Software in which case the obligations set
+forth in Section 7 of the SLA shall apply.
+
+
+Sun Microsystems, Inc. ("Sun")
 SOFTWARE LICENSE AGREEMENT
 
 READ THE TERMS OF THIS AGREEMENT ("AGREEMENT") CAREFULLY BEFORE OPENING
@@ -69,11 +100,11 @@ TO ALL OF THE TERMS, PROMPTLY RETURN THE UNUSED SOFTWARE TO YOUR PLACE
 OF PURCHASE FOR A REFUND OR, IF SOFTWARE IS ACCESSED ELECTRONICALLY,
 SELECT THE "DECLINE" (OR "EXIT") BUTTON AT THE END OF THIS AGREEMENT.
 IF YOU HAVE SEPARATELY AGREED TO LICENSE TERMS ("MASTER TERMS") FOR
-YOUR LICENSE TO THIS SOFTWARE, THEN SECTIONS 1-5 OF THIS AGREEMENT
+YOUR LICENSE TO THIS SOFTWARE, THEN SECTIONS 1-6 OF THIS AGREEMENT
 ("SUPPLEMENTAL LICENSE TERMS") SHALL SUPPLEMENT AND SUPERSEDE THE
 MASTER TERMS IN RELATION TO THIS SOFTWARE.
 
-1.      Definitions.
+1.	Definitions.
 
 (a)     "Entitlement" means the collective set of applicable documents
 authorized by Sun evidencing your obligation to pay associated fees (if
@@ -96,7 +127,6 @@ www.sun.com/service/servicelist.
 (e)     "Software" means the Sun software described in your
 Entitlement. Also, certain software may be included for evaluation use
 under Section 3.
-
 
 (f)     "You" and "Your" means the individual or legal entity specified
 in the Entitlement, or for evaluation purposes, the entity performing
@@ -156,7 +186,7 @@ Your Permitted Use is limited to the number of Licensed Units stated in
 your Entitlement. If you require additional Licensed Units, you will
 need additional Entitlement(s).
 
-5.	Restrictions.
+5.      Restrictions.
 
 (a) The copies of Software provided to you under this Agreement are
 licensed, not sold, to you by Sun. Sun reserves all rights not
@@ -190,20 +220,7 @@ or implied warranty of fitness for such uses. (k) No right, title or
 interest in or to any trademark, service mark, logo or trade name of
 Sun or its licensors is granted under this Agreement.
 
-6.      Term and Termination.
-
-The license and service term are set forth in your Entitlement(s). Your
-rights under this Agreement will terminate immediately without notice
-from Sun if you materially breach it or take any action in derogation
-of Sun's and/or its licensors' rights to Software. Sun may terminate
-this Agreement should any Software become, or in Sun's reasonable
-opinion likely to become, the subject of a claim of intellectual
-property infringement or trade secret misappropriation. Upon
-termination, you will cease use of, and destroy, Software and confirm
-compliance in writing to Sun. Sections 1, 5, 6, 7, and 9-15 will
-survive termination of the Agreement.
-
-7.      Java Compatibility and Open Source.
+6.      Java Compatibility and Open Source.
 
 Software may contain Java technology. You may not create additional
 classes to, or modifications of, the Java technology, except under
@@ -222,6 +239,19 @@ not alter any rights and obligations you may have under such open
 source licenses, however, the disclaimer of warranty and limitation of
 liability provisions in this Agreement will apply to all Software in
 this distribution.
+
+7.      Term and Termination.
+
+The license and service term are set forth in your Entitlement(s). Your
+rights under this Agreement will terminate immediately without notice
+from Sun if you materially breach it or take any action in derogation
+of Sun's and/or its licensors' rights to Software. Sun may terminate
+this Agreement should any Software become, or in Sun's reasonable
+opinion likely to become, the subject of a claim of intellectual
+property infringement or trade secret misappropriation. Upon
+termination, you will cease use of, and destroy, Software and confirm
+compliance in writing to Sun. Sections 1, 5, 6, 7, and 9-15 will
+survive termination of the Agreement.
 
 8.      Limited Warranty.
 
@@ -305,4 +335,5 @@ authorized representative of each party.
 
 Please contact Sun Microsystems, Inc. 4150 Network Circle, Santa Clara,
 California 95054 if you have questions.
+
 
