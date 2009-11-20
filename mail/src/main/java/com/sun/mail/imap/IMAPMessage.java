@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1098,7 +1098,11 @@ public class IMAPMessage extends MimeMessage {
 			
 			// Load the obtained headers.
 			InternetHeaders h = new InternetHeaders();
-			h.load(headerStream);
+			// Some IMAP servers (e.g., gmx.net) return NIL 
+			// instead of a string just containing a CR/LF
+			// when the header list is empty.
+			if (headerStream != null)
+			    h.load(headerStream);
 			if (msg.headers == null || allHeaders)
 			    msg.headers = h;
 			else {
