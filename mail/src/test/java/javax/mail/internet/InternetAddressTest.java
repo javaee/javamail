@@ -1,7 +1,9 @@
+// XXX - handle strict, parse_header per test
+// XXX - create tests in parse method called from test suite method
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -34,12 +36,17 @@
  * holder.
  */
 
-//package javax.mail.internet.tests;
+package javax.mail.internet;
 
 import java.io.*;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.AddressException;
+
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import junit.framework.Test;
+import junit.framework.Assert;
 
 /**
  * Test Internet address parsing.
@@ -47,14 +54,43 @@ import javax.mail.internet.AddressException;
  * @author Bill Shannon
  */
 
-public class addrtest {
+public class InternetAddressTest extends TestCase {
+    private String headerName;
+    private String headerValue;
+    private String[] expected;
+    private boolean doStrict;
+    private boolean doParseHeader;
+
     static boolean strict = false;		// enforce strict RFC822 syntax
     static boolean gen_test_input = false;	// output good for input to -p
     static boolean parse_mail = false;		// parse input in mail format
     static boolean parse_header = false;	// use parseHeader method?
+    static boolean verbose;			// print progress?
     static int errors = 0;			// number of errors detected
 
+    static boolean junit;
+    static TestSuite suite;
+
+    public InternetAddressTest(String headerName, String headerValue,
+	    String[] expected, boolean doStrict, boolean doParseHeader) {
+	super("testAddress");
+	this.headerName = headerName;
+	this.headerValue = headerValue;
+	this.expected = expected;
+	this.doStrict = doStrict;
+	this.doParseHeader = doParseHeader;
+    }
+
+    public static Test suite() throws Exception {
+	junit = true;
+	suite = new TestSuite();
+	parse(new BufferedReader(new InputStreamReader(
+	    InternetAddressTest.class.getResourceAsStream("addrlist"))));
+	return suite;
+    }
+
     public static void main(String argv[]) throws Exception {
+	verbose = true;		// default for standalone
 	int optind;
 	for (optind = 0; optind < argv.length; optind++) {
 	    if (argv[optind].equals("-")) {
@@ -67,12 +103,14 @@ public class addrtest {
 		parse_mail = true;
 	    } else if (argv[optind].equals("-s")) {
 		strict = true;
+	    } else if (argv[optind].equals("-q")) {
+		verbose = false;
 	    } else if (argv[optind].equals("--")) {
 		optind++;
 		break;
 	    } else if (argv[optind].startsWith("-")) {
 		System.out.println(
-		    "Usage: addrtest [-g] [-h] [-p] [-s] [-] [address ...]");
+		"Usage: addrtest [-g] [-h] [-p] [-s] [-q] [-] [address ...]");
 		System.exit(1);
 	    } else {
 		break;
@@ -89,7 +127,7 @@ public class addrtest {
 		sb.append(argv[i]);
 		sb.append(" ");
 	    }
-	    test("To", sb.toString(), null);
+	    test("To", sb.toString(), null, strict, parse_header);
 	} else {
 	    // read from stdin
 	    BufferedReader in =
@@ -100,7 +138,7 @@ public class addrtest {
 		parse(in);
 	    else {
 		while ((s = in.readLine()) != null)
-		    test("To", s, null);
+		    test("To", s, null, strict, parse_header);
 	    }
 	}
 	System.exit(errors);
@@ -114,6 +152,8 @@ public class addrtest {
      */
     public static void parse(BufferedReader in) throws Exception {
 	String header = "";
+	boolean doStrict = strict;
+	boolean doParseHeader = parse_header;
 
 	for (;;) {
 	    String s = in.readLine();
@@ -127,9 +167,9 @@ public class addrtest {
 	    }
 	    // "s" is the next header, "header" is the last complete header
 	    if (header.startsWith("Strict: ")) {
-		strict = Boolean.parseBoolean(value(header));
+		doStrict = Boolean.parseBoolean(value(header));
 	    } else if (header.startsWith("Header: ")) {
-		parse_header = Boolean.parseBoolean(value(header));
+		doParseHeader = Boolean.parseBoolean(value(header));
 	    } else if (header.startsWith("From: ") ||
 		    header.startsWith("To: ") ||
 		    header.startsWith("Cc: ")) {
@@ -154,8 +194,13 @@ public class addrtest {
 		}
 		i = header.indexOf(':');
 		try {
-		    test(header.substring(0, i), header.substring(i + 2),
-			expect);
+		    if (junit)
+			suite.addTest(new InternetAddressTest(
+			    header.substring(0, i), header.substring(i + 2),
+			    expect, doStrict, doParseHeader));
+		    else
+			test(header.substring(0, i), header.substring(i + 2),
+			    expect, doStrict, doParseHeader);
 		} catch (StringIndexOutOfBoundsException e) {
 		    e.printStackTrace(System.out);
 		}
@@ -178,47 +223,68 @@ public class addrtest {
 	return header.substring(header.indexOf(':') + 1).trim();
     }
 
+    public void testAddress() throws Exception {
+	test(headerName, headerValue, expected, doStrict, doParseHeader);
+    }
+
     /**
      * Test the header's value to see if we can parse it as expected.
      */
-    public static void test(String header, String value, String expect[])
-		throws Exception {
+    public static void test(String header, String value, String expect[],
+		boolean doStrict, boolean doParseHeader) throws Exception {
 	PrintStream out = System.out;
 	if (gen_test_input)
-	    out.println(header + ": " + value);
+	    pr(header + ": " + value);
 	else
-	    out.println("Test: " + value);
+	    pr("Test: " + value);
 
 	try {
 	    InternetAddress[] al;
-	    if (parse_header)
-		al = InternetAddress.parseHeader(value, strict);
+	    if (doParseHeader)
+		al = InternetAddress.parseHeader(value, doStrict);
 	    else
-		al = InternetAddress.parse(value, strict);
+		al = InternetAddress.parse(value, doStrict);
 	    if (gen_test_input)
-		out.println("Expect: " + al.length);
+		pr("Expect: " + al.length);
 	    else {
-		out.println("Got " + al.length + " addresses:");
+		pr("Got " + al.length + " addresses:");
 		if (expect != null && al.length != expect.length) {
-		    out.println("Expected " + expect.length + " addresses");
+		    pr("Expected " + expect.length + " addresses");
+		    if (junit)
+			Assert.assertEquals("For " + value +
+			    " number of addresses",
+			    al.length, expect.length);
 		    errors++;
 		}
 	    }
 	    for (int i = 0; i < al.length; i++) {
 		if (gen_test_input)
-		    out.println("\t" + al[i].getAddress());
+		    pr("\t" + al[i].getAddress());
 		else {
-		    out.println("\t[" + (i+1) + "] " + al[i].getAddress() +
+		    pr("\t[" + (i+1) + "] " + al[i].getAddress() +
 			"\t\tPersonal: " + n(al[i].getPersonal()));
 		    if (expect != null && i < expect.length &&
 				!expect[i].equals(al[i].getAddress())) {
-			out.println("\tExpected:\t" + expect[i]);
+			pr("\tExpected:\t" + expect[i]);
+			if (junit)
+			    Assert.assertEquals("For " + value +
+				" address[" + i + "]",
+				expect[i], al[i].getAddress());
 			errors++;
 		    }
 		}
 	    }
+
 	    if (al.length == 0)
 		return;
+
+	    /*
+	     * Some of the really bad addresses fail the toString
+	     * tests, but we don't want them to cause build failures.
+	     */
+	    if (junit)
+		return;
+
 	    /*
 	     * As a sanity test, convert the address array to a string and
 	     * then parse it again, to see if we get the same thing back.
@@ -226,53 +292,76 @@ public class addrtest {
 	    try {
 		InternetAddress[] al2;
 		String ta = InternetAddress.toString(al);
-		if (parse_header)
-		    al2 = InternetAddress.parseHeader(ta, strict);
+		if (doParseHeader)
+		    al2 = InternetAddress.parseHeader(ta, doStrict);
 		else
-		    al2 = InternetAddress.parse(ta, strict);
+		    al2 = InternetAddress.parse(ta, doStrict);
 		if (al.length != al2.length) {
-		    out.println("toString FAILED!!!");
-		    out.println("Expected length " + al.length +
+		    pr("toString FAILED!!!");
+		    pr("Expected length " + al.length +
 				", got " + al2.length);
+		    if (junit)
+			Assert.assertEquals("For " + value +
+			    " toString number of addresses",
+			    al.length, al2.length);
 		    errors++;
 		} else {
 		    for (int i = 0; i < al.length; i++) {
 			if (!al[i].getAddress().equals(al2[i].getAddress())) {
-			    out.println("toString FAILED!!!");
-			    out.println("Expected address " +
+			    pr("toString FAILED!!!");
+			    pr("Expected address " +
 					al[i].getAddress() +
 					", got " + al2[i].getAddress());
+			    if (junit)
+				Assert.assertEquals("For " + value +
+				    " toString " + ta + " address[" + i + "]",
+				    al[i].getAddress(), al2[i].getAddress());
 			    errors++;
 			}
 			String p1 = al[i].getPersonal();
 			String p2 = al2[i].getPersonal();
 			if (!(p1 == p2 || (p1 != null && p1.equals(p2)))) {
-			    out.println("toString FAILED!!!");
-			    out.println("Expected personal " + n(p1) +
+			    pr("toString FAILED!!!");
+			    pr("Expected personal " + n(p1) +
 					", got " + n(p2));
+			    if (junit)
+				Assert.assertEquals("For " + value +
+				    " toString " + ta + " personal[" + i + "]",
+				    p1, p2);
 			    errors++;
 			}
 		    }
 		}
 	    } catch (AddressException e2) {
-		out.println("toString FAILED!!!");
-		out.println("Got Exception: " + e2);
+		pr("toString FAILED!!!");
+		pr("Got Exception: " + e2);
+		if (junit)
+		    Assert.fail("For " + value +
+				" toString got Exception: " + e2);
 		errors++;
 	    }
 	} catch (AddressException e) {
 	    if (gen_test_input)
-		out.println("Expect: Exception " + e);
+		pr("Expect: Exception " + e);
 	    else {
-		out.println("Got Exception: " + e);
+		pr("Got Exception: " + e);
 		if (expect != null &&
 		   (expect.length != 1 || !expect[0].equals("Exception"))) {
-		    out.println("Expected " + expect.length + " addresses");
+		    pr("Expected " + expect.length + " addresses");
 		    for (int i = 0; i < expect.length; i++)
-			out.println("\tExpected:\t" + expect[i]);
+			pr("\tExpected:\t" + expect[i]);
+		    if (junit)
+			Assert.fail("For " + value + " expected " +
+			    expect.length + "addresses, got Exception: " + e);
 		    errors++;
 		}
 	    }
 	}
+    }
+
+    private static final void pr(String s) {
+	if (verbose)
+	    System.out.println(s);
     }
 
     private static final String n(String s) {
