@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -334,8 +334,8 @@ public class MailDateFormat extends SimpleDateFormat {
 	}
     }
 	
-    private static TimeZone tz = TimeZone.getTimeZone("GMT");
-    private static Calendar cal = new GregorianCalendar(tz);
+    private static final Calendar cal =
+	    new GregorianCalendar(TimeZone.getTimeZone("GMT"));
     private synchronized static Date ourUTC(int year, int mon, int mday,
 					   int hour, int min, int sec,
 					   int tzoffset, boolean lenient) {

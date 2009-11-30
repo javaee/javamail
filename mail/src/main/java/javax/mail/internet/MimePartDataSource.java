@@ -61,7 +61,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
 
     private MessageContext context;
 
-    private static boolean ignoreMultipartEncoding =
+    private static final boolean ignoreMultipartEncoding =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.ignoremultipartencoding", true);
 

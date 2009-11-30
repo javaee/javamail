@@ -165,7 +165,7 @@ public class MimeMessage extends Message implements MimePart {
     Object cachedContent;
 
     // Used to parse dates
-    private static MailDateFormat mailDateFormat = new MailDateFormat();
+    private static final MailDateFormat mailDateFormat = new MailDateFormat();
 
     // Should addresses in headers be parsed in "strict" mode?
     private boolean strict = true;

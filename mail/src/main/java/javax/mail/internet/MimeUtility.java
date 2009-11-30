@@ -141,11 +141,11 @@ public class MimeUtility {
 
     public static final int ALL = -1;
 
-    private static boolean decodeStrict =
+    private static final boolean decodeStrict =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodetext.strict", true);
-    private static boolean encodeEolStrict =
+    private static final boolean encodeEolStrict =
 	PropUtil.getBooleanSystemProperty("mail.mime.encodeeol.strict", false);
-    private static boolean ignoreUnknownEncoding =
+    private static final boolean ignoreUnknownEncoding =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.ignoreunknownencoding", false);
     /*
@@ -154,9 +154,9 @@ public class MimeUtility {
      * They should never need to be changed and are here only because
      * of my paranoid concern with compatibility.
      */
-    private static boolean foldEncodedWords =
+    private static final boolean foldEncodedWords =
 	PropUtil.getBooleanSystemProperty("mail.mime.foldencodedwords", false);
-    private static boolean foldText =
+    private static final boolean foldText =
 	PropUtil.getBooleanSystemProperty("mail.mime.foldtext", true);
 
 

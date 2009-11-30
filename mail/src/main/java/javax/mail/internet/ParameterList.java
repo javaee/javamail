@@ -131,16 +131,16 @@ public class ParameterList {
      */
     private String lastName = null;
 
-    private static boolean encodeParameters =
+    private static final boolean encodeParameters =
 	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", false);
-    private static boolean decodeParameters =
+    private static final boolean decodeParameters =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", false);
-    private static boolean decodeParametersStrict =
+    private static final boolean decodeParametersStrict =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.decodeparameters.strict", false);
-    private static boolean applehack =
+    private static final boolean applehack =
 	PropUtil.getBooleanSystemProperty("mail.mime.applefilenames", false);
-    private static boolean parametersStrict = 
+    private static final boolean parametersStrict = 
 	PropUtil.getBooleanSystemProperty("mail.mime.parameters.strict", true);
 
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -78,22 +78,22 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
-    private static boolean setDefaultTextCharset =
+    private static final boolean setDefaultTextCharset =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.setdefaulttextcharset", true);
 
-    private static boolean setContentTypeFileName =
+    private static final boolean setContentTypeFileName =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.setcontenttypefilename", true);
 
-    private static boolean encodeFileName =
+    private static final boolean encodeFileName =
 	PropUtil.getBooleanSystemProperty("mail.mime.encodefilename", false);
-    private static boolean decodeFileName =
+    private static final boolean decodeFileName =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodefilename", false);
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
-    static boolean cacheMultipart = 		// accessed by MimeMessage
+    static final boolean cacheMultipart = 	// accessed by MimeMessage
 	PropUtil.getBooleanSystemProperty("mail.mime.cachemultipart", true);
 
 

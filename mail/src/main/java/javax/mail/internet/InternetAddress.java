@@ -77,7 +77,7 @@ public class InternetAddress extends Address implements Cloneable {
 
     private static final long serialVersionUID = -7507595530758302903L;
 
-    private static boolean ignoreBogusGroupName =
+    private static final boolean ignoreBogusGroupName =
 	PropUtil.getBooleanSystemProperty(
 			    "mail.mime.address.ignorebogusgroupname", true);
 
