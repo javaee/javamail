@@ -19,6 +19,7 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 The following bugs have been fixed in the 1.4.4 release.
 
 6905730	MimeMessage.parse() is very slow on malformed message content
+G 11069	update the mail.jar manifest to include DynamicImport-Package
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

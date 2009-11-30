@@ -186,6 +186,9 @@
 			<Private-Package>
 			    ${mail.packages.private}
 			</Private-Package>
+			<DynamicImport-Package>
+			    *
+			</DynamicImport-Package>
 		    </instructions>
 		</configuration>
 		<!--
