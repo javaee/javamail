@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,6 +54,7 @@ import java.io.*;
 public class LineInputStream extends FilterInputStream {
 
     private char[] lineBuffer = null; // reusable byte buffer
+    private static int MAX_INCR = 1024*1024;	// 1MB
 
     public LineInputStream(InputStream in) {
 	super(in);
@@ -101,7 +102,10 @@ public class LineInputStream extends FilterInputStream {
 	    // Not CR, NL or CR-NL ...
 	    // .. Insert the byte into our byte buffer
 	    if (--room < 0) { // No room, need to grow.
-		buf = new char[offset + 128];
+		if (buf.length < MAX_INCR)
+		    buf = new char[buf.length * 2];
+		else
+		    buf = new char[buf.length + MAX_INCR];
 		room = buf.length - offset - 1;
 		System.arraycopy(lineBuffer, 0, buf, 0, offset);
 		lineBuffer = buf;

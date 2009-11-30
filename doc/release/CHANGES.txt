@@ -14,6 +14,13 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.4.4 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.4.4 release.
+
+6905730	MimeMessage.parse() is very slow on malformed message content
+
+
 		  CHANGES IN THE 1.4.3 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.3 release.
