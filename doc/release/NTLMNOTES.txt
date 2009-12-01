@@ -1,7 +1,7 @@
 	Notes for use of NTLM authentication support with JavaMail
 	----------------------------------------------------------
 
-Thanks to the efforts of Luís Serralheiro, JavaMail now suports the use
+Thanks to the efforts of Luis Serralheiro, JavaMail now suports the use
 of Microsoft's proprietary NTLM authentication mechanism.  This support
 within JavaMail builds on the base NTLM support provided by the JCIFS
 project.  To use this NTLM support in JavaMail, you'll also need to

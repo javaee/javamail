@@ -73,7 +73,7 @@ import com.sun.mail.auth.*;
  * @author Max Spivak
  * @author Bill Shannon
  * @author Dean Gibson (DIGEST-MD5 authentication)
- * @author Luís Serralheiro (NTLM authentication)
+ * @author Lu\u00EDs Serralheiro (NTLM authentication)
  *
  * @see javax.mail.event.ConnectionEvent
  * @see javax.mail.event.TransportEvent

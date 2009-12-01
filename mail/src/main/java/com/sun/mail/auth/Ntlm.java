@@ -48,7 +48,7 @@ import java.lang.reflect.InvocationTargetException;
 /**
  * NTLM authentication using reflection with the jcifs classes.
  *
- * @author Luís Serralheiro
+ * @author Lu\u00EDs Serralheiro
  */
 public class Ntlm {
 
