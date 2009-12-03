@@ -140,6 +140,8 @@ public class ParameterList {
 	    "mail.mime.decodeparameters.strict", false);
     private static final boolean applehack =
 	PropUtil.getBooleanSystemProperty("mail.mime.applefilenames", false);
+    private static final boolean windowshack =
+	PropUtil.getBooleanSystemProperty("mail.mime.windowsfilenames", false);
     private static final boolean parametersStrict = 
 	PropUtil.getBooleanSystemProperty("mail.mime.parameters.strict", true);
 
@@ -242,7 +244,10 @@ public class ParameterList {
 					    "got \"" + tk.getValue() + "\"");
 
 		// expect parameter value
-		if (parametersStrict)
+		if (windowshack &&
+			(name.equals("name") || name.equals("filename")))
+		    tk = h.next(';', true);
+		else if (parametersStrict)
 		    tk = h.next();
 		else
 		    tk = h.next(';');

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,6 +47,7 @@ import java.util.*;
  * tokens. 
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class HeaderTokenizer {
@@ -196,21 +197,48 @@ public class HeaderTokenizer {
      * @exception	ParseException if the parse fails
      */
     public Token next() throws ParseException { 
-	Token tk;
-
-	currentPos = nextPos; // setup currentPos
-	tk = getNext('\0');
-	nextPos = peekPos = currentPos; // update currentPos and peekPos
-	return tk;
+	return next('\0', false);
     }
 
-    // package-private
-    // can't be public until JavaMail 1.5
+    /**
+     * Parses the next token from this String.
+     * If endOfAtom is not NUL, the token extends until the
+     * endOfAtom character is seen, or to the end of the header.
+     * This method is useful when parsing headers that don't
+     * obey the MIME specification, e.g., by failing to quote
+     * parameter values that contain spaces.
+     *
+     * @param	endOfAtom	if not NUL, character marking end of token
+     * @return		the next Token
+     * @exception	ParseException if the parse fails
+     * @since		JavaMail 1.5
+     */
+    // package-private; can't be public until JavaMail 1.5
     Token next(char endOfAtom) throws ParseException { 
+	return next(endOfAtom, false);
+    }
+
+    /**
+     * Parses the next token from this String.
+     * endOfAtom is handled as above.  If keepEscapes is true,
+     * any backslash escapes are preserved in the returned string.
+     * This method is useful when parsing headers that don't
+     * obey the MIME specification, e.g., by failing to escape
+     * backslashes in the filename parameter.
+     *
+     * @param	endOfAtom	if not NUL, character marking end of token
+     * @param	keepEscapes	keep all backslashes in returned string?
+     * @return		the next Token
+     * @exception	ParseException if the parse fails
+     * @since		JavaMail 1.5
+     */
+    // package-private; can't be public until JavaMail 1.5
+    Token next(char endOfAtom, boolean keepEscapes)
+				throws ParseException { 
 	Token tk;
 
 	currentPos = nextPos; // setup currentPos
-	tk = getNext(endOfAtom);
+	tk = getNext(endOfAtom, keepEscapes);
 	nextPos = peekPos = currentPos; // update currentPos and peekPos
 	return tk;
     }
@@ -228,7 +256,7 @@ public class HeaderTokenizer {
 	Token tk;
 
 	currentPos = peekPos; // setup currentPos
-	tk = getNext('\0');
+	tk = getNext('\0', false);
 	peekPos = currentPos; // update peekPos
 	return tk;
     }
@@ -248,7 +276,8 @@ public class HeaderTokenizer {
      * parse, 'currentPos' is updated to point to the start of the 
      * next token.
      */
-    private Token getNext(char endOfAtom) throws ParseException {
+    private Token getNext(char endOfAtom, boolean keepEscapes)
+				throws ParseException {
 	// If we're already at end of string, return EOF
 	if (currentPos >= maxPos)
 	    return EOFToken;
@@ -290,7 +319,7 @@ public class HeaderTokenizer {
 		// Note that the comment start & end markers are ignored.
 		String s;
 		if (filter) // need to go thru the token again.
-		    s = filterToken(string, start, currentPos-1);
+		    s = filterToken(string, start, currentPos-1, keepEscapes);
 		else
 		    s = string.substring(start,currentPos-1);
 
@@ -307,7 +336,7 @@ public class HeaderTokenizer {
 	//  beyond the terminating quote
 	if (c == '"') {
 	    currentPos++;	// skip initial quote
-	    return collectString('"');
+	    return collectString('"', keepEscapes);
 	}
 	
 	// Check for SPECIAL or CTL
@@ -315,7 +344,7 @@ public class HeaderTokenizer {
 	    if (endOfAtom > 0 && c != endOfAtom) {
 		// not expecting a special character here,
 		// pretend it's a quoted string
-		return collectString(endOfAtom);
+		return collectString(endOfAtom, keepEscapes);
 	    }
 	    currentPos++; // re-position currentPos
 	    char ch[] = new char[1];
@@ -334,7 +363,7 @@ public class HeaderTokenizer {
 		    // not the expected atom after all;
 		    // back up and pretend it's a quoted string
 		    currentPos = start;
-		    return collectString(endOfAtom);
+		    return collectString(endOfAtom, keepEscapes);
 		}
 		break;
 	    }
@@ -342,7 +371,8 @@ public class HeaderTokenizer {
 	return new Token(Token.ATOM, string.substring(start, currentPos));
     }
 
-    private Token collectString(char eos) throws ParseException {
+    private Token collectString(char eos, boolean keepEscapes)
+				throws ParseException {
 	int start;
 	boolean filter = false;
 	for (start = currentPos; currentPos < maxPos; currentPos++) {
@@ -357,7 +387,7 @@ public class HeaderTokenizer {
 		String s;
 
 		if (filter)
-		    s = filterToken(string, start, currentPos-1);
+		    s = filterToken(string, start, currentPos-1, keepEscapes);
 		else
 		    s = string.substring(start, currentPos-1);
 
@@ -379,7 +409,7 @@ public class HeaderTokenizer {
 	// otherwise, just return whatever's left
 	String s;
 	if (filter)
-	    s = filterToken(string, start, currentPos);
+	    s = filterToken(string, start, currentPos, keepEscapes);
 	else
 	    s = string.substring(start, currentPos);
 	s = trimWhiteSpace(s);
@@ -414,7 +444,8 @@ public class HeaderTokenizer {
     /* Process escape sequences and embedded LWSPs from a comment or
      * quoted string.
      */
-    private static String filterToken(String s, int start, int end) {
+    private static String filterToken(String s, int start, int end,
+				boolean keepEscapes) {
 	StringBuffer sb = new StringBuffer();
 	char c;
 	boolean gotEscape = false;
@@ -441,7 +472,12 @@ public class HeaderTokenizer {
 	    } else {
 		// Previous character was '\'. So no need to 
 		// bother with any special processing, just 
-		// append this character
+		// append this character.  If keepEscapes is
+		// set, keep the backslash.  IE6 fails to escape
+		// backslashes in quoted strings in HTTP headers,
+		// e.g., in the filename parameter.
+		if (keepEscapes)
+		    sb.append('\\');
 		sb.append(c);
 		gotEscape = false;
 	    }

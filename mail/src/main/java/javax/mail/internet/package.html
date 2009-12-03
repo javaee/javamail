@@ -306,6 +306,23 @@ This property will likely be removed in a future release.
 </TR>
 
 <TR>
+<TD>mail.mime.windowsfilenames</TD>
+<TD>boolean</TD>
+<TD>
+Internet Explorer 6 incorrectly includes a complete pathname
+in the filename parameter of the Content-Disposition header
+for uploaded files, and fails to properly escape the backslashes
+in the pathname.  If this property is
+set to <code>"true"</code>, JavaMail will preserve all backslashes
+in the "filename" and "name" parameters of any MIME header.
+The default is false.
+Note that this is a violation of the MIME specification but may
+be useful when using JavaMail to parse HTTP messages for uploaded
+files sent by IE6.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.mime. ignoreunknownencoding</TD>
 <TD>boolean</TD>
 <TD>
