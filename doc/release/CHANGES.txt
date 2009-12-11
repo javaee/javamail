@@ -22,6 +22,7 @@ The following bugs have been fixed in the 1.4.4 release.
 G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add mail.mime.windowsfilenames System property to handle IE6 breakage
 <no id>	properly disable TOP if POP3 CAPA response doesn't include it
+<no id>	add mail.pop3.disablecapa property to disable use of the CAPA command
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

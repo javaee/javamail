@@ -88,6 +88,8 @@ class Protocol {
 	Response r;
 	boolean enableAPOP = PropUtil.getBooleanProperty(props,
 					prefix + ".apop.enable", false);
+	boolean disableCapa = PropUtil.getBooleanProperty(props,
+					prefix + ".disablecapa", false);
 	try {
 	    if (port == -1)
 		port = POP3_PORT;
@@ -123,7 +125,8 @@ class Protocol {
 	}
 
 	// if server supports RFC 2449, set capabilities
-	setCapabilities(capa());
+	if (!disableCapa)
+	    setCapabilities(capa());
     }
 
     private void initStreams() throws IOException {

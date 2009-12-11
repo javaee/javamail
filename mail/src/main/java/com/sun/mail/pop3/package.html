@@ -388,7 +388,6 @@ Defaults to false.
 </TD>
 </TR>
 
-
 <TR>
 <TD>mail.pop3.disabletop</TD>
 <TD>boolean</TD>
@@ -397,6 +396,18 @@ If set to true, the POP3 TOP command will not be used to fetch
 message headers.  This is useful for POP3 servers that don't
 properly implement the TOP command, or that provide incorrect
 information in the TOP command results.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.disablecapa</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, the POP3 CAPA command will not be used to fetch
+server capabilities.  This is useful for POP3 servers that don't
+properly implement the CAPA command, or that provide incorrect
+information in the CAPA command results.
 Defaults to false.
 </TD>
 </TR>
