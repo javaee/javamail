@@ -255,7 +255,7 @@ public class POP3Store extends Store {
 	 * disable the TOP command.
 	 */
 	if (!disableTop &&
-		capabilities != null && capabilities.containsKey("TOP")) {
+		capabilities != null && !capabilities.containsKey("TOP")) {
 	    disableTop = true;
 	    session.getDebugOut().println(
 		    "DEBUG POP3: server doesn't support TOP, disabling it");
