@@ -1,5 +1,3 @@
-// XXX - handle strict, parse_header per test
-// XXX - create tests in parse method called from test suite method
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
