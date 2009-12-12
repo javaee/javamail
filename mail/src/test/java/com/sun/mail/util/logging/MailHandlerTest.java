@@ -62,7 +62,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testIsLoggable() {
-        System.out.println("isLoggable");
+        //System.out.println("isLoggable");
         Level[] lvls = getAllLevels();
         if (lvls.length > 0) {
             LogRecord record = new LogRecord(Level.INFO, "");
@@ -121,7 +121,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testPublish() {
-        System.out.println("publish");
+        //System.out.println("publish");
         Level[] lvls = getAllLevels();
 
         MailHandler instance = new MailHandler(lvls.length + 2);
@@ -222,7 +222,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testPushInsidePush() {
-        System.out.println("PushInsidePush");
+        //System.out.println("PushInsidePush");
         Level[] lvls = getAllLevels();
 
         MailHandler instance = new MailHandler(lvls.length + 2);
@@ -486,7 +486,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testPush() {
-        System.out.println("push");
+        //System.out.println("push");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -496,7 +496,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testFlush() {
-        System.out.println("flush");
+        //System.out.println("flush");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -506,7 +506,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testClose() {
-        System.out.println("close");
+        //System.out.println("close");
         LogRecord record = new LogRecord(Level.INFO, "");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -531,7 +531,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testLevel() {
-        System.out.println("Level");
+        //System.out.println("Level");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -561,7 +561,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testPushLevel() {
-        System.out.println("PushLevel");
+        //System.out.println("PushLevel");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -591,7 +591,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testPushFilter() {
-        System.out.println("PushFilter");
+        //System.out.println("PushFilter");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -603,7 +603,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testComparator() {
-        System.out.println("Comparator");
+        //System.out.println("Comparator");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -621,7 +621,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testCapacity() {
-        System.out.println("Capacity");
+        //System.out.println("Capacity");
 
         try {
             new MailHandler(-1);
@@ -661,7 +661,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testAuthenticator() {
-        System.out.println("Authenticator");
+        //System.out.println("Authenticator");
 
         Authenticator auth = new Authenticator() {
 
@@ -691,7 +691,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testMailProperties() {
-        System.out.println("MailProperties");
+        //System.out.println("MailProperties");
         Properties props = new Properties();
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -717,7 +717,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testAttachmentFilters() {
-        System.out.println("AttachmentFilters");
+        //System.out.println("AttachmentFilters");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -812,7 +812,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testAttachmentFormatters() {
-        System.out.println("AttachmentFormatters");
+        //System.out.println("AttachmentFormatters");
         MailHandler instance = new MailHandler();
 
         InternalErrorManager em = new InternalErrorManager();
@@ -867,7 +867,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testAttachmentNames_StringArr() {
-        System.out.println("AttachmentNames");
+        //System.out.println("AttachmentNames");
         Formatter[] names = null;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -937,7 +937,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testAttachmentNames_FormatterArr() {
-        System.out.println("AttachmentNames");
+        //System.out.println("AttachmentNames");
         Formatter[] formatters = null;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -980,7 +980,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testSubject_String() {
-        System.out.println("Subject");
+        //System.out.println("Subject");
         String subject = "Test subject.";
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1003,7 +1003,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testSubject_Formatter() {
-        System.out.println("Subject");
+        //System.out.println("Subject");
         Formatter format = new SimpleFormatter();
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1027,7 +1027,7 @@ public class MailHandlerTest extends TestCase {
     }
 
     public void testReportError() {
-        System.out.println("reportError");
+        //System.out.println("reportError");
         MailHandler instance = new MailHandler();
         instance.setErrorManager(new ErrorManager() {
 
