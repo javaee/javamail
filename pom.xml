@@ -167,6 +167,24 @@
 	<defaultGoal>install</defaultGoal>
         <plugins>
 	    <!--
+		Make sure we're using the correct version of maven,
+		required to allow us to build JavaMail with JDK 1.4
+		and build the tests with JDK 1.5.  See the
+		maven-compiler-plugin configuration below.
+	    -->
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-enforcer-plugin</artifactId>
+		<configuration>
+		    <rules>
+			<requireMavenVersion>
+			    <version>2.2.1</version>
+			</requireMavenVersion>
+		    </rules>
+		</configuration>
+	    </plugin>
+
+	    <!--
 		This plugin is reponsible for packaging artifacts
 		as OSGi bundles.  Please refer to
 		http://felix.apache.org/site/maven-bundle-plugin-bnd.html
@@ -232,12 +250,28 @@
 		</executions>
 	    </plugin>
 
+	    <!--
+		Use the 1.4 compiler for JavaMail itself, but use the
+		1.5 compiler for the test classes, so we can use JUnit 4.
+	    -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.4</source>
-                    <target>1.4</target>
-                </configuration>
+		<executions>
+		    <execution>
+			<id>default-compile</id>
+			<configuration>
+			    <source>1.4</source>
+			    <target>1.4</target>
+			</configuration>
+		    </execution>
+		    <execution>
+			<id>default-testCompile</id>
+			<configuration>
+			    <source>1.5</source>
+			    <target>1.5</target>
+			</configuration>
+		    </execution>
+		</executions>
 	    </plugin>
 
 	    <plugin>
@@ -404,13 +438,6 @@
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>
             <version>${activation-api.version}</version>
-        </dependency>
-	<!-- following works around a bug that causes NullPointerException -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.3.1</version>
-	    <scope>test</scope>
         </dependency>
     </dependencies>
 
