@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -55,7 +55,7 @@ public class PropUtil {
      * Get an integer valued property.
      */
     public static int getIntProperty(Properties props, String name, int def) {
-	return getInt(props.get(name), def);
+	return getInt(getProp(props, name), def);
     }
 
     /**
@@ -63,7 +63,7 @@ public class PropUtil {
      */
     public static boolean getBooleanProperty(Properties props,
 				String name, boolean def) {
-	return getBoolean(props.get(name), def);
+	return getBoolean(getProp(props, name), def);
     }
 
     /**
@@ -71,7 +71,7 @@ public class PropUtil {
      */
     public static int getIntSessionProperty(Session session,
 				String name, int def) {
-	return getInt(session.getProperties().get(name), def);
+	return getInt(getProp(session.getProperties(), name), def);
     }
 
     /**
@@ -79,7 +79,7 @@ public class PropUtil {
      */
     public static boolean getBooleanSessionProperty(Session session,
 				String name, boolean def) {
-	return getBoolean(session.getProperties().get(name), def);
+	return getBoolean(getProp(session.getProperties(), name), def);
     }
 
     /**
@@ -87,7 +87,7 @@ public class PropUtil {
      */
     public static boolean getBooleanSystemProperty(String name, boolean def) {
 	try {
-	    return getBoolean(System.getProperties().get(name), def);
+	    return getBoolean(getProp(System.getProperties(), name), def);
 	} catch (SecurityException sex) {
 	    // fall through...
 	}
@@ -107,6 +107,19 @@ public class PropUtil {
 	} catch (SecurityException sex) {
 	    return def;
 	}
+    }
+
+    /**
+     * Get the value of the specified property.
+     * If the "get" method returns null, use the getProperty method,
+     * which might cascade to a default Properties object.
+     */
+    private static Object getProp(Properties props, String name) {
+	Object val = props.get(name);
+	if (val != null)
+	    return val;
+	else
+	    return props.getProperty(name);
     }
 
     /**
