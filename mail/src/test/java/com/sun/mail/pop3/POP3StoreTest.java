@@ -43,22 +43,21 @@ import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 /**
  * Test is connected.
  * 
  * @author sbo
  */
-public final class POP3StoreTest extends TestCase {
+public final class POP3StoreTest {
     
     /**
      * Check is connected.
      */
-    //@Test
+    @Test
     public void testIsConnected() {
         POP3Server server = null;
         try {
@@ -80,13 +79,13 @@ public final class POP3StoreTest extends TestCase {
                 folder.open(Folder.READ_ONLY);
                 
                 // Check
-                Assert.assertFalse(folder.isOpen());
+                assertFalse(folder.isOpen());
             } finally {
                 store.close();
             }
         } catch (final Exception e) {
             e.printStackTrace();
-            Assert.fail(e.getMessage());
+            fail(e.getMessage());
         } finally {
             if (server != null) {
                 server.quit();
@@ -104,7 +103,7 @@ public final class POP3StoreTest extends TestCase {
         /**
          * {@inheritDoc}
          */
-	//@Override
+	@Override
         public void noop() throws IOException {
             this.println("-ERR");
         }

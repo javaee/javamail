@@ -39,17 +39,15 @@ package com.sun.mail.imap.protocol;
 import com.sun.mail.iap.ParsingException;
 import com.sun.mail.iap.Response;
 import com.sun.mail.imap.protocol.Status;
-// XXX - need to work with JDK 1.4
-//import static org.junit.Assert.assertEquals;
-//import static org.junit.Assert.fail;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import org.junit.Test;
 
 /**
  * @author tkrammer
  */
-public class StratoImapBugfixTest extends TestCase {
-    //@Test
+public class StratoImapBugfixTest {
+    @Test
     public void testValidStatusResponseLeadingSpaces() throws Exception {
 	final Response response =
 		new Response("STATUS \"  Sent Items  \" (UIDNEXT 1)");
@@ -59,7 +57,7 @@ public class StratoImapBugfixTest extends TestCase {
 	assertEquals(1, status.uidnext);
     }
 
-    //@Test
+    @Test
     public void testValidStatusResponse() throws Exception {
 	final Response response =
 		new Response("STATUS \"Sent Items\" (UIDNEXT 1)");
@@ -69,7 +67,7 @@ public class StratoImapBugfixTest extends TestCase {
 	assertEquals(1, status.uidnext);
     }
 
-    //@Test
+    @Test
     public void testInvalidStatusResponse() throws Exception {
 	Response response = new Response("STATUS Sent Items (UIDNEXT 1)");
 	final Status status = new Status(response);
@@ -78,7 +76,7 @@ public class StratoImapBugfixTest extends TestCase {
 	assertEquals(1, status.uidnext);
     }
 
-    //@Test
+    @Test
     public void testMissingBracket() throws Exception {
 	final Response response =
 		new Response("STATUS \"Sent Items\" UIDNEXT 1)");
