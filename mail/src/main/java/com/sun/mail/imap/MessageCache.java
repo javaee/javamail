@@ -93,11 +93,13 @@ public class MessageCache {
      */
     MessageCache(IMAPFolder folder, IMAPStore store, int size) {
 	this.folder = folder;
-	this.debug = store.getMessageCacheDebug();
-	this.out = store.getSession().getDebugOut();
+	if (store != null) {	// allow null store, for testing
+	    this.debug = store.getMessageCacheDebug();
+	    this.out = store.getSession().getDebugOut();
+	}
 	if (debug)
 	    out.println("DEBUG IMAP MC: create cache of size " + size);
-	ensureCapacity(size);
+	ensureCapacity(size, 1);
     }
 
     /**
@@ -350,19 +352,20 @@ public class MessageCache {
 
     /**
      * Add count messages to the cache.
+     * newSeqNum is the sequence number of the first message added.
      */
-    public void addMessages(int count) {
+    public void addMessages(int count, int newSeqNum) {
 	if (debug)
 	    out.println("DEBUG IMAP MC: add " + count + " messages");
 	// don't have to do anything other than making sure there's space
-	ensureCapacity(size + count);
+	ensureCapacity(size + count, newSeqNum);
     }
 
     /*
      * Make sure the arrays are at least big enough to hold
      * "newsize" messages.
      */
-    private void ensureCapacity(int newsize) {
+    private void ensureCapacity(int newsize, int newSeqNum) {
 	if (messages == null)
 	    messages = new IMAPMessage[newsize + SLOP];
 	else if (messages.length < newsize) {
@@ -374,7 +377,12 @@ public class MessageCache {
 	    if (seqnums != null) {
 		int[] news = new int[newsize + SLOP];
 		System.arraycopy(seqnums, 0, news, 0, seqnums.length);
+		for (int i = seqnums.length; i < news.length; i++)
+		    news[i] = newSeqNum++;
 		seqnums = news;
+		if (debug)
+		    out.println("DEBUG IMAP MC: message " + newsize +
+			" has sequence number " + seqnums[newsize-1]);
 	    }
 	} else if (newsize < size) {		// shrinking?
 	    // this should never happen
@@ -395,8 +403,12 @@ public class MessageCache {
     public int seqnumOf(int msgnum) {
 	if (seqnums == null)
 	    return msgnum;
-	else
+	else {
+	    if (debug)
+		out.println("DEBUG IMAP MC: msgnum " + msgnum + " is seqnum " +
+			    seqnums[msgnum-1]);
 	    return seqnums[msgnum-1];
+	}
     }
 
     /**

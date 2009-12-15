@@ -2367,7 +2367,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    Message[] msgs = new Message[count];
 
 	    // Add 'count' new IMAPMessage objects into the messageCache
-	    messageCache.addMessages(count);
+	    messageCache.addMessages(count, realTotal + 1);
 	    int oldtotal = total;	// used in loop below
 	    realTotal += count;
 	    total += count;
