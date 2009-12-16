@@ -347,7 +347,7 @@ public class POP3Store extends Store {
 	if (c != null)
 	    return Collections.unmodifiableMap(c);
 	else
-	    return Collections.emptyMap();
+	    return Collections.EMPTY_MAP;
     }
 
     protected void finalize() throws Throwable {
