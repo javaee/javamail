@@ -213,13 +213,21 @@
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-enforcer-plugin</artifactId>
-		<configuration>
-		    <rules>
-			<requireMavenVersion>
-			    <version>2.2.1</version>
-			</requireMavenVersion>
-		    </rules>
-		</configuration>
+		<executions>
+		    <execution>
+			<id>enforce-version</id>
+			<goals>
+			    <goal>enforce</goal>
+			</goals>
+			<configuration>
+			    <rules>
+				<requireMavenVersion>
+				    <version>[2.2.1,)</version>
+				</requireMavenVersion>
+			    </rules>
+			</configuration>
+		    </execution>
+		</executions>
 	    </plugin>
 
 	    <!--
