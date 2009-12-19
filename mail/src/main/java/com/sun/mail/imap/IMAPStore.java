@@ -639,6 +639,9 @@ public class IMAPStore extends Store
 	if (p.isAuthenticated())
 	    return;		// no need to login
 
+	// allow subclasses to issue commands before login
+	preLogin();
+
 	/*
 	 * Put a special "marker" in the capabilities list so we can
 	 * detect if the server refreshed the capabilities in the OK
@@ -687,6 +690,19 @@ public class IMAPStore extends Store
 		// ignore other exceptions that "should never happen"
 	    }
 	}
+    }
+
+    /**
+     * This method is called after the connection is made and
+     * TLS is started (if needed), but before any authentication
+     * is attempted.  Subclasses can override this method to
+     * issue commands that are needed in the "not authenticated"
+     * state.  Note that if the connection is pre-authenticated,
+     * this method won't be called. <p>
+     *
+     * The implementation of this method in this class does nothing.
+     */
+    protected void preLogin() throws ProtocolException {
     }
 
     /**
