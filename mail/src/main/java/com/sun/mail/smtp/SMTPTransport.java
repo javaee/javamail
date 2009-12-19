@@ -763,38 +763,23 @@ public class SMTPTransport extends Transport {
 	    super("NTLM");
 	}
 
-	private synchronized Ntlm getNtlm() {
-	    if (ntlm == null) {
-		ntlm = new Ntlm(debug ? out : null);
-	    }
-	    return ntlm;
-	}
-
 	String getInitialResponse(String host, String user, String passwd)
 		throws MessagingException, IOException {
-	    Ntlm ntlm = getNtlm();
+	    ntlm = new Ntlm(getNTLMDomain(), getLocalHost(),
+				user, passwd, debug ? out : null);
 
 	    flags = PropUtil.getIntProperty(
 		    session.getProperties(),
 		    "mail." + name + ".auth.ntlm.flags", 0);
-	    boolean useUnicode = PropUtil.getBooleanProperty(
-		    session.getProperties(),
-		    "mail." + name + ".auth.ntlm.unicode", true);
 
-	    String type1 = ntlm.generateType1Msg(
-		    useUnicode, flags, getNTLMDomain(), getLocalHost());
+	    String type1 = ntlm.generateType1Msg(flags);
 	    return type1;
 	}
 
 	void doAuth(String host, String user, String passwd)
 		throws MessagingException, IOException {
-	    int lmCompatibility = PropUtil.getIntProperty(
-		    session.getProperties(),
-		    "mail." + name + ".auth.ntlm.lmcompat", 3);
-	    String type3 = ntlm.generateType3Msg(user, passwd,
-		    getNTLMDomain(), getLocalHost(),
-		    getLastServerResponse().substring(4),
-		    flags, lmCompatibility);
+	    String type3 = ntlm.generateType3Msg(
+		    getLastServerResponse().substring(4).trim());
 
 	    resp = simpleCommand(type3);
 	}

@@ -206,7 +206,7 @@ public class IMAPProtocol extends Protocol {
 		if (s.regionMatches(true, 0, "AUTH=", 0, 5)) {
 		    authmechs.add(s.substring(5));
 		    if (debug)
-			out.println("IMAP DEBUG: AUTH: " + s.substring(5));
+			out.println("DEBUG IMAP: AUTH: " + s.substring(5));
 		}
 	    }
 	}
@@ -297,7 +297,7 @@ public class IMAPProtocol extends Protocol {
      */
     public void noop() throws ProtocolException {
 	if (debug)
-	    out.println("IMAP DEBUG: IMAPProtocol noop");
+	    out.println("DEBUG IMAP: IMAPProtocol noop");
 	simpleCommand("NOOP", null);
     }
 
@@ -552,33 +552,12 @@ public class IMAPProtocol extends Protocol {
 	Response r = null;
 	boolean done = false;
 
-	/*
-	 * Generate the first response right away because Ntlm will
-	 * return null if the NTLM authentication support isn't
-	 * available and then we can fail cleanly without invoking
-	 * the AUTHENTICATE command.
-	 */
-	Ntlm ntlm = new Ntlm(debug ? out : null);
-	int flags = 0;
-	String domain = null;
 	String type1Msg = null;
-	try {
-	    flags = PropUtil.getIntProperty(props,
-		"mail." + name + ".auth.ntlm.flags", 0);
-	    boolean useUnicode = PropUtil.getBooleanProperty(props,
-		"mail." + name + ".auth.ntlm.unicode", true);
-	    domain = props.getProperty(
-		"mail." + name + ".auth.ntlm.domain", "");
-	    type1Msg = ntlm.generateType1Msg(useUnicode, flags,
-		domain, getLocalHost());
-	    if (type1Msg == null) {
-		if (debug)
-		    out.println("IMAP DEBUG: Can't load NTLM authenticator");
-		throw new ProtocolException("Can't load NTLM authenticator");
-	    }
-	} catch (IOException ex) {
-	    throw new ProtocolException("Error generating NTLM response", ex);
-	}
+	int flags = PropUtil.getIntProperty(props,
+	    "mail." + name + ".auth.ntlm.flags", 0);
+	String domain = props.getProperty(
+	    "mail." + name + ".auth.ntlm.domain", "");
+	Ntlm ntlm = new Ntlm(domain, getLocalHost(), u, p, debug ? out : null);
 
 	try {
 	    tag = writeCommand("AUTHENTICATE NTLM", null);
@@ -598,16 +577,10 @@ public class IMAPProtocol extends Protocol {
 		    // Server challenge ..
 		    String s;
 		    if (first) {
-			s = type1Msg;
+			s = ntlm.generateType1Msg(flags);
 			first = false;
 		    } else {
-			int lmCompatibility = PropUtil.getIntProperty(props,
-			    "mail." + name + ".auth.ntlm.lmcompat", 3);
-			s = ntlm.generateType3Msg(u, p,
-			    domain, getLocalHost(),
-			    r.getRest(),
-			    flags,
-			    lmCompatibility);
+			s = ntlm.generateType3Msg(r.getRest());
 		    }
  
 		    os.write(ASCIIUtility.getBytes(s));
@@ -674,7 +647,7 @@ public class IMAPProtocol extends Protocol {
 					});
 	    } catch (Exception ex) {
 		if (debug)
-		    out.println("IMAP DEBUG: Can't load SASL authenticator: " +
+		    out.println("DEBUG IMAP: Can't load SASL authenticator: " +
 								ex);
 		// probably because we're running on a system without SASL
 		return;	// not authenticated, try without SASL
@@ -725,14 +698,14 @@ public class IMAPProtocol extends Protocol {
 	    super.startTLS("STARTTLS");
 	} catch (ProtocolException pex) {
 	    if (debug)
-		out.println("IMAP DEBUG: STARTTLS ProtocolException: " + pex);
+		out.println("DEBUG IMAP: STARTTLS ProtocolException: " + pex);
 	    // ProtocolException just means the command wasn't recognized,
 	    // or failed.  This should never happen if we check the
 	    // CAPABILITY first.
 	    throw pex;
 	} catch (Exception ex) {
 	    if (debug)
-		out.println("IMAP DEBUG: STARTTLS Exception: " + ex);
+		out.println("DEBUG IMAP: STARTTLS Exception: " + ex);
 	    // any other exception means we have to shut down the connection
 	    // generate an artificial BYE response and disconnect
 	    Response[] r = { Response.byeResponse(ex) };
