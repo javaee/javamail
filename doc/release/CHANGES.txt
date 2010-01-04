@@ -26,6 +26,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add mail.pop3.disablecapa property to disable use of the CAPA command
 <no id>	fix support for Properties objects with default Properties objects
 <no id>	integrate NTLM support, no longer needs jcifs.jar
+<no id>	add mail.pop3.cachewriteto property, default false
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

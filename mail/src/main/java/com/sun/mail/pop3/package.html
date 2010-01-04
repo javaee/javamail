@@ -431,6 +431,20 @@ Defaults to false.
 </TD>
 </TR>
 
+<TR>
+<TD>mail.pop3.cachewriteto</TD>
+<TD>boolean</TD>
+<TD>
+Controls the behavior of the {@link POP3Message.writeTo writeTo} method
+on a POP3 message object.
+If set to true, and the message content hasn't yet been cached,
+and ignoreList is null, the message is cached before being written.
+Otherwise, the message is streamed directly
+to the output stream without being cached.
+Defaults to false.
+</TD>
+</TR>
+
 </TABLE>
 <P>
 In general, applications should not need to use the classes in this

@@ -343,6 +343,85 @@ class Protocol {
     }
 
     /**
+     * Retrieve the specified message and stream the content to the
+     * specified OutputStream.  Return true on success.
+     */
+    synchronized boolean retr(int msg, OutputStream os) throws IOException {
+	if (debug)
+	    out.println("DEBUG POP3: streaming msg " + msg);
+	Response r = simpleCommand("RETR " + msg);
+	if (!r.ok) {
+	    multilineCommandEnd();
+	    return false;
+	}
+
+	Throwable terr = null;
+	int b, lastb = '\n';
+	try {
+	    while ((b = input.read()) >= 0) {
+		if (lastb == '\n' && b == '.') {
+		    if (debug)
+			out.write(b);
+		    b = input.read();
+		    if (b == '\r') {
+			if (debug)
+			    out.write(b);
+			// end of response, consume LF as well
+			b = input.read();
+			if (debug)
+			    out.write(b);
+			break;
+		    }
+		}
+
+		/*
+		 * Keep writing unless we get an error while writing,
+		 * which we defer until all of the data has been read.
+		 */
+		if (terr == null) {
+		    try {
+			os.write(b);
+		    } catch (IOException ex) {
+			if (debug)
+			    out.println(
+				"DEBUG POP3: exception while streaming: " + ex);
+			terr = ex;
+		    } catch (RuntimeException ex) {
+			if (debug)
+			    out.println(
+				"DEBUG POP3: exception while streaming: " + ex);
+			terr = ex;
+		    }
+		}
+		if (debug)
+		    out.write(b);
+		lastb = b;
+	    }
+	} catch (InterruptedIOException iioex) {
+	    /*
+	     * As above in simpleCommand, close the socket to recover.
+	     */
+	    try {
+		socket.close();
+	    } catch (IOException cex) { }
+	    throw iioex;
+	}
+	if (b < 0)
+	    throw new EOFException("EOF on socket");
+
+	// was there a deferred error?
+	if (terr != null) {
+	    if (terr instanceof IOException)
+		throw (IOException)terr;
+	    if (terr instanceof RuntimeException)
+		throw (RuntimeException)terr;
+	    assert false;	// can't get here
+	}
+	multilineCommandEnd();
+	return true;
+    }
+
+    /**
      * Return the message header and the first n lines of the message.
      */
     synchronized InputStream top(int msg, int n) throws IOException {

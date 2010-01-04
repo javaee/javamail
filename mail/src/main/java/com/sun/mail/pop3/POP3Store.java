@@ -79,6 +79,7 @@ public class POP3Store extends Store {
     volatile boolean disableTop = false;
     volatile boolean forgetTopHeaders = false;
     volatile boolean supportsUidl = true;
+    volatile boolean cacheWriteTo = false;
 
     public POP3Store(Session session, URLName url) {
 	this(session, url, "pop3", false);
@@ -107,6 +108,9 @@ public class POP3Store extends Store {
 
 	forgetTopHeaders = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".forgettopheaders", false);
+
+	cacheWriteTo = PropUtil.getBooleanSessionProperty(session,
+				"mail." + name + ".cachewriteto", false);
 
 	// mail.pop3.starttls.enable enables use of STLS command
 	useStartTLS = PropUtil.getBooleanSessionProperty(session,
