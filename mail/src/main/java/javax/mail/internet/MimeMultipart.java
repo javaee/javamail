@@ -440,6 +440,11 @@ public class MimeMultipart extends Multipart {
 	}
 
 	if (parts.size() == 0) {
+	    // have to read the property every time because parse won't
+	    // read it if the message was *not* constructed from a stream.
+	    // default to false
+	    allowEmpty = PropUtil.getBooleanSystemProperty(
+		"mail.mime.multipart.allowempty", false);
 	    if (allowEmpty) {
 		// write out a single empty body part
 		los.writeln(boundary); // put out boundary
@@ -556,8 +561,8 @@ public class MimeMultipart extends Multipart {
 		     * look like a boundary?  If so, assume it is
 		     * the boundary and save it.
 		     */
-		    if (line.startsWith("--")) {
-			if (line.endsWith("--")) {
+		    if (line.length() > 2 && line.startsWith("--")) {
+			if (line.length() > 4 && line.endsWith("--")) {
 			    /*
 			     * The first boundary-like line we find is
 			     * probably *not* the end-of-multipart boundary
@@ -829,8 +834,8 @@ public class MimeMultipart extends Multipart {
 		     * look like a boundary?  If so, assume it is
 		     * the boundary and save it.
 		     */
-		    if (line.startsWith("--")) {
-			if (line.endsWith("--")) {
+		    if (line.length() > 2 && line.startsWith("--")) {
+			if (line.length() > 4 && line.endsWith("--")) {
 			    /*
 			     * The first boundary-like line we find is
 			     * probably *not* the end-of-multipart boundary
