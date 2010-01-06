@@ -1,5 +1,5 @@
 /*
- * Copyright 1997-2009 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -61,7 +61,6 @@ public class msgshow {
     static int attnum = 1;
 
     public static void main(String argv[]) {
-	int msgnum = -1;
 	int optind;
 	InputStream msgStream = System.in;
 
@@ -99,7 +98,7 @@ public class msgshow {
 		System.out.println(
 "Usage: msgshow [-L url] [-T protocol] [-H host] [-p port] [-U user]");
 		System.out.println(
-"\t[-P password] [-f mailbox] [msgnum] [-v] [-D] [-s] [-S] [-a]");
+"\t[-P password] [-f mailbox] [msgnum ...] [-v] [-D] [-s] [-S] [-a]");
 		System.out.println(
 "or     msgshow -m [-v] [-D] [-s] [-S] [-f msg-file]");
 		System.exit(1);
@@ -109,9 +108,6 @@ public class msgshow {
 	}
 
 	try {
-	    if (optind < argv.length)
-		 msgnum = Integer.parseInt(argv[optind]);
-
 	    // Get a Properties object
 	    Properties props = System.getProperties();
 
@@ -200,7 +196,7 @@ public class msgshow {
 		System.out.println("-------------------------------");
 	    }
 
-	    if (msgnum == -1) {
+	    if (optind >= argv.length) {
 		// Attributes & Flags for all messages ..
 		Message[] msgs = folder.getMessages();
 
@@ -218,14 +214,17 @@ public class msgshow {
 		    // dumpPart(msgs[i]);
 		}
 	    } else {
-		System.out.println("Getting message number: " + msgnum);
-		Message m = null;
-		
-		try {
-		    m = folder.getMessage(msgnum);
-		    dumpPart(m);
-		} catch (IndexOutOfBoundsException iex) {
-		    System.out.println("Message number out of range");
+		while (optind < argv.length) {
+		    int msgnum = Integer.parseInt(argv[optind++]);
+		    System.out.println("Getting message number: " + msgnum);
+		    Message m = null;
+		    
+		    try {
+			m = folder.getMessage(msgnum);
+			dumpPart(m);
+		    } catch (IndexOutOfBoundsException iex) {
+			System.out.println("Message number out of range");
+		    }
 		}
 	    }
 
