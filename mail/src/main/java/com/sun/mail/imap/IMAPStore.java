@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -640,7 +640,7 @@ public class IMAPStore extends Store
 	    return;		// no need to login
 
 	// allow subclasses to issue commands before login
-	preLogin();
+	preLogin(p);
 
 	/*
 	 * Put a special "marker" in the capabilities list so we can
@@ -702,7 +702,7 @@ public class IMAPStore extends Store
      *
      * The implementation of this method in this class does nothing.
      */
-    protected void preLogin() throws ProtocolException {
+    protected void preLogin(IMAPProtocol p) throws ProtocolException {
     }
 
     /**
