@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1307,7 +1307,7 @@ public class MimeMessage extends Message implements MimePart {
 	if (content != null)
 	    return new SharedByteArrayInputStream(content);
 
-	throw new MessagingException("No content");
+	throw new MessagingException("No MimeMessage content");
     }
 
     /**
@@ -1403,6 +1403,12 @@ public class MimeMessage extends Message implements MimePart {
 		(c instanceof Multipart || c instanceof Message) &&
 		(content != null || contentStream != null)) {
 	    cachedContent = c;
+	    /*
+	     * We may abandon the input stream so make sure
+	     * the MimeMultipart has consumed the stream.
+	     */
+	    if (c instanceof MimeMultipart)
+		((MimeMultipart)c).parse();
 	}
 	return c;
     }
@@ -1758,14 +1764,19 @@ public class MimeMessage extends Message implements MimePart {
 	if (content == null) {
 	    // call getContentStream to give subclass a chance to
 	    // provide the data on demand
-	    InputStream is = getContentStream();
-	    // now copy the data to the output stream
+	    InputStream is = null;
 	    byte[] buf = new byte[8192];
-	    int len;
-	    while ((len = is.read(buf)) > 0)
-		os.write(buf, 0, len);
-	    is.close();
-	    buf = null;
+	    try {
+		is = getContentStream();
+		// now copy the data to the output stream
+		int len;
+		while ((len = is.read(buf)) > 0)
+		    os.write(buf, 0, len);
+	    } finally {
+		if (is != null)
+		    is.close();
+		buf = null;
+	    }
 	} else {
 	    os.write(content);
 	}

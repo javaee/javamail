@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -566,7 +566,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	if (content != null)
 	    return new ByteArrayInputStream(content);
 	
-	throw new MessagingException("No content");
+	throw new MessagingException("No MimeBodyPart content");
     }
 
     /**
@@ -637,6 +637,12 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		(c instanceof Multipart || c instanceof Message) &&
 		(content != null || contentStream != null)) {
 	    cachedContent = c;
+	    /*
+	     * We may abandon the input stream so make sure
+	     * the MimeMultipart has consumed the stream.
+	     */
+	    if (c instanceof MimeMultipart)
+		((MimeMultipart)c).parse();
 	}
 	return c;
     }
@@ -1260,8 +1266,6 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	DataHandler dh = part.getDataHandler();
 	if (dh == null) // Huh ?
 	    return;
-	if (dh instanceof MimePartDataHandler)
-	    return;	// can't update it
 
 	try {
 	    String type = dh.getContentType();
@@ -1269,6 +1273,13 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    boolean needCTHeader = part.getHeader("Content-Type") == null;
 
 	    ContentType cType = new ContentType(type);
+
+	    /*
+	     * If this is a multipart, give sub-parts a chance to
+	     * update their headers.  Even though the data for this
+	     * multipart may have come from a stream, one of the
+	     * sub-parts may have been updated.
+	     */
 	    if (cType.match("multipart/*")) {
 		// If multipart, recurse
 		composite = true;
@@ -1293,6 +1304,13 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		composite = true;
 		// XXX - call MimeMessage.updateHeaders()?
 	    }
+
+	    /*
+	     * If the data for this part comes from a stream,
+	     * we can't update it.
+	     */
+	    if (dh instanceof MimePartDataHandler)
+		return;	// can't update it
 
 	    // Content-Transfer-Encoding, but only if we don't
 	    // already have one
@@ -1379,16 +1397,50 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
 	// Finally, the content. Encode if required.
 	// XXX: May need to account for ESMTP ?
-	os = MimeUtility.encode(os, part.getEncoding());
-	part.getDataHandler().writeTo(os);
+	InputStream is = null;
+	byte[] buf = null;
+	try {
+	    /*
+	     * If the data for this part comes from a stream,
+	     * just copy it to the output stream without decoding
+	     * and reencoding it.
+	     */
+	    DataHandler dh = part.getDataHandler();
+	    if (dh instanceof MimePartDataHandler) {
+		// call getContentStream to give subclass a chance to
+		// provide the data on demand
+		if (part instanceof MimeBodyPart) {
+		    MimeBodyPart mbp = (MimeBodyPart)part;
+		    is = mbp.getContentStream();
+		} else if (part instanceof MimeMessage) {
+		    MimeMessage msg = (MimeMessage)part;
+		    is = msg.getContentStream();
+		}
+	    }
+	    if (is != null) {
+		// now copy the data to the output stream
+		buf = new byte[8192];
+		int len;
+		while ((len = is.read(buf)) > 0)
+		    os.write(buf, 0, len);
+	    } else {
+		os = MimeUtility.encode(os, part.getEncoding());
+		part.getDataHandler().writeTo(os);
+	    }
+	} finally {
+	    if (is != null)
+		is.close();
+	    buf = null;
+	}
 	os.flush(); // Needed to complete encoding
     }
 
     /**
      * A special DataHandler used only as a marker to indicate that
-     * the source of the data is a MimePart.  This prevents updateHeaders
-     * from trying to change the headers for such data.  In particular,
-     * the original Content-Transfer-Encoding for the data must be preserved.
+     * the source of the data is a MimePart (that is, a byte array
+     * or a stream).  This prevents updateHeaders from trying to
+     * change the headers for such data.  In particular, the original
+     * Content-Transfer-Encoding for the data must be preserved.
      * Otherwise the data would need to be decoded and reencoded.
      */
     static class MimePartDataHandler extends DataHandler {
