@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -686,6 +686,26 @@ public class IMAPProtocol extends Protocol {
 	args.writeString(u);
 
 	simpleCommand("PROXYAUTH", args);
+    }
+
+    /**
+     * ID Command, for Yahoo! Mail IMAP server.
+     *
+     * @see http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access
+     * @since JavaMail 1.4.4
+     */
+    public void id(String guid) throws ProtocolException {
+	/*
+	 * XXX - need to be able to write a string instead
+	 * of an astring for the following to work.
+	Argument garg = new Argument();
+	garg.writeString("GUID");
+	garg.writeString(guid);
+	Argument args = new Argument();
+	args.writeArgument(garg);
+	simpleCommand("ID", args);
+	 */
+	simpleCommand("ID (\"GUID\" \"" + guid + "\")", null);
     }
 
     /**

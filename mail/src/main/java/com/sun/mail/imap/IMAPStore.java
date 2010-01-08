@@ -187,6 +187,7 @@ public class IMAPStore extends Store
     private boolean forcePasswordRefresh = false;
     // enable notification of IMAP responses
     private boolean enableImapEvents = false;
+    private String guid;			// for Yahoo! Mail IMAP
 
     /*
      * This field is set in the Store's response handler if we see
@@ -529,6 +530,10 @@ public class IMAPStore extends Store
 	messageCacheDebug = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".messagecache.debug", false);
 
+	guid = session.getProperty("mail." + name + ".yahoo.guid");
+	if (debug && guid != null)
+	    out.println("DEBUG: mail.imap.yahoo.guid: " + guid);
+
 	pool = new ConnectionPool(name, session);
     }
 
@@ -642,6 +647,10 @@ public class IMAPStore extends Store
 	// allow subclasses to issue commands before login
 	preLogin(p);
 
+	// issue special ID command to Yahoo! Mail IMAP server
+	if (guid != null)
+	    p.id(guid);
+
 	/*
 	 * Put a special "marker" in the capabilities list so we can
 	 * detect if the server refreshed the capabilities in the OK
@@ -701,6 +710,8 @@ public class IMAPStore extends Store
      * this method won't be called. <p>
      *
      * The implementation of this method in this class does nothing.
+     *
+     * @since JavaMail 1.4.4
      */
     protected void preLogin(IMAPProtocol p) throws ProtocolException {
     }
