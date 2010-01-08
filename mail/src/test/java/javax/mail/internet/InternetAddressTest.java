@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -37,14 +37,16 @@
 package javax.mail.internet;
 
 import java.io.*;
+import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.AddressException;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
-import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Test Internet address parsing.
@@ -52,7 +54,8 @@ import junit.framework.Assert;
  * @author Bill Shannon
  */
 
-public class InternetAddressTest extends TestCase {
+@RunWith(Parameterized.class)
+public class InternetAddressTest {
     private String headerName;
     private String headerValue;
     private String[] expected;
@@ -67,11 +70,10 @@ public class InternetAddressTest extends TestCase {
     static int errors = 0;			// number of errors detected
 
     static boolean junit;
-    static TestSuite suite;
+    static List testData;
 
     public InternetAddressTest(String headerName, String headerValue,
 	    String[] expected, boolean doStrict, boolean doParseHeader) {
-	super("testAddress");
 	this.headerName = headerName;
 	this.headerValue = headerValue;
 	this.expected = expected;
@@ -79,12 +81,13 @@ public class InternetAddressTest extends TestCase {
 	this.doParseHeader = doParseHeader;
     }
 
-    public static Test suite() throws Exception {
+    @Parameters
+    public static Collection data() throws IOException {
 	junit = true;
-	suite = new TestSuite();
+	testData = new ArrayList();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressTest.class.getResourceAsStream("addrlist"))));
-	return suite;
+	return testData;
     }
 
     public static void main(String argv[]) throws Exception {
@@ -148,7 +151,7 @@ public class InternetAddressTest extends TestCase {
      * headers and testing them.  The parse is rather crude, but sufficient
      * to test against most existing UNIX mailboxes.
      */
-    public static void parse(BufferedReader in) throws Exception {
+    public static void parse(BufferedReader in) throws IOException {
 	String header = "";
 	boolean doStrict = strict;
 	boolean doParseHeader = parse_header;
@@ -193,9 +196,9 @@ public class InternetAddressTest extends TestCase {
 		i = header.indexOf(':');
 		try {
 		    if (junit)
-			suite.addTest(new InternetAddressTest(
+			testData.add(new Object[] {
 			    header.substring(0, i), header.substring(i + 2),
-			    expect, doStrict, doParseHeader));
+			    expect, doStrict, doParseHeader });
 		    else
 			test(header.substring(0, i), header.substring(i + 2),
 			    expect, doStrict, doParseHeader);
@@ -221,7 +224,8 @@ public class InternetAddressTest extends TestCase {
 	return header.substring(header.indexOf(':') + 1).trim();
     }
 
-    public void testAddress() throws Exception {
+    @Test
+    public void testAddress() {
 	test(headerName, headerValue, expected, doStrict, doParseHeader);
     }
 
@@ -229,7 +233,7 @@ public class InternetAddressTest extends TestCase {
      * Test the header's value to see if we can parse it as expected.
      */
     public static void test(String header, String value, String expect[],
-		boolean doStrict, boolean doParseHeader) throws Exception {
+		boolean doStrict, boolean doParseHeader) {
 	PrintStream out = System.out;
 	if (gen_test_input)
 	    pr(header + ": " + value);

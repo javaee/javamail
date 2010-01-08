@@ -37,13 +37,14 @@
 package com.sun.mail.util;
 
 import java.io.*;
-import java.util.StringTokenizer;
+import java.util.*;
 import com.sun.mail.util.UUDecoderStream;
 
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.framework.Test;
-import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Test uudecoder.
@@ -51,14 +52,14 @@ import junit.framework.Assert;
  * @author Bill Shannon
  */
 
-public class UUDecoderStreamTest extends TestCase {
+@RunWith(Parameterized.class)
+public class UUDecoderStreamTest {
     private TestData data;
 
     private static boolean gen_test_input = false;	// output good
     private static int errors = 0;		// number of errors detected
 
     private static boolean junit;
-    private static TestSuite suite;
 
     static class TestData {
 	public String name;
@@ -70,23 +71,25 @@ public class UUDecoderStreamTest extends TestCase {
     }
 
     public UUDecoderStreamTest(TestData t) {
-	super("testData");
 	data = t;
     }
 
-    public void testData() throws Exception {
+    @Test
+    public void testData() {
 	test(data);
     }
 
-    public static Test suite() throws Exception {
-	suite = new TestSuite();
+    @Parameters
+    public static Collection data() throws Exception {
 	junit = true;
+	// XXX - gratuitous array requirement
+	List<TestData[]> testData = new ArrayList<TestData[]>();
 	BufferedReader in = new BufferedReader(new InputStreamReader(
 	    UUDecoderStreamTest.class.getResourceAsStream("uudata")));
 	TestData t;
 	while ((t = parse(in)) != null)
-	    suite.addTest(new UUDecoderStreamTest(t));
-	return suite;
+	    testData.add(new TestData[] { t });
+	return testData;
     }
 
     public static void main(String argv[]) throws Exception {
@@ -190,7 +193,7 @@ public class UUDecoderStreamTest extends TestCase {
     /**
      * Test the data in the test case.
      */
-    public static void test(TestData t) throws Exception {
+    public static void test(TestData t) {
 	InputStream in =
 	    new UUDecoderStream(new ByteArrayInputStream(t.input),
 				t.ignoreErrors, t.ignoreMissingBeginEnd);
