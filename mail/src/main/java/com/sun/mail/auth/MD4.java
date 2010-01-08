@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2005-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2005-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -60,7 +60,7 @@ public final class MD4 {
     private final int[] x;
 
     // size of the input to the compression function in bytes
-    private final int blockSize = 64;
+    private static final int blockSize = 64;
 
     // buffer to store partial blocks, blockSize bytes large
     private final byte[] buffer = new byte[blockSize];
