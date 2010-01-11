@@ -12,9 +12,9 @@ Comment:
 To: ggere
 Expect: 1
 	ATOM	ggere
-To: /tmp/mail.out
+To: /tmp/mail-out
 Expect: 1
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 To: +mailbox
 Expect: 1
 	ATOM	+mailbox
@@ -24,16 +24,16 @@ Expect: 1
 To: ~/mailbox
 Expect: 1
 	ATOM	~/mailbox
-To: /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+To: /PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci-ebay
 Expect: 3
-	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	ATOM	/PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/
 	SPECIAL	@
-	ATOM	mhs-mci.ebay
-To: ggere, /tmp/mail.out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+	ATOM	mhs-mci-ebay
+To: ggere, /tmp/mail-out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci-ebay
 Expect: 13
 	ATOM	ggere
 	SPECIAL	,
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	SPECIAL	,
 	ATOM	+mailbox
 	SPECIAL	,
@@ -41,19 +41,19 @@ Expect: 13
 	SPECIAL	,
 	ATOM	~/mailbox
 	SPECIAL	,
-	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	ATOM	/PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/
 	SPECIAL	@
-	ATOM	mhs-mci.ebay
-To: ggere /tmp/mail.out +mailbox ~user/mailbox ~/mailbox /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay
+	ATOM	mhs-mci-ebay
+To: ggere /tmp/mail-out +mailbox ~user/mailbox ~/mailbox /PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci-ebay
 Expect: 8
 	ATOM	ggere
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	ATOM	+mailbox
 	ATOM	~user/mailbox
 	ATOM	~/mailbox
-	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	ATOM	/PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/
 	SPECIAL	@
-	ATOM	mhs-mci.ebay
+	ATOM	mhs-mci-ebay
 To: Mad Genius <george@boole>
 Expect: 7
 	ATOM	Mad
@@ -120,7 +120,7 @@ Expect: 10
 	SPECIAL	,
 	ATOM	deserve
 	SPECIAL	;
-To: "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail.out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
+To: "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail-out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
 Expect: 56
 	QUOTEDSTRING	C'est bien moche
 	SPECIAL	<
@@ -141,7 +141,7 @@ Expect: 56
 	SPECIAL	@
 	ATOM	weeks
 	SPECIAL	,
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	SPECIAL	,
 	ATOM	laborious
 	SPECIAL	,
@@ -178,11 +178,11 @@ Expect: 56
 	ATOM	is
 	SPECIAL	,
 	ATOM	confused
-To: ggere, /tmp/mail.out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci.ebay, "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail.out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
+To: ggere, /tmp/mail-out, +mailbox, ~user/mailbox, ~/mailbox, /PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/@mhs-mci-ebay, "C'est bien moche" <paris@france>, Mad Genius <george@boole>, two@weeks (It Will Take), /tmp/mail-out, laborious (But Bug Free), cannot@waste (My, Intellectual, Cycles), users:get,what,they,deserve;, it (takes, no (time, at) all), if@you (could, see (almost, as, (badly, you) would) agree), "know, any, famous" <French@physicists>, it@is (brilliant (genius, and) superb), confused (about, being, french)
 Expect: 70
 	ATOM	ggere
 	SPECIAL	,
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	SPECIAL	,
 	ATOM	+mailbox
 	SPECIAL	,
@@ -190,9 +190,9 @@ Expect: 70
 	SPECIAL	,
 	ATOM	~/mailbox
 	SPECIAL	,
-	ATOM	/PN=x400.address/PRMD=ibmmail/ADMD=ibmx400/C=us/
+	ATOM	/PN=x400-address/PRMD=ibmmail/ADMD=ibmx400/C=us/
 	SPECIAL	@
-	ATOM	mhs-mci.ebay
+	ATOM	mhs-mci-ebay
 	SPECIAL	,
 	QUOTEDSTRING	C'est bien moche
 	SPECIAL	<
@@ -213,7 +213,7 @@ Expect: 70
 	SPECIAL	@
 	ATOM	weeks
 	SPECIAL	,
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	SPECIAL	,
 	ATOM	laborious
 	SPECIAL	,
@@ -250,25 +250,25 @@ Expect: 70
 	ATOM	is
 	SPECIAL	,
 	ATOM	confused
-To: testa testb testc /tmp/mail.out ~ggere/mail.out testd teste
+To: testa testb testc /tmp/mail-out ~ggere/mail-out testd teste
 Expect: 7
 	ATOM	testa
 	ATOM	testb
 	ATOM	testc
-	ATOM	/tmp/mail.out
-	ATOM	~ggere/mail.out
+	ATOM	/tmp/mail-out
+	ATOM	~ggere/mail-out
 	ATOM	testd
 	ATOM	teste
-To: testa, testb , testc /tmp/mail.out ,~ggere/mail.out, ,testd,teste,,,
+To: testa, testb , testc /tmp/mail-out ,~ggere/mail-out, ,testd,teste,,,
 Expect: 16
 	ATOM	testa
 	SPECIAL	,
 	ATOM	testb
 	SPECIAL	,
 	ATOM	testc
-	ATOM	/tmp/mail.out
+	ATOM	/tmp/mail-out
 	SPECIAL	,
-	ATOM	~ggere/mail.out
+	ATOM	~ggere/mail-out
 	SPECIAL	,
 	SPECIAL	,
 	ATOM	testd
@@ -286,32 +286,32 @@ Expect: 7
 	SPECIAL	@
 	ATOM	testd
 	SPECIAL	>
-To: Adam S Moskowitz <adamm@onion.inset.com>,
-        Andrew Gollan <adjg@softway.sw.OZ.AU>,
-        Bret Anthony Marquis <bam@trout.nosc.MIL>,
-        Bill Shannon <shannon@Sun.COM>, Bob Gray <rgray@UsWest.COM>,
-        Brian Ellis <bri@Boulder.Colorado.EDU>,
-        Don Coleman <coleman@legato.COM>,
-        Dennis Ritchie <dmr@research.ATT.COM>, Evi Nemeth <evi@Colorado.EDU>,
-        Lori Grob <grob@chorus.FR>, Paula Hawthorn <hawthorn@HPL.HP.COM>,
-        Andrew Hume <andrew@research.ATT.COM>,
-        Jaap Akkerhuis <jaap@research.ATT.COM>,
-        Jim R Oldroyd <jr@onion.inset.com>,
-        John Quarterman <jsq@longway.TIC.COM>,
-        Judy DesHarnais <judy@USENIX.ORG>, Karen Shannon <kas@Eng>,
-        Ken McDonell <kenj@Pyramid.COM>,
-        Rob Kolstad <kolstad@rmtc.Central.Sun.COM>,
-        Paul Kooros <kooros@tigger.cs.Colorado.EDU>,
-        Robert Elz <kre@Munnari.OZ.AU>,
-        Miriam Amos Nihart <miriam@decwet.enet.DEC.COM>,
-        "Mike O'Dell" <mo@gizmo.Bellcore.COM>,
-        Sharon Murrel <eowyn@research.ATT.COM>,
-        Peg Schafer <peg@media-lab.media.MIT.EDU>, Peter Salus <peter@SUG.ORG>,
-        Bill Shannon <shannon@Sun.COM>, Stu Feldman <sif@Bellcore.COM>,
-        Stephen Williams <stevew@netboss1.trg.saic.com>,
-        Teus Hagen <teus@oce.NL>, Trent Hein <trent@xor.COM>,
-        Thomas Alan Wood <twood@capmkt.COM>,
-        Michael Ubell <"mttam::ubell"@SFBay.ENet.DEC.COM>,
+To: Adam S Moskowitz <adamm@onion-inset-com>,
+        Andrew Gollan <adjg@softway-sw-OZ-AU>,
+        Bret Anthony Marquis <bam@trout-nosc-MIL>,
+        Bill Shannon <shannon@Sun-COM>, Bob Gray <rgray@UsWest-COM>,
+        Brian Ellis <bri@Boulder-Colorado-EDU>,
+        Don Coleman <coleman@legato-COM>,
+        Dennis Ritchie <dmr@research-ATT-COM>, Evi Nemeth <evi@Colorado-EDU>,
+        Lori Grob <grob@chorus-FR>, Paula Hawthorn <hawthorn@HPL-HP-COM>,
+        Andrew Hume <andrew@research-ATT-COM>,
+        Jaap Akkerhuis <jaap@research-ATT-COM>,
+        Jim R Oldroyd <jr@onion-inset-com>,
+        John Quarterman <jsq@longway-TIC-COM>,
+        Judy DesHarnais <judy@USENIX-ORG>, Karen Shannon <kas@Eng>,
+        Ken McDonell <kenj@Pyramid-COM>,
+        Rob Kolstad <kolstad@rmtc-Central-Sun-COM>,
+        Paul Kooros <kooros@tigger-cs-Colorado-EDU>,
+        Robert Elz <kre@Munnari-OZ-AU>,
+        Miriam Amos Nihart <miriam@decwet-enet-DEC-COM>,
+        "Mike O'Dell" <mo@gizmo-Bellcore-COM>,
+        Sharon Murrel <eowyn@research-ATT-COM>,
+        Peg Schafer <peg@media-lab-media-MIT-EDU>, Peter Salus <peter@SUG-ORG>,
+        Bill Shannon <shannon@Sun-COM>, Stu Feldman <sif@Bellcore-COM>,
+        Stephen Williams <stevew@netboss1-trg-saic-com>,
+        Teus Hagen <teus@oce-NL>, Trent Hein <trent@xor-COM>,
+        Thomas Alan Wood <twood@capmkt-COM>,
+        Michael Ubell <"mttam::ubell"@SFBay-ENet-DEC-COM>,
         Martha Zimet <zimet@Corp>
 Expect: 275
 	ATOM	Adam
@@ -320,7 +320,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	adamm
 	SPECIAL	@
-	ATOM	onion.inset.com
+	ATOM	onion-inset-com
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Andrew
@@ -328,7 +328,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	adjg
 	SPECIAL	@
-	ATOM	softway.sw.OZ.AU
+	ATOM	softway-sw-OZ-AU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Bret
@@ -337,7 +337,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	bam
 	SPECIAL	@
-	ATOM	trout.nosc.MIL
+	ATOM	trout-nosc-MIL
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Bill
@@ -345,7 +345,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	shannon
 	SPECIAL	@
-	ATOM	Sun.COM
+	ATOM	Sun-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Bob
@@ -353,7 +353,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	rgray
 	SPECIAL	@
-	ATOM	UsWest.COM
+	ATOM	UsWest-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Brian
@@ -361,7 +361,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	bri
 	SPECIAL	@
-	ATOM	Boulder.Colorado.EDU
+	ATOM	Boulder-Colorado-EDU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Don
@@ -369,7 +369,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	coleman
 	SPECIAL	@
-	ATOM	legato.COM
+	ATOM	legato-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Dennis
@@ -377,7 +377,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	dmr
 	SPECIAL	@
-	ATOM	research.ATT.COM
+	ATOM	research-ATT-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Evi
@@ -385,7 +385,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	evi
 	SPECIAL	@
-	ATOM	Colorado.EDU
+	ATOM	Colorado-EDU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Lori
@@ -393,7 +393,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	grob
 	SPECIAL	@
-	ATOM	chorus.FR
+	ATOM	chorus-FR
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Paula
@@ -401,7 +401,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	hawthorn
 	SPECIAL	@
-	ATOM	HPL.HP.COM
+	ATOM	HPL-HP-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Andrew
@@ -409,7 +409,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	andrew
 	SPECIAL	@
-	ATOM	research.ATT.COM
+	ATOM	research-ATT-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Jaap
@@ -417,7 +417,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	jaap
 	SPECIAL	@
-	ATOM	research.ATT.COM
+	ATOM	research-ATT-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Jim
@@ -426,7 +426,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	jr
 	SPECIAL	@
-	ATOM	onion.inset.com
+	ATOM	onion-inset-com
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	John
@@ -434,7 +434,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	jsq
 	SPECIAL	@
-	ATOM	longway.TIC.COM
+	ATOM	longway-TIC-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Judy
@@ -442,7 +442,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	judy
 	SPECIAL	@
-	ATOM	USENIX.ORG
+	ATOM	USENIX-ORG
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Karen
@@ -458,7 +458,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	kenj
 	SPECIAL	@
-	ATOM	Pyramid.COM
+	ATOM	Pyramid-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Rob
@@ -466,7 +466,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	kolstad
 	SPECIAL	@
-	ATOM	rmtc.Central.Sun.COM
+	ATOM	rmtc-Central-Sun-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Paul
@@ -474,7 +474,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	kooros
 	SPECIAL	@
-	ATOM	tigger.cs.Colorado.EDU
+	ATOM	tigger-cs-Colorado-EDU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Robert
@@ -482,7 +482,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	kre
 	SPECIAL	@
-	ATOM	Munnari.OZ.AU
+	ATOM	Munnari-OZ-AU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Miriam
@@ -491,14 +491,14 @@ Expect: 275
 	SPECIAL	<
 	ATOM	miriam
 	SPECIAL	@
-	ATOM	decwet.enet.DEC.COM
+	ATOM	decwet-enet-DEC-COM
 	SPECIAL	>
 	SPECIAL	,
 	QUOTEDSTRING	Mike O'Dell
 	SPECIAL	<
 	ATOM	mo
 	SPECIAL	@
-	ATOM	gizmo.Bellcore.COM
+	ATOM	gizmo-Bellcore-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Sharon
@@ -506,7 +506,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	eowyn
 	SPECIAL	@
-	ATOM	research.ATT.COM
+	ATOM	research-ATT-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Peg
@@ -514,7 +514,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	peg
 	SPECIAL	@
-	ATOM	media-lab.media.MIT.EDU
+	ATOM	media-lab-media-MIT-EDU
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Peter
@@ -522,7 +522,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	peter
 	SPECIAL	@
-	ATOM	SUG.ORG
+	ATOM	SUG-ORG
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Bill
@@ -530,7 +530,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	shannon
 	SPECIAL	@
-	ATOM	Sun.COM
+	ATOM	Sun-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Stu
@@ -538,7 +538,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	sif
 	SPECIAL	@
-	ATOM	Bellcore.COM
+	ATOM	Bellcore-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Stephen
@@ -546,7 +546,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	stevew
 	SPECIAL	@
-	ATOM	netboss1.trg.saic.com
+	ATOM	netboss1-trg-saic-com
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Teus
@@ -554,7 +554,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	teus
 	SPECIAL	@
-	ATOM	oce.NL
+	ATOM	oce-NL
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Trent
@@ -562,7 +562,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	trent
 	SPECIAL	@
-	ATOM	xor.COM
+	ATOM	xor-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Thomas
@@ -571,7 +571,7 @@ Expect: 275
 	SPECIAL	<
 	ATOM	twood
 	SPECIAL	@
-	ATOM	capmkt.COM
+	ATOM	capmkt-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Michael
@@ -579,7 +579,7 @@ Expect: 275
 	SPECIAL	<
 	QUOTEDSTRING	mttam::ubell
 	SPECIAL	@
-	ATOM	SFBay.ENet.DEC.COM
+	ATOM	SFBay-ENet-DEC-COM
 	SPECIAL	>
 	SPECIAL	,
 	ATOM	Martha
@@ -688,14 +688,14 @@ Comment:
 	I'm not sure the following should be valid.
 To: )
 Expect: 1
-	ATOM	)
-To: friends-list:;@mastodon.CS.Berkeley.EDU
+	SPECIAL	)
+To: friends-list:;@mastodon-CS-Berkeley-EDU
 Expect: 5
 	ATOM	friends-list
 	SPECIAL	:
 	SPECIAL	;
 	SPECIAL	@
-	ATOM	mastodon.CS.Berkeley.EDU
+	ATOM	mastodon-CS-Berkeley-EDU
 Comment:
 	The following should all generate exceptions.
 To: "C'est bien moche <paris@france>

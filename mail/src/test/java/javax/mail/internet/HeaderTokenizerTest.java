@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -34,13 +34,19 @@
  * holder.
  */
 
-//package javax.mail.internet.tests;
+package javax.mail.internet;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.HeaderTokenizer;
 import javax.mail.internet.ParseException;
+
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Test MIME HeaderTokenizer.
@@ -48,12 +54,40 @@ import javax.mail.internet.ParseException;
  * @author Bill Shannon
  */
 
-public class tokenizertest {
+@RunWith(Parameterized.class)
+public class HeaderTokenizerTest {
+    private String header;
+    private String value;
+    private String[] expect;
+
     static boolean gen_test_input = false;	// output good for input to -p
     static boolean parse_mail = false;		// parse input in mail format
     static boolean return_comments = false;	// return comments as tokens
     static boolean mime = false;		// use MIME specials
     static int errors = 0;			// number of errors detected
+
+    static boolean junit;
+    static List testData;
+
+    public HeaderTokenizerTest(String heder, String value, String[] expect) {
+	this.header = header;
+	this.value = value;
+	this.expect = expect;
+    }
+
+    @Parameters
+    public static Collection data() throws IOException {
+	junit = true;
+	testData = new ArrayList();
+	parse(new BufferedReader(new InputStreamReader(
+	    InternetAddressTest.class.getResourceAsStream("tokenlist"))));
+	return testData;
+    }
+
+    @Test
+    public void test() {
+	test(header, value, expect);
+    }
 
     public static void main(String argv[]) throws Exception {
 	int optind;
@@ -113,7 +147,7 @@ public class tokenizertest {
      * headers and testing them.  The parse is rather crude, but sufficient
      * to test against most existing UNIX mailboxes.
      */
-    public static void parse(BufferedReader in) throws Exception {
+    public static void parse(BufferedReader in) throws IOException {
 	String header = "";
 
 	for (;;) {
@@ -151,8 +185,14 @@ public class tokenizertest {
 		}
 		i = header.indexOf(':');
 		try {
-		    test(header.substring(0, i), header.substring(i + 2),
-			expect);
+		    if (junit)
+			testData.add(new Object[] {
+			    header.substring(0, i),
+			    header.substring(i + 2),
+			    expect });
+		    else
+			test(header.substring(0, i), header.substring(i + 2),
+			    expect);
 		} catch (StringIndexOutOfBoundsException e) {
 		    // ignore
 		}
@@ -174,12 +214,11 @@ public class tokenizertest {
     /**
      * Test the header's value to see if we can tokenize it as expected.
      */
-    public static void test(String header, String value, String expect[])
-		throws Exception {
+    public static void test(String header, String value, String expect[]) {
 	PrintStream out = System.out;
 	if (gen_test_input)
 	    out.println(header + ": " + value);
-	else
+	else if (!junit)
 	    out.println("Test: " + value);
 
 	try {
@@ -193,10 +232,15 @@ public class tokenizertest {
 	    if (gen_test_input)
 		out.println("Expect: " + toklist.size());
 	    else {
-		out.println("Got " + toklist.size() + " tokens:");
-		if (expect != null && toklist.size() != expect.length) {
-		    out.println("Expected " + expect.length + " tokens");
-		    errors++;
+		if (junit) {
+		    Assert.assertEquals("Number of tokens",
+			expect.length, toklist.size());
+		} else {
+		    out.println("Got " + toklist.size() + " tokens:");
+		    if (expect != null && toklist.size() != expect.length) {
+			out.println("Expected " + expect.length + " tokens");
+			errors++;
+		    }
 		}
 	    }
 	    for (int i = 0; i < toklist.size(); i++) {
@@ -205,15 +249,23 @@ public class tokenizertest {
 		    out.println("\t" + type(tok.getType()) +
 						"\t" + tok.getValue());
 		else {
-		    out.println("\t[" + (i+1) + "] " + type(tok.getType()) +
+		    if (!junit)
+			out.println("\t[" + (i+1) + "] " + type(tok.getType()) +
 						"\t" + tok.getValue());
 		    if (expect != null && i < expect.length) {
 			HeaderTokenizer.Token t = makeToken(expect[i]);
-			if (t.getType() != tok.getType() ||
-			    !t.getValue().equals(tok.getValue())) {
-			    out.println("\tExpected:\t" + type(t.getType()) +
-						"\t" + t.getValue());
-			    errors++;
+			if (junit) {
+			    Assert.assertEquals("Token type",
+				t.getType(), tok.getType());
+			    Assert.assertEquals("Token value",
+				t.getValue(), tok.getValue());
+			} else {
+			    if (t.getType() != tok.getType() ||
+				!t.getValue().equals(tok.getValue())) {
+				out.println("\tExpected:\t" +
+				    type(t.getType()) + "\t" + t.getValue());
+				errors++;
+			    }
 			}
 		    }
 		}
@@ -222,13 +274,18 @@ public class tokenizertest {
 	    if (gen_test_input)
 		out.println("Expect: Exception " + e);
 	    else {
-		out.println("Got Exception: " + e);
-		if (expect != null &&
-		   (expect.length != 1 || !expect[0].equals("Exception"))) {
-		    out.println("Expected " + expect.length + " tokens");
-		    for (int i = 0; i < expect.length; i++)
-			out.println("\tExpected:\t" + expect[i]);
-		    errors++;
+		if (junit) {
+		    Assert.assertTrue("Expected exception",
+			expect.length == 1 && expect[0].equals("Exception"));
+		} else {
+		    out.println("Got Exception: " + e);
+		    if (expect != null &&
+		       (expect.length != 1 || !expect[0].equals("Exception"))) {
+			out.println("Expected " + expect.length + " tokens");
+			for (int i = 0; i < expect.length; i++)
+			    out.println("\tExpected:\t" + expect[i]);
+			errors++;
+		    }
 		}
 	    }
 	}
