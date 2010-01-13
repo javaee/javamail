@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009-2010 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -36,23 +36,29 @@
 
 package javax.mail.internet;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-import com.sun.mail.test.ClassLoaderSuite;
-import com.sun.mail.test.ClassLoaderSuite.TestClass;
+import org.junit.*;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Suite of ParameterList tests that need to be run in a separate class loader.
+ * Test that the "mail.mime.decodeparameters" System property
+ * causes the parameters to be properly decoded.
  */
-@RunWith(ClassLoaderSuite.class)
-@TestClass(ParameterList.class)
-@SuiteClasses( {
-    ParameterListTests.class,
-    WindowsFileNames.class,
-    AppleFileNames.class,
-    DecodeParameters.class,
-    ParametersNoStrict.class
-})
-public class ParameterListTestSuite {
+public class DecodeParameters extends ParameterListDecode {
+
+    @BeforeClass
+    public static void before() {
+	System.out.println("DecodeParameters");
+	System.setProperty("mail.mime.decodeparameters", "true");
+    }
+
+    @Test
+    public void testDecode() throws Exception {
+	testDecode("paramdata");
+    }
+
+    @AfterClass
+    public static void after() {
+	// should be unnecessary
+	System.clearProperty("mail.mime.decodeparameters");
+    }
 }

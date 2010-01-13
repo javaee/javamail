@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -34,7 +34,7 @@
  * holder.
  */
 
-//package javax.mail.internet.tests;
+package javax.mail.internet;
 
 import java.io.*;
 import java.util.*;
@@ -43,13 +43,21 @@ import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.util.*;
 
+import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Test parameter list parsing.
+ *
+ * XXX - this should be a JUnit parameterized test,
+ *	 but I can't figure out how to run parameterized
+ *	 tests under my ClassLoaderSuite.
  *
  * @author Bill Shannon
  */
 
-public class paramtest {
+public class ParameterListDecode {
     static boolean gen_test_input = false;	// output good for input to -p
     static boolean parse_mail = false;		// parse input in mail format
     static boolean test_mail = false;		// test using a mail server
@@ -67,6 +75,14 @@ public class paramtest {
     static Session session;
     static Store store;
     static Folder folder;
+
+    static boolean junit;
+
+    protected static void testDecode(String paramData) throws Exception {
+	junit = true;
+	parse(new BufferedReader(new InputStreamReader(
+	    ParameterListDecode.class.getResourceAsStream(paramData))));
+    }
 
     public static void main(String argv[]) throws Exception {
 	System.getProperties().put("mail.mime.decodeparameters", "true");
@@ -236,7 +252,7 @@ public class paramtest {
 	    } else {
 		out.println(header + ": " + value);
 	    }
-	} else
+	} else if (!junit)
 	    out.println("Test: " + value);
 
 	try {
@@ -244,6 +260,9 @@ public class paramtest {
 	    ParameterList pl = ct.getParameterList();
 	    if (gen_test_input)
 		out.println("Expect: " + pl.size());
+	    else if (junit)
+		assertEquals("Number of parameters",
+		    expect.length, pl.size());
 	    else {
 		out.println("Got " + pl.size() + " parameters:");
 		if (expect != null && pl.size() != expect.length) {
@@ -257,7 +276,11 @@ public class paramtest {
 		String pvalue = pl.get(name);
 		if (gen_test_input)
 		    out.println("\t" + name + "=" + pvalue);	// XXX - newline
-		else {
+		else if (junit) {
+		    if (i < expect.length)
+			assertEquals("Parameter value",
+			    expect[i], name + "=" + pvalue);
+		} else {
 		    out.println("\t[" + (i+1) + "] Name: " + name +
 			"\t\tValue: " + pvalue);
 		    if (expect != null && i < expect.length &&
@@ -270,6 +293,9 @@ public class paramtest {
 	} catch (ParseException e) {
 	    if (gen_test_input)
 		out.println("Expect: Exception " + e);
+	    else if (junit)
+		assertTrue("Expected exception",
+		    expect.length == 1 && expect[0].equals("Exception"));
 	    else {
 		out.println("Got Exception: " + e);
 		if (expect != null &&
