@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,6 +62,7 @@ import com.sun.mail.util.LineInputStream;
 public class POP3Folder extends Folder {
 
     private String name;
+    private POP3Store store;
     private Protocol port;
     private int total;
     private int size;
@@ -69,10 +70,12 @@ public class POP3Folder extends Folder {
     private boolean opened = false;
     private Vector message_cache;
     private boolean doneUidl = false;
+    private TempFile fileCache = null;
 
     POP3Folder(POP3Store store, String name) {
 	super(store);
 	this.name = name;
+	this.store = store;
 	if (name.equalsIgnoreCase("INBOX"))
 	    exists = true;
     }
@@ -86,7 +89,7 @@ public class POP3Folder extends Folder {
     }
 
     public Folder getParent() {
-	return new DefaultFolder((POP3Store)store);
+	return new DefaultFolder(store);
     }
 
     /**
@@ -192,11 +195,21 @@ public class POP3Folder extends Folder {
 	    throw new FolderNotFoundException(this, "folder is not INBOX");
 
 	try {
-	    port = ((POP3Store)store).getPort(this);
+	    port = store.getPort(this);
 	    Status s = port.stat();
 	    total = s.total;
 	    size = s.size;
 	    this.mode = mode;
+	    if (store.useFileCache) {
+		try {
+		    fileCache = new TempFile(store.fileCacheDir);
+		} catch (IOException ex) {
+		    if (store.getSession().getDebug())
+			store.getSession().getDebugOut().println(
+			    "DEBUG POP3: failed to create file cache: " + ex);
+		    throw ex;	// caught below
+		}
+	    }
 	    opened = true;
 	} catch (IOException ioex) {
 	    try {
@@ -206,7 +219,7 @@ public class POP3Folder extends Folder {
 		// ignore
 	    } finally {
 		port = null;
-		((POP3Store)store).closePort(this);
+		store.closePort(this);
 	    }
 	    throw new MessagingException("Open failed", ioex);
 	}
@@ -232,7 +245,7 @@ public class POP3Folder extends Folder {
 	     * the "marked for deletion" flags.  We can then explicitly
 	     * delete messages as desired.
 	     */
-	    if (((POP3Store)store).rsetBeforeQuit)
+	    if (store.rsetBeforeQuit)
 		port.rset();
 	    if (expunge && mode == READ_WRITE) {
 		// find all messages marked deleted and issue DELE commands
@@ -256,10 +269,14 @@ public class POP3Folder extends Folder {
 	    // do nothing
 	} finally {
 	    port = null;
-	    ((POP3Store)store).closePort(this);
+	    store.closePort(this);
 	    message_cache = null;
 	    opened = false;
 	    notifyConnectionListeners(ConnectionEvent.CLOSED);
+	    if (fileCache != null) {
+		fileCache.close();
+		fileCache = null;
+	    }
 	}
     }
 
@@ -320,7 +337,7 @@ public class POP3Folder extends Folder {
     protected POP3Message createMessage(Folder f, int msgno)
 				throws MessagingException {
 	POP3Message m = null;
-	Constructor cons = ((POP3Store)store).messageConstructor;
+	Constructor cons = store.messageConstructor;
 	if (cons != null) {
 	    try {
 		Object[] o = { this, new Integer(msgno) };
@@ -369,7 +386,7 @@ public class POP3Folder extends Folder {
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 				throws MessagingException {
 	checkReadable();
-	if (!doneUidl && ((POP3Store)store).supportsUidl &&
+	if (!doneUidl && store.supportsUidl &&
 		fp.contains(UIDFolder.FetchProfileItem.UID)) {
 	    /*
 	     * Since the POP3 protocol only lets us fetch the UID
@@ -423,7 +440,7 @@ public class POP3Folder extends Folder {
 	checkOpen();
 	POP3Message m = (POP3Message)msg;
 	try {
-	    if (!((POP3Store)store).supportsUidl)
+	    if (!store.supportsUidl)
 		return null;
 	    if (m.uid == POP3Message.UNKNOWN)
 		m.uid = port.uidl(m.getMessageNumber());
@@ -551,5 +568,12 @@ public class POP3Folder extends Folder {
      */
     protected void notifyMessageChangedListeners(int type, Message m) {
 	super.notifyMessageChangedListeners(type, m);
+    }
+
+    /**
+     * Used by POP3Message.
+     */
+    synchronized TempFile getFileCache() {
+	return fileCache;
     }
 }

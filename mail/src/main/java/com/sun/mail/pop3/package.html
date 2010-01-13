@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -129,6 +129,27 @@ Then use the technique above to get the UID for each message.  This is
 similar to the technique used with the UIDFolder interface supported by
 IMAP, but note that POP3 UIDs are strings, not integers like IMAP
 UIDs.  See the POP3 spec for details.
+<P>
+When the headers of a POP3 message are accessed, the POP3 provider uses
+the TOP command to fetch all headers, which are then cached.  Use of the
+TOP command can be disabled with the <CODE>mail.pop3.disabletop</CODE>
+property, in which case the entire message content is fetched with the
+RETR command.
+<P>
+When the content of a POP3 message is accessed, the POP3 provider uses
+the RETR command to fetch the entire message.  Normally the message
+content is cached in memory.  By setting the
+<CODE>mail.pop3.filecache.enable</CODE> property, the message content
+will instead be cached in a temporary file.  The file will be removed
+when the folder is closed.  Caching message content in a file is generally
+slower, but uses substantially less memory and may be helpful when dealing
+with very large messages.
+<P>
+The {@link com.sun.mail.pop3.POP3Message#invalidate POP3Message.invalidate}
+method can be used to invalidate cached data without closing the folder.
+Note that if the file cache is being used the data in the file will be
+forgotten and fetched from the server if it's needed again, and stored again
+in the file cache.
 <P>
 The POP3 protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
@@ -432,10 +453,33 @@ Defaults to false.
 </TR>
 
 <TR>
+<TD>mail.pop3.filecache.enable</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, the POP3 provider will cache message data in a temporary
+file rather than in memory.  Messages are only added to the cache when
+accessing the message content.  Message headers are always cached in
+memory (on demand).  The file cache is removed when the folder is closed
+or the JVM terminates.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.pop3.filecache.dir</TD>
+<TD>String</TD>
+<TD>
+If the file cache is enabled, this property can be used to override the
+default directory used by the JDK for temporary files.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.pop3.cachewriteto</TD>
 <TD>boolean</TD>
 <TD>
-Controls the behavior of the {@link POP3Message.writeTo writeTo} method
+Controls the behavior of the
+{@link com.sun.mail.pop3.POP3Message#writeTo writeTo} method
 on a POP3 message object.
 If set to true, and the message content hasn't yet been cached,
 and ignoreList is null, the message is cached before being written.

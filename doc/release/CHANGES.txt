@@ -27,6 +27,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	fix support for Properties objects with default Properties objects
 <no id>	integrate NTLM support, no longer needs jcifs.jar
 <no id>	add mail.pop3.cachewriteto property, default false
+<no id>	add mail.pop3.filecache.enable property for caching messages in tmp file
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

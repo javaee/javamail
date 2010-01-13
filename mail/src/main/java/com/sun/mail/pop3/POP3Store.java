@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,8 @@ import java.lang.reflect.*;
 
 import javax.mail.*;
 import javax.mail.internet.*;
+import java.io.File;
+import java.io.PrintStream;
 import java.io.IOException;
 import java.io.EOFException;
 import java.util.Collections;
@@ -72,6 +74,7 @@ public class POP3Store extends Store {
     private boolean useStartTLS = false;
     private boolean requireStartTLS = false;
     private Map capabilities;
+    private PrintStream out;
 
     // following set here and accessed by other classes in this package
     volatile Constructor messageConstructor = null;
@@ -80,6 +83,8 @@ public class POP3Store extends Store {
     volatile boolean forgetTopHeaders = false;
     volatile boolean supportsUidl = true;
     volatile boolean cacheWriteTo = false;
+    volatile boolean useFileCache = false;
+    volatile File fileCacheDir = null;
 
     public POP3Store(Session session, URLName url) {
 	this(session, url, "pop3", false);
@@ -91,6 +96,10 @@ public class POP3Store extends Store {
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
+	out = session.getDebugOut();
+	if (out == null)	// should never happen
+	    out = System.out;
+
 	if (!isSSL)
 	    isSSL = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".ssl.enable", false);
@@ -100,31 +109,27 @@ public class POP3Store extends Store {
 	    this.defaultPort = 110;
 	this.isSSL = isSSL;
 
-	rsetBeforeQuit = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".rsetbeforequit", false);
-
-	disableTop = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".disabletop", false);
-
-	forgetTopHeaders = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".forgettopheaders", false);
-
-	cacheWriteTo = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".cachewriteto", false);
+	rsetBeforeQuit = getBoolProp("rsetbeforequit");
+	disableTop = getBoolProp("disabletop");
+	forgetTopHeaders = getBoolProp("forgettopheaders");
+	cacheWriteTo = getBoolProp("cachewriteto");
+	useFileCache = getBoolProp("filecache.enable");
+	String dir = session.getProperty("mail." + name + ".filecache.dir");
+	if (debug && dir != null)
+	    out.println("DEBUG POP3: mail." + name + ".filecache.dir: " + dir);
+	if (dir != null)
+	    fileCacheDir = new File(dir);
 
 	// mail.pop3.starttls.enable enables use of STLS command
-	useStartTLS = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".starttls.enable", false);
+	useStartTLS = getBoolProp("starttls.enable");
 
 	// mail.pop3.starttls.required requires use of STLS command
-	requireStartTLS = PropUtil.getBooleanSessionProperty(session,
-				"mail." + name + ".starttls.required", false);
+	requireStartTLS = getBoolProp("starttls.required");
 
 	String s = session.getProperty("mail." + name + ".message.class");
 	if (s != null) {
-	    if (session.getDebug())
-		session.getDebugOut().println(
-		    "DEBUG POP3: message class: " + s);
+	    if (debug)
+		out.println("DEBUG POP3: message class: " + s);
 	    try {
 		ClassLoader cl = this.getClass().getClassLoader();
 
@@ -145,11 +150,30 @@ public class POP3Store extends Store {
 		Class[] c = {javax.mail.Folder.class, int.class};
 		messageConstructor = messageClass.getConstructor(c);
 	    } catch (Exception ex) {
-		if (session.getDebug())
-		    session.getDebugOut().println(
+		if (debug)
+		    out.println(
 			"DEBUG POP3: failed to load message class: " + ex);
 	    }
 	}
+    }
+
+    /**
+     * Get the value of a boolean property.
+     * Print out the value if debug is set.
+     */
+    private final synchronized boolean getBoolProp(String prop) {
+	prop = "mail." + name + "." + prop;
+	boolean val = PropUtil.getBooleanSessionProperty(session, prop, false);
+	if (debug)
+	    out.println("DEBUG POP3: " + prop + ": " + val);
+	return val;
+    }
+
+    /**
+     * Get a reference to the session.
+     */
+    synchronized Session getSession() {
+        return session;
     }
 
     protected synchronized boolean protocolConnect(String host, int portNum,
@@ -228,9 +252,8 @@ public class POP3Store extends Store {
 	}
 
 	// need a new port, create it and try to login
-	p = new Protocol(host, portNum, session.getDebug(),
-	    session.getDebugOut(), session.getProperties(), "mail." + name,
-	    isSSL);
+	p = new Protocol(host, portNum, debug, out,
+	    session.getProperties(), "mail." + name, isSSL);
 
 	if (useStartTLS || requireStartTLS) {
 	    if (p.hasCapability("STLS")) {
@@ -239,8 +262,7 @@ public class POP3Store extends Store {
 		p.setCapabilities(p.capa());
 	    } else if (requireStartTLS) {
 		if (debug)
-		    session.getDebugOut().println(
-			"DEBUG POP3: STLS required but not supported");
+		    out.println("DEBUG POP3: STLS required but not supported");
 		try {
 		    p.quit();
 		} catch (IOException ioex) {
@@ -261,7 +283,8 @@ public class POP3Store extends Store {
 	if (!disableTop &&
 		capabilities != null && !capabilities.containsKey("TOP")) {
 	    disableTop = true;
-	    session.getDebugOut().println(
+	    if (debug)
+		out.println(
 		    "DEBUG POP3: server doesn't support TOP, disabling it");
 	}
 

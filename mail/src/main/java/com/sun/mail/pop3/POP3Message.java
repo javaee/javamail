@@ -133,13 +133,30 @@ public class POP3Message extends MimeMessage {
      *
      * @see #contentStream
      */
-    protected InputStream getContentStream()
-					throws MessagingException {
+    protected InputStream getContentStream() throws MessagingException {
 	try {
 	synchronized(this) {
 	    if (contentStream == null) {
-		InputStream rawcontent = folder.getProtocol().retr(msgnum,
+		InputStream rawcontent = null;
+		TempFile cache = folder.getFileCache();
+		if (cache != null) {
+		    Session s = ((POP3Store)(folder.getStore())).getSession();
+		    if (s.getDebug())
+			s.getDebugOut().println(
+			    "DEBUG POP3: caching message #" + msgnum +
+			    " in temp file");
+		    AppendStream os = cache.getAppendStream();
+		    BufferedOutputStream bos = new BufferedOutputStream(os);
+		    try {
+			folder.getProtocol().retr(msgnum, bos);
+		    } finally {
+			bos.close();
+		    }
+		    rawcontent = os.getInputStream();
+		} else {
+		    rawcontent = folder.getProtocol().retr(msgnum,
 					msgSize > 0 ? msgSize + hdrSize : 0);
+		}
 		if (rawcontent == null) {
 		    expunged = true;
 		    throw new MessageRemovedException(
@@ -221,7 +238,16 @@ public class POP3Message extends MimeMessage {
      */
     public synchronized void invalidate(boolean invalidateHeaders) {
 	content = null;
-	contentStream = null;
+	if (contentStream != null) {
+	    // note that if the content is in the file cache, it will be lost
+	    // and fetched from the server if it's needed again
+	    try {
+		contentStream.close();
+	    } catch (IOException ex) {
+		// ignore it
+	    }
+	    contentStream = null;
+	}
 	msgSize = -1;
 	if (invalidateHeaders) {
 	    headers = null;
@@ -466,6 +492,9 @@ public class POP3Message extends MimeMessage {
 				throws IOException, MessagingException {
 	if (content == null && ignoreList == null &&
 			!((POP3Store)(folder.getStore())).cacheWriteTo) {
+	    Session s = ((POP3Store)(folder.getStore())).getSession();
+	    if (s.getDebug())
+		s.getDebugOut().println("DEBUG POP3: streaming msg " + msgnum);
 	    if (!folder.getProtocol().retr(msgnum, os)) {
 		expunged = true;
 		throw new MessageRemovedException("can't retrieve message #" +
