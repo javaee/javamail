@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -177,6 +177,8 @@ public class POP3Handler extends Thread implements Cloneable {
             this.user();
         } else if (commandName.equals("PASS")) {
             this.pass();
+        } else if (commandName.equals("CAPA")) {
+            this.println("-ERR CAPA not supported");
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}", commandName);
             this.println("-ERR unknown command");
