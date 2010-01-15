@@ -47,7 +47,7 @@ import javax.mail.util.SharedFileInputStream;
 /**
  * A temporary file used to cache POP3 messages.
  */
-public class TempFile {
+class TempFile {
 
     private File file;	// the temp file name
     private WritableSharedFile sf;
