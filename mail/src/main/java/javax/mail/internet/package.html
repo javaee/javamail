@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -386,6 +386,17 @@ This may be useful in cases where a broken anti-virus product has rewritten
 the message incorrectly such that the boundary parameter and the actual
 boundary value no longer match.
 The default value of this property is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. ignorewhitespacelines</TD>
+<TD>boolean</TD>
+<TD>
+Normally the header of a MIME part is separated from the body by an empty
+line.  This System property may be set to <code>"true"</code> to cause
+the parser to consider a line containing only whitespace to be an empty
+line.  The default value of this property is false.
 </TD>
 </TR>
 

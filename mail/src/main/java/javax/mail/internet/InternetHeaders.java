@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@ import java.io.*;
 import java.util.*;
 import javax.mail.*;
 import com.sun.mail.util.LineInputStream;
+import com.sun.mail.util.PropUtil;
 
 /**
  * InternetHeaders is a utility class that manages RFC822 style
@@ -66,12 +67,21 @@ import com.sun.mail.util.LineInputStream;
  * SMTP).  Received headers may have been folded.  The application is
  * responsible for folding and unfolding headers as appropriate. <p>
  *
+ * The current implementation supports the System property
+ * <code>mail.mime.ignorewhitespacelines</code>, which if set to true
+ * will cause a line containing only whitespace to be considered
+ * a blank line terminating the header.
+ *
  * @see	javax.mail.internet.MimeUtility
  * @author John Mani
  * @author Bill Shannon
  */
 
 public class InternetHeaders {
+    private static final boolean ignoreWhitespaceLines =
+	PropUtil.getBooleanSystemProperty("mail.mime.ignorewhitespacelines",
+					    false);
+
     /**
      * An individual internet header.  This class is only used by
      * subclasses of InternetHeaders. <p>
@@ -356,10 +366,18 @@ public class InternetHeaders {
 		    }
 		    prevline = line;
 		}
-	    } while (line != null && line.length() > 0);
+	    } while (line != null && !isEmpty(line));
 	} catch (IOException ioex) {
 	    throw new MessagingException("Error in input stream", ioex);
 	}
+    }
+
+    /**
+     * Is this line an empty (blank) line?
+     */
+    private static final boolean isEmpty(String line) {
+	return line.length() == 0 ||
+	    (ignoreWhitespaceLines && line.trim().length() == 0);
     }
 
     /**
