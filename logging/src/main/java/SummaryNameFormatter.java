@@ -1,6 +1,6 @@
 /*
- * Copyright 2009 Sun Microsystems, Inc. All Rights Reserved.
- * Copyright 2009 Jason Mehrens. All Rights Reserved.
+ * Copyright 2009-2010 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 2009-2010 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -94,17 +94,22 @@ public class SummaryNameFormatter extends Formatter {
     private String extFrom(Handler h) {
         if(h instanceof MailHandler) {
             MailHandler mh = (MailHandler)h;
-            Formatter[] content = mh.getAttachmentFormatters();
-            Formatter[] names = mh.getAttachmentNames();
-            assert content.length == names.length;
-            for(int i=0; i<content.length; i++) {
-                if(names[i] == this) {
-                    if(content[i] instanceof XMLFormatter) {
-                        return ".xml";
+            if(mh.getSubject() != this) {
+                Formatter[] content = mh.getAttachmentFormatters();
+                Formatter[] names = mh.getAttachmentNames();
+                assert content.length == names.length;
+                for(int i=0; i<content.length; i++) {
+                    if(names[i] == this) {
+                        if(content[i] instanceof XMLFormatter) {
+                            return ".xml";
+                        }
+                        break;
                     }
                 }
+                return ".txt";
             }
+            return ".";
         }
-        return ".txt";
+        return "";
     }
 }

@@ -1,6 +1,6 @@
 /*
- * Copyright 2009 Sun Microsystems, Inc. All Rights Reserved.
- * Copyright 2009 Jason Mehrens. All Rights Reserved.
+ * Copyright 2009-2010 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 2009-2010 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -189,7 +189,7 @@ public class MailHandlerDemo {
         h.setComparator(new LevelAndSeqComparator(true));
 
         //Use subject to provide a hint as to what is in the email.
-        h.setSubject(new SummaryNameFormatter("Log containing {0} records with {1} errors."));
+        h.setSubject(new SummaryNameFormatter("Log containing {0} records with {1} errors"));
 
         //Make the body give a simple summary of what happened.
         h.setFormatter(new SummaryFormatter());
@@ -207,7 +207,7 @@ public class MailHandlerDemo {
 
         //extract simple name, replace the rest with formatters.
         h.setAttachmentNames(new Formatter[]{h.getAttachmentNames()[0],
-                    new SummaryNameFormatter("{0} records and {1} mail errors"),
+                    new SummaryNameFormatter("{0} records and {1} errors"),
                     new SummaryNameFormatter("{0,choice,0#no records|1#1 record|" +
                     "1<{0,number,integer} records} and " +
                     "{1,choice,0#no errors|1#1 error|1<" +
