@@ -1,14 +1,28 @@
 #!/bin/sh
 #
-#
 # Compare API against a signature file.
 #
-# Usage: sigtest -base mail.sig -test mail.jar -package javax
-#		-out report.out -updateout update.out
+# Usage: sigtest mail.jar mail.sig
 #
-#CLASSPATH=/java/re/jct-tools/2.1.6/archive/fcs/binaries/apiCheck.jar
-# newer version...
-CLASSPATH=/java/re/jct-tools/3.1.4/archive/fcs/binaries/lib/apiCheck.jar
-JAVA_HOME=/java/re/jdk/1.3.1/archive/fcs/binaries/solsparc
-export CLASSPATH JAVA_HOME
-${JAVA_HOME}/bin/java javasoft.sqe.apiCheck.Diff "$@"
+SIGTEST=${SIGTEST:-/java/re/sigtest/2.2/promoted/opensource/latest/binaries/sigtest-2.2}
+APICHECK_JAR=$SIGTEST/lib/apicheck.jar
+JAF_JAR=${JAF_JAR:-$HOME/ext/activation.jar}
+JAVA_HOME=${JAVA_HOME:-/opt/jdk1.4}
+USAGE="sigtest [-b] [-p package] mail.jar mail.sig"
+PKG=javax.mail
+BACKWARD=
+
+while getopts bp: opt
+do
+	case $opt in
+	p)	PKG="$OPTARG";;
+	b)	BACKWARD=-backward;;
+	\?)	echo $USAGE; exit 1;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+${JAVA_HOME}/bin/java -jar $APICHECK_JAR -static \
+	-classpath "$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jsse.jar:$JAF_JAR" \
+	-filename "$2" -package "$PKG" -out /dev/stdout \
+	-nomerge -checkvalue -mode src "$BACKWARD"
