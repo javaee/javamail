@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1111,17 +1111,24 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
                 } else {
 		    // If the expunge flag is set or we're open read-only we
 		    // can just close the folder, otherwise open it read-only
-		    // before closing.
+		    // before closing, or unselect it if supported.
                     if (!expunge && mode == READ_WRITE) {
                         try {
-                            MailboxInfo mi = protocol.examine(fullName);
+			    if (protocol.hasCapability("UNSELECT"))
+				protocol.unselect();
+			    else {
+				MailboxInfo mi = protocol.examine(fullName);
+				if (protocol != null)	// XXX - unnecessary?
+				    protocol.close();
+			    }
                         } catch (ProtocolException pex2) {
                             if (protocol != null)
 				protocol.disconnect();
                         }
-                    }
-		    if (protocol != null)
-			protocol.close();
+                    } else {
+			if (protocol != null)
+			    protocol.close();
+		    }
                 }
 	    } catch (ProtocolException pex) {
 		throw new MessagingException(pex.getMessage(), pex);

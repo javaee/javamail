@@ -796,6 +796,18 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * UNSELECT Command.
+     *
+     * @see "RFC 3691"
+     * @since	JavaMail 1.4.4
+     */
+    public void unselect() throws ProtocolException {
+	if (!hasCapability("UNSELECT")) 
+	    throw new BadCommandException("UNSELECT not supported");
+	simpleCommand("UNSELECT", null);
+    }
+
+    /**
      * STATUS Command.
      *
      * @see "RFC2060, section 6.3.10"

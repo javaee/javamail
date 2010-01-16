@@ -29,6 +29,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add mail.pop3.cachewriteto property, default false
 <no id>	add mail.pop3.filecache.enable property for caching messages in tmp file
 <no id>	add mail.mime.ignorewhitespacelines property, default false
+<no id>	add support for IMAP UNSELECT command
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
