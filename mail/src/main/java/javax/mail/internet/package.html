@@ -401,6 +401,30 @@ line.  The default value of this property is false.
 </TR>
 
 <TR>
+<TD>mail.mime.contenttypehandler</TD>
+<TD>String</TD>
+<TD>
+In some cases JavaMail is unable to process messages with an invalid
+Content-Type header.  The header may have incorrect syntax or other
+problems.  This property specifies the name of a class that will be
+used to clean up the Content-Type header value before JavaMail uses it.
+The class must have a method with this signature:
+<CODE>public static String cleanContentType(MimePart mp, String contentType)</CODE>
+Whenever JavaMail accesses the Content-Type header of a message, it
+will pass the value to this method and use the returned value instead.
+The value may be null if the Content-Type header isn't present.
+Returning null will cause the default Content-Type to be used.
+The MimePart may be used to access other headers of the message part
+to determine how to correct the Content-Type.
+Note that the Content-Type handler doesn't affect the
+<CODE>getHeader</CODE> method, which still returns the raw header value.
+Note also that the handler doesn't affect the IMAP provider; the IMAP
+server is responsible for returning pre-parsed, syntactically correct
+Content-Type information.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.alternates</TD>
 <TD>String</TD>
 <TD>

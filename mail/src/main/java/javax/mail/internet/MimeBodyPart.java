@@ -255,9 +255,9 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      */
     public String getContentType() throws MessagingException {
 	String s = getHeader("Content-Type", null);
+	s = MimeUtil.cleanContentType(this, s);
 	if (s == null)
 	    s = "text/plain";
-	
 	return s;
     }
 
@@ -1132,6 +1132,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	if (filename == null) {
 	    // Still no filename ? Try the "name" ContentType parameter
 	    s = part.getHeader("Content-Type", null);
+	    s = MimeUtil.cleanContentType(part, s);
 	    if (s != null) {
 		try {
 		    ContentType ct = new ContentType(s);
@@ -1172,6 +1173,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	 */
 	if (setContentTypeFileName) {
 	    s = part.getHeader("Content-Type", null);
+	    s = MimeUtil.cleanContentType(part, s);
 	    if (s != null) {
 		try {
 		    ContentType cType = new ContentType(s);

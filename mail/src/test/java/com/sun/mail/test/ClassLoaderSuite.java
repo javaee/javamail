@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 2009-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,8 +44,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 import org.junit.runners.Suite;
+import org.junit.runners.ParentRunner;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
+import org.junit.runner.Runner;
+import org.junit.runner.notification.RunNotifier;
 
 /**
  * A special test suite that loads each of the test classes
@@ -103,6 +106,9 @@ public class ClassLoaderSuite extends Suite {
 				    throws ClassNotFoundException {
 	    Class<?> c = null;
 	    try {
+		c = findLoadedClass(name);
+		if (c != null)
+		    return c;
 		c = findClass(name);
 		if (resolve)
 		    resolveClass(c);
@@ -120,6 +126,25 @@ public class ClassLoaderSuite extends Suite {
 				throws InitializationError {
 	super(builder, klass,
 	    reloadClasses(getTestClass(klass), getSuiteClasses(klass)));
+    }
+
+    /**
+     * Set the thread's context class loader to the class loader
+     * for the test class.
+     */
+    @Override
+    protected void runChild(Runner runner, RunNotifier notifier) {
+	// XXX - is it safe to assume it's always a ParentRunner?
+	ParentRunner pr = (ParentRunner)runner;
+	ClassLoader cl = null;
+	try {
+	    cl = Thread.currentThread().getContextClassLoader();
+	    Thread.currentThread().setContextClassLoader(
+		pr.getTestClass().getJavaClass().getClassLoader());
+	    super.runChild(runner, notifier);
+	} finally {
+	    Thread.currentThread().setContextClassLoader(cl);
+	}
     }
 
     /**

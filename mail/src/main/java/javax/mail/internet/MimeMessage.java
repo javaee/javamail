@@ -939,6 +939,7 @@ public class MimeMessage extends Message implements MimePart {
      */
     public String getContentType() throws MessagingException {
 	String s = getHeader("Content-Type", null);
+	s = MimeUtil.cleanContentType(this, s);
 	if (s == null)
 	    return "text/plain";
 	return s;
