@@ -34,7 +34,6 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.mail.util.logging;
 
 import java.lang.reflect.*;
@@ -46,24 +45,29 @@ import java.util.Properties;
 import java.util.logging.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-import junit.framework.TestCase;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Test case for the MailHandler spec.
  * @author Jason Mehrens
  */
-public class MailHandlerTest extends TestCase {
+public class MailHandlerTest {
 
-    public MailHandlerTest(String testName) {
-        super(testName);
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        assertTrue(MailHandlerTest.class.desiredAssertionStatus());
     }
 
-    protected void setUp() throws Exception {
-        super.setUp();
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        assertTrue(MailHandlerTest.class.desiredAssertionStatus());
     }
 
+    @Test
     public void testIsLoggable() {
-        //System.out.println("isLoggable");
         Level[] lvls = getAllLevels();
         if (lvls.length > 0) {
             LogRecord record = new LogRecord(Level.INFO, "");
@@ -123,9 +127,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(em.exceptions.isEmpty(), true);
     }
 
+    @Test
     public void testPublish() {
-        //System.out.println("publish");
-
         MailHandler instance = createHandlerWithRecords();
         InternalErrorManager em = (InternalErrorManager) instance.getErrorManager();
         assertEquals(em.exceptions.isEmpty(), true);
@@ -138,11 +141,12 @@ public class MailHandlerTest extends TestCase {
         instance = createHandlerWithRecords();
         instance.setErrorManager(new MessageErrorManager(instance) {
 
+            @Override
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
                     assertTrue(null != message.getSentDate());
-                    assertTrue(message.getHeader("X-Priority") == null ||
-                            message.getHeader("X-Priority").length == 0);
+                    assertTrue(message.getHeader("X-Priority") == null
+                            || message.getHeader("X-Priority").length == 0);
                     message.saveChanges();
                 } catch (MessagingException ME) {
                     fail(ME.toString());
@@ -179,6 +183,7 @@ public class MailHandlerTest extends TestCase {
         return instance;
     }
 
+    @Test
     public void testBadFormatters() {
         MailHandler instance = new MailHandler();
         instance.setLevel(Level.ALL);
@@ -202,6 +207,7 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, !em.exceptions.isEmpty());
     }
 
+    @Test
     public void testBadFilters() {
         LogRecord record = new LogRecord(Level.INFO, "");
         ConsoleHandler console = new ConsoleHandler();
@@ -250,8 +256,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, !em.exceptions.isEmpty());
     }
 
+    @Test
     public void testPushInsidePush() {
-        //System.out.println("PushInsidePush");
         Level[] lvls = getAllLevels();
 
         MailHandler instance = new MailHandler(lvls.length + 2);
@@ -268,7 +274,9 @@ public class MailHandlerTest extends TestCase {
 
         instance.setFormatter(new SimpleFormatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 try {
                     h.flush();
                 } catch (Throwable T) {
@@ -277,7 +285,9 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String getTail(Handler h) {
+                assert h instanceof MailHandler : h;
                 final Filter filter = h.getFilter();
                 try {
                     h.setFilter(filter);
@@ -319,7 +329,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter push = new SimpleFormatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 try {
                     ((MailHandler) h).push();
                 } catch (Throwable T) {
@@ -328,7 +340,9 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String getTail(Handler h) {
+                assert h instanceof MailHandler : h;
                 try {
                     ((MailHandler) h).push();
                 } catch (Throwable T) {
@@ -340,7 +354,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter atFor = new SimpleFormatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Formatter[] f = mh.getAttachmentFormatters();
                 try {
@@ -353,6 +369,7 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return super.getTail(h);
@@ -361,7 +378,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter atName = new SimpleFormatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Formatter[] f = mh.getAttachmentNames();
                 try {
@@ -374,6 +393,7 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return super.getTail(h);
@@ -382,7 +402,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter atFilter = new SimpleFormatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler;
                 MailHandler mh = (MailHandler) h;
                 Filter[] f = mh.getAttachmentFilters();
                 try {
@@ -395,6 +417,7 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return super.getTail(h);
@@ -403,7 +426,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter nameComp = new Formatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Comparator c = mh.getComparator();
                 try {
@@ -416,10 +441,12 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String format(LogRecord r) {
                 return "";
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return "name.txt";
@@ -428,7 +455,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter nameMail = new Formatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Properties props = mh.getMailProperties();
                 try {
@@ -441,10 +470,12 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String format(LogRecord r) {
                 return "";
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return "name.txt";
@@ -453,7 +484,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter nameSub = new Formatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Formatter f = mh.getSubject();
                 try {
@@ -466,10 +499,12 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String format(LogRecord r) {
                 return "";
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return "name.txt";
@@ -478,7 +513,9 @@ public class MailHandlerTest extends TestCase {
 
         Formatter nameAuth = new Formatter() {
 
+            @Override
             public String getHead(Handler h) {
+                assert h instanceof MailHandler : h;
                 MailHandler mh = (MailHandler) h;
                 Authenticator a = mh.getAuthenticator();
                 try {
@@ -491,10 +528,12 @@ public class MailHandlerTest extends TestCase {
                 return super.getHead(h);
             }
 
+            @Override
             public String format(LogRecord r) {
                 return "";
             }
 
+            @Override
             public String getTail(Handler h) {
                 getHead(h);
                 return "name.txt";
@@ -514,13 +553,14 @@ public class MailHandlerTest extends TestCase {
         }
     }
 
+    @Test
     public void testPush() {
-        //System.out.println("push");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
         instance.push();
         assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
 
         instance = createHandlerWithRecords();
         em = (InternalErrorManager) instance.getErrorManager();
@@ -528,6 +568,7 @@ public class MailHandlerTest extends TestCase {
 
         assertEquals(1, em.exceptions.size());
         assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
+        instance.close();
 
         //Test for valid message.
         instance = createHandlerWithRecords();
@@ -536,14 +577,15 @@ public class MailHandlerTest extends TestCase {
         instance.close();
     }
 
+    @Test
     public void testFlush() {
-        //System.out.println("flush");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
         instance.flush();
 
         assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
 
         instance = createHandlerWithRecords();
         em = (InternalErrorManager) instance.getErrorManager();
@@ -551,16 +593,18 @@ public class MailHandlerTest extends TestCase {
 
         assertEquals(1, em.exceptions.size());
         assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
+        instance.close();
 
         //Test for valid message.
         instance = createHandlerWithRecords();
         instance.setErrorManager(new MessageErrorManager(instance) {
 
+            @Override
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
                     assertTrue(null != message.getSentDate());
-                    assertTrue(message.getHeader("X-Priority") == null ||
-                            message.getHeader("X-Priority").length == 0);
+                    assertTrue(message.getHeader("X-Priority") == null
+                            || message.getHeader("X-Priority").length == 0);
                     message.saveChanges();
                 } catch (MessagingException ME) {
                     fail(ME.toString());
@@ -571,8 +615,8 @@ public class MailHandlerTest extends TestCase {
         instance.close();
     }
 
+    @Test
     public void testClose() {
-        //System.out.println("close");
         LogRecord record = new LogRecord(Level.INFO, "");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -606,11 +650,12 @@ public class MailHandlerTest extends TestCase {
         instance = createHandlerWithRecords();
         instance.setErrorManager(new MessageErrorManager(instance) {
 
+            @Override
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
                     assertTrue(null != message.getSentDate());
-                    assertTrue(message.getHeader("X-Priority") == null ||
-                            message.getHeader("X-Priority").length == 0);
+                    assertTrue(message.getHeader("X-Priority") == null
+                            || message.getHeader("X-Priority").length == 0);
                     message.saveChanges();
                 } catch (MessagingException ME) {
                     fail(ME.toString());
@@ -620,8 +665,8 @@ public class MailHandlerTest extends TestCase {
         instance.close();
     }
 
-    public void testLevel() {
-        //System.out.println("Level");
+    @Test
+    public void testLevel() {        
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -650,8 +695,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, em.exceptions.isEmpty());
     }
 
+    @Test
     public void testPushLevel() {
-        //System.out.println("PushLevel");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -680,11 +725,18 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, em.exceptions.isEmpty());
     }
 
+    @Test
     public void testPushFilter() {
-        //System.out.println("PushFilter");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
+
+        try {
+            instance.setPushFilter(null);
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
+        assertNull(instance.getPushFilter());
 
         instance.setPushFilter(BooleanFilter.TRUE);
         assertEquals(BooleanFilter.TRUE, instance.getPushFilter());
@@ -700,11 +752,18 @@ public class MailHandlerTest extends TestCase {
         instance.close();
     }
 
+    @Test
     public void testComparator() {
-        //System.out.println("Comparator");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
+
+        try {
+            instance.setComparator(null);
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
+        assertNull(instance.getComparator());
 
         Comparator uselessComparator = new UselessComparator();
         Comparator result = instance.getComparator();
@@ -716,11 +775,11 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, uselessComparator.equals(result));
 
         assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
     }
 
+    @Test
     public void testCapacity() {
-        //System.out.println("Capacity");
-
         try {
             new MailHandler(-1);
             fail("Negative capacity was allowed.");
@@ -756,16 +815,22 @@ public class MailHandlerTest extends TestCase {
         result = instance.getCapacity();
         assertEquals(expResult, result);
         assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
     }
 
+    @Test
     public void testAuthenticator() {
-        //System.out.println("Authenticator");
-
         Authenticator auth = new EmptyAuthenticator();
 
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
+
+        try {
+            instance.setAuthenticator(null);
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
 
         try {
             instance.setAuthenticator(instance.getAuthenticator());
@@ -791,8 +856,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
     }
 
+    @Test
     public void testMailProperties() {
-        //System.out.println("MailProperties");
         Properties props = new Properties();
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -833,8 +898,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(false, em.exceptions.isEmpty());
     }
 
+    @Test
     public void testAttachmentFilters() {
-        //System.out.println("AttachmentFilters");
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -926,10 +991,11 @@ public class MailHandlerTest extends TestCase {
         }
 
         assertEquals(em.exceptions.isEmpty(), true);
+        instance.close();
     }
 
+    @Test
     public void testAttachmentFormatters() {
-        //System.out.println("AttachmentFormatters");
         MailHandler instance = new MailHandler();
 
         InternalErrorManager em = new InternalErrorManager();
@@ -981,10 +1047,11 @@ public class MailHandlerTest extends TestCase {
         }
 
         assertEquals(em.exceptions.isEmpty(), true);
+        instance.close();
     }
 
+    @Test
     public void testAttachmentNames_StringArr() {
-        //System.out.println("AttachmentNames");
         Formatter[] names = null;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1053,8 +1120,8 @@ public class MailHandlerTest extends TestCase {
         assertEquals(true, em.exceptions.isEmpty());
     }
 
+    @Test
     public void testAttachmentNames_FormatterArr() {
-        //System.out.println("AttachmentNames");
         Formatter[] formatters = null;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1094,10 +1161,11 @@ public class MailHandlerTest extends TestCase {
         assertEquals(formatters[0].equals(instance.getAttachmentNames()[0]), false);
 
         assertEquals(em.exceptions.isEmpty(), true);
+        instance.close();
     }
 
+    @Test
     public void testSubject_String() {
-        //System.out.println("Subject");
         String subject = "Test subject.";
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1117,10 +1185,11 @@ public class MailHandlerTest extends TestCase {
         assertEquals(subject, instance.getSubject().toString());
 
         assertEquals(em.exceptions.isEmpty(), true);
+        instance.close();
     }
 
+    @Test
     public void testSubject_Formatter() {
-        //System.out.println("Subject");
         Formatter format = new SimpleFormatter();
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1141,13 +1210,15 @@ public class MailHandlerTest extends TestCase {
 
 
         assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
     }
 
+    @Test
     public void testReportError() {
-        //System.out.println("reportError");
         MailHandler instance = new MailHandler();
         instance.setErrorManager(new ErrorManager() {
 
+            @Override
             public void error(String msg, Exception ex, int code) {
                 assertNull(msg);
             }
@@ -1159,19 +1230,20 @@ public class MailHandlerTest extends TestCase {
 
         instance.setErrorManager(new ErrorManager() {
 
+            @Override
             public void error(String msg, Exception ex, int code) {
                 assertEquals(msg.indexOf(Level.SEVERE.getName()), 0);
             }
         });
 
         instance.reportError("simple message.", null, ErrorManager.GENERIC_FAILURE);
-
-
+        instance.close();
 
         //Test for valid message.
         instance = createHandlerWithRecords();
         instance.setErrorManager(new MessageErrorManager(instance) {
 
+            @Override
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
                     assertTrue(message.getHeader("X-Mailer")[0].startsWith(MailHandler.class.getName()));
@@ -1185,24 +1257,8 @@ public class MailHandlerTest extends TestCase {
         instance.close();
     }
 
+    @Test
     public void testSecurityManager() {
-        class LogSecurityManager extends SecurityManager {
-
-            boolean secure = false;
-
-            public void checkPermission(java.security.Permission perm) {
-                if (secure) {
-                    super.checkPermission(perm);
-                }
-            }
-
-            public void checkPermission(java.security.Permission perm, Object context) {
-                if (secure) {
-                    super.checkPermission(perm, context);
-                }
-            }
-        }
-
         final LogSecurityManager manager = new LogSecurityManager();
         System.setSecurityManager(manager);
 
@@ -1363,11 +1419,13 @@ public class MailHandlerTest extends TestCase {
         }
         manager.secure = false;
         System.setSecurityManager(null);
+        h.close();
     }
 
     /**
      * Test must run last.
      */
+    @Test
     public void testZInit() {
         assertNull(System.getProperty("java.util.logging.config.class"));
 
@@ -1396,7 +1454,7 @@ public class MailHandlerTest extends TestCase {
                 v = cfg.createNewFile();
                 assertTrue(v);
 
-                System.getProperties().remove(key);
+                System.clearProperty(key);
                 LogManager.getLogManager().readConfiguration();
             }
         } catch (IOException IOE) {
@@ -1422,13 +1480,13 @@ public class MailHandlerTest extends TestCase {
             props.put(p.concat(".encoding"), "UTF-8");
 
             props.put(p.concat(".attachment.filters"),
-                    "null, " + ThrowFilter.class.getName() + ", " +
-                    ThrowFilter.class.getName());
+                    "null, " + ThrowFilter.class.getName() + ", "
+                    + ThrowFilter.class.getName());
 
             props.put(p.concat(".attachment.formatters"),
-                    SimpleFormatter.class.getName() + ", " +
-                    XMLFormatter.class.getName() + ", " +
-                    SimpleFormatter.class.getName());
+                    SimpleFormatter.class.getName() + ", "
+                    + XMLFormatter.class.getName() + ", "
+                    + SimpleFormatter.class.getName());
 
             props.put(p.concat(".attachment.names"), "msg.txt, " + SimpleFormatter.class.getName() + ", error.txt");
 
@@ -1464,7 +1522,7 @@ public class MailHandlerTest extends TestCase {
         assertTrue(em.exceptions.isEmpty());
 
         for (int i = 0; i < em.exceptions.size(); i++) {
-            System.out.println(em.exceptions.get(i));
+            fail(String.valueOf(em.exceptions.get(i)));
         }
 
         h.close();
@@ -1507,16 +1565,16 @@ public class MailHandlerTest extends TestCase {
             props.put(p.concat(".pushFilter"), "InvalidPushFilter");
             props.put(p.concat(".comparator"), "InvalidComparator");
             props.put(p.concat(".encoding"), "MailHandler-ENC");
-            props.put(p.concat(".attachment.filters"), "null, " +
-                    "InvalidAttachFilter1, " + ThrowFilter.class.getName());
+            props.put(p.concat(".attachment.filters"), "null, "
+                    + "InvalidAttachFilter1, " + ThrowFilter.class.getName());
 
             props.put(p.concat(".attachment.formatters"),
-                    "InvalidAttachFormatter0, " +
-                    ThrowComparator.class.getName() + ", " +
-                    XMLFormatter.class.getName());
+                    "InvalidAttachFormatter0, "
+                    + ThrowComparator.class.getName() + ", "
+                    + XMLFormatter.class.getName());
 
-            props.put(p.concat(".attachment.names"), "msg.txt, " +
-                    ThrowComparator.class.getName() + ", " + XMLFormatter.class.getName());
+            props.put(p.concat(".attachment.names"), "msg.txt, "
+                    + ThrowComparator.class.getName() + ", " + XMLFormatter.class.getName());
             props.store(out, "Mail handler test file.");
         } finally {
             out.close();
@@ -1548,9 +1606,9 @@ public class MailHandlerTest extends TestCase {
             h = new MailHandler();
             System.err.flush();
             result = oldErrors.toString().trim();
-            int index = result.indexOf(ErrorManager.class.getName() + ": " +
-                    ErrorManager.OPEN_FAILURE + ": " + Level.SEVERE.getName() +
-                    ": InvalidErrorManager");
+            int index = result.indexOf(ErrorManager.class.getName() + ": "
+                    + ErrorManager.OPEN_FAILURE + ": " + Level.SEVERE.getName()
+                    + ": InvalidErrorManager");
             assertTrue(index > -1);
             assertTrue(result.indexOf("java.lang.ClassNotFoundException: InvalidErrorManager") > index);
             oldErrors.reset();
@@ -1589,8 +1647,8 @@ public class MailHandlerTest extends TestCase {
         Field[] fields = Level.class.getFields();
         List a = new ArrayList(fields.length);
         for (int i = 0; i < fields.length; i++) {
-            if (Modifier.isStatic(fields[i].getModifiers()) &&
-                    Level.class.isAssignableFrom(fields[i].getType())) {
+            if (Modifier.isStatic(fields[i].getModifiers())
+                    && Level.class.isAssignableFrom(fields[i].getType())) {
                 try {
                     a.add(fields[i].get(null));
                 } catch (IllegalArgumentException ex) {
@@ -1614,6 +1672,7 @@ public class MailHandlerTest extends TestCase {
             this.h = h;
         }
 
+        @Override
         public final void error(String msg, Exception ex, int code) {
             super.error(msg, ex, code);
             MimeMessage message = null;
@@ -1641,6 +1700,7 @@ public class MailHandlerTest extends TestCase {
             super(h);
         }
 
+        @Override
         protected void error(MimeMessage message, Throwable t, int code) {
             try {
                 assertTrue(null != message.getSentDate());
@@ -1657,13 +1717,16 @@ public class MailHandlerTest extends TestCase {
 
     public static class ThrowFilter implements Filter {
 
+        @Override
         public boolean isLoggable(LogRecord record) {
             throw new RuntimeException(record.toString());
         }
     }
 
-    public static final class ThrowComparator implements Comparator {
+    public static final class ThrowComparator implements Comparator, Serializable {
+        private static final long serialVersionUID = 8493707928829966353L;
 
+        @Override
         public int compare(Object o1, Object o2) {
             throw new RuntimeException();
         }
@@ -1671,21 +1734,26 @@ public class MailHandlerTest extends TestCase {
 
     public static final class ThrowFormatter extends Formatter {
 
+        @Override
         public String format(LogRecord record) {
             throw new RuntimeException("format");
         }
 
+        @Override
         public String getHead(Handler h) {
             throw new RuntimeException("head");
         }
 
+        @Override
         public String getTail(Handler h) {
             throw new RuntimeException("head");
         }
     }
 
-    public static class UselessComparator implements Comparator {
+    public static class UselessComparator implements Comparator, Serializable {
+        private static final long serialVersionUID = 7973575043680596722L;
 
+        @Override
         public int compare(Object o1, Object o2) {
             return o1.toString().compareTo(o2.toString());
         }
@@ -1705,6 +1773,7 @@ public class MailHandlerTest extends TestCase {
             this.value = v;
         }
 
+        @Override
         public boolean isLoggable(LogRecord r) {
             return value;
         }
@@ -1714,6 +1783,7 @@ public class MailHandlerTest extends TestCase {
 
         final List exceptions = new ArrayList();
 
+        @Override
         public void error(String msg, Exception ex, int code) {
             exceptions.add(ex);
         }
@@ -1721,6 +1791,7 @@ public class MailHandlerTest extends TestCase {
 
     public static final class ThrowAuthenticator extends javax.mail.Authenticator {
 
+        @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             throw new RuntimeException();
         }
@@ -1728,8 +1799,31 @@ public class MailHandlerTest extends TestCase {
 
     public static final class EmptyAuthenticator extends javax.mail.Authenticator {
 
+        @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication("", "");
+        }
+    }
+
+    private static final class LogSecurityManager extends SecurityManager {
+
+        boolean secure = false;
+
+        LogSecurityManager() {
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm) {
+            if (secure) {
+                super.checkPermission(perm);
+            }
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm, Object context) {
+            if (secure) {
+                super.checkPermission(perm, context);
+            }
         }
     }
 }
