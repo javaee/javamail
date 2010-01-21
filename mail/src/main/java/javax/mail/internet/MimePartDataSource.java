@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -135,7 +135,11 @@ public class MimePartDataSource implements DataSource, MessageAware {
 	     * If it's one of these types, ignore the encoding.
 	     */
 	    ContentType cType = new ContentType(type);
-	    if (cType.match("multipart/*") || cType.match("message/*"))
+	    if (cType.match("multipart/*"))
+		return null;
+	    if (cType.match("message/*") &&
+		    !PropUtil.getBooleanSystemProperty(
+			"mail.mime.allowencodedmessages", false))
 		return null;
 	} catch (ParseException pex) {
 	    // ignore it
