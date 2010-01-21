@@ -1717,7 +1717,7 @@ public class MailHandlerTest {
 
     public static class ThrowFilter implements Filter {
 
-        @Override
+        //@Override
         public boolean isLoggable(LogRecord record) {
             throw new RuntimeException(record.toString());
         }
@@ -1726,7 +1726,7 @@ public class MailHandlerTest {
     public static final class ThrowComparator implements Comparator, Serializable {
         private static final long serialVersionUID = 8493707928829966353L;
 
-        @Override
+        //@Override
         public int compare(Object o1, Object o2) {
             throw new RuntimeException();
         }
@@ -1753,7 +1753,7 @@ public class MailHandlerTest {
     public static class UselessComparator implements Comparator, Serializable {
         private static final long serialVersionUID = 7973575043680596722L;
 
-        @Override
+        //@Override
         public int compare(Object o1, Object o2) {
             return o1.toString().compareTo(o2.toString());
         }
@@ -1773,7 +1773,7 @@ public class MailHandlerTest {
             this.value = v;
         }
 
-        @Override
+        //@Override
         public boolean isLoggable(LogRecord r) {
             return value;
         }
