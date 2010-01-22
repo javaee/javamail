@@ -178,10 +178,13 @@
 				    <compilerVersion>1.4</compilerVersion>
 				    <source>1.4</source>
 				    <target>1.4</target>
-				    <!-- this class depends on JDK 1.5 APIs -->
+				    <!-- these classes depend on JDK 1.5 APIs -->
 				    <excludes>
 					<exclude>
 			com/sun/mail/imap/protocol/IMAPSaslAuthenticator.java
+					</exclude>
+					<exclude>
+			com/sun/mail/smtp/SMTPSaslAuthenticator.java
 					</exclude>
 				    </excludes>
 				</configuration>

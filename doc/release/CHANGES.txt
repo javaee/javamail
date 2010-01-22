@@ -32,6 +32,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add support for IMAP UNSELECT command
 <no id>	add mail.mime.contentypehandler System property, to clean Content-Type
 <no id>	add mail.mime.allowencodedmessages System property
+<no id>	add support for SASL authentication to SMTP provider
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

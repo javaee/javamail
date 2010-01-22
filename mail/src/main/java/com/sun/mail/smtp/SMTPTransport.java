@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -39,6 +39,7 @@ package com.sun.mail.smtp;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.lang.reflect.*;
 
 import javax.mail.*;
 import javax.mail.event.*;
@@ -105,7 +106,12 @@ public class SMTPTransport extends Transport {
     private String defaultAuthenticationMechanisms;	// set in constructor
 
     private boolean quitWait = false;	// true if we should wait
+
     private String saslRealm = UNKNOWN;
+    private String authorizationID = UNKNOWN;
+    private boolean enableSASL = false;	// enable SASL authentication
+    private String[] saslMechanisms = UNKNOWN_SA;
+
     private String ntlmDomain = UNKNOWN; // for ntlm authentication
 
     private boolean reportSuccess;	// throw an exception even on success
@@ -120,10 +126,13 @@ public class SMTPTransport extends Transport {
     private int lastReturnCode;		// last SMTP return code
     private boolean notificationDone;	// only notify once per send
 
+    private SaslAuthenticator saslAuthenticator; // if SASL is being used
+
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
     private static final byte[] CRLF = { (byte)'\r', (byte)'\n' };
     private static final String UNKNOWN = "UNKNOWN";	// place holder
+    private static final String[] UNKNOWN_SA = new String[0]; // place holder
 
     /**
      * Constructor that takes a Session object and a URLName
@@ -178,6 +187,12 @@ public class SMTPTransport extends Transport {
 	// mail.smtp.noop.strict requires 250 response to indicate success
 	noopStrict = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".noop.strict", true);
+
+	// check if SASL is enabled
+	enableSASL = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".sasl.enable", false);
+	if (debug && enableSASL)
+	    out.println("DEBUG SMTP: enable SASL");
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -256,6 +271,55 @@ public class SMTPTransport extends Transport {
     }
 
     /**
+     * Gets the authorization ID to be used for authentication.
+     *
+     * @return	the authorization ID to use for authentication.
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized String getAuthorizationId() {
+	if (authorizationID == UNKNOWN) {
+	    authorizationID =
+		session.getProperty("mail." + name + ".sasl.authorizationid");
+	}
+	return authorizationID;
+    }
+
+    /**
+     * Sets the authorization ID to be used for authentication.
+     *
+     * @param	authzid		the authroization ID to use for
+     *				authentication.
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized void setAuthorizationID(String authzid) {
+	this.authorizationID = authzid;
+    }
+
+    /**
+     * Is SASL authentication enabled?
+     *
+     * @return	true if SASL authentication is enabled
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized boolean getSASLEnabled() {
+	return enableSASL;
+    }
+
+    /**
+     * Set whether SASL authentication is enabled.
+     *
+     * @param	enableSASL	should we enable SASL authentication?
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized void setSASLEnabled(boolean enableSASL) {
+	this.enableSASL = enableSASL;
+    }
+
+    /**
      * Gets the SASL realm to be used for DIGEST-MD5 authentication.
      *
      * @return	the name of the realm to use for SASL authentication.
@@ -281,6 +345,52 @@ public class SMTPTransport extends Transport {
      */
     public synchronized void setSASLRealm(String saslRealm) {
 	this.saslRealm = saslRealm;
+    }
+
+    /**
+     * Get the list of SASL mechanisms to consider if SASL authentication
+     * is enabled.  If the list is empty or null, all available SASL mechanisms
+     * are considered.
+     *
+     * @return	the array of SASL mechanisms to consider
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized String[] getSASLMechanisms() {
+	if (saslMechanisms == UNKNOWN_SA) {
+	    List v = new ArrayList(5);
+	    String s = session.getProperty("mail." + name + ".sasl.mechanisms");
+	    if (s != null && s.length() > 0) {
+		if (debug)
+		    out.println("DEBUG SMTP: SASL mechanisms allowed: " + s);
+		StringTokenizer st = new StringTokenizer(s, " ,");
+		while (st.hasMoreTokens()) {
+		    String m = st.nextToken();
+		    if (m.length() > 0)
+			v.add(m);
+		}
+	    }
+	    saslMechanisms = new String[v.size()];
+	    v.toArray(saslMechanisms);
+	}
+	if (saslMechanisms == null)
+	    return null;
+	return (String[])saslMechanisms.clone();
+    }
+
+    /**
+     * Set the list of SASL mechanisms to consider if SASL authentication
+     * is enabled.  If the list is empty or null, all available SASL mechanisms
+     * are considered.
+     *
+     * @param	mechanisms	the array of SASL mechanisms to consider
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized void setSASLMechanisms(String[] mechanisms) {
+	if (mechanisms != null)
+	    mechanisms = (String[])mechanisms.clone();
+	this.saslMechanisms = mechanisms;
     }
 
     /**
@@ -552,6 +662,19 @@ public class SMTPTransport extends Transport {
 
 	if ((useAuth || (user != null && passwd != null)) &&
 	      (supportsExtension("AUTH") || supportsExtension("AUTH=LOGIN"))) {
+	    String authzid = getAuthorizationId();
+	    if (authzid == null)
+		authzid = user;
+	    if (enableSASL) {
+		if (debug)
+		    out.println("DEBUG SMTP: Authenticate with SASL");
+		if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
+				user, passwd))
+		    return true;	// success
+		if (debug)
+		    out.println("DEBUG SMTP: SASL authentication failed");
+	    }
+
 	    if (debug) {
 		out.println("DEBUG SMTP: Attempt to authenticate");
 		out.println("DEBUG SMTP: check mechanisms: " + mechs);
@@ -580,7 +703,7 @@ public class SMTPTransport extends Transport {
 		    continue;
 		}
 		// only first supported mechanism is used
-		return a.authenticate(host, user, passwd);
+		return a.authenticate(host, authzid, user, passwd);
 	    }
 
 	    // if no authentication mechanism found, close connection and fail
@@ -616,11 +739,11 @@ public class SMTPTransport extends Transport {
 	 * Delegate to the doAuth method to do the mechanism-specific
 	 * part of the handshake.
 	 */
-	boolean authenticate(String host, String user, String passwd)
-				throws MessagingException {
+	boolean authenticate(String host, String authzid,
+			String user, String passwd) throws MessagingException {
 	    try {
 		// use "initial response" capability, if supported
-		String ir = getInitialResponse(host, user, passwd);
+		String ir = getInitialResponse(host, authzid, user, passwd);
 		if (ir != null)
 		    resp = simpleCommand("AUTH " + mech + " " + ir);
 		else
@@ -638,7 +761,7 @@ public class SMTPTransport extends Transport {
 			resp = simpleCommand("AUTH " + mech);
 		}
 		if (resp == 334)
-		    doAuth(host, user, passwd);
+		    doAuth(host, authzid, user, passwd);
 	    } catch (IOException ex) {	// should never happen, ignore
 		if (debug)
 		    out.println("DEBUG: SMTP: " + mech + " failed: " + ex);
@@ -657,13 +780,13 @@ public class SMTPTransport extends Transport {
 	 * or null if not supported.  Subclasses that support the
 	 * initial response capability will override this method.
 	 */
-	String getInitialResponse(String host, String user, String passwd)
-				throws MessagingException, IOException {
+	String getInitialResponse(String host, String authzid, String user,
+		    String passwd) throws MessagingException, IOException {
 	    return null;
 	}
 
-	abstract void doAuth(String host, String user, String passwd)
-				throws MessagingException, IOException;
+	abstract void doAuth(String host, String authzid, String user,
+		    String passwd) throws MessagingException, IOException;
     }
 
     /**
@@ -674,7 +797,7 @@ public class SMTPTransport extends Transport {
 	    super("LOGIN");
 	}
 
-	void doAuth(String host, String user, String passwd)
+	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    // send username
 	    resp = simpleCommand(
@@ -695,21 +818,26 @@ public class SMTPTransport extends Transport {
 	    super("PLAIN");
 	}
 
-	void doAuth(String host, String user, String passwd)
-				    throws MessagingException, IOException {
-	    // send "<NUL>user<NUL>passwd"
-	    // XXX - we don't send an authorization identity
+	String getInitialResponse(String host, String authzid, String user,
+			String passwd) throws MessagingException, IOException {
+	    // return "authzid<NUL>user<NUL>passwd"
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	    OutputStream b64os =
 			new BASE64EncoderStream(bos, Integer.MAX_VALUE);
+	    b64os.write(ASCIIUtility.getBytes(authzid));
 	    b64os.write(0);
 	    b64os.write(ASCIIUtility.getBytes(user));
 	    b64os.write(0);
 	    b64os.write(ASCIIUtility.getBytes(passwd));
 	    b64os.flush(); 	// complete the encoding
 
-	    // send username
-	    resp = simpleCommand(bos.toByteArray());
+	    return ASCIIUtility.toString(bos.toByteArray());
+	}
+
+	void doAuth(String host, String authzid, String user, String passwd)
+				    throws MessagingException, IOException {
+	    // should never get here
+	    throw new AuthenticationFailedException("PLAIN asked for more");
 	}
     }
 
@@ -729,7 +857,7 @@ public class SMTPTransport extends Transport {
 	    return md5support;
 	}
 
-	void doAuth(String host, String user, String passwd)
+	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    DigestMD5 md5 = getMD5();
 	    if (md5 == null) {
@@ -763,8 +891,8 @@ public class SMTPTransport extends Transport {
 	    super("NTLM");
 	}
 
-	String getInitialResponse(String host, String user, String passwd)
-		throws MessagingException, IOException {
+	String getInitialResponse(String host, String authzid, String user,
+		String passwd) throws MessagingException, IOException {
 	    ntlm = new Ntlm(getNTLMDomain(), getLocalHost(),
 				user, passwd, debug ? out : null);
 
@@ -776,13 +904,72 @@ public class SMTPTransport extends Transport {
 	    return type1;
 	}
 
-	void doAuth(String host, String user, String passwd)
+	void doAuth(String host, String authzid, String user, String passwd)
 		throws MessagingException, IOException {
 	    String type3 = ntlm.generateType3Msg(
 		    getLastServerResponse().substring(4).trim());
 
 	    resp = simpleCommand(type3);
 	}
+    }
+
+    /**
+     * SASL-based login.
+     */
+    public boolean sasllogin(String[] allowed, String realm, String authzid,
+				String u, String p) throws MessagingException {
+	if (saslAuthenticator == null) {
+	    try {
+		Class sac = Class.forName(
+		    "com.sun.mail.smtp.SMTPSaslAuthenticator");
+		Constructor c = sac.getConstructor(new Class[] {
+					SMTPTransport.class,
+					String.class,
+					Properties.class,
+					Boolean.TYPE,
+					PrintStream.class,
+					String.class
+					});
+		saslAuthenticator = (SaslAuthenticator)c.newInstance(
+					new Object[] {
+					this,
+					name,
+					session.getProperties(),
+					debug ? Boolean.TRUE : Boolean.FALSE,
+					out,
+					host
+					});
+	    } catch (Exception ex) {
+		if (debug)
+		    out.println("DEBUG SMTP: Can't load SASL authenticator: " +
+								ex);
+		// probably because we're running on a system without SASL
+		return false;	// not authenticated, try without SASL
+	    }
+	}
+
+	// were any allowed mechanisms specified?
+	List v;
+	if (allowed != null && allowed.length > 0) {
+	    // remove anything not supported by the server
+	    v = new ArrayList(allowed.length);
+	    for (int i = 0; i < allowed.length; i++)
+		if (supportsAuthentication(allowed[i]))	// XXX - case must match
+		    v.add(allowed[i]);
+	} else {
+	    // everything is allowed
+	    v = new ArrayList();
+	    if (extMap != null) {
+		String a = (String)extMap.get("AUTH");
+		if (a != null) {
+		    StringTokenizer st = new StringTokenizer(a);
+		    while (st.hasMoreTokens())
+			v.add(st.nextToken());
+		}
+	    }
+	}
+	String[] mechs = (String[])v.toArray(new String[v.size()]);
+	return saslAuthenticator.authenticate(mechs, realm, authzid, u, p);
     }
 
     /**

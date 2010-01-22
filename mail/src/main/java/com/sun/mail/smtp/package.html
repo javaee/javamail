@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -116,6 +116,19 @@ you'll also need to supply an appropriate realm;
 your mail server administrator can supply this information.
 You can set this using the <code>mail.smtp.sasl.realm</code> property,
 or the <code>setSASLRealm</code> method on <code>SMTPTransport</code>.
+<P>
+The SMTP protocol provider can use SASL
+(<A HREF="http://www.ietf.org/rfc/rfc2222.txt" TARGET="_top">RFC 2222</A>)
+authentication mechanisms on systems that support the
+<CODE>javax.security.sasl</CODE> APIs, such as J2SE 5.0.
+In addition to the SASL mechanisms that are built into 
+the SASL implementation, users can also provide additional
+SASL mechanisms of their own design to support custom authentication
+schemes.  See the
+<A HREF="http://java.sun.com/j2se/1.5.0/docs/guide/security/sasl/sasl-refguide.html" TARGET="_top">
+Java SASL API Programming and Deployment Guide</A> for details.
+Note that the current implementation doesn't support SASL mechanisms
+that provide their own integrity or confidentiality layer.
 <P>
 SMTP can also optionally request Delivery Status Notifications
 (<A HREF="http://www.ietf.org/rfc/rfc1891.txt" TARGET="_top">RFC 1891</A>).
@@ -347,6 +360,34 @@ addresses, send the message anyway, reporting the partial failure with
 a SendFailedException.  If set to false (the default), the message is
 not sent to any of the recipients if there is an invalid recipient
 address.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.sasl.enable</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, attempt to use the javax.security.sasl package to
+choose an authentication mechanism for login.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.sasl.mechanisms</TD>
+<TD>String</TD>
+<TD>
+A space or comma separated list of SASL mechanism names to try
+to use.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.sasl.authorizationid</TD>
+<TD>String</TD>
+<TD>
+The authorization ID to use in the SASL authentication.
+If not set, the authentication ID (user name) is used.
 </TD>
 </TR>
 
