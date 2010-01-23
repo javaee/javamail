@@ -18,6 +18,8 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 		  ----------------------------
 The following bugs have been fixed in the 1.4.4 release.
 
+5057742	javax.mail.internet.MimeMessage.addFrom() violates RFC2822
+6778568	lower memory usage of POP3 parsing by buffering to disk
 6905730	MimeMessage.parse() is very slow on malformed message content
 6910675	IMAP provider can lose track of message sequence numbers
 G 11069	update the mail.jar manifest to include DynamicImport-Package

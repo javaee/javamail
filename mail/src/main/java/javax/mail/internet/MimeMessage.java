@@ -414,7 +414,16 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException
      */
     public void addFrom(Address[] addresses) throws MessagingException {
-	addAddressHeader("From", addresses);
+	Address[] a = getAddressHeader("From");
+	Address[] anew;
+	if (a == null || a.length == 0)
+	    anew = addresses;
+	else {
+	    anew = new Address[a.length + addresses.length];
+	    System.arraycopy(a, 0, anew, 0, a.length);
+	    System.arraycopy(addresses, 0, anew, a.length, addresses.length);
+	}
+	setHeader("From", InternetAddress.toString(anew));
     }
 
     /** 
