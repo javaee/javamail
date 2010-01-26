@@ -63,14 +63,14 @@ public class POP3Folder extends Folder {
 
     private String name;
     private POP3Store store;
-    private Protocol port;
+    private volatile Protocol port;
     private int total;
     private int size;
     private boolean exists = false;
-    private boolean opened = false;
+    private volatile boolean opened = false;
     private Vector message_cache;
     private boolean doneUidl = false;
-    private TempFile fileCache = null;
+    private volatile TempFile fileCache = null;
 
     POP3Folder(POP3Store store, String name) {
 	super(store);
@@ -530,28 +530,30 @@ public class POP3Folder extends Folder {
     }
 
     /* Ensure the folder is open */
-    void checkOpen() throws IllegalStateException {
+    private void checkOpen() throws IllegalStateException {
 	if (!opened) 
 	    throw new IllegalStateException("Folder is not Open");
     }
 
     /* Ensure the folder is not open */
-    void checkClosed() throws IllegalStateException {
+    private void checkClosed() throws IllegalStateException {
 	if (opened) 
 	    throw new IllegalStateException("Folder is Open");
     }
 
     /* Ensure the folder is open & readable */
-    void checkReadable() throws IllegalStateException {
+    private void checkReadable() throws IllegalStateException {
 	if (!opened || (mode != READ_ONLY && mode != READ_WRITE))
 	    throw new IllegalStateException("Folder is not Readable");
     }
 
     /* Ensure the folder is open & writable */
-    void checkWritable() throws IllegalStateException {
+    /*
+    private void checkWritable() throws IllegalStateException {
 	if (!opened || mode != READ_WRITE)
 	    throw new IllegalStateException("Folder is not Writable");
     }
+    */
 
     /**
      * Centralize access to the Protocol object by POP3Message
@@ -559,8 +561,10 @@ public class POP3Folder extends Folder {
      * is closed.
      */
     Protocol getProtocol() throws MessagingException {
+	Protocol p = port;	// read it before close() can set it to null
 	checkOpen();
-	return port;
+	// close() might happen here
+	return p;
     }
 
     /*
