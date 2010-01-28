@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -39,6 +39,7 @@ package com.sun.mail.mbox;
 import javax.mail.*;
 import javax.mail.event.*;
 import javax.mail.internet.*;
+import javax.mail.util.*;
 import java.io.*;
 import java.util.*;
 
@@ -54,7 +55,7 @@ public class MboxFolder extends Folder {
     private String name;	// null => the default folder
     private boolean is_inbox = false;
     private int total;		// total number of messages in mailbox
-    private boolean opened = false;
+    private volatile boolean opened = false;
     private Vector message_cache;
     private MboxStore mstore;
     private MailFile folder;
@@ -251,11 +252,26 @@ public class MboxFolder extends Folder {
 	checkClosed();
 	if (name == null)
 	    throw new MessagingException("can't delete default folder");
-	if (folder.delete()) {
+	boolean ret = true;
+	if (recurse && folder.isDirectory())
+	    ret = delete(new File(folder.getPath()));
+	if (ret && folder.delete()) {
 	    notifyFolderListeners(FolderEvent.DELETED);
 	    return true;
 	}
 	return false;
+    }
+
+    private boolean delete(File f) {
+	File[] files = f.listFiles();
+	boolean ret = true;
+	for (int i = 0; ret && i < files.length; i++) {
+	    if (files[i].isDirectory())
+		ret = delete(files[i]);
+	    else
+		ret = files[i].delete();
+	}
+	return ret;
     }
 
     public synchronized boolean renameTo(Folder f)
@@ -266,7 +282,7 @@ public class MboxFolder extends Folder {
 	if (!(f instanceof MboxFolder))
 	    throw new MessagingException("can't rename to: " + f.getName());
 	String newname = ((MboxFolder)f).folder.getPath();
-	if (folder.renameTo(new File(folder.getPath(), newname))) {
+	if (folder.renameTo(new File(newname))) {
 	    notifyFolderRenamedListeners(f);
 	    return true;
 	}
@@ -280,19 +296,19 @@ public class MboxFolder extends Folder {
     }
 
     /* Ensure the folder is not open */
-    void checkClosed() throws IllegalStateException {
+    private void checkClosed() throws IllegalStateException {
 	if (opened) 
 	    throw new IllegalStateException("Folder is Open");
     }
 
     /* Ensure the folder is open & readable */
-    void checkReadable() throws IllegalStateException {
+    private void checkReadable() throws IllegalStateException {
 	if (!opened || (mode != READ_ONLY && mode != READ_WRITE))
 	    throw new IllegalStateException("Folder is not Readable");
     }
 
     /* Ensure the folder is open & writable */
-    void checkWritable() throws IllegalStateException {
+    private void checkWritable() throws IllegalStateException {
 	if (!opened || mode != READ_WRITE)
 	    throw new IllegalStateException("Folder is not Writable");
     }
@@ -308,17 +324,22 @@ public class MboxFolder extends Folder {
 	if (opened)
 	    throw new IllegalStateException("Folder is already Open");
 
+	if (!folder.exists())
+	    throw new FolderNotFoundException(this, "Folder doesn't exist: " +
+					    folder.getPath());
 	this.mode = mode;
 	switch (mode) {
 	case READ_WRITE:
 	default:
 	    if (!folder.canWrite())
-		throw new MessagingException("Open Failure, can't write");
+		throw new MessagingException("Open Failure, can't write: " +
+					    folder.getPath());
 	    // fall through...
 
 	case READ_ONLY:
 	    if (!folder.canRead())
-		throw new MessagingException("Open Failure, can't read");
+		throw new MessagingException("Open Failure, can't read: " +
+					    folder.getPath());
 	    break;
 	}
 
@@ -333,17 +354,20 @@ public class MboxFolder extends Folder {
 	total = 0;
 	Message[] msglist = null;
 	try {
+	    // MboxMessage needs to know folder is open while loading
+	    opened = true;
 	    saved_file_size = folder.length();
 	    msglist = load(0L, false);
 	} catch (IOException e) {
 	    throw new MessagingException("IOException", e);
 	} finally {
+	    opened = false;	// in case we're throwing an exception
 	    folder.unlock();
 	}
 	notifyConnectionListeners(ConnectionEvent.OPENED);
 	if (msglist != null)
 	    notifyMessageAddedListeners(msglist);
-	opened = true;
+	opened = true;		// now really opened
     }
 
     public synchronized void close(boolean expunge) throws MessagingException {
@@ -640,7 +664,7 @@ e.printStackTrace();
 	} catch (IOException e) {
 	    throw new MessagingException("expunge failed", e);
 	}
-	if (wr == 0)
+	if (wr == total)	// wrote them all => nothing expunged
 	    return new Message[0];
 
 	/*
@@ -653,6 +677,7 @@ e.printStackTrace();
 	    MboxMessage msg =
 		(MboxMessage)message_cache.elementAt(msgno - 1);
 	    if (msg.isSet(Flags.Flag.DELETED)) {
+		msg.setExpunged(true);
 		msglist[del] = msg;
 		del++;
 		message_cache.removeElementAt(msgno - 1);
@@ -764,15 +789,17 @@ e.printStackTrace();
 	 * Now load the RFC822 headers into an InternetHeaders object.
 	 */
 	InternetHeaders hdrs = new InternetHeaders(is);
-	byte[] content = null;
+	InputStream stream = null;
 
 	try {
 	    int len;
 	    if ((len = contentLength(hdrs)) >= 0) {
-		content = new byte[len];
-		in.readFully(content);
+		byte[] buf = new byte[len];
+		in.readFully(buf);
+		stream = new SharedByteArrayInputStream(buf);
 	    } else {
-		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		SharedByteArrayOutputStream buf =
+		    new SharedByteArrayOutputStream(0);
 		int b;
 
 		/*
@@ -799,7 +826,7 @@ e.printStackTrace();
 		    }
 		    buf.write(b);
 		}
-		content = buf.toByteArray();
+		stream = buf.toStream();
 		//env.setContentSize(content.length);
 	    }
 	} catch (EOFException e) {
@@ -810,7 +837,7 @@ e.printStackTrace();
 	     */
 	}
 
-	return new MboxMessage(this, hdrs, content, msgno, unix_from, writable);
+	return new MboxMessage(this, hdrs, stream, msgno, unix_from, writable);
     }
 
     /**
@@ -1116,5 +1143,20 @@ class match {
 	    }
 	}
 	return s_index >= s_len;
+    }
+}
+
+/**
+ * A ByteArrayOutputStream that allows us to share the byte array
+ * rather than copy it.  Eventually could replace this with something
+ * that doesn't require a single contiguous byte array.
+ */
+class SharedByteArrayOutputStream extends ByteArrayOutputStream {
+    public SharedByteArrayOutputStream(int size) {
+	super(size);
+    }
+
+    public InputStream toStream() {
+	return new SharedByteArrayInputStream(buf, 0, count);
     }
 }

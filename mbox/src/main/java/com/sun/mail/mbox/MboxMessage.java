@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -92,16 +92,17 @@ public class MboxMessage extends MimeMessage {
 
     /**
      * Construct an MboxMessage using the given InternetHeaders object
-     * and byte array contents.
+     * and content from an InputStream.
      */
-    public MboxMessage(MboxFolder folder, InternetHeaders hdrs, byte[] content,
+    public MboxMessage(MboxFolder folder, InternetHeaders hdrs, InputStream is,
 				int msgno, String unix_from, boolean writable)
 				throws MessagingException {
-	super(folder, hdrs, content, msgno);
+	super(folder, hdrs, null, msgno);
 	setFlagsFromHeaders();
 	origFlags = getFlags();
 	this.unix_from = unix_from;
 	this.writable = writable;
+	this.contentStream = is;
     }
 
     /**
@@ -244,6 +245,10 @@ public class MboxMessage extends MimeMessage {
      * @see #content
      */
     protected InputStream getContentStream() throws MessagingException {
+	if (folder != null)
+	    ((MboxFolder)folder).checkOpen();
+	if (isExpunged())
+	    throw new MessageRemovedException("mbox message expunged");
 	if (!isSet(Flags.Flag.SEEN))
 	    setFlag(Flags.Flag.SEEN, true);
 	return super.getContentStream();
@@ -270,16 +275,26 @@ public class MboxMessage extends MimeMessage {
 	return dh;
     }
 
+    // here only to allow package private access from MboxFolder
+    protected void setMessageNumber(int msgno) {
+	super.setMessageNumber(msgno);
+    }
+
+    // here to synchronize access to expunged field
+    public synchronized boolean isExpunged() {
+	return super.isExpunged();
+    }
+
+    // here to synchronize and to allow access from MboxFolder
+    protected synchronized void setExpunged(boolean expunged) {
+	super.setExpunged(expunged);
+    }
+
     // XXX - We assume that only body parts that are part of a SunV3
     // multipart will use the SunV3 headers (X-Sun-Content-Length,
     // X-Sun-Content-Lines, X-Sun-Data-Type, X-Sun-Encoding-Info,
     // X-Sun-Data-Description, X-Sun-Data-Name) so we don't handle
     // them here.
-
-    // here only to allow package private access from MboxFolder
-    protected void setMessageNumber(int msgno) {
-	super.setMessageNumber(msgno);
-    }
 
     /**
      * Set the flags for this message based on the Status,
@@ -394,6 +409,10 @@ public class MboxMessage extends MimeMessage {
      * Save any changes made to this message.
      */
     public void saveChanges() throws MessagingException {
+	if (folder != null)
+	    ((MboxFolder)folder).checkOpen();
+	if (isExpunged())
+	    throw new MessageRemovedException("mbox message expunged");
 	if (!writable)
 	    throw new MessagingException("Message is read-only");
 
@@ -455,5 +474,31 @@ public class MboxMessage extends MimeMessage {
 	} catch (MessagingException e) {
 	    throw new IOException("unexpected exception " + e);
 	}
+    }
+
+    /**
+     * Interpose on superclass method to make sure folder is still open
+     * and message hasn't been expunged.
+     */
+    public String[] getHeader(String name)
+			throws MessagingException {
+	if (folder != null)
+	    ((MboxFolder)folder).checkOpen();
+	if (isExpunged())
+	    throw new MessageRemovedException("mbox message expunged");
+	return super.getHeader(name);
+    }
+
+    /**
+     * Interpose on superclass method to make sure folder is still open
+     * and message hasn't been expunged.
+     */
+    public String getHeader(String name, String delimiter)
+				throws MessagingException {
+	if (folder != null)
+	    ((MboxFolder)folder).checkOpen();
+	if (isExpunged())
+	    throw new MessageRemovedException("mbox message expunged");
+	return super.getHeader(name, delimiter);
     }
 }

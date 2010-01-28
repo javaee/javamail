@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -74,14 +74,18 @@ public class MboxStore extends Store {
     }
 
     /**
-     * since we do not have any authentication
+     * Since we do not have any authentication
      * to do and we do not want a dialog put up asking the user for a 
      * password we always succeed in connecting.
+     * But if we're given a password, that means the user is
+     * doing something wrong so fail the request.
      */
     protected boolean protocolConnect(String host, int port, String user,
-			      String passwd) throws MessagingException {
+				String passwd) throws MessagingException {
 
-	// we always succeed in connecting
+	if (passwd != null)
+	    throw new AuthenticationFailedException(
+				"mbox does not allow passwords");
 	// XXX - should we use the user?
 	return true;
     }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,7 +43,9 @@ public class SolarisMailbox extends Mailbox {
     private String user;
 
     public SolarisMailbox() {
-	home = System.getProperty("user.home");
+	home = System.getenv("HOME");
+	if (home == null)
+	    home = System.getProperty("user.home");
 	user = System.getProperty("user.name");
     }
 
@@ -77,7 +79,10 @@ public class SolarisMailbox extends Mailbox {
 		if (folder.equalsIgnoreCase("INBOX")) {
 		    if (user == null)	// XXX - should never happen
 			user = this.user;
-		    return "/var/mail/" + user;
+		    String inbox = System.getenv("MAIL");
+		    if (inbox == null)
+			inbox = "/var/mail/" + user;
+		    return inbox;
 		} else
 		    return home + File.separator + folder;
 	    }

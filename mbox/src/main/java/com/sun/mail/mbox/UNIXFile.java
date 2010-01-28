@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,30 +57,27 @@ public class UNIXFile extends File {
 	} catch (UnsatisfiedLinkError e) {
 	    String classpath = System.getProperty("java.class.path");
 	    String sep = System.getProperty("path.separator");
+	    String arch = System.getProperty("os.arch");
 	    StringTokenizer st = new StringTokenizer(classpath, sep);
 	    while (st.hasMoreTokens()) {
 		String path = st.nextToken();
-		int i = path.length() - 7;	// 7 == "classes".length()
-		if (i > 0 && path.substring(i).equals("classes")) {
-		    // XXX - pathname is Solaris/SPARC specific
-		    String lib = path.substring(0, i) + "lib/sparc/libmbox.so";
+		if (path.endsWith("/classes") || path.endsWith("/mail.jar")) {
+		    int i = path.lastIndexOf('/');
+		    String libdir = path.substring(0, i + 1) + "lib/";
+		    String lib = libdir + arch + "/libmbox.so";
 		    try {
 			System.load(lib);
 			lloaded = true;
 			break;
 		    } catch (UnsatisfiedLinkError e2) {
-			continue;
-		    }
-		} else if ((i = path.length() - 8) > 0 &&
-					path.substring(i).equals("mail.jar")) {
-		    // XXX - pathname is Solaris/SPARC specific
-		    String lib = path.substring(0, i) + "lib/sparc/libmbox.so";
-		    try {
-			System.load(lib);
-			lloaded = true;
-			break;
-		    } catch (UnsatisfiedLinkError e2) {
-			continue;
+			lib = libdir + "libmbox.so";
+			try {
+			    System.load(lib);
+			    lloaded = true;
+			    break;
+			} catch (UnsatisfiedLinkError e3) {
+			    continue;
+			}
 		    }
 		}
 	    }
