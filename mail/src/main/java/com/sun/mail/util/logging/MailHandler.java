@@ -499,7 +499,7 @@ public class MailHandler extends Handler {
             if (this.capacity > 0) {
                 this.capacity = -this.capacity;
                 if (size == 0) { //ensure not inside a push.
-                    reset();
+                    this.data = new LogRecord[1];
                 }
             }
             assert this.capacity < 0;
@@ -1049,9 +1049,8 @@ public class MailHandler extends Handler {
 
         for (int i = 0; i < expect; i++) {
             if (this.attachmentNames[i] == null) {
-                //use String.valueOf to ensure non null string.
                 this.attachmentNames[i] = new TailNameFormatter(
-                        String.valueOf(this.attachmentFormatters[i]));
+                        toString(this.attachmentFormatters[i]));
             }
         }
         return fixed;
@@ -1085,16 +1084,11 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Sets the size to zero and clears or trims the current buffer.
+     * Sets the size to zero and clears the current buffer.
      */
     private final void reset() {
         assert Thread.holdsLock(this);
-        final int lvl = super.getLevel().intValue();
-        if (lvl == offValue) {
-            this.data = new LogRecord[1];
-        } else {
-            Arrays.fill(data, 0, size, null);
-        }
+        Arrays.fill(data, 0, size, null);
         this.size = 0;
     }
 
@@ -1159,19 +1153,23 @@ public class MailHandler extends Handler {
         }
     }
 
-    private /*<T> T*/ Object objectFromNew(final String name, final Class/*<T>*/ type) throws NoSuchMethodException {
+    private /*<T> T*/ Object objectFromNew(final String name,
+            final Class/*<T>*/ type) throws NoSuchMethodException {
         Object obj = null;
         try {
             try {
                 try {
                     Class clazz = LogManagerProperties.findClass(name);
                     if (type.isAssignableFrom(clazz)) {
-                        return clazz.getConstructor((Class[]) null).newInstance((Object[]) null);
+                        return clazz.getConstructor((Class[]) null).
+                                newInstance((Object[]) null);
                     } else {
-                        throw new ClassCastException(clazz.getName() + " cannot be cast to " + type.getName());
+                        throw new ClassCastException(clazz.getName() +
+                                " cannot be cast to " + type.getName());
                     }
                 } catch (final NoClassDefFoundError NCDFE) {
-                    throw (ClassNotFoundException) new ClassNotFoundException(NCDFE.getMessage()).initCause(NCDFE);
+                    throw (ClassNotFoundException) new ClassNotFoundException(
+                            NCDFE.getMessage()).initCause(NCDFE);
                 }
             } catch (final ClassNotFoundException CNFE) {
                 if (type == Formatter.class) {
@@ -1272,7 +1270,6 @@ public class MailHandler extends Handler {
         }
 
         this.data = new LogRecord[Math.min(INITIAL_DATA_LENGTH, capacity)];
-        reset();
     }
 
     private void initEncoding(LogManager manager, String p) {
@@ -1291,7 +1288,8 @@ public class MailHandler extends Handler {
     private void initFormatter(String p) {
         assert Thread.holdsLock(this);
         try {
-            final Formatter formatter = (Formatter) initObject(p.concat(".formatter"), Formatter.class);
+            final Formatter formatter = (Formatter)
+                    initObject(p.concat(".formatter"), Formatter.class);
             if (formatter != null && formatter instanceof TailNameFormatter == false) {
                 super.setFormatter(formatter);
             } else {
@@ -1313,7 +1311,8 @@ public class MailHandler extends Handler {
     private void initComparator(String p) {
         assert Thread.holdsLock(this);
         try {
-            this.comparator = (Comparator) this.initObject(p.concat(".comparator"), Comparator.class);
+            this.comparator = (Comparator)
+                    this.initObject(p.concat(".comparator"), Comparator.class);
         } catch (final Exception RE) {
             reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
         }
@@ -1362,8 +1361,8 @@ public class MailHandler extends Handler {
 
     /**
      * Check if any attachment would actually format the given
-     * <tt>LogRecord</tt>.  Because this method is private, it avoids checking
-     * the handler level for OFF.
+     * <tt>LogRecord</tt>.  This method does not check if the handler
+     * is level is set to OFF or if the handler is closed.
      * @param record  a <tt>LogRecord</tt>
      * @return true if the <tt>LogRecord</tt> would be formatted.
      */
@@ -1420,9 +1419,9 @@ public class MailHandler extends Handler {
                 try { //use super call so we do not prefix raw email.
                     super.reportError(toRawString(msg), E, code);
                 } catch (final MessagingException rawMe) {
-                    reportError(rawMe.toString(), E, code); //report original cause.
+                    reportError(toMsgString(rawMe), E, code); //report original cause.
                 } catch (final IOException rawIo) {
-                    reportError(rawIo.toString(), E, code); //report original cause.
+                    reportError(toMsgString(rawIo), E, code); //report original cause.
                 }
             }
         }
@@ -1446,6 +1445,8 @@ public class MailHandler extends Handler {
     /**
      * Formats all records in the buffer and places the output in a Message.
      * This method holds a lock on this handler.
+     * Normally code would not aggressively null locals but with this running
+     * on older JVMs it seems better to trade time for space.
      * @param priority true for high priority or false for normal.
      * @param code the error manager code.
      * @return null if there are no records or is currently in a push.
@@ -1504,7 +1505,8 @@ public class MailHandler extends Handler {
                 }
 
                 for (int i = 0; i < parts.length; i++) {
-                    if (attachmentFilters[i] == null || attachmentFilters[i].isLoggable(r)) {
+                    final Filter af = attachmentFilters[i];
+                    if (af == null || af.isLoggable(r)) {
                         if (parts[i] == null) {
                             parts[i] = createBodyPart(i);
                             buffers[i] = new StringBuffer();
@@ -1515,7 +1517,9 @@ public class MailHandler extends Handler {
                         buffers[i].append(format(attachmentFormatters[i], r));
                     }
                 }
+                data[ix] = null; //clear while formatting.
             }
+            this.size = 0;
 
             for (int i = parts.length - 1; i >= 0; i--) {
                 if (parts[i] != null) {
@@ -1526,7 +1530,7 @@ public class MailHandler extends Handler {
                     if (content.length() > 0) {
                         String name = parts[i].getFileName();
                         if (name == null || name.length() == 0) {
-                            parts[i].setFileName(attachmentFormatters[i].toString());
+                            parts[i].setFileName(toString(attachmentFormatters[i]));
                         }
                         parts[i].setText(content);
                     } else {
@@ -1544,28 +1548,19 @@ public class MailHandler extends Handler {
 
             appendSubject(msg, tail(subjectFormatter, ""));
 
-            reset();
+            Multipart multipart = new MimeMultipart();
+            BodyPart body = createBodyPart();
+            setContent(body, buf, contentType);
+            buf = null;
+            multipart.addBodyPart(body);
 
-            if (parts.length > 0) {
-                Multipart multipart = new MimeMultipart();
-                if (buf.length() > 0) {
-                    BodyPart body = createBodyPart();
-                    setContent(body, buf, contentType);
-                    multipart.addBodyPart(body);
+            for (int i = 0; i < parts.length; i++) {
+                if (parts[i] != null) {
+                    multipart.addBodyPart(parts[i]);
                 }
-                buf = null;
-
-                for (int i = 0; i < parts.length; i++) {
-                    if (parts[i] != null) {
-                        multipart.addBodyPart(parts[i]);
-                    }
-                }
-                parts = null;
-                msg.setContent(multipart);
-            } else {
-                setContent(msg, buf, contentType);
-                buf = null;
             }
+            parts = null;
+            msg.setContent(multipart);
 
             msg.setSentDate(new java.util.Date());
             return msg;
@@ -1613,14 +1608,29 @@ public class MailHandler extends Handler {
         assert Thread.holdsLock(this);
         final MimeBodyPart part = new MimeBodyPart();
         part.setDisposition(Part.ATTACHMENT);
-        part.setDescription(descriptionFrom(attachmentFormatters[index], attachmentFilters[index]));
+        part.setDescription(descriptionFrom(
+                attachmentFormatters[index], attachmentFilters[index]));
         return part;
     }
 
     private String descriptionFrom(Formatter formatter, Filter filter) {
-        return "Formatted using " + formatter.getClass().getName() +
-                " and filtered with " + (filter == null ? "no filter"
+        return "Formatted using " + formatter.getClass().getName()
+                + " and filtered with " + (filter == null ? "no filter"
                 : filter.getClass().getName()) + '.';
+    }
+
+    /**
+     * Ensure that a formatter creates a valid string.
+     * @param f the formatter.
+     * @return the to string value or the class name.
+     */
+    private String toString(final Formatter f) {
+        final String name = f.toString();
+        if (name != null && name.length() > 0) {
+            return name;
+        } else {
+            return f.getClass().getName();
+        }
     }
 
     /**
@@ -1723,7 +1733,8 @@ public class MailHandler extends Handler {
             if (k == mail) {
                 value = mail.getName();
             } else {
-                value = mail.getName() + " using the " + k.getName() + " extension.";
+                value = mail.getName() + " using the " +
+                        k.getName() + " extension.";
             }
             msg.setHeader("X-Mailer", value);
         } catch (final MessagingException ME) {
@@ -1810,7 +1821,8 @@ public class MailHandler extends Handler {
         return new AddressException(msg);
     }
 
-    private void setRecipient(Message msg, Properties props, String key, Message.RecipientType type) {
+    private void setRecipient(Message msg, Properties props,
+            String key, Message.RecipientType type) {
         final String value = props.getProperty(key);
         if (value != null && value.length() > 0) {
             try {
@@ -1844,12 +1856,28 @@ public class MailHandler extends Handler {
         }
     }
 
+    /**
+     * Converts a throwable to a message string.  This method is called when
+     * Message.writeTo throws an exception.
+     * @param t any throwable.
+     * @return the throwable with a stack trace.
+     */
+    private String toMsgString(final Throwable t) {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+        final PrintStream ps = new PrintStream(out);
+        ps.println(t.getMessage());
+        t.printStackTrace(ps);
+        ps.flush();
+        return out.toString();
+    }
+
     private static RuntimeException attachmentMismatch(String msg) {
         return new IndexOutOfBoundsException(msg);
     }
 
     private static RuntimeException attachmentMismatch(int expected, int found) {
-        return attachmentMismatch("Attachments mismatched, expected " + expected + " but given " + found + '.');
+        return attachmentMismatch("Attachments mismatched, expected " +
+                expected + " but given " + found + '.');
     }
 
     private static String atIndexMsg(int i) {
