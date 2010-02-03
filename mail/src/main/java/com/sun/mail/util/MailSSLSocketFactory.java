@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,9 +47,9 @@ import javax.net.ssl.*;
 /**
  * An SSL socket factory that makes it easier to specify trust.
  * This socket factory can be configured to trust all hosts or
- * or trust a specific set of hosts, in which case the server's
+ * trust a specific set of hosts, in which case the server's
  * certificate isn't verified.  Alternatively, a custom TrustManager
- * can be supplied.
+ * can be supplied. <p>
  *
  * An instance of this factory can be set as the value of the
  * <code>mail.&lt;protocol&gt;.ssl.socketFactory</code> property.
