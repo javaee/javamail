@@ -56,12 +56,31 @@ public class MboxFolder extends Folder {
     private boolean is_inbox = false;
     private int total;		// total number of messages in mailbox
     private volatile boolean opened = false;
-    private Vector message_cache;
+    private List messages;
+    private TempFile temp;
     private MboxStore mstore;
     private MailFile folder;
     private long file_size;	// the size the last time we read or wrote it
     private long saved_file_size; // size at the last open, close, or expunge
-    private MboxMessage special_imap_message;
+    private boolean special_imap_message;
+
+    /**
+     * Metadata for each message, to avoid instantiating MboxMessage
+     * objects for messages we're not going to look at. <p>
+     *
+     * MboxFolder keeps an array of these objects corresponding to
+     * each message in the folder.  Access to the array elements is
+     * synchronized, but access to contents of this object is not.
+     * The metadata stored here is only accessed if the message field
+     * is null; otherwise the MboxMessage object contains the metadata.
+     */
+    static final class MessageMetadata {
+	public long end;	// offset in temp file of end of this message
+	public MboxMessage message;	// the message itself
+	public boolean recent;	// message is recent?
+	public boolean deleted;	// message is marked deleted?
+	public boolean imap;	// special imap message?
+    }
 
     public MboxFolder(MboxStore store, String name) {
 	super(store);
@@ -248,7 +267,6 @@ public class MboxFolder extends Folder {
 
     public synchronized boolean delete(boolean recurse)
 					throws MessagingException {
-	// XXX - implement recurse
 	checkClosed();
 	if (name == null)
 	    throw new MessagingException("can't delete default folder");
@@ -262,6 +280,9 @@ public class MboxFolder extends Folder {
 	return false;
     }
 
+    /**
+     * Recursively delete the specified file/directory.
+     */
     private boolean delete(File f) {
 	File[] files = f.listFiles();
 	boolean ret = true;
@@ -299,6 +320,26 @@ public class MboxFolder extends Folder {
     private void checkClosed() throws IllegalStateException {
 	if (opened) 
 	    throw new IllegalStateException("Folder is Open");
+    }
+
+    /*
+     * Check that the given message number is within the range
+     * of messages present in this folder. If the message
+     * number is out of range, we check to see if new messages
+     * have arrived.
+     */
+    private void checkRange(int msgno) throws MessagingException {
+	if (msgno < 1) // message-numbers start at 1
+	    throw new IndexOutOfBoundsException("message number < 1");
+
+	if (msgno <= total)
+	    return;
+
+	// Out of range, let's check if there are any new messages.
+	getMessageCount();
+
+	if (msgno > total) // Still out of range ? Throw up ...
+	    throw new IndexOutOfBoundsException(msgno + " > " + total);
     }
 
     /* Ensure the folder is open & readable */
@@ -350,18 +391,16 @@ public class MboxFolder extends Folder {
 	}
 	if (!folder.lock("r"))
 	    throw new MessagingException("Failed to lock folder: " + name);
-	message_cache = new Vector();
+	messages = new ArrayList();
 	total = 0;
 	Message[] msglist = null;
 	try {
-	    // MboxMessage needs to know folder is open while loading
-	    opened = true;
+	    temp = new TempFile(null);
 	    saved_file_size = folder.length();
 	    msglist = load(0L, false);
 	} catch (IOException e) {
 	    throw new MessagingException("IOException", e);
 	} finally {
-	    opened = false;	// in case we're throwing an exception
 	    folder.unlock();
 	}
 	notifyConnectionListeners(ConnectionEvent.OPENED);
@@ -381,13 +420,15 @@ public class MboxFolder extends Folder {
 		    throw new MessagingException("I/O Exception", e);
 		}
 	    }
-	    message_cache = null;
+	    messages = null;
 	} finally {
 	    opened = false;
 	    if (is_inbox && folder instanceof InboxFile) {
 		InboxFile inf = (InboxFile)folder;
 		inf.closeLock();
 	    }
+	    temp.close();
+	    temp = null;
 	    notifyConnectionListeners(ConnectionEvent.CLOSED);
 	}
     }
@@ -408,15 +449,23 @@ public class MboxFolder extends Folder {
 	 */
 	int modified = 0, deleted = 0, recent = 0;
 	for (int msgno = 1; msgno <= total; msgno++) {
-	    MboxMessage msg =
-		(MboxMessage)message_cache.elementAt(msgno - 1);
-	    Flags flags = msg.getFlags();
-	    if (msg.isModified() || !msg.origFlags.equals(flags))
-		modified++;
-	    if (flags.contains(Flags.Flag.DELETED))
-		deleted++;
-	    if (flags.contains(Flags.Flag.RECENT))
-	        recent++;
+	    MessageMetadata md =
+		(MessageMetadata)messages.get(messageIndexOf(msgno));
+	    MboxMessage msg = md.message;
+	    if (msg != null) {
+		Flags flags = msg.getFlags();
+		if (msg.isModified() || !msg.origFlags.equals(flags))
+		    modified++;
+		if (flags.contains(Flags.Flag.DELETED))
+		    deleted++;
+		if (flags.contains(Flags.Flag.RECENT))
+		    recent++;
+	    } else {
+		if (md.deleted)
+		    deleted++;
+		if (md.recent)
+		    recent++;
+	    }
 	}
 	if ((!closing || recent == 0) && (!expunge || deleted == 0) &&
 		modified == 0)
@@ -425,7 +474,6 @@ public class MboxFolder extends Folder {
 	/*
 	 * Have to save any new mail that's been appended to the
 	 * folder since we last loaded it.
-	 * XXX - Should do this without actually loading the messages in.
 	 */
 	if (!folder.lock("rw"))
 	    throw new MessagingException("Failed to lock folder: " + name);
@@ -439,17 +487,32 @@ public class MboxFolder extends Folder {
 	int wr = 0;
 	boolean keep = true;
 	try {
-	    if (special_imap_message != null)
-		writeMboxMessage(special_imap_message, os);
+	    if (special_imap_message)
+		appendStream(getMessageStream(0), os);
 	    for (int msgno = 1; msgno <= total; msgno++) {
-		MboxMessage msg =
-		    (MboxMessage)message_cache.elementAt(msgno - 1);
-		if (expunge && msg.isSet(Flags.Flag.DELETED))
-		    continue;	// skip it;
-		if (closing && msgno <= oldtotal &&
+		MessageMetadata md =
+		    (MessageMetadata)messages.get(messageIndexOf(msgno));
+		MboxMessage msg = md.message;
+		if (msg != null) {
+		    if (expunge && msg.isSet(Flags.Flag.DELETED))
+			continue;	// skip it;
+		    if (closing && msgno <= oldtotal &&
 						msg.isSet(Flags.Flag.RECENT))
-		    msg.setFlag(Flags.Flag.RECENT, false);
-		writeMboxMessage(msg, os);
+			msg.setFlag(Flags.Flag.RECENT, false);
+		    writeMboxMessage(msg, os);
+		} else {
+		    if (expunge && md.deleted)
+			continue;	// skip it;
+		    if (closing && msgno <= oldtotal && md.recent) {
+			// have to instantiate message so that we can
+			// clear the recent flag
+			msg = (MboxMessage)getMessage(msgno);
+			msg.setFlag(Flags.Flag.RECENT, false);
+			writeMboxMessage(msg, os);
+		    } else {
+			appendStream(getMessageStream(msgno), os);
+		    }
+		}
 		folder.touchlock();
 		wr++;
 	    }
@@ -502,6 +565,22 @@ e.printStackTrace();
 		notifyMessageAddedListeners(msglist);
 	}
 	return wr;
+    }
+
+    /**
+     * Append the input stream to the output stream, closing the
+     * input stream when done.
+     */
+    private static final void appendStream(InputStream is, OutputStream os)
+				throws IOException {
+	try {
+	    byte[] buf = new byte[64 * 1024];
+	    int len;
+	    while ((len = is.read(buf)) > 0)
+		os.write(buf, 0, len);
+	} finally {
+	    is.close();
+	}
     }
 
     /**
@@ -603,12 +682,39 @@ e.printStackTrace();
     public synchronized Message getMessage(int msgno)
 				throws MessagingException {
 	checkReadable();
+	checkRange(msgno);
 
-	MboxMessage m = null;
-
-	if (msgno <= total)
-	    m = (MboxMessage)message_cache.elementAt(msgno - 1);
+	MessageMetadata md =
+	    (MessageMetadata)messages.get(messageIndexOf(msgno));
+	MboxMessage m = md.message;
+	if (m == null) {
+	    InputStream is = getMessageStream(msgno);
+	    try {
+		m = loadMessage(is, msgno, mode == READ_WRITE);
+	    } catch (IOException ex) {
+		MessagingException mex =
+		    new MessageRemovedException("mbox message gone: " + ex);
+		mex.initCause(ex);
+		throw mex;
+	    }
+	    md.message = m;
+	}
 	return m;
+    }
+
+    private final int messageIndexOf(int msgno) {
+	return special_imap_message ? msgno : msgno - 1;
+    }
+
+    private InputStream getMessageStream(int msgno) {
+	int index = messageIndexOf(msgno);
+	long start;
+	if (index == 0)
+	    start = 0;
+	else
+	    start = ((MessageMetadata)messages.get(index - 1)).end;
+	long end = ((MessageMetadata)messages.get(index)).end;
+	return temp.newStream(start, end);
     }
 
     public synchronized void appendMessages(Message[] msgs)
@@ -674,17 +780,32 @@ e.printStackTrace();
 	Message[] msglist = new Message[total - wr];
 	int msgno = 1;
 	while (msgno <= total) {
-	    MboxMessage msg =
-		(MboxMessage)message_cache.elementAt(msgno - 1);
-	    if (msg.isSet(Flags.Flag.DELETED)) {
-		msg.setExpunged(true);
-		msglist[del] = msg;
-		del++;
-		message_cache.removeElementAt(msgno - 1);
-		total--;
+	    MessageMetadata md =
+		(MessageMetadata)messages.get(messageIndexOf(msgno));
+	    MboxMessage msg = md.message;
+	    if (msg != null) {
+		if (msg.isSet(Flags.Flag.DELETED)) {
+		    msg.setExpunged(true);
+		    msglist[del] = msg;
+		    del++;
+		    messages.remove(messageIndexOf(msgno));
+		    total--;
+		} else {
+		    msg.setMessageNumber(msgno);	// update message number
+		    msgno++;
+		}
 	    } else {
-		msg.setMessageNumber(msgno);	// update message number
-		msgno++;
+		if (md.deleted) {
+		    // have to instantiate it for the notification
+		    msg = (MboxMessage)getMessage(msgno);
+		    msg.setExpunged(true);
+		    msglist[del] = msg;
+		    del++;
+		    messages.remove(messageIndexOf(msgno));
+		    total--;
+		} else {
+		    msgno++;
+		}
 	    }
 	}
 	if (del != msglist.length)		// this is really an assert
@@ -699,51 +820,28 @@ e.printStackTrace();
     private Message[] load(long offset, boolean notify)
 				throws MessagingException, IOException {
 	int oldtotal = total;
-	try {
-	    boolean first = offset == 0;
-	    BufferedInputStream in = new BufferedInputStream(
-				new FileInputStream(folder.getFD()), 8192);
-	    skipFully(in, offset);
+	MessageLoader loader = new MessageLoader(temp);
+	int loaded = loader.load(folder.getFD(), offset, messages);
+	total += loaded;
+	file_size = folder.length();
 
+	if (offset == 0 && loaded > 0) {
 	    /*
-	     * Keep constructing new messages based on the InputStream
-	     * until we get an EOFException indicating the end of the mailbox.
+	     * If the first message is the special message that the
+	     * IMAP server adds to the mailbox, remember that we've
+	     * seen it so it won't be shown to the user.
 	     */
-	    for (;;) {
-		MboxMessage msg = loadMessage(in, total, mode == READ_WRITE);
-		if (first) {
-		    first = false;
-		    /*
-		     * If the first message is the special message that the
-		     * IMAP server adds to the mailbox, hide it away in a
-		     * special place and don't let the user see it.
-		     */
-		    if (msg.getHeader("X-IMAP") != null) {
-			special_imap_message = msg;
-			continue;
-		    }
-		    /*
-		     * Following only works with Sun server, don't use it...
-		    String subj = msg.getSubject();
-		    if (subj != null &&
-		      subj.equals("IMAP4 Server Data-DO NOT DELETE")) {
-			special_imap_message = msg;
-			continue;
-		    }
-		     */
-		}
-		total++;
-		msg.setMessageNumber(total);
-		message_cache.addElement((Object)msg);
+	    MessageMetadata md = (MessageMetadata)messages.get(0);
+	    if (md.imap) {
+		special_imap_message = true;
+		total--;
+		loaded--;
 	    }
-	} catch (EOFException e) {
-	    // done
-	    file_size = folder.length();
 	}
 	if (notify) {
 	    Message[] msglist = new Message[total - oldtotal];
 	    for (int i = oldtotal, j = 0; i < total; i++, j++)
-		msglist[j] = (Message)message_cache.elementAt(i);
+		msglist[j] = getMessage(i + 1);
 	    return msglist;
 	} else
 	    return null;
@@ -751,8 +849,9 @@ e.printStackTrace();
 
     /**
      * Parse the input stream and return an appropriate message object.
+     * The InputStream must be a SharedInputStream.
      */
-    private MboxMessage loadMessage(BufferedInputStream is, int msgno,
+    private MboxMessage loadMessage(InputStream is, int msgno,
 		boolean writable) throws MessagingException, IOException {
 	DataInputStream in = new DataInputStream(is);
 
@@ -789,54 +888,10 @@ e.printStackTrace();
 	 * Now load the RFC822 headers into an InternetHeaders object.
 	 */
 	InternetHeaders hdrs = new InternetHeaders(is);
-	InputStream stream = null;
 
-	try {
-	    int len;
-	    if ((len = contentLength(hdrs)) >= 0) {
-		byte[] buf = new byte[len];
-		in.readFully(buf);
-		stream = new SharedByteArrayInputStream(buf);
-	    } else {
-		SharedByteArrayOutputStream buf =
-		    new SharedByteArrayOutputStream(0);
-		int b;
-
-		/*
-		 * Read bytes until we see "\nFrom ", then
-		 * back up to the beginning of that string.
-		 */
-
-		while ((b = is.read()) >= 0) {
-		    if (b == '\r' || b == '\n') {
-			is.mark(6);
-			if (b == '\r' && is.read() != '\n') {
-			    is.reset();
-			    is.mark(5);
-			}
-			if (is.read() == 'F' &&
-			    is.read() == 'r' &&
-			    is.read() == 'o' &&
-			    is.read() == 'm' &&
-			    is.read() == ' ') {
-			    is.reset();
-			    break;
-			}
-			is.reset();
-		    }
-		    buf.write(b);
-		}
-		stream = buf.toStream();
-		//env.setContentSize(content.length);
-	    }
-	} catch (EOFException e) {
-	    /*
-	     * We're done with this message.
-	     * Next attempt to read a message
-	     * will throw EOFException (see above).
-	     */
-	}
-
+	// the rest is the message content
+	SharedInputStream sis = (SharedInputStream)is;
+	InputStream stream = sis.newStream(sis.getPosition(), -1);
 	return new MboxMessage(this, hdrs, stream, msgno, unix_from, writable);
     }
 
