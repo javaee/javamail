@@ -1537,7 +1537,24 @@ public class SMTPTransport extends Transport {
 	if (ext != null && ext.length() > 0)
 	    cmd += " " + ext;
 
-	issueSendCommand(cmd, 250);
+	try {
+	    issueSendCommand(cmd, 250);
+	} catch (SMTPSendFailedException ex) {
+	    int retCode = ex.getReturnCode();
+	    switch (retCode) {
+	    case 550: case 553: case 503: case 551: case 501:
+		// given address is invalid
+		try {
+		    ex.setNextException(new SMTPSenderFailedException(
+			new InternetAddress(from), cmd,
+			retCode, ex.getMessage()));
+		} catch (AddressException aex) {
+		    // oh well...
+		}
+		break;
+	    }
+	    throw ex;
+	}
     }
 
     /**

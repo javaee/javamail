@@ -91,6 +91,7 @@
 			com/sun/mail/smtp/SMTPAddressFailedException.java,
 			com/sun/mail/smtp/SMTPAddressSucceededException.java,
 			com/sun/mail/smtp/SMTPSendFailedException.java,
+			com/sun/mail/smtp/SMTPSenderFailedException.java,
 			com/sun/mail/smtp/SMTPTransport.java,
 			com/sun/mail/smtp/SMTPSSLTransport.java,
 			com/sun/mail/util/MailSSLSocketFactory.java,

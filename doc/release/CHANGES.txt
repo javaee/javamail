@@ -35,6 +35,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add mail.mime.contentypehandler System property, to clean Content-Type
 <no id>	add mail.mime.allowencodedmessages System property
 <no id>	add support for SASL authentication to SMTP provider
+<no id>	add SMTPSenderFailedException to indicate problems with sender address
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
