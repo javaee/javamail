@@ -492,7 +492,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * the "Content-Type" header field of this body part.
      * Returns <code>null</code> if both are absent. <p>
      *
-     * If the <code>mail.mime.encodefilename</code> System property
+     * If the <code>mail.mime.decodefilename</code> System property
      * is set to true, the {@link MimeUtility#decodeText
      * MimeUtility.decodeText} method will be used to decode the
      * filename.  While such encoding is not supported by the MIME
