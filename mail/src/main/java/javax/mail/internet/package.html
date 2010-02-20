@@ -401,6 +401,19 @@ line.  The default value of this property is false.
 </TR>
 
 <TR>
+<TD>mail.mime. ignoremultipartencoding</TD>
+<TD>boolean</TD>
+<TD>
+The MIME spec does not allow body parts of type multipart/* to be encoded.
+The Content-Transfer-Encoding header is ignored in this case.
+Setting this System property to <code>"false"</code> will
+cause the Content-Transfer-Encoding header to be honored for multipart
+content.
+The default value of this property is true.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.mime.allowencodedmessages</TD>
 <TD>boolean</TD>
 <TD>

@@ -61,10 +61,6 @@ public class MimePartDataSource implements DataSource, MessageAware {
 
     private MessageContext context;
 
-    private static final boolean ignoreMultipartEncoding =
-	PropUtil.getBooleanSystemProperty(
-	    "mail.mime.ignoremultipartencoding", true);
-
     /**
      * Constructor, that constructs a DataSource from a MimePart.
      */
@@ -99,7 +95,8 @@ public class MimePartDataSource implements DataSource, MessageAware {
 	    else
 		throw new MessagingException("Unknown part");
 	    
-	    String encoding = restrictEncoding(part.getEncoding(), part);
+	    String encoding =
+		MimeBodyPart.restrictEncoding(part, part.getEncoding());
 	    if (encoding != null)
 		return MimeUtility.decode(is, encoding);
 	    else
@@ -108,45 +105,6 @@ public class MimePartDataSource implements DataSource, MessageAware {
 	    throw new IOException(mex.getMessage());
 	}
     }
-
-    /**
-     * Restrict the encoding to values allowed for the
-     * Content-Type of the specified MimePart.  Returns
-     * either the original encoding or null.
-     */
-    private static String restrictEncoding(String encoding, MimePart part)
-				throws MessagingException {
-	if (!ignoreMultipartEncoding || encoding == null)
-	    return encoding;
-
-	if (encoding.equalsIgnoreCase("7bit") ||
-		encoding.equalsIgnoreCase("8bit") ||
-		encoding.equalsIgnoreCase("binary"))
-	    return encoding;	// these encodings are always valid
-
-	String type = part.getContentType();
-	if (type == null)
-	    return encoding;
-
-	try {
-	    /*
-	     * multipart and message types aren't allowed to have
-	     * encodings except for the three mentioned above.
-	     * If it's one of these types, ignore the encoding.
-	     */
-	    ContentType cType = new ContentType(type);
-	    if (cType.match("multipart/*"))
-		return null;
-	    if (cType.match("message/*") &&
-		    !PropUtil.getBooleanSystemProperty(
-			"mail.mime.allowencodedmessages", false))
-		return null;
-	} catch (ParseException pex) {
-	    // ignore it
-	}
-	return encoding;
-    }
-
 
     /**
      * DataSource method to return an output stream. <p>

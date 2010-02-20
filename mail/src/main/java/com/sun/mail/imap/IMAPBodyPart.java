@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,7 +48,7 @@ import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
 
 /**
- * This class 
+ * An IMAP body part.
  *
  * @author  John Mani
  */
@@ -63,6 +63,9 @@ public class IMAPBodyPart extends MimeBodyPart {
     private String description;
 
     private boolean headersLoaded = false;
+
+    private static final boolean decodeFileName =
+	PropUtil.getBooleanSystemProperty("mail.mime.decodefilename", false);
 
     protected IMAPBodyPart(BODYSTRUCTURE bs, String sid, IMAPMessage message) {
 	super();
@@ -146,6 +149,13 @@ public class IMAPBodyPart extends MimeBodyPart {
 	    filename = bs.dParams.get("filename");
 	if (filename == null && bs.cParams != null)
 	    filename = bs.cParams.get("name");
+	if (decodeFileName && filename != null) {
+	    try {
+		filename = MimeUtility.decodeText(filename);
+	    } catch (UnsupportedEncodingException ex) {
+		throw new MessagingException("Can't decode filename", ex);
+	    }
+	}
 	return filename;
     }
 

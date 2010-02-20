@@ -90,6 +90,9 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	PropUtil.getBooleanSystemProperty("mail.mime.encodefilename", false);
     private static final boolean decodeFileName =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodefilename", false);
+    private static final boolean ignoreMultipartEncoding =
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.ignoremultipartencoding", true);
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
@@ -1264,6 +1267,44 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	part.setHeader("Content-Transfer-Encoding", encoding);
     }
 
+    /**
+     * Restrict the encoding to values allowed for the
+     * Content-Type of the specified MimePart.  Returns
+     * either the original encoding or null.
+     */
+    static String restrictEncoding(MimePart part, String encoding)
+				throws MessagingException {
+	if (!ignoreMultipartEncoding || encoding == null)
+	    return encoding;
+
+	if (encoding.equalsIgnoreCase("7bit") ||
+		encoding.equalsIgnoreCase("8bit") ||
+		encoding.equalsIgnoreCase("binary"))
+	    return encoding;	// these encodings are always valid
+
+	String type = part.getContentType();
+	if (type == null)
+	    return encoding;
+
+	try {
+	    /*
+	     * multipart and message types aren't allowed to have
+	     * encodings except for the three mentioned above.
+	     * If it's one of these types, ignore the encoding.
+	     */
+	    ContentType cType = new ContentType(type);
+	    if (cType.match("multipart/*"))
+		return null;
+	    if (cType.match("message/*") &&
+		    !PropUtil.getBooleanSystemProperty(
+			"mail.mime.allowencodedmessages", false))
+		return null;
+	} catch (ParseException pex) {
+	    // ignore it
+	}
+	return encoding;
+    }
+
     static void updateHeaders(MimePart part) throws MessagingException {
 	DataHandler dh = part.getDataHandler();
 	if (dh == null) // Huh ?
@@ -1426,7 +1467,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		while ((len = is.read(buf)) > 0)
 		    os.write(buf, 0, len);
 	    } else {
-		os = MimeUtility.encode(os, part.getEncoding());
+		os = MimeUtility.encode(os,
+			restrictEncoding(part, part.getEncoding()));
 		part.getDataHandler().writeTo(os);
 	    }
 	} finally {
