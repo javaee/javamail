@@ -414,16 +414,7 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException
      */
     public void addFrom(Address[] addresses) throws MessagingException {
-	Address[] a = getAddressHeader("From");
-	Address[] anew;
-	if (a == null || a.length == 0)
-	    anew = addresses;
-	else {
-	    anew = new Address[a.length + addresses.length];
-	    System.arraycopy(a, 0, anew, 0, a.length);
-	    System.arraycopy(addresses, 0, anew, a.length, addresses.length);
-	}
-	setHeader("From", InternetAddress.toString(anew));
+	addAddressHeader("From", addresses);
     }
 
     /** 
@@ -711,10 +702,21 @@ public class MimeMessage extends Message implements MimePart {
 
     private void addAddressHeader(String name, Address[] addresses)
 			throws MessagingException {
-	String s = InternetAddress.toString(addresses);
+	if (addresses.length == 0)
+	    return;
+	Address[] a = getAddressHeader(name);
+	Address[] anew;
+	if (a == null || a.length == 0)
+	    anew = addresses;
+	else {
+	    anew = new Address[a.length + addresses.length];
+	    System.arraycopy(a, 0, anew, 0, a.length);
+	    System.arraycopy(addresses, 0, anew, a.length, addresses.length);
+	}
+	String s = InternetAddress.toString(anew);
 	if (s == null)
 	    return;
-	addHeader(name, s);
+	setHeader(name, s);
     }
 
     /**
