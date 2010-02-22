@@ -702,7 +702,7 @@ public class MimeMessage extends Message implements MimePart {
 
     private void addAddressHeader(String name, Address[] addresses)
 			throws MessagingException {
-	if (addresses.length == 0)
+	if (addresses == null || addresses.length == 0)
 	    return;
 	Address[] a = getAddressHeader(name);
 	Address[] anew;
