@@ -489,6 +489,24 @@ Defaults to false.
 </TD>
 </TR>
 
+<TR>
+<TD>mail.pop3.keepmessagecontent</TD>
+<TD>boolean</TD>
+<TD>
+The content of a message is cached when it is first fetched.
+Normally this cache uses a {@link java.lang.ref.SoftReference SoftReference}
+to refer to the cached content.  This allows the cached content to be purged
+if memory is low, in which case the content will be fetched again if it's
+needed.
+If this property is set to true, a hard reference to the cached content
+will be kept, preventing the memory from being reused until the folder
+is closed or the cached content is explicitly invalidated (using the
+{@link com.sun.mail.pop3.POP3Message#invalidate invalidate} method).
+(This was the behavior in previous versions of JavaMail.)
+Defaults to false.
+</TD>
+</TR>
+
 </TABLE>
 <P>
 In general, applications should not need to use the classes in this

@@ -38,6 +38,7 @@ package com.sun.mail.pop3;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.lang.ref.SoftReference;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.event.*;
@@ -63,6 +64,9 @@ public class POP3Message extends MimeMessage {
     private int hdrSize = -1;
     private int msgSize = -1;
     String uid = UNKNOWN;	// controlled by folder lock
+
+    // contentData itself is never null
+    private SoftReference contentData = new SoftReference(null);
 
     public POP3Message(Folder folder, int msgno)
 			throws MessagingException {
@@ -99,8 +103,6 @@ public class POP3Message extends MimeMessage {
     public int getSize() throws MessagingException {
 	try {
 	    synchronized (this) {
-		if (msgSize >= 0)
-		    return msgSize;
 		if (msgSize < 0) {
 		    /*
 		     * Use LIST to determine the entire message
@@ -108,13 +110,12 @@ public class POP3Message extends MimeMessage {
 		     * (which may involve loading the headers,
 		     * which may load the content as a side effect).
 		     * If the content is loaded as a side effect of
-		     * loading the headers, get the size directly.
+		     * loading the headers, it will set the size.
 		     */
 		    if (headers == null)
 			loadHeaders();
-		    if (contentStream != null)
-			msgSize = contentStream.available();
-		    else
+
+		    if (msgSize < 0)
 			msgSize = folder.getProtocol().list(msgnum) - hdrSize;
 		}
 		return msgSize;
@@ -134,9 +135,11 @@ public class POP3Message extends MimeMessage {
      * @see #contentStream
      */
     protected InputStream getContentStream() throws MessagingException {
+	InputStream cstream = null;
 	try {
 	synchronized(this) {
-	    if (contentStream == null) {
+	    cstream = (InputStream)contentData.get();
+	    if (cstream == null) {
 		InputStream rawcontent = null;
 		TempFile cache = folder.getFileCache();
 		if (cache != null) {
@@ -214,9 +217,19 @@ public class POP3Message extends MimeMessage {
 		    hdrSize =
 			(int)((SharedInputStream)rawcontent).getPosition();
 		}
-		contentStream =
+		cstream =
 		    ((SharedInputStream)rawcontent).newStream(hdrSize, -1);
+		msgSize = cstream.available();
 		rawcontent = null;	// help GC
+
+		/*
+		 * Keep a hard reference to the content if we're using a file
+		 * cache or if the "mail.pop3.keepmessagecontent" prop is set.
+		 */
+		if (cache != null ||
+			((POP3Store)(folder.getStore())).keepMessageContent)
+		    contentStream = cstream;
+		contentData = new SoftReference(cstream);
 	    }
 	}
 	} catch (EOFException eex) {
@@ -225,7 +238,7 @@ public class POP3Message extends MimeMessage {
 	} catch (IOException ex) {
 	    throw new MessagingException("error fetching POP3 content", ex);
 	}
-	return super.getContentStream();
+	return cstream;
     }
 
     /**
@@ -238,14 +251,16 @@ public class POP3Message extends MimeMessage {
      */
     public synchronized void invalidate(boolean invalidateHeaders) {
 	content = null;
-	if (contentStream != null) {
+	InputStream cstream = (InputStream)contentData.get();
+	if (cstream != null) {
 	    // note that if the content is in the file cache, it will be lost
 	    // and fetched from the server if it's needed again
 	    try {
-		contentStream.close();
+		cstream.close();
 	    } catch (IOException ex) {
 		// ignore it
 	    }
+	    contentData = new SoftReference(null);
 	    contentStream = null;
 	}
 	msgSize = -1;

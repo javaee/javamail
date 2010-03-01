@@ -38,6 +38,8 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add support for SASL authentication to SMTP provider
 <no id>	add SMTPSenderFailedException to indicate problems with sender address
 <no id>	ignore encoding for composite content when writing message
+<no id>	cache POP3 content using java.lang.ref.SoftReference,
+	set mail.pop3.keepmessagecontent to true to disable
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

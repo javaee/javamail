@@ -85,6 +85,7 @@ public class POP3Store extends Store {
     volatile boolean cacheWriteTo = false;
     volatile boolean useFileCache = false;
     volatile File fileCacheDir = null;
+    volatile boolean keepMessageContent = false;
 
     public POP3Store(Session session, URLName url) {
 	this(session, url, "pop3", false);
@@ -119,6 +120,7 @@ public class POP3Store extends Store {
 	    out.println("DEBUG POP3: mail." + name + ".filecache.dir: " + dir);
 	if (dir != null)
 	    fileCacheDir = new File(dir);
+	keepMessageContent = getBoolProp("keepmessagecontent");
 
 	// mail.pop3.starttls.enable enables use of STLS command
 	useStartTLS = getBoolProp("starttls.enable");
