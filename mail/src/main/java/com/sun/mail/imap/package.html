@@ -217,6 +217,13 @@ Default is false.</TD>
 </TR>
 
 <TR>
+<TD>mail.imap.auth.ntlm.disable</TD>
+<TD>boolean</TD>
+<TD>If true, prevents use of the <code>AUTHENTICATE NTLM</code> command.
+Default is false.</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.proxyauth.user</TD>
 <TD>String</TD>
 <TD>If the server supports the PROXYAUTH extension, this property
@@ -331,29 +338,6 @@ See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
 http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
 </TD>
 </TR>
-
-<!--
-<TR>
-<TD>mail.imap.auth.ntlm.unicode</TD>
-<TD>boolean</TD>
-<TD>
-Set this to "true" if the username or password may use
-Unicode UTF-8 encoded characters.  Default is "true".
-Currently has no effect.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.imap.auth.ntlm.lmcompat</TD>
-<TD>int</TD>
-<TD>
-Sets the LM compatibility level, as described here:
-<A HREF="http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2" TARGET="_top">
-http://curl.haxx.se/rfc/ntlm.html#ntlmVersion2</A>
-Defaults to "3".  Currently not used.
-</TD>
-</TR>
--->
 
 <TR>
 <TD>mail.imap.socketFactory</TD>
