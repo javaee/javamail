@@ -1572,6 +1572,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Expunge the indicated messages, which must have been marked as DELETED.
+     *
+     * Depends on the UIDPLUS extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
      */
     public synchronized Message[] expunge(Message[] msgs)
 				throws MessagingException {
