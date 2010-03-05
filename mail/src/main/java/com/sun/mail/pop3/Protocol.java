@@ -40,6 +40,7 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import java.security.*;
+import javax.net.ssl.SSLSocket;
 
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.SocketFetcher;
@@ -67,12 +68,16 @@ class Protocol {
     private String prefix;		// protocol name prefix, for props
     private DataInputStream input;	// input buf
     private PrintWriter output;		// output buf
-    private static final int POP3_PORT = 110; // standard POP3 port
-    private static final String CRLF = "\r\n";
     private boolean debug = false;
     private PrintStream out;
     private String apopChallenge = null;
     private Map capabilities = null;
+    private boolean pipelining;
+
+    private static final int POP3_PORT = 110; // standard POP3 port
+    private static final String CRLF = "\r\n";
+    // sometimes the returned size isn't quite big enough
+    private static final int SLOP = 128;
 
     /** 
      * Open a connection to the POP3 server.
@@ -86,10 +91,8 @@ class Protocol {
 	this.props = props;
 	this.prefix = prefix;
 	Response r;
-	boolean enableAPOP = PropUtil.getBooleanProperty(props,
-					prefix + ".apop.enable", false);
-	boolean disableCapa = PropUtil.getBooleanProperty(props,
-					prefix + ".disablecapa", false);
+	boolean enableAPOP = getBoolProp(props, prefix + ".apop.enable");
+	boolean disableCapa = getBoolProp(props, prefix + ".disablecapa");
 	try {
 	    if (port == -1)
 		port = POP3_PORT;
@@ -127,6 +130,23 @@ class Protocol {
 	// if server supports RFC 2449, set capabilities
 	if (!disableCapa)
 	    setCapabilities(capa());
+
+	pipelining = hasCapability("PIPELINING") ||
+	    PropUtil.getBooleanProperty(props, prefix + ".pipelining", false);
+	if (pipelining && debug)
+	    out.println("DEBUG POP3: PIPELINING enabled");
+    }
+
+    /**
+     * Get the value of a boolean property.
+     * Print out the value if debug is set.
+     */
+    private final synchronized boolean getBoolProp(Properties props,
+				String prop) {
+	boolean val = PropUtil.getBooleanProperty(props, prop, false);
+	if (debug)
+	    out.println("DEBUG POP3: " + prop + ": " + val);
+	return val;
     }
 
     private void initStreams() throws IOException {
@@ -194,11 +214,29 @@ class Protocol {
     synchronized String login(String user, String password)
 					throws IOException {
 	Response r;
+	// only pipeline password if connection is secure
+	boolean batch = pipelining && socket instanceof SSLSocket;
 	String dpw = null;
 	if (apopChallenge != null)
 	    dpw = getDigest(password);
 	if (apopChallenge != null && dpw != null) {
 	    r = simpleCommand("APOP " + user + " " + dpw);
+	} else if (batch) {
+	    String cmd = "USER " + user;
+	    batchCommandStart(cmd);
+	    issueCommand(cmd);
+	    cmd = "PASS " + password;
+	    batchCommandContinue(cmd);
+	    issueCommand(cmd);
+	    r = readResponse();
+	    if (!r.ok) {
+		String err = r.data != null ? r.data : "USER command failed";
+		r = readResponse();
+		batchCommandEnd();
+		return err;
+	    }
+	    r = readResponse();
+	    batchCommandEnd();
 	} else {
 	    r = simpleCommand("USER " + user);
 	    if (!r.ok)
@@ -338,7 +376,85 @@ class Protocol {
      * us to share the array.
      */
     synchronized InputStream retr(int msg, int size) throws IOException {
-	Response r = multilineCommand("RETR " + msg, size);
+	Response r;
+	String cmd;
+	boolean batch = size == 0 && pipelining;
+	if (batch) {
+	    cmd = "LIST " + msg;
+	    batchCommandStart(cmd);
+	    issueCommand(cmd);
+	    cmd = "RETR " + msg;
+	    batchCommandContinue(cmd);
+	    issueCommand(cmd);
+	    r = readResponse();
+	    if (r.ok && r.data != null) {
+		// parse the LIST response to get the message size
+		try {
+		    StringTokenizer st = new StringTokenizer(r.data);
+		    st.nextToken();    // skip message number
+		    size = Integer.parseInt(st.nextToken());
+		    // don't allow ridiculous sizes
+		    if (size > 1024*1024*1024 || size < 0)
+			size = 0;
+		    else {
+			if (debug)
+			    out.println(
+				"DEBUG POP3: pipeline message size " + size);
+			size += SLOP;
+		    }
+		} catch (Exception e) {
+		}
+	    }
+	    r = readResponse();
+	    if (r.ok)
+		r.bytes = readMultilineResponse(size + SLOP);
+	    batchCommandEnd();
+	} else {
+	    cmd = "RETR " + msg;
+	    multilineCommandStart(cmd);
+	    issueCommand(cmd);
+	    r = readResponse();
+	    if (!r.ok) {
+		multilineCommandEnd();
+		return null;
+	    }
+
+	    /*
+	     * Many servers return a response to the RETR command of the form:
+	     * +OK 832 octets
+	     * If we don't have a size guess already, try to parse the response
+	     * for data in that format and use it if found.  It's only a guess,
+	     * but it might be a good guess.
+	     */
+	    if (size <= 0 && r.data != null) {
+		try {
+		    StringTokenizer st = new StringTokenizer(r.data);
+		    String s = st.nextToken();
+		    String octets = st.nextToken();
+		    if (octets != null && octets.equals("octets")) {
+			size = Integer.parseInt(s);
+			// don't allow ridiculous sizes
+			if (size > 1024*1024*1024 || size < 0)
+			    size = 0;
+			else {
+			    if (debug)
+				out.println(
+				    "DEBUG POP3: guessing message size: " +
+					size);
+			    size += SLOP;
+			}
+		    }
+		} catch (Exception e) {
+		}
+	    }
+	    r.bytes = readMultilineResponse(size);
+	    multilineCommandEnd();
+	}
+	if (r.ok) {
+	    if (debug && size > 0)
+		out.println(
+		    "DEBUG POP3: got message size " + r.bytes.available());
+	}
 	return r.bytes;
     }
 
@@ -347,7 +463,10 @@ class Protocol {
      * specified OutputStream.  Return true on success.
      */
     synchronized boolean retr(int msg, OutputStream os) throws IOException {
-	Response r = simpleCommand("RETR " + msg);
+	String cmd = "RETR " + msg;
+	multilineCommandStart(cmd);
+	issueCommand(cmd);
+	Response r = readResponse();
 	if (!r.ok) {
 	    multilineCommandEnd();
 	    return false;
@@ -529,18 +648,34 @@ class Protocol {
      */
     private Response simpleCommand(String cmd) throws IOException {
 	simpleCommandStart(cmd);
+	issueCommand(cmd);
+	Response r = readResponse();
+	simpleCommandEnd();
+	return r;
+    }
+
+    /**
+     * Send the specified command.
+     */
+    private void issueCommand(String cmd) throws IOException {
 	if (socket == null)
 	    throw new IOException("Folder is closed");	// XXX
 
+	if (cmd != null) {
+	    if (debug)
+		out.println("C: " + cmd);
+	    cmd += CRLF;
+	    output.print(cmd);	// do it in one write
+	    output.flush();
+	}
+    }
+
+    /**
+     * Read the response to a command.
+     */
+    private Response readResponse() throws IOException {
 	String line = null;
 	try {
-	    if (cmd != null) {
-		if (debug)
-		    out.println("C: " + cmd);
-		cmd += CRLF;
-		output.print(cmd);	// do it in one write
-		output.flush();
-	    }
 	    line = input.readLine();	// XXX - readLine is deprecated
 	} catch (InterruptedIOException iioex) {
 	    /*
@@ -573,7 +708,6 @@ class Protocol {
 	int i;
 	if ((i = line.indexOf(' ')) >= 0)
 	    r.data = line.substring(i + 1);
-	simpleCommandEnd();
 	return r;
     }
 
@@ -583,12 +717,24 @@ class Protocol {
      */
     private Response multilineCommand(String cmd, int size) throws IOException {
 	multilineCommandStart(cmd);
-	Response r = simpleCommand(cmd);
+	issueCommand(cmd);
+	Response r = readResponse();
 	if (!r.ok) {
 	    multilineCommandEnd();
-	    return (r);
+	    return r;
 	}
+	r.bytes = readMultilineResponse(size);
+	multilineCommandEnd();
+	return r;
+    }
 
+    /**
+     * Read the response to a multiline command after the command response.
+     * The size parameter indicates the expected size of the response;
+     * the actual size can be different.  Returns an InputStream to the
+     * response bytes.
+     */
+    private InputStream readMultilineResponse(int size) throws IOException {
 	SharedByteArrayOutputStream buf = new SharedByteArrayOutputStream(size);
 	int b, lastb = '\n';
 	try {
@@ -614,7 +760,7 @@ class Protocol {
 	    }
 	} catch (InterruptedIOException iioex) {
 	    /*
-	     * As above in simpleCommand, close the socket to recover.
+	     * As above in readResponse, close the socket to recover.
 	     */
 	    try {
 		socket.close();
@@ -623,9 +769,7 @@ class Protocol {
 	}
 	if (b < 0)
 	    throw new EOFException("EOF on socket");
-	r.bytes = buf.toStream();
-	multilineCommandEnd();
-	return r;
+	return buf.toStream();
     }
 
     /*
@@ -635,6 +779,9 @@ class Protocol {
     private void simpleCommandEnd() { }
     private void multilineCommandStart(String command) { }
     private void multilineCommandEnd() { }
+    private void batchCommandStart(String command) { }
+    private void batchCommandContinue(String command) { }
+    private void batchCommandEnd() { }
 }
 
 /**

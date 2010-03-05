@@ -151,6 +151,31 @@ Note that if the file cache is being used the data in the file will be
 forgotten and fetched from the server if it's needed again, and stored again
 in the file cache.
 <P>
+The POP3 CAPA command (defined by
+<A HREF="http://www.ietf.org/rfc/rfc2449.txt" TARGET="_top">RFC 2449</A>)
+will be used to determine the capabilities supported by the server.
+Some servers don't implement the CAPA command, and some servers don't
+return correct information, so various properties are available to
+disable use of certain POP3 commands, including CAPA.
+<P>
+If the server advertises the PIPELINING capability (defined by
+<A HREF="http://www.ietf.org/rfc/rfc2449.txt" TARGET="_top">RFC 2449</A>),
+or the <CODE>mail.pop3.pipelining</CODE> property is set, the POP3
+provider will send some commands in batches, which can significantly
+improve performance and memory use.
+Some servers that don't support the CAPA command or don't advertise
+PIPELINING may still support pipelining; experimentation may be required.
+<P>
+If pipelining is supported and the connection is using
+SSL, the USER and PASS commands will be sent as a batch.
+(If SSL is not being used, the PASS command isn't sent
+until the user is verified to avoid exposing the password
+if the user name is bad.)
+<P>
+If pipelining is supported, when fetching a message with the RETR command,
+the LIST command will be sent as well, and the result will be used to size
+the I/O buffer, greatly reducing memory usage when fetching messages.
+<P>
 The POP3 protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
 The properties are always set as strings; the Type column describes

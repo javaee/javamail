@@ -40,6 +40,8 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	ignore encoding for composite content when writing message
 <no id>	cache POP3 content using java.lang.ref.SoftReference,
 	set mail.pop3.keepmessagecontent to true to disable
+<no id>	add POP3 PIPELINING support
+<no id>	reduce POP3 memory usage, especially if server supports pipelining
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
