@@ -1177,6 +1177,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Return the permanent flags supported by the server.
      */
     public synchronized Flags getPermanentFlags() {
+	if (permanentFlags == null)
+	    return null;
 	return (Flags)(permanentFlags.clone());
     }
 

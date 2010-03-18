@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -643,7 +643,7 @@ public abstract class Folder {
      * Get the permanent flags supported by this Folder. Returns a Flags
      * object that contains all the flags supported. <p>
      *
-     * The special flag <code>Flags.USER </code> indicates that this Folder
+     * The special flag <code>Flags.Flag.USER </code> indicates that this Folder
      * supports arbitrary user-defined flags. <p>
      *
      * The supported permanent flags for a folder may not be available
