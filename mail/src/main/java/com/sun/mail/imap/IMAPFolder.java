@@ -1719,6 +1719,58 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	}
     }
 
+    /**
+     * Sort the messages in the folder according to the sort criteria.
+     * The messages are returned in the sorted order, but the order of
+     * the messages in the folder is not changed.
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized Message[] getSortedMessages(SortTerm[] term)
+				throws MessagingException {
+	return getSortedMessages(term, null);
+    }
+
+    /**
+     * Sort the messages in the folder according to the sort criteria.
+     * The messages are returned in the sorted order, but the order of
+     * the messages in the folder is not changed.  Only messages matching
+     * the search criteria are considered.
+     *
+     * @since JavaMail 1.4.4
+     */
+    public synchronized Message[] getSortedMessages(SortTerm[] term,
+				SearchTerm sterm) throws MessagingException {
+	checkOpened();
+
+	try {
+	    Message[] matchMsgs = null;
+
+	    synchronized(messageCacheLock) {
+		int[] matches = getProtocol().sort(term, sterm);
+		if (matches != null) {
+		    matchMsgs = new IMAPMessage[matches.length];
+		    // Map seq-numbers into actual Messages.
+		    for (int i = 0; i < matches.length; i++)	
+			matchMsgs[i] = getMessageBySeqNumber(matches[i]);
+		}
+	    }
+	    return matchMsgs;
+
+	} catch (CommandFailedException cfx) {
+	    // unsupported charset or search criterion
+	    throw new MessagingException(cfx.getMessage(), cfx);
+	} catch (SearchException sex) {
+	    // too complex for IMAP
+	    throw new MessagingException(sex.getMessage(), sex);
+	} catch (ConnectionException cex) {
+	    throw new FolderClosedException(this, cex.getMessage());
+	} catch (ProtocolException pex) {
+	    // bug in our IMAP layer ?
+	    throw new MessagingException(pex.getMessage(), pex);
+	}
+    }
+
     /*
      * Override Folder method to keep track of whether we have any
      * message count listeners.  Normally we won't have any, so we

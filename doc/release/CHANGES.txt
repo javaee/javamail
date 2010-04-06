@@ -42,6 +42,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 	set mail.pop3.keepmessagecontent to true to disable
 <no id>	add POP3 PIPELINING support
 <no id>	reduce POP3 memory usage, especially if server supports pipelining
+<no id>	add support for IMAP SORT extension (RFC 5256) to IMAPFolder
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

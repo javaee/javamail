@@ -52,6 +52,7 @@ import com.sun.mail.auth.Ntlm;
 import com.sun.mail.imap.ACL;
 import com.sun.mail.imap.Rights;
 import com.sun.mail.imap.AppendUID;
+import com.sun.mail.imap.SortTerm;
 
 /**
  * This class extends the iap.Protocol object and implements IMAP
@@ -267,6 +268,15 @@ public class IMAPProtocol extends Protocol {
      * returns false.
      */
     public boolean hasCapability(String c) {
+	if (c.endsWith("*")) {
+	    c = c.substring(0, c.length() - 1).toUpperCase(Locale.ENGLISH);
+	    Iterator it = capabilities.keySet().iterator();
+	    while (it.hasNext()) {
+		if (((String)it.next()).startsWith(c))
+		    return true;
+	    }
+	    return false;
+	}
 	return capabilities.containsKey(c.toUpperCase(Locale.ENGLISH));
     }
 
@@ -1570,7 +1580,8 @@ public class IMAPProtocol extends Protocol {
 	return search("ALL", term);
     }
 
-    /* Apply the given SearchTerm on the specified sequence.
+    /*
+     * Apply the given SearchTerm on the specified sequence.
      * Returns array of matching sequence numbers. Note that an empty
      * array is returned for no matches.
      */
@@ -1656,6 +1667,78 @@ public class IMAPProtocol extends Protocol {
 		IMAPResponse ir = (IMAPResponse)r[i];
 		// There *will* be one SEARCH response.
 		if (ir.keyEquals("SEARCH")) {
+		    while ((num = ir.readNumber()) != -1)
+			v.addElement(new Integer(num));
+		    r[i] = null;
+		}
+	    }
+
+	    // Copy the vector into 'matches'
+	    int vsize = v.size();
+	    matches = new int[vsize];
+	    for (int i = 0; i < vsize; i++)
+		matches[i] = ((Integer)v.elementAt(i)).intValue();
+	}
+
+	// dispatch remaining untagged responses
+	notifyResponseHandlers(r);
+	handleResult(response);
+	return matches;
+    }
+
+    /**
+     * Sort messages in the folder according to the specified sort criteria.
+     * If the search term is not null, limit the sort to only the messages
+     * that match the search term.
+     * Returns an array of sorted sequence numbers. An empty array
+     * is returned if no matches are found.
+     *
+     * @param	term	sort criteria
+     * @param	sterm	SearchTerm
+     * @return	array of matching sequence numbers.
+     *
+     * @see	"RFC 5256"
+     * @since	JavaMail 1.4.4
+     */
+    public int[] sort(SortTerm[] term, SearchTerm sterm)
+			throws ProtocolException, SearchException {
+	if (!hasCapability("SORT*")) 
+	    throw new BadCommandException("SORT not supported");
+
+	if (term == null || term.length == 0)
+	    throw new BadCommandException("Must have at least one sort term");
+
+	Argument args = new Argument();
+	Argument sargs = new Argument();
+	for (int i = 0; i < term.length; i++)
+	    sargs.writeAtom(term[i].toString());
+	args.writeArgument(sargs);	// sort criteria
+
+	args.writeAtom("UTF-8");	// charset specification
+	if (sterm != null) {
+	    try {
+		args.append(SearchSequence.generateSequence(sterm, "UTF-8"));
+	    } catch (IOException ioex) {
+		// should never happen
+		throw new SearchException(ioex.toString());
+	    }
+	} else
+	    args.writeAtom("ALL");
+
+	Response[] r = command("SORT", args);
+	Response response = r[r.length-1];
+	int[] matches = null;
+
+	// Grab all SORT responses
+	if (response.isOK()) { // command succesful
+	    Vector v = new Vector();
+	    int num;
+	    for (int i = 0, len = r.length; i < len; i++) {
+		if (!(r[i] instanceof IMAPResponse))
+		    continue;
+
+		IMAPResponse ir = (IMAPResponse)r[i];
+		if (ir.keyEquals("SORT")) {
 		    while ((num = ir.readNumber()) != -1)
 			v.addElement(new Integer(num));
 		    r[i] = null;
