@@ -83,6 +83,7 @@
 			com/sun/mail/imap/ACL.java,
 			com/sun/mail/imap/Rights.java,
 			com/sun/mail/imap/Quota.java,
+			com/sun/mail/imap/SortTerm.java,
 			com/sun/mail/pop3/POP3Store.java,
 			com/sun/mail/pop3/POP3SSLStore.java,
 			com/sun/mail/pop3/POP3Folder.java,
