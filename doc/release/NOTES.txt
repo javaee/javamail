@@ -132,7 +132,7 @@ before submitting bug reports.
 
 Send your bug reports to:
 
-	javamail@sun.com
+	javamail_ww@oracle.com
 
 
 
@@ -224,7 +224,7 @@ How to give feedback
 
 Please send your feedback to this email-address:
 
-	javamail@sun.com
+	javamail_ww@oracle.com
 
 Check out our website at http://java.sun.com/products/javamail
 

@@ -20,7 +20,7 @@ mail.<protocol>.auth.ntlm.flags
 
 
 NOTE:	This capability is very new and has NOT been thoroughly tested.
-	Please send any feedback or bug reports to us at javamail@sun.com.
+	Please send any feedback or bug reports to us at javamail_ww@oracle.com.
 
 WARNING: This support, and the APIs and properties used to control it,
 should be considered EXPERIMENTAL.  They may be changed in the future
