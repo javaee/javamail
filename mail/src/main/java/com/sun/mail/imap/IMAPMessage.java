@@ -897,6 +897,7 @@ public class IMAPMessage extends MimeMessage {
 	type = null;
 	subject = null;
 	description = null;
+	flags = null;
     }
 
     /**
