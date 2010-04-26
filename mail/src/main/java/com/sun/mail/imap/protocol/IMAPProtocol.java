@@ -2219,18 +2219,44 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("IDLE")) 
 	    throw new BadCommandException("IDLE not supported");
 
-	Response r;
+	Vector v = new Vector();
+	boolean done = false;
+	Response r = null;
+
 	// write the command
 	try {
 	    idleTag = writeCommand("IDLE", null);
-	    r = readResponse();
 	} catch (LiteralException lex) {
-	    r = lex.getResponse();
+	    v.addElement(lex.getResponse());
+	    done = true;
 	} catch (Exception ex) {
 	    // Convert this into a BYE response
-	    r = Response.byeResponse(ex);
+	    v.addElement(Response.byeResponse(ex));
+	    done = true;
 	}
 
+	while (!done) {
+	    try {
+		r = readResponse();
+	    } catch (IOException ioex) {
+		// convert this into a BYE response
+		r = Response.byeResponse(ioex);
+	    } catch (ProtocolException pex) {
+		continue; // skip this response
+	    }
+
+	    v.addElement(r);
+
+	    if (r.isContinuation() || r.isBYE())
+		done = true;
+	}
+
+	Response[] responses = new Response[v.size()];
+	v.copyInto(responses);
+	r = responses[responses.length-1];
+
+	// dispatch remaining untagged responses
+	notifyResponseHandlers(responses);
 	if (!r.isContinuation())
 	    handleResult(r);
     }
