@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -116,26 +116,32 @@ public class text_rfc822headers implements DataContentHandler {
 	    throw new UnsupportedEncodingException(enc);
 	}
 
-	int pos = 0;
-	int count;
-	char buf[] = new char[1024];
+	try {
+	    int pos = 0;
+	    int count;
+	    char buf[] = new char[1024];
 
-	while ((count = is.read(buf, pos, buf.length - pos)) != -1) {
-	    pos += count;
-	    if (pos >= buf.length) {
-		int size = buf.length;
-		if (size < 256*1024)
-		    size += size;
-		else
-		    size += 256*1024;
-		char tbuf[] = new char[size];
-		System.arraycopy(buf, 0, tbuf, 0, pos);
-		buf = tbuf;
+	    while ((count = is.read(buf, pos, buf.length - pos)) != -1) {
+		pos += count;
+		if (pos >= buf.length) {
+		    int size = buf.length;
+		    if (size < 256*1024)
+			size += size;
+		    else
+			size += 256*1024;
+		    char tbuf[] = new char[size];
+		    System.arraycopy(buf, 0, tbuf, 0, pos);
+		    buf = tbuf;
+		}
 	    }
+	    return new String(buf, 0, pos);
+	} finally {
+	    try {
+		is.close();
+	    } catch (IOException ex) { }
 	}
-	return new String(buf, 0, pos);
     }
-    
+
     /**
      * Write the object to the output stream, using the specified MIME type.
      */
