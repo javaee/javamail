@@ -684,11 +684,22 @@ public class SMTPTransport extends Transport {
 	     * Loop through the list of mechanisms supplied by the user
 	     * (or defaulted) and try each in turn.  If the server supports
 	     * the mechanism and we have an authenticator for the mechanism,
-	     * use it.
+	     * and it hasn't been disabled, use it.
 	     */
 	    StringTokenizer st = new StringTokenizer(mechs);
 	    while (st.hasMoreTokens()) {
-		String m = st.nextToken().toUpperCase(Locale.ENGLISH);
+		String m = st.nextToken();
+		String dprop = "mail." + name + ".auth." +
+				    m.toLowerCase(Locale.ENGLISH) + ".disable";
+		boolean disabled =
+		    PropUtil.getBooleanSessionProperty(session, dprop, false);
+		if (disabled) {
+		    if (debug)
+			out.println("DEBUG SMTP: mechanism " + m +
+					    " disabled by property: " + dprop);
+		    continue;
+		}
+		m = m.toUpperCase(Locale.ENGLISH);
 		if (!supportsAuthentication(m)) {
 		    if (debug)
 			out.println("DEBUG SMTP: mechanism " + m +
