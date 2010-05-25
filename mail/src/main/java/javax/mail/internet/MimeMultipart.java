@@ -889,7 +889,7 @@ public class MimeMultipart extends Multipart {
 	    // initialize Bad Character Shift table
 	    int[] bcs = new int[256];
 	    for (int i = 0; i < bl; i++)
-		bcs[bndbytes[i]] = i + 1;
+		bcs[bndbytes[i] & 0xff] = i + 1;
 
 	    // initialize Good Suffix Shift table
 	    int[] gss = new int[bl];
