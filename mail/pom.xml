@@ -63,6 +63,8 @@
 	<mail.packages.export>
 	    javax.mail.*; version=${mail.spec.version},
 	    com.sun.mail.imap; version=${mail.osgiversion},
+	    com.sun.mail.imap.protocol; version=${mail.osgiversion},
+	    com.sun.mail.iap; version=${mail.osgiversion},
 	    com.sun.mail.pop3; version=${mail.osgiversion},
 	    com.sun.mail.smtp; version=${mail.osgiversion},
 	    com.sun.mail.util; version=${mail.osgiversion},
