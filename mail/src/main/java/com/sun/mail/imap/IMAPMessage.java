@@ -1024,7 +1024,7 @@ public class IMAPMessage extends MimeMessage {
 	    Vector v = new Vector(); // to collect non-FETCH responses &
 	    			     // unsolicited FETCH FLAG responses 
 	    try {
-		r = folder.protocol.fetch(msgsets, command.toString());
+		r = folder.getProtocol().fetch(msgsets, command.toString());
 	    } catch (ConnectionException cex) {
 		throw new FolderClosedException(folder, cex.getMessage());
 	    } catch (CommandFailedException cfx) {

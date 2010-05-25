@@ -2552,7 +2552,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * @return	the IMAPProtocol object used when the folder is open
      */
-    private IMAPProtocol getProtocol() throws ProtocolException {
+    protected IMAPProtocol getProtocol() throws ProtocolException {
 	assert Thread.holdsLock(messageCacheLock);
 	waitIfIdle();
         return protocol;

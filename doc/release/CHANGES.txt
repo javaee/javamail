@@ -44,6 +44,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	reduce POP3 memory usage, especially if server supports pipelining
 <no id>	add support for IMAP SORT extension (RFC 5256) to IMAPFolder
 <no id>	add demo classes to support non-MIME messages from Outlook
+<no id>	fix deadlock when using IMAP fetch and IDLE
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
