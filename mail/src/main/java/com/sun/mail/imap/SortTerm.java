@@ -39,7 +39,8 @@ package com.sun.mail.imap;
 /**
  * A particular sort criteria, as defined by
  * <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>.
- * Sort criteria are used with the {@link IMAPFolder#sort sort} method.
+ * Sort criteria are used with the
+ * {@link IMAPFolder#getSortedMessages getSortedMessages} method.
  * Multiple sort criteria are specified in an array with the order in
  * the array specifying the order in which the sort criteria are applied.
  *
