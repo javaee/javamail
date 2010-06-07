@@ -81,7 +81,8 @@ public class IMAPProtocol extends Protocol {
     private List authmechs;
     // WARNING: authmechs may be initialized as a result of superclass
     //		constructor, don't initialize it here.
-    private String[] searchCharsets; 	// array of search charsets
+
+    protected String[] searchCharsets; 	// array of search charsets
 
     private String name;
     private SaslAuthenticator saslAuthenticator;	// if SASL is being used
@@ -1593,8 +1594,9 @@ public class IMAPProtocol extends Protocol {
 		return issueSearch(msgSequence, term, null);
 	    } catch (IOException ioex) { /* will not happen */ }
 	}
-	
-	/* The search "text" terms do contain non-ASCII chars. We need to
+
+	/*
+	 * The search "text" terms do contain non-ASCII chars. We need to
 	 * use SEARCH CHARSET <charset> ...
 	 *	The charsets we try to use are UTF-8 and the locale's
 	 * default charset. If the server supports UTF-8, great, 
@@ -1609,7 +1611,8 @@ public class IMAPProtocol extends Protocol {
 	    try {
 		return issueSearch(msgSequence, term, searchCharsets[i]);
 	    } catch (CommandFailedException cfx) {
-		/* Server returned NO. For now, I'll just assume that 
+		/*
+		 * Server returned NO. For now, I'll just assume that 
 		 * this indicates that this charset is unsupported.
 		 * We can check the BADCHARSET response code once
 		 * that's spec'd into the IMAP RFC ..

@@ -5,7 +5,7 @@
 
   DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  
-  Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+  Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  
   The contents of this file are subject to the terms of either the GNU
   General Public License Version 2 only ("GPL") or the Common Development
@@ -493,6 +493,19 @@ raw IMAP response string.
 By default, these events are not sent.
 NOTE: This capability is highly experimental and likely will change
 in future releases.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.folder.class</TD>
+<TD>String</TD>
+<TD>
+Class name of a subclass of <code>com.sun.mail.imap.IMAPFolder</code>.
+The subclass can be used to provide support for additional IMAP commands.
+The subclass must have public constructors of the form
+<code>public MyIMAPFolder(String fullName, char separator, IMAPStore store,
+Boolean isNamespace)</code> and
+<code>public MyIMAPFolder(ListInfo li, IMAPStore store)</code>
 </TD>
 </TR>
 

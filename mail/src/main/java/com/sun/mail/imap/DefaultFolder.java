@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,7 +51,7 @@ import com.sun.mail.imap.protocol.*;
 public class DefaultFolder extends IMAPFolder {
     
     protected DefaultFolder(IMAPStore store) {
-	super("", UNKNOWN_SEPARATOR , store);
+	super("", UNKNOWN_SEPARATOR, store, null);
 	exists = true; // of course
 	type = HOLDS_FOLDERS; // obviously
     }
@@ -79,7 +79,7 @@ public class DefaultFolder extends IMAPFolder {
 
 	IMAPFolder[] folders = new IMAPFolder[li.length];
 	for (int i = 0; i < folders.length; i++)
-	    folders[i] = new IMAPFolder(li[i], (IMAPStore)store);
+	    folders[i] = ((IMAPStore)store).newIMAPFolder(li[i]);
 	return folders;
     }
 
@@ -98,7 +98,7 @@ public class DefaultFolder extends IMAPFolder {
 
 	IMAPFolder[] folders = new IMAPFolder[li.length];
 	for (int i = 0; i < folders.length; i++)
-	    folders[i] = new IMAPFolder(li[i], (IMAPStore)store);
+	    folders[i] = ((IMAPStore)store).newIMAPFolder(li[i]);
 	return folders;
     }
 
@@ -108,7 +108,7 @@ public class DefaultFolder extends IMAPFolder {
     }
 
     public Folder getFolder(String name) throws MessagingException {
-	return new IMAPFolder(name, UNKNOWN_SEPARATOR, (IMAPStore)store);
+	return ((IMAPStore)store).newIMAPFolder(name, UNKNOWN_SEPARATOR);
     }
 
     public boolean delete(boolean recurse) throws MessagingException {  

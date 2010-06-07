@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,14 +49,15 @@ import com.sun.mail.iap.*;
  *
  * @author	John Mani
  */
-class SearchSequence {
+public class SearchSequence {
 
     /**
      * Generate the IMAP search sequence for the given search expression. 
      */
-    static Argument generateSequence(SearchTerm term, String charset) 
+    public static Argument generateSequence(SearchTerm term, String charset) 
 		throws SearchException, IOException {
-	/* Call the appropriate handler depending on the type of
+	/*
+	 * Call the appropriate handler depending on the type of
 	 * the search-term ...
 	 */
 	if (term instanceof AndTerm) 		// AND
@@ -105,11 +106,11 @@ class SearchSequence {
 	    throw new SearchException("Search too complex");
     }
 
-    /* 
+    /* *
      * Check if the "text" terms in the given SearchTerm contain
      * non US-ASCII characters.
      */
-    static boolean isAscii(SearchTerm term) {
+    public static boolean isAscii(SearchTerm term) {
 	if (term instanceof AndTerm || term instanceof OrTerm) {
 	    SearchTerm[] terms;
 	    if (term instanceof AndTerm)
@@ -131,7 +132,10 @@ class SearchSequence {
 	return true;
     }
 
-    private static boolean isAscii(String s) {
+    /**
+     * Does this string contain only ASCII characters?
+     */
+    public static boolean isAscii(String s) {
 	int l = s.length();
 
 	for (int i=0; i < l; i++) {

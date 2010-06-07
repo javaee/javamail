@@ -36,6 +36,7 @@
 
 package com.sun.mail.imap;
 
+import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.io.PrintStream;
@@ -205,6 +206,10 @@ public class IMAPStore extends Store
     private PrintStream out;		// debug output stream
 
     private boolean messageCacheDebug;
+
+    // constructors for IMAPFolder class provided by user
+    private volatile Constructor folderConstructor = null;
+    private volatile Constructor folderConstructorLI = null;
 
     // Connection pool info
 
@@ -533,6 +538,39 @@ public class IMAPStore extends Store
 	guid = session.getProperty("mail." + name + ".yahoo.guid");
 	if (debug && guid != null)
 	    out.println("DEBUG: mail.imap.yahoo.guid: " + guid);
+
+	s = session.getProperty("mail." + name + ".folder.class");
+	if (s != null) {
+	    if (debug)
+		out.println("DEBUG IMAP: folder class: " + s);
+	    try {
+		ClassLoader cl = this.getClass().getClassLoader();
+
+		// now load the class
+		Class folderClass = null;
+		try {
+		    // First try the "application's" class loader.
+		    // This should eventually be replaced by
+		    // Thread.currentThread().getContextClassLoader().
+		    folderClass = Class.forName(s, false, cl);
+		} catch (ClassNotFoundException ex1) {
+		    // That didn't work, now try the "system" class loader.
+		    // (Need both of these because JDK 1.1 class loaders
+		    // may not delegate to their parent class loader.)
+		    folderClass = Class.forName(s);
+		}
+
+		Class[] c = { String.class, char.class, IMAPStore.class,
+				Boolean.class };
+		folderConstructor = folderClass.getConstructor(c);
+		Class[] c2 = { ListInfo.class, IMAPStore.class };
+		folderConstructorLI = folderClass.getConstructor(c2);
+	    } catch (Exception ex) {
+		if (debug)
+		    out.println(
+			"DEBUG IMAP: failed to load folder class: " + ex);
+	    }
+	}
 
 	pool = new ConnectionPool(name, session);
     }
@@ -1476,7 +1514,7 @@ public class IMAPStore extends Store
     public synchronized Folder getFolder(String name)
 				throws MessagingException {
 	checkConnected();
-	return new IMAPFolder(name, IMAPFolder.UNKNOWN_SEPARATOR, this);
+	return newIMAPFolder(name, IMAPFolder.UNKNOWN_SEPARATOR);
     }
 
     /**
@@ -1485,9 +1523,61 @@ public class IMAPStore extends Store
     public synchronized Folder getFolder(URLName url)
 				throws MessagingException {
 	checkConnected();
-	return new IMAPFolder(url.getFile(), 
-			      IMAPFolder.UNKNOWN_SEPARATOR, 
-			      this);
+	return newIMAPFolder(url.getFile(), IMAPFolder.UNKNOWN_SEPARATOR);
+    }
+
+    /**
+     * Create an IMAPFolder object.  If user supplied their own class,
+     * use it.  Otherwise, call the constructor.
+     */
+    protected IMAPFolder newIMAPFolder(String fullName, char separator,
+				Boolean isNamespace) {
+	IMAPFolder f = null;
+	if (folderConstructor != null) {
+	    try {
+		Object[] o =
+		    { fullName, new Character(separator), this, isNamespace };
+		f = (IMAPFolder)folderConstructor.newInstance(o);
+	    } catch (Exception ex) {
+		if (debug)
+		    out.println(
+			"DEBUG IMAP: exception creating IMAPFolder class: " +
+			ex.toString());
+	    }
+	}
+	if (f == null)
+	    f = new IMAPFolder(fullName, separator, this, isNamespace);
+	return f;
+    }
+
+    /**
+     * Create an IMAPFolder object.  Call the newIMAPFolder method
+     * above with a null isNamespace.
+     */
+    protected IMAPFolder newIMAPFolder(String fullName, char separator) {
+	return newIMAPFolder(fullName, separator, null);
+    }
+
+    /**
+     * Create an IMAPFolder object.  If user supplied their own class,
+     * use it.  Otherwise, call the constructor.
+     */
+    protected IMAPFolder newIMAPFolder(ListInfo li) {
+	IMAPFolder f = null;
+	if (folderConstructorLI != null) {
+	    try {
+		Object[] o = { li, this };
+		f = (IMAPFolder)folderConstructorLI.newInstance(o);
+	    } catch (Exception ex) {
+		if (debug)
+		    out.println(
+			"DEBUG IMAP: exception creating IMAPFolder class LI: " +
+			ex.toString());
+	    }
+	}
+	if (f == null)
+	    f = new IMAPFolder(li, this);
+	return f;
     }
 
     /**
@@ -1560,7 +1650,8 @@ public class IMAPStore extends Store
 		// add user
 		name += user;
 	    }
-	    fa[i] = new IMAPFolder(name, ns[i].delimiter, this, user == null);
+	    fa[i] = newIMAPFolder(name, ns[i].delimiter,
+					Boolean.valueOf(user == null));
 	}
 	return fa;
     }

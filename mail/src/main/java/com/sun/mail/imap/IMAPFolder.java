@@ -257,8 +257,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     private boolean hasMessageCountListener = false;	// optimize notification
 
-    private boolean debug = false;
-    private PrintStream out;		// debug output stream
+    protected boolean debug = false;
+    protected PrintStream out;		// debug output stream
 
     private boolean connectionPoolDebug;
 
@@ -312,7 +312,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *			folder's namespace
      * @param store	the Store
      */
-    protected IMAPFolder(String fullName, char separator, IMAPStore store) {
+    protected IMAPFolder(String fullName, char separator, IMAPStore store,
+				Boolean isNamespace) {
 	super(store);
 	if (fullName == null)
 	    throw new NullPointerException("Folder name is null");
@@ -324,46 +325,36 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	if (out == null)	// should never happen
 	    out = System.out;
 
-	/*
-	 * Work around apparent bug in Exchange.  Exchange
-	 * will return a name of "Public Folders/" from
-	 * LIST "%".
-	 *
-	 * If name has one separator, and it's at the end,
-	 * assume this is a namespace name and treat it
-	 * accordingly.  Usually this will happen as a result
-	 * of the list method, but this also allows getFolder
-	 * to work with namespace names.
-	 */
-	this.isNamespace = false;
-	if (separator != UNKNOWN_SEPARATOR && separator != '\0') {
-	    int i = this.fullName.indexOf(separator);
-	    if (i > 0 && i == this.fullName.length() - 1) {
-		this.fullName = this.fullName.substring(0, i);
-		this.isNamespace = true;
+	if (isNamespace != null)
+	    this.isNamespace = isNamespace.booleanValue();
+	else {
+	    /*
+	     * Work around apparent bug in Exchange.  Exchange
+	     * will return a name of "Public Folders/" from
+	     * LIST "%".
+	     *
+	     * If name has one separator, and it's at the end,
+	     * assume this is a namespace name and treat it
+	     * accordingly.  Usually this will happen as a result
+	     * of the list method, but this also allows getFolder
+	     * to work with namespace names.
+	     */
+	    this.isNamespace = false;
+	    if (separator != UNKNOWN_SEPARATOR && separator != '\0') {
+		int i = this.fullName.indexOf(separator);
+		if (i > 0 && i == this.fullName.length() - 1) {
+		    this.fullName = this.fullName.substring(0, i);
+		    this.isNamespace = true;
+		}
 	    }
 	}
-    }
-
-    /**
-     * Constructor used to create a possibly non-existent folder.
-     *
-     * @param fullName	fullname of this folder
-     * @param separator the default separator character for this 
-     *			folder's namespace
-     * @param store	the Store
-     */
-    protected IMAPFolder(String fullName, char separator, IMAPStore store,
-				boolean isNamespace) {
-	this(fullName, separator, store);
-	this.isNamespace = isNamespace;
     }
 
     /**
      * Constructor used to create an existing folder.
      */
     protected IMAPFolder(ListInfo li, IMAPStore store) {
-	this(li.name, li.separator, store);
+	this(li.name, li.separator, store, null);
 
 	if (li.hasInferiors)
 	    type |= HOLDS_FOLDERS;
@@ -379,7 +370,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * this can result in a possible loss of sync with the server.
      * ASSERT: Must be called with this folder's synchronization lock held.
      */
-    private void checkExists() throws MessagingException {
+    protected void checkExists() throws MessagingException {
 	// If the boolean field 'exists' is false, check with the
 	// server by invoking exists() ..
 	if (!exists && !exists())
@@ -391,7 +382,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Ensure the folder is closed.
      * ASSERT: Must be called with this folder's synchronization lock held.
      */
-    private void checkClosed() {
+    protected void checkClosed() {
 	if (opened)
 	    throw new IllegalStateException(
 		"This operation is not allowed on an open folder"
@@ -402,7 +393,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Ensure the folder is open.
      * ASSERT: Must be called with this folder's synchronization lock held.
      */
-    private void checkOpened() throws FolderClosedException {
+    protected void checkOpened() throws FolderClosedException {
 	assert Thread.holdsLock(this);
 	if (!opened) {
 	    if (reallyClosed)
@@ -422,7 +413,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * number is out of range, we ping the server to obtain any
      * pending new message notifications from the server.
      */
-    private void checkRange(int msgno) throws MessagingException {
+    protected void checkRange(int msgno) throws MessagingException {
 	if (msgno < 1) // message-numbers start at 1
 	    throw new IndexOutOfBoundsException("message number < 1");
 
@@ -496,8 +487,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	char c = getSeparator();
 	int index;
 	if ((index = fullName.lastIndexOf(c)) != -1)
-	    return new IMAPFolder(fullName.substring(0, index), 
-				  c, (IMAPStore)store);
+	    return ((IMAPStore)store).newIMAPFolder(
+			    fullName.substring(0, index), c);
 	else
 	    return new DefaultFolder((IMAPStore)store);
     }
@@ -620,8 +611,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    start = 1; // start from index = 1
 
 	IMAPFolder[] folders = new IMAPFolder[li.length - start];
+	IMAPStore st = (IMAPStore)store;
 	for (int i = start; i < li.length; i++)
-	    folders[i-start] = new IMAPFolder(li[i], (IMAPStore)store);
+	    folders[i-start] = st.newIMAPFolder(li[i]);
 	return folders;
     }
 
@@ -833,7 +825,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    throw new MessagingException("Cannot contain subfolders");
 
 	char c = getSeparator();
-	return new IMAPFolder(fullName + c + name, c, (IMAPStore)store);
+	return ((IMAPStore)store).newIMAPFolder(fullName + c + name, c);
     }
 
     /**
@@ -2407,7 +2399,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	} else if (r.isOK()) {
 	    return;
 	} else if (!r.isUnTagged()) {
-	    return;	// XXX - should never happen
+	    return;	// might be a continuation for IDLE
 	}
 
 	/* Now check whether this is an IMAP specific response */
@@ -2528,7 +2520,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Throw the appropriate 'closed' exception.
      */
-    private synchronized void throwClosedException(ConnectionException cex) 
+    protected synchronized void throwClosedException(ConnectionException cex) 
             throws FolderClosedException, StoreClosedException {
 	// If it's the folder's protocol object, throw a FolderClosedException;
 	// otherwise, throw a StoreClosedException.
@@ -2745,7 +2737,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
      */
-    private void releaseProtocol(boolean returnToPool) {
+    protected void releaseProtocol(boolean returnToPool) {
         if (protocol != null) {
             protocol.removeResponseHandler(this);
 
@@ -2767,7 +2759,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
      */
-    private void keepConnectionAlive(boolean keepStoreAlive) 
+    protected void keepConnectionAlive(boolean keepStoreAlive) 
                     throws ProtocolException {
 
         if (System.currentTimeMillis() - protocol.getTimestamp() > 1000) {
@@ -2795,7 +2787,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
      */
-    IMAPMessage getMessageBySeqNumber(int seqnum) {
+    protected IMAPMessage getMessageBySeqNumber(int seqnum) {
 	return messageCache.getMessageBySeqnum(seqnum);
     }
 
