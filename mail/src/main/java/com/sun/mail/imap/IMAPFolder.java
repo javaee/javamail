@@ -325,29 +325,29 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	if (out == null)	// should never happen
 	    out = System.out;
 
-	if (isNamespace != null)
-	    this.isNamespace = isNamespace.booleanValue();
-	else {
-	    /*
-	     * Work around apparent bug in Exchange.  Exchange
-	     * will return a name of "Public Folders/" from
-	     * LIST "%".
-	     *
-	     * If name has one separator, and it's at the end,
-	     * assume this is a namespace name and treat it
-	     * accordingly.  Usually this will happen as a result
-	     * of the list method, but this also allows getFolder
-	     * to work with namespace names.
-	     */
-	    this.isNamespace = false;
-	    if (separator != UNKNOWN_SEPARATOR && separator != '\0') {
-		int i = this.fullName.indexOf(separator);
-		if (i > 0 && i == this.fullName.length() - 1) {
-		    this.fullName = this.fullName.substring(0, i);
-		    this.isNamespace = true;
-		}
+	/*
+	 * Work around apparent bug in Exchange.  Exchange
+	 * will return a name of "Public Folders/" from
+	 * LIST "%".
+	 *
+	 * If name has one separator, and it's at the end,
+	 * assume this is a namespace name and treat it
+	 * accordingly.  Usually this will happen as a result
+	 * of the list method, but this also allows getFolder
+	 * to work with namespace names.
+	 */
+	this.isNamespace = false;
+	if (separator != UNKNOWN_SEPARATOR && separator != '\0') {
+	    int i = this.fullName.indexOf(separator);
+	    if (i > 0 && i == this.fullName.length() - 1) {
+		this.fullName = this.fullName.substring(0, i);
+		this.isNamespace = true;
 	    }
 	}
+
+	// if we were given a value, override default chosen above
+	if (isNamespace != null)
+	    this.isNamespace = isNamespace.booleanValue();
     }
 
     /**
