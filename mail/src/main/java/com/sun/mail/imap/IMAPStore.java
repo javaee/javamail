@@ -701,7 +701,7 @@ public class IMAPStore extends Store
 	else if (proxyAuthUser != null)
 	    authzid = proxyAuthUser;
 	else
-	    authzid = u;
+	    authzid = null;
 
 	if (enableSASL)
 	    p.sasllogin(saslMechanisms, saslRealm, authzid, u, pw);

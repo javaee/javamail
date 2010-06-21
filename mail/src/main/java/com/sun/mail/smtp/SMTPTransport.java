@@ -288,7 +288,7 @@ public class SMTPTransport extends Transport {
     /**
      * Sets the authorization ID to be used for authentication.
      *
-     * @param	authzid		the authroization ID to use for
+     * @param	authzid		the authorization ID to use for
      *				authentication.
      *
      * @since JavaMail 1.4.4
@@ -835,7 +835,8 @@ public class SMTPTransport extends Transport {
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	    OutputStream b64os =
 			new BASE64EncoderStream(bos, Integer.MAX_VALUE);
-	    b64os.write(ASCIIUtility.getBytes(authzid));
+	    if (authzid != null)
+		b64os.write(ASCIIUtility.getBytes(authzid));
 	    b64os.write(0);
 	    b64os.write(ASCIIUtility.getBytes(user));
 	    b64os.write(0);

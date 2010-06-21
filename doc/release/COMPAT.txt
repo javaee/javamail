@@ -12,6 +12,27 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.4.4 --
+
+- authorization ID may be null
+
+	The IMAP and SMTP providers support a
+	"mail.<protocol>.sasl.authorizationid" property that allows you
+	to specify an authorization ID separately from the authentication
+	ID that's specified as the user name in properties or in the connect
+	method.  The PLAIN authentication method, and some SASL authentication
+	methods support use of the separate authorization ID.  In previous
+	releases, if the authorization ID was not specified, it defaulted
+	to the authentication ID (user name).  This can cause problems if
+	the server doesn't allow an authorization ID even though the SASL
+	method allows specifying one.  In this release, if no authorization
+	ID is specified, null is passed to the SASL method.  If this causes
+	problems for a SASL method implementation or a server, the
+	"mail.<protocol>.sasl.authorizationid" property should be set to
+	the user name used for authentication.
+
+
+
 -- JavaMail 1.4.3 --
 
 - SMTPTransport.isConnected behavior changed

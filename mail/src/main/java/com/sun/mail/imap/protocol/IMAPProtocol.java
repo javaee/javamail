@@ -502,7 +502,8 @@ public class IMAPProtocol extends Protocol {
 		if (r.isContinuation()) {
 		    // Server challenge ..
 		    final String nullByte = "\0";
-		    String s = authzid + nullByte + u + nullByte + p;
+		    String s = (authzid == null ? "" : authzid) +
+				    nullByte + u + nullByte + p;
 
 		    // obtain b64 encoded bytes
 		    b64os.write(ASCIIUtility.getBytes(s));
