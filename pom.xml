@@ -155,6 +155,9 @@
 	-->
 	<profile>
 	    <id>deploy</id>
+	    <modules>
+		<module>parent-distrib</module>
+	    </modules>
 	</profile>
 
 	<!--
