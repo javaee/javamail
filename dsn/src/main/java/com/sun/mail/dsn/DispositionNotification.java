@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,7 +47,7 @@ import com.sun.mail.util.PropUtil;
 
 /**
  * A message/disposition-notification message content, as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc3798.txt">RFC 3798</A>.
+ * <A HREF="http://www.ietf.org/rfc/rfc3798.txt" TARGET="_top">RFC 3798</A>.
  *
  * @since	JavaMail 1.4.2
  */

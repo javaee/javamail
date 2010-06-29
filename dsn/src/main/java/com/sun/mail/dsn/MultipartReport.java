@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,7 +45,7 @@ import javax.mail.internet.*;
 
 /**
  * A multipart/report message content, as defined in
- * <A HREF="http://www.ietf.org/rfc/rfc3462.txt">RFC 3462</A>.
+ * <A HREF="http://www.ietf.org/rfc/rfc3462.txt" TARGET="_top">RFC 3462</A>.
  * A multipart/report content is a container for mail reports
  * of any kind, and is most often used to return a delivery
  * status report or a disposition notification report. <p>
