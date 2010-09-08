@@ -1,0 +1,16 @@
+/MANIFEST.MF
+/META-INF/services/
+/META-INF/javamail
+/META-INF/mailcap
+/README
+doc/release/
+doc/spec/
+/LICENSE.txt
+.hgtags
+.hgignore
+client/src/main/java/simple.mailcap
+mail/src/oldtest/java/javax/mail/internet/encodedheaders.data
+mail/src/oldtest/java/javax/mail/internet/decodetest
+mail.sig
+webapp/build.bat
+webapp/webapp.README.txt
