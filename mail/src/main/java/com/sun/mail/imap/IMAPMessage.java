@@ -235,7 +235,18 @@ public class IMAPMessage extends MimeMessage {
     public Address[] getFrom() throws MessagingException {
 	checkExpunged();
 	loadEnvelope();
-	return aaclone(envelope.from);
+	InternetAddress[] a = envelope.from;
+	/*
+	 * Per RFC 2822, the From header is required, and thus the IMAP
+	 * spec also requires that it be present, but we know that in
+	 * practice it is often missing.  Some servers fill in the
+	 * From field with the Sender field in this case, but at least
+	 * Exchange 2007 does not.  Use the same fallback strategy used
+	 * by MimeMessage.
+	 */
+	if (a == null || a.length == 0)
+	    a = envelope.sender;
+	return aaclone(a);
     }
 
     public void setFrom(Address address) throws MessagingException {
@@ -297,6 +308,14 @@ public class IMAPMessage extends MimeMessage {
     public Address[] getReplyTo() throws MessagingException {
 	checkExpunged();
 	loadEnvelope();
+	/*
+	 * The IMAP spec requires that the Reply-To field never be
+	 * null, but at least Exchange 2007 fails to fill it in in
+	 * some cases.  Use the same fallback strategy used by
+	 * MimeMessage.
+	 */
+	if (envelope.replyTo == null || envelope.replyTo.length == 0)
+	    return getFrom();
 	return aaclone(envelope.replyTo);
     }
 
