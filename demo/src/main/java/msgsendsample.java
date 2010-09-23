@@ -73,7 +73,7 @@ public class msgsendsample {
 	
 	try {
 	    // create a message
-	    Message msg = new MimeMessage(session);
+	    MimeMessage msg = new MimeMessage(session);
 	    msg.setFrom(new InternetAddress(from));
 	    InternetAddress[] address = {new InternetAddress(args[0])};
 	    msg.setRecipients(Message.RecipientType.TO, address);
