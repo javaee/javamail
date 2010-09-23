@@ -2,6 +2,7 @@
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
  * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2010 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,14 +45,17 @@ import java.io.ObjectStreamException;
 import java.security.*;
 import java.util.Enumeration;
 import java.util.Properties;
-import java.util.logging.LogManager;
+import java.util.logging.*;
 
 /**
  * An adapter class to allow the Mail API to access the LogManager properties.
  * The LogManager properties are treated as the root of all properties.
- * First, the local properties and the parent properties are searched.
- * If no value is found, then, the LogManager is searched with prefix value
- * and finally, just the key itself is searched in the LogManager.
+ * First, the parent properties are searched. If no value is found, then,
+ * the LogManager is searched with prefix value.  If not found, then, just the
+ * key itself is searched in the LogManager. If a value is found in the
+ * LogManager it is then copied to this properties object with no key prefix.
+ * If no value is found in the LogManager or the parent properties, then this
+ * properties object is searched only by passing the key value.
  *
  * <p>
  * This class also emulates the LogManager functions for creating new objects
@@ -68,22 +72,21 @@ import java.util.logging.LogManager;
 final class LogManagerProperties extends Properties {
 
     private static final long serialVersionUID = -2239983349056806252L;
-
     /**
      * Caches the LogManager so we only read the config once.
      */
     final static LogManager manager = LogManager.getLogManager();
 
     /**
-     * This code is modifed from the LogManager, which explictly states
+     * This code is modified from the LogManager, which explictly states
      * searching the system class loader first, then the context class loader.
-     * There is resistance (compatiblity) to change this behavior to simply
+     * There is resistance (compatibility) to change this behavior to simply
      * searching the context class loader.
      * @param name full class name
      * @return the class.
      * @throws ClassNotFoundException if not found.
      */
-    static final Class findClass(String name) throws ClassNotFoundException {
+    static Class findClass(String name) throws ClassNotFoundException {
         ClassLoader[] loaders = getClassLoaders();
         Class clazz;
         if (loaders[0] != null) {
@@ -126,21 +129,37 @@ final class LogManagerProperties extends Properties {
             }
         });
     }
-
     private final String prefix;
 
     /**
      * Creates a log manager properties object.
      * @param parent the parent properties.
      * @param prefix the namespace prefix.
-     * @throws NullPointerException if <tt>prefix</tt> is <tt>null</tt>.
+     * @throws NullPointerException if <tt>prefix</tt> or <tt>parent</tt> is
+     * <tt>null</tt>.
      */
     LogManagerProperties(final Properties parent, final String prefix) {
         super(parent);
-        if(prefix == null) {
+        parent.isEmpty(); //null check, happens-before
+        if (prefix == null) {
             throw new NullPointerException();
         }
         this.prefix = prefix;
+
+        //'defaults' is not decalared final.
+        super.isEmpty(); //happens-before.
+    }
+
+    /**
+     * Clones the default properties.
+     * @return the clone.
+     */
+    public Object clone() {
+        Properties parent;
+        synchronized (this) {
+            parent = defaults;
+        }
+        return parent.clone();
     }
 
     /**
@@ -149,15 +168,42 @@ final class LogManagerProperties extends Properties {
      * @param key a non null key.
      * @return the value for that key.
      */
-    public String getProperty(String key) {
-        String value = super.getProperty(key);
+    public synchronized String getProperty(String key) {
+        String value = defaults.getProperty(key);
         if (value == null && key.length() > 0) {
             value = manager.getProperty(prefix + '.' + key);
             if (value == null) {
                 value = manager.getProperty(key);
             }
+
+            /**
+             * Copy the log manager properties as we read them.  If a value is
+             * no longer present in the LogManager read it from here.
+             * The reason this works is because LogManager.reset() closes
+             * all attached handlers therefore, stale values only exist in
+             * closed handlers.
+             */
+            if (value != null) {
+                put(key, value);
+            } else {
+                Object v = get(key); //Call 'get' so defaults are not used.
+                value = v instanceof String ? (String) v : null;
+            }
         }
         return value;
+    }
+
+    /**
+     * Calls getProperty directly.  If getProperty returns null the default
+     * value is returned.
+     * @param key a key to search for.
+     * @param def the default value to use if not found.
+     * @return the value for the key.
+     * @since JavaMail 1.4.4
+     */
+    public String getProperty(String key, String def) {
+        final String value = this.getProperty(key);
+        return value == null ? def : value;
     }
 
     /**
@@ -186,7 +232,7 @@ final class LogManagerProperties extends Properties {
         if (o instanceof Properties == false) {
             return false;
         }
-        assert false;
+        assert false : prefix;
         return super.equals(o);
     }
 
@@ -195,21 +241,17 @@ final class LogManagerProperties extends Properties {
      * @return the hash code.
      */
     public int hashCode() {
-        assert false;
+        assert false : prefix.hashCode();
         return super.hashCode();
     }
 
     /**
      * It is assumed that this method will never be called.
-     * @return a new properties object copied from this one.
+     * @return the parent properties.
      * @throws ObjectStreamException if there is a problem.
      */
     private synchronized Object writeReplace() throws ObjectStreamException {
         assert false;
-        final Properties out = new Properties(defaults);
-        if (!super.isEmpty()) { //should always be empty.
-            out.putAll(this);
-        }
-        return out;
+        return new Properties(defaults);
     }
 }

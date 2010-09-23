@@ -35,7 +35,7 @@ To run the demo:
 
     6.  Run the demo. For example:
 
-	  java -Djava.util.logging.config.file=/u/me/download/javamail/demo/maildemo.properties MailHandlerDemo
+	  java -Dmail.debug=false -Djava.util.logging.config.file=/u/me/download/javamail/demo/maildemo.properties MailHandlerDemo
 
 
 

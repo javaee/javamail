@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,7 +33,10 @@
 import com.sun.mail.util.logging.MailHandler;
 import java.util.logging.*;
 import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Properties;
 import java.io.*;
 
 /**
@@ -70,6 +74,77 @@ public class MailHandlerDemo {
             LOGGER.log(Level.SEVERE, "The end of the demo.", new IOException("Fake"));
         } finally {
             closeHandlers();
+        }
+    }
+
+    /**
+     * Used debug problems with the logging.properties.
+     * @param prefix a string to prefix the output.
+     * @param err any PrintStream or null for System.out.
+     */
+    private static void checkConfig(String prefix, PrintStream err) {
+        if (prefix == null || prefix.trim().length() == 0) {
+            prefix = "DEBUG";
+        }
+
+        if (err == null) {
+            err = System.out;
+        }
+
+        try {
+            SecurityManager sm = System.getSecurityManager();
+            if (sm != null) {
+                err.println(prefix + ": SecurityManager.class=" + sm.getClass().getName());
+                err.println(prefix + ": SecurityManager.toString=" + sm);
+            } else {
+                err.println(prefix + ": SecurityManager.class=" + null);
+                err.println(prefix + ": SecurityManager.toString=" + null);
+            }
+
+            LogManager manager = LogManager.getLogManager();
+            String key = "java.util.logging.config.file";
+            String cfg = System.getProperty(key);
+            if (cfg != null) {
+                err.println(prefix + ": " + cfg);
+                File f = new File(cfg);
+                err.println(prefix + ": AbsolutePath=" + f.getAbsolutePath());
+                err.println(prefix + ": CanonicalPath=" + f.getCanonicalPath());
+                err.println(prefix + ": length=" + f.length());
+                err.println(prefix + ": canRead=" + f.canRead());
+                err.println(prefix + ": lastModified="
+                        + new java.util.Date(f.lastModified()));
+                //force any errors, only safe is key is present.
+                manager.readConfiguration();
+            } else {
+                err.println(prefix + ": " + key + " is not set as a system property.");
+            }
+            err.println(prefix + ": LogManager.class=" + manager.getClass().getName());
+            err.println(prefix + ": LogManager.toString=" + manager);
+
+            final String p = MailHandler.class.getName();
+            key = p.concat(".mail.to");
+            String to = manager.getProperty(key);
+            err.println(prefix + ": TO=" + to);
+            err.println(prefix + ": TO="
+                    + Arrays.toString(InternetAddress.parse(to, false)));
+            err.println(prefix + ": TO="
+                    + Arrays.toString(InternetAddress.parse(to, true)));
+
+            key = p.concat(".mail.from");
+            String from = manager.getProperty(key);
+            if (from == null || from.length() == 0) {
+                Session session = Session.getInstance(new Properties());
+                InternetAddress local = InternetAddress.getLocalAddress(session);
+                err.println(prefix + ": FROM=" + local);
+            } else {
+                err.println(prefix + ": FROM="
+                        + Arrays.toString(InternetAddress.parse(from, false)));
+                err.println(prefix + ": FROM="
+                        + Arrays.toString(InternetAddress.parse(from, true)));
+            }
+        } catch (Throwable error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
         }
     }
 
@@ -206,10 +281,10 @@ public class MailHandlerDemo {
         //extract simple name, replace the rest with formatters.
         h.setAttachmentNames(new Formatter[]{h.getAttachmentNames()[0],
                     new SummaryNameFormatter("{0} records and {1} errors"),
-                    new SummaryNameFormatter("{0,choice,0#no records|1#1 record|" +
-                    "1<{0,number,integer} records} and " +
-                    "{1,choice,0#no errors|1#1 error|1<" +
-                    "{1,number,integer} errors}")});
+                    new SummaryNameFormatter("{0,choice,0#no records|1#1 record|"
+                    + "1<{0,number,integer} records} and "
+                    + "{1,choice,0#no errors|1#1 error|1<"
+                    + "{1,number,integer} errors}")});
 
         LOGGER.addHandler(h);
     }
@@ -218,6 +293,11 @@ public class MailHandlerDemo {
      * Sets up the demos that will run.
      */
     private static void init() {
+        Session session = Session.getInstance(System.getProperties());
+        if (session.getDebug()) {
+            checkConfig(CLASS_NAME, session.getDebugOut());
+        }
+
         initBodyOnly();
         initLowCapacity();
         initSimpleAttachment();
@@ -253,8 +333,10 @@ public class MailHandlerDemo {
     }
 
     private static void fallbackSettings(Handler h) {
-        h.setErrorManager(new FileErrorManager());
-        h.setLevel(Level.ALL);
+        if (h != null) {
+            h.setErrorManager(new FileErrorManager());
+            h.setLevel(Level.ALL);
+        }
     }
 
     private static String getTempDir() {
@@ -273,7 +355,7 @@ public class MailHandlerDemo {
 
         private final boolean complement;
 
-        MessageErrorsFilter(boolean complement) {
+        MessageErrorsFilter(final boolean complement) {
             this.complement = complement;
         }
 

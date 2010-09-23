@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -192,7 +193,6 @@ public class FileErrorManager extends ErrorManager {
             ps.flush();
             tmp = null; //Don't delete 'tmp' if all bytes were written.
             ps.close();
-
         } finally {
             close(out);
             delete(tmp); //Only deletes if not null.
@@ -217,7 +217,8 @@ public class FileErrorManager extends ErrorManager {
                         tmp.deleteOnExit();
                     } catch (final RuntimeException shutdown) {
                         if (!tmp.delete()) {
-                            internal.error(tmp.getAbsolutePath(), shutdown, ErrorManager.CLOSE_FAILURE);
+                            internal.error(tmp.getAbsolutePath(), shutdown,
+                                    ErrorManager.CLOSE_FAILURE);
                         }
                     }
                 }

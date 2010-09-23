@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -57,19 +58,23 @@ public class SummaryNameFormatter extends Formatter {
      * Creates formatter using a message format style pattern.
      * @param pattern the pattern.
      * @throws NullPointerException if pattern is null.
+     * @throws IllegalArgumentException if pattern contains an ISO control
+     * character.
      */
     public SummaryNameFormatter(final String pattern) {
-        if (pattern == null) {
-            throw new NullPointerException();
+        for (int i=0; i<pattern.length(); i++) {
+            if (Character.isISOControl(pattern.charAt(i))) {
+               throw new IllegalArgumentException("At index "+ i);
+            }
         }
         this.pattern = pattern;
     }
 
     public synchronized String format(LogRecord r) {
-        count++;
         if (r.getThrown() != null) {
             errors++;
         }
+        count++;
         return "";
     }
 
@@ -90,15 +95,15 @@ public class SummaryNameFormatter extends Formatter {
     }
 
     private String extFrom(Handler h) {
-        if(h instanceof MailHandler) {
+        if (h instanceof MailHandler) {
             MailHandler mh = (MailHandler)h;
-            if(mh.getSubject() != this) {
+            if (mh.getSubject() != this) {
                 Formatter[] content = mh.getAttachmentFormatters();
                 Formatter[] names = mh.getAttachmentNames();
                 assert content.length == names.length;
-                for(int i=0; i<content.length; i++) {
-                    if(names[i] == this) {
-                        if(content[i] instanceof XMLFormatter) {
+                for (int i=0; i<content.length; i++) {
+                    if (names[i] == this) {
+                        if (content[i] instanceof XMLFormatter) {
                             return ".xml";
                         }
                         break;
