@@ -1,3 +1,4 @@
+copyright-exclude
 /MANIFEST.MF
 /META-INF/services/
 /META-INF/javamail
@@ -14,3 +15,10 @@ mail/src/oldtest/java/javax/mail/internet/decodetest
 mail.sig
 webapp/build.bat
 webapp/webapp.README.txt
+logging/src/main/java/
+mail/src/main/java/com/sun/mail/util/logging/
+mail/src/test/java/com/sun/mail/util/logging/
+mail/src/test/resources/javax/mail/internet/paramdata
+mail/src/test/resources/javax/mail/internet/paramdatanostrict
+mail/src/test/resources/javax/mail/internet/tokenlist
+mail/src/test/resources/javax/mail/internet/addrlist
