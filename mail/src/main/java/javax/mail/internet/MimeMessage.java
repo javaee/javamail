@@ -2053,7 +2053,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * This method sets the <code>modified</code> flag to true, the
      * <code>save</code> flag to true, and then calls the
-     * <code>updateHeaders<code> method.
+     * <code>updateHeaders</code> method.
      *
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
