@@ -49,6 +49,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.logging.*;
+import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import org.junit.AfterClass;
@@ -63,7 +64,6 @@ import static org.junit.Assert.*;
 public class MailHandlerTest {
 
     private static final String LOG_CFG_KEY = "java.util.logging.config.file";
-
     /**
      * Used to prevent G.C. of loggers.
      */
@@ -576,6 +576,57 @@ public class MailHandlerTest {
             }
         };
         instance.setErrorManager(empty);
+        instance.close();
+    }
+
+    @Test
+    public void testEncoding() throws Exception {
+        final String enc = "iso-8859-1";
+        LogManager manager = LogManager.getLogManager();
+        final MailHandler instance = new MailHandler();
+        MessageErrorManager em = new MessageErrorManager(instance) {
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    MimeMultipart multi = (MimeMultipart) msg.getContent();
+                    BodyPart body = multi.getBodyPart(0);
+                    assertEquals(Part.INLINE, body.getDisposition());
+                    ContentType ct = new ContentType(body.getContentType());
+                    assertEquals(enc, ct.getParameter("charset"));
+
+                    BodyPart attach = multi.getBodyPart(1);
+                    ct = new ContentType(attach.getContentType());
+                    assertEquals(enc, ct.getParameter("charset"));
+                } catch (Throwable E) {
+                    E.printStackTrace();
+                    fail(E.toString());
+                }
+            }
+        };
+
+        instance.setErrorManager(em);
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.host", "bad-host-name");
+        props.put("mail.to", "localhost@localdomain");
+        instance.setMailProperties(props);
+        instance.setAttachmentFormatters(new Formatter[]{new XMLFormatter()});
+        instance.setAttachmentNames(new String[]{"all.xml"});
+        String p = instance.getClass().getName();
+
+        assertEquals(manager.getProperty(p.concat(".encoding")), instance.getEncoding());
+        try {
+            instance.setEncoding("unsupported encoding exception");
+            fail("Missing encoding check.");
+        } catch (UnsupportedEncodingException expect) {
+        }
+
+        assertTrue(em.exceptions.isEmpty());
+
+        instance.setEncoding(enc);
+        instance.setSubject("ORA-17043=Ung\u00FCltige maximale Stream-Gr\u00F6\u00DFe");
+        LogRecord record = new LogRecord(Level.SEVERE, "Zeit\u00FCberschreitung bei Anweisung");
+        instance.publish(record);
         instance.close();
     }
 
@@ -1163,7 +1214,7 @@ public class MailHandlerTest {
 
         MailHandler instance = new MailHandler(10);
         instance.setLevel(Level.ALL);
-        
+
         assertEquals(InternalErrorManager.class, instance.getErrorManager().getClass());
 
         final String CLASS_NAME = MailHandlerTest.class.getName();
@@ -1256,7 +1307,6 @@ public class MailHandlerTest {
         head = instance.contentTypeOf(new XMLFormatter().getHead(instance));
         assertEquals("application/xml", head);
 
-
         instance.setEncoding(null);
         head = instance.contentTypeOf(new SimpleFormatter().getHead(instance));
         assertNull(head);
@@ -1277,6 +1327,11 @@ public class MailHandlerTest {
         head = instance.contentTypeOf(new HeadFormatter("<HTML><BODY>").getHead(instance));
         assertEquals("text/html", head);
 
+        instance.setEncoding("US-ASCII");
+        head = instance.contentTypeOf(new HeadFormatter("<HTML><HEAD></HEAD>"
+                + "<BODY></BODY></HTML>").getHead(instance));
+        assertEquals("text/html", head);
+
         instance.setEncoding(null);
         head = instance.contentTypeOf(new HeadFormatter("Head").getHead(instance));
         if (head != null) {//null is assumed to be plain text.
@@ -1288,11 +1343,69 @@ public class MailHandlerTest {
         if (head != null) { //null is assumed to be plain text.
             assertEquals("text/plain", head);
         }
+
+        instance.setEncoding("US-ASCII");
+        head = instance.contentTypeOf(new HeadFormatter("Head.......Neck.......Body").getHead(instance));
+        if (head != null) { //null is assumed to be plain text.
+            assertEquals("text/plain", head);
+        }
         instance.close();
 
         for (int i = 0; i < em.exceptions.size(); i++) {
             fail(em.exceptions.get(i).toString());
         }
+    }
+
+    @Test
+    public void testContentTypeOverride() throws Exception {
+        String expected = "application/xml; charset=us-ascii";
+        String type = getInlineContentType();
+        assertEquals(expected, type);
+
+        MimetypesFileTypeMap m = new MimetypesFileTypeMap();
+        m.addMimeTypes("text/plain txt TXT XMLFormatter");
+        final FileTypeMap old = FileTypeMap.getDefaultFileTypeMap();
+        FileTypeMap.setDefaultFileTypeMap(m);
+        try {
+            type = getInlineContentType();
+            assertEquals("text/plain; charset=us-ascii", type);
+        } finally {
+            FileTypeMap.setDefaultFileTypeMap(old);
+        }
+
+        type = getInlineContentType();
+        assertEquals(expected, type);
+    }
+
+    private String getInlineContentType() throws Exception {
+        final String[] value = new String[1];
+        MailHandler instance = new MailHandler();
+        instance.setEncoding("us-ascii");
+        MessageErrorManager em = new MessageErrorManager(instance) {
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    MimeMultipart multi = (MimeMultipart) msg.getContent();
+                    BodyPart body = multi.getBodyPart(0);
+                    assertEquals(Part.INLINE, body.getDisposition());
+                    value[0] = body.getContentType();
+                } catch (Throwable E) {
+                    E.printStackTrace();
+                    fail(E.toString());
+                }
+            }
+        };
+        instance.setErrorManager(em);
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.host", "bad-host-name");
+        props.put("mail.to", "localhost@localdomain");
+        instance.setMailProperties(props);
+        instance.setFormatter(new XMLFormatter());
+        instance.publish(new LogRecord(Level.SEVERE, "test"));
+        instance.close();
+
+        return value[0];
     }
 
     @Test
@@ -1324,7 +1437,8 @@ public class MailHandlerTest {
     @Test
     public void testCapacity() {
         try {
-            new MailHandler(-1);
+            MailHandler h = new MailHandler(-1);
+            h.getCapacity();
             fail("Negative capacity was allowed.");
         } catch (IllegalArgumentException pass) {
         } catch (RuntimeException RE) {
@@ -1332,7 +1446,8 @@ public class MailHandlerTest {
         }
 
         try {
-            new MailHandler(0);
+            MailHandler h = new MailHandler(0);
+            h.getCapacity();
             fail("Zero capacity was allowed.");
         } catch (IllegalArgumentException pass) {
         } catch (RuntimeException RE) {
@@ -1340,11 +1455,11 @@ public class MailHandlerTest {
         }
 
         try {
-            new MailHandler(1);
+            MailHandler h = new MailHandler(1);
+            h.getCapacity();
         } catch (RuntimeException RE) {
             fail(RE.toString());
         }
-
 
         final int expResult = 20;
         MailHandler instance = new MailHandler(20);
@@ -2414,6 +2529,131 @@ public class MailHandlerTest {
         }
     }
 
+    @Test
+    public void testVerifyLogManager() throws Exception {
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.reset();
+
+            final String p = MailHandler.class.getName();
+            Properties props = new Properties();
+            props.put(p.concat(".mail.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.port"), "80"); //bad port.
+            props.put(p.concat(".mail.to"), "badAddress");
+            props.put(p.concat(".mail.cc"), "badAddress");
+            props.put(p.concat(".mail.subject"), p.concat(" test"));
+            props.put(p.concat(".mail.from"), "badAddress");
+            props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".verify"), "local");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            props.store(out, "No comment");
+
+            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            out = null;
+
+            MailHandler instance = new MailHandler();
+            InternalErrorManager em =
+                    (InternalErrorManager) instance.getErrorManager();
+
+            assertFalse(em.exceptions.isEmpty());
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (t instanceof AddressException == false) {
+                    t.printStackTrace();
+                    fail(t.toString());
+                }
+            }
+
+            instance.close();
+
+            props.put(p.concat(".verify"), "remote");
+            out = new ByteArrayOutputStream();
+            props.store(out, "No comment");
+            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            out = null;
+
+
+            instance = new MailHandler();
+            em = (InternalErrorManager) instance.getErrorManager();
+
+            assertFalse(em.exceptions.isEmpty());
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (t instanceof AddressException) {
+                    continue;
+                } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                    continue;
+                } else {
+                    t.printStackTrace();
+                    fail(t.toString());
+                }
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testVerifyProperties() throws Exception {
+        Properties props = new Properties();
+        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.smtp.port", "80"); //bad port.
+        props.put("mail.to", "badAddress");
+        props.put("mail.cc", "badAddress");
+        props.put("mail.subject", "test");
+        props.put("mail.from", "badAddress");
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
+        props.put("verify", "local");
+        
+        InternalErrorManager em = new InternalErrorManager();
+        MailHandler instance = new MailHandler();
+        try {
+            instance.setErrorManager(em);
+            instance.setMailProperties(props);
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (t instanceof AddressException == false) {
+                    t.printStackTrace();
+                    fail(t.toString());
+                }
+            }
+        } finally {
+            instance.close();
+        }
+
+        props.put("verify", "remote");
+        instance = new MailHandler();
+        try {
+            em = new InternalErrorManager();
+            instance.setErrorManager(em);
+            instance.setMailProperties(props);
+
+            assertFalse(em.exceptions.isEmpty());
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (t instanceof AddressException) {
+                    continue;
+                } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                    continue;
+                } else {
+                    t.printStackTrace();
+                    fail(t.toString());
+                }
+            }
+        } finally {
+            instance.close();
+        }
+    }
+
     /**
      * Test must run last.
      */
@@ -2469,7 +2709,7 @@ public class MailHandlerTest {
             } finally {
                 boolean v;
                 v = cfg.delete();
-                assertTrue(v);
+                assertTrue(v || !cfg.exists());
 
                 System.clearProperty(LOG_CFG_KEY);
                 LogManager.getLogManager().readConfiguration();

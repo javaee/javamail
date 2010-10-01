@@ -43,6 +43,8 @@ package com.sun.mail.util.logging;
 
 import java.io.*;
 import java.lang.reflect.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -67,6 +69,7 @@ import javax.mail.util.ByteArrayDataSource;
  *      Properties props = new Properties();
  *      props.put("mail.smtp.host", "my-mail-server");
  *      props.put("mail.to", "me@example.com");
+ *      props.put("verify", "local");
  *      MailHandler h = new MailHandler(props);
  *      h.setLevel(Level.WARNING);
  * </pre></tt>
@@ -190,13 +193,15 @@ import javax.mail.util.ByteArrayDataSource;
  * (defaults to empty string)
  *
  * <li>com.sun.mail.util.logging.MailHandler.verify <a name="verify">used</a> to
- * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a value of
- * <tt>local</tt> the <tt>Handler</tt> will only verify settings of the local
- * machine. If set to a value of <tt>remote</tt>, the <tt>Handler</tt> will
- * verify all local settings and try to establish a connection with the email
- * server.  If the value is not set, equal to an empty string, or equal to the
- * literal <tt>null</tt> then minimal or no settings are verified prior to a
- * push.  (defaults to <tt>null</tt>, no verify).
+ * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a 
+ * value of <tt>local</tt> the <tt>Handler</tt> will only verify settings of the
+ * local machine. If set to a value of <tt>remote</tt>, the <tt>Handler</tt>
+ * will verify all local settings and try to establish a connection with the
+ * email server.  If the value is not set, equal to an empty string, or equal to
+ * the literal <tt>null</tt> then minimal or no settings are verified prior to a
+ * push.  If this <tt>Handler</tt> is only implicitly closed by the
+ * <tt>LogManager</tt>, then verification should be turned on.
+ * (defaults to <tt>null</tt>, no verify).
  *
  * <p>
  * <b>Sorting:</b>
@@ -214,7 +219,12 @@ import javax.mail.util.ByteArrayDataSource;
  * <tt>getFormatter()</tt>.  Only records that pass the filter returned by
  * <tt>getFilter()</tt> will be included in the message body.  The subject
  * <tt>Formatter</tt> will see all <tt>LogRecord</tt> objects that were
- * published regardless of the current <tt>Filter</tt>.
+ * published regardless of the current <tt>Filter</tt>.  The MIME type of the
+ * message body can be {@linkplain FileTypeMap#setDefaultFileTypeMap overridden}
+ * by adding a MIME {@linkplain MimetypesFileTypeMap entry} using the simple
+ * class name of the body formatter as the file extension.  The MIME type of the
+ * attachments can be overridden by changing the attachment file name extension
+ * or by editing the default MIME entry for a specific file name extension.
  * 
  * <p>
  * <b>Attachments:</b>
@@ -364,6 +374,11 @@ public class MailHandler extends Handler {
      * all of the format calls, plus one getTail call.
      */
     private Formatter[] attachmentNames;
+    /**
+     * Used to override the content type for the body and set the content type
+     * for each attachment.
+     */
+    private FileTypeMap contentTypes;
 
     /**
      * Creates a <tt>MailHandler</tt> that is configured by the
@@ -671,14 +686,18 @@ public class MailHandler extends Handler {
      * caller does not have <tt>LoggingPermission("control")</tt>.
      * @throws IllegalStateException if called from inside a push.
      */
-    public final synchronized void setAuthenticator(final Authenticator auth) {
+    public final void setAuthenticator(final Authenticator auth) {
         checkAccess();
 
-        if (isWriting) {
-            throw new IllegalStateException();
+        Session settings;
+        synchronized(this) {
+            if (isWriting) {
+                throw new IllegalStateException();
+            }
+            this.auth = auth;
+            settings = this.fixUpSession();
         }
-        this.auth = auth;
-        this.fixUpSession();
+        verifySettings(settings);
     }
 
     /**
@@ -699,13 +718,15 @@ public class MailHandler extends Handler {
     private void setMailProperties0(Properties props) {
         checkAccess();
         props = (Properties) props.clone();
+        Session settings;
         synchronized (this) {
             if (isWriting) {
                 throw new IllegalStateException();
             }
             this.mailProps = props;
-            this.fixUpSession();
+            settings = this.fixUpSession();
         }
+        verifySettings(settings);
     }
 
     /**
@@ -1003,11 +1024,20 @@ public class MailHandler extends Handler {
      * @param head any head string.
      * @return return the mime type or null for text/plain.
      */
-    final String contentTypeOf(final String head) {
+    final String contentTypeOf(String head) {
         if (head != null && head.length() > 0) {
+            final int MAX_CHARS = 15;
+            if (head.length() > MAX_CHARS) {
+                head = head.substring(0, MAX_CHARS);
+            }
             try {
-                final ByteArrayInputStream in =
-                        new ByteArrayInputStream(head.getBytes("US-ASCII"));
+                final ByteArrayInputStream in;
+                final String encoding = getEncoding();
+                if (encoding == null) {
+                    in = new ByteArrayInputStream(head.getBytes());
+                } else {
+                    in = new ByteArrayInputStream(head.getBytes(encoding));
+                }
                 assert in.markSupported() : in.getClass().getName();
                 return URLConnection.guessContentTypeFromStream(in);
             } catch (final IOException IOE) {
@@ -1018,24 +1048,90 @@ public class MailHandler extends Handler {
     }
 
     /**
+     * Determines the mimeType from the given file name.
+     * Used to override the body content type and used for all attachments.
+     * @param name the file name or class name.
+     * @return the mime type or null for text/plain.
+     */
+    private String getContentType(final String name) {
+        assert Thread.holdsLock(this);
+        final String type = contentTypes.getContentType(name);
+        if ("application/octet-stream".equalsIgnoreCase(type)) {
+            return null; //formatters return strings, default to text/plain.
+        }
+        return type;
+    }
+
+    /**
      * Set the content for a part.
      * @param part the part to assign.
      * @param buf the formatted data.
      * @param type the mime type.
      * @throws MessagingException if there is a problem.
      */
-    private void setContent(Part part, StringBuffer buf, String type) throws MessagingException {
+    private void setContent(MimeBodyPart part, StringBuffer buf, String type) throws MessagingException {
+        final String encoding = getEncoding();
         if (type != null && !"text/plain".equals(type)) {
+            if (encoding == null) {
+                type = contentWithDefault(type);
+            } else {
+                type = contentWithEncoding(type, encoding);
+            }
+
             try {
                 DataSource source = new ByteArrayDataSource(buf.toString(), type);
                 part.setDataHandler(new DataHandler(source));
             } catch (final IOException IOE) {
                 reportError(IOE.getMessage(), IOE, ErrorManager.FORMAT_FAILURE);
-                part.setText(buf.toString());
+                part.setText(buf.toString(), encoding);
             }
         } else {
-            part.setText(buf.toString());
+            part.setText(buf.toString(), encoding);
         }
+    }
+
+    /**
+     * Only call if encoding is not null.
+     * Replaces the charset parameter with the current encoding.
+     * @param type the content type.
+     * @param encoding the encoding.
+     * @return the type with a specified encoding.
+     */
+    private String contentWithEncoding(String type, String encoding) {
+        try {
+            final ContentType ct = new ContentType(type);
+            ct.setParameter("charset", encoding);
+            encoding = ct.toString();
+            if (encoding != null) {
+                type = encoding;
+            }
+        } catch (final MessagingException ME) {
+            reportError(type, ME, ErrorManager.FORMAT_FAILURE);
+        }
+        return type;
+    }
+
+    /**
+     * Removes the encoding parameter from the content type.
+     * @param type the content type.
+     * @return the content type without encoding.
+     */
+    private String contentWithDefault(String type) {
+        try {
+            final ContentType ct = new ContentType(type);
+            if (ct.getParameter("charset") != null) {
+                final ParameterList list = ct.getParameterList();
+                list.remove("charset");
+                ct.setParameterList(list);
+                final String newType = ct.toString();
+                if (newType != null) {
+                    type = newType;
+                }
+            }
+        } catch (final MessagingException ME) {
+            reportError(type, ME, ErrorManager.FORMAT_FAILURE);
+        }
+        return type;
     }
 
     /**
@@ -1177,6 +1273,7 @@ public class MailHandler extends Handler {
         final LogManager manager = LogManagerProperties.manager;
         final String p = getClass().getName();
         this.mailProps = new Properties();
+        this.contentTypes = FileTypeMap.getDefaultFileTypeMap();
 
         //Assign any custom error manager first so it can detect all failures.
         ErrorManager em = (ErrorManager) initObject(p.concat(".errorManager"), ErrorManager.class);
@@ -1189,7 +1286,7 @@ public class MailHandler extends Handler {
         initCapacity(manager, p);
 
         this.auth = (Authenticator) initObject(p.concat(".authenticator"), Authenticator.class);
-        this.fixUpSession();
+        final Session settings = this.fixUpSession();
 
         initEncoding(manager, p);
         initFormatter(p);
@@ -1215,6 +1312,7 @@ public class MailHandler extends Handler {
             reportError("attachment names.",
                     attachmentMismatch("length mismatch"), ErrorManager.OPEN_FAILURE);
         }
+        verifySettings(settings);
     }
 
     private /*<T> T*/ Object objectFromNew(final String name,
@@ -1549,7 +1647,7 @@ public class MailHandler extends Handler {
              * call.  Therefore, a null part at an index means that the head is
              * required.
              */
-            BodyPart[] parts = new BodyPart[attachmentFormatters.length];
+            MimeBodyPart[] parts = new MimeBodyPart[attachmentFormatters.length];
 
             /**
              * The buffers are lazily created when the part requires a getHead.
@@ -1597,18 +1695,18 @@ public class MailHandler extends Handler {
             }
             this.size = 0;
 
-            for (int i = parts.length - 1; i >= 0; i--) {
+            for (int i = parts.length - 1; i >= 0; --i) {
                 if (parts[i] != null) {
                     appendFileName(parts[i], tail(attachmentNames[i], "err"));
                     buffers[i].append(tail(attachmentFormatters[i], ""));
 
-                    final String content = buffers[i].toString();
-                    if (content.length() > 0) {
+                    if (buffers[i].length() > 0) {
                         String name = parts[i].getFileName();
                         if (name == null || name.length() == 0) {
-                            parts[i].setFileName(toString(attachmentFormatters[i]));
+                            name = toString(attachmentFormatters[i]);
+                            parts[i].setFileName(name);
                         }
-                        parts[i].setText(content);
+                        setContent(parts[i], buffers[i], getContentType(name));
                     } else {
                         parts[i] = null;
                     }
@@ -1625,8 +1723,9 @@ public class MailHandler extends Handler {
             appendSubject(msg, tail(subjectFormatter, ""));
 
             MimeMultipart multipart = new MimeMultipart();
-            BodyPart body = createBodyPart();
-            setContent(body, buf, contentType);
+            MimeBodyPart body = createBodyPart();
+            String altType = getContentType(bodyFormat.getClass().getName());
+            setContent(body, buf, altType == null ? contentType : altType);
             buf = null;
             multipart.addBodyPart(body);
 
@@ -1700,6 +1799,7 @@ public class MailHandler extends Handler {
             return;
         }
 
+        //Perform all of the copy actions first.
         final MimeMessage abort = new MimeMessage(session);
         envelopeFor(new MessageContext(abort), true);
 
@@ -1711,26 +1811,6 @@ public class MailHandler extends Handler {
         }
 
         try {
-            Address[] from = abort.getFrom();
-            Address sender = abort.getSender();
-
-            if (from == null || from.length == 0) {
-                reportError(msg,
-                        new MessagingException("No from address."),
-                        ErrorManager.OPEN_FAILURE);
-            } else {
-                if (abort.getHeader("From", ",") != null) {
-                    for (int i = 0; i < from.length; ++i) {
-                        if (from[i].equals(sender)) {
-                            reportError(msg, new MessagingException(
-                                    "Sender address equals from address."),
-                                    ErrorManager.OPEN_FAILURE);
-                            break;
-                        }
-                    }
-                }
-            }
-
             Address[] all = abort.getAllRecipients();
             Transport t;
             try {
@@ -1742,16 +1822,16 @@ public class MailHandler extends Handler {
                     reportError(msg, me, ErrorManager.OPEN_FAILURE);
                     throw me;
                 }
-            } catch (MessagingException smtp) {
+            } catch (final MessagingException smtp) {
                 try {
                     t = session.getTransport("smtp");
-                } catch (MessagingException tryDefault) {
+                } catch (final MessagingException tryDefault) {
                     try {
                         t = session.getTransport();
-                    } catch (MessagingException fail) {
+                    } catch (final MessagingException fail) {
                         smtp.setNextException(tryDefault);
                         tryDefault.setNextException(fail);
-                        throw fail;
+                        throw smtp;
                     }
                 }
             }
@@ -1771,16 +1851,70 @@ public class MailHandler extends Handler {
                 } finally {
                     t.close();
                 }
-            } else {
+            } else { //force a property copy.
                 final String protocol = t.getURLName().getProtocol();
                 session.getProperty("mail.host");
                 session.getProperty("mail.user");
                 session.getProperty("mail." + protocol + ".host");
+                session.getProperty("mail." + protocol + ".port");
                 session.getProperty("mail." + protocol + ".user");
             }
-        } catch (MessagingException ME) {
+
+            Address[] from = abort.getFrom();
+            Address sender = abort.getSender();
+
+            if (from == null || from.length == 0) {
+                String noFromAddress = "No from address.";
+                MessagingException me;
+                try { //no from address, check security policy and host name.
+                    System.getProperty("user.name");
+                    if (InetAddress.getLocalHost().getHostName().length() == 0) {
+                        me = new MessagingException(noFromAddress,
+                                new UnknownHostException());
+                    } else {
+                        me = new MessagingException(noFromAddress);
+                    }
+                } catch (final SecurityException SE) {
+                    me = new MessagingException(noFromAddress, SE);
+                } catch (final IOException IOE) {
+                    me = new MessagingException(noFromAddress, IOE);
+                }
+                reportError(msg, me, ErrorManager.OPEN_FAILURE);
+            } else {
+                if (abort.getHeader("From", ",") != null) {
+                    for (int i = 0; i < from.length; ++i) {
+                        if (from[i].equals(sender)) {
+                            reportError(msg, new MessagingException(
+                                    "Sender address equals from address."),
+                                    ErrorManager.OPEN_FAILURE);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (all != null) {
+                for (int i = 0; i < all.length; ++i) {
+                    Address a = all[i];
+                    if (a instanceof InternetAddress) {
+                        ((InternetAddress) a).validate();
+                    }
+                }
+            }
+
+            //Check the host name after the address checks.
+            if ("local".equals(verify)) {
+                try {
+                    if (InetAddress.getLocalHost().getHostName().length() == 0) {
+                        throw new UnknownHostException();
+                    }
+                } catch (final IOException IOE) {
+                    reportError(msg, IOE, ErrorManager.OPEN_FAILURE);
+                }
+            }
+        } catch (final MessagingException ME) {
             reportError(msg, ME, ErrorManager.OPEN_FAILURE);
-        } catch (RuntimeException RE) {
+        } catch (final RuntimeException RE) {
             reportError(msg, RE, ErrorManager.OPEN_FAILURE);
         }
     }
@@ -1788,13 +1922,14 @@ public class MailHandler extends Handler {
     /**
      * Used to update the cached session object based on changes in
      * mail properties or authenticator.
+     * @return the current session.
      */
-    private void fixUpSession() {
+    private Session fixUpSession() {
         assert Thread.holdsLock(this);
         String p = getClass().getName();
         LogManagerProperties proxy = new LogManagerProperties(mailProps, p);
         session = Session.getInstance(proxy, auth);
-        verifySettings(session);
+        return session;
     }
 
     /**
@@ -1823,14 +1958,14 @@ public class MailHandler extends Handler {
         }
     }
 
-    private BodyPart createBodyPart() throws MessagingException {
+    private MimeBodyPart createBodyPart() throws MessagingException {
         final MimeBodyPart part = new MimeBodyPart();
         part.setDisposition(Part.INLINE);
         part.setDescription(descriptionFrom(getFormatter(), getFilter()));
         return part;
     }
 
-    private BodyPart createBodyPart(final int index) throws MessagingException {
+    private MimeBodyPart createBodyPart(final int index) throws MessagingException {
         assert Thread.holdsLock(this);
         final MimeBodyPart part = new MimeBodyPart();
         part.setDisposition(Part.ATTACHMENT);
@@ -1914,7 +2049,9 @@ public class MailHandler extends Handler {
     private void appendSubject0(final Message msg, final String chunk) {
         try {
             final String old = msg.getSubject();
-            msg.setSubject(old != null ? old.concat(chunk) : chunk);
+            assert msg instanceof MimeMessage;
+            ((MimeMessage) msg).setSubject(old != null ?
+                old.concat(chunk) : chunk, getEncoding());
         } catch (final MessagingException ME) {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
         }
@@ -2080,7 +2217,7 @@ public class MailHandler extends Handler {
             final int nbytes = Math.max(msg.getSize() + 1024, 1024);
             final ByteArrayOutputStream out = new ByteArrayOutputStream(nbytes);
             msg.writeTo(out);
-            return out.toString("US-ASCII");
+            return out.toString("US-ASCII"); //raw message is always ASCII.
         } else { //Must match this.reportError behavior, see push method.
             return null; //null is the safe choice.
         }
