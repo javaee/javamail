@@ -38,7 +38,6 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.mail.util.logging;
 
 import java.lang.reflect.*;
@@ -1230,7 +1229,14 @@ public class MailHandlerTest {
 
     private static boolean isConnectOrTimeout(Throwable t) {
         if (t instanceof MessagingException) {
-            return isConnectOrTimeout(((MessagingException) t).getCause());
+            Throwable cause = ((MessagingException) t).getCause();
+            if (cause != null) {
+                return isConnectOrTimeout(cause);
+            } else {
+                String msg = t.getMessage();
+                return msg != null && (msg.indexOf("connect") > -1 ||
+                            msg.indexOf("80") > -1);
+            }
         } else {
             return t instanceof java.net.ConnectException
                     || t instanceof java.net.SocketTimeoutException;
