@@ -509,38 +509,92 @@ public class InternetAddress extends Address implements Cloneable {
      * @return			current user's email address
      */
     public static InternetAddress getLocalAddress(Session session) {
-	String user=null, host=null, address=null;
 	try {
-	    if (session == null) {
-		user = System.getProperty("user.name");
-		host = InetAddress.getLocalHost().getHostName();
-	    } else {
-		address = session.getProperty("mail.from");
-		if (address == null) {
-		    user = session.getProperty("mail.user");
-		    if (user == null || user.length() == 0)
-			user = session.getProperty("user.name");
-		    if (user == null || user.length() == 0)
-			user = System.getProperty("user.name");
-		    host = session.getProperty("mail.host");
-		    if (host == null || host.length() == 0) {
-			InetAddress me = InetAddress.getLocalHost();
-			if (me != null)
-			    host = me.getHostName();
-		    }
-		}
-	    }
-
-	    if (address == null && user != null && user.length() != 0 &&
-		    host != null && host.length() != 0)
-		address = user + "@" + host;
-
-	    if (address != null)
-		return new InternetAddress(address);
+	    return _getLocalAddress(session);
 	} catch (SecurityException sex) {	// ignore it
 	} catch (AddressException ex) {		// ignore it
 	} catch (UnknownHostException ex) { }	// ignore it
 	return null;
+    }
+
+    /**
+     * A package-private version of getLocalAddress that doesn't swallow
+     * the exception.  Used by MimeMessage.setFrom() to report the reason
+     * for the failure.
+     */
+    // package-private
+    static InternetAddress _getLocalAddress(Session session)
+	    throws SecurityException, AddressException, UnknownHostException {
+	String user = null, host = null, address = null;
+	if (session == null) {
+	    user = System.getProperty("user.name");
+	    host = getLocalHostName();
+	} else {
+	    address = session.getProperty("mail.from");
+	    if (address == null) {
+		user = session.getProperty("mail.user");
+		if (user == null || user.length() == 0)
+		    user = session.getProperty("user.name");
+		if (user == null || user.length() == 0)
+		    user = System.getProperty("user.name");
+		host = session.getProperty("mail.host");
+		if (host == null || host.length() == 0)
+		    host = getLocalHostName();
+	    }
+	}
+
+	if (address == null && user != null && user.length() != 0 &&
+		host != null && host.length() != 0)
+	    address = MimeUtility.quote(user, HeaderTokenizer.RFC822) +
+							    "@" + host;
+
+	if (address == null)
+	    return null;
+
+	return new InternetAddress(address);
+    }
+
+    /**
+     * Get the local host name from InetAddress and return it in a form
+     * suitable for use in an email address.
+     */
+    private static String getLocalHostName() throws UnknownHostException {
+	String host = null;
+	InetAddress me = InetAddress.getLocalHost();
+	if (me != null) {
+	    host = me.getHostName();
+	    if (host != null && host.length() > 0 && isInetAddressLiteral(host))
+		host = '[' + host + ']';
+	}
+	return host;
+    }
+
+    /**
+     * Is the address an IPv4 or IPv6 address literal, which needs to
+     * be enclosed in "[]" in an email address?  IPv4 literals contain
+     * decimal digits and dots, IPv6 literals contain hex digits, dots,
+     * and colons.  We're lazy and don't check the exact syntax, just
+     * the allowed characters; strings that have only the allowed
+     * characters in a literal but don't meet the syntax requirements
+     * for a literal definitely can't be a host name and thus will fail
+     * later when used as an address literal.
+     */
+    private static boolean isInetAddressLiteral(String addr) {
+	boolean sawHex = false, sawColon = false;
+	for (int i = 0; i < addr.length(); i++) {
+	    char c = addr.charAt(i);
+	    if (c >= '0' && c <= '9')
+		;	// digits always ok
+	    else if (c == '.')
+		;	// dot always ok
+	    else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+		sawHex = true;	// need to see a colon too
+	    else if (c == ':')
+		sawColon = true;
+	    else
+		return false;	// anything else, definitely not a literal
+	}
+	return !sawHex || sawColon;
     }
 
     /**

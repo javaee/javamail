@@ -398,7 +398,14 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException
      */
     public void setFrom() throws MessagingException {
-	InternetAddress me = InternetAddress.getLocalAddress(session);
+	InternetAddress me = null;
+	try {
+	    me = InternetAddress._getLocalAddress(session);
+	} catch (Exception ex) {
+	    // if anything goes wrong (SecurityException, UnknownHostException),
+	    // chain the exception
+	    throw new MessagingException("No From address", ex);
+	}
 	if (me != null)
 	    setFrom(me);
 	else
