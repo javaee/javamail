@@ -41,6 +41,10 @@
 package com.sun.mail.util.logging;
 
 import java.lang.reflect.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,7 +55,9 @@ import java.util.logging.*;
 import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -62,20 +68,40 @@ import static org.junit.Assert.*;
  */
 public class MailHandlerTest {
 
+    /**
+     * See LogManager.
+     */
     private static final String LOG_CFG_KEY = "java.util.logging.config.file";
+    /**
+     * Stores the value of a port that is not used on the local machine.
+     */
+    private static volatile int OPEN_PORT = Integer.MIN_VALUE;
     /**
      * Used to prevent G.C. of loggers.
      */
-    private Object hardRef;
+    private volatile Object hardRef;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
         checkJVMOptions();
+        OPEN_PORT = findOpenPort();
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
         checkJVMOptions();
+        assertTrue(checkUnusedPort(OPEN_PORT));
+        OPEN_PORT = Integer.MIN_VALUE;
+    }
+
+    @Before
+    public void setUp() {
+        assertNull(hardRef);
+    }
+
+    @After
+    public void tearDown() {
+        hardRef = null;
     }
 
     private static void checkJVMOptions() {
@@ -87,6 +113,13 @@ public class MailHandlerTest {
         assertTrue(LOW_CAPACITY < NUM_RUNS);
         //Try to hold MAX_CAPACITY array with log records.
         assertTrue((60L * 1024L * 1024L) <= Runtime.getRuntime().maxMemory());
+        try {
+            if (InetAddress.getLocalHost().getHostName().length() == 0) {
+                throw new UnknownHostException();
+            }
+        } catch (UnknownHostException UHE) {
+            throw new AssertionError(UHE);
+        }
     }
 
     @Test
@@ -1184,7 +1217,7 @@ public class MailHandlerTest {
         Properties props = new Properties();
         props.put(p.concat(".mail.host"), "localhost");
         props.put(p.concat(".mail.smtp.host"), "localhost");
-        props.put(p.concat(".mail.smtp.port"), "80"); //bad port.
+        props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
         props.put(p.concat(".mail.to"), "localhost@localdomain");
         props.put(p.concat(".mail.cc"), "localhost@localdomain");
         props.put(p.concat(".mail.subject"), p.concat(" test"));
@@ -1225,22 +1258,6 @@ public class MailHandlerTest {
         logger.log(Level.SEVERE, "");
         logger.log(Level.SEVERE, "");
         return instance;
-    }
-
-    private static boolean isConnectOrTimeout(Throwable t) {
-        if (t instanceof MessagingException) {
-            Throwable cause = ((MessagingException) t).getCause();
-            if (cause != null) {
-                return isConnectOrTimeout(cause);
-            } else {
-                String msg = t.getMessage();
-                return msg != null && (msg.indexOf("connect") > -1 ||
-                            msg.indexOf("80") > -1);
-            }
-        } else {
-            return t instanceof java.net.ConnectException
-                    || t instanceof java.net.SocketTimeoutException;
-        }
     }
 
     @Test
@@ -2475,11 +2492,15 @@ public class MailHandlerTest {
                 fail(fail.toString());
             }
 
-            //check for internal security exceptions
+
+            //check for internal exceptions caused by security manager.
+            next:
             for (Exception e : em.exceptions) {
                 for (Throwable t = e; t != null; t = t.getCause()) {
                     if (t instanceof SecurityException) {
-                        throw (SecurityException) t; //fail
+                        continue next; //expected
+                    } else if (t instanceof RuntimeException) {
+                        throw (RuntimeException) t; //fail
                     }
                 }
             }
@@ -2545,7 +2566,7 @@ public class MailHandlerTest {
             Properties props = new Properties();
             props.put(p.concat(".mail.host"), "bad-host-name");
             props.put(p.concat(".mail.smtp.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.port"), "80"); //bad port.
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT)); //bad port.
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
             props.put(p.concat(".mail.subject"), p.concat(" test"));
@@ -2609,7 +2630,7 @@ public class MailHandlerTest {
         Properties props = new Properties();
         props.put("mail.host", "bad-host-name");
         props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.smtp.port", "80"); //bad port.
+        props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
         props.put("mail.to", "badAddress");
         props.put("mail.cc", "badAddress");
         props.put("mail.subject", "test");
@@ -2617,7 +2638,7 @@ public class MailHandlerTest {
         props.put("mail.smtp.connectiontimeout", "1");
         props.put("mail.smtp.timeout", "1");
         props.put("verify", "local");
-        
+
         InternalErrorManager em = new InternalErrorManager();
         MailHandler instance = new MailHandler();
         try {
@@ -2975,6 +2996,65 @@ public class MailHandlerTest {
             }
         }
         return (Level[]) a.toArray(new Level[a.size()]);
+    }
+
+    private static boolean isConnectOrTimeout(Throwable t) {
+        if (t instanceof MessagingException) {
+            return isConnectOrTimeout(t.getCause());
+        } else {
+            return t instanceof java.net.ConnectException
+                    || t instanceof java.net.SocketTimeoutException;
+        }
+    }
+
+    /**
+     * http://www.iana.org/assignments/port-numbers
+     * @return a open dynamic port.
+     */
+    private static int findOpenPort() {
+        final int MAX_PORT = 65535;
+        for (int i = 49152; i <= MAX_PORT; ++i) {
+            if (checkUnusedPort(i)) {
+                return i;
+            }
+        }
+
+        try {
+            close(new ServerSocket(MAX_PORT));
+            close(new Socket("localhost", MAX_PORT));
+            return MAX_PORT;
+        } catch (Throwable t) { //Config error or fix isConnectOrTimeout method.
+            throw new Error("Can't find open port.", t);
+        }
+    }
+
+    private static boolean checkUnusedPort(int port) {
+        try {
+            close(new ServerSocket(port));
+            try {
+                close(new Socket("localhost", port));
+            } catch (UnknownHostException UHE) {
+                throw new AssertionError(UHE);
+            } catch (IOException IOE) {
+                return isConnectOrTimeout(IOE);
+            }
+        } catch (IOException inUse) {
+        }
+        return false; //listening or bound.
+    }
+
+    private static void close(Socket s) {
+        try {
+            s.close();
+        } catch (IOException ignore) {
+        }
+    }
+
+    private static void close(ServerSocket s) {
+        try {
+            s.close();
+        } catch (IOException ignore) {
+        }
     }
 
     private static abstract class MessageErrorManager extends InternalErrorManager {
