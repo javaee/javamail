@@ -74,7 +74,36 @@ public class POP3Handler extends Thread implements Cloneable {
     
     /** Current line. */
     private String currentLine;
-    
+
+    /** First test message. */
+    private String msg1 =
+	    "Mime-Version: 1.0\r\n" +
+	    "From: joe@example.com\r\n" +
+	    "To: bob@example.com\r\n" +
+	    "Subject: Example\r\n" +
+	    "Content-Type: text/plain\r\n" +
+	    "\r\n" +
+	    "plain text\r\n";
+
+    /** Second test message. */
+    private String msg2 =
+	    "Mime-Version: 1.0\r\n" +
+	    "From: joe@example.com\r\n" +
+	    "To: bob@example.com\r\n" +
+	    "Subject: Multipart Example\r\n" +
+	    "Content-Type: multipart/mixed; boundary=\"xxx\"\r\n" +
+	    "\r\n" +
+	    "preamble\r\n" +
+	    "--xxx\r\n" +
+	    "\r\n" +
+	    "first part\r\n" +
+	    "\r\n" +
+	    "--xxx\r\n" +
+	    "\r\n" +
+	    "second part\r\n" +
+	    "\r\n" +
+	    "--xxx--\r\n";
+
     /**
      * Sets the client socket.
      * 
@@ -112,7 +141,7 @@ public class POP3Handler extends Thread implements Cloneable {
             }
         }
     }
-    
+
     /**
      * Send greetings.
      * 
@@ -132,7 +161,8 @@ public class POP3Handler extends Thread implements Cloneable {
      *             unable to write to socket
      */
     public void println(final String str) throws IOException {
-        this.writer.println(str);
+        this.writer.print(str);
+	this.writer.print("\r\n");
         this.writer.flush();
     }
     
@@ -151,8 +181,9 @@ public class POP3Handler extends Thread implements Cloneable {
             return;
         }
         
-        final String commandName = new StringTokenizer(
-			    this.currentLine, " ").nextToken().toUpperCase();
+        final StringTokenizer st = new StringTokenizer(this.currentLine, " ");
+        final String commandName = st.nextToken().toUpperCase();
+        final String arg = st.hasMoreTokens() ? st.nextToken() : null;
         if (commandName == null) {
             LOGGER.severe("Command name is empty!");
             this.exit();
@@ -164,7 +195,7 @@ public class POP3Handler extends Thread implements Cloneable {
         } else if (commandName.equals("LIST")) {
             this.list();
         } else if (commandName.equals("RETR")) {
-            this.retr();
+            this.retr(arg);
         } else if (commandName.equals("DELE")) {
             this.dele();
         } else if (commandName.equals("NOOP")) {
@@ -196,7 +227,7 @@ public class POP3Handler extends Thread implements Cloneable {
      *             unable to read/write to socket
      */
     public void stat() throws IOException {
-        this.println("+OK 2 18");
+        this.println("+OK 2 " + (msg1.length() + msg2.length()));
     }
     
     /**
@@ -207,8 +238,8 @@ public class POP3Handler extends Thread implements Cloneable {
      */
     public void list() throws IOException {
         this.writer.println("+OK");
-        this.writer.println("1 7");
-        this.writer.println("2 7");
+        this.writer.println("1 " + msg1.length());
+        this.writer.println("2 " + msg2.length());
         this.println(".");
     }
     
@@ -218,8 +249,15 @@ public class POP3Handler extends Thread implements Cloneable {
      * @throws IOException
      *             unable to read/write to socket
      */
-    public void retr() throws IOException {
-        // Nothing
+    public void retr(String arg) throws IOException {
+	String msg;
+	if (arg.equals("1"))
+	    msg = msg1;
+	else
+	    msg = msg2;
+        this.println("+OK " + msg.length() + " octets");
+	this.writer.write(msg);
+	this.println(".");
     }
     
     /**
@@ -229,7 +267,7 @@ public class POP3Handler extends Thread implements Cloneable {
      *             unable to read/write to socket
      */
     public void dele() throws IOException {
-        // Nothing
+	this.println("-ERR DELE not supported");
     }
     
     /**
@@ -270,7 +308,7 @@ public class POP3Handler extends Thread implements Cloneable {
      *             unable to read/write to socket
      */
     public void top() throws IOException {
-        // Nothing
+	this.println("-ERR TOP not supported");
     }
     
     /**
