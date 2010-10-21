@@ -41,6 +41,14 @@
 
 -->
 
+<!--
+    This project builds the JavaMail "mailapi.jar" file.  This jar file
+    contains a fully operational JavaMail implementation but without any
+    protocol providers.  It can be used with the separate protocol provider
+    jar files (e.g., smtp.jar, imap.jar) to provide a full JavaMail runtime
+    implementation.
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -51,10 +59,10 @@
 	<version>1.4.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
+    <groupId>com.sun.mail</groupId>
     <artifactId>mailapi</artifactId>
     <packaging>jar</packaging>
-    <name>JavaMail API jar</name>
+    <name>JavaMail API (no providers)</name>
 
     <properties>
 	<mail.packages.export>
@@ -63,6 +71,9 @@
 	    com.sun.mail.util.logging; version=${mail.version},
 	    com.sun.mail.handlers; version=${mail.version}
 	</mail.packages.export>
+	<mail.bundle.symbolicName>
+	    javax.mail.api
+	</mail.bundle.symbolicName>
     </properties>
 
     <build>
@@ -81,8 +92,8 @@
 		<configuration>
 		    <artifactItems>
 			<artifactItem>
-			    <groupId>javax.mail</groupId>
-			    <artifactId>mail</artifactId>
+			    <groupId>com.sun.mail</groupId>
+			    <artifactId>javax.mail</artifactId>
 			    <version>${mail.version}</version>
 			</artifactItem>
 		    </artifactItems>

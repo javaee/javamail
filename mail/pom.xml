@@ -51,8 +51,8 @@
 	<version>1.4.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>javax.mail</groupId>
-    <artifactId>mail</artifactId>
+    <groupId>com.sun.mail</groupId>
+    <artifactId>javax.mail</artifactId>
     <packaging>jar</packaging>
     <name>JavaMail API</name>
 

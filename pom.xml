@@ -52,7 +52,7 @@
     <version>1.4.4-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
-    <url>http://java.sun.com/projects/javamail</url>
+    <url>http://kenai.com/projects/javamail</url>
 
     <licenses>
       <license>
@@ -70,8 +70,8 @@
     </licenses>
 
     <organization>
-	<name>Sun Microsystems, Inc.</name>
-	<url>http://www.sun.com</url>
+	<name>Oracle</name>
+	<url>http://www.oracle.com</url>
     </organization>
 
     <properties>
@@ -90,6 +90,9 @@
 	<mail.implementationTitle>
 	    ${project.groupId}.${project.artifactId}
 	</mail.implementationTitle>
+	<mail.bundle.symbolicName>
+	    ${project.groupId}.${project.artifactId}
+	</mail.bundle.symbolicName>
 	<mail.packages.export>
 	    javax.mail.*; version=${mail.spec.version}
 	</mail.packages.export>
@@ -113,7 +116,7 @@
         <developer>
             <id>shannon</id>
             <name>Bill Shannon</name>
-            <organization>Sun Microsystems, Inc.</organization>
+            <organization>Oracle</organization>
             <roles>
                 <role>lead</role>
             </roles>
@@ -123,10 +126,12 @@
     <modules>
 	<module>mail</module>
 	<module>mailapi</module>
+	<module>mailapijar</module>
 	<module>smtp</module>
 	<module>imap</module>
 	<module>pop3</module>
 	<module>dsn</module>
+	<module>oldmail</module>
     </modules>
 
     <profiles>
@@ -246,7 +251,7 @@
 	    <!--
 		This plugin is reponsible for packaging artifacts
 		as OSGi bundles.  Please refer to
-		http://felix.apache.org/site/maven-bundle-plugin-bnd.html
+		http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html
 		for more information about how to use this plugin.
 	    -->
 	    <plugin>
@@ -254,6 +259,9 @@
 		<artifactId>maven-bundle-plugin</artifactId>
 		<configuration>
 		    <instructions>
+			<Bundle-SymbolicName>
+			    ${mail.bundle.symbolicName}
+			</Bundle-SymbolicName>
 			<Export-Package>
 			    ${mail.packages.export}
 			</Export-Package>
@@ -355,7 +363,8 @@
 				${mail.specificationTitle}
 			    </Specification-Title>
 			    <Specification-Version>
-				${mail.spec.version}</Specification-Version>
+				${mail.spec.version}
+			    </Specification-Version>
 			    <Specification-Vendor>
 				${project.organization.name}
 			    </Specification-Vendor>
