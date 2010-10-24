@@ -24,6 +24,7 @@ The following bugs have been fixed in the 1.4.4 release.
 6910675	IMAP provider can lose track of message sequence numbers
 6928566	Header violates RFC 2822 for multiple calls of addRecipient(s)
 G 11069	update the mail.jar manifest to include DynamicImport-Package
+K  3442	make sure socket is closed if SMTP connect fails
 <no id>	add mail.mime.windowsfilenames System property to handle IE6 breakage
 <no id>	properly disable TOP if POP3 CAPA response doesn't include it
 <no id>	add mail.pop3.disablecapa property to disable use of the CAPA command
@@ -46,7 +47,6 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add demo classes to support non-MIME messages from Outlook
 <no id>	fix deadlock when using IMAP fetch and IDLE
 <no id>	add support for mail.smtp.auth.<mechanism>.disable properties
-<no id>	make sure socket is closed if SMTP connect fails
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
