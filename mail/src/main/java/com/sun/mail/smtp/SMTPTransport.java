@@ -598,12 +598,6 @@ public class SMTPTransport extends Transport {
 	// setting mail.smtp.auth to true enables attempts to use AUTH
 	boolean useAuth = PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".auth", false);
-	// setting mail.smtp.auth.mechanisms controls which mechanisms will
-	// be used, and in what order they'll be considered.  only the first
-	// match is used.
-	String mechs = session.getProperty("mail." + name + ".auth.mechanisms");
-	if (mechs == null)
-	    mechs = defaultAuthenticationMechanisms;
 
 	if (debug)
 	    out.println("DEBUG SMTP: useEhlo " + useEhlo +
@@ -631,107 +625,135 @@ public class SMTPTransport extends Transport {
 	if (host == null || host.length() == 0)
 	    host = "localhost";
 
-	boolean succeed = false;
+	/*
+	 * If anything goes wrong, we need to be sure
+	 * to close the connection.
+	 */
+	boolean connected = false;
+	try {
 
-	if (serverSocket != null)
-	    openServer();	// only happens from connect(socket)
-	else
-	    openServer(host, port);
+	    if (serverSocket != null)
+		openServer();	// only happens from connect(socket)
+	    else
+		openServer(host, port);
 
-	if (useEhlo)
-	    succeed = ehlo(getLocalHost());
-	if (!succeed)
-	    helo(getLocalHost());
+	    boolean succeed = false;
+	    if (useEhlo)
+		succeed = ehlo(getLocalHost());
+	    if (!succeed)
+		helo(getLocalHost());
 
-	if (useStartTLS || requireStartTLS) {
-	    if (supportsExtension("STARTTLS")) {
-		startTLS();
-		/*
-		 * Have to issue another EHLO to update list of extensions
-		 * supported, especially authentication mechanisms.
-		 * Don't know if this could ever fail, but we ignore failure.
-		 */
-		ehlo(getLocalHost());
-	    } else if (requireStartTLS) {
-		if (debug)
-		    out.println(
-			"DEBUG SMTP: STARTTLS required but not supported");
+	    if (useStartTLS || requireStartTLS) {
+		if (supportsExtension("STARTTLS")) {
+		    startTLS();
+		    /*
+		     * Have to issue another EHLO to update list of extensions
+		     * supported, especially authentication mechanisms.
+		     * Don't know if this could ever fail, but we ignore
+		     * failure.
+		     */
+		    ehlo(getLocalHost());
+		} else if (requireStartTLS) {
+		    if (debug)
+			out.println(
+			    "DEBUG SMTP: STARTTLS required but not supported");
+		    throw new MessagingException(
+			"STARTTLS is required but " +
+			"host does not support STARTTLS");
+		}
+	    }
+
+	    if ((useAuth || (user != null && passwd != null)) &&
+		  (supportsExtension("AUTH") ||
+		   supportsExtension("AUTH=LOGIN"))) {
+		return authenticate(user, passwd);
+	    }
+
+	    // we connected correctly
+	    connected = true;
+	    return true;
+
+	} finally {
+	    // if we didn't connect successfully,
+	    // make sure the connection is closed
+	    if (!connected) {
 		try {
 		    closeConnection();
-		} catch (MessagingException mex) { /* ignore it */ }
-		throw new MessagingException(
-		    "STARTTLS is required but host does not support STARTTLS");
+		} catch (MessagingException mex) { }	// ignore it
 	    }
 	}
+    }
 
-	if ((useAuth || (user != null && passwd != null)) &&
-	      (supportsExtension("AUTH") || supportsExtension("AUTH=LOGIN"))) {
-	    String authzid = getAuthorizationId();
-	    if (authzid == null)
-		authzid = user;
-	    if (enableSASL) {
-		if (debug)
-		    out.println("DEBUG SMTP: Authenticate with SASL");
-		if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
-				user, passwd))
-		    return true;	// success
-		if (debug)
-		    out.println("DEBUG SMTP: SASL authentication failed");
-	    }
+    /**
+     * Authenticate to the server.
+     */
+    private boolean authenticate(String user, String passwd)
+				throws MessagingException {
+	// setting mail.smtp.auth.mechanisms controls which mechanisms will
+	// be used, and in what order they'll be considered.  only the first
+	// match is used.
+	String mechs = session.getProperty("mail." + name + ".auth.mechanisms");
+	if (mechs == null)
+	    mechs = defaultAuthenticationMechanisms;
 
-	    if (debug) {
-		out.println("DEBUG SMTP: Attempt to authenticate");
-		out.println("DEBUG SMTP: check mechanisms: " + mechs);
-	    }
-
-	    /*
-	     * Loop through the list of mechanisms supplied by the user
-	     * (or defaulted) and try each in turn.  If the server supports
-	     * the mechanism and we have an authenticator for the mechanism,
-	     * and it hasn't been disabled, use it.
-	     */
-	    StringTokenizer st = new StringTokenizer(mechs);
-	    while (st.hasMoreTokens()) {
-		String m = st.nextToken();
-		String dprop = "mail." + name + ".auth." +
-				    m.toLowerCase(Locale.ENGLISH) + ".disable";
-		boolean disabled =
-		    PropUtil.getBooleanSessionProperty(session, dprop, false);
-		if (disabled) {
-		    if (debug)
-			out.println("DEBUG SMTP: mechanism " + m +
-					    " disabled by property: " + dprop);
-		    continue;
-		}
-		m = m.toUpperCase(Locale.ENGLISH);
-		if (!supportsAuthentication(m)) {
-		    if (debug)
-			out.println("DEBUG SMTP: mechanism " + m +
-						" not supported by server");
-		    continue;
-		}
-		Authenticator a = (Authenticator)authenticators.get(m);
-		if (a == null) {
-		    if (debug)
-			out.println("DEBUG SMTP: " +
-			    "no authenticator for mechanism " + m);
-		    continue;
-		}
-		// only first supported mechanism is used
-		return a.authenticate(host, authzid, user, passwd);
-	    }
-
-	    // if no authentication mechanism found, close connection and fail
-	    try {
-		closeConnection();
-	    } catch (MessagingException mex) { /* ignore it */ }
-	    throw new AuthenticationFailedException(
-		"No authentication mechansims supported by both " +
-		"server and client");
+	String authzid = getAuthorizationId();
+	if (authzid == null)
+	    authzid = user;
+	if (enableSASL) {
+	    if (debug)
+		out.println("DEBUG SMTP: Authenticate with SASL");
+	    if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
+			    user, passwd))
+		return true;	// success
+	    if (debug)
+		out.println("DEBUG SMTP: SASL authentication failed");
 	}
 
-	// we connected correctly
-	return true;
+	if (debug) {
+	    out.println("DEBUG SMTP: Attempt to authenticate");
+	    out.println("DEBUG SMTP: check mechanisms: " + mechs);
+	}
+
+	/*
+	 * Loop through the list of mechanisms supplied by the user
+	 * (or defaulted) and try each in turn.  If the server supports
+	 * the mechanism and we have an authenticator for the mechanism,
+	 * and it hasn't been disabled, use it.
+	 */
+	StringTokenizer st = new StringTokenizer(mechs);
+	while (st.hasMoreTokens()) {
+	    String m = st.nextToken();
+	    String dprop = "mail." + name + ".auth." +
+				m.toLowerCase(Locale.ENGLISH) + ".disable";
+	    boolean disabled =
+		PropUtil.getBooleanSessionProperty(session, dprop, false);
+	    if (disabled) {
+		if (debug)
+		    out.println("DEBUG SMTP: mechanism " + m +
+					" disabled by property: " + dprop);
+		continue;
+	    }
+	    m = m.toUpperCase(Locale.ENGLISH);
+	    if (!supportsAuthentication(m)) {
+		if (debug)
+		    out.println("DEBUG SMTP: mechanism " + m +
+					    " not supported by server");
+		continue;
+	    }
+	    Authenticator a = (Authenticator)authenticators.get(m);
+	    if (a == null) {
+		if (debug)
+		    out.println("DEBUG SMTP: " +
+			"no authenticator for mechanism " + m);
+		continue;
+	    }
+	    // only first supported mechanism is used
+	    return a.authenticate(host, authzid, user, passwd);
+	}
+
+	// if no authentication mechanism found, fail
+	throw new AuthenticationFailedException(
+	    "No authentication mechansims supported by both server and client");
     }
 
     /**

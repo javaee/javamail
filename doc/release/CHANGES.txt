@@ -46,6 +46,7 @@ G 11069	update the mail.jar manifest to include DynamicImport-Package
 <no id>	add demo classes to support non-MIME messages from Outlook
 <no id>	fix deadlock when using IMAP fetch and IDLE
 <no id>	add support for mail.smtp.auth.<mechanism>.disable properties
+<no id>	make sure socket is closed if SMTP connect fails
 
 
 		  CHANGES IN THE 1.4.3 RELEASE
