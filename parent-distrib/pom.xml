@@ -72,7 +72,7 @@
 		<configuration>
 		    <artifactItems>
 			<artifactItem>
-			    <groupId>com.sun..mail</groupId>
+			    <groupId>com.sun.mail</groupId>
 			    <artifactId>javax.mail</artifactId>
 			    <version>${mail.version}</version>
 			</artifactItem>

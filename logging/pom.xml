@@ -58,13 +58,13 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>demo</artifactId>
-	    <version>1.4.4-SNAPSHOT</version>
+	    <version>${mail.version}</version>
         </dependency>
     </dependencies>
 </project>

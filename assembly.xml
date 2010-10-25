@@ -50,13 +50,13 @@
 	<!-- include the main mail.jar file -->
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:mail</include>
+		<include>com.sun.mail:javax.mail</include>
 	    </includes>
 	    <binaries>
 		<includeDependencies>false</includeDependencies>
 		<unpack>false</unpack>
 		<outputFileNameMapping>
-		    ${module.artifactId}.${module.extension}
+		    mail.jar
 		</outputFileNameMapping>
 	    </binaries>
 	</moduleSet>
@@ -64,7 +64,7 @@
 	<!-- include jar files from these modules in the lib directory -->
 	<moduleSet>
 	    <includes>
-		<include>javax.mail:mailapi</include>
+		<include>com.sun.mail:mailapi</include>
 		<include>com.sun.mail:smtp</include>
 		<include>com.sun.mail:imap</include>
 		<include>com.sun.mail:pop3</include>

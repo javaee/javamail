@@ -469,8 +469,8 @@
     <dependencyManagement>
 	<dependencies>
 	    <dependency>
-		<groupId>javax.mail</groupId>
-		<artifactId>mail</artifactId>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>javax.mail</artifactId>
 		<version>${mail.version}</version>
 	    </dependency>
 	    <dependency>
