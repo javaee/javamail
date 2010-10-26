@@ -666,7 +666,8 @@ public class SMTPTransport extends Transport {
 	    if ((useAuth || (user != null && passwd != null)) &&
 		  (supportsExtension("AUTH") ||
 		   supportsExtension("AUTH=LOGIN"))) {
-		return authenticate(user, passwd);
+		connected = authenticate(user, passwd);
+		return connected;
 	    }
 
 	    // we connected correctly
