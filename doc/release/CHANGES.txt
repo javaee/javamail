@@ -23,6 +23,7 @@ The following bugs have been fixed in the 1.4.4 release.
 6905730	MimeMessage.parse() is very slow on malformed message content
 6910675	IMAP provider can lose track of message sequence numbers
 6928566	Header violates RFC 2822 for multiple calls of addRecipient(s)
+6995537	Work around this JDK bug that causes iso-2022-jp decoding problems
 G 11069	update the mail.jar manifest to include DynamicImport-Package
 K  3442	make sure socket is closed if SMTP connect fails
 <no id>	add mail.mime.windowsfilenames System property to handle IE6 breakage

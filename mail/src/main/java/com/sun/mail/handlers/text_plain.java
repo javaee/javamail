@@ -55,6 +55,19 @@ public class text_plain implements DataContentHandler {
 	"text/plain",
 	"Text String");
 
+    /**
+     * An OuputStream wrapper that doesn't close the underlying stream.
+     */
+    private static class NoCloseOutputStream extends FilterOutputStream {
+	public NoCloseOutputStream(OutputStream os) {
+	    super(os);
+	}
+
+	public void close() {
+	    // do nothing
+	}
+    }
+
     protected ActivationDataFlavor getDF() {
 	return myDF;
     }
@@ -145,7 +158,7 @@ public class text_plain implements DataContentHandler {
 
 	try {
 	    enc = getCharset(type);
-	    osw = new OutputStreamWriter(os, enc);
+	    osw = new OutputStreamWriter(new NoCloseOutputStream(os), enc);
 	} catch (IllegalArgumentException iex) {
 	    /*
 	     * An unknown charset of the form ISO-XXX-XXX will cause
@@ -160,7 +173,14 @@ public class text_plain implements DataContentHandler {
 
 	String s = (String)obj;
 	osw.write(s, 0, s.length());
-	osw.flush();
+	/*
+	 * Have to call osw.close() instead of osw.flush() because
+	 * some charset converts, such as the iso-2022-jp converter,
+	 * don't output the "shift out" sequence unless they're closed.
+	 * The NoCloseOutputStream wrapper prevents the underlying
+	 * stream from being closed.
+	 */
+	osw.close();
     }
 
     private String getCharset(String type) {
