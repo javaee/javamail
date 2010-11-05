@@ -121,7 +121,7 @@ public class MessageCache {
 	// check range
 	if (msgnum < 1 || msgnum > size)
 	    throw new ArrayIndexOutOfBoundsException(
-				"message number out of bounds");
+		"message number (" + msgnum + ") out of bounds (" + size + ")");
 	IMAPMessage msg = messages[msgnum-1];
 	if (msg == null) {
 	    if (debug)
