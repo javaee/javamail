@@ -1816,23 +1816,19 @@ public class MailHandler extends Handler {
             try {
                 if (all != null && all.length > 0) {
                     t = session.getTransport(all[0]);
+                    session.getProperty("mail.transport.protocol"); //force copy
                 } else {
                     MessagingException me =
                             new MessagingException("No recipient addresses.");
                     reportError(msg, me, ErrorManager.OPEN_FAILURE);
                     throw me;
                 }
-            } catch (final MessagingException smtp) {
+            } catch (final MessagingException protocol) {
                 try {
-                    t = session.getTransport("smtp");
-                } catch (final MessagingException tryDefault) {
-                    try {
-                        t = session.getTransport();
-                    } catch (final MessagingException fail) {
-                        smtp.setNextException(tryDefault);
-                        tryDefault.setNextException(fail);
-                        throw smtp;
-                    }
+                    t = session.getTransport();
+                } catch (final MessagingException fail) {
+                    fail.setNextException(protocol);
+                    throw fail;
                 }
             }
 
@@ -1862,37 +1858,18 @@ public class MailHandler extends Handler {
 
             Address[] from = abort.getFrom();
             Address sender = abort.getSender();
-
-            if (from == null || from.length == 0) {
-                String noFromAddress = "No from address.";
-                MessagingException me;
-                try { //no from address, check security policy and host name.
-                    System.getProperty("user.name");
-                    if (InetAddress.getLocalHost().getHostName().length() == 0) {
-                        me = new MessagingException(noFromAddress,
-                                new UnknownHostException());
-                    } else {
-                        me = new MessagingException(noFromAddress);
-                    }
-                } catch (final SecurityException SE) {
-                    me = new MessagingException(noFromAddress, SE);
-                } catch (final IOException IOE) {
-                    me = new MessagingException(noFromAddress, IOE);
-                }
-                reportError(msg, me, ErrorManager.OPEN_FAILURE);
-            } else {
-                if (abort.getHeader("From", ",") != null) {
-                    for (int i = 0; i < from.length; ++i) {
-                        if (from[i].equals(sender)) {
-                            reportError(msg, new MessagingException(
-                                    "Sender address equals from address."),
-                                    ErrorManager.OPEN_FAILURE);
-                            break;
-                        }
+            if (abort.getHeader("From", ",") != null) {
+                assert from != null;
+                for (int i = 0; i < from.length; ++i) {
+                    if (from[i].equals(sender)) {
+                        reportError(msg, new MessagingException(
+                            "Sender address equals from address."),
+                            ErrorManager.OPEN_FAILURE);
+                        break;
                     }
                 }
             }
-
+            
             if (all != null) {
                 for (int i = 0; i < all.length; ++i) {
                     Address a = all[i];

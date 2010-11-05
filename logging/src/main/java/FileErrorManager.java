@@ -50,15 +50,15 @@ import java.util.logging.*;
  * can be as simple as the following:
  * <tt><pre>
  *      #Default FileErrorManager settings.
- *      com.sun.mail.util.logging.FileErrorManager.pattern = path to directory
+ *      FileErrorManager.pattern = path to directory
  * </pre></tt>
  *
  * If properties are not defined, or contain invalid values, then the specified
  * default values are used.
  * <ul>
- * <li>com.sun.mail.util.logging.FileErrorManager.pattern the absolute file path
- * to the directory which will store any failed email messages. (defaults
- * to the value of the system property <tt>java.io.tmpdir</tt>)
+ * <li>FileErrorManager.pattern the absolute file path to the directory which 
+ * will store any failed email messages. (defaults to the value of the system
+ * property <tt>java.io.tmpdir</tt>)
  * </ul>
  *
  * @author Jason Mehrens
@@ -70,9 +70,9 @@ public class FileErrorManager extends ErrorManager {
      */
     private static final LogManager manager = LogManager.getLogManager();
     /**
-     * Used to report internal errors.
+     * Used to report errors that this error manager fails to report.
      */
-    private final ErrorManager internal = new ErrorManager();
+    private final ErrorManager next = new ErrorManager();
     /**
      * Directory of the email store.
      */
@@ -110,9 +110,9 @@ public class FileErrorManager extends ErrorManager {
      * this method will store the email to the file system.  If the message
      * parameter is not a raw email then the message is forwarded to the super
      * class. If an email is written to the filesystem without error, then the
-     * orignal reported error is ignored.
+     * original reported error is ignored.
      * @param msg String raw email or plain error message.
-     * @param ex Exception that occured in the mail handler.
+     * @param ex Exception that occurred in the mail handler.
      * @param code int error manager code.
      */
     public void error(String msg, Exception ex, int code) {
@@ -120,18 +120,22 @@ public class FileErrorManager extends ErrorManager {
             try {
                 storeEmail(msg);
             } catch (final IOException IOE) {
-                super.error(msg, ex, code);
-                internal.error(emailStore.toString(), IOE, ErrorManager.WRITE_FAILURE);
+                super.error(emailStore.toString(), IOE, ErrorManager.WRITE_FAILURE);
+                next.error(msg, ex, code);
             } catch (final RuntimeException RE) {
-                super.error(msg, ex, code);
-                internal.error(emailStore.toString(), RE, ErrorManager.WRITE_FAILURE);
+                super.error(emailStore.toString(), RE, ErrorManager.WRITE_FAILURE);
+                next.error(msg, ex, code);
             }
         } else {
-            super.error(msg, ex, code);
+            next.error(msg, ex, code);
         }
     }
 
     private void init() {
+        if (next == null) {
+            throw new NullPointerException(ErrorManager.class.getName());
+        }
+
         File dir = this.emailStore;
         if (dir.getClass() != File.class) { //for security.
             throw new IllegalArgumentException(dir.getClass().getName());
@@ -147,12 +151,12 @@ public class FileErrorManager extends ErrorManager {
         }
 
         if (!dir.canRead()) { //Can throw under a security manager.
-            internal.error(dir.getAbsolutePath(),
+            super.error(dir.getAbsolutePath(),
                     new SecurityException("read"), ErrorManager.OPEN_FAILURE);
         }
 
         if (!dir.canWrite()) { //Can throw under a security manager.
-            internal.error(dir.getAbsolutePath(),
+            super.error(dir.getAbsolutePath(),
                     new SecurityException("write"), ErrorManager.OPEN_FAILURE);
         }
     }
@@ -204,7 +208,7 @@ public class FileErrorManager extends ErrorManager {
             try {
                 out.close();
             } catch (IOException IOE) {
-                internal.error(out.toString(), IOE, ErrorManager.CLOSE_FAILURE);
+                super.error(out.toString(), IOE, ErrorManager.CLOSE_FAILURE);
             }
         }
     }
@@ -217,13 +221,13 @@ public class FileErrorManager extends ErrorManager {
                         tmp.deleteOnExit();
                     } catch (final RuntimeException shutdown) {
                         if (!tmp.delete()) {
-                            internal.error(tmp.getAbsolutePath(), shutdown,
+                            super.error(tmp.getAbsolutePath(), shutdown,
                                     ErrorManager.CLOSE_FAILURE);
                         }
                     }
                 }
             } catch (SecurityException SE) {
-                internal.error(tmp.toString(), SE, ErrorManager.CLOSE_FAILURE);
+                super.error(tmp.toString(), SE, ErrorManager.CLOSE_FAILURE);
             }
         }
     }
