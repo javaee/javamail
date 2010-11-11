@@ -230,7 +230,13 @@ public class BODYSTRUCTURE implements Item {
 	    description = r.readString();
 	    if (parseDebug)
 		System.out.println("DEBUG IMAP: description " + description);
-	    encoding = r.readString();
+	    /*
+	     * XXX - Work around bug in Exchange 2010 that
+	     *       returns unquoted string.
+	     */
+	    encoding = r.readAtomString();
+	    if (encoding != null && encoding.equalsIgnoreCase("NIL"))
+		encoding = null;
 	    if (parseDebug)
 		System.out.println("DEBUG IMAP: encoding " + encoding);
 	    size = r.readNumber();
