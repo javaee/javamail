@@ -91,14 +91,20 @@ public class LineInputStream extends FilterInputStream {
 		break;
 	    else if (c1 == '\r') {
 		// Got CR, is the next char NL ?
+		boolean twoCRs = false;
 		int c2 = in.read();
-		if (c2 == '\r')		// discard extraneous CR
+		if (c2 == '\r') {		// discard extraneous CR
+		    twoCRs = true;
 		    c2 = in.read();
+		}
 		if (c2 != '\n') {
 		    // If not NL, push it back
 		    if (!(in instanceof PushbackInputStream))
-			in = this.in = new PushbackInputStream(in);
-		    ((PushbackInputStream)in).unread(c2);
+			in = this.in = new PushbackInputStream(in, 2);
+		    if (c2 != -1)
+			((PushbackInputStream)in).unread(c2);
+		    if (twoCRs)
+			((PushbackInputStream)in).unread('\r');
 		}
 		break; // outa here.
 	    }
