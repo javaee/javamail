@@ -76,7 +76,7 @@ public class LineInputStream extends FilterInputStream {
      * <code>DataInputStream.readLine()</code>
      */
     public String readLine() throws IOException {
-	InputStream in = this.in;
+	//InputStream in = this.in;
 	char[] buf = lineBuffer;
 
 	if (buf == null)
@@ -92,19 +92,35 @@ public class LineInputStream extends FilterInputStream {
 	    else if (c1 == '\r') {
 		// Got CR, is the next char NL ?
 		boolean twoCRs = false;
+		if (in.markSupported())
+		    in.mark(2);
 		int c2 = in.read();
 		if (c2 == '\r') {		// discard extraneous CR
 		    twoCRs = true;
 		    c2 = in.read();
 		}
 		if (c2 != '\n') {
-		    // If not NL, push it back
-		    if (!(in instanceof PushbackInputStream))
-			in = this.in = new PushbackInputStream(in, 2);
-		    if (c2 != -1)
-			((PushbackInputStream)in).unread(c2);
-		    if (twoCRs)
-			((PushbackInputStream)in).unread('\r');
+		    /*
+		     * If the stream supports it (which we hope will always
+		     * be the case), reset to after the first CR.  Otherwise,
+		     * we wrap a PushbackInputStream around the stream so we
+		     * can unread the characters we don't need.  The only
+		     * problem with that is that the caller might stop
+		     * reading from this LineInputStream, throw it away,
+		     * and then start reading from the underlying stream.
+		     * If that happens, the pushed back characters will be
+		     * lost forever.
+		     */
+		    if (in.markSupported())
+			in.reset();
+		    else {
+			if (!(in instanceof PushbackInputStream))
+			    in /*= this.in*/ = new PushbackInputStream(in, 2);
+			if (c2 != -1)
+			    ((PushbackInputStream)in).unread(c2);
+			if (twoCRs)
+			    ((PushbackInputStream)in).unread('\r');
+		    }
 		}
 		break; // outa here.
 	    }
