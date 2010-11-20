@@ -27,6 +27,7 @@ The following bugs have been fixed in the 1.4.4 release.
 G 11069	update the mail.jar manifest to include DynamicImport-Package
 K  3442	make sure socket is closed if SMTP connect fails
 K  3539	Multiparts do not parse correctly in presence of legacy Mac line endings
+K  3566	InputStreams are not closed in MimeMultipart
 <no id>	add mail.mime.windowsfilenames System property to handle IE6 breakage
 <no id>	properly disable TOP if POP3 CAPA response doesn't include it
 <no id>	add mail.pop3.disablecapa property to disable use of the CAPA command

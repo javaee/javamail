@@ -742,7 +742,7 @@ public class MimeMultipart extends Multipart {
 		 */
 		MimeBodyPart part;
 		if (sin != null)
-		    part = createMimeBodyPart(sin.newStream(start, end));
+		    part = createMimeBodyPartIs(sin.newStream(start, end));
 		else
 		    part = createMimeBodyPart(headers, buf.toByteArray());
 		super.addBodyPart(part);
@@ -1088,7 +1088,7 @@ public class MimeMultipart extends Multipart {
 		 */
 		MimeBodyPart part;
 		if (sin != null) {
-		    part = createMimeBodyPart(sin.newStream(start, end));
+		    part = createMimeBodyPartIs(sin.newStream(start, end));
 		} else {
 		    // write out data from previous buffer, not including EOL
 		    if (prevSize - eolLen > 0)
@@ -1204,5 +1204,18 @@ public class MimeMultipart extends Multipart {
     protected MimeBodyPart createMimeBodyPart(InputStream is)
 				throws MessagingException {
 	return new MimeBodyPart(is);
+    }
+
+    private MimeBodyPart createMimeBodyPartIs(InputStream is)
+				throws MessagingException {
+	try {
+	    return createMimeBodyPart(is);
+	} finally {
+	    try {
+		is.close();
+	    } catch (IOException ex) {
+		// ignore it
+	    }
+	}
     }
 }
