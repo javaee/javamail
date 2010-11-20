@@ -61,7 +61,7 @@ public class TraceInputStream extends FilterInputStream {
      * input stream.
      *   
      * @param   in   the underlying input stream.
-     * @param   out  the trace stream
+     * @param   traceOut  the trace stream
      */
     public TraceInputStream(InputStream in, OutputStream traceOut) {
 	super(in);
