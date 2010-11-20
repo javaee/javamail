@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 1999-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998-2010 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,6 +36,7 @@ import java.text.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.mail.*;
+import javax.mail.Part;
 import javax.mail.internet.*;
 import javax.activation.*;
 
