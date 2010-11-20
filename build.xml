@@ -82,11 +82,10 @@
     <target name="compile" depends="init"
             description="Compile JavaMail sources">
 
-	<!-- XXX - following filtering doesn't currently work -->
         <copy file="${resources.dir}/javax/mail/Version.java"
 		toFile="${src.dir}/javax/mail/Version.java">
-            <filterset>
-                <filter token="VERSION" value="${release.version}"/>
+            <filterset begintoken="$${" endtoken="}">
+                <filter token="mail.version" value="${release.version}"/>
             </filterset>
         </copy>
         <javac srcdir="${src.dir}"
@@ -429,7 +428,6 @@
         </jar>
     </target>
 
-
     <!-- javadocs -->
     <target name="docs" depends="init, jar, jar">
         <copy todir="${release.dir}">
@@ -441,47 +439,75 @@
             <fileset dir="${spec.dir}"
 		    includes="JavaMail-1.4.pdf,Providers.pdf" />
         </copy>
+	<!--
+	    To allow us to generate javadocs that only include some
+	    classes in certain packages, we need to copy the sources
+	    to another location and run javadoc against that subset
+	    of the sources.
+	-->
+        <copy todir="${release.dir}/javadoc">
+	    <fileset dir="${src.dir}">
+		<include name="**/*.html"/>
+		<include name="javax/mail/**"/>
+	    </fileset>
+	    <fileset dir="${src.dir}"
+		includes="
+		    com/sun/mail/imap/IMAPFolder.java,
+		    com/sun/mail/imap/IMAPMessage.java,
+		    com/sun/mail/imap/IMAPStore.java,
+		    com/sun/mail/imap/IMAPSSLStore.java
+		    com/sun/mail/imap/ACL.java,
+		    com/sun/mail/imap/Rights.java,
+		    com/sun/mail/imap/Quota.java,
+		    com/sun/mail/imap/SortTerm.java,
+		    com/sun/mail/pop3/POP3Store.java,
+		    com/sun/mail/pop3/POP3SSLStore.java,
+		    com/sun/mail/pop3/POP3Folder.java,
+		    com/sun/mail/pop3/POP3Message.java,
+		    com/sun/mail/smtp/SMTPMessage.java,
+		    com/sun/mail/smtp/SMTPAddressFailedException.java,
+		    com/sun/mail/smtp/SMTPAddressSucceededException.java,
+		    com/sun/mail/smtp/SMTPSendFailedException.java,
+		    com/sun/mail/smtp/SMTPSenderFailedException.java,
+		    com/sun/mail/smtp/SMTPTransport.java,
+		    com/sun/mail/smtp/SMTPSSLTransport.java,
+		    com/sun/mail/util/MailSSLSocketFactory.java,
+		    com/sun/mail/util/logging/MailHandler.java
+		"/>
+	    <fileset dir="${src.dsn.dir}"
+		includes="
+		    com/sun/mail/dsn/package.html,
+		    com/sun/mail/dsn/DeliveryStatus.java,
+		    com/sun/mail/dsn/DispositionNotification.java,
+		    com/sun/mail/dsn/MessageHeaders.java,
+		    com/sun/mail/dsn/MultipartReport.java,
+		    com/sun/mail/dsn/Report.java
+		"/>
+        </copy>
         <mkdir dir="${release.javadocs.dir}"/>
-        <javadoc packagenames="javax.mail, javax.mail, javax.mail.internet,
+        <javadoc packagenames="javax.mail, javax.mail.internet,
                                javax.mail.search, javax.mail.event,
                                javax.mail.util,
                                com.sun.mail.imap,
                                com.sun.mail.pop3,
                                com.sun.mail.smtp,
+                               com.sun.mail.util, com.sun.mail.util.logging,
                                com.sun.mail.dsn"
             destdir="${release.javadocs.dir}"
+	    sourcepath="${release.dir}/javadoc"
             classpath="${activation.jar}:${release.mail.jar}:${release.dsn.jar}"
             author="false"
             version="false"
             use="true"
-            overview="${src.dir}/overview.html"
+            overview="${release.dir}/javadoc/overview.html"
             windowtitle="JavaMail API documentation"
             doctitle="JavaMail API documentation">
             <group title="JavaMail API Packages" packages="javax.*"/>
             <group title="Sun-specific Packages" packages="com.sun.*"/>
-                <fileset dir="${src.dir}">
-                    <include name="javax/mail/**/*.java"/>
-                    <include name="com/sun/mail/imap/IMAPMessage.java" />
-                    <include name="com/sun/mail/imap/IMAPFolder.java" />
-                    <include name="com/sun/mail/imap/IMAPStore.java" />
-                    <include name="com/sun/mail/imap/IMAPSSLStore.java" />
-                    <include name="com/sun/mail/imap/ACL.java" />
-                    <include name="com/sun/mail/imap/Rights.java" />
-                    <include name="com/sun/mail/imap/Quota.java" />
-                    <include name="com/sun/mail/pop3/POP3Store.java" />
-                    <include name="com/sun/mail/pop3/POP3SSLStore.java" />
-                    <include name="com/sun/mail/pop3/POP3Folder.java" />
-                    <include name="com/sun/mail/pop3/POP3Message.java" />
-                    <include name="com/sun/mail/smtp/SMTPMessage.java" />
-                    <include name="com/sun/mail/smtp/SMTPAddressFailedException.java" />
-                    <include name="com/sun/mail/smtp/SMTPAddressSucceededException.java" />
-                    <include name="com/sun/mail/smtp/SMTPSendFailedException.java" />
-                    <include name="com/sun/mail/smtp/SMTPTransport.java" />
-                    <include name="com/sun/mail/smtp/SMTPSSLTransport.java" />
-                    <include name="com/sun/mail/dsn/DeliveryStatus.java" />
-                    <include name="com/sun/mail/dsn/MessageHeaders.java" />
-                    <include name="com/sun/mail/dsn/MultipartReport.java" />
-                </fileset>
+	    <!-- following can really slow down javadoc generation
+	    <link href="${javase.url}"/>
+	    <link href="${jaf.url}"/>
+	    -->
         </javadoc>
     </target>
 
