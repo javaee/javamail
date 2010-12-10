@@ -9,7 +9,7 @@ versions of the JavaMail API implementation, IMAP, SMTP, and POP3
 service providers, some examples, and documentation for the JavaMail
 API.
 
-Please see the FAQ at http://java.sun.com/products/javamail/FAQ.html
+Please see the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
 
 JDK Version notes
 -----------------
@@ -45,8 +45,8 @@ in the JavaMail API) and their capabilities:
 	smtp		Transport	No	Yes
 	smtps		Transport	Yes	Yes
 
-See our web page at http://java.sun.com/products/javamail for the
-latest information on third party protocol providers.
+See our web page at http://www.oracle.com/technetwork/java/javamail/
+for the latest information on third party protocol providers.
 
 
 Contents
@@ -142,7 +142,7 @@ Framework package to be installed as well if you're using JDK 1.5
 or earlier.  Download the latest version of the JavaBeans Activation
 Framework from
 
-	http://java.sun.com/beans/glasgow/jaf.html
+	http://www.oracle.com/technetwork/java/javase/index-jsp-136939.html
 
 and install it in a suitable location.
 
@@ -239,9 +239,9 @@ Installation
 Problems?
 ---------
 
-Our web page at http://java.sun.com/products/javamail has a pointer
-to the FAQ that includes information on protocols supported,
-installation problems, etc.
+The JavaMail FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
+includes information on protocols supported, installation problems,
+debugging tips, etc.
 
 See the NOTES.txt file for information on how to report bugs.
 

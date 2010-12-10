@@ -103,7 +103,7 @@ common for servers used within a company.
 	java -Djavax.net.ssl.trustStore=$HOME/.keystore ...
 
    See the JSSE Reference Guide for details:
-   http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
+   http://download.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
 
 
 -- Server Identity Check
@@ -153,7 +153,7 @@ as described below.
 Debugging problems with certificates and keystores can be difficult.
 The JSSE Reference Guide contains information on debugging utilities
 that can help.  See:
-http://java.sun.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#Debug
+http://download.oracle.com/javase/6/docs/technotes/guides/security/jsse/JSSERefGuide.html#Debug
 
 There are some debugging options in the JDK that can help, depending
 on the sorts of problems you're having.  Setting the following system
@@ -183,7 +183,7 @@ Java keystore using keytool.
 
 For more information on using the keytool command, see the keytool
 reference pages at:
-http://java.sun.com/javase/6/docs/technotes/guides/security/index.html
+http://download.oracle.com/javase/6/docs/technotes/guides/security/index.html
 
 
 -- Configuring Your Own Trust Manager

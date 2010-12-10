@@ -1,87 +1,59 @@
-English:
+Copyright © 1997-2010, Oracle and/or its affiliates. All rights reserved.
 
-Copyright © 2009 Sun Microsystems, Inc., 4150 Network Circle,
-Santa Clara, California 95054, U.S.A. All rights reserved.
+This software and related documentation are provided under a license
+agreement containing restrictions on use and disclosure and are
+protected by intellectual property laws. Except as expressly permitted
+in your license agreement or allowed by law, you may not use, copy,
+reproduce, translate, broadcast, modify, license, transmit, distribute,
+exhibit, perform, publish, or display any part, in any form, or by any
+means. Reverse engineering, disassembly, or decompilation of this
+software, unless required by law for interoperability, is prohibited.
 
-Sun Microsystems, Inc. has intellectual property rights relating
-to technology embodied in the product that is described in this
-document. In particular, and without limitation, these intellectual
-property rights may include one or more of the U.S. patents listed at
-http://www.sun.com/patents and one or more additional patents or pending
-patent applications in the U.S. and in other countries.
+The information contained herein is subject to change without notice
+and is not warranted to be error-free. If you find any errors, please
+report them to us in writing.
 
-U.S. Government Rights - Commercial software. Government users are subject
-to the Sun Microsystems, Inc. standard license agreement and applicable
-provisions of the FAR and its supplements.
+If this is software or related software documentation that is delivered
+to the U.S. Government or anyone licensing it on behalf of the U.S.
+Government, the following notice is applicable:
 
-Use is subject to license terms.
+U.S. GOVERNMENT RIGHTS Programs, software, databases, and related
+documentation and technical data delivered to U.S. Government customers
+are "commercial computer software" or "commercial technical data"
+pursuant to the applicable Federal Acquisition Regulation and
+agency-specific supplemental regulations. As such, the use,
+duplication, disclosure, modification, and adaptation shall be subject
+to the restrictions and license terms set forth in the applicable
+Government contract, and, to the extent applicable by the terms of the
+Government contract, the additional rights set forth in FAR 52.227-19,
+Commercial Computer Software License (December 2007). Oracle America,
+Inc., 500 Oracle Parkway, Redwood City, CA 94065.
 
-This distribution may include materials developed by third parties.
+This software or hardware is developed for general use in a variety of
+information management applications. It is not developed or intended
+for use in any inherently dangerous applications, including
+applications which may create a risk of personal injury. If you use
+this software or hardware in dangerous applications, then you shall be
+responsible to take all appropriate fail-safe, backup, redundancy, and
+other measures to ensure its safe use. Oracle Corporation and its
+affiliates disclaim any liability for any damages caused by use of this
+software or hardware in dangerous applications.
 
-Parts of the product may be derived from Berkeley BSD systems, licensed
-from the University of California. UNIX is a registered trademark in
-the U.S. and in other countries, exclusively licensed through X/Open
-Company, Ltd.
+Oracle and Java are registered trademarks of Oracle and/or its
+affiliates. Other names may be trademarks of their respective owners.
 
-Sun, Sun Microsystems, the Sun logo, Java, GlassFish, Java API for
-XML-based RPC, Java APIs for XML Web Services, Java Architecture for
-XML Binding, Java Authorization Contract for Containers, Java EE, Java
-Message Queue, Java Persistence API, Java Servlet, JavaMail, Enterprise
-JavaBeans, JavaServer Pages, JavaServer Faces, JDBC and Java API for XML
-Registries are trademarks or registered trademarks of Sun Microsystems,
-Inc. in the U.S. and other countries.
+AMD, Opteron, the AMD logo, and the AMD Opteron logo are trademarks or
+registered trademarks of Advanced Micro Devices. Intel and Intel Xeon
+are trademarks or registered trademarks of Intel Corporation. All SPARC
+trademarks are used under license and are trademarks or registered
+trademarks of SPARC International, Inc. UNIX is a registered trademark
+licensed through X/Open Company, Ltd.
 
-This product is covered and controlled by U.S. Export Control laws and
-may be subject to the export or import laws in other countries. Nuclear,
-missile, chemical biological weapons or nuclear maritime end uses or end
-users, whether direct or indirect, are strictly prohibited. Export or
-reexport to countries subject to U.S. embargo or to entities identified
-on U.S. export exclusion lists, including, but not limited to, the denied
-persons and specially designated nationals lists is strictly prohibited.
-
-
-French:
-
-Copyright © 2009 Sun Microsystems, Inc., 4150 Network Circle,
-Santa Clara, California 95054, Etats-Unis. Tous droits réservés.
-
-Sun Microsystems, Inc. détient les droits de propriété intellectuels
-relatifs à la technologie incorporée dans le produit qui est décrit
-dans ce document. En particulier, et ce sans limitation, ces droits
-de propriété intellectuelle peuvent inclure un ou plus des brevets
-américains listés à l'adresse http://www.sun.com/patents et un ou
-les brevets supplémentaires ou les applications de brevet en attente
-aux Etats - Unis et dans les autres pays.
-
-L'utilisation est soumise aux termes de la Licence.
-
-Cette distribution peut comprendre des composants développés par des
-tierces parties.
-
-Des parties de ce produit pourront être dérivées des systèmes
-Berkeley BSD licenciés par l'Université de Californie. UNIX est une
-marque déposée aux Etats-Unis et dans d'autres pays et licenciée
-exclusivement par X/Open Company, Ltd.
-
-Sun, Sun Microsystems, le logo Sun, Java, GlassFish, Java API for
-XML-based RPC, Java APIs for XML Web Services, Java Architecture for
-XML Binding, Java Authorization Contract for Containers, Java EE, Java
-Message Queue, Java Persistence API, Java Servlet, JavaMail, Enterprise
-JavaBeans, JavaServer Pages, JavaServer Faces, JDBC et Java API for XML
-Registries sont des marques de fabrique ou des marques déposées de
-Sun Microsystems, Inc. aux Etats-Unis et dans d'autres pays.
-
-Ce produit est soumis à la législation américaine en matière de
-contrôle des exportations et peut être soumis à la règlementation
-en vigueur dans d'autres pays dans le domaine des exportations et
-importations. Les utilisations, ou utilisateurs finaux, pour des
-armes nucléaires,des missiles, des armes biologiques et chimiques ou
-du nucléaire maritime, directement ou indirectement, sont strictement
-interdites. Les exportations ou réexportations vers les pays sous embargo
-américain, ou vers des entités figurant sur les listes d'exclusion
-d'exportation américaines, y compris, mais de manière non exhaustive,
-la liste de personnes qui font objet d'un ordre de ne pas participer,
-d'une façon directe ou indirecte, aux exportations des produits ou des
-services qui sont régis par la législation américaine en matière de
-contrôle des exportations et la liste de ressortissants spécifiquement
-désignés, sont rigoureusement interdites.
+This software or hardware and documentation may provide access to or
+information on content, products, and services from third parties.
+Oracle Corporation and its affiliates are not responsible for and
+expressly disclaim all warranties of any kind with respect to
+third-party content, products, and services. Oracle Corporation and its
+affiliates will not be responsible for any loss, costs, or damages
+incurred due to your access to or use of third-party content, products,
+or services.

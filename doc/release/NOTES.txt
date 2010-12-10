@@ -9,7 +9,7 @@ Welcome to the ${mail.version} release of the JavaMail API implementation.
 Please refer to CHANGES.txt for a list of the changes since the 
 previous release.
 
-Please see the FAQ at http://java.sun.com/products/javamail/FAQ.html
+Please see the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
 
 Protocol Providers
 ------------------
@@ -52,7 +52,7 @@ such as J2SE 5.0 and later, the IMAP provider can use the SASL API to
 find an appropriate authentication mechanism.  The SASL API also allows
 you to plug in support for custom authentication mechanisms.  See The
 Java SASL API Programming and Deployment Guide at
-http://java.sun.com/j2se/1.5.0/docs/guide/security/sasl/sasl-refguide.html
+http://download.oracle.com/javase/6/docs/technotes/guides/security/sasl/sasl-refguide.html
 for details on developing custom SASL mechanisms.  See the javadocs for
 the com.sun.mail.imap package for the properties required to enable and
 configure SASL support.
@@ -127,7 +127,7 @@ Your problem:	How do I create a message with an attachment?
 Our response:	Create a message with a MimeMultipart content.  See the
 		sendfile.html and msgmultisendsample.java demo programs.
 
-Please check the FAQ at http://java.sun.com/products/javamail/FAQ.html
+Please check the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
 before submitting bug reports.
 
 Send your bug reports to:
@@ -141,9 +141,11 @@ A list of the known limitations, bugs, issues:
 ----------------------------------------------
 
 1. This version of JavaMail will only work in applets when using
-   the Java(TM) Plug-in (http://java.sun.com/products/plugin),
+   the Java(TM) Plug-in
+   (http://www.oracle.com/technetwork/java/index-jsp-141438.html),
    which is part of the current Java Runtime Environment (JRE)
-   available from Sun at http://java.sun.com/javase/downloads/index.jsp.
+   available from Oracle at:
+   http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 2. Internationalization.  Parameter encoding in MIME headers, as
    specified by RFC2231, *has* been implemented.  Note that
@@ -190,6 +192,7 @@ Servers tested with:
 
   The IMAP implementation works with IMAP4 and IMAP4rev1 servers.
   The current release has been tested with:
+	Oracle Beehive
 	Sun Java System Messaging Server version 7.0
 	UW IMAP4 server version 2003.339
 	Cyrus IMAP4 server version 1.6.19
@@ -207,6 +210,7 @@ Servers tested with:
 
   The current release of the SMTP implementation has been tested with:
 	Sendmail version 8.13.8
+	Oracle Beehive
 	Sun Java System Messaging Server version 7.0
 
   Previous releases have been tested with:
@@ -226,11 +230,12 @@ Please send your feedback to this email-address:
 
 	javamail_ww@oracle.com
 
-Check out our website at http://java.sun.com/products/javamail
+Check out our website at:
+http://www.oracle.com/technetwork/java/javamail/
 
 You can also find help in the JavaMail forum:
 
-	http://forums.sun.com/forum.jspa?forumID=43
+	http://forums.oracle.com/forums/forum.jspa?forumID=975
 
 
 ------------------------------------------------------------------

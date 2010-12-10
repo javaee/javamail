@@ -25,10 +25,10 @@ component(s) of the Redistributable,
 contained in or on the Redistributable.
 
 (f) You only distribute the Redistributable subject to a license
-agreement that protects Sun's interests consistent with the terms
+agreement that protects Oracle's interests consistent with the terms
 contained in the Software License Agreement, and
 
-(g) You agree to defend and indemnify Sun and its licensors from and
+(g) You agree to defend and indemnify Oracle and its licensors from and
 against any damages, costs, liabilities, settlement amounts and/or
 expenses  (including attorneys' fees) incurred in connection with any
 claim, lawsuit or action by any third party that arises or results from
