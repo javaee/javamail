@@ -50,6 +50,7 @@ K  3566	InputStreams are not closed in MimeMultipart
 <no id>	add demo classes to support non-MIME messages from Outlook
 <no id>	fix deadlock when using IMAP fetch and IDLE
 <no id>	add support for mail.smtp.auth.<mechanism>.disable properties
+<no id>	fix deadlock when accessing IMAP messages while doing a fetch
 
 
 		  CHANGES IN THE 1.4.3 RELEASE

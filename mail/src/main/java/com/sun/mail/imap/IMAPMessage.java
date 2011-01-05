@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -100,17 +100,17 @@ public class IMAPMessage extends MimeMessage {
     private String description;		// decoded (Unicode) desc
 
     // Indicates that we've loaded *all* headers for this message
-    private boolean headersLoaded = false;
+    private volatile boolean headersLoaded = false;
 
     /* Hashtable of names of headers we've loaded from the server.
-     * Used in isHeaderLoaded() and setHeaderLoaded() to keep track
+     * Used in isHeaderLoaded() and getHeaderLoaded() to keep track
      * of those headers we've attempted to load from the server. We
      * need this table of names to avoid multiple attempts at loading
      * headers that don't exist for a particular message.
      *
      * Could this somehow be included in the InternetHeaders object ??
      */
-    private Hashtable loadedHeaders;
+    private Hashtable loadedHeaders = new Hashtable(1);
 
     // This is our Envelope
     private static String EnvelopeCmd = "ENVELOPE INTERNALDATE RFC822.SIZE";
@@ -915,7 +915,7 @@ public class IMAPMessage extends MimeMessage {
      */
     public synchronized void invalidateHeaders() {
 	headersLoaded = false;
-	loadedHeaders = null;
+	loadedHeaders.clear();
 	envelope = null;
 	bs = null;
 	receivedDate = null;
@@ -1141,6 +1141,11 @@ public class IMAPMessage extends MimeMessage {
 			     * In this case, only load the headers we haven't
 			     * seen before to avoid adding duplicates of
 			     * headers we already have.
+			     *
+			     * XXX - There's a race condition here if another
+			     * thread is reading headers in the same message
+			     * object, because InternetHeaders is not thread
+			     * safe.
 			     */
 			    Enumeration e = h.getAllHeaders();
 			    while (e.hasMoreElements()) {
@@ -1369,35 +1374,31 @@ public class IMAPMessage extends MimeMessage {
     /*
      * Are all headers loaded?
      */
-    private synchronized boolean areHeadersLoaded() {
+    private boolean areHeadersLoaded() {
 	return headersLoaded;
     }
 
     /*
      * Set whether all headers are loaded.
      */
-    private synchronized void setHeadersLoaded(boolean loaded) {
+    private void setHeadersLoaded(boolean loaded) {
 	headersLoaded = loaded;
     }
 
     /* 
      * Check if the given header was ever loaded from the server
      */
-    private synchronized boolean isHeaderLoaded(String name) {
+    private boolean isHeaderLoaded(String name) {
 	if (headersLoaded) // All headers for this message have been loaded
 	    return true;
 	
-	return (loadedHeaders != null) ? 
-		loadedHeaders.containsKey(name.toUpperCase(Locale.ENGLISH)) :
-		false;
+	return loadedHeaders.containsKey(name.toUpperCase(Locale.ENGLISH));
     }
 
     /*
      * Mark that the given headers have been loaded from the server.
      */
-    private synchronized void setHeaderLoaded(String name) {
-	if (loadedHeaders == null)
-	    loadedHeaders = new Hashtable(1);
+    private void setHeaderLoaded(String name) {
 	loadedHeaders.put(name.toUpperCase(Locale.ENGLISH), name);
     }
 
