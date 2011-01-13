@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -190,7 +190,7 @@ public class MboxMessage extends MimeMessage {
      * @return          number of lines in the content.
      * @exception	MessagingException
      */  
-     public int getLineCount() throws MessagingException {
+    public int getLineCount() throws MessagingException {
 	if (lineCount < 0 && isMimeType("text/plain")) {
 	    LineCounter lc = new LineCounter(nullOutputStream);
 	    // writeTo will set the SEEN flag, remember the original state
@@ -360,7 +360,10 @@ public class MboxMessage extends MimeMessage {
 		status.append('R');
 	    if (!flags.contains(Flags.Flag.RECENT))
 		status.append('O');
-	    msg.setHeader("Status", status.toString());
+	    if (status.length() > 0)
+		msg.setHeader("Status", status.toString());
+	    else
+		msg.removeHeader("Status");
 
 	    boolean sims = false;
 	    String s = msg.getHeader("X-Status", null);
@@ -383,7 +386,10 @@ public class MboxMessage extends MimeMessage {
 		status.append('T');
 	    else if (sims)
 		status.append('$');
-	    msg.setHeader("X-Status", status.toString());
+	    if (status.length() > 0)
+		msg.setHeader("X-Status", status.toString());
+	    else
+		msg.removeHeader("X-Status");
 
 	    String[] userFlags = flags.getUserFlags();
 	    if (userFlags.length > 0) {
@@ -478,6 +484,15 @@ public class MboxMessage extends MimeMessage {
 	} catch (MessagingException e) {
 	    throw new IOException("unexpected exception " + e);
 	}
+    }
+
+    public void writeTo(OutputStream os, String[] ignoreList)
+				throws IOException, MessagingException {
+	// set the SEEN flag now, which will normally be set by
+	// getContentStream, so it will show up in our headers
+	if (!isSet(Flags.Flag.SEEN))
+	    setFlag(Flags.Flag.SEEN, true);
+	super.writeTo(os, ignoreList);
     }
 
     /**
