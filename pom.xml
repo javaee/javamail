@@ -49,7 +49,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.4</version>
+    <version>1.4.5-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
@@ -75,9 +75,9 @@
     </organization>
 
     <properties>
-	<mail.version>1.4.4</mail.version>
+	<mail.version>1.4.5-SNAPSHOT</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_4_4</mail.zipversion>
+	<mail.zipversion>1_4_5-SNAPSHOT</mail.zipversion>
 	<mail.spec.version>1.4</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
