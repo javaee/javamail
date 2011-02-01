@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -250,7 +250,7 @@ public class MultipartReport extends MimeMultipart {
 	contentType = ct.toString();
 	ct = new ContentType("message", reportType, null);
 	mbp.setContent(report, ct.toString());
-	setBodyPart(mbp, 2);
+	setBodyPart(mbp, 1);
     }
 
     /**
@@ -282,7 +282,7 @@ public class MultipartReport extends MimeMultipart {
 				throws MessagingException {
 	MimeBodyPart mbp = new MimeBodyPart();
 	mbp.setContent(status, "message/delivery-status");
-	setBodyPart(mbp, 2);
+	setBodyPart(mbp, 1);
 	ContentType ct = new ContentType(contentType);
 	ct.setParameter("report-type", "delivery-status");
 	contentType = ct.toString();
