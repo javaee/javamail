@@ -318,7 +318,6 @@ public class MultipartReport extends MimeMultipart {
     public synchronized void setReturnedMessage(MimeMessage msg)
 				throws MessagingException {
 	if (msg == null) {
-	    BodyPart part = (BodyPart)parts.elementAt(2);
 	    super.removeBodyPart(2);
 	    return;
 	}
