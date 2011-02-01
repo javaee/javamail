@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -120,7 +120,7 @@ public class SharedFileInputStream extends BufferedInputStream
 	    this.in = new RandomAccessFile(file, "r");
 	}
 
-	public RandomAccessFile open() {
+	public synchronized RandomAccessFile open() {
 	    cnt++;
 	    return in;
 	}
@@ -502,7 +502,7 @@ public class SharedFileInputStream extends BufferedInputStream
      * @param	end	the ending position + 1
      * @return		the new stream
      */
-    public InputStream newStream(long start, long end) {
+    public synchronized InputStream newStream(long start, long end) {
 	if (in == null)
 	    throw new RuntimeException("Stream closed");
 	if (start < 0)
