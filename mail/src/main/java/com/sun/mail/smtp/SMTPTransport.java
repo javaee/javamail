@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -590,8 +590,8 @@ public class SMTPTransport extends Transport {
      * @return	true if connection successful, false if authentication failed
      * @exception MessagingException	for non-authentication failures
      */
-    protected boolean protocolConnect(String host, int port, String user,
-			      String passwd) throws MessagingException {
+    protected synchronized boolean protocolConnect(String host, int port,
+			String user, String passwd) throws MessagingException {
 	// setting mail.smtp.ehlo to false disables attempts to use EHLO
 	boolean useEhlo =  PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".ehlo", true);
