@@ -100,7 +100,7 @@
 		<artifactId>findbugs-maven-plugin</artifactId>
 		<configuration>
 		    <skip>false</skip>
-		    <threshold>Normal</threshold>
+		    <threshold>${findbugs.threshold}</threshold>
 		    <excludeFilterFile>exclude.xml</excludeFilterFile>
 		    <findbugsXmlOutput>true</findbugsXmlOutput>
 		    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
@@ -144,7 +144,7 @@
 		<artifactId>findbugs-maven-plugin</artifactId>
 		<configuration>
 		    <skip>false</skip>
-		    <threshold>Normal</threshold>
+		    <threshold>${findbugs.threshold}</threshold>
 		    <excludeFilterFile>exclude.xml</excludeFilterFile>
 		</configuration>
 	    </plugin>
