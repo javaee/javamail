@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -132,7 +132,7 @@ public class MimeMessage extends Message implements MimePart {
     /**
      * The Flags for this message. 
      */
-    protected Flags flags;
+    protected volatile Flags flags;
 
     /**
      * A flag indicating whether the message has been modified.
@@ -2093,7 +2093,7 @@ public class MimeMessage extends Message implements MimePart {
      * <code>Content-Transfer-Encoding</code> header (if needed
      * and not already set), the <code>MIME-Version</code> header
      * and the <code>Message-ID</code> header. Also, if the content
-     * of this message is a <code>MimeMultipart</code>, it's 
+     * of this message is a <code>MimeMultipart</code>, its
      * <code>updateHeaders</code> method is called.
      *
      * @exception	IllegalWriteException if the underlying
@@ -2102,7 +2102,7 @@ public class MimeMessage extends Message implements MimePart {
      *			obtained from a READ_ONLY folder.
      * @exception  	MessagingException
      */
-    protected void updateHeaders() throws MessagingException {
+    protected synchronized void updateHeaders() throws MessagingException {
 	MimeBodyPart.updateHeaders(this);	
 	setHeader("MIME-Version", "1.0");
         updateMessageID();
