@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -145,6 +145,10 @@ public class MimeUtility {
 
     public static final int ALL = -1;
 
+    // cached map of whether a charset is compatible with ASCII
+    // Map<String,Boolean>
+    private static final Map nonAsciiCharsetMap = new HashMap();
+
     private static final boolean decodeStrict =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodetext.strict", true);
     private static final boolean encodeEolStrict =
@@ -195,31 +199,70 @@ public class MimeUtility {
 	try {
 	    cType = new ContentType(ds.getContentType());
 	    is = ds.getInputStream();
+
+	    boolean isText = cType.match("text/*");
+	    // if not text, stop processing when we see non-ASCII
+	    int i = checkAscii(is, ALL, !isText);
+	    switch (i) {
+	    case ALL_ASCII:
+		encoding = "7bit"; // all ASCII
+		break;
+	    case MOSTLY_ASCII:
+		if (isText && nonAsciiCharset(cType))
+		    encoding = "base64"; // charset isn't compatible with ASCII
+		else
+		    encoding = "quoted-printable";	// mostly ASCII
+		break;
+	    default:
+		encoding = "base64"; // mostly binary
+		break;
+	    }
+
 	} catch (Exception ex) {
 	    return "base64"; // what else ?!
+	} finally {
+	    // Close the input stream
+	    try {
+		is.close();
+	    } catch (IOException ioex) { }
 	}
-
-	boolean isText = cType.match("text/*");
-	// if not text, stop processing when we see non-ASCII
-	int i = checkAscii(is, ALL, !isText);
-	switch (i) {
-	case ALL_ASCII:
-	    encoding = "7bit"; // all ascii
-	    break;
-	case MOSTLY_ASCII:
-	    encoding = "quoted-printable"; // mostly ascii
-	    break;
-	default:
-	    encoding = "base64"; // mostly binary
-	    break;
-	}
-
-	// Close the input stream
-	try {
-	    is.close();
-	} catch (IOException ioex) { }
 
 	return encoding;
+    }
+
+    /**
+     * Determine whether the charset in the Content-Type is compatible
+     * with ASCII or not.  A charset is compatible with ASCII if the
+     * encoded byte stream representing the Unicode string "\r\n" is
+     * the ASCII characters CR and LF.  For example, the utf-16be
+     * charset is not compatible with ASCII.
+     *
+     * For performance, we keep a static map that caches the results.
+     */
+    private static boolean nonAsciiCharset(ContentType ct) {
+	String charset = ct.getParameter("charset");
+	if (charset == null)
+	    return false;
+	charset = charset.toLowerCase(Locale.ENGLISH);
+	Boolean bool;
+	synchronized (nonAsciiCharsetMap) {
+	    bool = (Boolean)nonAsciiCharsetMap.get(charset);
+	}
+	if (bool == null) {
+	    try {
+		byte[] b = "\r\n".getBytes(charset);
+		bool = Boolean.valueOf(
+		    b != null && b.length == 2 && b[0] == 015 && b[1] == 012);
+	    } catch (UnsupportedEncodingException uex) {
+		bool = Boolean.FALSE;	// a guess
+	    } catch (RuntimeException ex) {
+		bool = Boolean.TRUE;	// one of the weird ones?
+	    }
+	    synchronized (nonAsciiCharsetMap) {
+		nonAsciiCharsetMap.put(charset, bool);
+	    }
+	}
+	return bool.booleanValue();
     }
 
     /**
