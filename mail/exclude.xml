@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010-2011 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -306,5 +306,38 @@
 	    <Method name="parsebm"/>
 	</Or>
 	<Bug pattern="OS_OPEN_STREAM"/>
+    </Match>
+
+    <!--
+	When deleting the temp file fails, there's really nothing to be done.
+    -->
+    <Match>
+	<Class name="com.sun.mail.pop3.TempFile"/>
+	<Method name="close"/>
+	<Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+    </Match>
+
+    <!--
+	In IMAPFolder.close, I believe the protocol field can be set to null
+	as a result of a protocol error that invokes a callback that calls
+	cleanup, thus I don't believe these null checks are redundant.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPFolder"/>
+	<Method name="close"/>
+	<Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+
+    <!--
+	Can't fix these errors in toString until JavaMail 1.5 because
+	it's part of the spec.  Sigh.
+    -->
+    <Match>
+	<Or>
+	    <Class name="javax.mail.internet.ContentDisposition"/>
+	    <Class name="javax.mail.internet.ContentType"/>
+	</Or>
+	<Method name="toString"/>
+	<Bug pattern="NP_TOSTRING_COULD_RETURN_NULL"/>
     </Match>
 </FindBugsFilter>
