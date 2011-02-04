@@ -62,6 +62,29 @@
 	</mail.packages.export>
     </properties>
 
+    <build>
+	<plugins>
+	    <!--
+		Configure FindBugs to run with "mvn findbugs:findbugs"
+		and generate XML output that can be used by the Hudson
+		FindBugs plugin.
+	    -->
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<configuration>
+		    <skip>false</skip>
+		    <threshold>${findbugs.threshold}</threshold>
+		    <!--
+		    <excludeFilterFile>exclude.xml</excludeFilterFile>
+		    -->
+		    <findbugsXmlOutput>true</findbugsXmlOutput>
+		    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+		</configuration>
+	    </plugin>
+	</plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.sun.mail</groupId>
@@ -75,4 +98,24 @@
 	    <optional>true</optional>
 	</dependency>
     </dependencies>
+
+    <reporting>
+	<plugins>
+	    <!--
+		Configure FindBugs to run with "mvn site" and
+		generate html output that can be viewed directly.
+	    -->
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<configuration>
+		    <skip>false</skip>
+		    <threshold>${findbugs.threshold}</threshold>
+		    <!--
+		    <excludeFilterFile>exclude.xml</excludeFilterFile>
+		    -->
+		</configuration>
+	    </plugin>
+	</plugins>
+    </reporting>
 </project>
