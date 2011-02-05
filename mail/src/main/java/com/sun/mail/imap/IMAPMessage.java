@@ -442,7 +442,7 @@ public class IMAPMessage extends MimeMessage {
      * Generate this header from the BODYSTRUCTURE. Append parameters
      * as well.
      */
-    public String getContentType() throws MessagingException {
+    public synchronized String getContentType() throws MessagingException {
 	checkExpunged();
 
 	// If we haven't cached the type yet ..
