@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -162,11 +162,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     protected char separator;		// separator
     protected Flags availableFlags; 	// available flags
     protected Flags permanentFlags; 	// permanent flags
-    protected boolean exists = false; 	// whether this folder really exists ?
+    protected volatile boolean exists;	// whether this folder really exists ?
     protected boolean isNamespace = false; // folder is a namespace name
-    protected String[] attributes;	// name attributes from LIST response
+    protected volatile String[] attributes;// name attributes from LIST response
 
-    protected IMAPProtocol protocol; 	// this folder's own protocol object
+    protected volatile IMAPProtocol protocol; // this folder's protocol object
     protected MessageCache messageCache;// message cache
     // accessor lock for message cache
     protected final Object messageCacheLock = new Object();
@@ -181,7 +181,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     static final protected char UNKNOWN_SEPARATOR = '\uffff';
 
-    private boolean opened = false; 	// is this folder opened ?
+    private volatile boolean opened = false; 	// is this folder opened ?
 
     /* This field tracks the state of this folder. If the folder is closed
      * due to external causes (i.e, not thru the close() method), then
@@ -247,9 +247,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     private static final int ABORTING = 2;	// IDLE command aborting
     private int idleState = RUNNING;
 
-    private int total = -1;		// total number of messages in the
+    private volatile int total = -1;	// total number of messages in the
 					// message cache
-    private int recent = -1;		// number of recent messages
+    private volatile int recent = -1;	// number of recent messages
     private int realTotal = -1;		// total number of messages on
     					// the server
     private long uidvalidity = -1;	// UIDValidity
