@@ -340,4 +340,24 @@
 	<Method name="toString"/>
 	<Bug pattern="NP_TOSTRING_COULD_RETURN_NULL"/>
     </Match>
+
+    <!--
+	IMAPFolder.uidTable is only ever manipulated when the
+	messageCacheLock is held, but FindBugs can't figure that out.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPFolder"/>
+	<Field name="uidTable"/>
+	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+
+    <!--
+	IMAPFolder.doExpungeNotification is only ever manipulated when the
+	messageCacheLock is held, but FindBugs can't figure that out.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPFolder"/>
+	<Field name="doExpungeNotification"/>
+	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
 </FindBugsFilter>
