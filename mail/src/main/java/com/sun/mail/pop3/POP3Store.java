@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -376,7 +376,10 @@ public class POP3Store extends Store {
      * @since	JavaMail 1.4.3
      */
     public Map capabilities() throws MessagingException {
-	Map c = capabilities;	// atomic read of pointer
+	Map c;
+	synchronized (this) {
+	    c = capabilities;
+	}
 	if (c != null)
 	    return Collections.unmodifiableMap(c);
 	else
