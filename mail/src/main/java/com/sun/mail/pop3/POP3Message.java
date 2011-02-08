@@ -107,21 +107,32 @@ public class POP3Message extends MimeMessage {
     public int getSize() throws MessagingException {
 	try {
 	    synchronized (this) {
-		if (msgSize < 0) {
-		    /*
-		     * Use LIST to determine the entire message
-		     * size and subtract out the header size
-		     * (which may involve loading the headers,
-		     * which may load the content as a side effect).
-		     * If the content is loaded as a side effect of
-		     * loading the headers, it will set the size.
-		     */
-		    if (headers == null)
-			loadHeaders();
+		// if we already have the size, return it
+		if (msgSize > 0)
+		    return msgSize;
+	    }
 
-		    if (msgSize < 0)
-			msgSize = folder.getProtocol().list(msgnum) - hdrSize;
-		}
+	    /*
+	     * Use LIST to determine the entire message
+	     * size and subtract out the header size
+	     * (which may involve loading the headers,
+	     * which may load the content as a side effect).
+	     * If the content is loaded as a side effect of
+	     * loading the headers, it will set the size.
+	     *
+	     * Make sure to call loadHeaders() outside of the
+	     * synchronization block.  There's a potential race
+	     * condition here but synchronization will occur in
+	     * loadHeaders() to make sure the headers are only
+	     * loaded once, and again in the following block to
+	     * only compute msgSize once.
+	     */
+	    if (headers == null)
+		loadHeaders();
+
+	    synchronized (this) {
+		if (msgSize < 0)
+		    msgSize = folder.getProtocol().list(msgnum) - hdrSize;
 		return msgSize;
 	    }
 	} catch (EOFException eex) {
@@ -534,7 +545,9 @@ public class POP3Message extends MimeMessage {
      * The headers are fetched using the POP3 TOP command.
      */
     private void loadHeaders() throws MessagingException {
+	assert !Thread.holdsLock(this);
 	try {
+	    boolean fetchContent = false;
 	    synchronized (this) {
 		if (headers != null)    // check again under lock
 		    return;
@@ -544,11 +557,34 @@ public class POP3Message extends MimeMessage {
 		    // possibly because the TOP command isn't supported,
 		    // load headers as a side effect of loading the entire
 		    // content.
-		    InputStream cs = getContentStream();
-		    cs.close();
+		    fetchContent = true;
 		} else {
-		    hdrSize = hdrs.available();
-		    headers = new InternetHeaders(hdrs);
+		    try {
+			hdrSize = hdrs.available();
+			headers = new InternetHeaders(hdrs);
+		    } finally {
+			hdrs.close();
+		    }
+		}
+	    }
+
+	    /*
+	     * Outside the synchronization block...
+	     *
+	     * Do we need to fetch the entire mesage content in order to
+	     * load the headers as a side effect?  Yes, there's a race
+	     * condition here - multiple threads could decide that the
+	     * content needs to be fetched.  Fortunately, they'll all
+	     * synchronize in the getContentStream method and the content
+	     * will only be loaded once.
+	     */
+	    if (fetchContent) {
+		InputStream cs = null;
+		try {
+		    cs = getContentStream();
+		} finally {
+		    if (cs != null)
+			cs.close();
 		}
 	    }
 	} catch (EOFException eex) {
