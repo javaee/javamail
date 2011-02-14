@@ -252,7 +252,7 @@ public class MimeUtility {
 	    try {
 		byte[] b = "\r\n".getBytes(charset);
 		bool = Boolean.valueOf(
-		    b != null && b.length == 2 && b[0] == 015 && b[1] == 012);
+		    b == null || b.length != 2 || b[0] != 015 || b[1] != 012);
 	    } catch (UnsupportedEncodingException uex) {
 		bool = Boolean.FALSE;	// a guess
 	    } catch (RuntimeException ex) {
