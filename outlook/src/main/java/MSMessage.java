@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -81,9 +81,6 @@ public class MSMessage extends MimeMessage {
 	    throw new MessagingException("IOException", ioex);
 	} catch (Exception ex) {
 	    throw new MessagingException("Exception", ex);
-	} catch (Throwable t) {
-	    t.printStackTrace();
-	    throw new MessagingException("Exception", (Exception)t);
 	}
 	//parse(new ByteArrayInputStream(bos.toByteArray()));
 	parse(bos.toByteArrayInputStream());
