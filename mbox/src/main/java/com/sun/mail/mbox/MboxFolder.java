@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -839,7 +839,6 @@ e.printStackTrace();
 	    if (md.imap) {
 		special_imap_message = true;
 		total--;
-		loaded--;
 	    }
 	}
 	if (notify) {
@@ -897,32 +896,6 @@ e.printStackTrace();
 	SharedInputStream sis = (SharedInputStream)is;
 	InputStream stream = sis.newStream(sis.getPosition(), -1);
 	return new MboxMessage(this, hdrs, stream, msgno, unix_from, writable);
-    }
-
-    /**
-     * Extract the value of the Content-Length header, if present.
-     */
-    private int contentLength(InternetHeaders hdrs) {
-	int len = -1;
-	String cl[] = hdrs.getHeader("Content-Length");
-	try {
-	    if (cl != null && cl[0] != null)
-		len = Integer.parseInt(cl[0]);
-	} catch (NumberFormatException e) {}
-	return len;
-    }
-
-    /**
-     * Skip the specified number of bytes, repeatedly calling
-     * the skip method as necessary.
-     */
-    private void skipFully(InputStream in, long offset) throws IOException {
-	while (offset > 0) {
-	    long cur = in.skip(offset);
-	    if (cur <= 0)
-		throw new EOFException("can't skip");
-	    offset -= cur;
-	}
     }
 
     /*

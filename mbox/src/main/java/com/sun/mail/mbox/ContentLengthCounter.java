@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -87,6 +87,7 @@ class ContentLengthCounter extends OutputStream {
 	return size;
     }
 
+    /*
     public static void main(String argv[]) throws Exception {
 	int b;
 	ContentLengthCounter os = new ContentLengthCounter();
@@ -94,4 +95,5 @@ class ContentLengthCounter extends OutputStream {
 	    os.write(b);
 	System.out.println("size " + os.getSize());
     }
+    */
 }

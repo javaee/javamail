@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,7 +43,9 @@ package com.sun.mail.mbox;
 import java.io.*;
 
 public class UNIXInbox extends UNIXFolder implements InboxFile {
-    String user;
+    private final String user;
+
+    private static final long serialVersionUID = 651261842162777620L;
 
     /*
      * Superclass UNIXFile loads the library containing all the
@@ -53,6 +55,8 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
     public UNIXInbox(String user, String name) {
 	super(name);
 	this.user = user;
+	if (user == null)
+	    throw new NullPointerException("user name is null in UNIXInbox");
     }
 
     public boolean lock(String mode) {
@@ -79,7 +83,7 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
     }
 
     private transient RandomAccessFile lockfile; // the user's ~/.Maillock file
-    private String lockfileName;	// its name
+    private transient String lockfileName;	// its name
 
     public boolean openLock(String mode) {
 	if (mode.equals("r"))
@@ -108,6 +112,17 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
 	} finally {
 	    lockfile = null;
 	}
+    }
+
+    public boolean equals(Object o) {
+	if (!(o instanceof UNIXInbox))
+	    return false;
+	UNIXInbox other = (UNIXInbox)o;
+	return user.equals(other.user) && super.equals(other);
+    }
+
+    public int hashCode() {
+	return super.hashCode() + user.hashCode();
     }
 
     private native boolean maillock(String user, int retryCount);

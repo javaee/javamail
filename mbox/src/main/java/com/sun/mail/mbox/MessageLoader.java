@@ -76,7 +76,8 @@ final class MessageLoader {
 	int loaded = 0;
 	try {
 	    fis = new FileInputStream(fd);
-	    fis.skip(offset);
+	    if (fis.skip(offset) != offset)
+		throw new EOFException("Failed to skip to offset " + offset);
 	    this.off = offset;
 	    pos = len = 0;
 	    line = new char[LINELEN];
