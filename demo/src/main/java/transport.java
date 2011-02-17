@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -143,26 +143,20 @@ public class transport implements ConnectionListener, TransportListener {
 		    Address[] invalid = sfex.getInvalidAddresses();
 		    if (invalid != null) {
 			System.out.println("    ** Invalid Addresses");
-			if (invalid != null) {
-			    for (int i = 0; i < invalid.length; i++) 
-				System.out.println("         " + invalid[i]);
-			}
+			for (int i = 0; i < invalid.length; i++) 
+			    System.out.println("         " + invalid[i]);
 		    }
 		    Address[] validUnsent = sfex.getValidUnsentAddresses();
 		    if (validUnsent != null) {
 			System.out.println("    ** ValidUnsent Addresses");
-			if (validUnsent != null) {
-			    for (int i = 0; i < validUnsent.length; i++) 
-				System.out.println("         "+validUnsent[i]);
-			}
+			for (int i = 0; i < validUnsent.length; i++) 
+			    System.out.println("         "+validUnsent[i]);
 		    }
 		    Address[] validSent = sfex.getValidSentAddresses();
 		    if (validSent != null) {
 			System.out.println("    ** ValidSent Addresses");
-			if (validSent != null) {
-			    for (int i = 0; i < validSent.length; i++) 
-				System.out.println("         "+validSent[i]);
-			}
+			for (int i = 0; i < validSent.length; i++) 
+			    System.out.println("         "+validSent[i]);
 		    }
 		}
 		System.out.println();
