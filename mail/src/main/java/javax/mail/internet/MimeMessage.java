@@ -612,7 +612,8 @@ public class MimeMessage extends Message implements MimePart {
             else
                 setHeader("Newsgroups", addresses);
         } else
-            setAddressHeader(getHeaderName(type), InternetAddress.parse(addresses));
+            setAddressHeader(getHeaderName(type),
+		addresses == null ? null : InternetAddress.parse(addresses));
     }
 
     /**
