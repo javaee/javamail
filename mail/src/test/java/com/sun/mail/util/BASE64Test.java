@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -185,6 +185,94 @@ public class BASE64Test {
 	    } else {
 		compare(name, type, buf, nbuf);
 	    }
+	}
+    }
+
+    private static byte[] origLine;
+    private static byte[] encodedLine;
+    static {
+	try {
+	    origLine =
+		"000000000000000000000000000000000000000000000000000000000".
+		    getBytes("us-ascii");
+	    encodedLine =
+		("MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw" +
+		"MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw" + "\r\n").
+		    getBytes("us-ascii");
+	} catch (UnsupportedEncodingException uex) {
+	    // should never happen;
+	}
+    }
+
+    /**
+     * Test that CRLF is inserted at the right place.
+     * Test combinations of array writes of different sizes
+     * and single byte writes.
+     */
+    @Test
+    public void testLineLength() throws Exception {
+	for (int i = 0; i < origLine.length; i++) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+	    OutputStream os = new BASE64EncoderStream(bos);
+	    os.write(origLine, 0, i);
+	    os.write(origLine, i, origLine.length - i);
+	    os.write((byte)'0');
+	    os.flush();
+	    os.close();
+
+	    byte[] line = new byte[encodedLine.length];
+	    System.arraycopy(bos.toByteArray(), 0, line, 0, line.length);
+	    Assert.assertArrayEquals("encoded line " + i, encodedLine, line);
+	}
+
+	for (int i = 0; i < origLine.length; i++) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+	    OutputStream os = new BASE64EncoderStream(bos);
+	    os.write(origLine, 0, i);
+	    os.write(origLine, i, origLine.length - i);
+	    os.write(origLine);
+	    os.flush();
+	    os.close();
+
+	    byte[] line = new byte[encodedLine.length];
+	    System.arraycopy(bos.toByteArray(), 0, line, 0, line.length);
+	    Assert.assertArrayEquals("all arrays, encoded line " + i,
+					encodedLine, line);
+	}
+
+	for (int i = 1; i < 5; i++) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+	    OutputStream os = new BASE64EncoderStream(bos);
+	    for (int j = 0; j < i; j++)
+		os.write((byte)'0');
+	    os.write(origLine, i, origLine.length - i);
+	    os.write((byte)'0');
+	    os.flush();
+	    os.close();
+
+	    byte[] line = new byte[encodedLine.length];
+	    System.arraycopy(bos.toByteArray(), 0, line, 0, line.length);
+	    Assert.assertArrayEquals("single byte first encoded line " + i,
+					encodedLine, line);
+	}
+	for (int i = origLine.length - 5; i < origLine.length; i++) {
+	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+	    OutputStream os = new BASE64EncoderStream(bos);
+	    os.write(origLine, 0, i);
+	    for (int j = 0; j < origLine.length - i; j++)
+		os.write((byte)'0');
+	    os.write((byte)'0');
+	    os.flush();
+	    os.close();
+
+	    byte[] line = new byte[encodedLine.length];
+	    System.arraycopy(bos.toByteArray(), 0, line, 0, line.length);
+	    Assert.assertArrayEquals("single byte last encoded line " + i,
+					encodedLine, line);
 	}
     }
 

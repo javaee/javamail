@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -123,7 +123,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
 
 	// finish off line
 	int blen = ((bytesPerLine - count) / 4) * 3;
-	if (off + blen < end) {
+	if (off + blen <= end) {
 	    // number of bytes that will be produced in outbuf
 	    int outlen = encodedSize(blen);
 	    if (!noCRLF) {
@@ -140,7 +140,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
 	    out.write(encode(b, off, lineLimit, outbuf));
 
 	// handle remaining partial line
-	if (off + 3 < end) {
+	if (off + 3 <= end) {
 	    blen = end - off;
 	    blen = (blen / 3) * 3;	// round down
 	    // number of bytes that will be produced in outbuf
