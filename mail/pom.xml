@@ -80,6 +80,12 @@
 	<mail.probeFile>
 	    META-INF/gfprobe-provider.xml
 	</mail.probeFile>
+	<findbugs.skip>
+	    false
+	</findbugs.skip>
+	<findbugs.exclude>
+	    exclude.xml
+	</findbugs.exclude>
     </properties>
 
     <build>
@@ -90,23 +96,6 @@
 	    </resource>
 	</resources>
 	<plugins>
-	    <!--
-		Configure FindBugs to run with "mvn findbugs:findbugs"
-		and generate XML output that can be used by the Hudson
-		FindBugs plugin.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
-		<configuration>
-		    <skip>false</skip>
-		    <threshold>${findbugs.threshold}</threshold>
-		    <excludeFilterFile>exclude.xml</excludeFilterFile>
-		    <findbugsXmlOutput>true</findbugsXmlOutput>
-		    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-		</configuration>
-	    </plugin>
-
 	    <!--
 		Configure test plugin to find *TestSuite classes.
 	    -->
@@ -132,23 +121,4 @@
 	    <optional>true</optional>
 	</dependency>
     </dependencies>
-
-    <reporting>
-	<plugins>
-	    <!--
-		Configure FindBugs to run with "mvn site" and
-		generate html output that can be viewed directly.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
-		<configuration>
-		    <skip>false</skip>
-		    <threshold>${findbugs.threshold}</threshold>
-		    <excludeFilterFile>exclude.xml</excludeFilterFile>
-		</configuration>
-	    </plugin>
-	</plugins>
-    </reporting>
-
 </project>

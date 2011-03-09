@@ -113,6 +113,13 @@
 	<findbugs.threshold>
 	    High
 	</findbugs.threshold>
+	<findbugs.version>
+	    RELEASE
+	</findbugs.version>
+	<findbugs.skip>
+	    true
+	</findbugs.skip>
+	<findbugs.exclude/>
     </properties>
 
     <developers>
@@ -454,15 +461,28 @@
 		<plugin>
 		    <!--
 			By default, disable the FindBugs plugin for all modules.
-			It's enabled in the "mail" module, which is the only
-			module where we actually want to run it.
+			It's enabled in the modules where we actually want to
+			run it.
 		    -->
 		    <groupId>org.codehaus.mojo</groupId>
 		    <artifactId>findbugs-maven-plugin</artifactId>
-		    <version>RELEASE</version>
+		    <version>${findbugs.version}</version>
 		    <configuration>
-			<skip>true</skip>
+			<skip>${findbugs.skip}</skip>
+			<threshold>${findbugs.threshold}</threshold>
+			<findbugsXmlOutput>true</findbugsXmlOutput>
+			<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+			<excludeFilterFile>
+			    ${findbugs.exclude}
+			</excludeFilterFile>
 		    </configuration>
+		    <dependencies>
+			<dependency>
+			    <groupId>com.sun.mail</groupId>
+			    <artifactId>findbugs</artifactId>
+			    <version>${mail.version}</version>
+			</dependency>
+		    </dependencies>
 		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
@@ -550,4 +570,24 @@
 	    <url>http://download.java.net/maven/glassfish/</url>
 	</pluginRepository>
     </pluginRepositories>
+
+    <reporting>
+	<plugins>
+	    <!--
+		Configure FindBugs to run with "mvn site" and
+		generate html output that can be viewed directly.
+	    -->
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<configuration>
+		    <skip>${findbugs.skip}</skip>
+		    <threshold>${findbugs.threshold}</threshold>
+		    <excludeFilterFile>
+			${findbugs.exclude}
+		    </excludeFilterFile>
+		</configuration>
+	    </plugin>
+	</plugins>
+    </reporting>
 </project>
