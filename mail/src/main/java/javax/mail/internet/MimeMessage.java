@@ -132,7 +132,7 @@ public class MimeMessage extends Message implements MimePart {
     /**
      * The Flags for this message. 
      */
-    protected volatile Flags flags;
+    protected Flags flags;
 
     /**
      * A flag indicating whether the message has been modified.

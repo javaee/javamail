@@ -86,7 +86,7 @@ public abstract class Message implements Part {
      * The number of this message within its folder, or zero if
      * the message was not retrieved from a folder.
      */
-    protected volatile int msgnum = 0;
+    protected int msgnum = 0;
 
     /**
      * True if this message has been expunged.
