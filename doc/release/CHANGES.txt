@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.4.5 release.
 7021190	MimeMessage.setRecipients(type, String) does not accept null address
 K  4002	MultipartReport.setReport and setDeliveryStatus are broken
 K  4065	Wrong representation of CR/LF are appended to the attachment
+<no id>	properly handle timeouts during SSL negotiation
 
 
 		  CHANGES IN THE 1.4.4 RELEASE

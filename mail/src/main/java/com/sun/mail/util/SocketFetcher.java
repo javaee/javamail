@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -157,6 +157,7 @@ public class SocketFetcher {
 
 	int sfPort = -1;
 	String sfErr = "unknown socket factory";
+	int to = PropUtil.getIntProperty(props, prefix + ".timeout", -1);
 	try {
 	    /*
 	     * If using SSL, first look for SSL-specific class name or
@@ -203,7 +204,7 @@ public class SocketFetcher {
 		if (sfPort == -1)
 		    sfPort = port;
 		socket = createSocket(localaddr, localport,
-			host, sfPort, cto, props, prefix, sf, useSSL, idCheck);
+		    host, sfPort, cto, to, props, prefix, sf, useSSL, idCheck);
 	    }
 	} catch (SocketTimeoutException sex) {
 	    throw sex;
@@ -227,13 +228,14 @@ public class SocketFetcher {
 	    }
 	}
 
-	if (socket == null)
+	if (socket == null) {
 	    socket = createSocket(localaddr, localport,
-			host, port, cto, props, prefix, null, useSSL, idCheck);
+		    host, port, cto, to, props, prefix, null, useSSL, idCheck);
 
-	int to = PropUtil.getIntProperty(props, prefix + ".timeout", -1);
-	if (to >= 0)
-	    socket.setSoTimeout(to);
+	} else {
+	    if (to >= 0)
+		socket.setSoTimeout(to);
+	}
 
 	configureSSLSocket(socket, props, prefix);
 	return socket;
@@ -246,12 +248,13 @@ public class SocketFetcher {
 
     /**
      * Create a socket with the given local address and connected to
-     * the given host and port.  Use the specified connection timeout.
+     * the given host and port.  Use the specified connection timeout
+     * and read timeout.
      * If a socket factory is specified, use it.  Otherwise, use the
      * SSLSocketFactory if useSSL is true.
      */
     private static Socket createSocket(InetAddress localaddr, int localport,
-				String host, int port, int cto,
+				String host, int port, int cto, int to,
 				Properties props, String prefix,
 				SocketFactory sf, boolean useSSL,
 				boolean idCheck) throws IOException {
@@ -280,6 +283,8 @@ public class SocketFetcher {
 	    socket = sf.createSocket();
 	} else
 	    socket = new Socket();
+	if (to >= 0)
+	    socket.setSoTimeout(to);
 	if (localaddr != null)
 	    socket.bind(new InetSocketAddress(localaddr, localport));
 	if (cto >= 0)
