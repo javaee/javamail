@@ -77,16 +77,38 @@
     </properties>
 
     <build>
-        <plugins>
+	<plugins>
 	    <plugin>
 		<artifactId>maven-dependency-plugin</artifactId>
 		<executions>
 		    <execution>
-			<id>unpack</id>
+			<!-- download the binaries -->
+			<id>get-binaries</id>
 			<phase>process-sources</phase>
 			<goals>
 			    <goal>unpack</goal>
 			</goals>
+		    </execution>
+		    <execution>
+			<!-- download the sources -->
+			<id>get-sources</id>
+			<phase>process-sources</phase>
+			<goals>
+			    <goal>unpack</goal>
+			</goals>
+			<configuration>
+			    <artifactItems>
+				<artifactItem>
+				    <groupId>com.sun.mail</groupId>
+				    <artifactId>javax.mail</artifactId>
+				    <version>${mail.version}</version>
+				    <classifier>sources</classifier>
+				    <outputDirectory>
+					${project.build.directory}/sources
+				    </outputDirectory>
+				</artifactItem>
+			    </artifactItems>
+			</configuration>
 		    </execution>
 		</executions>
 		<configuration>
@@ -122,6 +144,50 @@
 		    </archive>
 		</configuration>
 	    </plugin>
-        </plugins>
+
+	    <!--
+		Tell the source plugin about the sources downloaded by the
+		maven-dependency-plugin.
+	    -->
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>build-helper-maven-plugin</artifactId>
+		<executions>
+		    <execution>
+			<id>add-source</id>
+			<phase>package</phase>
+			<goals>
+			    <goal>add-source</goal>
+			</goals>
+			<configuration>
+			    <sources>
+				<source>
+				    ${project.build.directory}/sources
+				</source>
+			    </sources>
+			</configuration>
+		    </execution>
+		</executions>
+	    </plugin>
+
+	    <!--
+		Configure the source plugin here so that it will know about
+		the sources downloaded by the maven-dependency-plugin and
+		configured by the build-helper-maven-plugin.
+	    -->
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-source-plugin</artifactId>
+		<executions>
+		    <execution>
+			<id>attach-sources</id>
+			<goals>
+			    <goal>jar</goal> 
+			    <goal>jar-no-fork</goal> 
+			</goals>
+		    </execution>
+		 </executions>
+	     </plugin>
+	</plugins>
     </build>
 </project>
