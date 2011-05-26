@@ -135,50 +135,6 @@
 		    </archive>
 		</configuration>
 	    </plugin>
-
-	    <!--
-		Tell the source plugin about the sources downloaded by the
-		maven-dependency-plugin.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>build-helper-maven-plugin</artifactId>
-		<executions>
-		    <execution>
-			<id>add-source</id>
-			<phase>package</phase>
-			<goals>
-			    <goal>add-source</goal>
-			</goals>
-			<configuration>
-			    <sources>
-				<source>
-				    ${project.build.directory}/sources
-				</source>
-			    </sources>
-			</configuration>
-		    </execution>
-		</executions>
-	    </plugin>
-
-	    <!--
-		Configure the source plugin here so that it will know about
-		the sources downloaded by the maven-dependency-plugin and
-		configured by the build-helper-maven-plugin.
-	    -->
-	    <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-source-plugin</artifactId>
-		<executions>
-		    <execution>
-			<id>attach-sources</id>
-			<goals>
-			    <goal>jar</goal> 
-			    <goal>jar-no-fork</goal> 
-			</goals>
-		    </execution>
-		 </executions>
-	     </plugin>
         </plugins>
     </build>
 </project>

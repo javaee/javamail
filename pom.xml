@@ -415,6 +415,53 @@
 	    </plugin>
 
 	    <!--
+		Tell the source plugin about the sources that may have
+		been downloaded by the maven-dependency-plugin.
+	    -->
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>build-helper-maven-plugin</artifactId>
+		<executions>
+		    <execution>
+			<id>add-source</id>
+			<phase>package</phase>
+			<goals>
+			    <goal>add-source</goal>
+			</goals>
+			<configuration>
+			    <sources>
+				<source>
+				    ${project.build.directory}/sources
+				</source>
+			    </sources>
+			</configuration>
+		    </execution>
+		</executions>
+	    </plugin>
+
+	    <!--
+		Configure the source plugin here so that it will know
+		about the sources that may have been downloaded by the
+		maven-dependency-plugin and configured by the
+		build-helper-maven-plugin.
+	    -->
+	    <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-source-plugin</artifactId>
+		<executions>
+		    <execution>
+			<id>attach-sources</id>
+			<goals>
+			    <goal>jar-no-fork</goal> 
+			</goals>
+		    </execution>
+		</executions>
+		<configuration>
+		    <includePom>true</includePom>
+		</configuration>
+	    </plugin>
+
+	    <!--
 		This is the rule that creates the zip file for distribution.
 	    -->
 	    <plugin>
@@ -488,15 +535,9 @@
 		    <version>2.1.0</version>
 		</plugin>
 		<plugin>
-		    <!--
-			Configure the source plugin to include the pom.xml.
-		    -->
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-source-plugin</artifactId>
 		    <version>2.1.2</version>
-		    <configuration>
-			<includePom>true</includePom>
-		    </configuration>
 		 </plugin>
 	    </plugins>
 	</pluginManagement>
