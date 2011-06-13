@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,7 +38,6 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
 package com.sun.mail.util.logging;
 
 import java.io.ObjectStreamException;
@@ -151,15 +150,14 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Clones the default properties.
-     * @return the clone.
+     * Returns a properties object that contains a snapshot of the current
+     * state.  This method violates the clone contract so that no instances
+     * of LogManagerProperties is exported for public use.
+     * @return the snapshot.
+     * @since JavaMail 1.4.4
      */
-    public Object clone() {
-        Properties parent;
-        synchronized (this) {
-            parent = defaults;
-        }
-        return parent.clone();
+    public synchronized Object clone() {
+        return exportCopy(defaults);
     }
 
     /**
@@ -246,12 +244,27 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
+     * Creates a public snapshot of this properties object using
+     * the given parent properties.
+     * @param parent the defaults to use with the snapshot.
+     * @return the safe snapshot.
+     */
+    private Properties exportCopy(final Properties parent) {
+        Thread.holdsLock(this);
+        final Properties child = new Properties(parent);
+        child.putAll(this);
+        return child;
+    }
+
+    /**
      * It is assumed that this method will never be called.
+     * We return a safe copy for export to avoid locking this properties
+     * object or the defaults during write.
      * @return the parent properties.
      * @throws ObjectStreamException if there is a problem.
      */
     private synchronized Object writeReplace() throws ObjectStreamException {
         assert false;
-        return new Properties(defaults);
+        return exportCopy((Properties) defaults.clone());
     }
 }

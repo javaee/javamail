@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,6 +49,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Random;
 import java.util.logging.*;
@@ -192,8 +193,8 @@ public class MailHandlerTest {
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
 
-        assertEquals(1, em.exceptions.size());
         assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
+        assertEquals(1, em.exceptions.size());
 
         //Test for valid message.
         instance = createHandlerWithRecords();
@@ -594,7 +595,7 @@ public class MailHandlerTest {
         props.setProperty("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
 
-        MessageErrorManager empty = new MessageErrorManager(instance) {
+        MessageErrorManager empty = new MessageErrorManager(instance.getMailProperties()) {
 
             @Override
             public void error(MimeMessage msg, Throwable t, int code) {
@@ -616,7 +617,7 @@ public class MailHandlerTest {
         final String enc = "iso-8859-1";
         LogManager manager = LogManager.getLogManager();
         final MailHandler instance = new MailHandler();
-        MessageErrorManager em = new MessageErrorManager(instance) {
+        MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
 
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
@@ -1220,7 +1221,7 @@ public class MailHandlerTest {
         props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
         props.put(p.concat(".mail.to"), "localhost@localdomain");
         props.put(p.concat(".mail.cc"), "localhost@localdomain");
-        props.put(p.concat(".mail.subject"), p.concat(" test"));
+        props.put(p.concat(".subject"), p.concat(" test"));
         props.put(p.concat(".mail.from"), "localhost@localdomain");
         props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
         if (verify != null) {
@@ -1238,7 +1239,7 @@ public class MailHandlerTest {
         assertNotNull(manager.getProperty(p.concat(".mail.smtp.port")));
         assertNotNull(manager.getProperty(p.concat(".mail.to")));
         assertNotNull(manager.getProperty(p.concat(".mail.cc")));
-        assertNotNull(manager.getProperty(p.concat(".mail.subject")));
+        assertNotNull(manager.getProperty(p.concat(".subject")));
         assertNotNull(manager.getProperty(p.concat(".mail.from")));
         assertEquals(verify, manager.getProperty(p.concat(".verify")));
         assertNotNull(manager.getProperty(p.concat(".mail.smtp.connectiontimeout")));
@@ -1404,7 +1405,7 @@ public class MailHandlerTest {
         final String[] value = new String[1];
         MailHandler instance = new MailHandler();
         instance.setEncoding("us-ascii");
-        MessageErrorManager em = new MessageErrorManager(instance) {
+        MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
 
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
@@ -2008,6 +2009,90 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testFilterReentrance() {
+        Logger logger = Logger.getLogger("testFilterReentrance");
+
+        MailHandler instance = new MailHandler(2);
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+        instance.setFilter(new ReentranceFilter());
+
+        logger.setUseParentHandlers(false);
+        logger.setLevel(Level.ALL);
+        logger.addHandler(instance);
+        hardRef = logger;
+        try {
+            assertNotNull(hardRef);
+            logger.logp(Level.SEVERE, MailHandlerTest.class.getName(), "testFilterReentrance", "test");
+
+            int seenIse = 0;
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                if (em.exceptions.get(i) instanceof MessagingException) {
+                    continue;
+                } else if (em.exceptions.get(i) instanceof IllegalStateException) {
+                    seenIse++;
+                    continue; //expected.
+                } else {
+                    fail(String.valueOf(em.exceptions.get(i)));
+                }
+            }
+
+            assertTrue("No IllegalStateException", seenIse > 0);
+        } finally {
+            logger.removeHandler(instance);
+            logger.setLevel(null);
+            logger.setUseParentHandlers(true);
+            hardRef = null;
+        }
+    }
+
+    @Test
+    public void testPushFilterReentrance() {
+        testPushFilterReentrance(1, 1);
+        testPushFilterReentrance(1, 2);
+        testPushFilterReentrance(1, 1000);
+        testPushFilterReentrance(500, 1000);
+        testPushFilterReentrance(1000, 1000);
+    }
+
+    private void testPushFilterReentrance(int records, int cap) {
+        assert records <= cap : records;
+        Logger logger = Logger.getLogger("testPushFilterReentrance");
+
+        MailHandler instance = new MailHandler(cap);
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+        instance.setPushLevel(Level.ALL);
+        instance.setPushFilter(new ReentranceFilter());
+
+
+        logger.setUseParentHandlers(false);
+        logger.setLevel(Level.ALL);
+        logger.addHandler(instance);
+        hardRef = logger;
+        try {
+            assertNotNull(hardRef);
+
+            while (records-- > 0) {
+                logger.logp(Level.SEVERE, MailHandlerTest.class.getName(), "testPushFilterReentrance", "test");
+            }
+            instance.close();
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                if (em.exceptions.get(i) instanceof MessagingException == false) {
+                    fail(String.valueOf(em.exceptions.get(i)));
+                }
+            }
+            assertFalse(em.exceptions.isEmpty());
+        } finally {
+            logger.removeHandler(instance);
+            logger.setLevel(null);
+            logger.setUseParentHandlers(true);
+            hardRef = null;
+        }
+    }
+
+    @Test
     public void testReportError() {
         MailHandler instance = new MailHandler();
         instance.setErrorManager(new ErrorManager() {
@@ -2035,7 +2120,7 @@ public class MailHandlerTest {
 
         //Test for valid message.
         instance = createHandlerWithRecords();
-        instance.setErrorManager(new MessageErrorManager(instance) {
+        instance.setErrorManager(new MessageErrorManager(instance.getMailProperties()) {
 
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
@@ -2507,7 +2592,7 @@ public class MailHandlerTest {
             em.exceptions.clear();
 
             try {
-                new MailHandler();
+                hardRef = new MailHandler();
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (Exception fail) {
@@ -2515,7 +2600,7 @@ public class MailHandlerTest {
             }
 
             try {
-                new MailHandler(100);
+                hardRef = new MailHandler(100);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (Exception fail) {
@@ -2523,7 +2608,7 @@ public class MailHandlerTest {
             }
 
             try {
-                new MailHandler(new Properties());
+                hardRef = new MailHandler(new Properties());
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (Exception fail) {
@@ -2531,7 +2616,7 @@ public class MailHandlerTest {
             }
 
             try {
-                new MailHandler(-100);
+                hardRef = new MailHandler(-100);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (IllegalArgumentException pass) {
@@ -2540,7 +2625,7 @@ public class MailHandlerTest {
             }
 
             try {
-                new MailHandler((Properties) null);
+                hardRef = new MailHandler((Properties) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -2548,11 +2633,63 @@ public class MailHandlerTest {
                 fail(fail.toString());
             }
         } finally {
+            hardRef = null;
             manager.secure = false;
             System.setSecurityManager(null);
             if (h != null) {
                 h.close();
             }
+        }
+    }
+
+    @Test
+    public void testVerifyErrorManager() throws Exception {
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.reset();
+
+            final String p = MailHandler.class.getName();
+            Properties props = new Properties();
+            props.put(p.concat(".encoding"), "us-ascii");
+            props.put(p.concat(".mail.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT)); //bad port.
+            props.put(p.concat(".mail.to"), "foo@bar.com");
+            props.put(p.concat(".mail.cc"), "fizz@buzz.com");
+            props.put(p.concat(".mail.bcc"), "baz@bar.com");
+            props.put(p.concat(".subject"), p.concat(" test"));
+            props.put(p.concat(".mail.from"), "localhost@localdomain");
+            props.put(p.concat(".mail.sender"), "mail@handler");
+            props.put(p.concat(".errorManager"), VerifyErrorManager.class.getName());
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".verify"), "remote");
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            props.store(out, "No comment");
+
+            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+
+            MailHandler instance = new MailHandler();
+            InternalErrorManager em =
+                    (InternalErrorManager) instance.getErrorManager();
+
+            //ensure VerifyErrorManager was installed.
+            assertEquals(VerifyErrorManager.class, em.getClass());
+            assertFalse(em.exceptions.isEmpty());
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (t instanceof MessagingException == false
+                        && t.getCause() instanceof UnknownHostException == false) {
+                    t.printStackTrace();
+                    fail(t.toString());
+                }
+            }
+
+            assertFalse(em.exceptions.isEmpty());
+            instance.close();
+        } finally {
+            manager.reset();
         }
     }
 
@@ -2569,7 +2706,7 @@ public class MailHandlerTest {
             props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT)); //bad port.
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
-            props.put(p.concat(".mail.subject"), p.concat(" test"));
+            props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
             props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
@@ -2585,6 +2722,7 @@ public class MailHandlerTest {
             InternalErrorManager em =
                     (InternalErrorManager) instance.getErrorManager();
 
+            assertEquals(InternalErrorManager.class, em.getClass());
             assertFalse(em.exceptions.isEmpty());
 
             for (int i = 0; i < em.exceptions.size(); i++) {
@@ -2607,6 +2745,7 @@ public class MailHandlerTest {
             instance = new MailHandler();
             em = (InternalErrorManager) instance.getErrorManager();
 
+            assertEquals(InternalErrorManager.class, em.getClass());
             assertFalse(em.exceptions.isEmpty());
 
             for (int i = 0; i < em.exceptions.size(); i++) {
@@ -3059,13 +3198,13 @@ public class MailHandlerTest {
 
     private static abstract class MessageErrorManager extends InternalErrorManager {
 
-        private final MailHandler h;
+        private final Properties props;
 
-        protected MessageErrorManager(final MailHandler h) {
-            if (h == null) {
+        protected MessageErrorManager(final Properties props) {
+            if (props == null) {
                 throw new NullPointerException();
             }
-            this.h = h;
+            this.props = props;
         }
 
         @Override
@@ -3079,9 +3218,11 @@ public class MailHandlerTest {
                     assertTrue(b.length > 0);
 
                     ByteArrayInputStream in = new ByteArrayInputStream(b);
-                    Session session = Session.getInstance(h.getMailProperties());
+                    Session session = Session.getInstance(props);
                     message = new MimeMessage(session, in);
                     error(message, ex, code);
+                } catch (Error e) {
+                    throw e;
                 } catch (Throwable T) {
                     fail(T.toString());
                 }
@@ -3094,10 +3235,14 @@ public class MailHandlerTest {
         protected abstract void error(MimeMessage msg, Throwable t, int code);
     }
 
-    public static final class PushErrorManager extends MessageErrorManager {
+    public static class PushErrorManager extends MessageErrorManager {
 
         public PushErrorManager(MailHandler h) {
-            super(h);
+            super(h.getMailProperties());
+        }
+
+        protected PushErrorManager(Properties p) {
+            super(p);
         }
 
         protected void error(MimeMessage message, Throwable t, int code) {
@@ -3118,10 +3263,53 @@ public class MailHandlerTest {
         }
     }
 
+    public static final class VerifyErrorManager extends PushErrorManager {
+
+        public VerifyErrorManager() {
+            super(new Properties());
+        }
+
+        protected void error(MimeMessage message, Throwable t, int code) {
+            super.error(message, t, code);
+            try {
+                Address[] a = message.getRecipients(Message.RecipientType.TO);
+                assertEquals(InternetAddress.parse("foo@bar.com")[0], a[0]);
+                assertEquals(1, a.length);
+
+                a = message.getRecipients(Message.RecipientType.CC);
+                assertEquals(InternetAddress.parse("fizz@buzz.com")[0], a[0]);
+                assertEquals(1, a.length);
+
+                a = message.getRecipients(Message.RecipientType.BCC);
+                assertEquals(InternetAddress.parse("baz@bar.com")[0], a[0]);
+                assertEquals(1, a.length);
+
+                a = message.getFrom();
+                assertEquals(InternetAddress.parse("localhost@localdomain")[0], a[0]);
+                assertEquals(1, a.length);
+
+                a = new Address[]{message.getSender()};
+                assertEquals(InternetAddress.parse("mail@handler")[0], a[0]);
+
+                assertEquals(MailHandler.class.getName() + " test", message.getSubject());
+
+                assertTrue(message.getContentType(), message.isMimeType("multipart/mixed"));
+                Multipart multipart = (Multipart) message.getContent();
+                ContentType type = new ContentType(multipart.getBodyPart(0).getContentType());
+                assertEquals("text/plain", type.getBaseType());
+                assertEquals("us-ascii", type.getParameter("charset").toLowerCase(Locale.US));
+            } catch (MessagingException me) {
+                throw new AssertionError(me);
+            } catch (IOException ioe) {
+                throw new AssertionError(ioe);
+            }
+        }
+    }
+
     public static final class FlushErrorManager extends MessageErrorManager {
 
         public FlushErrorManager(MailHandler h) {
-            super(h);
+            super(h.getMailProperties());
         }
 
         protected void error(MimeMessage message, Throwable t, int code) {
@@ -3323,6 +3511,17 @@ public class MailHandlerTest {
 
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
+        }
+    }
+
+    public static class ReentranceFilter implements Filter {
+
+        public boolean isLoggable(LogRecord record) {
+            if (!getClass().getName().equals(record.getSourceClassName())) {
+                final Logger logger = Logger.getLogger(record.getLoggerName());
+                logger.logp(Level.SEVERE, getClass().getName(), "isLoggable", toString());
+            }
+            return true;
         }
     }
 

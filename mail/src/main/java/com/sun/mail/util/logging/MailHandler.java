@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -469,9 +469,24 @@ public class MailHandler extends Handler {
          */
         if (isLoggable(record)) {
             record.getSourceMethodName(); //infer caller, outside of lock
-            MessageContext ctx;
-            boolean priority;
-            synchronized (this) {
+            publish0(record);
+        }
+    }
+
+    /**
+     * Performs the publish after the record has been filtered.
+     * @param record the record.
+     * @since JavaMail 1.4.5
+     */
+    private void publish0(final LogRecord record) {
+        MessageContext ctx;
+        boolean priority;
+        synchronized (this) {
+            if (size == data.length && size < capacity) {
+                grow();
+            }
+
+            if (size < data.length) {
                 data[size] = record;
                 ++size; //be nice to client compiler.
                 priority = isPushable(record);
@@ -479,16 +494,38 @@ public class MailHandler extends Handler {
                     ctx = writeLogRecords(ErrorManager.WRITE_FAILURE);
                 } else {
                     ctx = null;
-                    if (data.length == size) {
-                        grow();
-                    }
                 }
-            }
-
-            if (ctx != null) {
-                send(ctx, priority, ErrorManager.WRITE_FAILURE);
+            } else { //drain the buffer and try again.
+                priority = false;
+                ctx = flushAndRePublish(record);
             }
         }
+
+        if (ctx != null) {
+            send(ctx, priority, ErrorManager.WRITE_FAILURE);
+        }
+    }
+
+    /**
+     * Flushes the buffer into a MessageContext and then tries to store
+     * the given record.  This method will only be called in cases of
+     * reentrant filters, formatters, or comparators.  The push filter is
+     * the only filter allowed to be reentrant.  This is because it is never
+     * used during formatting and only called after a record is stored.
+     * @param record the log record still needed to publish.
+     * @return the MessageContext or null.
+     * @since JavaMail 1.4.5
+     */
+    private MessageContext flushAndRePublish(final LogRecord record) {
+        MessageContext ctx = writeLogRecords(ErrorManager.WRITE_FAILURE);
+        if (ctx != null) {
+            publish0(record);
+        } else { //Use ISE because this is a push inside of a push.
+            reportError("Unable to drain buffer.", 
+                    new IllegalStateException(),
+                    ErrorManager.WRITE_FAILURE);
+        }
+        return ctx;
     }
 
     /**
@@ -529,9 +566,7 @@ public class MailHandler extends Handler {
         synchronized (this) {
             super.setLevel(Level.OFF); //security check first.
             try {
-                if (size > 0) {
-                    ctx = writeLogRecords(ErrorManager.CLOSE_FAILURE);
-                }
+                ctx = writeLogRecords(ErrorManager.CLOSE_FAILURE);
             } finally {
                 /**
                  * The sign bit of the capacity is set to ensure that records
@@ -690,7 +725,7 @@ public class MailHandler extends Handler {
         checkAccess();
 
         Session settings;
-        synchronized(this) {
+        synchronized (this) {
             if (isWriting) {
                 throw new IllegalStateException();
             }
@@ -1026,7 +1061,7 @@ public class MailHandler extends Handler {
      */
     final String contentTypeOf(String head) {
         if (head != null && head.length() > 0) {
-            final int MAX_CHARS = 15;
+            final int MAX_CHARS = 25;
             if (head.length() > MAX_CHARS) {
                 head = head.substring(0, MAX_CHARS);
             }
@@ -1045,6 +1080,24 @@ public class MailHandler extends Handler {
             }
         }
         return null; //text/plain
+    }
+
+    /**
+     * Converts a mime message to a raw string or formats the reason
+     * why message can't be changed to raw string and reports it.
+     * @param msg the mime message.
+     * @param ex the original exception.
+     * @param code the ErrorManager code.
+     * @since JavaMail 1.4.5
+     */
+    private void reportError(Message msg, Exception ex, int code) {
+        try { //use super call so we do not prefix raw email.
+            super.reportError(toRawString(msg), ex, code);
+        } catch (final MessagingException rawMe) {
+            reportError(toMsgString(rawMe), ex, code);
+        } catch (final IOException rawIo) {
+            reportError(toMsgString(rawIo), ex, code);
+        }
     }
 
     /**
@@ -1069,7 +1122,7 @@ public class MailHandler extends Handler {
      * @param type the mime type.
      * @throws MessagingException if there is a problem.
      */
-    private void setContent(MimeBodyPart part, StringBuffer buf, String type) throws MessagingException {
+    private void setContent(MimeBodyPart part, CharSequence buf, String type) throws MessagingException {
         final String encoding = getEncoding();
         if (type != null && !"text/plain".equals(type)) {
             if (encoding == null) {
@@ -1245,7 +1298,11 @@ public class MailHandler extends Handler {
      */
     private void reset() {
         assert Thread.holdsLock(this);
-        Arrays.fill(data, 0, size, null);
+        if (size < data.length) {
+            Arrays.fill(data, 0, size, null);
+        } else {
+            Arrays.fill(data, null);
+        }
         this.size = 0;
     }
 
@@ -1262,7 +1319,6 @@ public class MailHandler extends Handler {
         assert len != capacity : len;
         this.data = (LogRecord[]) copyOf(data, newCapacity);
     }
-
 
     /**
      * Configures the handler properties from the log manager.
@@ -1566,13 +1622,7 @@ public class MailHandler extends Handler {
      * @param code the error manager code.
      */
     private void push(final boolean priority, final int code) {
-        MessageContext ctx = null;
-        synchronized (this) {
-            if (size > 0) {
-                ctx = writeLogRecords(code);
-            }
-        }
-
+        MessageContext ctx = writeLogRecords(code);
         if (ctx != null) {
             send(ctx, priority, code);
         }
@@ -1593,13 +1643,7 @@ public class MailHandler extends Handler {
             envelopeFor(ctx, priority);
             Transport.send(msg);
         } catch (final Exception E) {
-            try { //use super call so we do not prefix raw email.
-                super.reportError(toRawString(msg), E, code);
-            } catch (final MessagingException rawMe) {
-                reportError(toMsgString(rawMe), E, code);
-            } catch (final IOException rawIo) {
-                reportError(toMsgString(rawIo), E, code);
-            }
+            reportError(msg, E, code);
         }
     }
 
@@ -1629,13 +1673,11 @@ public class MailHandler extends Handler {
      * attached session.
      */
     private synchronized MessageContext writeLogRecords(final int code) {
-        assert size > 0;
-
-        if (isWriting) {
+        if (size == 0 || isWriting) {
             return null;
         }
 
-        final MimeMessage msg;
+        MimeMessage msg = null;
         isWriting = true;
         try {
             msg = new MimeMessage(session);
@@ -1801,7 +1843,11 @@ public class MailHandler extends Handler {
 
         //Perform all of the copy actions first.
         final MimeMessage abort = new MimeMessage(session);
-        envelopeFor(new MessageContext(abort), true);
+        synchronized (this) { //create the subject.
+            appendSubject(abort, head(this.subjectFormatter));
+            appendSubject(abort, tail(this.subjectFormatter, ""));
+        }
+        envelopeFor(new MessageContext(abort), true); //calls saveChanges.
 
         String msg;
         if (InternetAddress.getLocalAddress(session) == null) {
@@ -1811,6 +1857,7 @@ public class MailHandler extends Handler {
         }
 
         try {
+            //Ensure transport provider is installed.
             Address[] all = abort.getAllRecipients();
             Transport t;
             try {
@@ -1819,7 +1866,7 @@ public class MailHandler extends Handler {
                     session.getProperty("mail.transport.protocol"); //force copy
                 } else {
                     MessagingException me =
-                            new MessagingException("No recipient addresses.");
+                        new MessagingException("No recipient addresses.");
                     reportError(msg, me, ErrorManager.OPEN_FAILURE);
                     throw me;
                 }
@@ -1836,13 +1883,14 @@ public class MailHandler extends Handler {
                 t.connect();
                 try {
                     /**
-                     * An empty message will fail at message writeTo.
+                     * A message without content will fail at message writeTo.
                      * This allows the handler to capture all mail properties.
                      */
                     t.sendMessage(abort, all);
-                    reportError(msg, new MessagingException(
-                            "An empty message was sent."),
-                            ErrorManager.WRITE_FAILURE);
+                    final MessagingException write = new MessagingException(
+                            "An empty message was sent.");
+                    fixUpContent(abort, verify, write);
+                    reportError(abort, write, ErrorManager.WRITE_FAILURE);
                 } catch (MessagingException expectNoContent) {
                 } finally {
                     t.close();
@@ -1869,7 +1917,8 @@ public class MailHandler extends Handler {
                     }
                 }
             }
-            
+
+            //The null and zero length case is handled getting the transport.
             if (all != null) {
                 for (int i = 0; i < all.length; ++i) {
                     Address a = all[i];
@@ -1890,9 +1939,40 @@ public class MailHandler extends Handler {
                 }
             }
         } catch (final MessagingException ME) {
-            reportError(msg, ME, ErrorManager.OPEN_FAILURE);
+            fixUpContent(abort, verify, ME);
+            reportError(abort, ME, ErrorManager.OPEN_FAILURE);
         } catch (final RuntimeException RE) {
-            reportError(msg, RE, ErrorManager.OPEN_FAILURE);
+            fixUpContent(abort, verify, RE);
+            reportError(abort, RE, ErrorManager.OPEN_FAILURE);
+        }
+    }
+
+    /**
+     * Creates and sets the message content from the given Throwable.
+     * When verify fails, this method fixes the 'abort' message so that any
+     * created envelope data can be used in the error manager.
+     * @param msg the message with or without content.
+     * @param verify the verify enum.
+     * @param t the throwable or null.
+     * @since JavaMail 1.4.5
+     */
+    private void fixUpContent(MimeMessage msg, String verify, Throwable t) {
+        try { //add content so toRawString doesn't fail.
+            final MimeMultipart multipart = new MimeMultipart();
+            final MimeBodyPart body = new MimeBodyPart();
+            body.setDisposition(Part.INLINE);
+            body.setDescription("Formatted using " 
+                    + (t == null ? Throwable.class.getName()
+                    : t.getClass().getName()) + " and filtered with "
+                    + verify + '.');
+            setContent(body, toMsgString(t), "text/plain");
+            multipart.addBodyPart(body);
+            msg.setContent(multipart);
+            msg.saveChanges();
+        } catch (final MessagingException ME) {
+            reportError("Unable to create body.", ME, ErrorManager.OPEN_FAILURE);
+        } catch (final RuntimeException RE) {
+            reportError("Unable to create body.", RE, ErrorManager.OPEN_FAILURE);
         }
     }
 
@@ -2027,8 +2107,8 @@ public class MailHandler extends Handler {
         try {
             final String old = msg.getSubject();
             assert msg instanceof MimeMessage;
-            ((MimeMessage) msg).setSubject(old != null ?
-                old.concat(chunk) : chunk, getEncoding());
+            ((MimeMessage) msg).setSubject(old != null
+                    ? old.concat(chunk) : chunk, getEncoding());
         } catch (final MessagingException ME) {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
         }
@@ -2203,15 +2283,20 @@ public class MailHandler extends Handler {
     /**
      * Converts a throwable to a message string.  This method is called when
      * Message.writeTo throws an exception.
-     * @param t any throwable.
-     * @return the throwable with a stack trace.
+     * @param t any throwable or null.
+     * @return the throwable with a stack trace or the literal null.
      */
     private String toMsgString(final Throwable t) {
+        if (t == null) {
+           return "null";
+        }
+        
         final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
         final PrintStream ps = new PrintStream(out);
         ps.println(t.getMessage());
         t.printStackTrace(ps);
         ps.flush();
+        ps.close(); //BUG ID 6995537
         return out.toString();
     }
 
