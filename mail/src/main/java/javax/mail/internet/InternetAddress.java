@@ -545,7 +545,7 @@ public class InternetAddress extends Address implements Cloneable {
 
 	if (address == null && user != null && user.length() != 0 &&
 		host != null && host.length() != 0)
-	    address = MimeUtility.quote(user, HeaderTokenizer.RFC822) +
+	    address = MimeUtility.quote(user.trim(), specialsNoDot + "\t ") +
 							    "@" + host;
 
 	if (address == null)
