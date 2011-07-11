@@ -107,8 +107,9 @@ import javax.mail.util.ByteArrayDataSource;
  * attachment. (default is no attachments)
  *
  * <li>com.sun.mail.util.logging.MailHandler.attachment.names a comma separated
- * list of names or <tt>Formatter</tt> class names of each attachment.
- * (default is no attachments names) 
+ * list of names or <tt>Formatter</tt> class names of each attachment.  The
+ * attachment file names must not contain any line breaks.
+ * (default is no attachments names)
  * 
  * <li>com.sun.mail.util.logging.MailHandler.authenticator name of a 
  * {@linkplain javax.mail.Authenticator} class used to provide login credentials
@@ -190,7 +191,7 @@ import javax.mail.util.ByteArrayDataSource;
  *
  * <li>com.sun.mail.util.logging.MailHandler.subject the name of a 
  * <tt>Formatter</tt> class or string literal used to create the subject line.
- * (defaults to empty string)
+ * The subject line must not contain any line breaks. (defaults to empty string)
  *
  * <li>com.sun.mail.util.logging.MailHandler.verify <a name="verify">used</a> to
  * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a 
@@ -510,19 +511,31 @@ public class MailHandler extends Handler {
      * Flushes the buffer into a MessageContext and then tries to store
      * the given record.  This method will only be called in cases of
      * reentrant filters, formatters, or comparators.  The push filter is
-     * the only filter allowed to be reentrant.  This is because it is never
-     * used during formatting and only called after a record is stored.
+     * the only filter allowed to be reentrant.  This is because the push filter
+     * is never used during formatting and only called after a record is stored.
      * @param record the log record still needed to publish.
-     * @return the MessageContext or null.
+     * @return the MessageContext containing the previous push or null.
      * @since JavaMail 1.4.5
      */
     private MessageContext flushAndRePublish(final LogRecord record) {
         MessageContext ctx = writeLogRecords(ErrorManager.WRITE_FAILURE);
-        if (ctx != null) {
+        if (ctx != null) { //try again with an empty buffer.
+            /**
+             * The common case should be a simple store, no push.
+             * Rarely should we be pushing while holding a lock.
+             */
             publish0(record);
-        } else { //Use ISE because this is a push inside of a push.
-            reportError("Unable to drain buffer.", 
-                    new IllegalStateException(),
+        } else {
+            /**
+             * This record is lost, report this to the error manager.
+             * Use ISE because this is a push inside of a push.
+             */
+            final SimpleFormatter f = new SimpleFormatter();
+            final String msg = "Log record " + record.getSequenceNumber()
+                + " was not published. "
+                + head(f) + format(f, record) + tail(f, "");
+            reportError(msg,
+                    new IllegalStateException("Unable to drain buffer."),
                     ErrorManager.WRITE_FAILURE);
         }
         return ctx;
@@ -621,7 +634,7 @@ public class MailHandler extends Handler {
      * Sets the push level.  This level is used to trigger a push so that
      * all pending records are formatted and sent to the email server.  When
      * the push level triggers a send, the resulting email is flagged as
-     * high priority.
+     * high importance with urgent priority.
      * @param level Level object.
      * @throws NullPointerException if <tt>level</tt> is <tt>null</tt>.
      * @throws SecurityException  if a security manager exists and the
@@ -653,7 +666,7 @@ public class MailHandler extends Handler {
      * <tt>LogRecord</tt> level was greater than the push level.  If this
      * filter returns <tt>true</tt>, all pending records are formatted and sent
      * to the email server.  When the push filter triggers a send, the resulting
-     * email is flagged as high priority.
+     * email is flagged as high importance with urgent priority.
      * @param filter push filter or <tt>null</tt>
      * @throws SecurityException  if a security manager exists and the
      * caller does not have <tt>LoggingPermission("control")</tt>.
@@ -878,7 +891,7 @@ public class MailHandler extends Handler {
 
     /**
      * Sets the attachment file name for each attachment.  The caller must
-     * ensure that the attachment file name does not contain any line breaks.
+     * ensure that the attachment file names do not contain any line breaks.
      * This method will create a set of custom formatters.
      * @param names an array of names.
      * @throws SecurityException  if a security manager exists and the
@@ -1705,6 +1718,7 @@ public class MailHandler extends Handler {
             final Filter bodyFilter = getFilter();
 
             for (int ix = 0; ix < size; ++ix) {
+                boolean filtered = true;
                 final LogRecord r = data[ix];
                 data[ix] = null; //clear while formatting.
 
@@ -1717,7 +1731,7 @@ public class MailHandler extends Handler {
                         buf.append(head);
                         contentType = contentTypeOf(head);
                     }
-
+                    filtered = false;
                     buf.append(format(bodyFormat, r));
                 }
 
@@ -1730,9 +1744,14 @@ public class MailHandler extends Handler {
                             buffers[i].append(head(attachmentFormatters[i]));
                             appendFileName(parts[i], head(attachmentNames[i]));
                         }
+                        filtered = false;
                         appendFileName(parts[i], format(attachmentNames[i], r));
                         buffers[i].append(format(attachmentFormatters[i], r));
                     }
+                }
+
+                if (filtered) { //belongs to no mime part.
+                   reportFilterError(r);
                 }
             }
             this.size = 0;
@@ -1810,7 +1829,9 @@ public class MailHandler extends Handler {
             value = (String) props.get(key); //search only props.
             if (value == null) {
                 value = props.getProperty(key); //search parent props.
-                props.put(key, ""); //disable future checks.
+                if (props.get(key) == null) {
+                    props.put(key, ""); //disable future checks.
+                }
             } else {
                 return; //verify complete or in progress.
             }
@@ -2114,6 +2135,24 @@ public class MailHandler extends Handler {
         }
     }
 
+    /**
+     * Used when a log record was loggable prior to being inserted
+     * into the buffer and at the time of formatting was no longer loggable.
+     * Filters were changed after publish but prior to a push or a bug in the
+     * body filter or one of the attachment filters.
+     * @param record that was not formatted.
+     * @since JavaMail 1.4.5
+     */
+    private void reportFilterError(final LogRecord record) {
+        assert Thread.holdsLock(this);
+        final SimpleFormatter f = new SimpleFormatter();
+        final String msg = "Log record " + record.getSequenceNumber()
+                + " was filtered from all message parts.  "
+                + head(f) + format(f, record) + tail(f, "");
+        final String txt = getFilter() + ", " + Arrays.asList(readOnlyAttachmentFilters());
+        reportError(msg, new IllegalArgumentException(txt), ErrorManager.FORMAT_FAILURE);
+    }
+
     private void reportNullError(final int code) {
         reportError("null", new NullPointerException(), code);
     }
@@ -2149,12 +2188,18 @@ public class MailHandler extends Handler {
         try {
             final Class mail = MailHandler.class;
             final Class k = getClass();
-            final String value;
+            String value;
             if (k == mail) {
                 value = mail.getName();
             } else {
-                value = mail.getName() + " using the "
-                        + k.getName() + " extension.";
+                try {
+                    value = MimeUtility.encodeText(k.getName());
+                } catch (final UnsupportedEncodingException E) {
+                    reportError(E.getMessage(), E, ErrorManager.FORMAT_FAILURE);
+                    value = k.getName().replaceAll("[^\\x00-\\x7F]", "\uu001A");
+                }
+                value = MimeUtility.fold(10, mail.getName() + " using the "
+                            + value + " extension.");
             }
             msg.setHeader("X-Mailer", value);
         } catch (final MessagingException ME) {

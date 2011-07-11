@@ -46,6 +46,7 @@ import java.net.Socket;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.io.*;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -226,7 +227,7 @@ public class MailHandlerTest {
             instance.setMailProperties(props);
 
             Authenticator auth = new EmptyAuthenticator();
-            Filter filter = new BooleanFilter(true);
+            Filter filter = BooleanFilter.TRUE;
             Formatter formatter = new SimpleFormatter();
             instance.setSubject("publishDuringClose");
             Formatter subject = instance.getSubject();
@@ -2009,6 +2010,117 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testAttachmentFilterSwapBeforePush() {
+        MailHandler instance = new MailHandler(10);
+        instance.setLevel(Level.ALL);
+        instance.setPushLevel(Level.OFF);
+        instance.setPushFilter(null);
+        instance.setFilter(BooleanFilter.FALSE);
+        instance.setAttachmentFormatters(new Formatter[]{new XMLFormatter()});
+        instance.setAttachmentFilters(new Filter[]{null});
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        LogRecord record = new LogRecord(Level.SEVERE, "lost record");
+        assertTrue(instance.isLoggable(record));
+
+        instance.publish(record);
+        instance.setAttachmentFilters(new Filter[]{BooleanFilter.FALSE});
+        assertFalse(instance.isLoggable(record));
+        instance.close();
+
+        int seenFormat = 0;
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            if (em.exceptions.get(i) instanceof MessagingException) {
+                continue;
+            } else if (em.exceptions.get(i) instanceof RuntimeException
+                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1
+                    && em.exceptions.get(i).getMessage().indexOf(
+                    Arrays.asList(instance.getAttachmentFilters()).toString()) > -1) {
+                seenFormat++;
+                continue; //expected.
+            } else {
+                fail(String.valueOf(em.exceptions.get(i)));
+            }
+        }
+        assertTrue("No format error", seenFormat > 0);
+    }
+
+    @Test
+    public void testFilterSwapBeforePush() {
+        MailHandler instance = new MailHandler(10);
+        instance.setLevel(Level.ALL);
+        instance.setPushLevel(Level.OFF);
+        instance.setPushFilter(null);
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        LogRecord record = new LogRecord(Level.SEVERE, "lost record");
+        assertTrue(instance.isLoggable(record));
+
+        instance.publish(record);
+        instance.setFilter(BooleanFilter.FALSE);
+        assertFalse(instance.isLoggable(record));
+        instance.close();
+
+        int seenFormat = 0;
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            if (em.exceptions.get(i) instanceof MessagingException) {
+                continue;
+            } else if (em.exceptions.get(i) instanceof RuntimeException
+                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1) {
+                seenFormat++;
+                continue; //expected.
+            } else {
+                fail(String.valueOf(em.exceptions.get(i)));
+            }
+        }
+        assertTrue("No format error", seenFormat > 0);
+    }
+
+    @Test
+    public void testFilterFlipFlop() {
+        MailHandler instance = new MailHandler(10);
+        instance.setLevel(Level.ALL);
+        instance.setPushLevel(Level.OFF);
+        instance.setPushFilter(null);
+        FlipFlopFilter badFilter = new FlipFlopFilter();
+        instance.setFilter(badFilter);
+
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        LogRecord record = new LogRecord(Level.SEVERE, "lost record");
+
+        assertSame(badFilter, instance.getFilter());
+        badFilter.value = true;
+        assertSame(badFilter, instance.getFilter());
+
+        assertTrue(instance.isLoggable(record));
+        instance.publish(record);
+        badFilter.value = false;
+
+        assertSame(badFilter, instance.getFilter());
+        assertFalse(instance.isLoggable(record));
+        instance.close();
+        assertSame(badFilter, instance.getFilter());
+
+        int seenFormat = 0;
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            if (em.exceptions.get(i) instanceof MessagingException) {
+                continue;
+            } else if (em.exceptions.get(i) instanceof RuntimeException
+                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1) {
+                seenFormat++;
+                continue; //expected.
+            } else {
+                fail(String.valueOf(em.exceptions.get(i)));
+            }
+        }
+        assertTrue("No format error", seenFormat > 0);
+    }
+
+    @Test
     public void testFilterReentrance() {
         Logger logger = Logger.getLogger("testFilterReentrance");
 
@@ -2653,7 +2765,7 @@ public class MailHandlerTest {
             props.put(p.concat(".encoding"), "us-ascii");
             props.put(p.concat(".mail.host"), "bad-host-name");
             props.put(p.concat(".mail.smtp.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT)); //bad port.
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "foo@bar.com");
             props.put(p.concat(".mail.cc"), "fizz@buzz.com");
             props.put(p.concat(".mail.bcc"), "baz@bar.com");
@@ -3061,6 +3173,7 @@ public class MailHandlerTest {
              * This code swallows that error message.
              */
             LogManager.getLogManager().readConfiguration();
+            System.err.print(""); //flushBuffer.
             System.err.flush();
             String result = oldErrors.toString().trim();
             oldErrors.reset();
@@ -3529,6 +3642,15 @@ public class MailHandlerTest {
 
         public boolean isLoggable(LogRecord record) {
             throw new Error("");
+        }
+    }
+
+    public static class FlipFlopFilter implements Filter {
+
+        volatile boolean value;
+
+        public boolean isLoggable(LogRecord record) {
+            return value;
         }
     }
 
