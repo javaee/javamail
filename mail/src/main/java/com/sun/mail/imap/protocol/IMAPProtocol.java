@@ -707,7 +707,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * ID Command, for Yahoo! Mail IMAP server.
      *
-     * @see http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access
+     * See <A HREF="http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access">
+     * http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access</A>
+     *
      * @since JavaMail 1.4.4
      */
     public void id(String guid) throws ProtocolException {

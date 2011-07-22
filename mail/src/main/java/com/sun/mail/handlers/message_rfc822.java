@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -71,7 +71,7 @@ public class message_rfc822 implements DataContentHandler {
     /**
      * return the Transfer Data of type DataFlavor from InputStream
      * @param df The DataFlavor.
-     * @param ins The InputStream corresponding to the data.
+     * @param ds The DataSource corresponding to the data
      * @return a Message object
      */
     public Object getTransferData(DataFlavor df, DataSource ds)

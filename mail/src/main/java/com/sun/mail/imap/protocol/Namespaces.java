@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,9 +45,10 @@ import com.sun.mail.iap.*;
 
 /**
  * This class and its inner class represent the response to the
- * NAMESPACE command.
+ * NAMESPACE command. <p>
  *
- * @see RFC2342
+ * See <A HREF="http://www.ietf.org/rfc/rfc2342.txt">RFC 2342</A>.
+ *
  * @author Bill Shannon
  */
 
