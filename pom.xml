@@ -45,6 +45,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
 			    http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+	<groupId>net.java</groupId>
+	<artifactId>jvnet-parent</artifactId>
+	<version>1</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
@@ -53,6 +58,17 @@
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
+
+    <scm>
+	<connection>scm:hg:http://kenai.com/hg/javamail~mercurial</connection>
+	<developerConnection>scm:hg:https://kenai.com/hg/javamail~mercurial</developerConnection>
+	<url>http://kenai.com/hg/javamail~mercurial</url>
+    </scm>
+
+    <issueManagement>
+	<system>Bugzilla</system>
+	<url>http://kenai.com/bugzilla</url>
+    </issueManagement>
 
     <licenses>
       <license>
@@ -168,6 +184,8 @@
 	</profile>
 
 	<!--
+	    This profile is used for deploying a JavaMail final release.
+
 	    Activating this profile manually for deployment causes
 	    the above profile to be deactivated, which works around
 	    an apparent bug in maven that prevents me from manually
@@ -175,7 +193,7 @@
 	    of the modules I don't want to be deployed.
 	-->
 	<profile>
-	    <id>deploy</id>
+	    <id>deploy-release</id>
 	    <modules>
 		<module>parent-distrib</module>
 	    </modules>
@@ -187,6 +205,72 @@
 			<configuration>
 			    <skip>true</skip>
 			</configuration>
+		    </plugin>
+
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>2.7</version>
+			<executions>
+			    <execution>
+				<id>attach-javadocs</id>
+				<goals>
+				    <goal>jar</goal>
+				</goals>
+			    </execution>
+			</executions>
+		    </plugin>
+
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-gpg-plugin</artifactId>
+			<version>1.1</version>
+			<executions>
+			    <execution>
+				<id>sign-artifacts</id>
+				<phase>verify</phase>
+				<goals>
+				    <goal>sign</goal>
+				</goals>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
+
+	<!--
+	    This profile is used for deploying a JavaMail SNAPSHOT release.
+	    It's identical to the above deploy-release profile except that
+	    artifacts aren't signed.
+	-->
+	<profile>
+	    <id>deploy-snapshot</id>
+	    <modules>
+		<module>parent-distrib</module>
+	    </modules>
+	    <build>
+		<plugins>
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-surefire-plugin</artifactId>
+			<configuration>
+			    <skip>true</skip>
+			</configuration>
+		    </plugin>
+
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>2.7</version>
+			<executions>
+			    <execution>
+				<id>attach-javadocs</id>
+				<goals>
+				    <goal>jar</goal>
+				</goals>
+			    </execution>
+			</executions>
 		    </plugin>
 		</plugins>
 	    </build>
@@ -231,16 +315,6 @@
 	    </build>
 	</profile>
     </profiles>
-
-    <distributionManagement>
-	<repository>
-	    <id>java.net-m2-repository</id>
-	    <url>
-	    svn:https://svn.java.net/svn/maven2-repository~svn/trunk/repository
-	    </url>
-	    <uniqueVersion>false</uniqueVersion>
-	</repository>
-    </distributionManagement>
 
     <build>
 	<defaultGoal>install</defaultGoal>
@@ -541,20 +615,6 @@
 		 </plugin>
 	    </plugins>
 	</pluginManagement>
-
-	<extensions>
-	    <extension>
-		<groupId>org.jvnet.wagon-svn</groupId>
-		<artifactId>wagon-svn</artifactId>
-		<!--
-		    Following should be:
-		<version>RELEASE</version>
-		    but Kohsuke says it doesn't work and to replace
-		    it with the actual version number.
-		-->
-		<version>1.8</version>
-	    </extension>
-	</extensions>
     </build>
 
     <dependencyManagement>
@@ -599,22 +659,6 @@
             <version>${activation-api.version}</version>
         </dependency>
     </dependencies>
-
-    <repositories>
-	<repository>
-	    <id>maven2-repository.dev.java.net</id>
-	    <name>Java.net Repository for Maven</name>
-	    <url>http://download.java.net/maven/2/</url>
-	</repository>
-    </repositories>
-
-    <pluginRepositories>
-	<pluginRepository>
-	    <id>glassfish-repo-archive</id>
-	    <name>M2 repo for GlassFish project specific artifacts</name>
-	    <url>http://download.java.net/maven/glassfish/</url>
-	</pluginRepository>
-    </pluginRepositories>
 
     <reporting>
 	<plugins>
