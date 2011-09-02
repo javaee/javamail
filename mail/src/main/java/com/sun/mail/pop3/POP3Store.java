@@ -263,9 +263,19 @@ public class POP3Store extends Store {
 
 	if (useStartTLS || requireStartTLS) {
 	    if (p.hasCapability("STLS")) {
-		p.stls();
-		// refresh capabilities
-		p.setCapabilities(p.capa());
+		if (p.stls()) {
+		    // success, refresh capabilities
+		    p.setCapabilities(p.capa());
+		} else if (requireStartTLS) {
+		    if (debug)
+			out.println("DEBUG POP3: STLS required but failed");
+		    try {
+			p.quit();
+		    } catch (IOException ioex) {
+		    } finally {
+			throw new EOFException("STLS required but failed");
+		    }
+		}
 	    } else if (requireStartTLS) {
 		if (debug)
 		    out.println("DEBUG POP3: STLS required but not supported");
