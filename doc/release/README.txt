@@ -39,11 +39,11 @@ in the JavaMail API) and their capabilities:
 	Name		Transport?	SSL?	STARTTLS?
 	-------------------------------------------------
 	imap		Store		No	Yes
-	imaps		Store		Yes	Yes
-	pop3		Store		No	No
-	pop3s		Store		Yes	No
+	imaps		Store		Yes	N/A
+	pop3		Store		No	Yes
+	pop3s		Store		Yes	N/A
 	smtp		Transport	No	Yes
-	smtps		Transport	Yes	Yes
+	smtps		Transport	Yes	N/A
 
 See our web page at http://www.oracle.com/technetwork/java/javamail/
 for the latest information on third party protocol providers.
