@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -125,6 +125,8 @@ public class Response {
     private void parse() {
 	index = 0; // position internal index at start
 
+	if (size == 0)	// empty line
+	    return;
 	if (buffer[index] == '+') { // Continuation statement
 	    type |= CONTINUATION;
 	    index += 1; // Position beyond the '+'
@@ -135,6 +137,8 @@ public class Response {
 	} else {  // Tagged statement
 	    type |= TAGGED;
 	    tag = readAtom();	// read the TAG, index positioned beyond tag
+	    if (tag == null)
+		tag = "";	// avoid possible NPE
 	}
 
 	int mark = index; // mark
