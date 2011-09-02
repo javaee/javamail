@@ -245,13 +245,15 @@ public class POP3Message extends MimeMessage {
 			((POP3Store)(folder.getStore())).keepMessageContent)
 		    contentStream = cstream;
 		contentData = new SoftReference(cstream);
-	    } else {
-		/*
-		 * We have a cached stream, but we need to return
-		 * a fresh stream to read from the beginning.
-		 */
 		cstream = ((SharedInputStream)cstream).newStream(0, -1);
 	    }
+
+	    /*
+	     * We have a cached stream, but we need to return
+	     * a fresh stream to read from the beginning and
+	     * that can be safely closed.
+	     */
+	    cstream = ((SharedInputStream)cstream).newStream(0, -1);
 	}
 	} catch (EOFException eex) {
 	    folder.close(false);

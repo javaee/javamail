@@ -23,6 +23,7 @@ K  4002	MultipartReport.setReport and setDeliveryStatus are broken
 K  4065	Wrong representation of CR/LF are appended to the attachment
 <no id>	properly handle timeouts during SSL negotiation
 <no id>	free MIME headers in IMAPMessage.invalidateHeaders
+<no id>	fix exception in POP3Message when reading file cached content twice
 
 
 		  CHANGES IN THE 1.4.4 RELEASE

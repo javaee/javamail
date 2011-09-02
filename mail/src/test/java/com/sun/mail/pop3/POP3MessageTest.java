@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -68,8 +68,7 @@ public final class POP3MessageTest {
     private static Store store;
     private static Folder folder;
 
-    @BeforeClass
-    public static void startServer() {
+    private static void startServer(boolean cached) {
         try {
             final POP3Handler handler = new POP3Handler();
             server = new POP3Server(handler, 26421);
@@ -79,6 +78,8 @@ public final class POP3MessageTest {
             final Properties properties = new Properties();
             properties.setProperty("mail.pop3.host", "localhost");
             properties.setProperty("mail.pop3.port", "26421");
+	    if (cached)
+		properties.setProperty("mail.pop3.filecache.enable", "true");
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);
 
@@ -92,8 +93,7 @@ public final class POP3MessageTest {
         }
     }
 
-    @AfterClass
-    public static void stopServer() {
+    private static void stopServer() {
 	try {
 	    if (folder != null)
 		folder.close(false);
@@ -113,15 +113,30 @@ public final class POP3MessageTest {
      * second time, instead of a new stream positioned at the
      * beginning of the data.  This caused multipart parsing
      * to fail.
-     *
-     * XXX - really should test this with all the various caching options
      */
     @Test
     public void testReadTwice() throws Exception {
-	Message[] msgs = folder.getMessages();
-	for (int i = 0; i < msgs.length; i++) {
-	    loadMail(msgs[i]);
-	    loadMail(msgs[i]);	
+	readTwice(false);
+    }
+
+    /**
+     * Now test it using the file cache.
+     */
+    @Test
+    public void testReadTwiceCached() throws Exception {
+	readTwice(true);
+    }
+
+    private void readTwice(boolean cached) throws Exception {
+	startServer(cached);
+	try {
+	    Message[] msgs = folder.getMessages();
+	    for (int i = 0; i < msgs.length; i++) {
+		loadMail(msgs[i]);
+		loadMail(msgs[i]);	
+	    }
+	} finally {
+	    stopServer();
 	}
 	// no exception is success!
     }
