@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1227,8 +1227,17 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     static void setContentLanguage(MimePart part, String[] languages)
 			throws MessagingException {
 	StringBuffer sb = new StringBuffer(languages[0]);
-	for (int i = 1; i < languages.length; i++)
-	    sb.append(',').append(languages[i]);
+	int len = "Content-Language".length() + 2 + languages[0].length();
+	for (int i = 1; i < languages.length; i++) {
+	    sb.append(',');
+	    len++;
+	    if (len > 76) {
+		sb.append("\r\n\t");
+		len = 8;
+	    }
+	    sb.append(languages[i]);
+	    len += languages[i].length();
+	}
 	part.setHeader("Content-Language", sb.toString());
     }
 
