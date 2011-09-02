@@ -916,6 +916,7 @@ public class IMAPMessage extends MimeMessage {
     public synchronized void invalidateHeaders() {
 	headersLoaded = false;
 	loadedHeaders.clear();
+	headers = null;
 	envelope = null;
 	bs = null;
 	receivedDate = null;
