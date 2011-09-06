@@ -1099,7 +1099,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
                             "an Authenticated connection");
 
 		    // If the expunge flag is set, close the folder first.
-		    if (expunge)
+		    if (expunge && protocol != null)
 			protocol.close();
 
 		    if (protocol != null)
@@ -1110,12 +1110,15 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    // before closing, or unselect it if supported.
                     if (!expunge && mode == READ_WRITE) {
                         try {
-			    if (protocol.hasCapability("UNSELECT"))
+			    if (protocol != null &&
+				    protocol.hasCapability("UNSELECT"))
 				protocol.unselect();
 			    else {
-				MailboxInfo mi = protocol.examine(fullName);
-				if (protocol != null)	// XXX - unnecessary?
-				    protocol.close();
+				if (protocol != null) {
+				    MailboxInfo mi = protocol.examine(fullName);
+				    if (protocol != null) // XXX - unnecessary?
+					protocol.close();
+				}
 			    }
                         } catch (ProtocolException pex2) {
                             if (protocol != null)
