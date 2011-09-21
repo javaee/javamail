@@ -40,9 +40,14 @@
  */
 package com.sun.mail.util.logging;
 
+import java.util.Comparator;
+import java.util.Locale;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
 import java.io.*;
 import java.util.logging.*;
-import java.util.*;
+import java.util.Properties;
+import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -63,16 +68,14 @@ public class LogManagerPropertiesTest {
             parent = new Properties();
             parent.put(key, "value");
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            parent.store(out, "No comment");
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            read(manager, parent);
 
             parent = new Properties();
             mp = new LogManagerProperties(parent, prefix);
 
-            assertNull(mp.get(key));
+            assertFalse(contains(mp, key, null));
             assertEquals("value", mp.getProperty(key));
-            assertEquals("value", mp.get(key)); //ensure copy worked.
+            assertTrue(contains(mp, key, "value")); //ensure copy worked.
         } finally {
             manager.reset();
         }
@@ -94,19 +97,19 @@ public class LogManagerPropertiesTest {
             String key = prefix.concat(".dummy");
             Properties parent = new Properties();
             parent.put(key, "value");
+            parent.put("", "empty");
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            parent.store(out, "No comment");
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            read(manager, parent);
 
             parent = new Properties();
             LogManagerProperties mp = new LogManagerProperties(parent, prefix);
 
-            assertNull(mp.get(key));
+            assertFalse(contains(mp, key, null));
             assertEquals("value", mp.getProperty(key));
-            assertEquals("value", mp.get(key)); //ensure copy worked.
+            assertTrue(contains(mp, key, "value")); //ensure copy worked.
             parent.put(key, "newValue");
             assertEquals("newValue", mp.getProperty(key));
+            assertEquals("empty", mp.getProperty(""));
         } finally {
             manager.reset();
         }
@@ -120,22 +123,375 @@ public class LogManagerPropertiesTest {
             String key = prefix.concat(".dummy");
             Properties parent = new Properties();
             parent.put(key, "value");
+            parent.put("", "empty");
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            parent.store(out, "No comment");
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            read(manager, parent);
 
             parent = new Properties();
             LogManagerProperties mp = new LogManagerProperties(parent, prefix);
 
-            assertNull(mp.get(key));
+            assertFalse(contains(mp, key, null));
             assertEquals("value", mp.getProperty(key, null));
-            assertEquals("value", mp.get(key)); //ensure copy worked.
+            assertTrue(contains(mp, key, "value")); //ensure copy worked.
             parent.put(key, "newValue");
             assertEquals("newValue", mp.getProperty(key, null));
             assertEquals("default", mp.getProperty("unknown", "default"));
+            assertEquals("empty", mp.getProperty("", null));
         } finally {
             manager.reset();
+        }
+    }
+
+    @Test
+    public void testGet() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            Properties parent = new Properties();
+            parent.put(key, "value");
+            parent.put("", "empty");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+
+            assertFalse(contains(mp, key, null));
+            assertEquals("value", mp.get(key));
+            assertTrue(contains(mp, key, "value")); //ensure copy worked.
+            parent.put(key, "newValue");
+            assertEquals("newValue", mp.get(key));
+            assertEquals("empty", mp.get(""));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testContainsKey() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            Properties parent = new Properties();
+            parent.put(key, "value");
+            parent.put("", "empty");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+
+            assertFalse(contains(mp, key, null));
+            assertTrue(mp.containsKey(key));
+            assertTrue(contains(mp, key, "value")); //ensure copy worked.
+            parent.put(key, "newValue");
+            assertEquals("newValue", mp.get(key));
+            assertTrue(mp.containsKey(""));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testRemove() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            Properties parent = new Properties();
+            parent.put(key, "value");
+            parent.put("", "empty");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+
+            assertFalse(contains(mp, key, null));
+            assertEquals("value", mp.remove(key));
+            assertFalse(contains(mp, key, "value")); //ensure copy worked.
+            parent.put(key, "newValue");
+            assertEquals("newValue", mp.remove(key));
+            assertEquals("empty", mp.remove(""));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testPut() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            Properties parent = new Properties();
+            parent.put(key, "value");
+            parent.put("", "empty");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+
+            assertFalse(contains(mp, key, null));
+            assertEquals("value", mp.put(key, "newValue"));
+            assertFalse(contains(mp, key, "value")); //ensure copy worked.
+            assertTrue(contains(mp, key, "newValue")); //ensure copy worked.
+            parent.put(key, "defValue");
+            assertEquals("newValue", mp.remove(key));
+            assertEquals("defValue", mp.remove(key));
+            assertEquals("empty", mp.put("", ""));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testSetProperty() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            Properties parent = new Properties();
+            parent.put(key, "value");
+            parent.put("", "empty");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+
+            assertFalse(contains(mp, key, null));
+            assertEquals("value", mp.setProperty(key, "newValue"));
+            assertFalse(contains(mp, key, "value")); //ensure copy worked.
+            assertTrue(contains(mp, key, "newValue")); //ensure copy worked.
+            parent.put(key, "defValue");
+            assertEquals("newValue", mp.remove(key));
+            assertEquals("defValue", mp.remove(key));
+            assertEquals("empty", mp.setProperty("", ""));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testPropUtil() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String keyShort = "mail.smtp.reportsuccess";
+            String key = prefix + '.' + keyShort;
+            Properties parent = new Properties();
+            parent.put(key, "true");
+
+            read(manager, parent);
+
+            parent = new Properties();
+            LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+            assertFalse(contains(mp, keyShort, null));
+
+            final Session session = Session.getInstance(mp);
+            final Object t = session.getTransport("smtp");
+            final String clazzName = "com.sun.mail.smtp.SMTPTransport";
+            assertEquals(clazzName, t.getClass().getName());
+            assertTrue(contains(mp, keyShort, "true"));
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testGetLogManager() throws Exception {
+        LogManager manager = LogManagerProperties.getLogManager();
+        assertNotNull(manager);
+    }
+
+    @Test
+    public void testToLanguageTag() throws Exception {
+        assertEquals("en-US", LogManagerProperties.toLanguageTag(Locale.US));
+        assertEquals("en", LogManagerProperties.toLanguageTag(Locale.ENGLISH));
+        assertEquals("", LogManagerProperties.toLanguageTag(new Locale("", "", "")));
+        Locale l = new Locale("en", "US", "slang");
+        assertEquals("en-US-slang", LogManagerProperties.toLanguageTag(l));
+        l = new Locale("en", "", "slang");
+        assertEquals("en--slang", LogManagerProperties.toLanguageTag(l));
+
+        try {
+            LogManagerProperties.toLanguageTag(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+    }
+
+    @Test
+    public void testNewAuthenticator() throws Exception {
+        try {
+            LogManagerProperties.newAuthenticator(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newAuthenticator("");
+            fail("Empty class was allowed.");
+        } catch (ClassNotFoundException expect) {
+        }
+
+        try {
+            LogManagerProperties.newAuthenticator(Object.class.getName());
+            fail("Wrong type was allowed.");
+        } catch (ClassCastException expect) {
+        }
+
+        final Class type = ErrorAuthenticator.class;
+        final javax.mail.Authenticator a =
+                LogManagerProperties.newAuthenticator(type.getName());
+        assertEquals(type, a.getClass());
+    }
+
+    @Test
+    public void testNewComparator() throws Exception {
+        try {
+            LogManagerProperties.newComparator(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newComparator("");
+            fail("Empty class was allowed.");
+        } catch (ClassNotFoundException expect) {
+        }
+
+        try {
+            LogManagerProperties.newComparator(Object.class.getName());
+            fail("Wrong type was allowed.");
+        } catch (ClassCastException expect) {
+        }
+
+        final Class type = ErrorComparator.class;
+        final Comparator c = LogManagerProperties.newComparator(type.getName());
+        assertEquals(type, c.getClass());
+    }
+
+    @Test
+    public void testNewErrorManager() throws Exception {
+        try {
+            LogManagerProperties.newErrorManager(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newErrorManager("");
+            fail("Empty class was allowed.");
+        } catch (ClassNotFoundException expect) {
+        }
+
+        try {
+            LogManagerProperties.newErrorManager(Object.class.getName());
+            fail("Wrong type was allowed.");
+        } catch (ClassCastException expect) {
+        }
+
+        final Class type = ErrorManager.class;
+        ErrorManager f = LogManagerProperties.newErrorManager(type.getName());
+        assertEquals(type, f.getClass());
+    }
+
+    @Test
+    public void testNewFilter() throws Exception {
+        try {
+            LogManagerProperties.newFilter(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newFilter("");
+            fail("Empty class was allowed.");
+        } catch (ClassNotFoundException expect) {
+        }
+
+        try {
+            LogManagerProperties.newFilter(Object.class.getName());
+            fail("Wrong type was allowed.");
+        } catch (ClassCastException expect) {
+        }
+
+        final Class type = ErrorFilter.class;
+        final Filter f = LogManagerProperties.newFilter(type.getName());
+        assertEquals(type, f.getClass());
+    }
+
+    @Test
+    public void testNewFormatter() throws Exception {
+        try {
+            LogManagerProperties.newFormatter(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newFormatter("");
+            fail("Empty class was allowed.");
+        } catch (ClassNotFoundException expect) {
+        }
+
+        try {
+            LogManagerProperties.newFormatter(Object.class.getName());
+            fail("Wrong type was allowed.");
+        } catch (ClassCastException expect) {
+        }
+
+        final Class type = SimpleFormatter.class;
+        final Formatter f = LogManagerProperties.newFormatter(type.getName());
+        assertEquals(type, f.getClass());
+    }
+
+    private void read(LogManager manager, Properties props) throws IOException {
+        final ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+        props.store(out, "No comment");
+        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+    }
+
+    private boolean contains(Properties props, String key, String value) {
+        if (key == null) {
+            throw new NullPointerException();
+        }
+
+        //walk the entry set so we don't preload a key from the manager.
+        for (Map.Entry<?, ?> e : props.entrySet()) {
+            if (key.equals(e.getKey())) {
+                return value.equals(e.getValue());
+            }
+        }
+        return false;
+    }
+
+    public static final class ErrorAuthenticator extends javax.mail.Authenticator {
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            throw new Error("");
+        }
+    }
+
+    public static class ErrorComparator implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord r1, LogRecord r2) {
+            throw new Error("");
+        }
+    }
+
+    public static class ErrorFilter implements Filter {
+
+        public boolean isLoggable(LogRecord record) {
+            throw new Error("");
         }
     }
 }

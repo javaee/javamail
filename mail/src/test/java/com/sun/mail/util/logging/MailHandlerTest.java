@@ -40,10 +40,12 @@
  */
 package com.sun.mail.util.logging;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.lang.reflect.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.io.*;
 import java.util.Arrays;
@@ -75,9 +77,18 @@ public class MailHandlerTest {
      */
     private static final String LOG_CFG_KEY = "java.util.logging.config.file";
     /**
+     * Holder used to inject Throwables into other APIs.
+     */
+    private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+    /**
      * Stores the value of a port that is not used on the local machine.
      */
     private static volatile int OPEN_PORT = Integer.MIN_VALUE;
+    /**
+     * Stores a writable directory that is in the class path and visible
+     * to the context class loader.
+     */
+    private static volatile File anyClassPathDir = null;
     /**
      * Used to prevent G.C. of loggers.
      */
@@ -87,6 +98,7 @@ public class MailHandlerTest {
     public static void setUpClass() throws Exception {
         checkJVMOptions();
         OPEN_PORT = findOpenPort();
+        assertTrue(findClassPathDir().isDirectory());
     }
 
     @AfterClass
@@ -94,6 +106,7 @@ public class MailHandlerTest {
         checkJVMOptions();
         assertTrue(checkUnusedPort(OPEN_PORT));
         OPEN_PORT = Integer.MIN_VALUE;
+        anyClassPathDir = null;
     }
 
     @Before
@@ -106,7 +119,7 @@ public class MailHandlerTest {
         hardRef = null;
     }
 
-    private static void checkJVMOptions() {
+    private static void checkJVMOptions() throws Exception {
         assertTrue(MailHandlerTest.class.desiredAssertionStatus());
         assertNull(System.getProperty("java.util.logging.manager"));
         assertNull(System.getProperty("java.util.logging.config.class"));
@@ -121,6 +134,35 @@ public class MailHandlerTest {
             }
         } catch (UnknownHostException UHE) {
             throw new AssertionError(UHE);
+        }
+    }
+
+    private static void dump(Throwable t) {
+        t.printStackTrace();
+    }
+
+    private static Throwable getPending() {
+        return PENDING.get();
+    }
+
+    private static void setPending(final Throwable t) {
+        if (t != null) {
+            PENDING.set(t);
+        } else {
+            PENDING.remove();
+        }
+    }
+
+    static void throwPending() {
+        final Throwable t = PENDING.get();
+        if (t instanceof Error) {
+            t.fillInStackTrace();
+            throw (Error) t;
+        } else if (t instanceof RuntimeException) {
+            t.fillInStackTrace();
+            throw (RuntimeException) t;
+        } else {
+            throw new AssertionError(t);
         }
     }
 
@@ -613,9 +655,135 @@ public class MailHandlerTest {
         instance.close();
     }
 
+    private void testAttachmentInvariants(boolean error) throws Exception {
+        MailHandler target = new MailHandler();
+        try {
+            InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+            if (error) {
+                assertFalse(em.exceptions.isEmpty());
+                boolean unexpected = false;
+                for (Exception e : em.exceptions) {
+                    if (e instanceof IndexOutOfBoundsException == false) {
+                        dump(e);
+                        unexpected = true;
+                    }
+                }
+                assertFalse(unexpected);
+            } else {
+                for (Exception e : em.exceptions) {
+                    dump(e);
+                }
+                assertTrue(em.exceptions.isEmpty());
+            }
+            int len = target.getAttachmentFormatters().length;
+            assertTrue(String.valueOf(len), len > 0);
+            assertEquals(len, target.getAttachmentFilters().length);
+            assertEquals(len, target.getAttachmentNames().length);
+        } finally {
+            target.close();
+        }
+    }
+
+    @Test
+    public void testFixUpEmptyFilter() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.names"), "att.txt");
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(false);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testFixUpEmptyNames() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.filters"), ErrorFilter.class.getName());
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(false);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testFixUpEmptyFilterAndNames() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(false);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testFixUpErrorFilter() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"),
+                SimpleFormatter.class.getName() + ", " + SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.filters"), ErrorFilter.class.getName());
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(true);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testFixUpErrorNames() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.names"), "att.txt, extra.txt");
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(true);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testFixUpErrorFilterAndNames() throws Exception {
+        String p = MailHandler.class.getName();
+        Properties props = createInitProperties(p);
+        props.put(p.concat(".attachment.formatters"),
+                SimpleFormatter.class.getName() + ", " + SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.filters"),
+                ErrorFilter.class.getName() + "," + ErrorFilter.class.getName()
+                + "," + ErrorFilter.class.getName());
+        props.put(p.concat(".attachment.names"), "att.txt, next.txt, extra.txt");
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            testAttachmentInvariants(true);
+        } finally {
+            manager.reset();
+        }
+    }
+
     @Test
     public void testEncoding() throws Exception {
-        final String enc = "iso-8859-1";
+        final String enc = "iso8859_1";
+        //names are different but equal encodings.
+        assertFalse(enc, enc.equals(MimeUtility.mimeCharset(enc)));
+
         LogManager manager = LogManager.getLogManager();
         final MailHandler instance = new MailHandler();
         MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
@@ -626,13 +794,13 @@ public class MailHandlerTest {
                     BodyPart body = multi.getBodyPart(0);
                     assertEquals(Part.INLINE, body.getDisposition());
                     ContentType ct = new ContentType(body.getContentType());
-                    assertEquals(enc, ct.getParameter("charset"));
+                    assertEquals(MimeUtility.mimeCharset(enc), ct.getParameter("charset"));
 
                     BodyPart attach = multi.getBodyPart(1);
                     ct = new ContentType(attach.getContentType());
-                    assertEquals(enc, ct.getParameter("charset"));
+                    assertEquals(MimeUtility.mimeCharset(enc), ct.getParameter("charset"));
                 } catch (Throwable E) {
-                    E.printStackTrace();
+                    dump(E);
                     fail(E.toString());
                 }
             }
@@ -1107,102 +1275,106 @@ public class MailHandlerTest {
     @Test
     public void testLogManagerReset() throws IOException {
         LogManager manager = LogManager.getLogManager();
-        assertEquals(LogManager.class, manager.getClass());
-        MailHandler instance = startLogManagerReset("remote");
-        InternalErrorManager em =
-                (InternalErrorManager) instance.getErrorManager();
+        try {
+            assertEquals(LogManager.class, manager.getClass());
+            MailHandler instance = startLogManagerReset("remote");
+            InternalErrorManager em =
+                    (InternalErrorManager) instance.getErrorManager();
 
-        manager.reset();
+            manager.reset();
 
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
-            if (t instanceof MessagingException) {
-                if (!isConnectOrTimeout(t)) {
-                    t.printStackTrace();
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                Throwable t = em.exceptions.get(i);
+                if (t instanceof MessagingException) {
+                    if (!isConnectOrTimeout(t)) {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                } else {
+                    dump(t);
                     fail(t.toString());
                 }
-            } else {
-                t.printStackTrace();
-                fail(t.toString());
             }
-        }
 
-        instance = startLogManagerReset("local");
-        em = (InternalErrorManager) instance.getErrorManager();
-
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
-            if (t instanceof MessagingException) {
-                if (!isConnectOrTimeout(t)) {
-                    t.printStackTrace();
-                    fail(t.toString());
-                }
-            } else {
-                t.printStackTrace();
-                fail(t.toString());
-            }
-        }
-
-        manager.reset();
-
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
-            if (t instanceof MessagingException) {
-                if (!isConnectOrTimeout(t)) {
-                    t.printStackTrace();
-                    fail(t.toString());
-                }
-            } else {
-                t.printStackTrace();
-                fail(t.toString());
-            }
-        }
-
-        String[] noVerify = new String[]{null, "", "null"};
-        for (int v = 0; v < noVerify.length; v++) {
-            instance = startLogManagerReset(noVerify[v]);
+            instance = startLogManagerReset("local");
             em = (InternalErrorManager) instance.getErrorManager();
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Throwable t = em.exceptions.get(i);
-                System.err.println("Verify index=" + v);
-                t.printStackTrace();
-                fail(t.toString());
+                if (t instanceof MessagingException) {
+                    if (!isConnectOrTimeout(t)) {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                } else {
+                    dump(t);
+                    fail(t.toString());
+                }
             }
 
             manager.reset();
 
-            //No verify results in failed send.
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Throwable t = em.exceptions.get(i);
-                if (t instanceof SendFailedException == false) {
-                    System.err.println("Verify index=" + v);
-                    t.printStackTrace();
+                if (t instanceof MessagingException) {
+                    if (!isConnectOrTimeout(t)) {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                } else {
+                    dump(t);
                     fail(t.toString());
                 }
             }
-        }
 
-        instance = startLogManagerReset("bad-enum-name");
-        em = (InternalErrorManager) instance.getErrorManager();
+            String[] noVerify = new String[]{null, "", "null"};
+            for (int v = 0; v < noVerify.length; v++) {
+                instance = startLogManagerReset(noVerify[v]);
+                em = (InternalErrorManager) instance.getErrorManager();
 
-        manager.reset();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    Throwable t = em.exceptions.get(i);
+                    System.err.println("Verify index=" + v);
+                    dump(t);
+                    fail(t.toString());
+                }
 
-        //Allow the LogManagerProperties to copy on a bad enum type.
-        boolean foundIllegalArg = false;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
-            if (t instanceof IllegalArgumentException) {
-                foundIllegalArg = true;
-            } else if (t instanceof RuntimeException) {
-                t.printStackTrace();
-                fail(t.toString());
+                manager.reset();
+
+                //No verify results in failed send.
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    Throwable t = em.exceptions.get(i);
+                    if (t instanceof SendFailedException == false) {
+                        System.err.println("Verify index=" + v);
+                        dump(t);
+                        fail(t.toString());
+                    }
+                }
             }
-        }
 
-        assertTrue(foundIllegalArg);
-        assertFalse(em.exceptions.isEmpty());
-        hardRef = null;
+            instance = startLogManagerReset("bad-enum-name");
+            em = (InternalErrorManager) instance.getErrorManager();
+
+            manager.reset();
+
+            //Allow the LogManagerProperties to copy on a bad enum type.
+            boolean foundIllegalArg = false;
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                Throwable t = em.exceptions.get(i);
+                if (t instanceof IllegalArgumentException) {
+                    foundIllegalArg = true;
+                } else if (t instanceof RuntimeException) {
+                    dump(t);
+                    fail(t.toString());
+                }
+            }
+
+            assertTrue(foundIllegalArg);
+            assertFalse(em.exceptions.isEmpty());
+        } finally {
+            hardRef = null;
+            manager.reset();
+        }
     }
 
     /**
@@ -1230,10 +1402,8 @@ public class MailHandlerTest {
         }
         props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
         props.put(p.concat(".mail.smtp.timeout"), "1");
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        props.store(out, "No comment");
 
-        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+        read(manager, props);
 
         assertNotNull(manager.getProperty(p.concat(".mail.host")));
         assertNotNull(manager.getProperty(p.concat(".mail.smtp.host")));
@@ -1415,7 +1585,7 @@ public class MailHandlerTest {
                     assertEquals(Part.INLINE, body.getDisposition());
                     value[0] = body.getContentType();
                 } catch (Throwable E) {
-                    E.printStackTrace();
+                    dump(E);
                     fail(E.toString());
                 }
             }
@@ -1431,6 +1601,551 @@ public class MailHandlerTest {
         instance.close();
 
         return value[0];
+    }
+
+    @Test
+    public void testAcceptLang() throws Exception {
+        class LangManager extends MessageErrorManager {
+
+            LangManager(final Properties props) {
+                super(props);
+            }
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    final Locale locale = Locale.getDefault();
+                    String lang = LogManagerProperties.toLanguageTag(locale);
+                    if (lang.length() != 0) {
+                        assertEquals(lang, msg.getHeader("Accept-Language", null));
+                    } else {
+                        assertEquals("", locale.getLanguage());
+                    }
+
+                    MimeMultipart mp = (MimeMultipart) msg.getContent();
+                    assertTrue(mp.getCount() > 0);
+                    for (int i = 0; i < mp.getCount(); i++) {
+                        MimePart part = (MimePart) mp.getBodyPart(i);
+                        if (lang.length() != 0) {
+                            assertEquals(lang, part.getHeader("Accept-Language", null));
+                        } else {
+                            assertEquals("", locale.getLanguage());
+                        }
+                    }
+                } catch (RuntimeException re) {
+                    dump(re);
+                    throw new AssertionError(re);
+                } catch (Exception ex) {
+                    dump(ex);
+                    throw new AssertionError(ex);
+                }
+            }
+        }
+
+        Formatter[] formatters = new Formatter[]{new SimpleFormatter(), new SimpleFormatter()};
+        InternalErrorManager em = null;
+        MailHandler target = null;
+        Locale locale = Locale.getDefault();
+        try {
+            target = new MailHandler(createInitProperties(""));
+            try {
+                em = new LangManager(target.getMailProperties());
+                target.setErrorManager(em);
+                target.setAttachmentFormatters(formatters);
+
+                Locale.setDefault(new Locale("", "", ""));
+                target.publish(new LogRecord(Level.SEVERE, ""));
+                target.flush();
+
+                Locale.setDefault(Locale.ENGLISH);
+                target.publish(new LogRecord(Level.SEVERE, ""));
+                target.flush();
+
+                Locale.setDefault(Locale.GERMAN);
+                target.publish(new LogRecord(Level.SEVERE, ""));
+                target.flush();
+
+                Locale.setDefault(Locale.FRANCE);
+                target.publish(new LogRecord(Level.SEVERE, ""));
+                target.flush();
+            } finally {
+                target.close();
+            }
+        } finally {
+            Locale.setDefault(locale);
+        }
+    }
+
+    @Test
+    public void testContentLangBase() throws Exception {
+
+        class Base extends MessageErrorManager {
+
+            private final String bundleName;
+
+            Base(Properties props, final String bundleName) {
+                super(props);
+                this.bundleName = bundleName;
+            }
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    assertNotNull(bundleName);
+                    MimeMultipart mp = (MimeMultipart) msg.getContent();
+                    Locale l = Locale.getDefault();
+                    assertEquals(LogManagerProperties.toLanguageTag(l), msg.getHeader("Accept-Language", null));
+                    String lang[] = msg.getContentLanguage();
+                    assertNotNull(lang);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), lang[0]);
+                    assertEquals(1, mp.getCount());
+                    MimePart part = null;
+
+                    part = (MimePart) mp.getBodyPart(0);
+                    lang = part.getContentLanguage();
+                    assertNotNull(lang);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), lang[0]);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                } catch (RuntimeException re) {
+                    dump(re);
+                    throw new AssertionError(re);
+                } catch (Exception ex) {
+                    dump(ex);
+                    throw new AssertionError(ex);
+                }
+            }
+        }
+
+        MailHandler target = new MailHandler(createInitProperties(""));
+
+        Properties props = new Properties();
+        props.put("motd", "Hello MailHandler!");
+        final String p = MailHandler.class.getName();
+        final Locale l = Locale.getDefault();
+        final String name = MailHandler.class.getSimpleName().concat("base");
+        final File f = File.createTempFile(name, ".properties", findClassPathDir());
+        Locale.setDefault(Locale.US);
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            try {
+                props.store(fos, "No Comment");
+            } finally {
+                fos.close();
+            }
+
+            String bundleName = f.getName().substring(0, f.getName().lastIndexOf("."));
+            target.setErrorManager(new Base(target.getMailProperties(), bundleName));
+            final Logger log = Logger.getLogger(p + '.' + f.getName(), bundleName);
+            hardRef = log;
+            try {
+                assertNotNull(log.getResourceBundle());
+                assertNotNull(log.getResourceBundleName());
+
+                log.addHandler(target);
+                try {
+                    log.setUseParentHandlers(false);
+                    log.log(Level.SEVERE, "motd");
+                } finally {
+                    log.removeHandler(target);
+                }
+            } finally {
+                hardRef = null;
+            }
+
+            target.close();
+
+            InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                Exception t = em.exceptions.get(i);
+                if (t instanceof MessagingException
+                        && t.getCause() instanceof UnknownHostException) {
+                    continue;
+                }
+                dump(t);
+                fail(t.toString());
+            }
+            assertFalse(em.exceptions.isEmpty());
+        } finally {
+            Locale.setDefault(l);
+            if (!f.delete() && f.exists()) {
+                f.deleteOnExit();
+            }
+        }
+    }
+
+    @Test
+    public void testContentLangInfer() throws Exception {
+
+        class Infer extends MessageErrorManager {
+
+            private final Locale expect;
+
+            Infer(Properties props, final Locale expect) {
+                super(props);
+                this.expect = expect;
+            }
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    MimeMultipart mp = (MimeMultipart) msg.getContent();
+                    Locale l = Locale.getDefault();
+                    assertFalse(l.getCountry().equals(expect.getCountry()));
+
+                    assertEquals(LogManagerProperties.toLanguageTag(l), msg.getHeader("Accept-Language", null));
+                    String lang[] = msg.getContentLanguage();
+                    assertEquals(1, lang.length);
+                    assertEquals(LogManagerProperties.toLanguageTag(expect), lang[0]);
+                    assertEquals(1, mp.getCount());
+                    MimePart part = null;
+
+                    part = (MimePart) mp.getBodyPart(0);
+                    lang = part.getContentLanguage();
+                    assertEquals(1, lang.length);
+                    assertEquals(LogManagerProperties.toLanguageTag(expect), lang[0]);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                } catch (RuntimeException re) {
+                    dump(re);
+                    throw new AssertionError(re);
+                } catch (Exception ex) {
+                    dump(ex);
+                    throw new AssertionError(ex);
+                }
+            }
+        }
+
+        MailHandler target;
+        Locale cl;
+        String logPrefix;
+        Properties props = new Properties();
+        props.put("motd", "Hello MailHandler!");
+        final String p = MailHandler.class.getName();
+        final Locale l = Locale.getDefault();
+        final String name = MailHandler.class.getSimpleName().concat("infer");
+        final File f = File.createTempFile(name, "_"
+                + Locale.ENGLISH.getLanguage() + ".properties", findClassPathDir());
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            try {
+                props.store(fos, "No Comment");
+            } finally {
+                fos.close();
+            }
+
+            String bundleName = f.getName().substring(0, f.getName().lastIndexOf("_"));
+            assertTrue(bundleName.indexOf(Locale.ENGLISH.getLanguage()) < 0);
+
+            cl = Locale.US;
+            target = new MailHandler(createInitProperties(""));
+            target.setErrorManager(new Infer(target.getMailProperties(), Locale.ENGLISH));
+            logPrefix = p + '.' + f.getName() + cl;
+            testContentLangInfer(target, logPrefix, bundleName, cl);
+
+            cl = Locale.UK;
+            target = new MailHandler(createInitProperties(""));
+            target.setErrorManager(new Infer(target.getMailProperties(), Locale.ENGLISH));
+            logPrefix = p + '.' + f.getName() + cl;
+            testContentLangInfer(target, logPrefix, bundleName, cl);
+        } finally {
+            Locale.setDefault(l);
+            if (!f.delete() && f.exists()) {
+                f.deleteOnExit();
+            }
+        }
+    }
+
+    private void testContentLangInfer(MailHandler target, String logPrefix, String bundleName, Locale cl) {
+        Locale.setDefault(cl);
+        Logger log = Logger.getLogger(logPrefix + cl, bundleName);
+        hardRef = log;
+        try {
+            assertNotNull(log.getResourceBundle());
+            assertNotNull(log.getResourceBundleName());
+
+            log.addHandler(target);
+            try {
+                log.setUseParentHandlers(false);
+                log.log(Level.SEVERE, "motd");
+            } finally {
+                log.removeHandler(target);
+            }
+        } finally {
+            hardRef = null;
+        }
+
+        target.close();
+
+        InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            Exception t = em.exceptions.get(i);
+            if (t instanceof MessagingException
+                    && t.getCause() instanceof UnknownHostException) {
+                continue;
+            }
+            dump(t);
+            fail(t.toString());
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testContentLangExact() throws Exception {
+        MailHandler target = new MailHandler(createInitProperties(""));
+        target.setErrorManager(new MessageErrorManager(target.getMailProperties()) {
+
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    MimeMultipart mp = (MimeMultipart) msg.getContent();
+                    Locale l = Locale.getDefault();
+                    assertEquals(LogManagerProperties.toLanguageTag(l), msg.getHeader("Accept-Language", null));
+                    String lang[] = msg.getContentLanguage();
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.ENGLISH), lang[0]);
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.GERMAN), lang[1]);
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.FRANCE), lang[2]);
+                    assertEquals(4, mp.getCount());
+                    MimePart part = null;
+
+                    part = (MimePart) mp.getBodyPart(0);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                    assertNull(part.getHeader("Content-Language", ","));
+
+                    part = (MimePart) mp.getBodyPart(1);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.ENGLISH), part.getHeader("Content-Language", ","));
+
+                    part = (MimePart) mp.getBodyPart(2);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.GERMAN), part.getHeader("Content-Language", ","));
+
+                    part = (MimePart) mp.getBodyPart(3);
+                    assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
+                    assertEquals(LogManagerProperties.toLanguageTag(Locale.FRANCE), part.getHeader("Content-Language", ","));
+                } catch (RuntimeException re) {
+                    dump(re);
+                    throw new AssertionError(re);
+                } catch (Exception ex) {
+                    dump(ex);
+                    throw new AssertionError(ex);
+                }
+            }
+        });
+
+        target.setLevel(Level.ALL);
+        target.setFilter(new LocaleFilter(Locale.JAPANESE, true));
+        target.setPushLevel(Level.OFF);
+        target.setAttachmentFormatters(new Formatter[]{
+                    new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter()});
+        target.setAttachmentFilters(new Filter[]{
+                    new LocaleFilter(Locale.ENGLISH, false),
+                    new LocaleFilter(Locale.GERMAN, false),
+                    new LocaleFilter(Locale.FRANCE, false)}); //just the language.
+
+        assertEquals(3, target.getAttachmentFormatters().length);
+        assertEquals(3, target.getAttachmentFilters().length);
+
+        final List<File> files = new ArrayList<File>();
+        final Properties props = new Properties();
+        final Locale current = Locale.getDefault();
+        try {
+            File f;
+            Locale.setDefault(new Locale("", "", ""));
+            f = testContentLangExact(target, props, "_");
+            files.add(f);
+
+            props.put("motd", "Hello MailHandler!");
+            Locale.setDefault(Locale.ENGLISH);
+            f = testContentLangExact(target, props, "_");
+            files.add(f);
+
+
+            props.put("motd", "Hallo MailHandler!");
+            Locale.setDefault(Locale.GERMAN);
+            f = testContentLangExact(target, props, "_");
+            files.add(f);
+
+            props.put("motd", "Bonjour MailHandler!");
+            Locale.setDefault(Locale.FRANCE); //just the language.
+            f = testContentLangExact(target, props, "_");
+            files.add(f);
+
+            Locale.setDefault(new Locale("", "", ""));
+            f = testContentLangExact(target, props, "_");
+            files.add(f);
+
+            Locale.setDefault(new Locale("", "", ""));
+            f = testContentLangExact(target, props, ".");
+            files.add(f);
+
+            props.put("motd", "Hello MailHandler!");
+            Locale.setDefault(Locale.ENGLISH);
+            f = testContentLangExact(target, props, ".");
+            files.add(f);
+
+            props.put("motd", "Hallo MailHandler!");
+            Locale.setDefault(Locale.GERMAN);
+            f = testContentLangExact(target, props, ".");
+            files.add(f);
+
+            props.put("motd", "Bonjour MailHandler!");
+            Locale.setDefault(Locale.FRANCE); //just the language.
+            f = testContentLangExact(target, props, ".");
+            files.add(f);
+
+            Locale.setDefault(new Locale("", "", ""));
+            f = testContentLangExact(target, props, ".");
+            files.add(f);
+        } finally {
+            Locale.setDefault(current);
+            for (File f : files) {
+                if (!f.delete() && f.exists()) {
+                    f.deleteOnExit();
+                }
+            }
+        }
+
+        target.close();
+
+        InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            Exception t = em.exceptions.get(i);
+            if (t instanceof MessagingException
+                    && t.getCause() instanceof UnknownHostException) {
+                continue;
+            }
+            dump(t);
+            fail(t.toString());
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    private File testContentLangExact(MailHandler target, Properties props, String exact) throws Exception {
+        final String p = MailHandler.class.getName();
+        final Locale l = Locale.getDefault();
+        boolean fail = true;
+        final String name = MailHandler.class.getSimpleName().concat("motd");
+        assertTrue(name, name.indexOf(exact) < 1);
+
+        String prefix;
+        if (l.getLanguage().length() != 0) {
+            prefix = "_" + l;
+        } else {
+            prefix = "";
+        }
+        final File f = File.createTempFile(name, prefix + ".properties", findClassPathDir());
+        try {
+            FileOutputStream fos = new FileOutputStream(f);
+            try {
+                props.store(fos, "No Comment");
+            } finally {
+                fos.close();
+            }
+
+            Logger log;
+            if (l.getLanguage().length() == 0) {
+                log = Logger.getLogger(p + '.' + f.getName());
+                assertNull(log.getResourceBundle());
+            } else {
+                final String loggerName = p + '.' + f.getName() + '.' + l;
+                if (".".equals(exact)) {
+                    log = Logger.getLogger(loggerName,
+                            f.getName().substring(0, f.getName().lastIndexOf(exact)));
+                } else if ("_".equals(exact)) {
+                    log = Logger.getLogger(loggerName,
+                            f.getName().substring(0, f.getName().indexOf(exact)));
+                } else {
+                    throw new IllegalArgumentException(exact);
+                }
+                assertNotNull(log.getResourceBundle());
+                assertNotNull(log.getResourceBundleName());
+            }
+
+            hardRef = log;
+            try {
+                log.setUseParentHandlers(false);
+                try {
+                    log.addHandler(target);
+                    log.log(Level.INFO, "motd");
+                    fail = false;
+                } finally {
+                    log.removeHandler(target);
+                }
+            } finally {
+                hardRef = null;
+            }
+        } finally {
+            if (fail) {
+                if (!f.delete() && f.exists()) {
+                    f.deleteOnExit();
+                }
+            }
+        }
+        return f;
+    }
+
+    /**
+     * Find a writable directory that is in the class path.
+     * @return a File directory.
+     * @throws IOException if there is a problem.
+     * @throws FileNotFoundException if there are no directories in class path.
+     */
+    private static File findClassPathDir() throws IOException {
+        File f = anyClassPathDir;
+        if (f != null) {
+            return f;
+        }
+
+        ClassLoader ccl = Thread.currentThread().getContextClassLoader();
+        if (ccl == null) {
+            ccl = ClassLoader.getSystemClassLoader();
+        }
+
+        if (ccl == null) {
+            throw new IllegalStateException("Missing classloader.");
+        }
+
+        String path = System.getProperty("java.class.path");
+        String[] dirs = path.split(System.getProperty("path.separator"));
+        IOException fail = null;
+        for (String dir : dirs) {
+            f = new File(dir.trim());
+            if (f.isFile()) {
+                f = f.getParentFile();
+                if (f == null) {
+                    continue;
+                }
+            }
+
+            try {
+                if (f.isDirectory()) {
+                    final String name = MailHandlerTest.class.getName();
+                    final File tmp = File.createTempFile(name, ".tmp", f);
+                    final URL url = ccl.getResource(tmp.getName());
+                    if (!tmp.delete() && tmp.exists()) {
+                        IOException ioe = new IOException(tmp.toString());
+                        dump(ioe);
+                        throw ioe;
+                    }
+
+                    if (url == null || !tmp.equals(new File(url.toURI()))) {
+                        throw new FileNotFoundException(tmp + "not visible from " + ccl);
+                    }
+                    anyClassPathDir = f;
+                    return f;
+                } else {
+                    fail = new FileNotFoundException(f.toString());
+                }
+            } catch (final IOException ioe) {
+                fail = ioe;
+            } catch (final URISyntaxException use) {
+                fail = (IOException) new IOException(use.toString()).initCause(use);
+            } catch (final IllegalArgumentException iae) {
+                fail = (IOException) new IOException(iae.toString()).initCause(iae);
+            }
+        }
+
+        if (fail != null) {
+            throw fail;
+        }
+
+        //modify the classpath to include a writable directory.
+        throw new FileNotFoundException(path);
     }
 
     @Test
@@ -2776,10 +3491,8 @@ public class MailHandlerTest {
             props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
             props.put(p.concat(".mail.smtp.timeout"), "1");
             props.put(p.concat(".verify"), "remote");
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            props.store(out, "No comment");
 
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+            read(manager, props);
 
             MailHandler instance = new MailHandler();
             InternalErrorManager em =
@@ -2793,7 +3506,7 @@ public class MailHandlerTest {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof MessagingException == false
                         && t.getCause() instanceof UnknownHostException == false) {
-                    t.printStackTrace();
+                    dump(t);
                     fail(t.toString());
                 }
             }
@@ -2802,6 +3515,35 @@ public class MailHandlerTest {
             instance.close();
         } finally {
             manager.reset();
+        }
+    }
+
+    @Test
+    public void testVerifyNoContent() throws Exception {
+        Properties props = new Properties();
+        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
+
+        Session session = Session.getInstance(new Properties());
+        MimeMessage msg = new MimeMessage(session);
+        Address[] from = InternetAddress.parse("me@localhost", false);
+        msg.addFrom(from);
+        msg.setRecipients(Message.RecipientType.TO, from);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            msg.writeTo(out);
+            fail("Verify type 'remote' may send a message with no content.");
+        } catch (MessagingException expect) {
+            msg.setContent("", "text/plain");
+            msg.writeTo(out);
+        } catch (IOException expect) {
+            msg.setContent("", "text/plain");
+            msg.writeTo(out);
+        } finally {
+            out.close();
         }
     }
 
@@ -2815,7 +3557,7 @@ public class MailHandlerTest {
             Properties props = new Properties();
             props.put(p.concat(".mail.host"), "bad-host-name");
             props.put(p.concat(".mail.smtp.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT)); //bad port.
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
             props.put(p.concat(".subject"), p.concat(" test"));
@@ -2824,11 +3566,8 @@ public class MailHandlerTest {
             props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
             props.put(p.concat(".mail.smtp.timeout"), "1");
             props.put(p.concat(".verify"), "local");
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            props.store(out, "No comment");
 
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
-            out = null;
+            read(manager, props);
 
             MailHandler instance = new MailHandler();
             InternalErrorManager em =
@@ -2840,7 +3579,7 @@ public class MailHandlerTest {
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof AddressException == false) {
-                    t.printStackTrace();
+                    dump(t);
                     fail(t.toString());
                 }
             }
@@ -2848,11 +3587,7 @@ public class MailHandlerTest {
             instance.close();
 
             props.put(p.concat(".verify"), "remote");
-            out = new ByteArrayOutputStream();
-            props.store(out, "No comment");
-            manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
-            out = null;
-
+            read(manager, props);
 
             instance = new MailHandler();
             em = (InternalErrorManager) instance.getErrorManager();
@@ -2867,7 +3602,7 @@ public class MailHandlerTest {
                 } else if (t.getMessage().indexOf("bad-host-name") > -1) {
                     continue;
                 } else {
-                    t.printStackTrace();
+                    dump(t);
                     fail(t.toString());
                 }
             }
@@ -2884,7 +3619,7 @@ public class MailHandlerTest {
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
         props.put("mail.to", "badAddress");
         props.put("mail.cc", "badAddress");
-        props.put("mail.subject", "test");
+        props.put("subject", "test");
         props.put("mail.from", "badAddress");
         props.put("mail.smtp.connectiontimeout", "1");
         props.put("mail.smtp.timeout", "1");
@@ -2899,7 +3634,7 @@ public class MailHandlerTest {
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof AddressException == false) {
-                    t.printStackTrace();
+                    dump(t);
                     fail(t.toString());
                 }
             }
@@ -2914,8 +3649,6 @@ public class MailHandlerTest {
             instance.setErrorManager(em);
             instance.setMailProperties(props);
 
-            assertFalse(em.exceptions.isEmpty());
-
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof AddressException) {
@@ -2923,13 +3656,658 @@ public class MailHandlerTest {
                 } else if (t.getMessage().indexOf("bad-host-name") > -1) {
                     continue;
                 } else {
-                    t.printStackTrace();
+                    dump(t);
                     fail(t.toString());
                 }
             }
         } finally {
             instance.close();
         }
+    }
+
+    @Test
+    public void testInitSubject() throws Exception {
+        InternalErrorManager em;
+        MailHandler target;
+        final String p = MailHandler.class.getName();
+        final LogManager manager = LogManager.getLogManager();
+        Properties props = new Properties();
+        props.put(p.concat(".mail.host"), "bad-host-name");
+        props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+        props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
+        props.put(p.concat(".mail.to"), "badAddress");
+        props.put(p.concat(".mail.cc"), "badAddress");
+        props.put(p.concat(".mail.from"), "badAddress");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat(".mail.smtp.timeout"), "1");
+        props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+
+        //test class cast.
+        props.put(p.concat(".subject"), Properties.class.getName());
+
+        read(manager, props);
+
+        try {
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+
+
+            //test linkage error.
+            props.put(p.concat(".subject"), ThrowFormatter.class.getName().toUpperCase(Locale.US));
+            read(manager, props);
+
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+
+
+            //test mixed linkage error.
+            props.put(p.concat(".subject"), Properties.class.getName().toUpperCase(Locale.US));
+            read(manager, props);
+
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testInitAttachmentNames() throws Exception {
+        InternalErrorManager em;
+        MailHandler target;
+        final String p = MailHandler.class.getName();
+        final LogManager manager = LogManager.getLogManager();
+        Properties props = new Properties();
+        props.put(p.concat(".mail.host"), "bad-host-name");
+        props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+        props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
+        props.put(p.concat(".mail.to"), "badAddress");
+        props.put(p.concat(".mail.cc"), "badAddress");
+        props.put(p.concat(".mail.from"), "badAddress");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat(".mail.smtp.timeout"), "1");
+        props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+
+        //test class cast.
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.names"), Properties.class.getName());
+
+        read(manager, props);
+
+        try {
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+
+
+            //test linkage error.
+            props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+            props.put(p.concat(".attachment.names"), SimpleFormatter.class.getName().toUpperCase(Locale.US));
+
+            read(manager, props);
+
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+
+
+            //test mixed linkage error.
+            props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+            props.put(p.concat(".attachment.names"), Properties.class.getName().toUpperCase(Locale.US));
+            read(manager, props);
+
+            target = new MailHandler();
+            try {
+                em = (InternalErrorManager) target.getErrorManager();
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testInitErrorManagerException() throws Exception {
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String key;
+
+        setPending(new RuntimeException());
+        try {
+            key = p.concat(".errorManager");
+            props.put(key, InitErrorManager.class.getName());
+
+            final LogManager manager = LogManager.getLogManager();
+            try {
+                read(manager, props);
+                ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
+                PrintStream newErr = new PrintStream(oldErrors);
+                final PrintStream err = System.err;
+                System.setErr(newErr);
+                try {
+                    final MailHandler target = new MailHandler();
+                    try {
+                        System.setErr(err);
+                        target.setErrorManager(new ErrorManager());
+                    } finally {
+                        target.close();
+                    }
+                } finally {
+                    System.setErr(err);
+                }
+
+
+                //java.util.logging.ErrorManager: 4
+                //java.lang.reflect.InvocationTargetException
+                // at...
+                //Caused by: java.lang.RuntimeException
+                final String data = oldErrors.toString("US-ASCII");
+                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                int ite, re;
+                ite = data.indexOf(InvocationTargetException.class.getName());
+                re = data.indexOf(RuntimeException.class.getName(), ite);
+                assertTrue(data, ite < re);
+            } finally {
+                manager.reset();
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testInitErrorManagerError() throws Exception {
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String key;
+
+        setPending(new Error());
+        try {
+            key = p.concat(".errorManager");
+            props.put(key, InitErrorManager.class.getName());
+
+            final LogManager manager = LogManager.getLogManager();
+            try {
+                read(manager, props);
+                ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
+                PrintStream newErr = new PrintStream(oldErrors);
+                final PrintStream err = System.err;
+                System.setErr(newErr);
+                try {
+                    final MailHandler target = new MailHandler();
+                    try {
+                        System.setErr(err);
+                        target.setErrorManager(new ErrorManager());
+                    } finally {
+                        target.close();
+                    }
+                } finally {
+                    System.setErr(err);
+                }
+
+
+                //java.util.logging.ErrorManager: 4
+                //java.lang.reflect.InvocationTargetException
+                // at...
+                //Caused by: java.lang.Error
+                final String data = oldErrors.toString("US-ASCII");
+                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                int ite, re;
+                ite = data.indexOf(InvocationTargetException.class.getName());
+                re = data.indexOf(Error.class.getName(), ite);
+                assertTrue(data, ite < re);
+            } finally {
+                manager.reset();
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testInitError() throws Exception {
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String filter;
+        String name;
+        String key;
+
+        setPending(new Error());
+        try {
+            key = p.concat(".authenticator");
+            props.put(key, InitAuthenticator.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".comparator");
+            props.put(key, InitComparator.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".filter");
+            props.put(key, InitFilter.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".formatter");
+            props.put(key, InitFormatter.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".subject");
+            props.put(key, InitFormatter.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, InitFormatter.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            filter = p.concat(".attachment.filters");
+            props.put(filter, InitFilter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, "test.txt");
+            testInitError(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+            assertNotNull(props.remove(filter));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, InitFormatter.class.getName());
+            testInitError(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+        } finally {
+            setPending(null);
+        }
+    }
+
+    private void testInitError(Properties props) throws Exception {
+        testInitException(props);
+    }
+
+    @Test
+    public void testInitException() throws Exception {
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String filter;
+        String name;
+        String key;
+
+        setPending(new RuntimeException());
+        try {
+            key = p.concat(".authenticator");
+            props.put(key, InitAuthenticator.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".comparator");
+            props.put(key, InitComparator.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".filter");
+            props.put(key, InitFilter.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".formatter");
+            props.put(key, InitFormatter.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".subject");
+            props.put(key, InitFormatter.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, InitFormatter.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            filter = p.concat(".attachment.filters");
+            props.put(filter, InitFilter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, "test.txt");
+            testInitException(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+            assertNotNull(props.remove(filter));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, InitFormatter.class.getName());
+            testInitException(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+        } finally {
+            setPending(null);
+        }
+    }
+
+    private void testInitException(Properties props) throws Exception {
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            final MailHandler target = new MailHandler();
+            try {
+                InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+                next:
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    Exception t = em.exceptions.get(i);
+                    for (Throwable cause = t; cause != null; cause = cause.getCause()) {
+                        if (cause == getPending()) {
+                            continue next;
+                        }
+                    }
+                    dump(t);
+                    fail(t.toString());
+                }
+                assertFalse(em.exceptions.isEmpty());
+            } finally {
+                if (target != null) {
+                    target.close();
+                }
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testStaticInitErrorManagerException() throws Exception {
+        final String test = MailHandlerTest.class.getName();
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String key;
+
+        setPending(new RuntimeException());
+        try {
+            key = p.concat(".errorManager");
+            props.put(key, test.concat("$StaticInitReErrorManager"));
+
+            final LogManager manager = LogManager.getLogManager();
+            try {
+                read(manager, props);
+                ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
+                PrintStream newErr = new PrintStream(oldErrors);
+                final PrintStream err = System.err;
+                System.setErr(newErr);
+                try {
+                    final MailHandler target = new MailHandler();
+                    try {
+                        System.setErr(err);
+                        target.setErrorManager(new ErrorManager());
+                    } finally {
+                        target.close();
+                    }
+                } finally {
+                    System.setErr(err);
+                }
+
+
+                //java.util.logging.ErrorManager: 4
+                //java.lang.reflect.InvocationTargetException
+                // at ....
+                //Caused by: java.lang.ExceptionInInitializerError
+                // at...
+                //Caused by: java.lang.RuntimeException
+                final String data = oldErrors.toString("US-ASCII");
+                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                int ite, eiie, re;
+                ite = data.indexOf(InvocationTargetException.class.getName());
+                eiie = data.indexOf(ExceptionInInitializerError.class.getName(), ite);
+                if (eiie < 0) {
+                    re = data.indexOf(RuntimeException.class.getName(), ite);
+                    assertTrue(data, ite < re);
+                } else {
+                    re = data.indexOf(RuntimeException.class.getName(), eiie);
+                    assertTrue(data, ite < eiie);
+                    assertTrue(data, eiie < re);
+                }
+            } finally {
+                manager.reset();
+            }
+            assertNotNull(props.remove(key));
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testStaticInitException() throws Exception {
+        final String test = MailHandlerTest.class.getName();
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String filter;
+        String name;
+        String key;
+
+        setPending(new RuntimeException());
+        try {
+            key = p.concat(".authenticator");
+            props.put(key, test.concat("$StaticInitReAuthenticator"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".comparator");
+            props.put(key, test.concat("$StaticInitReComparator"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".filter");
+            props.put(key, test.concat("$StaticInitReFilter"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".formatter");
+            props.put(key, test.concat("$StaticInitReFormatter"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".subject");
+            props.put(key, test.concat("$StaticInitReSubjectFormatter"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, test.concat("$StaticInitReAttachFormatter"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            filter = p.concat(".attachment.filters");
+            props.put(filter, test.concat("$StaticInitReAttachFilter"));
+            name = p.concat(".attachment.names");
+            props.put(name, "test.txt");
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+            assertNotNull(props.remove(filter));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, test.concat("$StaticInitReNameFormatter"));
+            testStaticInitException(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+        } finally {
+            setPending(null);
+        }
+    }
+
+    private void testStaticInitException(Properties props) throws Exception {
+        testInitException(props);
+    }
+
+    @Test
+    public void testStaticInitError() throws Exception {
+        final String test = MailHandlerTest.class.getName();
+        final String p = MailHandler.class.getName();
+        final Properties props = this.createInitProperties(p);
+        String filter;
+        String name;
+        String key;
+
+        setPending(new Error());
+        try {
+            key = p.concat(".authenticator");
+            props.put(key, test.concat("$StaticInitErAuthenticator"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".comparator");
+            props.put(key, test.concat("$StaticInitErComparator"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".errorManager");
+            props.put(key, test.concat("$StaticInitErErrorManager"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".filter");
+            props.put(key, test.concat("$StaticInitErFilter"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".formatter");
+            props.put(key, test.concat("$StaticInitErFormatter"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".subject");
+            props.put(key, test.concat("$StaticInitErSubjectFormatter"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, test.concat("$StaticInitErAttachFormatter"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            filter = p.concat(".attachment.filters");
+            props.put(filter, test.concat("$StaticInitErAttachFilter"));
+            name = p.concat(".attachment.names");
+            props.put(name, "test.txt");
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+            assertNotNull(props.remove(filter));
+
+            key = p.concat(".attachment.formatters");
+            props.put(key, ThrowFormatter.class.getName());
+            name = p.concat(".attachment.names");
+            props.put(name, test.concat("$StaticInitErNameFormatter"));
+            testStaticInitError(props);
+            assertNotNull(props.remove(key));
+            assertNotNull(props.remove(name));
+        } finally {
+            setPending(null);
+        }
+    }
+
+    private void testStaticInitError(Properties props) throws Exception {
+        final LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            MailHandler target = null;
+            try {
+                target = new MailHandler();
+                AssertionError AE = new AssertionError(props.toString());
+                AE.initCause(getPending());
+                throw AE;
+            } catch (AssertionError e) {
+                throw e; //avoid catch all.
+            } catch (Error expect) {
+                assertEquals(Error.class, expect.getClass());
+            } finally {
+                if (target != null) {
+                    target.close();
+                }
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    private void read(LogManager manager, Properties props) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
+        props.store(out, "No comment");
+        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+    }
+
+    private Properties createInitProperties(String p) {
+        final Properties props = new Properties();
+        if (p.length() != 0) {
+            p = p.concat(".");
+        }
+        props.put(p.concat("mail.host"), "bad-host-name");
+        props.put(p.concat("mail.smtp.host"), "bad-host-name");
+        props.put(p.concat("mail.smtp.port"), Integer.toString(OPEN_PORT));
+        props.put(p.concat("mail.to"), "badAddress");
+        props.put(p.concat("mail.cc"), "badAddress");
+        props.put(p.concat("mail.from"), "badAddress");
+        props.put(p.concat("mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat("mail.smtp.timeout"), "1");
+        props.put(p.concat("errorManager"), InternalErrorManager.class.getName());
+        return props;
     }
 
     /**
@@ -2993,7 +4371,7 @@ public class MailHandlerTest {
                 LogManager.getLogManager().readConfiguration();
             }
         } catch (Exception E) {
-            E.printStackTrace();
+            dump(E);
             fail(E.toString());
         }
     }
@@ -3071,11 +4449,10 @@ public class MailHandlerTest {
         assertTrue(null != h.getAttachmentNames()[2]);
 
         InternalErrorManager em = (InternalErrorManager) h.getErrorManager();
-        assertTrue(em.exceptions.isEmpty());
-
         for (int i = 0; i < em.exceptions.size(); i++) {
             fail(String.valueOf(em.exceptions.get(i)));
         }
+        assertTrue(em.exceptions.isEmpty());
 
         h.close();
         assertEquals(em.exceptions.isEmpty(), true);
@@ -3272,7 +4649,6 @@ public class MailHandlerTest {
         }
 
         try {
-            close(new ServerSocket(MAX_PORT));
             close(new Socket("localhost", MAX_PORT));
             return MAX_PORT;
         } catch (Throwable t) { //Config error or fix isConnectOrTimeout method.
@@ -3282,27 +4658,16 @@ public class MailHandlerTest {
 
     private static boolean checkUnusedPort(int port) {
         try {
-            close(new ServerSocket(port));
-            try {
-                close(new Socket("localhost", port));
-            } catch (UnknownHostException UHE) {
-                throw new AssertionError(UHE);
-            } catch (IOException IOE) {
-                return isConnectOrTimeout(IOE);
-            }
-        } catch (IOException inUse) {
+            close(new Socket("localhost", port));
+        } catch (UnknownHostException UHE) {
+            throw new AssertionError(UHE);
+        } catch (IOException IOE) {
+            return isConnectOrTimeout(IOE);
         }
-        return false; //listening or bound.
+        return false; //listening.
     }
 
     private static void close(Socket s) {
-        try {
-            s.close();
-        } catch (IOException ignore) {
-        }
-    }
-
-    private static void close(ServerSocket s) {
         try {
             s.close();
         } catch (IOException ignore) {
@@ -3360,7 +4725,8 @@ public class MailHandlerTest {
 
         protected void error(MimeMessage message, Throwable t, int code) {
             try {
-                assertTrue(null != message.getSentDate());
+                assertNotNull(message.getSentDate());
+                assertNotNull(message.getDescription());
                 assertNotNull(message.getHeader("X-Priority"));
                 assertEquals("2", message.getHeader("X-Priority")[0]);
                 assertNotNull(message.getHeader("Importance"));
@@ -3382,9 +4748,18 @@ public class MailHandlerTest {
             super(new Properties());
         }
 
+        @Override
         protected void error(MimeMessage message, Throwable t, int code) {
             super.error(message, t, code);
             try {
+                final Locale locale = Locale.getDefault();
+                String lang = LogManagerProperties.toLanguageTag(locale);
+                if (lang.length() != 0) {
+                    assertEquals(lang, message.getHeader("Accept-Language", null));
+                } else {
+                    assertEquals("", locale.getLanguage());
+                }
+
                 Address[] a = message.getRecipients(Message.RecipientType.TO);
                 assertEquals(InternetAddress.parse("foo@bar.com")[0], a[0]);
                 assertEquals(1, a.length);
@@ -3406,11 +4781,20 @@ public class MailHandlerTest {
 
                 assertEquals(MailHandler.class.getName() + " test", message.getSubject());
 
+                assertNotNull(message.getHeader("Incomplete-Copy", null));
+
                 assertTrue(message.getContentType(), message.isMimeType("multipart/mixed"));
                 Multipart multipart = (Multipart) message.getContent();
-                ContentType type = new ContentType(multipart.getBodyPart(0).getContentType());
+                MimePart body = (MimePart) multipart.getBodyPart(0);
+                ContentType type = new ContentType(body.getContentType());
                 assertEquals("text/plain", type.getBaseType());
                 assertEquals("us-ascii", type.getParameter("charset").toLowerCase(Locale.US));
+
+                if (lang.length() != 0) {
+                    assertEquals(lang, body.getHeader("Accept-Language", null));
+                } else {
+                    assertEquals("", locale.getLanguage());
+                }
             } catch (MessagingException me) {
                 throw new AssertionError(me);
             } catch (IOException ioe) {
@@ -3428,6 +4812,7 @@ public class MailHandlerTest {
         protected void error(MimeMessage message, Throwable t, int code) {
             try {
                 assertTrue(null != message.getSentDate());
+                assertNotNull(message.getDescription());
                 assertNull(message.getHeader("X-Priority"));
                 assertNull(message.getHeader("Importance"));
                 assertNull(message.getHeader("Priority"));
@@ -3508,6 +4893,7 @@ public class MailHandlerTest {
         int tail;
         int format;
 
+        @Override
         public String getHead(Handler h) {
             ++head;
             return "";
@@ -3518,6 +4904,7 @@ public class MailHandlerTest {
             return String.valueOf(record.getMessage());
         }
 
+        @Override
         public String getTail(Handler h) {
             ++tail;
             return "";
@@ -3536,6 +4923,7 @@ public class MailHandlerTest {
             this.name = name;
         }
 
+        @Override
         public String getHead(Handler h) {
             return name;
         }
@@ -3654,6 +5042,278 @@ public class MailHandlerTest {
         }
     }
 
+    public static final class InitAuthenticator extends javax.mail.Authenticator {
+
+        public InitAuthenticator() {
+            throwPending();
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class InitFilter implements Filter {
+
+        public InitFilter() {
+            throwPending();
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class InitFormatter extends Formatter {
+
+        public InitFormatter() {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class InitComparator
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        public InitComparator() {
+            throwPending();
+        }
+
+        public int compare(LogRecord o1, LogRecord o2) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class InitErrorManager extends ErrorManager {
+
+        public InitErrorManager() {
+            throwPending();
+        }
+    }
+
+    public static final class StaticInitReAuthenticator extends javax.mail.Authenticator {
+
+        static {
+            throwPending();
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReFilter implements Filter {
+
+        static {
+            throwPending();
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReAttachFilter implements Filter {
+
+        static {
+            throwPending();
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReSubjectFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReAttachFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReNameFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReComparator
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        static {
+            throwPending();
+        }
+
+        public int compare(LogRecord o1, LogRecord o2) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitReErrorManager extends ErrorManager {
+
+        static {
+            throwPending();
+        }
+    }
+
+    public static final class StaticInitErAuthenticator extends javax.mail.Authenticator {
+
+        static {
+            throwPending();
+        }
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErFilter implements Filter {
+
+        static {
+            throwPending();
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErAttachFilter implements Filter {
+
+        static {
+            throwPending();
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErSubjectFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErAttachFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErNameFormatter extends Formatter {
+
+        static {
+            throwPending();
+        }
+
+        public String format(LogRecord record) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErComparator
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        static {
+            throwPending();
+        }
+
+        public int compare(LogRecord o1, LogRecord o2) {
+            throw new NoSuchMethodError();
+        }
+    }
+
+    public final static class StaticInitErErrorManager extends ErrorManager {
+
+        static {
+            throwPending();
+        }
+    }
+
+    private final static class LocaleFilter implements Filter {
+
+        private final Locale locale;
+        private final boolean allow;
+
+        LocaleFilter(final Locale l, final boolean allow) {
+            if (l == null) {
+                throw new NullPointerException();
+            }
+            this.locale = l;
+            this.allow = allow;
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            final ResourceBundle rb = record.getResourceBundle();
+            return rb == null ? allow : locale.equals(rb.getLocale());
+        }
+    }
+
     public final static class MailHandlerExt extends MailHandler {
 
         public MailHandlerExt() {
@@ -3679,11 +5339,13 @@ public class MailHandlerTest {
             this.target = target;
         }
 
+        @Override
         public String getSourceMethodName() {
             close();
             return super.getSourceMethodName();
         }
 
+        @Override
         public String getSourceClassName() {
             close();
             return super.getSourceClassName();

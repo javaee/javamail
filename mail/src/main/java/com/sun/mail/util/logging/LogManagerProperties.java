@@ -41,10 +41,14 @@
 package com.sun.mail.util.logging;
 
 import java.io.ObjectStreamException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.*;
+import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.logging.*;
+import javax.mail.Authenticator;
 
 /**
  * An adapter class to allow the Mail API to access the LogManager properties.
@@ -74,7 +78,195 @@ final class LogManagerProperties extends Properties {
     /**
      * Caches the LogManager so we only read the config once.
      */
-    final static LogManager manager = LogManager.getLogManager();
+    private final static LogManager LOG_MANAGER = LogManager.getLogManager();
+
+    /**
+     * Gets the LogManger for the running JVM.
+     * @return the LogManager.
+     * @since JavaMail 1.4.5
+     */
+    static LogManager getLogManager() {
+        return LOG_MANAGER;
+    }
+
+    /**
+     * Converts a locale to a language tag.
+     * @param locale the locale to convert.
+     * @return the language tag.
+     * @throws NullPointerException if the given locale is null.
+     * @since JavaMail 1.4.5
+     */
+    static String toLanguageTag(final Locale locale) {
+        final String l = locale.getLanguage();
+        final String c = locale.getCountry();
+        final String v = locale.getVariant();
+        final char[] b = new char[l.length() + c.length() + v.length() + 2];
+        int count = l.length();
+        l.getChars(0, count, b, 0);
+        if (c.length() != 0 || (l.length() != 0 && v.length() != 0)) {
+           b[count] = '-';
+           ++count; //be nice to the client compiler.
+           c.getChars(0, c.length(), b, count);
+           count += c.length();
+        }
+
+        if (v.length() != 0 && (l.length() != 0 || c.length() != 0)) {
+           b[count] = '-';
+           ++count; //be nice to the client compiler.
+           v.getChars(0, v.length(), b, count);
+           count += v.length();
+        }
+        return String.valueOf(b, 0, count);
+    }
+
+    /**
+     * Creates a new filter from the given class name.
+     * @param name the fully qualified class name.
+     * @return a new filter.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     */
+    static Filter newFilter(String name) throws Exception {
+        return (Filter) newObjectFrom(name, Filter.class);
+    }
+
+    /**
+     * Creates a new formatter from the given class name.
+     * @param name the fully qualified class name.
+     * @return a new formatter.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     */
+    static Formatter newFormatter(String name) throws Exception {
+        return (Formatter) newObjectFrom(name, Formatter.class);
+    }
+
+    /**
+     * Creates a new log record comparator from the given class name.
+     * @param name the fully qualified class name.
+     * @return a new comparator.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     * @see java.util.logging.LogRecord
+     */
+    static Comparator newComparator(String name) throws Exception {
+        return (Comparator) newObjectFrom(name, Comparator.class);
+    }
+
+    /**
+     * Creates a new error manager from the given class name.
+     * @param name the fully qualified class name.
+     * @return a new error manager.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     */
+    static ErrorManager newErrorManager(String name) throws Exception {
+        return (ErrorManager) newObjectFrom(name, ErrorManager.class);
+    }
+
+    /**
+     * Creates a new authenticator from the given class name.
+     * @param name the fully qualified class name.
+     * @return a new authenticator.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     */
+    static Authenticator newAuthenticator(String name) throws Exception {
+        return (Authenticator) newObjectFrom(name, Authenticator.class);
+    }
+
+    /**
+     * Creates a new object from the given class name.
+     * @param name the fully qualified class name.
+     * @param type the assignable type for the given name.
+     * @return a new object assignable to the given type.
+     * @throws ClassCastException if class name does not match the type.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws InstantiationException if the given class name is abstract.
+     * @throws InvocationTargetException if the constructor throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws NoSuchMethodException if the class name does not have a no
+     * argument constructor.
+     * @since JavaMail 1.4.5
+     */
+    private static Object newObjectFrom(String name, Class type) throws Exception {
+        try {
+            final Class clazz = LogManagerProperties.findClass(name);
+            //This check avoids additional side effects when the name parameter
+            //is a literal name and not a class name.
+            if (type.isAssignableFrom(clazz)) {
+                return clazz.getConstructor((Class[]) null).newInstance((Object[]) null);
+            } else {
+                throw new ClassCastException(clazz.getName()
+                        + " cannot be cast to " + type.getName());
+            }
+        } catch (final NoClassDefFoundError NCDFE) {
+            //No class def found can occur on filesystems that are
+            //case insensitive (BUG ID 6196068).  In some cases, we allow class
+            //names or literal names, this code guards against the case where a
+            //literal name happens to match a class name in a different case.
+            //This is also a nice way to adap this error for the error manager.
+            throw new ClassNotFoundException(NCDFE.toString(), NCDFE);
+        } catch (final ExceptionInInitializerError EIIE) {
+            //This linkage error will escape the constructor new instance call.
+            //If the cause is an error, rethrow to skip any error manager.
+            if (EIIE.getCause() instanceof Error) {
+                throw EIIE;
+            } else {
+                //Considered a bug in the code, wrap the error so it can be
+                //reported to the error manager.
+                throw new InvocationTargetException(EIIE);
+            }
+        }
+    }
 
     /**
      * This code is modified from the LogManager, which explictly states
@@ -83,10 +275,13 @@ final class LogManagerProperties extends Properties {
      * searching the context class loader.
      * @param name full class name
      * @return the class.
-     * @throws ClassNotFoundException if not found.
+     * @throws LinkageError if the linkage fails.
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws ExceptionInInitializerError if static initializer fails.
      */
-    static Class findClass(String name) throws ClassNotFoundException {
+    private static Class findClass(String name) throws ClassNotFoundException {
         ClassLoader[] loaders = getClassLoaders();
+        assert loaders.length == 2 : loaders.length;
         Class clazz;
         if (loaders[0] != null) {
             try {
@@ -128,6 +323,9 @@ final class LogManagerProperties extends Properties {
             }
         });
     }
+    /**
+     * The namespace prefix to search LogManager and defaults.
+     */
     private final String prefix;
 
     /**
@@ -161,15 +359,19 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Performs the super action, then searches the log manager
+     * Searches defaults, then searches the log manager
      * by the prefix property, and then by the key itself.
      * @param key a non null key.
      * @return the value for that key.
      */
-    public synchronized String getProperty(String key) {
+    public synchronized String getProperty(final String key) {
         String value = defaults.getProperty(key);
-        if (value == null && key.length() > 0) {
-            value = manager.getProperty(prefix + '.' + key);
+        if (value == null) {
+            final LogManager manager = getLogManager();
+            if (key.length() > 0) {
+                value = manager.getProperty(prefix + '.' + key);
+            }
+
             if (value == null) {
                 value = manager.getProperty(key);
             }
@@ -182,9 +384,9 @@ final class LogManagerProperties extends Properties {
              * closed handlers.
              */
             if (value != null) {
-                put(key, value);
+                super.put(key, value);
             } else {
-                Object v = get(key); //Call 'get' so defaults are not used.
+                Object v = super.get(key); //defaults are not used.
                 value = v instanceof String ? (String) v : null;
             }
         }
@@ -199,9 +401,75 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key.
      * @since JavaMail 1.4.4
      */
-    public String getProperty(String key, String def) {
+    public String getProperty(final String key, final String def) {
         final String value = this.getProperty(key);
         return value == null ? def : value;
+    }
+
+    /**
+     * Required to work with PropUtil.  Calls getProperty directly if the
+     * given key is a string.  Otherwise, performs a normal get operation.
+     * @param key any key.
+     * @return the value for the key or null.
+     * @since JavaMail 1.4.5
+     */
+    public Object get(final Object key) {
+        if (key instanceof String) {
+            return this.getProperty((String) key);
+        } else {
+            return super.get(key);
+        }
+    }
+
+    /**
+     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * from the log manager if the key doesn't exist in this properties.
+     * @param key any key.
+     * @return the value for the key or the default value for the key.
+     * @since JavaMail 1.4.5
+     */
+    public synchronized Object put(final Object key, final Object value) {
+        final Object def = preWrite(key);
+        final Object man = super.put(key, value);
+        return man == null ? def : man;
+    }
+
+    /**
+     * Calls the put method directly.
+     * @param key any key.
+     * @return the value for the key or the default value for the key.
+     * @since JavaMail 1.4.5
+     */
+    public Object setProperty(String key, String value) {
+        return this.put(key, value);
+    }
+
+    /**
+     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * from the log manager prior to returning.
+     * @param key any key.
+     * @return the value for the key or null.
+     * @since JavaMail 1.4.5
+     */
+    public boolean containsKey(final Object key) {
+        if (key instanceof String) {
+            return this.getProperty((String) key) != null;
+        } else {
+            return super.containsKey(key);
+        }
+    }
+
+    /**
+     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * from the log manager if the key doesn't exist in this properties.
+     * @param key any key.
+     * @return the value for the key or the default value for the key.
+     * @since JavaMail 1.4.5
+     */
+    public synchronized Object remove(final Object key) {
+        final Object def = preWrite(key);
+        final Object man = super.remove(key);
+        return man == null ? def : man;
     }
 
     /**
@@ -220,7 +488,7 @@ final class LogManagerProperties extends Properties {
      * @param o any object or null.
      * @return true if equal, otherwise false.
      */
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == null) {
             return false;
         }
@@ -241,6 +509,25 @@ final class LogManagerProperties extends Properties {
     public int hashCode() {
         assert false : prefix.hashCode();
         return super.hashCode();
+    }
+
+    /**
+     * Called before a write operation of a key.
+     * Caches a key read from the log manager in this properties object.
+     * The key is only cached if it is an instance of a String and
+     * this properties doesn't contain a copy of the key.
+     * @param key the key to search.
+     * @return the default value for the key.
+     */
+    private Object preWrite(final Object key) {
+        assert Thread.holdsLock(this);
+        Object value;
+        if (key instanceof String && !super.containsKey(key)) {
+            value = this.getProperty((String) key); //fetch and cache.
+        } else {
+            value = null;
+        }
+        return value;
     }
 
     /**

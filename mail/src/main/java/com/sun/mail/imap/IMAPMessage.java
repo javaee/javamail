@@ -694,8 +694,12 @@ public class IMAPMessage extends MimeMessage {
 	    }
 	}
 
-	if (is == null)
+	if (is == null) {
+	    forceCheckExpunged();	// may throw MessageRemovedException
+	    // nope, the server doesn't think it's expunged,
+	    // something else is wrong
 	    throw new MessagingException("No content");
+	}
 	
 	// write out the bytes
 	byte[] bytes = new byte[1024];

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -109,7 +109,7 @@ public class FileErrorManager extends ErrorManager {
      * If the message parameter is a raw email, and passes the store term, then
      * this method will store the email to the file system.  If the message
      * parameter is not a raw email then the message is forwarded to the super
-     * class. If an email is written to the filesystem without error, then the
+     * class. If an email is written to the file system without error, then the
      * original reported error is ignored.
      * @param msg String raw email or plain error message.
      * @param ex Exception that occurred in the mail handler.
@@ -218,7 +218,11 @@ public class FileErrorManager extends ErrorManager {
             try {
                 if (!tmp.delete() && tmp.exists()) {
                     try {
-                        tmp.deleteOnExit();
+                        try {
+                            tmp.deleteOnExit();
+                        } catch (final LinkageError shutdown) {
+                            throw new RuntimeException(shutdown);
+                        }
                     } catch (final RuntimeException shutdown) {
                         if (!tmp.delete()) {
                             super.error(tmp.getAbsolutePath(), shutdown,
