@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -307,26 +307,33 @@ public class Protocol {
 	    done = true;
 	}
 
+	Response byeResp = null;
 	while (!done) {
 	    try {
 		r = readResponse();
 	    } catch (IOException ioex) {
+		if (byeResp != null)	// connection closed after BYE was sent
+		    break;
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 	    } catch (ProtocolException pex) {
 		continue; // skip this response
 	    }
-		
-	    v.addElement(r);
 
-	    if (r.isBYE()) // shouldn't wait for command completion response
-		done = true;
+	    if (r.isBYE()) {
+		byeResp = r;
+		continue;
+	    }
+
+	    v.addElement(r);
 
 	    // If this is a matching command completion response, we are done
 	    if (r.isTagged() && r.getTag().equals(tag))
 		done = true;
 	}
 
+	if (byeResp != null)
+		v.addElement(byeResp);	// must be last
 	Response[] responses = new Response[v.size()];
 	v.copyInto(responses);
         timestamp = System.currentTimeMillis();
