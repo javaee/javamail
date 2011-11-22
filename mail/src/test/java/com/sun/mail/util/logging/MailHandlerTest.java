@@ -2308,7 +2308,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testMailProperties() {
+    public void testMailProperties() throws Exception {
         Properties props = new Properties();
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -2329,26 +2329,56 @@ public class MailHandlerTest {
         Properties stored = instance.getMailProperties();
 
         assertNotNull(stored);
-        assertEquals(false, props == stored);
-        assertEquals(Properties.class, stored.getClass());
+        assertNotSame(props, stored);
+        assertEquals(props.getClass(), stored.getClass());
 
         assertEquals(true, em.exceptions.isEmpty());
         instance.close();
 
-        final String p = MailHandler.class.getName();
         instance = createHandlerWithRecords();
         props = instance.getMailProperties();
         em = new InternalErrorManager();
         instance.setErrorManager(em);
-        props.setProperty(p.concat(".mail.from"), "::1");
-        props.setProperty(p.concat(".mail.to"), "::1");
-        props.setProperty(p.concat(".mail.sender"), "::1");
-        props.setProperty(p.concat(".mail.cc"), "::1");
-        props.setProperty(p.concat(".mail.bcc"), "::1");
-        props.setProperty(p.concat(".mail.reply.to"), "::1");
+
+        props.setProperty("mail.from", "localhost@localdomain");
+        props.setProperty("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
+        instance.flush();
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            final Throwable t = em.exceptions.get(i);
+            if (t instanceof MessagingException
+                    && t.getCause() instanceof UnknownHostException) {
+                continue;
+            } else {
+                dump(t);
+                fail(t.toString());
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+
+        props.setProperty("mail.from", "localhost@localdomain");
+        props.setProperty("mail.to", "::1@@");
+        instance.setMailProperties(props);
+
+        em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        instance.publish(new LogRecord(Level.SEVERE, "test"));
         instance.close();
-        assertEquals(false, em.exceptions.isEmpty());
+        int failed = 0;
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            final Throwable t = em.exceptions.get(i);
+            if (t instanceof AddressException
+                    || (t instanceof SendFailedException
+                    && t.getCause() instanceof UnknownHostException == false)) {
+                continue;
+            } else {
+                dump(t);
+                failed++;
+            }
+        }
+        assertEquals(0, failed);
+        assertFalse(em.exceptions.isEmpty());
     }
 
     @Test
@@ -2444,6 +2474,11 @@ public class MailHandlerTest {
             fail(re.toString());
         }
 
+
+        assertEquals(instance.getAttachmentFormatters().length, 2);
+        instance.setAttachmentFilters(new ThrowFilter[]{new ThrowFilter(), new ThrowFilter()});
+        assertEquals(Filter[].class, instance.getAttachmentFilters().getClass());
+
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
     }
@@ -2501,6 +2536,12 @@ public class MailHandlerTest {
         } catch (RuntimeException re) {
             fail(re.toString());
         }
+
+
+        instance.setAttachmentFormatters(new ThrowFormatter[]{new ThrowFormatter()});
+        assertEquals(Formatter[].class, instance.getAttachmentFormatters().getClass());
+        assertEquals(Filter[].class, instance.getAttachmentFilters().getClass());
+        assertEquals(Formatter[].class, instance.getAttachmentNames().getClass());
 
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
@@ -2619,6 +2660,8 @@ public class MailHandlerTest {
         formatters[0] = new XMLFormatter();
         assertEquals(formatters[0].equals(instance.getAttachmentNames()[0]), false);
 
+        instance.setAttachmentNames(new ThrowFormatter[]{new ThrowFormatter(), new ThrowFormatter()});
+        assertEquals(Formatter[].class, instance.getAttachmentNames().getClass());
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
     }
@@ -3500,7 +3543,6 @@ public class MailHandlerTest {
 
             //ensure VerifyErrorManager was installed.
             assertEquals(VerifyErrorManager.class, em.getClass());
-            assertFalse(em.exceptions.isEmpty());
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
@@ -3532,18 +3574,49 @@ public class MailHandlerTest {
         Address[] from = InternetAddress.parse("me@localhost", false);
         msg.addFrom(from);
         msg.setRecipients(Message.RecipientType.TO, from);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream out = new ByteArrayOutputStream(384);
+        msg.saveChanges();
         try {
             msg.writeTo(out);
             fail("Verify type 'remote' may send a message with no content.");
         } catch (MessagingException expect) {
             msg.setContent("", "text/plain");
+            msg.saveChanges();
             msg.writeTo(out);
         } catch (IOException expect) {
             msg.setContent("", "text/plain");
+            msg.saveChanges();
             msg.writeTo(out);
         } finally {
             out.close();
+        }
+    }
+
+    @Test
+    public void testIsMissingContent() throws Exception {
+        Properties props = new Properties();
+        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
+
+        MailHandler target = new MailHandler();
+        Session session = Session.getInstance(new Properties());
+        MimeMessage msg = new MimeMessage(session);
+        Address[] from = InternetAddress.parse("me@localhost", false);
+        msg.addFrom(from);
+        msg.setRecipients(Message.RecipientType.TO, from);
+        msg.saveChanges();
+        try {
+            msg.writeTo(new ByteArrayOutputStream(384));
+            fail("Verify type 'remote' may hide remote exceptions.");
+        } catch (RuntimeException re) {
+            throw re; //Avoid catch all.
+        } catch (Exception expect) {
+            assertNotNull(expect.getMessage());
+            assertTrue(expect.getMessage().length() != 0);
+            assertTrue(target.isMissingContent(msg, expect));
         }
     }
 
@@ -3574,7 +3647,6 @@ public class MailHandlerTest {
                     (InternalErrorManager) instance.getErrorManager();
 
             assertEquals(InternalErrorManager.class, em.getClass());
-            assertFalse(em.exceptions.isEmpty());
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
@@ -3583,6 +3655,7 @@ public class MailHandlerTest {
                     fail(t.toString());
                 }
             }
+            assertFalse(em.exceptions.isEmpty());
 
             instance.close();
 
@@ -3593,7 +3666,6 @@ public class MailHandlerTest {
             em = (InternalErrorManager) instance.getErrorManager();
 
             assertEquals(InternalErrorManager.class, em.getClass());
-            assertFalse(em.exceptions.isEmpty());
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
@@ -3606,6 +3678,7 @@ public class MailHandlerTest {
                     fail(t.toString());
                 }
             }
+            assertFalse(em.exceptions.isEmpty());
         } finally {
             manager.reset();
         }
@@ -3662,6 +3735,121 @@ public class MailHandlerTest {
             }
         } finally {
             instance.close();
+        }
+    }
+
+    @Test
+    public void testVerifyPropertiesConstructor() throws Exception {
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.reset();
+
+            final String p = MailHandler.class.getName();
+            Properties props = new Properties();
+            props.put(p.concat(".mail.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
+            props.put(p.concat(".mail.to"), "badAddress");
+            props.put(p.concat(".mail.cc"), "badAddress");
+            props.put(p.concat(".subject"), p.concat(" test"));
+            props.put(p.concat(".mail.from"), "badAddress");
+            props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1"); //no verify.
+
+            read(manager, props);
+
+            props = new Properties();
+            props.put("mail.host", "bad-host-name");
+            props.put("mail.smtp.host", "bad-host-name");
+            props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
+            props.put("mail.to", "badAddress");
+            props.put("mail.cc", "badAddress");
+            props.put("subject", "test");
+            props.put("mail.from", "badAddress");
+            props.put("mail.smtp.connectiontimeout", "1");
+            props.put("mail.smtp.timeout", "1");
+            props.put("verify", "local");
+
+            MailHandler instance = new MailHandler(props);
+            try {
+                InternalErrorManager em =
+                        (InternalErrorManager) instance.getErrorManager();
+
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    final Throwable t = em.exceptions.get(i);
+                    if (t instanceof AddressException == false) {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                }
+                assertFalse(em.exceptions.isEmpty());
+            } finally {
+                instance.close();
+            }
+
+            props.put("verify", "remote");
+            instance = new MailHandler(props);
+            try {
+                InternalErrorManager em =
+                        (InternalErrorManager) instance.getErrorManager();
+
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    final Throwable t = em.exceptions.get(i);
+                    if (t instanceof AddressException) {
+                        continue;
+                    } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                        continue;
+                    } else {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                }
+                assertFalse(em.exceptions.isEmpty());
+            } finally {
+                instance.close();
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testNoVerifyReplacedProperties() throws Exception {
+        LogManager manager = LogManager.getLogManager();
+        try {
+            manager.reset();
+
+            final String p = MailHandler.class.getName();
+            Properties props = new Properties();
+            props.put(p.concat(".mail.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
+            props.put(p.concat(".mail.to"), "badAddress");
+            props.put(p.concat(".mail.cc"), "badAddress");
+            props.put(p.concat(".subject"), p.concat(" test"));
+            props.put(p.concat(".mail.from"), "badAddress");
+            props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".verify"), "remote");
+
+            read(manager, props);
+
+            MailHandler instance = new MailHandler(new Properties());
+            InternalErrorManager em =
+                    (InternalErrorManager) instance.getErrorManager();
+            assertEquals(InternalErrorManager.class, em.getClass());
+            instance.close();
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                dump(t);
+                fail(t.toString());
+            }
+            assertTrue(em.exceptions.isEmpty());
+        } finally {
+            manager.reset();
         }
     }
 
