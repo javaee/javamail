@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.4.5 release.
 7021190	MimeMessage.setRecipients(type, String) does not accept null address
 K  4002	MultipartReport.setReport and setDeliveryStatus are broken
 K  4065	Wrong representation of CR/LF are appended to the attachment
+K  4296	SSL Re-Negotiation Problem with checkserveridentity=true
 <no id>	properly handle timeouts during SSL negotiation
 <no id>	free MIME headers in IMAPMessage.invalidateHeaders
 <no id>	fix exception in POP3Message when reading file cached content twice

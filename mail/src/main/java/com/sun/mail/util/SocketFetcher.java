@@ -237,7 +237,6 @@ public class SocketFetcher {
 		socket.setSoTimeout(to);
 	}
 
-	configureSSLSocket(socket, props, prefix);
 	return socket;
     }
 
@@ -292,6 +291,7 @@ public class SocketFetcher {
 	else
 	    socket.connect(new InetSocketAddress(host, port));
 
+	configureSSLSocket(socket, props, prefix);
 	if (idCheck && socket instanceof SSLSocket)
 	    checkServerIdentity(host, (SSLSocket)socket);
 	if (sf instanceof MailSSLSocketFactory) {
@@ -435,6 +435,7 @@ public class SocketFetcher {
 	    }
 
 	    socket = ssf.createSocket(socket, host, port, true);
+	    configureSSLSocket(socket, props, prefix);
 	    boolean idCheck = PropUtil.getBooleanProperty(props,
 				prefix + ".ssl.checkserveridentity", false);
 	    if (idCheck)
@@ -449,7 +450,6 @@ public class SocketFetcher {
 		    }
 		}
 	    }
-	    configureSSLSocket(socket, props, prefix);
 	} catch (Exception ex) {
 	    if (ex instanceof InvocationTargetException) {
 		Throwable t =
