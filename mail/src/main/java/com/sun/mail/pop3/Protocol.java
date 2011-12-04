@@ -704,13 +704,23 @@ class Protocol {
 	     * If we get a timeout while using the socket, we have no idea
 	     * what state the connection is in.  The server could still be
 	     * alive, but slow, and could still be sending data.  The only
-	     * safe way to recover is to drop the connection.  Later use
-	     * of the socket should get an EOFException.
+	     * safe way to recover is to drop the connection.
 	     */
 	    try {
 		socket.close();
 	    } catch (IOException cex) { }
-	    throw iioex;
+	    throw new EOFException(iioex.getMessage());
+	} catch (SocketException ex) {
+	    /*
+	     * If we get an error while using the socket, we have no idea
+	     * what state the connection is in.  The server could still be
+	     * alive, but slow, and could still be sending data.  The only
+	     * safe way to recover is to drop the connection.
+	     */
+	    try {
+		socket.close();
+	    } catch (IOException cex) { }
+	    throw new EOFException(ex.getMessage());
 	}
 
 	if (line == null) {

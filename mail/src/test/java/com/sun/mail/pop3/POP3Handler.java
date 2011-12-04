@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -76,23 +76,25 @@ public class POP3Handler extends Thread implements Cloneable {
     private String currentLine;
 
     /** First test message. */
-    private String msg1 =
+    private String top1 =
 	    "Mime-Version: 1.0\r\n" +
 	    "From: joe@example.com\r\n" +
 	    "To: bob@example.com\r\n" +
 	    "Subject: Example\r\n" +
 	    "Content-Type: text/plain\r\n" +
-	    "\r\n" +
+	    "\r\n";
+    private String msg1 = top1 +
 	    "plain text\r\n";
 
     /** Second test message. */
-    private String msg2 =
+    private String top2 =
 	    "Mime-Version: 1.0\r\n" +
 	    "From: joe@example.com\r\n" +
 	    "To: bob@example.com\r\n" +
 	    "Subject: Multipart Example\r\n" +
 	    "Content-Type: multipart/mixed; boundary=\"xxx\"\r\n" +
-	    "\r\n" +
+	    "\r\n";
+    private String msg2 = top2 +
 	    "preamble\r\n" +
 	    "--xxx\r\n" +
 	    "\r\n" +
@@ -205,7 +207,7 @@ public class POP3Handler extends Thread implements Cloneable {
         } else if (commandName.equals("QUIT")) {
             this.quit();
         } else if (commandName.equals("TOP")) {
-            this.top();
+            this.top(arg);
         } else if (commandName.equals("UIDL")) {
             this.uidl();
         } else if (commandName.equals("USER")) {
@@ -242,7 +244,7 @@ public class POP3Handler extends Thread implements Cloneable {
         this.writer.println("2 " + msg2.length());
         this.println(".");
     }
-    
+
     /**
      * RETR command.
      * 
@@ -303,12 +305,20 @@ public class POP3Handler extends Thread implements Cloneable {
     
     /**
      * TOP command.
+     * XXX - ignores number of lines argument
      * 
      * @throws IOException
      *             unable to read/write to socket
      */
-    public void top() throws IOException {
-	this.println("-ERR TOP not supported");
+    public void top(String arg) throws IOException {
+	String top;
+	if (arg.equals("1"))
+	    top = top1;
+	else
+	    top = top2;
+        this.println("+OK " + top.length() + " octets");
+	this.writer.write(top);
+	this.println(".");
     }
     
     /**

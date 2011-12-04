@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,6 +45,7 @@ import javax.activation.*;
 import java.io.*;
 import java.net.UnknownServiceException;
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.FolderClosedIOException;
 
 /**
  * A utility class that implements a DataSource out of
@@ -105,6 +106,9 @@ public class MimePartDataSource implements DataSource, MessageAware {
 		return MimeUtility.decode(is, encoding);
 	    else
 		return is;
+	} catch (FolderClosedException fex) {
+	    throw new FolderClosedIOException(fex.getFolder(),
+						fex.getMessage());
 	} catch (MessagingException mex) {
 	    throw new IOException(mex.getMessage());
 	}
