@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -55,6 +55,8 @@ import com.sun.mail.util.LineInputStream;
  */
 
 public class SunV3Multipart extends MimeMultipart {
+    private boolean parsing;
+
     /**
      * Constructs a SunV3Multipart object and its bodyparts from the 
      * given DataSource. <p>
@@ -109,7 +111,13 @@ public class SunV3Multipart extends MimeMultipart {
      * child body parts.
      */
     protected synchronized void parse() throws MessagingException {
-	if (parsed)
+	/*
+	 * If the data has already been parsed, or we're in the middle of
+	 * parsing it, there's nothing to do.  The latter will occur when
+	 * we call addBodyPart, which will call parse again.  We really
+	 * want to be able to call super.super.addBodyPart.
+	 */
+	if (parsed || parsing)
 	    return;
 
 	InputStream in = null;
@@ -128,6 +136,7 @@ public class SunV3Multipart extends MimeMultipart {
 	byte[] bndbytes = new byte[bl];
 	boundary.getBytes(0, bl, bndbytes, 0);
 
+	parsing = true;
 	try {
 	    /*
 	     * Skip any kind of junk until we get to the first
@@ -205,6 +214,8 @@ public class SunV3Multipart extends MimeMultipart {
 	    }
 	} catch (IOException e) {
 	    throw new MessagingException("IO Error");	// XXX
+	} finally {
+	    parsing = false;
 	}
 
 	parsed = true;
