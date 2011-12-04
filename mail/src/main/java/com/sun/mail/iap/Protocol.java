@@ -439,6 +439,27 @@ public class Protocol {
     }
 
     /**
+     * Temporarily turn off protocol tracing, e.g., to prevent
+     * tracing the authentication sequence, including the password.
+     */
+    protected void suspendTracing() {
+	if (debug) {
+	    traceInput.setTrace(false);
+	    traceOutput.setTrace(false);
+	}
+    }
+
+    /**
+     * Resume protocol tracing, if it was enabled to begin with.
+     */
+    protected void resumeTracing() {
+	if (debug) {
+	    traceInput.setTrace(true);
+	    traceOutput.setTrace(true);
+	}
+    }
+
+    /**
      * Finalizer.
      */
     protected void finalize() throws Throwable {

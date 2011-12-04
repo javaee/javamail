@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,6 +77,8 @@ class Protocol {
     private String apopChallenge = null;
     private Map capabilities = null;
     private boolean pipelining;
+    private boolean noauthdebug = true;	// hide auth info in debug output
+    private boolean traceSuspended;	// temporarily suspend tracing
 
     private static final int POP3_PORT = 110; // standard POP3 port
     private static final String CRLF = "\r\n";
@@ -94,6 +96,8 @@ class Protocol {
 	this.host = host;
 	this.props = props;
 	this.prefix = prefix;
+	noauthdebug = debug && !PropUtil.getBooleanProperty(props,
+	    "mail.debug.auth", false);
 	Response r;
 	boolean enableAPOP = getBoolProp(props, prefix + ".apop.enable");
 	boolean disableCapa = getBoolProp(props, prefix + ".disablecapa");
@@ -220,6 +224,13 @@ class Protocol {
 	Response r;
 	// only pipeline password if connection is secure
 	boolean batch = pipelining && socket instanceof SSLSocket;
+
+	try {
+
+	if (noauthdebug) {
+	    out.println("DEBUG POP3: authentication command trace suppressed");
+	    suspendTracing();
+	}
 	String dpw = null;
 	if (apopChallenge != null)
 	    dpw = getDigest(password);
@@ -247,9 +258,16 @@ class Protocol {
 		return r.data != null ? r.data : "USER command failed";
 	    r = simpleCommand("PASS " + password);
 	}
+	if (noauthdebug)
+	    out.println("DEBUG POP3: authentication command " +
+			(r.ok ? "succeeded" : "failed"));
 	if (!r.ok)
 	    return r.data != null ? r.data : "login failed";
 	return null;
+
+	} finally {
+	    resumeTracing();
+	}
     }
 
     /**
@@ -666,7 +684,7 @@ class Protocol {
 	    throw new IOException("Folder is closed");	// XXX
 
 	if (cmd != null) {
-	    if (debug)
+	    if (debug && !traceSuspended)
 		out.println("C: " + cmd);
 	    cmd += CRLF;
 	    output.print(cmd);	// do it in one write
@@ -700,7 +718,7 @@ class Protocol {
 		out.println("S: EOF");
 	    throw new EOFException("EOF on socket");
 	}
-	if (debug)
+	if (debug && !traceSuspended)
 	    out.println("S: " + line);
 	Response r = new Response();
 	if (line.startsWith("+OK"))
@@ -744,21 +762,21 @@ class Protocol {
 	try {
 	    while ((b = input.read()) >= 0) {
 		if (lastb == '\n' && b == '.') {
-		    if (debug)
+		    if (debug && !traceSuspended)
 			out.write(b);
 		    b = input.read();
 		    if (b == '\r') {
-			if (debug)
+			if (debug && !traceSuspended)
 			    out.write(b);
 			// end of response, consume LF as well
 			b = input.read();
-			if (debug)
+			if (debug && !traceSuspended)
 			    out.write(b);
 			break;
 		    }
 		}
 		buf.write(b);
-		if (debug)
+		if (debug && !traceSuspended)
 		    out.write(b);
 		lastb = b;
 	    }
@@ -774,6 +792,21 @@ class Protocol {
 	if (b < 0)
 	    throw new EOFException("EOF on socket");
 	return buf.toStream();
+    }
+
+    /**
+     * Temporarily turn off protocol tracing, e.g., to prevent
+     * tracing the authentication sequence, including the password.
+     */
+    private void suspendTracing() {
+	traceSuspended = true;
+    }
+
+    /**
+     * Resume protocol tracing, if it was enabled to begin with.
+     */
+    private void resumeTracing() {
+	traceSuspended = false;
     }
 
     /*

@@ -26,6 +26,7 @@ K  4511	Thread safety in javax.mail.PasswordAuthentication
 <no id>	properly handle timeouts during SSL negotiation
 <no id>	free MIME headers in IMAPMessage.invalidateHeaders
 <no id>	fix exception in POP3Message when reading file cached content twice
+<no id>	suppress auth info in debug output, unless mail.debug.auth=true
 
 
 		  CHANGES IN THE 1.4.4 RELEASE

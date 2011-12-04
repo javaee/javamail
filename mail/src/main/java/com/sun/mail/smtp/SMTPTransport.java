@@ -132,6 +132,8 @@ public class SMTPTransport extends Transport {
 
     private SaslAuthenticator saslAuthenticator; // if SASL is being used
 
+    private boolean noauthdebug = true;	// hide auth info in debug output
+
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
     private static final byte[] CRLF = { (byte)'\r', (byte)'\n' };
@@ -152,6 +154,8 @@ public class SMTPTransport extends Transport {
     protected SMTPTransport(Session session, URLName urlname,
 				String name, boolean isSSL) {
 	super(session, urlname);
+	noauthdebug = debug && !PropUtil.getBooleanSessionProperty(session,
+	    "mail.debug.auth", false);
 	if (urlname != null)
 	    name = urlname.getProtocol();
 	this.name = name;
@@ -782,6 +786,11 @@ public class SMTPTransport extends Transport {
 	    try {
 		// use "initial response" capability, if supported
 		String ir = getInitialResponse(host, authzid, user, passwd);
+		if (noauthdebug) {
+		    out.println("DEBUG SMTP: AUTH " + mech +
+				    " command trace suppressed");
+		    suspendTracing();
+		}
 		if (ir != null)
 		    resp = simpleCommand("AUTH " + mech + " " + ir);
 		else
@@ -802,8 +811,12 @@ public class SMTPTransport extends Transport {
 		    doAuth(host, authzid, user, passwd);
 	    } catch (IOException ex) {	// should never happen, ignore
 		if (debug)
-		    out.println("DEBUG: SMTP: " + mech + " failed: " + ex);
+		    out.println("DEBUG SMTP: " + mech + " failed: " + ex);
 	    } finally {
+		if (noauthdebug)
+		    out.println("DEBUG SMTP: AUTH " + mech + " " +
+				    (resp == 235 ? "succeeded" : "failed"));
+		resumeTracing();
 		if (resp != 235) {
 		    closeConnection();
 		    throw new AuthenticationFailedException(
@@ -1008,7 +1021,15 @@ public class SMTPTransport extends Transport {
 	    }
 	}
 	String[] mechs = (String[])v.toArray(new String[v.size()]);
-	return saslAuthenticator.authenticate(mechs, realm, authzid, u, p);
+	try {
+	    if (noauthdebug) {
+		out.println("DEBUG SMTP: SASL AUTH command trace suppressed");
+		suspendTracing();
+	    }
+	    return saslAuthenticator.authenticate(mechs, realm, authzid, u, p);
+	} finally {
+	    resumeTracing();
+	}
     }
 
     /**
@@ -1421,10 +1442,12 @@ public class SMTPTransport extends Transport {
     }
 
     ///////////////////// smtp stuff ///////////////////////
-    private BufferedInputStream  serverInput;
-    private LineInputStream      lineInputStream;
-    private OutputStream         serverOutput;
-    private Socket               serverSocket;
+    private BufferedInputStream serverInput;
+    private LineInputStream     lineInputStream;
+    private OutputStream        serverOutput;
+    private Socket              serverSocket;
+    private TraceInputStream	traceInput;
+    private TraceOutputStream	traceOutput;
 
     /////// smtp protocol //////
 
@@ -1982,16 +2005,14 @@ public class SMTPTransport extends Transport {
 
     private void initStreams() throws IOException {
 	PrintStream out = session.getDebugOut();
-	boolean debug = session.getDebug();
 	boolean quote = PropUtil.getBooleanSessionProperty(session,
 					"mail.debug.quote", false);
 
-	TraceInputStream traceInput =
-	    new TraceInputStream(serverSocket.getInputStream(), out);
+	traceInput = new TraceInputStream(serverSocket.getInputStream(), out);
 	traceInput.setTrace(debug);
 	traceInput.setQuote(quote);
 
-	TraceOutputStream traceOutput =
+	traceOutput =
 	    new TraceOutputStream(serverSocket.getOutputStream(), out);
 	traceOutput.setTrace(debug);
 	traceOutput.setQuote(quote);
@@ -2001,6 +2022,27 @@ public class SMTPTransport extends Transport {
 	serverInput =
 	    new BufferedInputStream(traceInput);
 	lineInputStream = new LineInputStream(serverInput);
+    }
+
+    /**
+     * Temporarily turn off protocol tracing, e.g., to prevent
+     * tracing the authentication sequence, including the password.
+     */
+    private void suspendTracing() {
+	if (debug) {
+	    traceInput.setTrace(false);
+	    traceOutput.setTrace(false);
+	}
+    }
+
+    /**
+     * Resume protocol tracing, if it was enabled to begin with.
+     */
+    private void resumeTracing() {
+	if (debug) {
+	    traceInput.setTrace(true);
+	    traceOutput.setTrace(true);
+	}
     }
 
     /**

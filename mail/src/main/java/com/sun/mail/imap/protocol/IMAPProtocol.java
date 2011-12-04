@@ -73,9 +73,10 @@ import com.sun.mail.imap.SortTerm;
 
 public class IMAPProtocol extends Protocol {
     
-    private boolean connected = false;		// did constructor succeed?
-    private boolean rev1 = false;		// REV1 server ?
-    private boolean authenticated;		// authenticated?
+    private boolean connected = false;	// did constructor succeed?
+    private boolean rev1 = false;	// REV1 server ?
+    private boolean noauthdebug = true;	// hide auth info in debug output
+    private boolean authenticated;	// authenticated?
     // WARNING: authenticated may be set to true in superclass
     //		constructor, don't initialize it here.
 
@@ -111,6 +112,8 @@ public class IMAPProtocol extends Protocol {
 
 	try {
 	    this.name = name;
+	    noauthdebug = debug && !PropUtil.getBooleanProperty(props,
+		"mail.debug.auth", false);
 
 	    if (capabilities == null)
 		capability();
@@ -344,12 +347,23 @@ public class IMAPProtocol extends Protocol {
 	args.writeString(u);
 	args.writeString(p);
 
-	Response[] r = command("LOGIN", args);
+	Response[] r = null;
+	try {
+	    if (noauthdebug) {
+		out.println("DEBUG IMAP: LOGIN command trace suppressed");
+		suspendTracing();
+	    }
+	    r = command("LOGIN", args);
+	} finally {
+	    resumeTracing();
+	}
 
 	// dispatch untagged responses
 	notifyResponseHandlers(r);
 
 	// Handle result of this command
+	if (noauthdebug)
+	    out.println("DEBUG IMAP: LOGIN command result: " + r[r.length-1]);
 	handleResult(r[r.length-1]);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r[r.length-1]);
@@ -368,6 +382,14 @@ public class IMAPProtocol extends Protocol {
 	String tag = null;
 	Response r = null;
 	boolean done = false;
+
+	try {
+
+	if (noauthdebug) {
+	    out.println(
+		"DEBUG IMAP: AUTHENTICATE LOGIN command trace suppressed");
+	    suspendTracing();
+	}
 
 	try {
 	    tag = writeCommand("AUTHENTICATE LOGIN", null);
@@ -433,6 +455,10 @@ public class IMAPProtocol extends Protocol {
 	    }
 	}
 
+	} finally {
+	    resumeTracing();
+	}
+
 	/* Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the 
@@ -444,6 +470,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
+	if (noauthdebug)
+	    out.println("DEBUG IMAP: AUTHENTICATE LOGIN command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -470,6 +498,14 @@ public class IMAPProtocol extends Protocol {
 	String tag = null;
 	Response r = null;
 	boolean done = false;
+
+	try {
+
+	if (noauthdebug) {
+	    out.println(
+		"DEBUG IMAP: AUTHENTICATE PLAIN command trace suppressed");
+	    suspendTracing();
+	}
 
 	try {
 	    tag = writeCommand("AUTHENTICATE PLAIN", null);
@@ -531,6 +567,10 @@ public class IMAPProtocol extends Protocol {
 	    }
 	}
 
+	} finally {
+	    resumeTracing();
+	}
+
 	/* Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the
@@ -542,6 +582,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
+	if (noauthdebug)
+	    out.println("DEBUG IMAP: AUTHENTICATE PLAIN command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -574,6 +616,14 @@ public class IMAPProtocol extends Protocol {
 	String domain = props.getProperty(
 	    "mail." + name + ".auth.ntlm.domain", "");
 	Ntlm ntlm = new Ntlm(domain, getLocalHost(), u, p, debug ? out : null);
+
+	try {
+
+	if (noauthdebug) {
+	    out.println(
+		"DEBUG IMAP: AUTHENTICATE NTLM command trace suppressed");
+	    suspendTracing();
+	}
 
 	try {
 	    tag = writeCommand("AUTHENTICATE NTLM", null);
@@ -616,6 +666,10 @@ public class IMAPProtocol extends Protocol {
 	    }
 	}
 
+	} finally {
+	    resumeTracing();
+	}
+
 	/*
 	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
@@ -628,6 +682,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
+	if (noauthdebug)
+	    out.println("DEBUG IMAP: AUTHENTICATE NTLM command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -683,8 +739,26 @@ public class IMAPProtocol extends Protocol {
 	    v = authmechs;
 	}
 	String[] mechs = (String[])v.toArray(new String[v.size()]);
-	if (saslAuthenticator.authenticate(mechs, realm, authzid, u, p))
-	    authenticated = true;
+
+	try {
+
+	    if (noauthdebug) {
+		out.println(
+		    "DEBUG IMAP: SASL authentication command trace suppressed");
+		suspendTracing();
+	    }
+
+	    if (saslAuthenticator.authenticate(mechs, realm, authzid, u, p)) {
+		if (noauthdebug)
+		    out.println("DEBUG IMAP: SASL authentication succeeded");
+		authenticated = true;
+	    } else {
+		if (noauthdebug)
+		    out.println("DEBUG IMAP: SASL authentication failed");
+	    }
+	} finally {
+	    resumeTracing();
+	}
     }
 
     // XXX - for IMAPSaslAuthenticator access to protected method

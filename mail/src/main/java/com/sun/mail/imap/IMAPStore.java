@@ -207,6 +207,8 @@ public class IMAPStore extends Store
     private volatile boolean forceClose = false;
     private final Object connectionFailedLock = new Object();
 
+    private boolean debugusername;	// include username in debug output?
+    private boolean debugpassword;	// include password in debug output?
     private PrintStream out;		// debug output stream
 
     private boolean messageCacheDebug;
@@ -409,6 +411,10 @@ public class IMAPStore extends Store
 	this.isSSL = isSSL;
 
         debug = session.getDebug();
+	debugusername = PropUtil.getBooleanSessionProperty(session,
+			"mail.debug.auth.username", true);
+	debugpassword = PropUtil.getBooleanSessionProperty(session,
+			"mail.debug.auth.password", false);
 	out = session.getDebugOut();
 	if (out == null)	// should never happen
 	    out = System.out;
@@ -600,9 +606,8 @@ public class IMAPStore extends Store
 	    if (debug)
 		out.println("DEBUG: protocolConnect returning false" +
 				", host=" + host +
-				", user=" + user +
-				", password=" + (password != null ?
-					"<non-null>" : "<null>"));
+				", user=" + traceUser(user) +
+				", password=" + tracePassword(password));
 	    return false;
 	}
 
@@ -638,8 +643,8 @@ public class IMAPStore extends Store
 		if (debug)
 		    out.println("DEBUG: protocolConnect login" +
 				", host=" + host +
-				", user=" + user +
-				", password=<non-null>");
+				", user=" + traceUser(user) +
+				", password=" + tracePassword(password));
 	        login(protocol, user, password);
 
 	        protocol.addResponseHandler(this);
@@ -1005,7 +1010,7 @@ public class IMAPStore extends Store
      */
     private void refreshPassword() {
 	if (debug)
-	    out.println("DEBUG: refresh password, user: " + user);
+	    out.println("DEBUG: refresh password, user: " + traceUser(user));
 	InetAddress addr;
 	try {
 	    addr = InetAddress.getByName(host);
@@ -1907,5 +1912,14 @@ public class IMAPStore extends Store
 	    // responses, and only if there is actually some
 	    // text there.
 	    notifyStoreListeners(StoreEvent.NOTICE, s);
+    }
+
+    private String traceUser(String user) {
+	return debugusername ? user : "<user name suppressed>";
+    }
+
+    private String tracePassword(String password) {
+	return debugpassword ? password :
+				(password == null ? "<null>" : "<non-null>");
     }
 }
