@@ -62,12 +62,15 @@
 		<artifactId>maven-war-plugin</artifactId>
 		<configuration>
 		    <warName>webapp</warName>
-		    <warSourceExcludes>
+		    <packagingExcludes>
 			WEB-INF/lib/activation*.jar,
-			WEB-INF/lib/mail*.jar,
+			WEB-INF/lib/javax.mail*.jar,
 			WEB-INF/lib/jsp*.jar,
 			WEB-INF/lib/servlet*.jar
-		    </warSourceExcludes>
+		    </packagingExcludes>
+		    <outputFileNameMapping>
+			@{artifactId}@.@{extension}@
+		    </outputFileNameMapping>
 		</configuration>
 	    </plugin>
 	</plugins>
