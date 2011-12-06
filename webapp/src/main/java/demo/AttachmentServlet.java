@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,7 +35,10 @@ import java.io.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  * This servlet gets the input stream for a given msg part and 
@@ -90,4 +93,3 @@ public class AttachmentServlet extends HttpServlet {
 	}
     }   
 }
-
