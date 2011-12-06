@@ -39,7 +39,7 @@ cd ..\taglib
 echo compiling lib directory
 javac -classpath "..\docroot\WEB-INF\classes;%CLASSPATH%" demo\*.java
 echo creating tag library archive
-jar cvf ..\docroot\WEB-INF\lib\jtl.jar META-INF demo\*.class
+jar cvf ..\docroot\WEB-INF\lib\taglib.jar META-INF demo\*.class
 del demo\*.class
 cd ..\docroot
 echo creating web archive

@@ -38,7 +38,7 @@ cd ../taglib
 echo "compiling lib directroy"
 javac -classpath ../docroot/WEB-INF/classes:$CLASSPATH demo/*.java
 echo "creating tag library archive"
-jar cvf ../docroot/WEB-INF/lib/jtl.jar META-INF demo/*.class
+jar cvf ../docroot/WEB-INF/lib/taglib.jar META-INF demo/*.class
 rm demo/*.class
 cd ../docroot
 echo "creating web archive"
