@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001-2011 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -36,8 +36,6 @@ import java.util.*;
 
 import javax.mail.*;
 import javax.mail.internet.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
 
 /**
  * Used to store attachment information.
@@ -45,7 +43,7 @@ import javax.servlet.http.*;
 public class AttachmentInfo {
     private Part part;
     private int num;
-    
+
 
     /**
      * Returns the attachment's content type.
@@ -61,13 +59,13 @@ public class AttachmentInfo {
     /**
      * Returns the attachment's content (if it is plain text).
      */
-    public String getContent() throws java.io.IOException, MessagingException {
+    public String getContent() throws IOException, MessagingException {
 	if (hasMimeType("text/plain"))
 	    return (String)part.getContent();
 	else
 	    return "";
     }
-    
+
     /**
      * Returns the attachment's description.
      */
@@ -75,10 +73,10 @@ public class AttachmentInfo {
 	String description;
 	if ((description = part.getDescription()) != null)
 	    return description;
-	else 
+	else
 	    return "";
     }
-    
+
     /**
      * Returns the attachment's filename.
      */
@@ -96,28 +94,28 @@ public class AttachmentInfo {
     public String getNum() {
 	return (Integer.toString(num));
     }
-    
+
     /**
      * Method for checking if the attachment has a description.
      */
     public boolean hasDescription() throws MessagingException {
 	return (part.getDescription() != null);
     }
-    
+
     /**
      * Method for checking if the attachment has a filename.
      */
     public boolean hasFilename() throws MessagingException {
 	return (part.getFileName() != null);
     }
-    
+
     /**
      * Method for checking if the attachment has the desired mime type.
      */
     public boolean hasMimeType(String mimeType) throws MessagingException {
 	return part.isMimeType(mimeType);
     }
-    
+
     /**
      * Method for checking the content disposition.
      */
@@ -127,15 +125,14 @@ public class AttachmentInfo {
 	else
 	    return true;
     }
-    
+
     /**
      * Method for mapping a message part to this AttachmentInfo class.
      */
-    public void setPart(int num, Part part) 
+    public void setPart(int num, Part part)
 	throws MessagingException, ParseException {
-	    
+
 	this.part = part;
 	this.num = num;
     }
 }
-
