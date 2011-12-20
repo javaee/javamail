@@ -115,7 +115,6 @@
 	<mail.packages.import>
 	    javax.security.sasl;resolution:=optional,
 	    sun.security.util;resolution:=optional,
-	    jcifs.ntlmssp;resolution:=optional,
 	    *
 	</mail.packages.import>
 	<mail.packages.private>
