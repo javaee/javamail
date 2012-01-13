@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -126,9 +126,9 @@ public class MailHandlerDemo {
             String to = manager.getProperty(key);
             err.println(prefix + ": TO=" + to);
             err.println(prefix + ": TO="
-                    + Arrays.toString(InternetAddress.parse(to, false)));
+                    + Arrays.asList(InternetAddress.parse(to, false)));
             err.println(prefix + ": TO="
-                    + Arrays.toString(InternetAddress.parse(to, true)));
+                    + Arrays.asList(InternetAddress.parse(to, true)));
 
             key = p.concat(".mail.from");
             String from = manager.getProperty(key);
@@ -138,9 +138,9 @@ public class MailHandlerDemo {
                 err.println(prefix + ": FROM=" + local);
             } else {
                 err.println(prefix + ": FROM="
-                        + Arrays.toString(InternetAddress.parse(from, false)));
+                        + Arrays.asList(InternetAddress.parse(from, false)));
                 err.println(prefix + ": FROM="
-                        + Arrays.toString(InternetAddress.parse(from, true)));
+                        + Arrays.asList(InternetAddress.parse(from, true)));
             }
         } catch (Throwable error) {
             err.print(prefix + ": ");

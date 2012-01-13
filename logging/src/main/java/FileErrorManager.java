@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2011 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -191,8 +191,9 @@ public class FileErrorManager extends ErrorManager {
             }
         }
 
-        try {
-            PrintStream ps = new PrintStream(new NewlineOutputStream(out));
+        try { //Raw email is ASCII.
+            PrintStream ps = new PrintStream(
+                    new NewlineOutputStream(out), false, "US-ASCII");
             ps.print(email);
             ps.flush();
             tmp = null; //Don't delete 'tmp' if all bytes were written.

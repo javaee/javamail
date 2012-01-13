@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -2789,8 +2789,7 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Converts a throwable to a message string.  This method is called when
-     * Message.writeTo throws an exception.
+     * Converts a throwable to a message string.
      * @param t any throwable or null.
      * @return the throwable with a stack trace or the literal null.
      */
@@ -2798,15 +2797,27 @@ public class MailHandler extends Handler {
         if (t == null) {
            return "null";
         }
-        
-        final ByteArrayOutputStream out = 
-                new ByteArrayOutputStream(MIN_HEADER_SIZE);
-        final PrintStream ps = new PrintStream(out);
-        ps.println(t.getMessage());
-        t.printStackTrace(ps);
-        ps.flush();
-        ps.close(); //BUG ID 6995537
-        return out.toString();
+
+        String encoding = getEncoding();
+        if (encoding == null) {
+            encoding = MimeUtility.getDefaultJavaCharset();
+        }
+
+        try {
+            final ByteArrayOutputStream out =
+                    new ByteArrayOutputStream(MIN_HEADER_SIZE);
+
+            //Create an output stream writer so streams are not double buffered.
+            final PrintWriter pw =
+                    new PrintWriter(new OutputStreamWriter(out, encoding));
+            pw.println(t.getMessage());
+            t.printStackTrace(pw);
+            pw.flush();
+            pw.close(); //BUG ID 6995537
+            return out.toString(encoding);
+        } catch (IOException IOE) { //Should not happen.
+            return t.toString() + ' ' + IOE.toString();
+        }
     }
 
     private static RuntimeException attachmentMismatch(final String msg) {

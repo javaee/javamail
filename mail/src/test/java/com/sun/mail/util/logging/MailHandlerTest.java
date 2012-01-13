@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -3999,6 +3999,7 @@ public class MailHandlerTest {
 
     @Test
     public void testInitErrorManagerException() throws Exception {
+        final String encoding = System.getProperty("file.encoding", "8859_1");
         final String p = MailHandler.class.getName();
         final Properties props = this.createInitProperties(p);
         String key;
@@ -4012,7 +4013,7 @@ public class MailHandlerTest {
             try {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
-                PrintStream newErr = new PrintStream(oldErrors);
+                PrintStream newErr = new PrintStream(oldErrors, false, encoding);
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -4032,7 +4033,7 @@ public class MailHandlerTest {
                 //java.lang.reflect.InvocationTargetException
                 // at...
                 //Caused by: java.lang.RuntimeException
-                final String data = oldErrors.toString("US-ASCII");
+                final String data = oldErrors.toString(encoding);
                 assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
                 int ite, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
@@ -4048,6 +4049,7 @@ public class MailHandlerTest {
 
     @Test
     public void testInitErrorManagerError() throws Exception {
+        final String encoding = System.getProperty("file.encoding", "8859_1");
         final String p = MailHandler.class.getName();
         final Properties props = this.createInitProperties(p);
         String key;
@@ -4061,7 +4063,7 @@ public class MailHandlerTest {
             try {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
-                PrintStream newErr = new PrintStream(oldErrors);
+                PrintStream newErr = new PrintStream(oldErrors, false, encoding);
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -4081,7 +4083,7 @@ public class MailHandlerTest {
                 //java.lang.reflect.InvocationTargetException
                 // at...
                 //Caused by: java.lang.Error
-                final String data = oldErrors.toString("US-ASCII");
+                final String data = oldErrors.toString(encoding);
                 assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
                 int ite, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
@@ -4256,6 +4258,7 @@ public class MailHandlerTest {
 
     @Test
     public void testStaticInitErrorManagerException() throws Exception {
+        final String encoding = System.getProperty("file.encoding", "8859_1");
         final String test = MailHandlerTest.class.getName();
         final String p = MailHandler.class.getName();
         final Properties props = this.createInitProperties(p);
@@ -4270,7 +4273,7 @@ public class MailHandlerTest {
             try {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
-                PrintStream newErr = new PrintStream(oldErrors);
+                PrintStream newErr = new PrintStream(oldErrors, false, encoding);
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -4292,7 +4295,7 @@ public class MailHandlerTest {
                 //Caused by: java.lang.ExceptionInInitializerError
                 // at...
                 //Caused by: java.lang.RuntimeException
-                final String data = oldErrors.toString("US-ASCII");
+                final String data = oldErrors.toString(encoding);
                 assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
                 int ite, eiie, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
@@ -4694,6 +4697,7 @@ public class MailHandlerTest {
 
     private void initBadTest(File cfg, Class<? extends MailHandler> type,
             Class[] types, Object[] params) throws Exception {
+        final String encoding = System.getProperty("file.encoding", "8859_1");
         final PrintStream err = System.err;
         ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
 
@@ -4730,7 +4734,7 @@ public class MailHandlerTest {
 
         MailHandler h = null;
         oldErrors.reset();
-        System.setErr(new PrintStream(oldErrors));
+        System.setErr(new PrintStream(oldErrors, false, encoding));
         try {
             /**
              * Bad level value for property: com.sun.mail.util.logging.MailHandler.level
@@ -4740,7 +4744,7 @@ public class MailHandlerTest {
             LogManager.getLogManager().readConfiguration();
             System.err.print(""); //flushBuffer.
             System.err.flush();
-            String result = oldErrors.toString().trim();
+            String result = oldErrors.toString(encoding).trim();
             oldErrors.reset();
             if (result.length() > 0) {
                 final String expect = "Bad level value for property: " + p + ".level";
@@ -4757,7 +4761,7 @@ public class MailHandlerTest {
              */
             h = type.getConstructor(types).newInstance(params);
             System.err.flush();
-            result = oldErrors.toString().trim();
+            result = oldErrors.toString(encoding).trim();
             int index = result.indexOf(ErrorManager.class.getName() + ": "
                     + ErrorManager.OPEN_FAILURE + ": " + Level.SEVERE.getName()
                     + ": InvalidErrorManager");
@@ -4879,8 +4883,8 @@ public class MailHandlerTest {
             if (msg != null && msg.length() > 0
                     && !msg.startsWith(Level.SEVERE.getName())) {
                 MimeMessage message = null;
-                try {
-                    byte[] b = msg.getBytes();
+                try { //Raw message is ascii.
+                    byte[] b = msg.getBytes("US-ASCII");
                     assertTrue(b.length > 0);
 
                     ByteArrayInputStream in = new ByteArrayInputStream(b);
