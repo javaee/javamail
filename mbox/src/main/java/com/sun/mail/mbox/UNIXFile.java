@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,6 +46,7 @@ import java.util.StringTokenizer;
 
 public class UNIXFile extends File {
     protected static final boolean loaded;
+    protected static final int lockType;
 
     private static final long serialVersionUID = -7972156315284146651L;
 
@@ -53,34 +54,51 @@ public class UNIXFile extends File {
 	super(name);
     }
 
+    // lock type enum
+    protected static final int NONE = 0;
+    protected static final int NATIVE = 1;
+    protected static final int JAVA = 2;
+
     static {
+	String lt = System.getProperty("mail.mbox.locktype", "native");
+	int type = NATIVE;
+	if (lt.equalsIgnoreCase("none"))
+	    type = NONE;
+	else if (lt.equalsIgnoreCase("java"))
+	    type = JAVA;
+	lockType = type;
+
 	boolean lloaded = false;
-	try {
-	    System.loadLibrary("mbox");
-	    lloaded = true;
-	} catch (UnsatisfiedLinkError e) {
-	    String classpath = System.getProperty("java.class.path");
-	    String sep = System.getProperty("path.separator");
-	    String arch = System.getProperty("os.arch");
-	    StringTokenizer st = new StringTokenizer(classpath, sep);
-	    while (st.hasMoreTokens()) {
-		String path = st.nextToken();
-		if (path.endsWith("/classes") || path.endsWith("/mail.jar")) {
-		    int i = path.lastIndexOf('/');
-		    String libdir = path.substring(0, i + 1) + "lib/";
-		    String lib = libdir + arch + "/libmbox.so";
-		    try {
-			System.load(lib);
-			lloaded = true;
-			break;
-		    } catch (UnsatisfiedLinkError e2) {
-			lib = libdir + "libmbox.so";
+	if (lockType == NATIVE) {
+	    try {
+		System.loadLibrary("mbox");
+		lloaded = true;
+	    } catch (UnsatisfiedLinkError e) {
+		String classpath = System.getProperty("java.class.path");
+		String sep = System.getProperty("path.separator");
+		String arch = System.getProperty("os.arch");
+		StringTokenizer st = new StringTokenizer(classpath, sep);
+		while (st.hasMoreTokens()) {
+		    String path = st.nextToken();
+		    if (path.endsWith("/classes") ||
+			    path.endsWith("/mail.jar") ||
+			    path.endsWith("/javax.mail.jar")) {
+			int i = path.lastIndexOf('/');
+			String libdir = path.substring(0, i + 1) + "lib/";
+			String lib = libdir + arch + "/libmbox.so";
 			try {
 			    System.load(lib);
 			    lloaded = true;
 			    break;
-			} catch (UnsatisfiedLinkError e3) {
-			    continue;
+			} catch (UnsatisfiedLinkError e2) {
+			    lib = libdir + "libmbox.so";
+			    try {
+				System.load(lib);
+				lloaded = true;
+				break;
+			    } catch (UnsatisfiedLinkError e3) {
+				continue;
+			    }
 			}
 		    }
 		}

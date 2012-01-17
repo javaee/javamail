@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -60,12 +60,15 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
     }
 
     public boolean lock(String mode) {
-	if (!loaded)
-	    return false;
-	if (!maillock(user, 5))
-	    return false;
+	if (lockType == NATIVE) {
+	    if (!loaded)
+		return false;
+	    if (!maillock(user, 5))
+		return false;
+	}
 	if (!super.lock(mode)) {
-	    mailunlock();
+	    if (loaded)
+		mailunlock();
 	    return false;
 	}
 	return true;
@@ -94,7 +97,17 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
 	}
 	try {
 	    lockfile = new RandomAccessFile(lockfileName, mode);
-	    boolean ret = UNIXFile.lock(lockfile.getFD(), mode);
+	    boolean ret;
+	    switch (lockType) {
+	    case NONE:
+		ret = true;
+	    case NATIVE:
+	    default:
+		ret = UNIXFile.lock(lockfile.getFD(), mode);
+	    case JAVA:
+		ret = lockfile.getChannel().
+		    tryLock(0L, Long.MAX_VALUE, !mode.equals("rw")) != null;
+	    }
 	    if (!ret)
 		closeLock();
 	    return ret;

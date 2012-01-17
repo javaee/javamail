@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,7 +54,16 @@ public class UNIXFolder extends UNIXFile implements MailFile {
     public boolean lock(String mode) {
 	try {
 	    file = new RandomAccessFile(this, mode);
-	    return UNIXFile.lock(file.getFD(), mode);
+	    switch (lockType) {
+	    case NONE:
+		return true;
+	    case NATIVE:
+	    default:
+		return UNIXFile.lock(file.getFD(), mode);
+	    case JAVA:
+		return file.getChannel().
+		    tryLock(0L, Long.MAX_VALUE, !mode.equals("rw")) != null;
+	    }
 	} catch (FileNotFoundException fe) {
 	    return false;
 	} catch (IOException ie) {
