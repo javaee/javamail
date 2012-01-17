@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,13 +43,17 @@ package com.sun.mail.mbox;
 import java.io.File;
 
 public class SolarisMailbox extends Mailbox {
-    private String home;
-    private String user;
+    private final String home;
+    private final String user;
+
+    private static final boolean homeRelative =
+				Boolean.getBoolean("mail.mbox.homerelative");
 
     public SolarisMailbox() {
-	home = System.getenv("HOME");
-	if (home == null)
-	    home = System.getProperty("user.home");
+	String h = System.getenv("HOME");
+	if (h == null)
+	    h = System.getProperty("user.home");
+	home = h;
 	user = System.getProperty("user.name");
     }
 
@@ -87,8 +91,12 @@ public class SolarisMailbox extends Mailbox {
 		    if (inbox == null)
 			inbox = "/var/mail/" + user;
 		    return inbox;
-		} else
-		    return home + File.separator + folder;
+		} else {
+		    if (homeRelative)
+			return home + File.separator + folder;
+		    else
+			return folder;
+		}
 	    }
 	} catch (StringIndexOutOfBoundsException e) {
 	    return folder;

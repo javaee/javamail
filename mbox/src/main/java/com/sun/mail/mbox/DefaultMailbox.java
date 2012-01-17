@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,7 +43,10 @@ package com.sun.mail.mbox;
 import java.io.*;
 
 public class DefaultMailbox extends Mailbox {
-    private String home;
+    private final String home;
+
+    private static final boolean homeRelative =
+				Boolean.getBoolean("mail.mbox.homerelative");
 
     public DefaultMailbox() {
 	home = System.getProperty("user.home");
@@ -69,7 +72,10 @@ public class DefaultMailbox extends Mailbox {
 	    } else {
 		if (folder.equalsIgnoreCase("INBOX"))
 		    folder = "INBOX";
-		return home + File.separator + folder;
+		if (homeRelative)
+		    return home + File.separator + folder;
+		else
+		    return folder;
 	    }
 	} catch (StringIndexOutOfBoundsException e) {
 	    return folder;

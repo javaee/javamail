@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -67,6 +67,9 @@ public class MboxFolder extends Folder {
     private long file_size;	// the size the last time we read or wrote it
     private long saved_file_size; // size at the last open, close, or expunge
     private boolean special_imap_message;
+
+    private static final boolean homeRelative =
+				Boolean.getBoolean("mail.mbox.homerelative");
 
     /**
      * Metadata for each message, to avoid instantiating MboxMessage
@@ -137,9 +140,12 @@ public class MboxFolder extends Folder {
 	    refdir = refdir.substring(0, i + 1);
 	    realdir = mstore.mb.filename(mstore.user, refdir);
 	} else if (refdir.length() == 0 || refdir.charAt(0) != '~') {
-	    // no separator and doesn't start with "~" => home dir
+	    // no separator and doesn't start with "~" => home or cwd
 	    refdir = null;
-	    realdir = mstore.home;
+	    if (homeRelative)
+		realdir = mstore.home;
+	    else
+		realdir = ".";
 	} else {
 	    realdir = mstore.mb.filename(mstore.user, refdir);
 	}
@@ -223,12 +229,8 @@ public class MboxFolder extends Folder {
 					throws MessagingException {
 	if (folder.exists() && !folder.isDirectory())
 	    throw new MessagingException("not a directory");
-	Folder f;
-	if (this.name != null)
-	    f = createFolder(mstore, this.name + File.separator + name);
-	else
-	    f = createFolder(mstore, name);
-	return f;
+	return createFolder(mstore,
+		(this.name == null ? "~" : this.name) + File.separator + name);
     }
 
     public synchronized boolean create(int type) throws MessagingException {
