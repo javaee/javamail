@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -396,7 +396,7 @@ public class Response {
 	    int start = index;
 	    int copyto = index;
 
-	    while ((b = buffer[index]) != '"') {
+	    while (index < size && (b = buffer[index]) != '"') {
 		if (b == '\\') // skip escaped byte
 		    index++;
 		if (index != copyto) { // only copy if we need to
@@ -407,7 +407,13 @@ public class Response {
 		copyto++;
 		index++;
 	    }
-	    index++; // skip past the terminating quote
+	    if (index >= size) {
+		// didn't find terminating quote, something is seriously wrong
+		//throw new ArrayIndexOutOfBoundsException(
+		//		    "index = " + index + ", size = " + size);
+		return null;
+	    } else
+		index++; // skip past the terminating quote
 
 	    if (returnString) 
 		return ASCIIUtility.toString(buffer, start, copyto);
