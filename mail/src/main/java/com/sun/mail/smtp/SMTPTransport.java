@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -792,7 +792,8 @@ public class SMTPTransport extends Transport {
 		    suspendTracing();
 		}
 		if (ir != null)
-		    resp = simpleCommand("AUTH " + mech + " " + ir);
+		    resp = simpleCommand("AUTH " + mech + " " +
+					    (ir.length() == 0 ? "=" : ir));
 		else
 		    resp = simpleCommand("AUTH " + mech);
 
