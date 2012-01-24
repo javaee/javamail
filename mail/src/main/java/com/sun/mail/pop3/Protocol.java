@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,7 +49,7 @@ import javax.net.ssl.SSLSocket;
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.SocketFetcher;
 import com.sun.mail.util.PropUtil;
-import javax.mail.util.SharedByteArrayInputStream;
+import com.sun.mail.util.SharedByteArrayOutputStream;
 
 class Response {
     boolean ok = false;		// true if "+OK"
@@ -829,19 +829,4 @@ class Protocol {
     private void batchCommandStart(String command) { }
     private void batchCommandContinue(String command) { }
     private void batchCommandEnd() { }
-}
-
-/**
- * A ByteArrayOutputStream that allows us to share the byte array
- * rather than copy it.  Eventually could replace this with something
- * that doesn't require a single contiguous byte array.
- */
-class SharedByteArrayOutputStream extends ByteArrayOutputStream {
-    public SharedByteArrayOutputStream(int size) {
-	super(size);
-    }
-
-    public InputStream toStream() {
-	return new SharedByteArrayInputStream(buf, 0, count);
-    }
 }
