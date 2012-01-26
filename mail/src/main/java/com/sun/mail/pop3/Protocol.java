@@ -196,6 +196,10 @@ class Protocol {
 	    }
 	} catch (IOException ex) {
 	    // should never happen
+	} finally {
+	    try {
+		in.close();
+	    } catch (IOException ex) { }
 	}
     }
 
@@ -608,6 +612,9 @@ class Protocol {
 	    if (n > 0 && n <= uids.length)
 		uids[n - 1] = line.substring(i + 1);
 	}
+	try {
+	    r.bytes.close();
+	} catch (IOException ex) { }
 	return true;
     }
 

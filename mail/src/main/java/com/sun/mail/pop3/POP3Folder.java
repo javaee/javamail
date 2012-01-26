@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -251,9 +251,9 @@ public class POP3Folder extends Folder {
 	     */
 	    if (store.rsetBeforeQuit)
 		port.rset();
+	    POP3Message m;
 	    if (expunge && mode == READ_WRITE) {
 		// find all messages marked deleted and issue DELE commands
-		POP3Message m;
 		for (int i = 0; i < message_cache.size(); i++) {
 		    if ((m = (POP3Message)message_cache.elementAt(i)) != null) {
 			if (m.isSet(Flags.Flag.DELETED))
@@ -266,6 +266,14 @@ public class POP3Folder extends Folder {
 			    }
 		    }
 		}
+	    }
+
+	    /*
+	     * Flush and free all cached data for the messages.
+	     */
+	    for (int i = 0; i < message_cache.size(); i++) {
+		if ((m = (POP3Message)message_cache.elementAt(i)) != null)
+		    m.invalidate(true);
 	    }
 
 	    port.quit();
