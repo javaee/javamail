@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -55,9 +55,10 @@ import com.sun.mail.imap.protocol.*;
  * An IMAP body part.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
-public class IMAPBodyPart extends MimeBodyPart {
+public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
     private IMAPMessage message;
     private BODYSTRUCTURE bs;
     private String sectionId;
@@ -169,7 +170,7 @@ public class IMAPBodyPart extends MimeBodyPart {
 
     protected InputStream getContentStream() throws MessagingException {
 	InputStream is = null;
-	boolean pk = message.getPeek();	// acquire outisde of message cache lock
+	boolean pk = message.getPeek();	// acquire outside of message cache lock
 
         // Acquire MessageCacheLock, to freeze seqnum.
         synchronized(message.getMessageCacheLock()) {
@@ -204,6 +205,80 @@ public class IMAPBodyPart extends MimeBodyPart {
 	    throw new MessagingException("No content");
 	else
 	    return is;
+    }
+
+    /**
+     * Return the MIME format stream of headers for this body part.
+     */
+    private InputStream getHeaderStream() throws MessagingException {
+	if (!message.isREV1())
+	    loadHeaders();	// will be needed below
+
+	// Acquire MessageCacheLock, to freeze seqnum.
+	synchronized(message.getMessageCacheLock()) {
+	    try {
+		IMAPProtocol p = message.getProtocol();
+
+		// Check whether this message got expunged
+		message.checkExpunged();
+
+		if (p.isREV1()) {
+		    int seqnum = message.getSequenceNumber();
+		    BODY b = p.peekBody(seqnum, sectionId + ".MIME");
+
+		    if (b == null)
+			throw new MessagingException("Failed to fetch headers");
+
+		    ByteArrayInputStream bis = b.getByteArrayInputStream();
+		    if (bis == null)
+			throw new MessagingException("Failed to fetch headers");
+		    return bis;
+
+		} else {
+		    // Can't read it from server, have to fake it
+		    SharedByteArrayOutputStream bos =
+			new SharedByteArrayOutputStream(0);
+		    LineOutputStream los = new LineOutputStream(bos);
+
+		    try {
+			// Write out the header
+			Enumeration hdrLines = super.getAllHeaderLines();
+			while (hdrLines.hasMoreElements())
+			    los.writeln((String)hdrLines.nextElement());
+
+			// The CRLF separator between header and content
+			los.writeln();
+		    } catch (IOException ioex) {
+			// should never happen
+		    } finally {
+			try {
+			    los.close();
+			} catch (IOException cex) { }
+		    }
+		    return bos.toStream();
+		}
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(
+			    message.getFolder(), cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+	}
+    }
+
+    /**
+     * Return the MIME format stream corresponding to this message part.
+     *
+     * @return	the MIME format stream
+     * @since	JavaMail 1.4.5
+     */
+    public InputStream getMimeStream() throws MessagingException {
+	/*
+	 * The IMAP protocol doesn't support returning the entire
+	 * part content in one operation so we have to fake it by
+	 * concatenating the header stream and the content stream.
+	 */
+	return new SequenceInputStream(getHeaderStream(), getContentStream());
     }
 	    
     public synchronized DataHandler getDataHandler() 

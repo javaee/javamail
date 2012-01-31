@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -78,7 +78,7 @@ import com.sun.mail.imap.protocol.*;
  * protected by locks.
  */
 
-public class IMAPMessage extends MimeMessage {
+public class IMAPMessage extends MimeMessage implements ReadableMime {
     protected BODYSTRUCTURE bs;		// BODYSTRUCTURE
     protected ENVELOPE envelope;	// ENVELOPE
 
@@ -659,10 +659,12 @@ public class IMAPMessage extends MimeMessage {
     }
 
     /**
-     * Write out the bytes into the given outputstream.
+     * Return the MIME format stream corresponding to this message.
+     *
+     * @return	the MIME format stream
+     * @since	JavaMail 1.4.5
      */
-    public void writeTo(OutputStream os)
-				throws IOException, MessagingException {
+    public InputStream getMimeStream() throws MessagingException {
 	InputStream is = null;
 	boolean pk = getPeek();	// get before acquiring message cache lock
 
@@ -672,6 +674,9 @@ public class IMAPMessage extends MimeMessage {
 		IMAPProtocol p = getProtocol();
 
 		checkExpunged(); // insure this message is not expunged
+
+		if (p.isREV1() && (getFetchBlockSize() != -1)) // IMAP4rev1
+		    return new IMAPInputStream(this, sectionId, -1, pk);
 
 		if (p.isREV1()) {
 		    BODY b;
@@ -700,12 +705,24 @@ public class IMAPMessage extends MimeMessage {
 	    // something else is wrong
 	    throw new MessagingException("No content");
 	}
-	
-	// write out the bytes
-	byte[] bytes = new byte[1024];
-	int count;
-	while ((count = is.read(bytes)) != -1)
-	    os.write(bytes, 0, count);
+	return is;
+    }
+
+    /**
+     * Write out the bytes into the given OutputStream.
+     */
+    public void writeTo(OutputStream os)
+				throws IOException, MessagingException {
+	InputStream is = getMimeStream();
+	try {
+	    // write out the bytes
+	    byte[] bytes = new byte[16*1024];
+	    int count;
+	    while ((count = is.read(bytes)) != -1)
+		os.write(bytes, 0, count);
+	} finally {
+	    is.close();
+	}
     }
 
     /**

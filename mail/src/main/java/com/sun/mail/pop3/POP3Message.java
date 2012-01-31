@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,6 +46,7 @@ import java.lang.ref.SoftReference;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.event.*;
+import com.sun.mail.util.ReadableMime;
 
 /**
  * A POP3 Message.  Just like a MimeMessage except that
@@ -53,7 +54,7 @@ import javax.mail.event.*;
  *
  * @author      Bill Shannon
  */
-public class POP3Message extends MimeMessage {
+public class POP3Message extends MimeMessage implements ReadableMime {
 
     /*
      * Our locking strategy is to always lock the POP3Folder before the
@@ -69,8 +70,8 @@ public class POP3Message extends MimeMessage {
     private int msgSize = -1;
     String uid = UNKNOWN;	// controlled by folder lock
 
-    // contentData itself is never null
-    private SoftReference contentData = new SoftReference(null);
+    // rawData itself is never null
+    private SoftReference rawData = new SoftReference(null);
 
     public POP3Message(Folder folder, int msgno)
 			throws MessagingException {
@@ -144,18 +145,17 @@ public class POP3Message extends MimeMessage {
     }
 
     /**
-     * Produce the raw bytes of the content.  The data is fetched using
-     * the POP3 RETR command.
-     *
-     * @see #contentStream
+     * Produce the raw bytes of the message.  The data is fetched using
+     * the POP3 RETR command.  If skipHeader is true, just the content
+     * is returned.
      */
-    protected InputStream getContentStream() throws MessagingException {
-	InputStream cstream = null;
+    private InputStream getRawStream(boolean skipHeader)
+				throws MessagingException {
+	InputStream rawcontent = null;
 	try {
 	synchronized(this) {
-	    cstream = (InputStream)contentData.get();
-	    if (cstream == null) {
-		InputStream rawcontent = null;
+	    rawcontent = (InputStream)rawData.get();
+	    if (rawcontent == null) {
 		TempFile cache = folder.getFileCache();
 		if (cache != null) {
 		    Session s = ((POP3Store)(folder.getStore())).getSession();
@@ -181,6 +181,7 @@ public class POP3Message extends MimeMessage {
 			"can't retrieve message #" + msgnum +
 			" in POP3Message.getContentStream"); // XXX - what else?
 		}
+
 		if (headers == null ||
 			((POP3Store)(folder.getStore())).forgetTopHeaders) {
 		    headers = new InternetHeaders(rawcontent);
@@ -232,28 +233,12 @@ public class POP3Message extends MimeMessage {
 		    hdrSize =
 			(int)((SharedInputStream)rawcontent).getPosition();
 		}
-		cstream =
-		    ((SharedInputStream)rawcontent).newStream(hdrSize, -1);
-		msgSize = cstream.available();
-		rawcontent = null;	// help GC
 
-		/*
-		 * Keep a hard reference to the content if we're using a file
-		 * cache or if the "mail.pop3.keepmessagecontent" prop is set.
-		 */
-		if (cache != null ||
-			((POP3Store)(folder.getStore())).keepMessageContent)
-		    contentStream = cstream;
-		contentData = new SoftReference(cstream);
-		cstream = ((SharedInputStream)cstream).newStream(0, -1);
+		// skipped the header, the message is what's left
+		msgSize = rawcontent.available();
+
+		rawData = new SoftReference(rawcontent);
 	    }
-
-	    /*
-	     * We have a cached stream, but we need to return
-	     * a fresh stream to read from the beginning and
-	     * that can be safely closed.
-	     */
-	    cstream = ((SharedInputStream)cstream).newStream(0, -1);
 	}
 	} catch (EOFException eex) {
 	    folder.close(false);
@@ -261,7 +246,49 @@ public class POP3Message extends MimeMessage {
 	} catch (IOException ex) {
 	    throw new MessagingException("error fetching POP3 content", ex);
 	}
+
+	/*
+	 * We have a cached stream, but we need to return
+	 * a fresh stream to read from the beginning and
+	 * that can be safely closed.
+	 */
+	rawcontent = ((SharedInputStream)rawcontent).newStream(
+						skipHeader ? hdrSize : 0, -1);
+	return rawcontent;
+    }
+
+    /**
+     * Produce the raw bytes of the content.  The data is fetched using
+     * the POP3 RETR command.
+     *
+     * @see #contentStream
+     */
+    protected synchronized InputStream getContentStream()
+				throws MessagingException {
+	if (contentStream != null)
+	    return ((SharedInputStream)contentStream).newStream(0, -1);
+
+	InputStream cstream = getRawStream(true);
+
+	/*
+	 * Keep a hard reference to the data if we're using a file
+	 * cache or if the "mail.pop3.keepmessagecontent" prop is set.
+	 */
+	TempFile cache = folder.getFileCache();
+	if (cache != null ||
+		((POP3Store)(folder.getStore())).keepMessageContent)
+	    contentStream = ((SharedInputStream)cstream).newStream(0, -1);
 	return cstream;
+    }
+
+    /**
+     * Return the MIME format stream corresponding to this message part.
+     *
+     * @return	the MIME format stream
+     * @since	JavaMail 1.4.5
+     */
+    public InputStream getMimeStream() throws MessagingException {
+	return getRawStream(false);
     }
 
     /**
@@ -274,16 +301,23 @@ public class POP3Message extends MimeMessage {
      */
     public synchronized void invalidate(boolean invalidateHeaders) {
 	content = null;
-	InputStream cstream = (InputStream)contentData.get();
-	if (cstream != null) {
+	InputStream rstream = (InputStream)rawData.get();
+	if (rstream != null) {
 	    // note that if the content is in the file cache, it will be lost
 	    // and fetched from the server if it's needed again
 	    try {
-		cstream.close();
+		rstream.close();
 	    } catch (IOException ex) {
 		// ignore it
 	    }
-	    contentData = new SoftReference(null);
+	    rawData = new SoftReference(null);
+	}
+	if (contentStream != null) {
+	    try {
+		contentStream.close();
+	    } catch (IOException ex) {
+		// ignore it
+	    }
 	    contentStream = null;
 	}
 	msgSize = -1;
@@ -528,7 +562,8 @@ public class POP3Message extends MimeMessage {
      */
     public synchronized void writeTo(OutputStream os, String[] ignoreList)
 				throws IOException, MessagingException {
-	if (content == null && ignoreList == null &&
+	InputStream rawcontent = (InputStream)rawData.get();
+	if (rawcontent == null && ignoreList == null &&
 			!((POP3Store)(folder.getStore())).cacheWriteTo) {
 	    Session s = ((POP3Store)(folder.getStore())).getSession();
 	    if (s.getDebug())
@@ -537,6 +572,20 @@ public class POP3Message extends MimeMessage {
 		expunged = true;
 		throw new MessageRemovedException("can't retrieve message #" +
 		    msgnum + " in POP3Message.writeTo");    // XXX - what else?
+	    }
+	} else if (rawcontent != null && ignoreList == null) {
+	    // can just copy the cached data
+	    InputStream in = ((SharedInputStream)rawcontent).newStream(0, -1);
+	    try {
+		byte[] buf = new byte[16*1024];
+		int len;
+		while ((len = in.read(buf)) > 0)
+		    os.write(buf, 0, len); 
+	    } finally {
+		try {
+		    if (in != null)
+			in.close();
+		} catch (IOException ex) { }
 	    }
 	} else
 	    super.writeTo(os, ignoreList);
