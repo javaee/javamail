@@ -101,12 +101,15 @@ public class UNIXInbox extends UNIXFolder implements InboxFile {
 	    switch (lockType) {
 	    case NONE:
 		ret = true;
+		break;
 	    case NATIVE:
 	    default:
 		ret = UNIXFile.lock(lockfile.getFD(), mode);
+		break;
 	    case JAVA:
 		ret = lockfile.getChannel().
 		    tryLock(0L, Long.MAX_VALUE, !mode.equals("rw")) != null;
+		break;
 	    }
 	    if (!ret)
 		closeLock();
