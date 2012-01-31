@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,6 +64,9 @@ public class SocketFetcher {
 
     private static boolean debug =
 	PropUtil.getBooleanSystemProperty("mail.socket.debug", false);
+
+    private static final String SOCKS_SUPPORT =
+					    "com.sun.mail.util.SocksSupport";
 
     // No one should instantiate this class.
     private SocketFetcher() {
@@ -152,8 +155,6 @@ public class SocketFetcher {
 
 	boolean fb = PropUtil.getBooleanProperty(props,
 				prefix + ".socketFactory.fallback", true);
-	boolean idCheck = PropUtil.getBooleanProperty(props,
-				prefix + ".ssl.checkserveridentity", false);
 
 	int sfPort = -1;
 	String sfErr = "unknown socket factory";
@@ -204,7 +205,7 @@ public class SocketFetcher {
 		if (sfPort == -1)
 		    sfPort = port;
 		socket = createSocket(localaddr, localport,
-		    host, sfPort, cto, to, props, prefix, sf, useSSL, idCheck);
+		    host, sfPort, cto, to, props, prefix, sf, useSSL);
 	    }
 	} catch (SocketTimeoutException sex) {
 	    throw sex;
@@ -230,7 +231,7 @@ public class SocketFetcher {
 
 	if (socket == null) {
 	    socket = createSocket(localaddr, localport,
-		    host, port, cto, to, props, prefix, null, useSSL, idCheck);
+		    host, port, cto, to, props, prefix, null, useSSL);
 
 	} else {
 	    if (to >= 0)
@@ -255,33 +256,59 @@ public class SocketFetcher {
     private static Socket createSocket(InetAddress localaddr, int localport,
 				String host, int port, int cto, int to,
 				Properties props, String prefix,
-				SocketFactory sf, boolean useSSL,
-				boolean idCheck) throws IOException {
-	Socket socket;
+				SocketFactory sf, boolean useSSL)
+				throws IOException {
+	Socket socket = null;
+
+	String socksHost = props.getProperty(prefix + ".socks.host", null);
+	int socksPort = 1080;
+	if (socksHost != null) {
+	    int i = socksHost.indexOf(':');
+	    if (i >= 0) {
+		socksHost = socksHost.substring(0, i);
+		try {
+		    socksPort = Integer.parseInt(socksHost.substring(i + 1));
+		} catch (NumberFormatException ex) {
+		    // ignore it
+		}
+	    }
+	    socksPort = PropUtil.getIntProperty(props,
+					prefix + ".socks.port", socksPort);
+	    if (debug)
+		System.out.println("DEBUG SocketFetcher: socks host " +
+				socksHost + ", port " + socksPort);
+	}
 
 	if (sf != null)
 	    socket = sf.createSocket();
-	else if (useSSL) {
-	    String trusted;
-	    if ((trusted = props.getProperty(prefix + ".ssl.trust")) != null) {
+	if (socket == null) {
+	    if (socksHost != null) {
 		try {
-		    MailSSLSocketFactory msf = new MailSSLSocketFactory();
-		    if (trusted.equals("*"))
-			msf.setTrustAllHosts(true);
-		    else
-			msf.setTrustedHosts(trusted.split("\\s+"));
-		    sf = msf;
-		} catch (GeneralSecurityException gex) {
-		    IOException ioex = new IOException(
-				    "Can't create MailSSLSocketFactory");
-		    ioex.initCause(gex);
-		    throw ioex;
+		    ClassLoader cl = getContextClassLoader();
+		    Class proxySupport = null;
+		    if (cl != null) {
+			try {
+			    proxySupport = Class.forName(SOCKS_SUPPORT,
+							    false, cl);
+			} catch (Exception cex) { }
+		    }
+		    if (proxySupport == null)
+			proxySupport = Class.forName(SOCKS_SUPPORT);
+		    // get & invoke the getSocket(host, port) method
+		    Method mthGetSocket = proxySupport.getMethod("getSocket", 
+			    new Class[] { String.class, int.class });
+		    socket = (Socket)mthGetSocket.invoke(new Object(),
+			    new Object[] { socksHost, new Integer(socksPort) });
+		} catch (Exception ex) {
+		    // ignore any errors
+		    if (debug)
+			System.out.println("DEBUG SocketFetcher: " +
+			    "failed to load ProxySupport class: " + ex);
 		}
-	    } else
-		sf = SSLSocketFactory.getDefault();
-	    socket = sf.createSocket();
-	} else
-	    socket = new Socket();
+	    }
+	    if (socket == null)
+		socket = new Socket();
+	}
 	if (to >= 0)
 	    socket.setSoTimeout(to);
 	if (localaddr != null)
@@ -291,19 +318,39 @@ public class SocketFetcher {
 	else
 	    socket.connect(new InetSocketAddress(host, port));
 
-	configureSSLSocket(socket, props, prefix);
-	if (idCheck && socket instanceof SSLSocket)
-	    checkServerIdentity(host, (SSLSocket)socket);
-	if (sf instanceof MailSSLSocketFactory) {
-	    MailSSLSocketFactory msf = (MailSSLSocketFactory)sf;
-	    if (!msf.isServerTrusted(host, (SSLSocket)socket)) {
+	/*
+	 * If we want an SSL connection and we didn't get an SSLSocket,
+	 * wrap our plain Socket with an SSLSocket.
+	 */
+	if (useSSL && !(socket instanceof SSLSocket)) {
+	    String trusted;
+	    SSLSocketFactory ssf;
+	    if ((trusted = props.getProperty(prefix + ".ssl.trust")) != null) {
 		try {
-		    socket.close();
-		} finally {
-		    throw new IOException("Server is not trusted: " + host);
+		    MailSSLSocketFactory msf = new MailSSLSocketFactory();
+		    if (trusted.equals("*"))
+			msf.setTrustAllHosts(true);
+		    else
+			msf.setTrustedHosts(trusted.split("\\s+"));
+		    ssf = msf;
+		} catch (GeneralSecurityException gex) {
+		    IOException ioex = new IOException(
+				    "Can't create MailSSLSocketFactory");
+		    ioex.initCause(gex);
+		    throw ioex;
 		}
-	    }
+	    } else
+		ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+	    socket = ssf.createSocket(socket, host, port, true);
+	    sf = ssf;
 	}
+
+	/*
+	 * No matter how we created the socket, if it turns out to be an
+	 * SSLSocket, configure it.
+	 */
+	configureSSLSocket(socket, host, props, prefix, sf);
+
 	return socket;
     }
 
@@ -435,21 +482,7 @@ public class SocketFetcher {
 	    }
 
 	    socket = ssf.createSocket(socket, host, port, true);
-	    configureSSLSocket(socket, props, prefix);
-	    boolean idCheck = PropUtil.getBooleanProperty(props,
-				prefix + ".ssl.checkserveridentity", false);
-	    if (idCheck)
-		checkServerIdentity(host, (SSLSocket)socket);
-	    if (ssf instanceof MailSSLSocketFactory) {
-		MailSSLSocketFactory msf = (MailSSLSocketFactory)ssf;
-		if (!msf.isServerTrusted(host, (SSLSocket)socket)) {
-		    try {
-			socket.close();
-		    } finally {
-			throw new IOException("Server is not trusted: " + host);
-		    }
-		}
-	    }
+	    configureSSLSocket(socket, host, props, prefix, ssf);
 	} catch (Exception ex) {
 	    if (ex instanceof InvocationTargetException) {
 		Throwable t =
@@ -475,9 +508,12 @@ public class SocketFetcher {
      * Configure the SSL options for the socket (if it's an SSL socket),
      * based on the mail.<protocol>.ssl.protocols and
      * mail.<protocol>.ssl.ciphersuites properties.
+     * Check the identity of the server as specified by the
+     * mail.<protocol>.ssl.checkserveridentity property.
      */
-    private static void configureSSLSocket(Socket socket, Properties props,
-				String prefix) throws IOException {
+    private static void configureSSLSocket(Socket socket, String host,
+			Properties props, String prefix, SocketFactory sf)
+			throws IOException {
 	if (!(socket instanceof SSLSocket))
 	    return;
 	SSLSocket sslsocket = (SSLSocket)socket;
@@ -510,6 +546,24 @@ public class SocketFetcher {
 	 * method.
 	 */
 	sslsocket.startHandshake();
+
+	/*
+	 * Check server identity and trust.
+	 */
+	boolean idCheck = PropUtil.getBooleanProperty(props,
+			    prefix + ".ssl.checkserveridentity", false);
+	if (idCheck)
+	    checkServerIdentity(host, sslsocket);
+	if (sf instanceof MailSSLSocketFactory) {
+	    MailSSLSocketFactory msf = (MailSSLSocketFactory)sf;
+	    if (!msf.isServerTrusted(host, sslsocket)) {
+		try {
+		    sslsocket.close();
+		} finally {
+		    throw new IOException("Server is not trusted: " + host);
+		}
+	    }
+	}
     }
 
     /**

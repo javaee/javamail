@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -587,23 +587,6 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TR>
 
 <TR>
-<TD>mail.smtp.mailextension</TD>
-<TD>String</TD>
-<TD>
-Extension string to append to the MAIL command.
-The extension string can be used to specify standard SMTP
-service extensions as well as vendor-specific extensions.
-Typically the application should use the
-{@link com.sun.mail.smtp.SMTPTransport SMTPTransport}
-method {@link com.sun.mail.smtp.SMTPTransport#supportsExtension
-supportsExtension}
-to verify that the server supports the desired service extension.
-See <A HREF="http://www.ietf.org/rfc/rfc1869.txt" TARGET="_top">RFC 1869</A>
-and other RFCs that define specific extensions.
-</TD>
-</TR>
-
-<TR>
 <TD>mail.smtp.starttls.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -624,6 +607,43 @@ If true, requires the use of the <code>STARTTLS</code> command.
 If the server doesn't support the STARTTLS command, or the command
 fails, the connect method will fail.
 Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.socks.host</TD>
+<TD>string</TD>
+<TD>
+Specifies the host name of a SOCKS5 proxy server that will be used for
+connections to the mail server.
+(Note that this only works on JDK 1.5 or newer.)
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.socks.port</TD>
+<TD>string</TD>
+<TD>
+Specifies the port number for the SOCKS5 proxy server.
+This should only need to be used if the proxy server is not using
+the standard port number of 1080.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.mailextension</TD>
+<TD>String</TD>
+<TD>
+Extension string to append to the MAIL command.
+The extension string can be used to specify standard SMTP
+service extensions as well as vendor-specific extensions.
+Typically the application should use the
+{@link com.sun.mail.smtp.SMTPTransport SMTPTransport}
+method {@link com.sun.mail.smtp.SMTPTransport#supportsExtension
+supportsExtension}
+to verify that the server supports the desired service extension.
+See <A HREF="http://www.ietf.org/rfc/rfc1869.txt" TARGET="_top">RFC 1869</A>
+and other RFCs that define specific extensions.
 </TD>
 </TR>
 

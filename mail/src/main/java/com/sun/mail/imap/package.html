@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -238,28 +238,6 @@ the user name specified in this property.
 </TR>
 
 <TR>
-<TD>mail.imap.starttls.enable</TD>
-<TD>boolean</TD>
-<TD>If true, enables the use of the <code>STARTTLS</code> command (if
-supported by the server) to switch the connection to a TLS-protected
-connection before issuing any login commands.  Note that an appropriate
-trust store must configured so that the client will trust the server's
-certificate.  This feature only works on J2SE 1.4 and newer systems.
-Default is false.</TD>
-</TR>
-
-<TR>
-<TD>mail.imap.starttls.required</TD>
-<TD>boolean</TD>
-<TD>
-If true, requires the use of the <code>STARTTLS</code> command.
-If the server doesn't support the STARTTLS command, or the command
-fails, the connect method will fail.
-Defaults to false.
-</TD>
-</TR>
-
-<TR>
 <TD>mail.imap.localaddress</TD>
 <TD>String</TD>
 <TD>
@@ -467,6 +445,48 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledProtocols</code> method.
 Specifies the SSL cipher suites that will be enabled for SSL connections.
 The property value is a whitespace separated list of tokens acceptable
 to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.starttls.enable</TD>
+<TD>boolean</TD>
+<TD>If true, enables the use of the <code>STARTTLS</code> command (if
+supported by the server) to switch the connection to a TLS-protected
+connection before issuing any login commands.  Note that an appropriate
+trust store must configured so that the client will trust the server's
+certificate.  This feature only works on J2SE 1.4 and newer systems.
+Default is false.</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.starttls.required</TD>
+<TD>boolean</TD>
+<TD>
+If true, requires the use of the <code>STARTTLS</code> command.
+If the server doesn't support the STARTTLS command, or the command
+fails, the connect method will fail.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.socks.host</TD>
+<TD>string</TD>
+<TD>
+Specifies the host name of a SOCKS5 proxy server that will be used for
+connections to the mail server.
+(Note that this only works on JDK 1.5 or newer.)
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.socks.port</TD>
+<TD>string</TD>
+<TD>
+Specifies the port number for the SOCKS5 proxy server.
+This should only need to be used if the proxy server is not using
+the standard port number of 1080.
 </TD>
 </TR>
 

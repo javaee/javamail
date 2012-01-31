@@ -24,6 +24,7 @@ K  4002	MultipartReport.setReport and setDeliveryStatus are broken
 K  4065	Wrong representation of CR/LF are appended to the attachment
 K  4296	SSL Re-Negotiation Problem with checkserveridentity=true
 K  4511	Thread safety in javax.mail.PasswordAuthentication
+K  4583	Add SOCKS5 support
 <no id>	properly handle timeouts during SSL negotiation
 <no id>	free MIME headers in IMAPMessage.invalidateHeaders
 <no id>	fix exception in POP3Message when reading file cached content twice
