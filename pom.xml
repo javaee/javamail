@@ -593,7 +593,6 @@
 		    <configuration>
 			<skip>${findbugs.skip}</skip>
 			<threshold>${findbugs.threshold}</threshold>
-			<findbugsXmlOutput>true</findbugsXmlOutput>
 			<findbugsXmlWithMessages>true</findbugsXmlWithMessages>
 			<excludeFilterFile>
 			    ${findbugs.exclude}
