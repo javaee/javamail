@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -114,7 +114,7 @@ public class DigestMD5 {
 	b64os.flush();
 
 	// client challenge random value
-	String cnonce = bos.toString();
+	String cnonce = bos.toString("iso-8859-1");	// really ASCII?
 	bos.reset();
 
 	// DIGEST-MD5 computation, common portion (order critical)
@@ -174,7 +174,7 @@ public class DigestMD5 {
      */
     private Hashtable tokenize(String serverResponse) throws IOException {
 	Hashtable map	= new Hashtable();
-	byte[] bytes = serverResponse.getBytes();
+	byte[] bytes = serverResponse.getBytes("iso-8859-1");	// really ASCII?
 	String key = null;
 	int ttype;
 	StreamTokenizer	tokens
@@ -182,7 +182,9 @@ public class DigestMD5 {
 		    new InputStreamReader(
 		      new BASE64DecoderStream(
 			new ByteArrayInputStream(bytes, 4, bytes.length - 4)
-		 )));
+		      ), "iso-8859-1"	// really ASCII?
+		    )
+		  );
 
 	tokens.ordinaryChars('0', '9');	// reset digits
 	tokens.wordChars('0', '9');	// digits may start words

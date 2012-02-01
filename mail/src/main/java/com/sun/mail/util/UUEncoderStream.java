@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -140,7 +140,8 @@ public class UUEncoderStream extends FilterOutputStream {
      */
     private void writePrefix() throws IOException {
 	if (!wrotePrefix) {
-	    PrintStream ps = new PrintStream(out);
+	    // name should be ASCII, but who knows...
+	    PrintStream ps = new PrintStream(out, false, "utf-8");
 	    ps.println("begin " + mode + " " + name);
 	    ps.flush();
 	    wrotePrefix = true;
@@ -152,7 +153,7 @@ public class UUEncoderStream extends FilterOutputStream {
      * containing the single word "end" (terminated by a newline)
      */
     private void writeSuffix() throws IOException {
-	PrintStream ps = new PrintStream(out);
+	PrintStream ps = new PrintStream(out, false, "us-ascii");
 	ps.println(" \nend");
 	ps.flush();
     }

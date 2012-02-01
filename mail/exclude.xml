@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010-2011 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -360,4 +360,34 @@
 	<Field name="doExpungeNotification"/>
 	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
     </Match>
+
+    <!--
+	The static mailDateFormat field is only used to access the parse
+	method, which is known to be thread safe, so we can ignore this error.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.INTERNALDATE"/>
+	<Bug pattern="STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE"/>
+    </Match>
+
+    <!--
+	These errors are in code imported from the JDK, where it seems
+	to be purposely using the platform default encoding.  It's safer
+	to just leave this alone and ignore the errors.
+    -->
+    <Match>
+	<Class name="javax.mail.URLName"/>
+	<Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+
+    <!--
+	We're purposely using the platform default encoding because
+	we're trying to discover what the platform default encoding *is*!
+    -->
+    <Match>
+	<Class name="javax.mail.internet.MimeUtility"/>
+	<Method name="getDefaultJavaCharset"/>
+	<Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+
 </FindBugsFilter>

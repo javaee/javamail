@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2005-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,6 +49,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.PrintStream;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -203,7 +204,13 @@ public class Ntlm {
 
     private byte[] calcLMHash() throws GeneralSecurityException {
         byte[] magic = {0x4b, 0x47, 0x53, 0x21, 0x40, 0x23, 0x24, 0x25};
-        byte[] pwb = password.toUpperCase().getBytes();
+        byte[] pwb = null;
+	try {
+	    pwb = password.toUpperCase(Locale.ENGLISH).getBytes("iso-8859-1");
+	} catch (UnsupportedEncodingException ex) {
+	    // should never happen
+	    assert false;
+	}
         byte[] pwb1 = new byte[14];
         int len = password.length();
         if (len > 14)
@@ -271,7 +278,13 @@ public class Ntlm {
         /* First decode the type2 message to get the server nonce */
         /* nonce is located at type2[24] for 8 bytes */
 
-        byte[] type2 = BASE64DecoderStream.decode(challenge.getBytes());
+        byte[] type2 = null;
+	try {
+	    type2 = BASE64DecoderStream.decode(challenge.getBytes("us-ascii"));
+	} catch (UnsupportedEncodingException ex) {
+	    // should never happen
+	    assert false;
+	}
         byte[] nonce = new byte[8];
         System.arraycopy(type2, 24, nonce, 0, 8);
 

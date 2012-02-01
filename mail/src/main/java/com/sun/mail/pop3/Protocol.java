@@ -184,7 +184,13 @@ class Protocol {
 	}
 
 	capabilities = new HashMap(10);
-	BufferedReader r = new BufferedReader(new InputStreamReader(in));
+	BufferedReader r = null;
+	try {
+	    r = new BufferedReader(new InputStreamReader(in, "us-ascii"));
+	} catch (UnsupportedEncodingException ex) {
+	    // should never happen
+	    assert false;
+	}
 	String s;
 	try {
 	    while ((s = r.readLine()) != null) {

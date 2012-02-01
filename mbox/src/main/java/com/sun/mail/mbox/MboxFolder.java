@@ -613,7 +613,7 @@ e.printStackTrace();
 		nos.flush();
 		os = new NewlineOutputStream(os);
 		os = new ContentLengthUpdater(os, cos.getSize());
-		PrintStream pos = new PrintStream(os);
+		PrintStream pos = new PrintStream(os, false, "iso-8859-1");
 		pos.println(getUnixFrom(msg));
 		msg.writeTo(pos);
 		pos.println();	// make sure there's a blank line at the end
