@@ -47,6 +47,7 @@ import java.lang.reflect.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
@@ -1109,11 +1110,7 @@ public class MailHandler extends Handler {
                 head = head.substring(0, MAX_CHARS);
             }
             try {
-                String encoding = getEncoding();
-                if (encoding == null) {
-                    encoding = MimeUtility.getDefaultJavaCharset();
-                }
-
+                final String encoding = getEncodingName();
                 final ByteArrayInputStream in
                         = new ByteArrayInputStream(head.getBytes(encoding));
                 
@@ -1188,6 +1185,19 @@ public class MailHandler extends Handler {
     }
 
     /**
+     * Gets the encoding set for this handler, mime encoding, or file encoding.
+     * @return the java charset name, never null.
+     * @since JavaMail 1.4.5
+     */
+    private String getEncodingName() {
+        String encoding = getEncoding();
+        if (encoding == null) {
+            encoding = MimeUtility.getDefaultJavaCharset();
+        }
+        return encoding;
+    }
+
+    /**
      * Set the content for a part using the encoding assigned to the handler.
      * @param part the part to assign.
      * @param buf the formatted data.
@@ -1195,11 +1205,7 @@ public class MailHandler extends Handler {
      * @throws MessagingException if there is a problem.
      */
     private void setContent(MimeBodyPart part, CharSequence buf, String type) throws MessagingException {
-        String encoding = getEncoding();
-        if (encoding == null) {
-            encoding = MimeUtility.getDefaultJavaCharset();
-        }
-
+        final String encoding = getEncodingName();
         if (type != null && !"text/plain".equalsIgnoreCase(type)) {
             type = contentWithEncoding(type, encoding);
             try {
@@ -2056,6 +2062,17 @@ public class MailHandler extends Handler {
             return;
         }
 
+        final String msg = "Local address is "
+                + InternetAddress.getLocalAddress(session) + '.';
+
+        try { //Verify subclass or declared mime charset.
+            Charset.forName(getEncodingName());
+        } catch (final RuntimeException RE) {
+            IOException UEE = new UnsupportedEncodingException(RE.toString());
+            UEE.initCause(RE);
+            reportError(msg, UEE, ErrorManager.FORMAT_FAILURE);
+        }
+
         //Perform all of the copy actions first.
         final MimeMessage abort = new MimeMessage(session);
         synchronized (this) { //Create the subject.
@@ -2065,14 +2082,6 @@ public class MailHandler extends Handler {
 
         setIncompleteCopy(abort); //Original body part is never added.
         envelopeFor(new MessageContext(abort), true);
-
-        final String msg;
-        if (InternetAddress.getLocalAddress(session) == null) {
-            msg = "Local address is null.";
-        } else {
-            msg = "";
-        }
-
         try {
             abort.saveChanges();
         } catch (final MessagingException ME) {
@@ -2087,12 +2096,13 @@ public class MailHandler extends Handler {
             }
             Transport t;
             try {
-                if (all.length > 0) {
-                    t = session.getTransport(all[0]);
+                final Address[] any = all.length != 0 ? all : abort.getFrom();
+                if (any != null && any.length != 0) {
+                    t = session.getTransport(any[0]);
                     session.getProperty("mail.transport.protocol"); //Force copy
                 } else {
-                    MessagingException me =
-                        new MessagingException("No recipient addresses.");
+                    MessagingException me = new MessagingException(
+                            "No recipient or from address.");
                     reportError(msg, me, ErrorManager.OPEN_FAILURE);
                     throw me;
                 }
@@ -2130,7 +2140,7 @@ public class MailHandler extends Handler {
                     Address[] recip = sfe.getInvalidAddresses();
                     if (recip != null && recip.length != 0) {
                         fixUpContent(abort, verify, sfe);
-                        reportError(abort, sfe, ErrorManager.WRITE_FAILURE);
+                        reportError(abort, sfe, ErrorManager.OPEN_FAILURE);
                     }
 
                     recip = sfe.getValidSentAddresses();
@@ -2139,12 +2149,14 @@ public class MailHandler extends Handler {
                     }
                 } catch (final MessagingException ME) {
                     if (!isMissingContent(abort, ME)) {
-                       throw attach(ME, closed);
+                        fixUpContent(abort, verify, ME);
+                        reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                     }
                 }
 
                 if (closed != null) {
-                    throw closed;
+                    fixUpContent(abort, verify, closed);
+                    reportError(abort, closed, ErrorManager.CLOSE_FAILURE);
                 }
             } else { //Force a property copy.
                 final String protocol = t.getURLName().getProtocol();
@@ -2165,7 +2177,25 @@ public class MailHandler extends Handler {
                 }
             }
 
-            try { //Verify that DataHandler can be loaded.
+            try { //Verify host name and hit the host name cache.
+                if (isEmpty(host)) {
+                    if (InetAddress.getLocalHost()
+                            .getCanonicalHostName().length() == 0) {
+                            throw new UnknownHostException();
+                    }
+                } else {
+                    if (InetAddress.getByName(host)
+                            .getCanonicalHostName().length() == 0) {
+                            throw new UnknownHostException(host);
+                    }
+                }
+            } catch (final IOException IOE) {
+                MessagingException ME = new MessagingException(msg, IOE);
+                fixUpContent(abort, verify, ME);
+                reportError(abort, ME, ErrorManager.OPEN_FAILURE);
+            }
+
+            try { //Verify that the DataHandler can be loaded.
                 final MimeMultipart multipart = new MimeMultipart();
                 final MimeBodyPart body = new MimeBodyPart();
                 body.setDisposition(Part.INLINE);
@@ -2177,58 +2207,71 @@ public class MailHandler extends Handler {
                 abort.saveChanges();
                 abort.writeTo(new ByteArrayOutputStream(MIN_HEADER_SIZE));
             } catch (final IOException IOE) {
-                fixUpContent(abort, verify, IOE);
-                reportError(abort, IOE, ErrorManager.FORMAT_FAILURE);
+                MessagingException ME = new MessagingException(msg, IOE);
+                fixUpContent(abort, verify, ME);
+                reportError(abort, ME, ErrorManager.FORMAT_FAILURE);
             }
 
+            //Verify all recipients.
+            if (all.length != 0) {
+                verifyAddresses(all);
+            } else {
+                throw new MessagingException("No recipient addresses.");
+            }
+
+            //Verify from and sender addresses.
             Address[] from = abort.getFrom();
             Address sender = abort.getSender();
-            if (abort.getHeader("From", ",") != null) {
-                assert from != null;
+            if (sender instanceof InternetAddress) {
+                ((InternetAddress) sender).validate();
+            }
+
+            //If from address is declared then check sender.
+            if (abort.getHeader("From", ",") != null && from.length != 0) {
+                verifyAddresses(from);
                 for (int i = 0; i < from.length; ++i) {
                     if (from[i].equals(sender)) {
                         MessagingException ME = new MessagingException(
-                            "Sender address equals from address.");
-                        ME = new MessagingException(msg, ME);
-                        fixUpContent(abort, verify, ME);
-                        reportError(abort, ME, ErrorManager.OPEN_FAILURE);
-                        break;
+                            "Sender address '" + sender
+                            + "' equals from address.");
+                        throw new MessagingException(msg, ME);
                     }
+                }
+            } else {
+                if (sender == null) {
+                    MessagingException ME = new MessagingException(
+                            "No from or sender address.");
+                    throw new MessagingException(msg, ME);
                 }
             }
 
-            for (int i = 0; i < all.length; ++i) {
-                final Address a = all[i];
-                if (a instanceof InternetAddress) {
-                    ((InternetAddress) a).validate();
-                }
-            }
-            
-
-            //Check the host name after the address checks.
-            if ("local".equals(verify)) {
-                try {
-                    if (isEmpty(host)) {
-                        if (InetAddress.getLocalHost()
-                                .getCanonicalHostName().length() == 0) {
-                            throw new UnknownHostException();
-                        }
-                    } else {
-                        if (InetAddress.getByName(host)
-                                .getCanonicalHostName().length() == 0) {
-                            throw new UnknownHostException(host);
-                        }
-                    }
-                } catch (final IOException IOE) {
-                    throw new MessagingException(msg, IOE);
-                }
-            }
+            //Verify reply-to addresses.
+            verifyAddresses(abort.getReplyTo());
         } catch (final MessagingException ME) {
             fixUpContent(abort, verify, ME);
             reportError(abort, ME, ErrorManager.OPEN_FAILURE);
         } catch (final RuntimeException RE) {
             fixUpContent(abort, verify, RE);
             reportError(abort, RE, ErrorManager.OPEN_FAILURE);
+        }
+    }
+
+    /**
+     * Calls validate for every address given.
+     * If the addresses given are null, empty or not an InternetAddress then
+     * the check is skipped.
+     * @param all any address array, null or empty.
+     * @throws AddressException if there is a problem.
+     * @since JavaMail 1.4.5
+     */
+    private static void verifyAddresses(Address[] all) throws AddressException {
+        if (all != null) {
+            for (int i = 0; i < all.length; ++i) {
+                final Address a = all[i];
+                if (a instanceof InternetAddress) {
+                    ((InternetAddress) a).validate();
+                }
+            }
         }
     }
 
@@ -2243,7 +2286,7 @@ public class MailHandler extends Handler {
         final MessagingException write = new MessagingException(
                 "An empty message was sent.", cause);
         fixUpContent(msg, verify, write);
-        reportError(msg, write, ErrorManager.WRITE_FAILURE);
+        reportError(msg, write, ErrorManager.OPEN_FAILURE);
     }
 
     /**
@@ -2471,10 +2514,7 @@ public class MailHandler extends Handler {
      */
     private void appendSubject0(final Message msg, final String chunk) {
         try {
-            String encoding = getEncoding();
-            if (encoding == null) {
-               encoding = MimeUtility.getDefaultJavaCharset();
-            }
+            final String encoding = getEncodingName();
             final String old = msg.getSubject();
             assert msg instanceof MimeMessage;
             ((MimeMessage) msg).setSubject(old != null ? old.concat(chunk) 
@@ -2798,11 +2838,7 @@ public class MailHandler extends Handler {
            return "null";
         }
 
-        String encoding = getEncoding();
-        if (encoding == null) {
-            encoding = MimeUtility.getDefaultJavaCharset();
-        }
-
+        final String encoding = getEncodingName();
         try {
             final ByteArrayOutputStream out =
                     new ByteArrayOutputStream(MIN_HEADER_SIZE);
@@ -2815,8 +2851,8 @@ public class MailHandler extends Handler {
             pw.flush();
             pw.close(); //BUG ID 6995537
             return out.toString(encoding);
-        } catch (IOException IOE) { //Should not happen.
-            return t.toString() + ' ' + IOE.toString();
+        } catch (IOException badMimeCharset) {
+            return t.toString() + ' ' + badMimeCharset.toString();
         }
     }
 

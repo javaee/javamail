@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.Locale;
 import javax.mail.PasswordAuthentication;
@@ -56,6 +57,11 @@ import static org.junit.Assert.*;
  * @author Jason Mehrens
  */
 public class LogManagerPropertiesTest {
+
+    /**
+     * Holder used to inject Throwables into other APIs.
+     */
+    private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
 
     @Test
     public void testClone() throws Exception {
@@ -349,6 +355,17 @@ public class LogManagerPropertiesTest {
         final javax.mail.Authenticator a =
                 LogManagerProperties.newAuthenticator(type.getName());
         assertEquals(type, a.getClass());
+
+
+        setPending(new RuntimeException());
+        try {
+            LogManagerProperties.newAuthenticator(type.getName());
+            fail("Exception was not thrown.");
+        } catch (InvocationTargetException expect) {
+            assertEquals(RuntimeException.class, expect.getCause().getClass());
+        } finally {
+            setPending(null);
+        }
     }
 
     @Test
@@ -374,6 +391,16 @@ public class LogManagerPropertiesTest {
         final Class type = ErrorComparator.class;
         final Comparator c = LogManagerProperties.newComparator(type.getName());
         assertEquals(type, c.getClass());
+
+        setPending(new RuntimeException());
+        try {
+            LogManagerProperties.newComparator(type.getName());
+            fail("Exception was not thrown.");
+        } catch (InvocationTargetException expect) {
+            assertEquals(RuntimeException.class, expect.getCause().getClass());
+        } finally {
+            setPending(null);
+        }
     }
 
     @Test
@@ -399,6 +426,17 @@ public class LogManagerPropertiesTest {
         final Class type = ErrorManager.class;
         ErrorManager f = LogManagerProperties.newErrorManager(type.getName());
         assertEquals(type, f.getClass());
+
+        setPending(new RuntimeException());
+        try {
+            final String name = ErrorErrorManager.class.getName();
+            LogManagerProperties.newErrorManager(name);
+            fail("Exception was not thrown.");
+        } catch (InvocationTargetException expect) {
+            assertEquals(RuntimeException.class, expect.getCause().getClass());
+        } finally {
+            setPending(null);
+        }
     }
 
     @Test
@@ -424,6 +462,16 @@ public class LogManagerPropertiesTest {
         final Class type = ErrorFilter.class;
         final Filter f = LogManagerProperties.newFilter(type.getName());
         assertEquals(type, f.getClass());
+
+        setPending(new RuntimeException());
+        try {
+            LogManagerProperties.newFilter(type.getName());
+            fail("Exception was not thrown.");
+        } catch (InvocationTargetException expect) {
+            assertEquals(RuntimeException.class, expect.getCause().getClass());
+        } finally {
+            setPending(null);
+        }
     }
 
     @Test
@@ -449,6 +497,175 @@ public class LogManagerPropertiesTest {
         final Class type = SimpleFormatter.class;
         final Formatter f = LogManagerProperties.newFormatter(type.getName());
         assertEquals(type, f.getClass());
+
+        setPending(new RuntimeException());
+        try {
+            final String name = ErrorFormatter.class.getName();
+            LogManagerProperties.newFormatter(name);
+            fail("Exception was not thrown.");
+        } catch (InvocationTargetException expect) {
+            assertEquals(RuntimeException.class, expect.getCause().getClass());
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testEscapingAuthenticator() throws Exception {
+        try {
+            Class k = ErrorAuthenticator.class;
+            javax.mail.Authenticator a;
+
+            a = LogManagerProperties.newAuthenticator(k.getName());
+            assertEquals(k, a.getClass());
+
+            setPending(new ThreadDeath());
+            try {
+                a = LogManagerProperties.newAuthenticator(k.getName());
+                fail(String.valueOf(a));
+            } catch (ThreadDeath expect) {
+            }
+
+            setPending(new OutOfMemoryError());
+            try {
+                a = LogManagerProperties.newAuthenticator(k.getName());
+                fail(String.valueOf(a));
+            } catch (OutOfMemoryError expect) {
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testEscapingComparator() throws Exception {
+        try {
+            Class k = ErrorComparator.class;
+            Comparator c;
+
+            c = LogManagerProperties.newComparator(k.getName());
+            assertEquals(k, c.getClass());
+
+            setPending(new ThreadDeath());
+            try {
+                c = LogManagerProperties.newComparator(k.getName());
+                fail(String.valueOf(c));
+            } catch (ThreadDeath expect) {
+            }
+
+            setPending(new OutOfMemoryError());
+            try {
+                c = LogManagerProperties.newComparator(k.getName());
+                fail(String.valueOf(c));
+            } catch (OutOfMemoryError expect) {
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testEscapingErrorErrorManager() throws Exception {
+        try {
+            Class k = ErrorErrorManager.class;
+            ErrorManager f;
+
+            f = LogManagerProperties.newErrorManager(k.getName());
+            assertEquals(k, f.getClass());
+
+            setPending(new ThreadDeath());
+            try {
+                f = LogManagerProperties.newErrorManager(k.getName());
+                fail(String.valueOf(f));
+            } catch (ThreadDeath expect) {
+            }
+
+            setPending(new OutOfMemoryError());
+            try {
+                f = LogManagerProperties.newErrorManager(k.getName());
+                fail(String.valueOf(f));
+            } catch (OutOfMemoryError expect) {
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testEscapingFilter() throws Exception {
+        try {
+            Class k = ErrorFilter.class;
+            Filter f;
+
+            f = LogManagerProperties.newFilter(k.getName());
+            assertEquals(k, f.getClass());
+
+            setPending(new ThreadDeath());
+            try {
+                f = LogManagerProperties.newFilter(k.getName());
+                fail(String.valueOf(f));
+            } catch (ThreadDeath expect) {
+            }
+
+            setPending(new OutOfMemoryError());
+            try {
+                f = LogManagerProperties.newFilter(k.getName());
+                fail(String.valueOf(f));
+            } catch (OutOfMemoryError expect) {
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    @Test
+    public void testEscapingFormatter() throws Exception {
+        try {
+            Class k = ErrorFormatter.class;
+            Formatter f;
+
+            f = LogManagerProperties.newFormatter(k.getName());
+            assertEquals(k, f.getClass());
+
+            setPending(new ThreadDeath());
+            try {
+                f = LogManagerProperties.newFormatter(k.getName());
+                fail(String.valueOf(f));
+            } catch (ThreadDeath expect) {
+            }
+
+            setPending(new OutOfMemoryError());
+            try {
+                f = LogManagerProperties.newFormatter(k.getName());
+                fail(String.valueOf(f));
+            } catch (OutOfMemoryError expect) {
+            }
+        } finally {
+            setPending(null);
+        }
+    }
+
+    private static void setPending(final Throwable t) {
+        if (t != null) {
+            PENDING.set(t);
+        } else {
+            PENDING.remove();
+        }
+    }
+
+    static void throwPendingIfSet() {
+        final Throwable t = PENDING.get();
+        if (t != null) {
+            if (t instanceof Error) {
+                t.fillInStackTrace();
+                throw (Error) t;
+            } else if (t instanceof RuntimeException) {
+                t.fillInStackTrace();
+                throw (RuntimeException) t;
+            } else {
+                throw new AssertionError(t);
+            }
+        }
     }
 
     private void read(LogManager manager, Properties props) throws IOException {
@@ -473,6 +690,10 @@ public class LogManagerPropertiesTest {
 
     public static final class ErrorAuthenticator extends javax.mail.Authenticator {
 
+        public ErrorAuthenticator() {
+            throwPendingIfSet();
+        }
+
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             throw new Error("");
@@ -483,6 +704,10 @@ public class LogManagerPropertiesTest {
 
         private static final long serialVersionUID = 1L;
 
+        public ErrorComparator() {
+            throwPendingIfSet();
+        }
+
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
         }
@@ -490,7 +715,34 @@ public class LogManagerPropertiesTest {
 
     public static class ErrorFilter implements Filter {
 
+        public ErrorFilter() {
+            throwPendingIfSet();
+        }
+
         public boolean isLoggable(LogRecord record) {
+            throw new Error("");
+        }
+    }
+
+    public static class ErrorFormatter extends Formatter {
+
+        public ErrorFormatter() {
+            throwPendingIfSet();
+        }
+
+        public String format(LogRecord record) {
+            throw new Error("");
+        }
+    }
+
+    public static class ErrorErrorManager extends ErrorManager {
+
+        public ErrorErrorManager() {
+            throwPendingIfSet();
+        }
+
+        @Override
+        public void error(String msg, Exception ex, int code) {
             throw new Error("");
         }
     }

@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2011 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -104,17 +104,17 @@ final class LogManagerProperties extends Properties {
         int count = l.length();
         l.getChars(0, count, b, 0);
         if (c.length() != 0 || (l.length() != 0 && v.length() != 0)) {
-           b[count] = '-';
-           ++count; //be nice to the client compiler.
-           c.getChars(0, c.length(), b, count);
-           count += c.length();
+            b[count] = '-';
+            ++count; //be nice to the client compiler.
+            c.getChars(0, c.length(), b, count);
+            count += c.length();
         }
 
         if (v.length() != 0 && (l.length() != 0 || c.length() != 0)) {
-           b[count] = '-';
-           ++count; //be nice to the client compiler.
-           v.getChars(0, v.length(), b, count);
-           count += v.length();
+            b[count] = '-';
+            ++count; //be nice to the client compiler.
+            v.getChars(0, v.length(), b, count);
+            count += v.length();
         }
         return String.valueOf(b, 0, count);
     }
@@ -243,7 +243,11 @@ final class LogManagerProperties extends Properties {
             //This check avoids additional side effects when the name parameter
             //is a literal name and not a class name.
             if (type.isAssignableFrom(clazz)) {
-                return clazz.getConstructor((Class[]) null).newInstance((Object[]) null);
+                try {
+                    return clazz.getConstructor((Class[]) null).newInstance((Object[]) null);
+                } catch (final InvocationTargetException ITE) {
+                    throw paramOrError(ITE);
+                }
             } else {
                 throw new ClassCastException(clazz.getName()
                         + " cannot be cast to " + type.getName());
@@ -266,6 +270,25 @@ final class LogManagerProperties extends Properties {
                 throw new InvocationTargetException(EIIE);
             }
         }
+    }
+
+    /**
+     * Returns the given exception or throws the escaping cause.
+     * @param ite any invocation target.
+     * @return the exception.
+     * @throws VirtualMachineError if present as cause.
+     * @throws ThreadDeath if present as cause.
+     * @since JavaMail 1.4.5
+     */
+    private static Exception paramOrError(InvocationTargetException ite) {
+        final Throwable cause = ite.getCause();
+        if (cause != null) {
+            if (cause instanceof VirtualMachineError
+                    || cause instanceof ThreadDeath) {
+                throw (Error) cause;
+            }
+        }
+        return ite;
     }
 
     /**

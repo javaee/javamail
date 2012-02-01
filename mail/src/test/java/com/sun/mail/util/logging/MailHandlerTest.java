@@ -40,6 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
+import java.net.URLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -1549,6 +1550,34 @@ public class MailHandlerTest {
         for (int i = 0; i < em.exceptions.size(); i++) {
             fail(em.exceptions.get(i).toString());
         }
+    }
+
+    public void testGuessContentTypeReadlimit() throws Exception {
+        class LastMarkInputStream extends ByteArrayInputStream {
+
+            private int lastReadLimit;
+
+            LastMarkInputStream() {
+                super(new byte[1024]);
+            }
+
+            @Override
+            public synchronized void mark(int readlimit) {
+                this.lastReadLimit = readlimit;
+                super.mark(readlimit);
+            }
+
+            public int getLastReadLimit() {
+                return lastReadLimit;
+            }
+        }
+
+        LastMarkInputStream in = new LastMarkInputStream();
+        URLConnection.guessContentTypeFromStream(in);
+
+        //See MAX_CHARS in MailHandler.contentTypeOf
+        final int lastLimit = in.getLastReadLimit();
+        assertTrue(String.valueOf(lastLimit), 25 >= lastLimit);
     }
 
     @Test
