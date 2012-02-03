@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -324,7 +324,8 @@ public class msgshow {
 	 * file.  Don't overwrite existing files to prevent
 	 * mistakes.
 	 */
-	if (saveAttachments && level != 0 && !p.isMimeType("multipart/*")) {
+	if (saveAttachments && level != 0 && p instanceof MimeBodyPart &&
+		!p.isMimeType("multipart/*")) {
 	    String disp = p.getDisposition();
 	    // many mailers don't include a Content-Disposition
 	    if (disp == null || disp.equalsIgnoreCase(Part.ATTACHMENT)) {
