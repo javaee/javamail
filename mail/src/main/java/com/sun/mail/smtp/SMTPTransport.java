@@ -1139,8 +1139,20 @@ public class SMTPTransport extends Transport {
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
 	} catch (MessagingException mex) {
-	    if (debug)
+	    if (debug) {
+		out.println("DEBUG SMTP: MessagingException while sending");
 		mex.printStackTrace(out);
+	    }
+	    // the MessagingException might be wrapping an IOException
+	    if (mex.getNextException() instanceof IOException) {
+		// if we catch an IOException, it means that we want
+		// to drop the connection so that the message isn't sent
+		if (debug)
+		    out.println("DEBUG SMTP: nested IOException, closing");
+		try {
+		    closeConnection();
+		} catch (MessagingException cex) { /* ignore it */ }
+	    }
 	    addressesFailed();
 	    notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED,
 				     validSentAddr, validUnsentAddr,
@@ -1148,8 +1160,10 @@ public class SMTPTransport extends Transport {
 
 	    throw mex;
 	} catch (IOException ex) {
-	    if (debug)
+	    if (debug) {
+		out.println("DEBUG SMTP: IOException while sending, closing");
 		ex.printStackTrace(out);
+	    }
 	    // if we catch an IOException, it means that we want
 	    // to drop the connection so that the message isn't sent
 	    try {

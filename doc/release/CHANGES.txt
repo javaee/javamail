@@ -32,6 +32,7 @@ K  4583	Add SOCKS5 support
 <no id>	better handle timeouts from POP3 server, throwing FolderClosedException
 <no id>	add com.sun.mail.util.ReadableMime to allow reading raw MIME data
 <no id>	work around Gmail IMAP bug with nested messages
+<no id>	close the SMTP connection if there's an I/O error
 
 
 		  CHANGES IN THE 1.4.4 RELEASE
