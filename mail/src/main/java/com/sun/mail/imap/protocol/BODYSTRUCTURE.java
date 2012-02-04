@@ -262,6 +262,7 @@ public class BODYSTRUCTURE implements Item {
 		// messages just like simple body parts and fails to return
 		// the envelope and body structure of the message (sort of
 		// like IMAP4 before rev1).
+		r.skipSpaces();
 		if (r.peekByte() == '(') {	// the envelope follows
 		    envelope = new ENVELOPE(r);
 		    if (parseDebug)
