@@ -636,7 +636,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 			new IMAPMultipartDataSource(this, bs.bodies, 
 						    sectionId, this)
 		     );
-	    else if (bs.isNested() && isREV1())
+	    else if (bs.isNested() && isREV1() && bs.envelope != null)
 		/* Nested messages are handled specially only for
 		 * IMAP4rev1. IMAP4 doesn't provide enough support to 
 		 * FETCH the components of nested messages

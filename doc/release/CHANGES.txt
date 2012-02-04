@@ -31,6 +31,7 @@ K  4583	Add SOCKS5 support
 <no id>	suppress auth info in debug output, unless mail.debug.auth=true
 <no id>	better handle timeouts from POP3 server, throwing FolderClosedException
 <no id>	add com.sun.mail.util.ReadableMime to allow reading raw MIME data
+<no id>	work around Gmail IMAP bug with nested messages
 
 
 		  CHANGES IN THE 1.4.4 RELEASE

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -258,15 +258,28 @@ public class BODYSTRUCTURE implements Item {
 		     subtype.equalsIgnoreCase("rfc822")) {
 		// Nested message
 		processedType = NESTED;
-		envelope = new ENVELOPE(r);
-		BODYSTRUCTURE[] bs = { new BODYSTRUCTURE(r) };
-		bodies = bs;
-		lines = r.readNumber();
-		if (parseDebug)
-		    System.out.println("DEBUG IMAP: lines " + lines);
-		if (lines < 0)
-		    throw new ParsingException(
+		// The envelope comes next, but sadly Gmail handles nested
+		// messages just like simple body parts and fails to return
+		// the envelope and body structure of the message (sort of
+		// like IMAP4 before rev1).
+		if (r.peekByte() == '(') {	// the envelope follows
+		    envelope = new ENVELOPE(r);
+		    if (parseDebug)
+			System.out.println(
+			    "DEBUG IMAP: got envelope of nested message");
+		    BODYSTRUCTURE[] bs = { new BODYSTRUCTURE(r) };
+		    bodies = bs;
+		    lines = r.readNumber();
+		    if (parseDebug)
+			System.out.println("DEBUG IMAP: lines " + lines);
+		    if (lines < 0)
+			throw new ParsingException(
 			    "BODYSTRUCTURE parse error: bad ``lines'' element");
+		} else {
+		    if (parseDebug)
+			System.out.println("DEBUG IMAP: " +
+			    "missing envelope and body of nested message");
+		}
 	    } else {
 		// Detect common error of including lines element on other types
 		r.skipSpaces();
