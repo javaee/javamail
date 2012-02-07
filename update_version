@@ -2,7 +2,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 2010 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010-2012 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -47,8 +47,8 @@
 # Usage:	update_version new-version
 #
 new=$1
-# find the first version string in pom.xml, which is the old version
-old=`grep '<version>.*</version>' pom.xml | head -1 | \
+# find the second version string in pom.xml, which is the old version
+old=`grep '<version>.*</version>' pom.xml | sed -n 2p | \
 	sed -e 's:.*<version>\(.*\)</version>.*:\1:'`
 for file in `find . -name 'pom.xml' `
 do
