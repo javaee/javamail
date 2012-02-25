@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -125,25 +125,25 @@ public class FetchResponse extends IMAPResponse {
 		"error in FETCH parsing, ran off end of buffer, size " + size);
 
 	    switch(buffer[index]) {
-	    case 'E': 
+	    case 'E': case 'e':
 		if (match(ENVELOPE.name)) {
 		    index += ENVELOPE.name.length; // skip "ENVELOPE"
 		    i = new ENVELOPE(this);
 		}
 		break;
-	    case 'F': 
+	    case 'F': case 'f':
 		if (match(FLAGS.name)) {
 		    index += FLAGS.name.length; // skip "FLAGS"
 		    i = new FLAGS((IMAPResponse)this);
 		}
 		break;
-	    case 'I': 
+	    case 'I': case 'i':
 		if (match(INTERNALDATE.name)) {
 		    index += INTERNALDATE.name.length; // skip "INTERNALDATE"
 		    i = new INTERNALDATE(this);
 		}
 		break;
-	    case 'B': 
+	    case 'B': case 'b':
 		if (match(BODY.name)) {
 		    if (buffer[index+4] == '[') {
 			index += BODY.name.length; // skip "BODY"
@@ -159,7 +159,7 @@ public class FetchResponse extends IMAPResponse {
 		    }
 		}
 		break;
-	    case 'R':
+	    case 'R': case 'r':
 		if (match(RFC822SIZE.name)) {
 		    index += RFC822SIZE.name.length; // skip "RFC822.SIZE"
 		    i = new RFC822SIZE(this);
@@ -175,7 +175,7 @@ public class FetchResponse extends IMAPResponse {
 		    }
 		}
 		break;
-	    case 'U': 
+	    case 'U': case 'u':
 		if (match(UID.name)) {
 		    index += UID.name.length;
 		    i = new UID(this);
