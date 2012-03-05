@@ -68,6 +68,8 @@ public final class SMTPIOExceptionTest {
 
     private boolean closed = false;
 
+    private static final int TIMEOUT = 200;	// I/O timeout, in millis
+
     @Test
     public void test() throws Exception {
         SMTPServer server = null;
@@ -76,7 +78,7 @@ public final class SMTPIOExceptionTest {
 		public void rcpt() throws IOException {
 		    try {
 			// delay long enough to cause timeout
-			Thread.sleep(400);
+			Thread.sleep(2 * TIMEOUT);
 		    } catch (Exception ex) { }
 		    super.rcpt();
 		}
@@ -88,7 +90,7 @@ public final class SMTPIOExceptionTest {
             final Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
             properties.setProperty("mail.smtp.port", "26423");
-            properties.setProperty("mail.smtp.timeout", "200");
+            properties.setProperty("mail.smtp.timeout", "" + TIMEOUT);
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);
 
@@ -127,6 +129,8 @@ public final class SMTPIOExceptionTest {
             if (server != null) {
                 server.quit();
 		server.interrupt();
+		// wait long enough for handler to exit
+		Thread.sleep(2 * TIMEOUT);
             }
         }
     }
