@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -85,7 +85,8 @@ public final class SMTPCloseTest {
                 t.close();
             }
 	    // give the server thread a chance to detect the close
-            Thread.sleep(100);
+	    for (int i = 0; i < 10 && !server.eof(); i++)
+		Thread.sleep(100);
 	    assertTrue("socket closed", server.eof());
         } catch (final Exception e) {
             e.printStackTrace();
