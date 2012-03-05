@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -104,6 +105,8 @@ public class SMTPHandler extends Thread implements Cloneable {
             }
 
             //clientSocket.close();
+        } catch (final SocketException sex) {
+            // ignore it, often get "connection reset" when client closes
         } catch (final Exception e) {
             LOGGER.log(Level.SEVERE, "Error", e);
         } finally {
