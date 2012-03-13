@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -104,6 +104,15 @@ public class MessageCache {
 	if (debug)
 	    out.println("DEBUG IMAP MC: create cache of size " + size);
 	ensureCapacity(size, 1);
+    }
+
+    /**
+     * Constructor for debugging and testing.
+     */
+    MessageCache(int size, boolean debug) {
+	this(null, null, size);
+	this.debug = debug;
+	this.out = System.out;
     }
 
     /**
@@ -381,7 +390,7 @@ public class MessageCache {
 	    if (seqnums != null) {
 		int[] news = new int[newsize + SLOP];
 		System.arraycopy(seqnums, 0, news, 0, seqnums.length);
-		for (int i = seqnums.length; i < news.length; i++)
+		for (int i = size; i < news.length; i++)
 		    news[i] = newSeqNum++;
 		seqnums = news;
 		if (debug)

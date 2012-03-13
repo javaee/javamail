@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,6 +64,28 @@ public class MessageCacheTest {
 	    mc.expungeMessage(1);
 	    // and add one more message
 	    mc.addMessages(1, n);
+	    //System.out.println("  new seqnum " + mc.seqnumOf(n + 1));
+	    // does the new message have the expected sequence number?
+	    assertEquals(mc.seqnumOf(n + 1), n);
+	}
+    }
+
+    /**
+     * Test that when a message is expunged and new messages are added,
+     * the new messages have the expected sequence number.  Similar to
+     * the above, but the seqnums array is created first, then expanded.
+     */
+    @Test
+    public void testExpungeAddExpand() throws Exception {
+	// test a range of values to find boundary condition errors
+	for (int n = 2; n <= 100; n++) {
+	    //System.out.println("MessageCache.testExpungeAdd: test " + n);
+	    // start with two messages
+	    MessageCache mc = new MessageCache(null, null, 2);
+	    // now expunge a message to cause the seqnums array to be created
+	    mc.expungeMessage(1);
+	    // add the remaining messages (eat into SLOP)
+	    mc.addMessages(n - 1, 2);
 	    //System.out.println("  new seqnum " + mc.seqnumOf(n + 1));
 	    // does the new message have the expected sequence number?
 	    assertEquals(mc.seqnumOf(n + 1), n);
