@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -154,20 +154,16 @@ public class populate {
 	if (!dst.exists()) {
 	    // Create it.
 	    boolean dstHoldsOnlyFolders = false;
-	    try {
-		if (!dst.create(src.getType())) {
-		    System.out.println("couldn't create " + dst.getFullName());
-		    return;
-		}
-	    } catch (MessagingException mex) {
+	    if (!dst.create(src.getType())) {
 		// might not be able to create a folder that holds both
-		if (src.getType() !=
-			(Folder.HOLDS_MESSAGES|Folder.HOLDS_FOLDERS))
-		    throw mex;
 		if (!dst.create(srcHasChildren ? Folder.HOLDS_FOLDERS :
 						Folder.HOLDS_MESSAGES)) {
-		    System.out.println("couldn't create " + dst.getFullName());
-		    return;
+		    // might only be able to create one type (Gmail)
+		    if (!dst.create(Folder.HOLDS_MESSAGES)) {
+			System.out.println("couldn't create " +
+							    dst.getFullName());
+			return;
+		    }
 		}
 		dstHoldsOnlyFolders = srcHasChildren;
 	    }
