@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -57,7 +57,7 @@ The JavaMail API includes the <code>javax.mail</code> package and subpackages.
 For an overview of the JavaMail API, read the JavaMail specification
 <A HREF="../JavaMail-1.4.pdf" TARGET="_top">
 included in the download bundle</A> or
-<A HREF="http://java.sun.com/products/javamail/JavaMail-1.4.pdf" TARGET="_top">
+<A HREF="http://www.oracle.com/technetwork/java/javamail-1-149769.pdf" TARGET="_top">
 available on the JavaMail web site</A>.
 <P>
 The code to send a plain text message can be as simple as the following:
@@ -230,6 +230,16 @@ change in future releases.
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
+</TR>
+
+<TR>
+<TD>mail.debug.auth</TD>
+<TD>boolean</TD>
+<TD>
+Include protocol authentication commands (including usernames and passwords)
+in the debug output.
+Default is false.
+</TD>
 </TR>
 
 <TR>
