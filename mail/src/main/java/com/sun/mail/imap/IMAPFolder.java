@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -73,6 +73,11 @@ import com.sun.mail.imap.protocol.*;
  * {@link #removeRights removeRights}, {@link #listRights listRights}, and
  * {@link #myRights myRights} methods support the IMAP ACL extension.
  * Refer to <A HREF="http://www.ietf.org/rfc/rfc2086.txt">RFC 2086</A>
+ * for more information. <p>
+ *
+ * The {@link #getSortedMessages getSortedMessages}
+ * methods support the IMAP SORT extension.
+ * Refer to <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>
  * for more information. <p>
  *
  * The {@link #doCommand doCommand} method and
@@ -1721,7 +1726,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Sort the messages in the folder according to the sort criteria.
      * The messages are returned in the sorted order, but the order of
-     * the messages in the folder is not changed.
+     * the messages in the folder is not changed. <p>
+     *
+     * Depends on the SORT extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>.
      *
      * @since JavaMail 1.4.4
      */
@@ -1734,7 +1742,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Sort the messages in the folder according to the sort criteria.
      * The messages are returned in the sorted order, but the order of
      * the messages in the folder is not changed.  Only messages matching
-     * the search criteria are considered.
+     * the search criteria are considered. <p>
+     *
+     * Depends on the SORT extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>.
      *
      * @since JavaMail 1.4.4
      */
