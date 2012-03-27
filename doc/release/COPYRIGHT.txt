@@ -1,4 +1,4 @@
-Copyright © 1997-2011, Oracle and/or its affiliates. All rights reserved.
+Copyright © 1997-2012, Oracle and/or its affiliates. All rights reserved.
 
 This software and related documentation are provided under a license
 agreement containing restrictions on use and disclosure and are
