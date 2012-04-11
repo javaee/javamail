@@ -122,7 +122,7 @@
 	</mail.packages.private>
 	<mail.probeFile/>
 	<!-- for the osgiversion-maven-plugin -->
-	<hk2.plugin.version>0.4.11</hk2.plugin.version>
+	<hk2.plugin.version>2.0.0</hk2.plugin.version>
 	<javac.path>/opt/jdk1.4/bin/javac</javac.path>
 	<project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
 	<findbugs.threshold>
@@ -399,7 +399,7 @@
 		version without the qualifier.
 	    -->
 	    <plugin>
-		<groupId>com.sun.enterprise</groupId>
+		<groupId>org.glassfish.hk2</groupId>
 		<artifactId>osgiversion-maven-plugin</artifactId>
 		<version>${hk2.plugin.version}</version>
 		<configuration>
