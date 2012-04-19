@@ -665,6 +665,10 @@ public class IMAPStore extends Store
 	    throw new AuthenticationFailedException(
 					cex.getResponse().getRest());
 	} catch (ProtocolException pex) { // any other exception
+	    // failure in login command, close connection to server
+	    if (protocol != null)
+		protocol.disconnect();
+	    protocol = null;
 	    throw new MessagingException(pex.getMessage(), pex);
 	} catch (IOException ioex) {
 	    throw new MessagingException(ioex.getMessage(), ioex);
