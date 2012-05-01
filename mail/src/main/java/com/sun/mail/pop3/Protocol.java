@@ -642,8 +642,11 @@ class Protocol {
 
     /**
      * Start TLS using STLS command specified by RFC 2595.
+     * If already using SSL, this is a nop and the STLS command is not issued.
      */
     synchronized boolean stls() throws IOException {
+	if (socket instanceof SSLSocket)
+	    return true;	// nothing to do
 	Response r = simpleCommand("STLS");
 	if (r.ok) {
 	    // it worked, now switch the socket into TLS mode

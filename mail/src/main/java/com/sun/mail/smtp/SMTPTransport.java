@@ -44,6 +44,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.lang.reflect.*;
+import javax.net.ssl.SSLSocket;
 
 import javax.mail.*;
 import javax.mail.event.*;
@@ -648,7 +649,11 @@ public class SMTPTransport extends Transport {
 		helo(getLocalHost());
 
 	    if (useStartTLS || requireStartTLS) {
-		if (supportsExtension("STARTTLS")) {
+		if (serverSocket instanceof SSLSocket) {
+		    if (debug)
+			out.println(
+			"DEBUG SMTP: STARTTLS requested but already using SSL");
+		} else if (supportsExtension("STARTTLS")) {
 		    startTLS();
 		    /*
 		     * Have to issue another EHLO to update list of extensions
