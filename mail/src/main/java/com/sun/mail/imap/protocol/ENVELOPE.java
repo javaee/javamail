@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -158,6 +158,9 @@ class IMAPAddress extends InternetAddress {
         r.readString(); // throw away address_list
 	String mb = r.readString();
 	String host = r.readString();
+	// skip bogus spaces inserted by Yahoo IMAP server if
+	// "undisclosed-recipients" is a recipient
+	r.skipSpaces();
         if (r.readByte() != ')') // skip past terminating ')'
             throw new ParsingException("ADDRESS parse error");
 
