@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -63,6 +63,7 @@ public class IMAPInputStream extends InputStream {
     private int bufcount; // The index one greater than the index of the
 			  // last valid byte in 'buf'
     private int bufpos;   // The current position within 'buf'
+    private boolean lastBuffer; // is this the last buffer of data?
     private boolean peek; // peek instead of fetch?
     private ByteArray readbuf; // reuse for each read
 
@@ -113,10 +114,11 @@ public class IMAPInputStream extends InputStream {
      */
     private void fill() throws IOException {
 	/*
+	 * If we've read the last buffer, there's no more to read.
 	 * If we know the total number of bytes available from this
 	 * section, let's check if we have consumed that many bytes.
 	 */
-	if (max != -1 && pos >= max) {
+	if (lastBuffer || max != -1 && pos >= max) {
 	    if (pos == 0)
 		checkSeen();
 	    readbuf = null;	// XXX - return to pool?
@@ -128,6 +130,7 @@ public class IMAPInputStream extends InputStream {
 	    readbuf = new ByteArray(blksize + slop);
 
 	ByteArray ba;
+	int cnt;
 	// Acquire MessageCacheLock, to freeze seqnum.
 	synchronized (msg.getMessageCacheLock()) {
 	    try {
@@ -139,7 +142,7 @@ public class IMAPInputStream extends InputStream {
 				"No content for expunged message");
 
 		int seqnum = msg.getSequenceNumber();
-		int cnt = blksize;
+		cnt = blksize;
 		if (max != -1 && pos + blksize > max)
 		    cnt = max - pos;
 		if (peek)
@@ -169,6 +172,8 @@ public class IMAPInputStream extends InputStream {
 	bufpos = ba.getStart();
 	int n = ba.getCount();    // will be zero, if all data has been
 				  // consumed from the server.
+	// if we got less than we asked for, this is the last buffer of data
+	lastBuffer = n < cnt;
 	bufcount = bufpos + n;
 	pos += n;
     }

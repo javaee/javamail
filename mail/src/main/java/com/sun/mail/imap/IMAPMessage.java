@@ -229,6 +229,11 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	return ((IMAPStore)folder.getStore()).getFetchBlockSize();
     }
 
+    // Return the block size for FETCH requests
+    protected boolean ignoreBodyStructureSize() {
+	return ((IMAPStore)folder.getStore()).ignoreBodyStructureSize();
+    }
+
     /**
      * Get the "From" attribute.
      */
@@ -583,7 +588,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
 		if (p.isREV1() && (getFetchBlockSize() != -1)) // IMAP4rev1
 		    return new IMAPInputStream(this, toSection("TEXT"),
-					   bs != null ? bs.size : -1, pk);
+				    bs != null && !ignoreBodyStructureSize() ?
+					bs.size : -1, pk);
 
 		if (p.isREV1()) {
 		    BODY b;

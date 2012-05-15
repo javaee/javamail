@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -163,6 +163,8 @@ public class IMAPStore extends Store
     private final int blksize;		// Block size for data requested
 					// in FETCH requests. Defaults to
 					// 16K
+
+    private boolean ignoreSize;		// ignore the size in BODYSTRUCTURE?
 
     private final int statusCacheTimeout;	// cache Status for 1 second
 
@@ -431,6 +433,12 @@ public class IMAPStore extends Store
 	    if (debug)
 		out.println("DEBUG: mail.imap.fetchsize: " + blksize);
 	}
+
+	ignoreSize = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name +".ignorebodystructuresize", false);
+	if (debug)
+	    out.println("DEBUG: mail.imap.ignorebodystructuresize: " +
+								    ignoreSize);
 
 	statusCacheTimeout = PropUtil.getIntSessionProperty(session,
 	    "mail." + name + ".statuscachetimeout", 1000);
@@ -1262,6 +1270,13 @@ public class IMAPStore extends Store
      */
     int getFetchBlockSize() {
 	return blksize;
+    }
+
+    /**
+     * Ignore the size reported in the BODYSTRUCTURE when fetching data?
+     */
+    boolean ignoreBodyStructureSize() {
+	return ignoreSize;
     }
 
     /**

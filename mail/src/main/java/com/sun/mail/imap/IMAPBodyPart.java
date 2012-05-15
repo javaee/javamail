@@ -181,7 +181,8 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 		message.checkExpunged();
 
 		if (p.isREV1() && (message.getFetchBlockSize() != -1))
-		    return new IMAPInputStream(message, sectionId, bs.size, pk);
+		    return new IMAPInputStream(message, sectionId,
+			message.ignoreBodyStructureSize() ? -1 : bs.size, pk);
 
 		// Else, vanila IMAP4, no partial fetch 
 

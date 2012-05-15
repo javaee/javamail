@@ -136,6 +136,21 @@ Defaults to true.</TD>
 </TR>
 
 <TR>
+<TD>mail.imap.ignorebodystructuresize</TD>
+<TD>boolean</TD>
+<TD>The IMAP BODYSTRUCTURE response includes the exact size of each body part.
+Normally, this size is used to determine how much data to fetch for each
+body part.
+Some servers report this size incorrectly in some cases; this property can
+be set to work around such server bugs.
+If this property is set to true, this size is ignored and data is fetched
+until the server reports the end of data.
+This will result in an extra fetch if the data size is a multiple of the
+block size.
+Defaults to false.</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.connectiontimeout</TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
