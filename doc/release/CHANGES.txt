@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.4.6 release.
 K  4906	IMAP Store socket leak on connect with ProtocolException
 K  5086	STARTTLS when already using SSL may cause connection to fail
 K  5090	Yahoo: Error reading emails containing "undisclosed recipients"
+K  5233	Infinite loop if Quota information is not correctly reported by server
 <no id>	add mail.imap.ignorebodystructuresize to work around server bugs
 
 
