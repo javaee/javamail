@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,8 +62,18 @@ import java.util.NoSuchElementException;
  * <strong>must</strong> be greater than the one used in the earlier
  * session. <p>
  *
- * Refer to RFC 2060 <A HREF="http://www.ietf.org/rfc/rfc2060.txt">
- * http://www.ietf.org/rfc/rfc2060.txt</A> for more information.
+ * Refer to <A HREF="http://www.ietf.org/rfc/rfc2060.txt">RFC 2060</A>
+ * for more information.
+ *
+ * All the Folder objects returned by the default IMAP provider implement
+ * the UIDFolder interface.  Use it as follows: <p>
+ * <blockquote><pre>
+ *
+ * 	Folder f = store.getFolder("whatever");
+ *	UIDFolder uf = (UIDFolder)f;
+ *	long uid = uf.getUID(msg);
+ *
+ * </pre></blockquote><p>
  *
  * @author John Mani
  */
