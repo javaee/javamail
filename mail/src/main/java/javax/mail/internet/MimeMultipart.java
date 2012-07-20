@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -566,7 +566,7 @@ public class MimeMultipart extends Multipart {
 		     * the boundary and save it.
 		     */
 		    if (line.length() > 2 && line.startsWith("--")) {
-			if (line.length() > 4 && line.endsWith("--")) {
+			if (line.length() > 4 && allDashes(line)) {
 			    /*
 			     * The first boundary-like line we find is
 			     * probably *not* the end-of-multipart boundary
@@ -839,7 +839,7 @@ public class MimeMultipart extends Multipart {
 		     * the boundary and save it.
 		     */
 		    if (line.length() > 2 && line.startsWith("--")) {
-			if (line.length() > 4 && line.endsWith("--")) {
+			if (line.length() > 4 && allDashes(line)) {
 			    /*
 			     * The first boundary-like line we find is
 			     * probably *not* the end-of-multipart boundary
@@ -1112,6 +1112,17 @@ public class MimeMultipart extends Multipart {
 	}
 
 	parsed = true;
+    }
+
+    /**
+     * Is the string all dashes ('-')?
+     */
+    private static boolean allDashes(String s) {
+	for (int i = 0; i < s.length(); i++) {
+	    if (s.charAt(i) != '-')
+		return false;
+	}
+	return true;
     }
 
     /**
