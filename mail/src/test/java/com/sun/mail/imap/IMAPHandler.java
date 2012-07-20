@@ -57,7 +57,7 @@ import java.util.logging.Level;
  * @author sbo
  * @author Bill Shannon
  */
-public class IMAPHandler extends Thread implements Cloneable {
+public class IMAPHandler implements Runnable, Cloneable {
 
     /** Logger for this class. */
     private static final Logger LOGGER =

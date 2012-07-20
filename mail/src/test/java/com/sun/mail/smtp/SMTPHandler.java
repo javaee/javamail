@@ -58,7 +58,7 @@ import java.util.logging.Level;
  * @author Bill Shannon
  * @author sbo
  */
-public class SMTPHandler extends Thread implements Cloneable {
+public class SMTPHandler implements Runnable, Cloneable {
 
     /** Logger for this class. */
     private static final Logger LOGGER =
