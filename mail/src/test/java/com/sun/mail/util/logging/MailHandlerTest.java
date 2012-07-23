@@ -1401,8 +1401,8 @@ public class MailHandlerTest {
         if (verify != null) {
             props.put(p.concat(".verify"), verify);
         }
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-        props.put(p.concat(".mail.smtp.timeout"), "1");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+        props.put(p.concat(".mail.smtp.timeout"), "9");
 
         read(manager, props);
 
@@ -1784,8 +1784,9 @@ public class MailHandlerTest {
             InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Exception t = em.exceptions.get(i);
-                if (t instanceof MessagingException
-                        && t.getCause() instanceof UnknownHostException) {
+		if (isUnknownOrTimeout(t)) {
+                //if (t instanceof MessagingException
+                        //&& t.getCause() instanceof UnknownHostException) {
                     continue;
                 }
                 dump(t);
@@ -3560,8 +3561,8 @@ public class MailHandlerTest {
             props.put(p.concat(".mail.from"), "localhost@localdomain");
             props.put(p.concat(".mail.sender"), "mail@handler");
             props.put(p.concat(".errorManager"), VerifyErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+            props.put(p.concat(".mail.smtp.timeout"), "9");
             props.put(p.concat(".verify"), "remote");
 
             read(manager, props);
@@ -3595,8 +3596,8 @@ public class MailHandlerTest {
         props.put("mail.host", "bad-host-name");
         props.put("mail.smtp.host", "bad-host-name");
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
-        props.put("mail.smtp.connectiontimeout", "1");
-        props.put("mail.smtp.timeout", "1");
+        props.put("mail.smtp.connectiontimeout", "9");
+        props.put("mail.smtp.timeout", "9");
 
         Session session = Session.getInstance(new Properties());
         MimeMessage msg = new MimeMessage(session);
@@ -3627,8 +3628,8 @@ public class MailHandlerTest {
         props.put("mail.host", "bad-host-name");
         props.put("mail.smtp.host", "bad-host-name");
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
-        props.put("mail.smtp.connectiontimeout", "1");
-        props.put("mail.smtp.timeout", "1");
+        props.put("mail.smtp.connectiontimeout", "9");
+        props.put("mail.smtp.timeout", "9");
 
         MailHandler target = new MailHandler();
         Session session = Session.getInstance(new Properties());
@@ -3665,8 +3666,8 @@ public class MailHandlerTest {
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+            props.put(p.concat(".mail.smtp.timeout"), "9");
             props.put(p.concat(".verify"), "local");
 
             read(manager, props);
@@ -3723,8 +3724,8 @@ public class MailHandlerTest {
         props.put("mail.cc", "badAddress");
         props.put("subject", "test");
         props.put("mail.from", "badAddress");
-        props.put("mail.smtp.connectiontimeout", "1");
-        props.put("mail.smtp.timeout", "1");
+        props.put("mail.smtp.connectiontimeout", "9");
+        props.put("mail.smtp.timeout", "9");
         props.put("verify", "local");
 
         InternalErrorManager em = new InternalErrorManager();
@@ -3783,8 +3784,8 @@ public class MailHandlerTest {
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-            props.put(p.concat(".mail.smtp.timeout"), "1"); //no verify.
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+            props.put(p.concat(".mail.smtp.timeout"), "9"); //no verify.
 
             read(manager, props);
 
@@ -3796,8 +3797,8 @@ public class MailHandlerTest {
             props.put("mail.cc", "badAddress");
             props.put("subject", "test");
             props.put("mail.from", "badAddress");
-            props.put("mail.smtp.connectiontimeout", "1");
-            props.put("mail.smtp.timeout", "1");
+            props.put("mail.smtp.connectiontimeout", "9");
+            props.put("mail.smtp.timeout", "9");
             props.put("verify", "local");
 
             MailHandler instance = new MailHandler(props);
@@ -3859,8 +3860,8 @@ public class MailHandlerTest {
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-            props.put(p.concat(".mail.smtp.timeout"), "1");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+            props.put(p.concat(".mail.smtp.timeout"), "9");
             props.put(p.concat(".verify"), "remote");
 
             read(manager, props);
@@ -3895,8 +3896,8 @@ public class MailHandlerTest {
         props.put(p.concat(".mail.to"), "badAddress");
         props.put(p.concat(".mail.cc"), "badAddress");
         props.put(p.concat(".mail.from"), "badAddress");
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-        props.put(p.concat(".mail.smtp.timeout"), "1");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+        props.put(p.concat(".mail.smtp.timeout"), "9");
         props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
 
         //test class cast.
@@ -3965,8 +3966,8 @@ public class MailHandlerTest {
         props.put(p.concat(".mail.to"), "badAddress");
         props.put(p.concat(".mail.cc"), "badAddress");
         props.put(p.concat(".mail.from"), "badAddress");
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
-        props.put(p.concat(".mail.smtp.timeout"), "1");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
+        props.put(p.concat(".mail.smtp.timeout"), "9");
         props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
 
         //test class cast.
@@ -4524,8 +4525,8 @@ public class MailHandlerTest {
         props.put(p.concat("mail.to"), "badAddress");
         props.put(p.concat("mail.cc"), "badAddress");
         props.put(p.concat("mail.from"), "badAddress");
-        props.put(p.concat("mail.smtp.connectiontimeout"), "1");
-        props.put(p.concat("mail.smtp.timeout"), "1");
+        props.put(p.concat("mail.smtp.connectiontimeout"), "9");
+        props.put(p.concat("mail.smtp.timeout"), "9");
         props.put(p.concat("errorManager"), InternalErrorManager.class.getName());
         return props;
     }
@@ -4853,6 +4854,15 @@ public class MailHandlerTest {
             return isConnectOrTimeout(t.getCause());
         } else {
             return t instanceof java.net.ConnectException
+                    || t instanceof java.net.SocketTimeoutException;
+        }
+    }
+
+    private static boolean isUnknownOrTimeout(Throwable t) {
+        if (t instanceof MessagingException) {
+            return isUnknownOrTimeout(t.getCause());
+        } else {
+            return t instanceof java.net.UnknownHostException
                     || t instanceof java.net.SocketTimeoutException;
         }
     }
