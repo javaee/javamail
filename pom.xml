@@ -79,7 +79,7 @@
       </license>
       <license>
         <name>GPLv2+CE</name>
-        <url>https://glassfish.dev.java.net/public/CDDL+GPL.html</url>
+        <url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</url>
         <distribution>repo</distribution>
         <comments>GPL version 2 plus the Classpath Exception</comments>
       </license>
@@ -141,6 +141,7 @@
         <developer>
             <id>shannon</id>
             <name>Bill Shannon</name>
+	    <email>bill.shannon@oracle.com</email>
             <organization>Oracle</organization>
             <roles>
                 <role>lead</role>
