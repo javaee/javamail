@@ -1,1 +1,1 @@
-protocol=mbox; type=store; class=com.sun.mail.mbox.MboxStore; vendor=Sun Microsy stems, Inc;
+protocol=mbox; type=store; class=com.sun.mail.mbox.MboxStore; vendor=Oracle;
