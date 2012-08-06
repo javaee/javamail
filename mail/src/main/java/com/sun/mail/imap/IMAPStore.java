@@ -156,9 +156,9 @@ public class IMAPStore extends Store
      */
     public static final int RESPONSE = 1000;
 
-    private final String name;		// name of this protocol
-    private final int defaultPort;	// default IMAP port
-    private final boolean isSSL;	// use SSL?
+    protected final String name;	// name of this protocol
+    protected final int defaultPort;	// default IMAP port
+    protected final boolean isSSL;	// use SSL?
 
     private final int blksize;		// Block size for data requested
 					// in FETCH requests. Defaults to
@@ -175,12 +175,12 @@ public class IMAPStore extends Store
     private volatile int port = -1;	// port to use
 
     // Auth info
-    private String host;
-    private String user;
-    private String password;
-    private String proxyAuthUser;
-    private String authorizationID;
-    private String saslRealm;
+    protected String host;
+    protected String user;
+    protected String password;
+    protected String proxyAuthUser;
+    protected String authorizationID;
+    protected String saslRealm;
 
     private Namespaces namespaces;
 
@@ -211,7 +211,7 @@ public class IMAPStore extends Store
 
     private boolean debugusername;	// include username in debug output?
     private boolean debugpassword;	// include password in debug output?
-    private PrintStream out;		// debug output stream
+    protected PrintStream out;		// debug output stream
 
     private boolean messageCacheDebug;
 
@@ -642,12 +642,7 @@ public class IMAPStore extends Store
 		if (debug)
 		    out.println("DEBUG: trying to connect to host \"" + host +
 				"\", port " + port + ", isSSL " + isSSL);
-                protocol = new IMAPProtocol(name, host, port, 
-		    			    session.getDebug(),
-		    			    session.getDebugOut(),
-					    session.getProperties(),
-					    isSSL
-					   );
+                protocol = newIMAPProtocol(host, port);
 		if (debug)
 		    out.println("DEBUG: protocolConnect login" +
 				", host=" + host +
@@ -683,6 +678,16 @@ public class IMAPStore extends Store
 	} 
 
         return true;
+    }
+
+    protected IMAPProtocol newIMAPProtocol(String host, int port)
+				throws IOException, ProtocolException {
+	return new IMAPProtocol(name, host, port, 
+		    			    session.getDebug(),
+		    			    session.getDebugOut(),
+					    session.getProperties(),
+					    isSSL
+					   );
     }
 
     private void login(IMAPProtocol p, String u, String pw) 
@@ -841,12 +846,7 @@ public class IMAPStore extends Store
 		    if (forcePasswordRefresh)
 			refreshPassword();
                     // Use cached host, port and timeout values.
-                    p = new IMAPProtocol(name, host, port,
-                                         session.getDebug(),
-                                         session.getDebugOut(),
-                                         session.getProperties(),
-					 isSSL
-                                        );
+                    p = newIMAPProtocol(host, port);
                     // Use cached auth info
                     login(p, user, password);
                 } catch(Exception ex1) {
@@ -949,12 +949,7 @@ public class IMAPStore extends Store
 		    if (forcePasswordRefresh)
 			refreshPassword();
                     // Use cached host, port and timeout values.
-                    p = new IMAPProtocol(name, host, port,
-                                         session.getDebug(),
-                                         session.getDebugOut(),
-                                         session.getProperties(),
-					 isSSL
-                                        );
+                    p = newIMAPProtocol(host, port);
                     // Use cached auth info
                     login(p, user, password);
                 } catch(Exception ex1) {

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,10 @@ import com.sun.mail.iap.*;
  * This class traverses a search-tree and generates the 
  * corresponding IMAP search sequence. 
  *
+ * Each IMAPProtocol instance contains an instance of this class,
+ * which might be subclassed by subclasses of IMAPProtocol to add
+ * support for additional product-specific search terms.
+ *
  * @author	John Mani
  */
 public class SearchSequence {
@@ -58,7 +62,7 @@ public class SearchSequence {
     /**
      * Generate the IMAP search sequence for the given search expression. 
      */
-    public static Argument generateSequence(SearchTerm term, String charset) 
+    public Argument generateSequence(SearchTerm term, String charset) 
 		throws SearchException, IOException {
 	/*
 	 * Call the appropriate handler depending on the type of
@@ -149,7 +153,7 @@ public class SearchSequence {
 	return true;
     }
 
-    private static Argument and(AndTerm term, String charset) 
+    protected Argument and(AndTerm term, String charset) 
 			throws SearchException, IOException {
 	// Combine the sequences for both terms
 	SearchTerm[] terms = term.getTerms();
@@ -161,7 +165,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument or(OrTerm term, String charset) 
+    protected Argument or(OrTerm term, String charset) 
 			throws SearchException, IOException {
 	SearchTerm[] terms = term.getTerms();
 
@@ -209,7 +213,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument not(NotTerm term, String charset) 
+    protected Argument not(NotTerm term, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 
@@ -230,7 +234,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument header(HeaderTerm term, String charset) 
+    protected Argument header(HeaderTerm term, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 	result.writeAtom("HEADER");
@@ -239,7 +243,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument messageid(MessageIDTerm term, String charset) 
+    protected Argument messageid(MessageIDTerm term, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 	result.writeAtom("HEADER");
@@ -249,7 +253,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument flag(FlagTerm term) throws SearchException {
+    protected Argument flag(FlagTerm term) throws SearchException {
 	boolean set = term.getTestSet();
 
 	Argument result = new Argument();
@@ -283,7 +287,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument from(String address, String charset) 
+    protected Argument from(String address, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 	result.writeAtom("FROM");
@@ -291,7 +295,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument recipient(Message.RecipientType type,
+    protected Argument recipient(Message.RecipientType type,
 				      String address, String charset)
 			throws SearchException, IOException {
 	Argument result = new Argument();
@@ -309,7 +313,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument subject(SubjectTerm term, String charset) 
+    protected Argument subject(SubjectTerm term, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 	
@@ -318,7 +322,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument body(BodyTerm term, String charset) 
+    protected Argument body(BodyTerm term, String charset) 
 			throws SearchException, IOException {
 	Argument result = new Argument();
 
@@ -327,7 +331,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument size(SizeTerm term) 
+    protected Argument size(SizeTerm term) 
 			throws SearchException {
 	Argument result = new Argument();
 
@@ -364,26 +368,21 @@ public class SearchSequence {
     };
 
     // A GregorianCalendar object in the current timezone
-    private static Calendar cal = new GregorianCalendar();
+    protected Calendar cal = new GregorianCalendar();
 
-    private static synchronized String toIMAPDate(Date date) {
+    protected String toIMAPDate(Date date) {
 	StringBuffer s = new StringBuffer();
 
-	/*
-	 * Synchronized to coordinate access to shared Calendar object.
-	 */
-	synchronized (cal) {
-	    cal.setTime(date);
+	cal.setTime(date);
 
-	    s.append(cal.get(Calendar.DATE)).append("-");
-	    s.append(monthTable[cal.get(Calendar.MONTH)]).append('-');
-	    s.append(cal.get(Calendar.YEAR));
-	}
+	s.append(cal.get(Calendar.DATE)).append("-");
+	s.append(monthTable[cal.get(Calendar.MONTH)]).append('-');
+	s.append(cal.get(Calendar.YEAR));
 
 	return s.toString();
     }
 
-    private static Argument sentdate(DateTerm term) 
+    protected Argument sentdate(DateTerm term) 
 			throws SearchException {
 	Argument result = new Argument();
 	String date = toIMAPDate(term.getDate());
@@ -414,7 +413,7 @@ public class SearchSequence {
 	return result;
     }
 
-    private static Argument receiveddate(DateTerm term) 
+    protected Argument receiveddate(DateTerm term) 
 			throws SearchException {
 	Argument result = new Argument();
 	String date = toIMAPDate(term.getDate());

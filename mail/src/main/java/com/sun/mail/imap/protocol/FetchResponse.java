@@ -50,6 +50,7 @@ import com.sun.mail.iap.*;
  * of an IMAP server.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class FetchResponse extends IMAPResponse {
@@ -108,7 +109,6 @@ public class FetchResponse extends IMAPResponse {
     private final static char[] HEADER = {'.','H','E','A','D','E','R'};
     private final static char[] TEXT = {'.','T','E','X','T'};
 
-	
     private void parse() throws ParsingException {
 	skipSpaces();
 	if (buffer[index] != '(')
@@ -124,67 +124,11 @@ public class FetchResponse extends IMAPResponse {
 		throw new ParsingException(
 		"error in FETCH parsing, ran off end of buffer, size " + size);
 
-	    switch(buffer[index]) {
-	    case 'E': case 'e':
-		if (match(ENVELOPE.name)) {
-		    index += ENVELOPE.name.length; // skip "ENVELOPE"
-		    i = new ENVELOPE(this);
-		}
-		break;
-	    case 'F': case 'f':
-		if (match(FLAGS.name)) {
-		    index += FLAGS.name.length; // skip "FLAGS"
-		    i = new FLAGS((IMAPResponse)this);
-		}
-		break;
-	    case 'I': case 'i':
-		if (match(INTERNALDATE.name)) {
-		    index += INTERNALDATE.name.length; // skip "INTERNALDATE"
-		    i = new INTERNALDATE(this);
-		}
-		break;
-	    case 'B': case 'b':
-		if (match(BODY.name)) {
-		    if (buffer[index+4] == '[') {
-			index += BODY.name.length; // skip "BODY"
-			i = new BODY(this);
-		    }
-		    else {
-			if (match(BODYSTRUCTURE.name))
-			    index += BODYSTRUCTURE.name.length;
-			    // skip "BODYSTRUCTURE"
-			else
-			    index += BODY.name.length; // skip "BODY"
-			i = new BODYSTRUCTURE(this);
-		    }
-		}
-		break;
-	    case 'R': case 'r':
-		if (match(RFC822SIZE.name)) {
-		    index += RFC822SIZE.name.length; // skip "RFC822.SIZE"
-		    i = new RFC822SIZE(this);
-		}
-		else {
-		    if (match(RFC822DATA.name)) {
-			index += RFC822DATA.name.length;
-			if (match(HEADER))
-			    index += HEADER.length; // skip ".HEADER"
-			else if (match(TEXT))
-				index += TEXT.length; // skip ".TEXT"
-			i = new RFC822DATA(this);
-		    }
-		}
-		break;
-	    case 'U': case 'u':
-		if (match(UID.name)) {
-		    index += UID.name.length;
-		    i = new UID(this);
-		}
-		break;
-	    default: 
-	    }
-	    if (i != null)
-		v.addElement(i);
+	    i = parseItem();
+	    if (i == null)
+		throw new ParsingException(
+		"error in FETCH parsing, unrecognized item at index " + index);
+	    v.addElement(i);
 	} while (buffer[index] != ')');
 
 	index++; // skip ')'
@@ -192,17 +136,71 @@ public class FetchResponse extends IMAPResponse {
 	v.copyInto(items);
     }
 
-    /*
+    /**
+     * Parse the item at the current position in the buffer,
+     * skipping over the item if successful.  Otherwise, return null
+     * and leave the buffer position unmodified.
+     */
+    protected Item parseItem() throws ParsingException {
+	switch (buffer[index]) {
+	case 'E': case 'e':
+	    if (match(ENVELOPE.name))
+		return new ENVELOPE(this);
+	    break;
+	case 'F': case 'f':
+	    if (match(FLAGS.name))
+		return new FLAGS((IMAPResponse)this);
+	    break;
+	case 'I': case 'i':
+	    if (match(INTERNALDATE.name))
+		return new INTERNALDATE(this);
+	    break;
+	case 'B': case 'b':
+	    if (match(BODYSTRUCTURE.name))
+		return new BODYSTRUCTURE(this);
+	    else if (match(BODY.name)) {
+		if (buffer[index] == '[')
+		    return new BODY(this);
+		else
+		    return new BODYSTRUCTURE(this);
+	    }
+	    break;
+	case 'R': case 'r':
+	    if (match(RFC822SIZE.name))
+		return new RFC822SIZE(this);
+	    else if (match(RFC822DATA.name)) {
+		if (match(HEADER))
+		    ;	// skip ".HEADER"
+		else if (match(TEXT))
+		    ;	// skip ".TEXT"
+		return new RFC822DATA(this);
+	    }
+	    break;
+	case 'U': case 'u':
+	    if (match(UID.name))
+		return new UID(this);
+	    break;
+	default: 
+	    break;
+	}
+	return null;
+    }
+
+    /**
+     * Does the current buffer match the given item name?
      * itemName is the name of the IMAP item to compare against.
      * NOTE that itemName *must* be all uppercase.
+     * If the match is successful, the buffer pointer (index)
+     * is incremented past the matched item.
      */
-    private boolean match(char[] itemName) {
+    protected boolean match(char[] itemName) {
 	int len = itemName.length;
 	for (int i = 0, j = index; i < len;)
 	    // IMAP tokens are case-insensitive. We store itemNames in
 	    // uppercase, so convert operand to uppercase before comparing.
 	    if (Character.toUpperCase((char)buffer[j++]) != itemName[i++])
 		return false;
+	index += len;
 	return true;
     }
 }

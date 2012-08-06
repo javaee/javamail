@@ -1018,7 +1018,186 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 			throws MessagingException {
 	checkOpened();
-	IMAPMessage.fetch(this, msgs, fp);
+
+	StringBuffer command = new StringBuffer();
+	boolean first = true;
+	boolean allHeaders = false;
+
+	if (fp.contains(FetchProfile.Item.ENVELOPE)) {
+	    command.append(getEnvelopeCommand());
+	    first = false;
+	}
+	if (fp.contains(FetchProfile.Item.FLAGS)) {
+	    command.append(first ? "FLAGS" : " FLAGS");
+	    first = false;
+	}
+	if (fp.contains(FetchProfile.Item.CONTENT_INFO)) {
+	    command.append(first ? "BODYSTRUCTURE" : " BODYSTRUCTURE");
+	    first = false;
+	}
+	if (fp.contains(UIDFolder.FetchProfileItem.UID)) {
+	    command.append(first ? "UID" : " UID");
+	    first = false;
+	}
+	if (fp.contains(IMAPFolder.FetchProfileItem.HEADERS)) {
+	    allHeaders = true;
+	    if (protocol.isREV1())
+		command.append(first ?
+			    "BODY.PEEK[HEADER]" : " BODY.PEEK[HEADER]");
+	    else
+		command.append(first ? "RFC822.HEADER" : " RFC822.HEADER");
+	    first = false;
+	}
+	if (fp.contains(IMAPFolder.FetchProfileItem.SIZE)) {
+	    command.append(first ? "RFC822.SIZE" : " RFC822.SIZE");
+	    first = false;
+	}
+
+	// if we're not fetching all headers, fetch individual headers
+	String[] hdrs = null;
+	if (!allHeaders) {
+	    hdrs = fp.getHeaderNames();
+	    if (hdrs.length > 0) {
+		if (!first)
+		    command.append(" ");
+		command.append(createHeaderCommand(hdrs));
+	    }
+	}
+
+	createFetchCommand(command, fp);
+
+	Utility.Condition condition = newFetchProfileCondition(fp);
+
+        // Acquire the Folder's MessageCacheLock.
+        synchronized(messageCacheLock) {
+
+	    // Apply the test, and get the sequence-number set for
+	    // the messages that need to be prefetched.
+	    MessageSet[] msgsets = Utility.toMessageSet(msgs, condition);
+
+	    if (msgsets == null)
+		// We already have what we need.
+		return;
+
+	    Response[] r = null;
+	    Vector v = new Vector(); // to collect non-FETCH responses &
+	    			     // unsolicited FETCH FLAG responses 
+	    try {
+		r = getProtocol().fetch(msgsets, command.toString());
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(this, cex.getMessage());
+	    } catch (CommandFailedException cfx) {
+		// Ignore these, as per RFC 2180
+	    } catch (ProtocolException pex) { 
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+
+	    if (r == null)
+		return;
+	   
+	    for (int i = 0; i < r.length; i++) {
+		if (r[i] == null)
+		    continue;
+		if (!(r[i] instanceof FetchResponse)) {
+		    v.addElement(r[i]); // Unsolicited Non-FETCH response
+		    continue;
+		}
+
+		// Got a FetchResponse.
+		FetchResponse f = (FetchResponse)r[i];
+		// Get the corresponding message.
+		IMAPMessage msg = getMessageBySeqNumber(f.getNumber());
+
+		int count = f.getItemCount();
+		boolean unsolicitedFlags = false;
+
+		for (int j = 0; j < count; j++) {
+		    Item item = f.getItem(j);
+		    // Check for the FLAGS item
+		    if (item instanceof Flags &&
+			    (!fp.contains(FetchProfile.Item.FLAGS) ||
+				msg == null)) {
+			// Ok, Unsolicited FLAGS update.
+			unsolicitedFlags = true;
+		    } else if (msg != null)
+			msg.handleFetchItem(item, hdrs, allHeaders);
+		}
+
+		// If this response contains any unsolicited FLAGS
+		// add it to the unsolicited response vector
+		if (unsolicitedFlags)
+		    v.addElement(f);
+	    }
+
+	    // Dispatch any unsolicited responses
+	    int size = v.size();
+	    if (size != 0) {
+		Response[] responses = new Response[size];
+		v.copyInto(responses);
+		handleResponses(responses);
+	    }
+
+	} // Release messageCacheLock
+    }
+
+    /**
+     * Return the IMAP FETCH items to request in order to load
+     * all the "envelope" data.
+     */
+    protected String getEnvelopeCommand() {
+	return IMAPMessage.EnvelopeCmd;
+    }
+
+    /**
+     * Add any FETCH commands to the command buffer that are necessary
+     * to fetch the items in the FetchProfile.  Subclasses of IMAPFolder
+     * may override this method to handle additional custom FetchProfile items.
+     */
+    protected void createFetchCommand(StringBuffer command, FetchProfile fp) {
+    }
+
+    /**
+     * Create a new FetchProfileCondition object.
+     * Subclasses of IMAPFolder may override this method to create a
+     * subclass of IMAPMessage.FetchProfileCondition.
+     */
+    protected Utility.Condition newFetchProfileCondition(FetchProfile fp) {
+	return new IMAPMessage.FetchProfileCondition(fp);
+    }
+
+    /**
+     * Create a new IMAPMessage object to represent the given message number.
+     * Subclasses of IMAPFolder may override this method to create a
+     * subclass of IMAPMessage.
+     */
+    protected IMAPMessage newIMAPMessage(int msgnum) {
+	return new IMAPMessage(this, msgnum);
+    }
+
+    /**
+     * Create the appropriate IMAP FETCH command items to fetch the
+     * requested headers.
+     */
+    private String createHeaderCommand(String[] hdrs) {
+	StringBuffer sb;
+
+	if (protocol.isREV1())
+	    sb = new StringBuffer("BODY.PEEK[HEADER.FIELDS (");
+	else
+	    sb = new StringBuffer("RFC822.HEADER.LINES (");
+
+	for (int i = 0; i < hdrs.length; i++) {
+	    if (i > 0)
+		sb.append(" ");
+	    sb.append(hdrs[i]);
+	}
+
+	if (protocol.isREV1())
+	    sb.append(")]");
+	else
+	    sb.append(")");
+	
+	return sb.toString();
     }
 
     /**

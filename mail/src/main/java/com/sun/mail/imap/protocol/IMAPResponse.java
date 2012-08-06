@@ -139,12 +139,4 @@ public class IMAPResponse extends Response {
     public int getNumber() {
 	return number;
     }
-
-    public static IMAPResponse readResponse(Protocol p) 
-			throws IOException, ProtocolException {
-	IMAPResponse r = new IMAPResponse(p);
-	if (r.keyEquals("FETCH"))
-	    r = new FetchResponse(r);
-	return r;
-    }
 }

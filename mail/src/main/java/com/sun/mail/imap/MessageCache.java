@@ -135,7 +135,7 @@ public class MessageCache {
 	if (msg == null) {
 	    if (debug)
 		out.println("DEBUG IMAP MC: create message number " + msgnum);
-	    msg = new IMAPMessage(folder, msgnum);
+	    msg = folder.newIMAPMessage(msgnum);
 	    messages[msgnum-1] = msg;
 	    // mark message expunged if no seqnum
 	    if (seqnumOf(msgnum) <= 0) {

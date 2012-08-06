@@ -87,6 +87,7 @@ public class IMAPProtocol extends Protocol {
     // WARNING: authmechs may be initialized as a result of superclass
     //		constructor, don't initialize it here.
 
+    protected SearchSequence searchSequence;
     protected String[] searchCharsets; 	// array of search charsets
 
     private String name;
@@ -267,7 +268,10 @@ public class IMAPProtocol extends Protocol {
     public Response readResponse() throws IOException, ProtocolException {
 	// assert Thread.holdsLock(this);
 	// can't assert because it's called from constructor
-	return IMAPResponse.readResponse(this);
+	IMAPResponse r = new IMAPResponse(this);
+	if (r.keyEquals("FETCH"))
+	    r = new FetchResponse(r);
+	return r;
     }
 
     /**
@@ -1670,7 +1674,7 @@ public class IMAPProtocol extends Protocol {
     private int[] search(String msgSequence, SearchTerm term)
 			throws ProtocolException, SearchException {
 	// Check if the search "text" terms contain only ASCII chars
-	if (SearchSequence.isAscii(term)) {
+	if (getSearchSequence().isAscii(term)) {
 	    try {
 		return issueSearch(msgSequence, term, null);
 	    } catch (IOException ioex) { /* will not happen */ }
@@ -1724,7 +1728,7 @@ public class IMAPProtocol extends Protocol {
 	     throws ProtocolException, SearchException, IOException {
 
 	// Generate a search-sequence with the given charset
-	Argument args = SearchSequence.generateSequence(term, 
+	Argument args = getSearchSequence().generateSequence(term, 
 			  charset == null ? null : 
 					    MimeUtility.javaCharset(charset)
 			);
@@ -1771,6 +1775,19 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * Get the SearchSequence object.
+     * The SearchSequence object instance is saved in the searchSequence
+     * field.  Subclasses of IMAPProtocol may override this method to
+     * return a subclass of SearchSequence, in order to add support for
+     * product-specific search terms.
+     */
+    protected SearchSequence getSearchSequence() {
+	if (searchSequence == null)
+	    searchSequence = new SearchSequence();
+	return searchSequence;
+    }
+
+    /**
      * Sort messages in the folder according to the specified sort criteria.
      * If the search term is not null, limit the sort to only the messages
      * that match the search term.
@@ -1801,7 +1818,8 @@ public class IMAPProtocol extends Protocol {
 	args.writeAtom("UTF-8");	// charset specification
 	if (sterm != null) {
 	    try {
-		args.append(SearchSequence.generateSequence(sterm, "UTF-8"));
+		args.append(
+		    getSearchSequence().generateSequence(sterm, "UTF-8"));
 	    } catch (IOException ioex) {
 		// should never happen
 		throw new SearchException(ioex.toString());
