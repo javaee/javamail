@@ -46,7 +46,7 @@ import com.sun.mail.util.*;
 import com.sun.mail.iap.*;
 
 /**
- * This class represents a response obtained from the input stream
+ * This class represents a FETCH response obtained from the input stream
  * of an IMAP server.
  *
  * @author  John Mani
@@ -54,17 +54,36 @@ import com.sun.mail.iap.*;
  */
 
 public class FetchResponse extends IMAPResponse {
+    /*
+     * Regular Items are saved in the items array.
+     * Extension items (items handled by subclasses
+     * that extend the IMAP provider) are saved in the
+     * extensionItems map, indexed by the FETCH item name.
+     * The map is only created when needed.
+     *
+     * XXX - Should consider unifying the handling of
+     * regular items and extension items.
+     */
     private Item[] items;
+    private Map extensionItems;
+    private final FetchItem[] fitems;
 
     public FetchResponse(Protocol p) 
 		throws IOException, ProtocolException {
 	super(p);
+	fitems = null;
 	parse();
     }
 
     public FetchResponse(IMAPResponse r)
 		throws IOException, ProtocolException {
+	this(r, null);
+    }
+
+    public FetchResponse(IMAPResponse r, FetchItem[] fitems)
+		throws IOException, ProtocolException {
 	super(r);
+	this.fitems = fitems;
 	parse();
     }
 
@@ -106,6 +125,17 @@ public class FetchResponse extends IMAPResponse {
 	return null;
     }
 
+    /**
+     * Return a map of the extension items found in this fetch response.
+     * The map is indexed by extension item name.  Callers should not
+     * modify the map.
+     */
+    public Map getExtensionItems() {
+	if (extensionItems == null)
+	    extensionItems = new HashMap();
+	return extensionItems;
+    }
+
     private final static char[] HEADER = {'.','H','E','A','D','E','R'};
     private final static char[] TEXT = {'.','T','E','X','T'};
 
@@ -125,10 +155,11 @@ public class FetchResponse extends IMAPResponse {
 		"error in FETCH parsing, ran off end of buffer, size " + size);
 
 	    i = parseItem();
-	    if (i == null)
+	    if (i != null)
+		v.addElement(i);
+	    else if (!parseExtensionItem())
 		throw new ParsingException(
 		"error in FETCH parsing, unrecognized item at index " + index);
-	    v.addElement(i);
 	} while (buffer[index] != ')');
 
 	index++; // skip ')'
@@ -141,7 +172,7 @@ public class FetchResponse extends IMAPResponse {
      * skipping over the item if successful.  Otherwise, return null
      * and leave the buffer position unmodified.
      */
-    protected Item parseItem() throws ParsingException {
+    private Item parseItem() throws ParsingException {
 	switch (buffer[index]) {
 	case 'E': case 'e':
 	    if (match(ENVELOPE.name))
@@ -187,6 +218,22 @@ public class FetchResponse extends IMAPResponse {
     }
 
     /**
+     * If this item is a known extension item, parse it.
+     */
+    private boolean parseExtensionItem() throws ParsingException {
+	if (fitems == null)
+	    return false;
+	for (int i = 0; i < fitems.length; i++) {
+	    if (match(fitems[i].getName())) {
+		getExtensionItems().put(fitems[i].getName(),
+				    fitems[i].parseItem(this));
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    /**
      * Does the current buffer match the given item name?
      * itemName is the name of the IMAP item to compare against.
      * NOTE that itemName *must* be all uppercase.
@@ -199,6 +246,25 @@ public class FetchResponse extends IMAPResponse {
 	    // IMAP tokens are case-insensitive. We store itemNames in
 	    // uppercase, so convert operand to uppercase before comparing.
 	    if (Character.toUpperCase((char)buffer[j++]) != itemName[i++])
+		return false;
+	index += len;
+	return true;
+    }
+
+    /**
+     * Does the current buffer match the given item name?
+     * itemName is the name of the IMAP item to compare against.
+     * NOTE that itemName *must* be all uppercase.
+     * If the match is successful, the buffer pointer (index)
+     * is incremented past the matched item.
+     */
+    protected boolean match(String itemName) {
+	int len = itemName.length();
+	for (int i = 0, j = index; i < len;)
+	    // IMAP tokens are case-insensitive. We store itemNames in
+	    // uppercase, so convert operand to uppercase before comparing.
+	    if (Character.toUpperCase((char)buffer[j++]) !=
+		    itemName.charAt(i++))
 		return false;
 	index += len;
 	return true;

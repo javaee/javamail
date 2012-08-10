@@ -97,6 +97,8 @@ public class IMAPProtocol extends Protocol {
 
     private static final byte[] CRLF = { (byte)'\r', (byte)'\n'};
 
+    private static final FetchItem[] fetchItems = { };
+
     /**
      * Constructor.
      * Opens a connection to the given host at given port.
@@ -139,6 +141,16 @@ public class IMAPProtocol extends Protocol {
 	    if (!connected)
 		disconnect();
 	}
+    }
+
+    /**
+     * Return an array of FetchItem objects describing the
+     * FETCH items supported by this protocol.  Subclasses may
+     * override this method to combine their FetchItems with
+     * the FetchItems returned by the superclass.
+     */
+    public FetchItem[] getFetchItems() {
+	return fetchItems;
     }
 
     /**
@@ -270,7 +282,7 @@ public class IMAPProtocol extends Protocol {
 	// can't assert because it's called from constructor
 	IMAPResponse r = new IMAPResponse(this);
 	if (r.keyEquals("FETCH"))
-	    r = new FetchResponse(r);
+	    r = new FetchResponse(r, getFetchItems());
 	return r;
     }
 

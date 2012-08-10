@@ -1064,9 +1064,20 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    }
 	}
 
-	createFetchCommand(command, fp);
+	/*
+	 * Add any additional extension fetch items.
+	 */
+	FetchItem[] fitems = protocol.getFetchItems();
+	for (int i = 0; i < fitems.length; i++) {
+	    if (fp.contains(fitems[i].getFetchProfileItem())) {
+		if (command.length() != 0)
+		    command.append(" ");
+		command.append(fitems[i].getName());
+	    }
+	}
 
-	Utility.Condition condition = newFetchProfileCondition(fp);
+	Utility.Condition condition =
+	    new IMAPMessage.FetchProfileCondition(fp, fitems);
 
         // Acquire the Folder's MessageCacheLock.
         synchronized(messageCacheLock) {
@@ -1122,6 +1133,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    } else if (msg != null)
 			msg.handleFetchItem(item, hdrs, allHeaders);
 		}
+		if (msg != null)
+		    msg.handleExtensionFetchItems(f.getExtensionItems());
 
 		// If this response contains any unsolicited FLAGS
 		// add it to the unsolicited response vector
@@ -1142,27 +1155,12 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Return the IMAP FETCH items to request in order to load
-     * all the "envelope" data.
+     * all the "envelope" data.  Subclasses can override this
+     * method to fetch more data when FetchProfile.Item.ENVELOPE
+     * is requested.
      */
     protected String getEnvelopeCommand() {
 	return IMAPMessage.EnvelopeCmd;
-    }
-
-    /**
-     * Add any FETCH commands to the command buffer that are necessary
-     * to fetch the items in the FetchProfile.  Subclasses of IMAPFolder
-     * may override this method to handle additional custom FetchProfile items.
-     */
-    protected void createFetchCommand(StringBuffer command, FetchProfile fp) {
-    }
-
-    /**
-     * Create a new FetchProfileCondition object.
-     * Subclasses of IMAPFolder may override this method to create a
-     * subclass of IMAPMessage.FetchProfileCondition.
-     */
-    protected Utility.Condition newFetchProfileCondition(FetchProfile fp) {
-	return new IMAPMessage.FetchProfileCondition(fp);
     }
 
     /**

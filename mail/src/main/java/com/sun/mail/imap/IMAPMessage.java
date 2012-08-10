@@ -42,10 +42,7 @@ package com.sun.mail.imap;
 
 import java.util.Date;
 import java.io.*;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Hashtable;
-import java.util.Locale;
+import java.util.*;
 
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -82,6 +79,15 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     protected BODYSTRUCTURE bs;		// BODYSTRUCTURE
     protected ENVELOPE envelope;	// ENVELOPE
 
+    /**
+     * A map of the extension FETCH items.  In addition to saving the
+     * data in this map, an entry in this map indicates that we *have*
+     * the data, and so it doesn't need to be fetched again.  The map
+     * is created only when needed, to avoid significantly increasing
+     * the effective size of an IMAPMessage object.
+     */
+    protected Map items;		// Map<String,Object>
+
     private Date receivedDate;		// INTERNALDATE
     private int size = -1;		// RFC822.SIZE
 
@@ -113,7 +119,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     private Hashtable loadedHeaders = new Hashtable(1);
 
     // This is our Envelope
-    protected static String EnvelopeCmd = "ENVELOPE INTERNALDATE RFC822.SIZE";
+    static final String EnvelopeCmd = "ENVELOPE INTERNALDATE RFC822.SIZE";
 
     /**
      * Constructor.
@@ -969,12 +975,13 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	private boolean needHeaders = false;
 	private boolean needSize = false;
 	private String[] hdrs = null;
+	private Set need = new HashSet();	// Set<FetchItem>
 
 	/**
 	 * Create a FetchProfileCondition to determine if we need to fetch
 	 * any of the information specified in the FetchProfile.
 	 */
-	public FetchProfileCondition(FetchProfile fp) {
+	public FetchProfileCondition(FetchProfile fp, FetchItem[] fitems) {
 	    if (fp.contains(FetchProfile.Item.ENVELOPE))
 		needEnvelope = true;
 	    if (fp.contains(FetchProfile.Item.FLAGS))
@@ -988,6 +995,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    if (fp.contains(IMAPFolder.FetchProfileItem.SIZE))
 		needSize = true;
 	    hdrs = fp.getHeaderNames();
+	    for (int i = 0; i < fitems.length; i++) {
+		if (fp.contains(fitems[i].getFetchProfileItem()))
+		    need.add(fitems[i]);
+	    }
 	}
 
 	/**
@@ -1012,6 +1023,12 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    for (int i = 0; i < hdrs.length; i++) {
 		if (!m.isHeaderLoaded(hdrs[i]))
 		    return true; // Nope, return
+	    }
+	    Iterator it = need.iterator();
+	    while (it.hasNext()) {
+		FetchItem fitem = (FetchItem)it.next();
+		if (m.items == null || m.items.get(fitem.getName()) == null)
+		    return true;
 	    }
 
 	    return false;
@@ -1108,14 +1125,33 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     }
 
     /**
-     * Fetch an individual item for the current message.
+     * Apply the data in the extension FETCH items to this message.
+     * This method adds all the items to the items map.
+     * Subclasses may override this method to call super and then
+     * also copy the data to a more convenient form.
+     *
+     * ASSERT: Must hold the messageCacheLock.
      */
-    protected Item fetchItem(String itemName, Class itemClass)
+    protected void handleExtensionFetchItems(Map extensionItems)
+				throws MessagingException {
+	if (items == null)
+	    items = extensionItems;
+	else
+	    items.putAll(extensionItems);
+    }
+
+    /**
+     * Fetch an individual item for the current message.
+     * Note that handleExtensionFetchItems will have been called
+     * to store this item in the message before this method
+     * returns.
+     */
+    protected Object fetchItem(FetchItem fitem)
 				throws MessagingException {
 
 	// Acquire MessageCacheLock, to freeze seqnum.
 	synchronized(getMessageCacheLock()) {
-	    Item ritem = null;
+	    Object robj = null;
 
 	    try {
 		IMAPProtocol p = getProtocol();
@@ -1123,7 +1159,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		checkExpunged(); // Insure that this message is not expunged
 
 		int seqnum = getSequenceNumber();
-		Response[] r = p.fetch(seqnum, itemName);
+		Response[] r = p.fetch(seqnum, fitem.getName());
 
 		for (int i = 0; i < r.length; i++) {
 		    // If this response is NOT a FetchResponse or if it does
@@ -1134,15 +1170,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 			continue;
 
 		    FetchResponse f = (FetchResponse)r[i];
-		    
-		    // Look for the Envelope items.
-		    int count = f.getItemCount();
-		    for (int j = 0; j < count; j++) {
-			Item item = f.getItem(j);
-			
-			if (itemClass.isInstance(item))
-			    ritem = item;
-		    }
+		    Object o = f.getExtensionItems().get(fitem.getName());
+		    if (o != null)
+			robj = o;
 		}
 
 		// ((IMAPFolder)folder).handleResponses(r);
@@ -1154,9 +1184,23 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		forceCheckExpunged();
 		throw new MessagingException(pex.getMessage(), pex);
 	    }
-	    return ritem;
+	    return robj;
 
 	} // Release MessageCacheLock
+    }
+
+    /**
+     * Return the data associated with the FetchItem.
+     * If the data hasn't been fetched, call the fetchItem
+     * method to fetch it.  Returns null if there is no
+     * data for the FetchItem.
+     */
+    public synchronized Object getItem(FetchItem fitem)
+				throws MessagingException {
+	Object item = items == null ? null : items.get(fitem.getName());
+	if (item == null)
+	    item = fetchItem(fitem);
+	return item;
     }
 
     /*
