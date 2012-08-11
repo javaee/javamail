@@ -1158,6 +1158,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * all the "envelope" data.  Subclasses can override this
      * method to fetch more data when FetchProfile.Item.ENVELOPE
      * is requested.
+     *
+     * @since JavaMail 1.4.6
      */
     protected String getEnvelopeCommand() {
 	return IMAPMessage.EnvelopeCmd;
@@ -1167,6 +1169,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Create a new IMAPMessage object to represent the given message number.
      * Subclasses of IMAPFolder may override this method to create a
      * subclass of IMAPMessage.
+     *
+     * @since JavaMail 1.4.6
      */
     protected IMAPMessage newIMAPMessage(int msgnum) {
 	return new IMAPMessage(this, msgnum);

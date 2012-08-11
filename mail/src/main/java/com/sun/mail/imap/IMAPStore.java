@@ -680,6 +680,13 @@ public class IMAPStore extends Store
         return true;
     }
 
+    /**
+     * Create an IMAPProtocol object connected to the host and port.
+     * Subclasses of IMAPStore may override this method to return a
+     * subclass of IMAPProtocol that supports product-specific extensions.
+     *
+     * @since JavaMail 1.4.6
+     */
     protected IMAPProtocol newIMAPProtocol(String host, int port)
 				throws IOException, ProtocolException {
 	return new IMAPProtocol(name, host, port, 

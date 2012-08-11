@@ -148,6 +148,8 @@ public class IMAPProtocol extends Protocol {
      * FETCH items supported by this protocol.  Subclasses may
      * override this method to combine their FetchItems with
      * the FetchItems returned by the superclass.
+     *
+     * @since JavaMail 1.4.6
      */
     public FetchItem[] getFetchItems() {
 	return fetchItems;
@@ -1792,6 +1794,8 @@ public class IMAPProtocol extends Protocol {
      * field.  Subclasses of IMAPProtocol may override this method to
      * return a subclass of SearchSequence, in order to add support for
      * product-specific search terms.
+     *
+     * @since JavaMail 1.4.6
      */
     protected SearchSequence getSearchSequence() {
 	if (searchSequence == null)

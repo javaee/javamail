@@ -50,6 +50,7 @@ import com.sun.mail.iap.ParsingException;
  * Note that the "name" field MUST be in uppercase. <p>
  *
  * @author  Bill Shannon
+ * @since JavaMail 1.4.6
  */
 
 public abstract class FetchItem { 

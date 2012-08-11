@@ -80,6 +80,11 @@ public class FetchResponse extends IMAPResponse {
 	this(r, null);
     }
 
+    /**
+     * Construct a FetchResponse that handles the additional FetchItems.
+     *
+     * @since JavaMail 1.4.6
+     */
     public FetchResponse(IMAPResponse r, FetchItem[] fitems)
 		throws IOException, ProtocolException {
 	super(r);
@@ -129,6 +134,8 @@ public class FetchResponse extends IMAPResponse {
      * Return a map of the extension items found in this fetch response.
      * The map is indexed by extension item name.  Callers should not
      * modify the map.
+     *
+     * @since JavaMail 1.4.6
      */
     public Map getExtensionItems() {
 	if (extensionItems == null)
@@ -240,7 +247,7 @@ public class FetchResponse extends IMAPResponse {
      * If the match is successful, the buffer pointer (index)
      * is incremented past the matched item.
      */
-    protected boolean match(char[] itemName) {
+    private boolean match(char[] itemName) {
 	int len = itemName.length;
 	for (int i = 0, j = index; i < len;)
 	    // IMAP tokens are case-insensitive. We store itemNames in
@@ -258,7 +265,7 @@ public class FetchResponse extends IMAPResponse {
      * If the match is successful, the buffer pointer (index)
      * is incremented past the matched item.
      */
-    protected boolean match(String itemName) {
+    private boolean match(String itemName) {
 	int len = itemName.length();
 	for (int i = 0, j = index; i < len;)
 	    // IMAP tokens are case-insensitive. We store itemNames in

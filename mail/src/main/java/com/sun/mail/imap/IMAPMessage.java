@@ -85,6 +85,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * the data, and so it doesn't need to be fetched again.  The map
      * is created only when needed, to avoid significantly increasing
      * the effective size of an IMAPMessage object.
+     *
+     * @since JavaMail 1.4.6
      */
     protected Map items;		// Map<String,Object>
 
@@ -1039,6 +1041,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Apply the data in the FETCH item to this message.
      *
      * ASSERT: Must hold the messageCacheLock.
+     *
+     * @since JavaMail 1.4.6
      */
     protected boolean handleFetchItem(Item item,
 				String[] hdrs, boolean allHeaders)
@@ -1131,6 +1135,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * also copy the data to a more convenient form.
      *
      * ASSERT: Must hold the messageCacheLock.
+     *
+     * @since JavaMail 1.4.6
      */
     protected void handleExtensionFetchItems(Map extensionItems)
 				throws MessagingException {
@@ -1145,6 +1151,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Note that handleExtensionFetchItems will have been called
      * to store this item in the message before this method
      * returns.
+     *
+     * @since JavaMail 1.4.6
      */
     protected Object fetchItem(FetchItem fitem)
 				throws MessagingException {
@@ -1194,6 +1202,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * If the data hasn't been fetched, call the fetchItem
      * method to fetch it.  Returns null if there is no
      * data for the FetchItem.
+     *
+     * @since JavaMail 1.4.6
      */
     public synchronized Object getItem(FetchItem fitem)
 				throws MessagingException {
