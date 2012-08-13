@@ -1,0 +1,2 @@
+protocol=gimap; type=store; class=com.sun.mail.gimap.GmailStore; vendor=Oracle;
+protocol=gimaps; type=store; class=com.sun.mail.gimap.GmailSSLStore; vendor=Oracle;

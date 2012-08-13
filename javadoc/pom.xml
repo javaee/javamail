@@ -114,6 +114,17 @@
 			com/sun/mail/dsn/MultipartReport.java,
 			com/sun/mail/dsn/Report.java
 					"/>
+				    <fileset dir="../gimap/src/main/java"
+					includes="
+			com/sun/mail/gimap/package.html,
+			com/sun/mail/gimap/GmailStore.java,
+			com/sun/mail/gimap/GmailSSLStore.java,
+			com/sun/mail/gimap/GmailFolder.java,
+			com/sun/mail/gimap/GmailMessage.java,
+			com/sun/mail/gimap/GmailMsgIdTerm.java,
+			com/sun/mail/gimap/GmailThrIdTerm.java,
+			com/sun/mail/gimap/GmailRawSearchTerm.java
+					"/>
 				</copy>
 
 			    </tasks>
@@ -162,7 +173,7 @@
 				</group>
 			    </groups>
 			    <subpackages>
-javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util:com.sun.mail.util.logging
+javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util:com.sun.mail.util.logging:com.sun.mail.gimap
 			    </subpackages>
 			    <!-- XXX - following should work, but doesn't -->
 			    <excludePackageNames>
@@ -174,8 +185,9 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
 			    </additionalparam>
 			    <sourcepath>${basedir}/target/javadoc</sourcepath>
 			    <links>
-				<link>http://java.sun.com/j2se/1.4.2/docs/api/</link>
-				<link>http://java.sun.com/javase/technologies/desktop/javabeans/glasgow/javadocs/</link>
+				<link>http://docs.oracle.com/javase/1.4.2/docs/api</link>
+				<!-- following for javax.activation -->
+				<link>http://docs.oracle.com/javase/6/docs/api</link>
 			    </links>
 			</configuration>
 		    </execution>
@@ -192,6 +204,10 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>dsn</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>gimap</artifactId>
         </dependency>
     </dependencies>
 </project>

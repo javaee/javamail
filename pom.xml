@@ -155,6 +155,7 @@
 	<module>mailapijar</module>
 	<module>smtp</module>
 	<module>imap</module>
+	<module>gimap</module>
 	<module>pop3</module>
 	<module>dsn</module>
 	<module>oldmail</module>
@@ -659,6 +660,11 @@
 	    <dependency>
 		<groupId>com.sun.mail</groupId>
 		<artifactId>dsn</artifactId>
+		<version>${mail.version}</version>
+	    </dependency>
+	    <dependency>
+		<groupId>com.sun.mail</groupId>
+		<artifactId>gimap</artifactId>
 		<version>${mail.version}</version>
 	    </dependency>
 	    <dependency>

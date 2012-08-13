@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Extension-Name: com.sun.mail.gimap
+Specification-Title: com.sun.mail.gimap
+Specification-Version: ${mail.spec.version}
+Specification-Vendor: ${project.organization.name}
+Implementation-Title: com.sun.mail.gimap
+Implementation-Version: ${mail.version}
+Implementation-Vendor: ${project.organization.name}
+Implementation-Vendor-Id: com.sun
