@@ -83,7 +83,7 @@
 		    </linkerStartOptions>
 		    <linkerEndOptions>
 			<linkerEndOption>
-			    -L/usr/java/jre/lib/sparc
+			    -L/usr/java/jre/lib/${env.MACH}
 			    -lmail -ljava -lc
 			</linkerEndOption>
 		    </linkerEndOptions>
