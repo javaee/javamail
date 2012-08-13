@@ -1066,7 +1066,13 @@ public class IMAPProtocol extends Protocol {
 	return doList("LSUB", ref, pattern);
     }
 
-    private ListInfo[] doList(String cmd, String ref, String pat)
+    /**
+     * Execute the specified LIST-like command (e.g., "LIST" or "LSUB"),
+     * using the reference and pattern.
+     *
+     * @since JavaMail 1.4.6
+     */
+    protected ListInfo[] doList(String cmd, String ref, String pat)
 			throws ProtocolException {
 	// encode the mbox as per RFC2060
 	ref = BASE64MailboxEncoder.encode(ref);
