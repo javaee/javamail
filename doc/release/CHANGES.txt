@@ -23,6 +23,7 @@ K  5086	STARTTLS when already using SSL may cause connection to fail
 K  5090	Yahoo: Error reading emails containing "undisclosed recipients"
 K  5233	Infinite loop if Quota information is not correctly reported by server
 <no id>	add mail.imap.ignorebodystructuresize to work around server bugs
+<no id>	add "gimap" EXPERIMENTAL Gmail IMAP provider
 
 
 		  CHANGES IN THE 1.4.5 RELEASE
