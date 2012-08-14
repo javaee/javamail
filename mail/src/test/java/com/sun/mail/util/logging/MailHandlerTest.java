@@ -93,11 +93,7 @@ public class MailHandlerTest {
     public static void setUpClass() throws Exception {
         checkJVMOptions();
         OPEN_PORT = findOpenPort();
-        try {
-            InetAddress.getByName(UNKNOWN_HOST);
-            throw new AssertionError(UNKNOWN_HOST);
-        } catch (UnknownHostException expect) {
-        }
+        checkUnknownHost();
         assertTrue(findClassPathDir().isDirectory());
     }
 
@@ -106,6 +102,7 @@ public class MailHandlerTest {
         checkJVMOptions();
         assertTrue(checkUnusedPort(OPEN_PORT));
         OPEN_PORT = Integer.MIN_VALUE;
+        checkUnknownHost();
         anyClassPathDir = null;
     }
 
@@ -117,6 +114,14 @@ public class MailHandlerTest {
     @After
     public void tearDown() {
         hardRef = null;
+    }
+
+    private static void checkUnknownHost() throws Exception {
+        try {
+            InetAddress.getByName(UNKNOWN_HOST);
+            throw new AssertionError(UNKNOWN_HOST);
+        } catch (UnknownHostException expect) {
+        }
     }
 
     private static void checkJVMOptions() throws Exception {
@@ -231,8 +236,7 @@ public class MailHandlerTest {
     @Test
     public void testPublish() {
         MailHandler instance = createHandlerWithRecords();
-        InternalErrorManager em =
-                (InternalErrorManager) instance.getErrorManager();
+        InternalErrorManager em = internalErrorManagerFrom(instance);
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
 
@@ -415,6 +419,55 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testErrorComparator() {
+        testErrorComparator(0);
+        testErrorComparator(1);
+        testErrorComparator(2);
+        testErrorComparator(3);
+        testErrorComparator(10);
+        testErrorComparator(999);
+        testErrorComparator(1000);
+        testErrorComparator(1001);
+    }
+
+    private void testErrorComparator(int records) {
+        assertTrue("Invalid argument.", records >= 0);
+        Properties props = new Properties();
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
+        props.put("mail.to", "badaddress@localhost");
+
+        MailHandler instance = new MailHandler(props);
+        instance.setComparator(new ErrorComparator());
+        instance.setErrorManager(new InternalErrorManager());
+        boolean normal = false;
+        try {
+            try {
+                for (int i=0; i<records; ++i) {
+                    instance.publish(new LogRecord(Level.SEVERE, ""));
+                }
+            } finally {
+                instance.close();
+            }
+            normal = true;
+        } catch (Error e) {
+            if (records == 0 || e.getClass() != Error.class) {
+                throw e;
+            } else {
+                InternalErrorManager em = internalErrorManagerFrom(instance);
+                for (Throwable t : em.exceptions) {
+                    dump(t);
+                }
+                assertEquals(true, em.exceptions.isEmpty());
+            }
+        }
+
+        if (normal) {
+           assertTrue(records == 0);
+        }
+    }
+
+    @Test
     public void testThrowFormatters() {
         MailHandler instance = new MailHandler();
         instance.setLevel(Level.ALL);
@@ -529,6 +582,58 @@ public class MailHandlerTest {
         }
 
         assertEquals(true, em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testThrowComparator() {
+        testThrowComparator(0);
+        testThrowComparator(1);
+        testThrowComparator(2);
+        testThrowComparator(3);
+        testThrowComparator(10);
+        testThrowComparator(999);
+        testThrowComparator(1000);
+        testThrowComparator(1001);
+    }
+
+    private void testThrowComparator(int records) {
+        assertTrue(records >= 0);
+        Properties props = new Properties();
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
+        props.put("mail.to", "badaddress@localhost");
+
+        MailHandler instance = new MailHandler(props);
+        instance.setComparator(new ThrowComparator());
+        instance.setErrorManager(new InternalErrorManager());
+        try {
+            for (int i=0; i<records; ++i) {
+                instance.publish(new LogRecord(Level.SEVERE, ""));
+            }
+        } finally {
+            instance.close();
+        }
+
+        InternalErrorManager em = internalErrorManagerFrom(instance);
+        boolean seenError = false;
+        for (Throwable t : em.exceptions) {
+            if (isConnectOrTimeout(t)) {
+                continue;
+            } else if (t.getClass() == RuntimeException.class) {
+                seenError = true;
+                continue; //expect.
+            } else {
+                dump(t);
+                fail(t.toString());
+            }
+        }
+
+        if (records == 0) {
+            assertEquals(true, em.exceptions.isEmpty());
+        } else {
+            assertTrue("Exception was not thrown.", seenError);
+            assertEquals(true, !em.exceptions.isEmpty());
+        }
     }
 
     @Test
@@ -658,7 +763,7 @@ public class MailHandlerTest {
     private void testAttachmentInvariants(boolean error) throws Exception {
         MailHandler target = new MailHandler();
         try {
-            InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(target);
             if (error) {
                 assertFalse(em.exceptions.isEmpty());
                 boolean unexpected = false;
@@ -788,6 +893,7 @@ public class MailHandlerTest {
         final MailHandler instance = new MailHandler();
         MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     MimeMultipart multi = (MimeMultipart) msg.getContent();
@@ -1146,7 +1252,7 @@ public class MailHandlerTest {
         instance.close();
 
         instance = createHandlerWithRecords();
-        em = (InternalErrorManager) instance.getErrorManager();
+        em = internalErrorManagerFrom(instance);
         instance.push();
 
         assertEquals(1, em.exceptions.size());
@@ -1181,7 +1287,7 @@ public class MailHandlerTest {
         instance.close();
 
         instance = createHandlerWithRecords();
-        em = (InternalErrorManager) instance.getErrorManager();
+        em = internalErrorManagerFrom(instance);
         instance.flush();
 
         assertEquals(1, em.exceptions.size());
@@ -1230,7 +1336,7 @@ public class MailHandlerTest {
         assertEquals(true, em.exceptions.isEmpty());
 
         instance = createHandlerWithRecords();
-        em = (InternalErrorManager) instance.getErrorManager();
+        em = internalErrorManagerFrom(instance);
         instance.close();
 
         assertEquals(1, em.exceptions.size());
@@ -1278,8 +1384,7 @@ public class MailHandlerTest {
         try {
             assertEquals(LogManager.class, manager.getClass());
             MailHandler instance = startLogManagerReset("remote");
-            InternalErrorManager em =
-                    (InternalErrorManager) instance.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(instance);
 
             manager.reset();
 
@@ -1297,7 +1402,7 @@ public class MailHandlerTest {
             }
 
             instance = startLogManagerReset("local");
-            em = (InternalErrorManager) instance.getErrorManager();
+            em = internalErrorManagerFrom(instance);
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Throwable t = em.exceptions.get(i);
@@ -1330,7 +1435,7 @@ public class MailHandlerTest {
             String[] noVerify = new String[]{null, "", "null"};
             for (int v = 0; v < noVerify.length; v++) {
                 instance = startLogManagerReset(noVerify[v]);
-                em = (InternalErrorManager) instance.getErrorManager();
+                em = internalErrorManagerFrom(instance);
 
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     Throwable t = em.exceptions.get(i);
@@ -1353,7 +1458,7 @@ public class MailHandlerTest {
             }
 
             instance = startLogManagerReset("bad-enum-name");
-            em = (InternalErrorManager) instance.getErrorManager();
+            em = internalErrorManagerFrom(instance);
 
             manager.reset();
 
@@ -1551,6 +1656,7 @@ public class MailHandlerTest {
         }
     }
 
+    @Test
     public void testGuessContentTypeReadlimit() throws Exception {
         class LastMarkInputStream extends ByteArrayInputStream {
 
@@ -1566,7 +1672,7 @@ public class MailHandlerTest {
                 super.mark(readlimit);
             }
 
-            public int getLastReadLimit() {
+            public synchronized int getLastReadLimit() {
                 return lastReadLimit;
             }
         }
@@ -1606,6 +1712,7 @@ public class MailHandlerTest {
         instance.setEncoding("us-ascii");
         MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     MimeMultipart multi = (MimeMultipart) msg.getContent();
@@ -1639,6 +1746,7 @@ public class MailHandlerTest {
                 super(props);
             }
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     final Locale locale = Locale.getDefault();
@@ -1715,6 +1823,7 @@ public class MailHandlerTest {
                 this.bundleName = bundleName;
             }
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     assertNotNull(bundleName);
@@ -1725,7 +1834,7 @@ public class MailHandlerTest {
                     assertNotNull(lang);
                     assertEquals(LogManagerProperties.toLanguageTag(l), lang[0]);
                     assertEquals(1, mp.getCount());
-                    MimePart part = null;
+                    MimePart part;
 
                     part = (MimePart) mp.getBodyPart(0);
                     lang = part.getContentLanguage();
@@ -1759,7 +1868,7 @@ public class MailHandlerTest {
                 fos.close();
             }
 
-            String bundleName = f.getName().substring(0, f.getName().lastIndexOf("."));
+            String bundleName = f.getName().substring(0, f.getName().lastIndexOf('.'));
             target.setErrorManager(new Base(target.getMailProperties(), bundleName));
             final Logger log = Logger.getLogger(p + '.' + f.getName(), bundleName);
             hardRef = log;
@@ -1780,7 +1889,7 @@ public class MailHandlerTest {
 
             target.close();
 
-            InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(target);
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Exception t = em.exceptions.get(i);
                 if (isConnectOrTimeout(t)) {
@@ -1810,6 +1919,7 @@ public class MailHandlerTest {
                 this.expect = expect;
             }
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     MimeMultipart mp = (MimeMultipart) msg.getContent();
@@ -1821,7 +1931,7 @@ public class MailHandlerTest {
                     assertEquals(1, lang.length);
                     assertEquals(LogManagerProperties.toLanguageTag(expect), lang[0]);
                     assertEquals(1, mp.getCount());
-                    MimePart part = null;
+                    MimePart part;
 
                     part = (MimePart) mp.getBodyPart(0);
                     lang = part.getContentLanguage();
@@ -1899,7 +2009,7 @@ public class MailHandlerTest {
 
         target.close();
 
-        InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+        InternalErrorManager em = internalErrorManagerFrom(target);
         for (int i = 0; i < em.exceptions.size(); i++) {
             Exception t = em.exceptions.get(i);
             if (isConnectOrTimeout(t)) {
@@ -1916,6 +2026,7 @@ public class MailHandlerTest {
         MailHandler target = new MailHandler(createInitProperties(""));
         target.setErrorManager(new MessageErrorManager(target.getMailProperties()) {
 
+            @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
                     MimeMultipart mp = (MimeMultipart) msg.getContent();
@@ -2028,7 +2139,7 @@ public class MailHandlerTest {
 
         target.close();
 
-        InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+        InternalErrorManager em = internalErrorManagerFrom(target);
         for (int i = 0; i < em.exceptions.size(); i++) {
             Exception t = em.exceptions.get(i);
             if (isConnectOrTimeout(t)) {
@@ -2325,7 +2436,7 @@ public class MailHandlerTest {
 
         instance = createHandlerWithRecords();
         instance.setAuthenticator(new ThrowAuthenticator());
-        em = (InternalErrorManager) instance.getErrorManager();
+        em = internalErrorManagerFrom(instance);
         instance.close();
 
         assertEquals(1, em.exceptions.size());
@@ -3016,6 +3127,7 @@ public class MailHandlerTest {
         instance = createHandlerWithRecords();
         instance.setErrorManager(new MessageErrorManager(instance.getMailProperties()) {
 
+            @Override
             protected void error(MimeMessage message, Throwable t, int code) {
                 try {
                     assertTrue(message.getHeader("X-Mailer")[0].startsWith(MailHandler.class.getName()));
@@ -3562,8 +3674,7 @@ public class MailHandlerTest {
             read(manager, props);
 
             MailHandler instance = new MailHandler();
-            InternalErrorManager em =
-                    (InternalErrorManager) instance.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(instance);
 
             //ensure VerifyErrorManager was installed.
             assertEquals(VerifyErrorManager.class, em.getClass());
@@ -3666,8 +3777,7 @@ public class MailHandlerTest {
             read(manager, props);
 
             MailHandler instance = new MailHandler();
-            InternalErrorManager em =
-                    (InternalErrorManager) instance.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(instance);
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
@@ -3686,7 +3796,7 @@ public class MailHandlerTest {
             read(manager, props);
 
             instance = new MailHandler();
-            em = (InternalErrorManager) instance.getErrorManager();
+            em = internalErrorManagerFrom(instance);
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
@@ -3796,8 +3906,7 @@ public class MailHandlerTest {
 
             MailHandler instance = new MailHandler(props);
             try {
-                InternalErrorManager em =
-                        (InternalErrorManager) instance.getErrorManager();
+                InternalErrorManager em = internalErrorManagerFrom(instance);
 
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     final Throwable t = em.exceptions.get(i);
@@ -3814,14 +3923,13 @@ public class MailHandlerTest {
             props.put("verify", "remote");
             instance = new MailHandler(props);
             try {
-                InternalErrorManager em =
-                        (InternalErrorManager) instance.getErrorManager();
+                InternalErrorManager em = internalErrorManagerFrom(instance);
 
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     final Throwable t = em.exceptions.get(i);
                     if (t instanceof AddressException) {
                         continue;
-                    } else if (isConnectOrTimeout(t)) {                        
+                    } else if (isConnectOrTimeout(t)) {
                         continue;
                     } else {
                         dump(t);
@@ -3860,8 +3968,7 @@ public class MailHandlerTest {
             read(manager, props);
 
             MailHandler instance = new MailHandler(new Properties());
-            InternalErrorManager em =
-                    (InternalErrorManager) instance.getErrorManager();
+            InternalErrorManager em = internalErrorManagerFrom(instance);
             assertEquals(InternalErrorManager.class, em.getClass());
             instance.close();
 
@@ -3901,7 +4008,7 @@ public class MailHandlerTest {
         try {
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -3917,7 +4024,7 @@ public class MailHandlerTest {
 
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -3933,7 +4040,7 @@ public class MailHandlerTest {
 
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -3972,7 +4079,7 @@ public class MailHandlerTest {
         try {
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -3990,7 +4097,7 @@ public class MailHandlerTest {
 
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -4007,7 +4114,7 @@ public class MailHandlerTest {
 
             target = new MailHandler();
             try {
-                em = (InternalErrorManager) target.getErrorManager();
+                em = internalErrorManagerFrom(target);
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     dump(em.exceptions.get(i));
                 }
@@ -4256,7 +4363,7 @@ public class MailHandlerTest {
             read(manager, props);
             final MailHandler target = new MailHandler();
             try {
-                InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
+                InternalErrorManager em = internalErrorManagerFrom(target);
                 next:
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     Exception t = em.exceptions.get(i);
@@ -4270,9 +4377,7 @@ public class MailHandlerTest {
                 }
                 assertFalse(em.exceptions.isEmpty());
             } finally {
-                if (target != null) {
-                    target.close();
-                }
+                target.close();
             }
         } finally {
             manager.reset();
@@ -4662,7 +4767,7 @@ public class MailHandlerTest {
         assertTrue(null != h.getAttachmentNames()[1]);
         assertTrue(null != h.getAttachmentNames()[2]);
 
-        InternalErrorManager em = (InternalErrorManager) h.getErrorManager();
+        InternalErrorManager em = internalErrorManagerFrom(h);
         for (int i = 0; i < em.exceptions.size(); i++) {
             fail(String.valueOf(em.exceptions.get(i)));
         }
@@ -4683,7 +4788,7 @@ public class MailHandlerTest {
 
 
         h = type.getConstructor(types).newInstance(params);
-        em = (InternalErrorManager) h.getErrorManager();
+        em = internalErrorManagerFrom(h);
         assertTrue(em.exceptions.isEmpty());
         assertEquals(freeTextSubject(), h.getSubject().toString());
 
@@ -4697,7 +4802,7 @@ public class MailHandlerTest {
         LogManager.getLogManager().readConfiguration();
 
         h = type.getConstructor(types).newInstance(params);
-        em = (InternalErrorManager) h.getErrorManager();
+        em = internalErrorManagerFrom(h);
         assertTrue(em.exceptions.isEmpty());
         assertEquals(3, h.getAttachmentFormatters().length);
         h.close();
@@ -4712,7 +4817,7 @@ public class MailHandlerTest {
         LogManager.getLogManager().readConfiguration();
 
         h = type.getConstructor(types).newInstance(params);
-        em = (InternalErrorManager) h.getErrorManager();
+        em = internalErrorManagerFrom(h);
         assertTrue(em.exceptions.isEmpty());
         assertEquals(h.getAttachmentFormatters().length, 3);
         h.close();
@@ -4852,6 +4957,10 @@ public class MailHandlerTest {
         }
     }
 
+    private static InternalErrorManager internalErrorManagerFrom(Handler h) {
+        return InternalErrorManager.class.cast(h.getErrorManager());
+    }
+
     /**
      * http://www.iana.org/assignments/port-numbers
      * @return a open dynamic port.
@@ -4939,6 +5048,7 @@ public class MailHandlerTest {
             super(p);
         }
 
+        @Override
         protected void error(MimeMessage message, Throwable t, int code) {
             try {
                 assertNotNull(message.getSentDate());
@@ -5025,6 +5135,7 @@ public class MailHandlerTest {
             super(h.getMailProperties());
         }
 
+        @Override
         protected void error(MimeMessage message, Throwable t, int code) {
             try {
                 assertTrue(null != message.getSentDate());
@@ -5115,6 +5226,7 @@ public class MailHandlerTest {
             return "";
         }
 
+        @Override
         public String format(LogRecord record) {
             ++format;
             return String.valueOf(record.getMessage());
@@ -5144,6 +5256,7 @@ public class MailHandlerTest {
             return name;
         }
 
+        @Override
         public String format(LogRecord record) {
             return "";
         }
@@ -5287,6 +5400,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5353,6 +5467,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5364,6 +5479,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5375,6 +5491,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5386,6 +5503,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5452,6 +5570,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5463,6 +5582,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5474,6 +5594,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -5485,6 +5606,7 @@ public class MailHandlerTest {
             throwPending();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new NoSuchMethodError();
         }

@@ -80,7 +80,7 @@ import javax.mail.util.ByteArrayDataSource;
  *
  * <p>
  * <b>Configuration:</b>
- * The LogManager must define at least one or more recipient addresses and a 
+ * The LogManager must define at least one or more recipient addresses and a
  * mail host for outgoing email.  The code to setup this handler via the
  * logging properties can be as simple as the following:
  *
@@ -101,12 +101,12 @@ import javax.mail.util.ByteArrayDataSource;
  * or contain invalid values, then the specified default values are used.
  *
  * <ul>
- * <li>com.sun.mail.util.logging.MailHandler.attachment.filters a comma 
+ * <li>com.sun.mail.util.logging.MailHandler.attachment.filters a comma
  * separated list of <tt>Filter</tt> class names used to create each attachment.
  * The literal <tt>null</tt> is reserved for attachments that do not require
  * filtering. (default is no filters)
  *
- * <li>com.sun.mail.util.logging.MailHandler.attachment.formatters a comma 
+ * <li>com.sun.mail.util.logging.MailHandler.attachment.formatters a comma
  * separated list of <tt>Formatter</tt> class names used to create each
  * attachment. (default is no attachments)
  *
@@ -114,12 +114,12 @@ import javax.mail.util.ByteArrayDataSource;
  * list of names or <tt>Formatter</tt> class names of each attachment.  The
  * attachment file names must not contain any line breaks.
  * (default is no attachments names)
- * 
+ *
  * <li>com.sun.mail.util.logging.MailHandler.authenticator name of an
  * {@linkplain javax.mail.Authenticator} class used to provide login credentials
  * to the email server. (default is <tt>null</tt>)
  *
- * <li>com.sun.mail.util.logging.MailHandler.capacity the max number of 
+ * <li>com.sun.mail.util.logging.MailHandler.capacity the max number of
  * <tt>LogRecord</tt> objects include in each email message.
  * (defaults to <tt>1000</tt>)
  *
@@ -129,11 +129,11 @@ import javax.mail.util.ByteArrayDataSource;
  * (defaults to <tt>null</tt> meaning records are unsorted).
  *
  * <!--
- * <li>com.sun.mail.util.logging.MailHandler.comparator.reverse a boolean 
+ * <li>com.sun.mail.util.logging.MailHandler.comparator.reverse a boolean
  * <tt>true</tt> to reverse the order of the specified comparator or
  * <tt>false</tt> to retain the original order. (defaults to <tt>false</tt>)
  * -->
- * 
+ *
  * <li>com.sun.mail.util.logging.MailHandler.encoding the name of the Java
  * {@linkplain java.nio.charset.Charset#name() character set} to use for the
  * email message. (defaults to <tt>null</tt>, the
@@ -148,7 +148,7 @@ import javax.mail.util.ByteArrayDataSource;
  * class used for the body of the message. (defaults to <tt>null</tt>,
  * allow all records)
  *
- * <li>com.sun.mail.util.logging.MailHandler.formatter name of a 
+ * <li>com.sun.mail.util.logging.MailHandler.formatter name of a
  * <tt>Formatter</tt> class used to format the body of this message.
  * (defaults to <tt>java.util.logging.SimpleFormatter</tt>)
  *
@@ -157,12 +157,12 @@ import javax.mail.util.ByteArrayDataSource;
  *
  * <li>com.sun.mail.util.logging.MailHandler.mail.bcc a comma separated list of
  * addresses which will be blind carbon copied.  Typically, this is set to the
- * recipients that may need to be privately notified of a log message or 
+ * recipients that may need to be privately notified of a log message or
  * notified that a log message was sent to a third party such as a support team.
  * (defaults to <tt>null</tt>, none)
- * 
+ *
  * <li>com.sun.mail.util.logging.MailHandler.mail.cc a comma separated list of
- * addresses which will be carbon copied.  Typically, this is set to the 
+ * addresses which will be carbon copied.  Typically, this is set to the
  * recipients that may need to be notified of a log message but, are not
  * required to provide direct support.  (defaults to <tt>null</tt>, none)
  *
@@ -198,12 +198,12 @@ import javax.mail.util.ByteArrayDataSource;
  * <tt>Filter</tt> class used to trigger an early push.
  * (defaults to <tt>null</tt>, no early push)
  *
- * <li>com.sun.mail.util.logging.MailHandler.subject the name of a 
+ * <li>com.sun.mail.util.logging.MailHandler.subject the name of a
  * <tt>Formatter</tt> class or string literal used to create the subject line.
  * The subject line must not contain any line breaks. (defaults to empty string)
  *
  * <li>com.sun.mail.util.logging.MailHandler.verify <a name="verify">used</a> to
- * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a 
+ * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a
  * value of <tt>local</tt> the <tt>Handler</tt> will only verify settings of the
  * local machine. If set to a value of <tt>remote</tt>, the <tt>Handler</tt>
  * will verify all local settings and try to establish a connection with the
@@ -235,7 +235,7 @@ import javax.mail.util.ByteArrayDataSource;
  * class name of the body formatter as the file extension.  The MIME type of the
  * attachments can be overridden by changing the attachment file name extension
  * or by editing the default MIME entry for a specific file name extension.
- * 
+ *
  * <p>
  * <b>Attachments:</b>
  * This <tt>Handler</tt> allows multiple attachments per each email.
@@ -243,7 +243,7 @@ import javax.mail.util.ByteArrayDataSource;
  * <tt>Handler</tt> with zero index being the first attachment.  The number of
  * attachment formatters controls the number of attachments per email and
  * the content type of each attachment.  The attachment filters determine if a
- * <tt>LogRecord</tt> will be included in an attachment.  If an attachment 
+ * <tt>LogRecord</tt> will be included in an attachment.  If an attachment
  * filter is <tt>null</tt> then all records are included for that attachment.
  * Attachments without content will be omitted from email message.  The
  * attachment name formatters create the file name for an attachment.
@@ -263,7 +263,7 @@ import javax.mail.util.ByteArrayDataSource;
  * Log records that are published are stored in an internal buffer.  When this
  * buffer reaches capacity the existing records are formatted and sent in an
  * email.  Any published records can be sent before reaching capacity by
- * explictly calling the <tt>flush</tt>, <tt>push</tt>, or <tt>close</tt> 
+ * explictly calling the <tt>flush</tt>, <tt>push</tt>, or <tt>close</tt>
  * methods.  If a circular buffer is required then this handler can be wrapped
  * with a {@linkplain java.util.logging.MemoryHandler} typically with an
  * equivalent capacity, level, and push level.
@@ -280,7 +280,7 @@ import javax.mail.util.ByteArrayDataSource;
  * javax.mail.Session, java.io.InputStream) reconstruct}, and resend the
  * original MimeMessage.  The message parameter string is <b>not</b> a raw email
  * if it starts with value returned from <tt>Level.SEVERE.getName()</tt>.
- * Custom error managers can use the following test to determine if the 
+ * Custom error managers can use the following test to determine if the
  * <tt>msg</tt> parameter from this handler is a raw email:
  *
  * <tt><pre>
@@ -292,7 +292,7 @@ import javax.mail.util.ByteArrayDataSource;
  *      }
  * }
  * </pre></tt>
- * 
+ *
  * @author Jason Mehrens
  * @since JavaMail 1.4.3
  */
@@ -966,7 +966,7 @@ public class MailHandler extends Handler {
     /**
      * Sets the attachment file name formatters.  The format method of each
      * attachment formatter will see only the <tt>LogRecord</tt> objects that
-     * passed its attachment filter during formatting. The format method will 
+     * passed its attachment filter during formatting. The format method will
      * typically return an empty string. Instead of being used to format
      * records, it is used to gather information about the contents of an
      * attachment.  The <tt>getTail</tt> method should be used to construct the
@@ -1113,7 +1113,7 @@ public class MailHandler extends Handler {
                 final String encoding = getEncodingName();
                 final ByteArrayInputStream in
                         = new ByteArrayInputStream(head.getBytes(encoding));
-                
+
                 assert in.markSupported() : in.getClass().getName();
                 return URLConnection.guessContentTypeFromStream(in);
             } catch (final IOException IOE) {
@@ -1231,8 +1231,8 @@ public class MailHandler extends Handler {
         try {
             final ContentType ct = new ContentType(type);
             ct.setParameter("charset", MimeUtility.mimeCharset(encoding));
-            encoding = ct.toString();
-            if (encoding != null) {
+            encoding = ct.toString(); //See javax.mail.internet.ContentType.
+            if (encoding != null) { //Value is null if the conversion failed.
                 type = encoding;
             }
         } catch (final MessagingException ME) {
@@ -1303,7 +1303,7 @@ public class MailHandler extends Handler {
         if (current != expect) {
             this.attachmentNames = (Formatter[]) copyOf(attachmentNames, expect);
             fixed = current != 0;
-        } 
+        }
 
         //Copy of zero length array is cheap, warm up copyOf.
         if (expect == 0) {
@@ -1475,7 +1475,7 @@ public class MailHandler extends Handler {
                     }
                 }
             }
-            
+
             this.attachmentFilters = a;
             if (fixUpAttachmentFilters()) {
                reportError("Attachment filters.",
@@ -1557,7 +1557,7 @@ public class MailHandler extends Handler {
                     reportError("Attachment names.", NPE, ErrorManager.OPEN_FAILURE);
                 }
             }
-            
+
             this.attachmentNames = a;
             if (fixUpAttachmentNames()) { //Any null indexes are repaired.
                reportError("Attachment names.",
@@ -1853,7 +1853,11 @@ public class MailHandler extends Handler {
         assert Thread.holdsLock(this);
         if (comparator != null) {
             try {
-                Arrays.sort(data, 0, size, comparator);
+                if (size != 1) {
+                    Arrays.sort(data, 0, size, comparator);
+                } else {
+                    comparator.compare(data[0], data[0]);
+                }
             } catch (final RuntimeException RE) {
                 reportError(RE.getMessage(), RE, ErrorManager.FORMAT_FAILURE);
             }
@@ -1863,8 +1867,8 @@ public class MailHandler extends Handler {
     /**
      * Formats all records in the buffer and places the output in a Message.
      * This method holds a lock on this handler.
-     * Normally code would not aggressively null locals but with this running
-     * on older JVMs it seems better to trade time for space.
+     * Normally code would not aggressively null locals (dead local store) but
+     * with this running on older JVMs it seems better to trade time for space.
      * @param code the error manager code.
      * @return null if there are no records or is currently in a push.
      * Otherwise a new message context is created with a formatted message and
@@ -1875,19 +1879,17 @@ public class MailHandler extends Handler {
             return null;
         }
 
-        MimeMessage msg = null;
         isWriting = true;
         try {
+            sort();
             if (session == null) {
                 initSession();
             }
-            msg = new MimeMessage(session);
+            MimeMessage msg = new MimeMessage(session);
             msg.setDescription(descriptionFrom(comparator, pushLevel, pushFilter));
 
-            sort();
-
             /**
-             * Parts are lazily created when an attachment performs a getHead 
+             * Parts are lazily created when an attachment performs a getHead
              * call.  Therefore, a null part at an index means that the head is
              * required.
              */
@@ -1978,10 +1980,11 @@ public class MailHandler extends Handler {
                     buffers[i] = null;
                 }
             }
+            buffers = null;  //Read the method comments above.
 
             if (buf != null) {
                 buf.append(tail(bodyFormat, ""));
-                //This body part is always added, even it the buffer is empty, 
+                //This body part is always added, even it the buffer is empty,
                 //so the body is never considered an incomplete-copy.
             } else {
                 buf = new StringBuffer(0);
@@ -1992,7 +1995,7 @@ public class MailHandler extends Handler {
             MimeMultipart multipart = new MimeMultipart();
             String altType = getContentType(bodyFormat.getClass().getName());
             setContent(body, buf, altType == null ? contentType : altType);
-            buf = null;
+            buf = null;  //Read the method comments above.
             multipart.addBodyPart(body);
 
             for (int i = 0; i < parts.length; ++i) {
@@ -2000,7 +2003,7 @@ public class MailHandler extends Handler {
                     multipart.addBodyPart(parts[i]);
                 }
             }
-            parts = null;
+            parts = null; //Read the method comments above.
             msg.setContent(multipart);
             return new MessageContext(msg);
         } catch (final RuntimeException re) {
@@ -2452,6 +2455,7 @@ public class MailHandler extends Handler {
      * @return the to string value or the class name.
      */
     private String toString(final Formatter f) {
+        //Should never be null but, guard against formatter bugs.
         final String name = f.toString();
         if (name != null && name.length() > 0) {
             return name;
@@ -2517,7 +2521,7 @@ public class MailHandler extends Handler {
             final String encoding = getEncodingName();
             final String old = msg.getSubject();
             assert msg instanceof MimeMessage;
-            ((MimeMessage) msg).setSubject(old != null ? old.concat(chunk) 
+            ((MimeMessage) msg).setSubject(old != null ? old.concat(chunk)
                     : chunk, MimeUtility.mimeCharset(encoding));
         } catch (final MessagingException ME) {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
@@ -2539,7 +2543,7 @@ public class MailHandler extends Handler {
             l = rb.getLocale();
             if (l == null || isEmpty(l.getLanguage())) {
                 //The language of the fallback bundle (root) is unknown.
-                //1. Use default locale.  Should only be wrong if the app is 
+                //1. Use default locale.  Should only be wrong if the app is
                 //   used with a langauge that was unintended. (unlikely)
                 //2. Mark it as not localized (force null, info loss).
                 //3. Use the bundle name (encoded) as an experimental language.
@@ -2549,7 +2553,7 @@ public class MailHandler extends Handler {
             l = null;
         }
         return l;
-    }    
+    }
 
     /**
      * Appends the content language to the given mime part.
