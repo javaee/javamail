@@ -1,7 +1,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -106,6 +106,25 @@ END
 
 TEST no begin, no end, ignore errors
 DATA ignoreMissingBeginEnd
+M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
+4=&\@=&5S="!T:&4@9&5C;V1E<@H!
+EXPECT
+this is a very very very very very long line to test the decoder
+END
+
+TEST empty line, ignore errors
+DATA ignoreMissingBeginEnd
+
+begin 644 encoder.buf
+M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
+4=&\@=&5S="!T:&4@9&5C;V1E<@H!
+EXPECT
+this is a very very very very very long line to test the decoder
+END
+
+TEST empty line, no begin, ignore errors
+DATA ignoreMissingBeginEnd
+
 M=&AI<R!I<R!A('9E<GD@=F5R>2!V97)Y('9E<GD@=F5R>2!L;VYG(&QI;F4@
 4=&\@=&5S="!T:&4@9&5C;V1E<@H!
 EXPECT
