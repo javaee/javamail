@@ -40,32 +40,22 @@
  */
 package com.sun.mail.util.logging;
 
-import java.net.URLConnection;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.lang.reflect.*;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.io.*;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Random;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.net.*;
+import java.util.*;
+import java.util.logging.Formatter;
 import java.util.logging.*;
-import javax.activation.*;
+import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
 import javax.mail.*;
 import javax.mail.internet.*;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.*;
 
 /**
  * Test case for the MailHandler spec.
@@ -86,6 +76,10 @@ public class MailHandlerTest {
      */
     private static volatile int OPEN_PORT = Integer.MIN_VALUE;
     /**
+     * A host name that can not be resolved.
+     */
+    private static final String UNKNOWN_HOST = "bad-host-name";
+    /**
      * Stores a writable directory that is in the class path and visible
      * to the context class loader.
      */
@@ -99,6 +93,11 @@ public class MailHandlerTest {
     public static void setUpClass() throws Exception {
         checkJVMOptions();
         OPEN_PORT = findOpenPort();
+        try {
+            InetAddress.getByName(UNKNOWN_HOST);
+            throw new AssertionError(UNKNOWN_HOST);
+        } catch (UnknownHostException expect) {
+        }
         assertTrue(findClassPathDir().isDirectory());
     }
 
@@ -265,8 +264,8 @@ public class MailHandlerTest {
             InternalErrorManager em = new InternalErrorManager();
             instance.setErrorManager(em);
             Properties props = new Properties();
-            props.put("mail.smtp.host", "bad-host-name");
-            props.put("mail.host", "bad-host-name");
+            props.put("mail.smtp.host", UNKNOWN_HOST);
+            props.put("mail.host", UNKNOWN_HOST);
             instance.setMailProperties(props);
 
             Authenticator auth = new EmptyAuthenticator();
@@ -326,8 +325,8 @@ public class MailHandlerTest {
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
         instance.setLevel(Level.ALL);
         instance.setFilter(null);
@@ -350,8 +349,8 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler(2);
         instance.setLevel(Level.ALL);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
 
         InternalErrorManager em = new InternalErrorManager();
@@ -420,8 +419,8 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler();
         instance.setLevel(Level.ALL);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
 
         InternalErrorManager em = new InternalErrorManager();
@@ -453,8 +452,8 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler();
         instance.setLevel(Level.ALL);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
 
         InternalErrorManager em = new InternalErrorManager();
@@ -509,7 +508,7 @@ public class MailHandlerTest {
 
 
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
 
         InternalErrorManager em = new InternalErrorManager();
@@ -564,7 +563,7 @@ public class MailHandlerTest {
 
 
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
 
         InternalErrorManager em = new InternalErrorManager();
@@ -809,8 +808,8 @@ public class MailHandlerTest {
 
         instance.setErrorManager(em);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         props.put("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
         instance.setAttachmentFormatters(new Formatter[]{new XMLFormatter()});
@@ -841,8 +840,8 @@ public class MailHandlerTest {
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
         instance.setLevel(Level.ALL);
         instance.setFilter(null);
@@ -1401,8 +1400,8 @@ public class MailHandlerTest {
         if (verify != null) {
             props.put(p.concat(".verify"), verify);
         }
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-        props.put(p.concat(".mail.smtp.timeout"), "9");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat(".mail.smtp.timeout"), "1");
 
         read(manager, props);
 
@@ -1621,8 +1620,8 @@ public class MailHandlerTest {
         };
         instance.setErrorManager(em);
         Properties props = new Properties();
-        props.put("mail.smtp.host", "bad-host-name");
-        props.put("mail.host", "bad-host-name");
+        props.put("mail.smtp.host", UNKNOWN_HOST);
+        props.put("mail.host", UNKNOWN_HOST);
         props.put("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
         instance.setFormatter(new XMLFormatter());
@@ -1671,8 +1670,8 @@ public class MailHandlerTest {
         }
 
         Formatter[] formatters = new Formatter[]{new SimpleFormatter(), new SimpleFormatter()};
-        InternalErrorManager em = null;
-        MailHandler target = null;
+        InternalErrorManager em;
+        MailHandler target;
         Locale locale = Locale.getDefault();
         try {
             target = new MailHandler(createInitProperties(""));
@@ -1784,9 +1783,7 @@ public class MailHandlerTest {
             InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
             for (int i = 0; i < em.exceptions.size(); i++) {
                 Exception t = em.exceptions.get(i);
-		if (isUnknownOrTimeout(t)) {
-                //if (t instanceof MessagingException
-                        //&& t.getCause() instanceof UnknownHostException) {
+                if (isConnectOrTimeout(t)) {
                     continue;
                 }
                 dump(t);
@@ -1859,7 +1856,7 @@ public class MailHandlerTest {
                 fos.close();
             }
 
-            String bundleName = f.getName().substring(0, f.getName().lastIndexOf("_"));
+            String bundleName = f.getName().substring(0, f.getName().lastIndexOf('_'));
             assertTrue(bundleName.indexOf(Locale.ENGLISH.getLanguage()) < 0);
 
             cl = Locale.US;
@@ -1905,8 +1902,7 @@ public class MailHandlerTest {
         InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
         for (int i = 0; i < em.exceptions.size(); i++) {
             Exception t = em.exceptions.get(i);
-            if (t instanceof MessagingException
-                    && t.getCause() instanceof UnknownHostException) {
+            if (isConnectOrTimeout(t)) {
                 continue;
             }
             dump(t);
@@ -1930,7 +1926,7 @@ public class MailHandlerTest {
                     assertEquals(LogManagerProperties.toLanguageTag(Locale.GERMAN), lang[1]);
                     assertEquals(LogManagerProperties.toLanguageTag(Locale.FRANCE), lang[2]);
                     assertEquals(4, mp.getCount());
-                    MimePart part = null;
+                    MimePart part;
 
                     part = (MimePart) mp.getBodyPart(0);
                     assertEquals(LogManagerProperties.toLanguageTag(l), part.getHeader("Accept-Language", null));
@@ -2035,8 +2031,7 @@ public class MailHandlerTest {
         InternalErrorManager em = (InternalErrorManager) target.getErrorManager();
         for (int i = 0; i < em.exceptions.size(); i++) {
             Exception t = em.exceptions.get(i);
-            if (t instanceof MessagingException
-                    && t.getCause() instanceof UnknownHostException) {
+            if (isConnectOrTimeout(t)) {
                 continue;
             }
             dump(t);
@@ -2256,8 +2251,8 @@ public class MailHandlerTest {
             CountingFormatter formatter = new CountingFormatter();
             instance.setFormatter(formatter);
             Properties props = new Properties();
-            props.put("mail.smtp.host", "bad-host-name");
-            props.put("mail.host", "bad-host-name");
+            props.put("mail.smtp.host", UNKNOWN_HOST);
+            props.put("mail.host", UNKNOWN_HOST);
             instance.setMailProperties(props);
             for (int j = 0; j < instance.getCapacity(); j++) {
                 LogRecord r = new LogRecord(Level.INFO, "");
@@ -2376,8 +2371,7 @@ public class MailHandlerTest {
         instance.flush();
         for (int i = 0; i < em.exceptions.size(); i++) {
             final Throwable t = em.exceptions.get(i);
-            if (t instanceof MessagingException
-                    && t.getCause() instanceof UnknownHostException) {
+            if (isConnectOrTimeout(t)) {
                 continue;
             } else {
                 dump(t);
@@ -2579,7 +2573,7 @@ public class MailHandlerTest {
 
     @Test
     public void testAttachmentNames_StringArr() {
-        Formatter[] names = null;
+        Formatter[] names;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -2651,7 +2645,7 @@ public class MailHandlerTest {
 
     @Test
     public void testAttachmentNames_FormatterArr() {
-        Formatter[] formatters = null;
+        Formatter[] formatters;
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -3037,7 +3031,7 @@ public class MailHandlerTest {
 
     @Test
     public void testSecurityManager() {
-        InternalErrorManager em = null;
+        InternalErrorManager em;
         MailHandler h = null;
         final ThrowSecurityManager manager = new ThrowSecurityManager();
         System.setSecurityManager(manager);
@@ -3048,8 +3042,8 @@ public class MailHandlerTest {
             h.setErrorManager(em);
             Properties props = new Properties();
             props.put("mail.user", "bad-user");
-            props.put("mail.smtp.host", "bad-host-name");
-            props.put("mail.host", "bad-host-name");
+            props.put("mail.smtp.host", UNKNOWN_HOST);
+            props.put("mail.host", UNKNOWN_HOST);
             manager.secure = true;
             assertEquals(manager, System.getSecurityManager());
 
@@ -3551,8 +3545,8 @@ public class MailHandlerTest {
             final String p = MailHandler.class.getName();
             Properties props = new Properties();
             props.put(p.concat(".encoding"), "us-ascii");
-            props.put(p.concat(".mail.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+            props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
             props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "foo@bar.com");
             props.put(p.concat(".mail.cc"), "fizz@buzz.com");
@@ -3561,8 +3555,8 @@ public class MailHandlerTest {
             props.put(p.concat(".mail.from"), "localhost@localdomain");
             props.put(p.concat(".mail.sender"), "mail@handler");
             props.put(p.concat(".errorManager"), VerifyErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-            props.put(p.concat(".mail.smtp.timeout"), "9");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
             props.put(p.concat(".verify"), "remote");
 
             read(manager, props);
@@ -3576,8 +3570,7 @@ public class MailHandlerTest {
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
-                if (t instanceof MessagingException == false
-                        && t.getCause() instanceof UnknownHostException == false) {
+                if (!isConnectOrTimeout(t)) {
                     dump(t);
                     fail(t.toString());
                 }
@@ -3593,11 +3586,11 @@ public class MailHandlerTest {
     @Test
     public void testVerifyNoContent() throws Exception {
         Properties props = new Properties();
-        props.put("mail.host", "bad-host-name");
-        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.host", UNKNOWN_HOST);
+        props.put("mail.smtp.host", UNKNOWN_HOST);
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
-        props.put("mail.smtp.connectiontimeout", "9");
-        props.put("mail.smtp.timeout", "9");
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
 
         Session session = Session.getInstance(new Properties());
         MimeMessage msg = new MimeMessage(session);
@@ -3625,11 +3618,11 @@ public class MailHandlerTest {
     @Test
     public void testIsMissingContent() throws Exception {
         Properties props = new Properties();
-        props.put("mail.host", "bad-host-name");
-        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.host", UNKNOWN_HOST);
+        props.put("mail.smtp.host", UNKNOWN_HOST);
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
-        props.put("mail.smtp.connectiontimeout", "9");
-        props.put("mail.smtp.timeout", "9");
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
 
         MailHandler target = new MailHandler();
         Session session = Session.getInstance(new Properties());
@@ -3658,16 +3651,16 @@ public class MailHandlerTest {
 
             final String p = MailHandler.class.getName();
             Properties props = new Properties();
-            props.put(p.concat(".mail.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+            props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
             props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-            props.put(p.concat(".mail.smtp.timeout"), "9");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
             props.put(p.concat(".verify"), "local");
 
             read(manager, props);
@@ -3701,7 +3694,7 @@ public class MailHandlerTest {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof AddressException) {
                     continue;
-                } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                } else if (isConnectOrTimeout(t)) {
                     continue;
                 } else {
                     dump(t);
@@ -3717,15 +3710,15 @@ public class MailHandlerTest {
     @Test
     public void testVerifyProperties() throws Exception {
         Properties props = new Properties();
-        props.put("mail.host", "bad-host-name");
-        props.put("mail.smtp.host", "bad-host-name");
+        props.put("mail.host", UNKNOWN_HOST);
+        props.put("mail.smtp.host", UNKNOWN_HOST);
         props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
         props.put("mail.to", "badAddress");
         props.put("mail.cc", "badAddress");
         props.put("subject", "test");
         props.put("mail.from", "badAddress");
-        props.put("mail.smtp.connectiontimeout", "9");
-        props.put("mail.smtp.timeout", "9");
+        props.put("mail.smtp.connectiontimeout", "1");
+        props.put("mail.smtp.timeout", "1");
         props.put("verify", "local");
 
         InternalErrorManager em = new InternalErrorManager();
@@ -3756,7 +3749,7 @@ public class MailHandlerTest {
                 final Throwable t = em.exceptions.get(i);
                 if (t instanceof AddressException) {
                     continue;
-                } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                } else if (isConnectOrTimeout(t)) {
                     continue;
                 } else {
                     dump(t);
@@ -3776,29 +3769,29 @@ public class MailHandlerTest {
 
             final String p = MailHandler.class.getName();
             Properties props = new Properties();
-            props.put(p.concat(".mail.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+            props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
             props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-            props.put(p.concat(".mail.smtp.timeout"), "9"); //no verify.
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1"); //no verify.
 
             read(manager, props);
 
             props = new Properties();
-            props.put("mail.host", "bad-host-name");
-            props.put("mail.smtp.host", "bad-host-name");
+            props.put("mail.host", UNKNOWN_HOST);
+            props.put("mail.smtp.host", UNKNOWN_HOST);
             props.put("mail.smtp.port", Integer.toString(OPEN_PORT));
             props.put("mail.to", "badAddress");
             props.put("mail.cc", "badAddress");
             props.put("subject", "test");
             props.put("mail.from", "badAddress");
-            props.put("mail.smtp.connectiontimeout", "9");
-            props.put("mail.smtp.timeout", "9");
+            props.put("mail.smtp.connectiontimeout", "1");
+            props.put("mail.smtp.timeout", "1");
             props.put("verify", "local");
 
             MailHandler instance = new MailHandler(props);
@@ -3828,7 +3821,7 @@ public class MailHandlerTest {
                     final Throwable t = em.exceptions.get(i);
                     if (t instanceof AddressException) {
                         continue;
-                    } else if (t.getMessage().indexOf("bad-host-name") > -1) {
+                    } else if (isConnectOrTimeout(t)) {                        
                         continue;
                     } else {
                         dump(t);
@@ -3852,16 +3845,16 @@ public class MailHandlerTest {
 
             final String p = MailHandler.class.getName();
             Properties props = new Properties();
-            props.put(p.concat(".mail.host"), "bad-host-name");
-            props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+            props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+            props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
             props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
             props.put(p.concat(".mail.to"), "badAddress");
             props.put(p.concat(".mail.cc"), "badAddress");
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".mail.from"), "badAddress");
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-            props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-            props.put(p.concat(".mail.smtp.timeout"), "9");
+            props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+            props.put(p.concat(".mail.smtp.timeout"), "1");
             props.put(p.concat(".verify"), "remote");
 
             read(manager, props);
@@ -3890,14 +3883,14 @@ public class MailHandlerTest {
         final String p = MailHandler.class.getName();
         final LogManager manager = LogManager.getLogManager();
         Properties props = new Properties();
-        props.put(p.concat(".mail.host"), "bad-host-name");
-        props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+        props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+        props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
         props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
         props.put(p.concat(".mail.to"), "badAddress");
         props.put(p.concat(".mail.cc"), "badAddress");
         props.put(p.concat(".mail.from"), "badAddress");
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-        props.put(p.concat(".mail.smtp.timeout"), "9");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat(".mail.smtp.timeout"), "1");
         props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
 
         //test class cast.
@@ -3960,14 +3953,14 @@ public class MailHandlerTest {
         final String p = MailHandler.class.getName();
         final LogManager manager = LogManager.getLogManager();
         Properties props = new Properties();
-        props.put(p.concat(".mail.host"), "bad-host-name");
-        props.put(p.concat(".mail.smtp.host"), "bad-host-name");
+        props.put(p.concat(".mail.host"), UNKNOWN_HOST);
+        props.put(p.concat(".mail.smtp.host"), UNKNOWN_HOST);
         props.put(p.concat(".mail.smtp.port"), Integer.toString(OPEN_PORT));
         props.put(p.concat(".mail.to"), "badAddress");
         props.put(p.concat(".mail.cc"), "badAddress");
         props.put(p.concat(".mail.from"), "badAddress");
-        props.put(p.concat(".mail.smtp.connectiontimeout"), "9");
-        props.put(p.concat(".mail.smtp.timeout"), "9");
+        props.put(p.concat(".mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat(".mail.smtp.timeout"), "1");
         props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
 
         //test class cast.
@@ -4519,14 +4512,14 @@ public class MailHandlerTest {
         if (p.length() != 0) {
             p = p.concat(".");
         }
-        props.put(p.concat("mail.host"), "bad-host-name");
-        props.put(p.concat("mail.smtp.host"), "bad-host-name");
+        props.put(p.concat("mail.host"), UNKNOWN_HOST);
+        props.put(p.concat("mail.smtp.host"), UNKNOWN_HOST);
         props.put(p.concat("mail.smtp.port"), Integer.toString(OPEN_PORT));
         props.put(p.concat("mail.to"), "badAddress");
         props.put(p.concat("mail.cc"), "badAddress");
         props.put(p.concat("mail.from"), "badAddress");
-        props.put(p.concat("mail.smtp.connectiontimeout"), "9");
-        props.put(p.concat("mail.smtp.timeout"), "9");
+        props.put(p.concat("mail.smtp.connectiontimeout"), "1");
+        props.put(p.concat("mail.smtp.timeout"), "1");
         props.put(p.concat("errorManager"), InternalErrorManager.class.getName());
         return props;
     }
@@ -4854,15 +4847,7 @@ public class MailHandlerTest {
             return isConnectOrTimeout(t.getCause());
         } else {
             return t instanceof java.net.ConnectException
-                    || t instanceof java.net.SocketTimeoutException;
-        }
-    }
-
-    private static boolean isUnknownOrTimeout(Throwable t) {
-        if (t instanceof MessagingException) {
-            return isUnknownOrTimeout(t.getCause());
-        } else {
-            return t instanceof java.net.UnknownHostException
+                    || t instanceof java.net.UnknownHostException
                     || t instanceof java.net.SocketTimeoutException;
         }
     }
@@ -4921,7 +4906,7 @@ public class MailHandlerTest {
             super.error(msg, ex, code);
             if (msg != null && msg.length() > 0
                     && !msg.startsWith(Level.SEVERE.getName())) {
-                MimeMessage message = null;
+                MimeMessage message;
                 try { //Raw message is ascii.
                     byte[] b = msg.getBytes("US-ASCII");
                     assertTrue(b.length > 0);
