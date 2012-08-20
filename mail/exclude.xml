@@ -390,4 +390,17 @@
 	<Bug pattern="DM_DEFAULT_ENCODING"/>
     </Match>
 
+    <!--
+	MimeBodyPart.headers is set in the constructor.  IMAPBodyPart has
+	perhaps paranoid defensive code to set it if it's not set.  That
+	code is protected by the object lock, but all of the reads of the
+	field are not, thus FindBugs complains.  For now I think it's
+	better to leave the defensive code in and ignore this error.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.MimeBodyPart"/>
+	<Field name="headers"/>
+	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+
 </FindBugsFilter>

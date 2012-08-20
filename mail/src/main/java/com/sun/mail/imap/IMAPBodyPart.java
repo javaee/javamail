@@ -376,6 +376,9 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	if (headersLoaded)
 	    return;
 
+	// "headers" should never be null since it's set in the constructor.
+	// If something did go wrong this will fix it, but is an unsynchronized
+	// assignment of "headers".
 	if (headers == null)
 	    headers = new InternetHeaders();
 
