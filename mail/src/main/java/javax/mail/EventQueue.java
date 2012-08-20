@@ -126,7 +126,7 @@ class EventQueue implements Runnable {
 	try {
 	    loop:
 	    for (;;) {
-		qe = dequeue():	// blocks until an item is available
+		qe = dequeue();	// blocks until an item is available
 		MailEvent e = qe.event;
 		Vector v = qe.vector;
 
