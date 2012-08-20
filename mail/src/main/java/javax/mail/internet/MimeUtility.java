@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -252,7 +252,7 @@ public class MimeUtility {
 	    try {
 		byte[] b = "\r\n".getBytes(charset);
 		bool = Boolean.valueOf(
-		    b == null || b.length != 2 || b[0] != 015 || b[1] != 012);
+		    b.length != 2 || b[0] != 015 || b[1] != 012);
 	    } catch (UnsupportedEncodingException uex) {
 		bool = Boolean.FALSE;	// a guess
 	    } catch (RuntimeException ex) {

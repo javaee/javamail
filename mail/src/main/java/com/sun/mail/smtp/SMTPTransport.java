@@ -2221,7 +2221,7 @@ public class SMTPTransport extends Transport {
             //out.println("DEBUG SMTP RCVD: " + serverResponse);
 
 	// parse out the return code
-        if (serverResponse != null && serverResponse.length() >= 3) {
+        if (serverResponse.length() >= 3) {
             try {
                 returnCode = Integer.parseInt(serverResponse.substring(0, 3));
             } catch (NumberFormatException nfe) {

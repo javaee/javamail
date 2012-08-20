@@ -463,7 +463,7 @@ class Protocol {
 		    StringTokenizer st = new StringTokenizer(r.data);
 		    String s = st.nextToken();
 		    String octets = st.nextToken();
-		    if (octets != null && octets.equals("octets")) {
+		    if (octets.equals("octets")) {
 			size = Integer.parseInt(s);
 			// don't allow ridiculous sizes
 			if (size > 1024*1024*1024 || size < 0)
