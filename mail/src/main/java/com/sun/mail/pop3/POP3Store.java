@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,6 +77,7 @@ public class POP3Store extends Store {
     private String passwd = null;
     private boolean useStartTLS = false;
     private boolean requireStartTLS = false;
+    private boolean usingSSL = false;
     private Map capabilities;
     private PrintStream out;
 
@@ -289,6 +290,7 @@ public class POP3Store extends Store {
 	}
 
 	capabilities = p.getCapabilities();	// save for later, may be null
+	usingSSL = p.isSSL();			// in case anyone asks
 
 	/*
 	 * If we haven't explicitly disabled use of the TOP command,
@@ -394,6 +396,16 @@ public class POP3Store extends Store {
 	    return Collections.unmodifiableMap(c);
 	else
 	    return Collections.EMPTY_MAP;
+    }
+
+    /**
+     * Is this POP3Store using SSL to connect to the server?
+     *
+     * @return	true if using SSL
+     * @since	JavaMail 1.4.6
+     */
+    public boolean isSSL() {
+	return usingSSL;
     }
 
     protected void finalize() throws Throwable {

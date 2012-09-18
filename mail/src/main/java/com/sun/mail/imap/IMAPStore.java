@@ -189,6 +189,7 @@ public class IMAPStore extends Store
     private boolean disableAuthNtlm = false;	// disable AUTH=NTLM
     private boolean enableStartTLS = false;	// enable STARTTLS
     private boolean requireStartTLS = false;	// require STARTTLS
+    private boolean usingSSL = false;		// using SSL?
     private boolean enableSASL = false;		// enable SASL authentication
     private String[] saslMechanisms;
     private boolean forcePasswordRefresh = false;
@@ -652,6 +653,8 @@ public class IMAPStore extends Store
 
 	        protocol.addResponseHandler(this);
 
+		usingSSL = protocol.isSSL();	// in case anyone asks
+
 	        this.host = host;
 	        this.user = user;
 	        this.password = password;
@@ -785,6 +788,16 @@ public class IMAPStore extends Store
      * @since JavaMail 1.4.4
      */
     protected void preLogin(IMAPProtocol p) throws ProtocolException {
+    }
+
+    /**
+     * Does this IMAPStore use SSL when connecting to the server?
+     *
+     * @return	true if using SSL
+     * @since	JavaMail 1.4.6
+     */
+    public boolean isSSL() {
+        return usingSSL;
     }
 
     /**

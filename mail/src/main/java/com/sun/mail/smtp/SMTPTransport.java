@@ -504,6 +504,16 @@ public class SMTPTransport extends Transport {
     }
 
     /**
+     * Is this Transport using SSL to connect to the server?
+     *
+     * @return	true if using SSL
+     * @since	JavaMail 1.4.6
+     */
+    public boolean isSSL() {
+	return serverSocket instanceof SSLSocket;
+    }
+
+    /**
      * Should we use the RSET command instead of the NOOP command
      * in the @{link #isConnected isConnected} method?
      *

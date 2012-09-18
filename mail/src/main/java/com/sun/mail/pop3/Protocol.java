@@ -671,6 +671,13 @@ class Protocol {
     }
 
     /**
+     * Is this connection using SSL?
+     */
+    synchronized boolean isSSL() {
+	return socket instanceof SSLSocket;
+    }
+
+    /**
      * Get server capabilities using CAPA command specified by RFC 2449.
      * Returns null if not supported.
      */

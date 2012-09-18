@@ -391,6 +391,16 @@ public class Protocol {
     }
 
     /**
+     * Is this connection using an SSL socket?
+     *
+     * @return	true if using SSL
+     * @since	JavaMail 1.4.6
+     */
+    public boolean isSSL() {
+	return socket instanceof SSLSocket;
+    }
+
+    /**
      * Disconnect.
      */
     protected synchronized void disconnect() {
