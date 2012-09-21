@@ -3141,6 +3141,11 @@ public class MailHandlerTest {
         instance.close();
     }
 
+    /**
+     * Test logging permissions of the MailHandler.
+     * Must run by itself or run in isolated VM.
+     * Use system property java.security.debug=all to troubleshoot failures.
+     */
     @Test
     public void testSecurityManager() {
         InternalErrorManager em;
@@ -4630,7 +4635,7 @@ public class MailHandlerTest {
     }
 
     /**
-     * Test must run last.
+     * Must run by itself or run in isolated VM.
      */
     @Test
     public void testZInit() {
@@ -5302,18 +5307,34 @@ public class MailHandlerTest {
 
         @Override
         public void checkPermission(java.security.Permission perm) {
-            if (secure) {
+            try { //Call super class always for 'java.security.debug=all'.
                 super.checkPermission(perm);
-                throw new SecurityException(perm.toString());
+                if (secure && isLogging(perm)) {
+                    throw new SecurityException(perm.toString());
+                }
+            } catch (SecurityException se) {
+                if (secure && isLogging(perm)) {
+                    throw se;
+                }
             }
         }
 
         @Override
         public void checkPermission(java.security.Permission perm, Object context) {
-            if (secure) {
+            try { //Call super class always for 'java.security.debug=all'.
                 super.checkPermission(perm, context);
-                throw new SecurityException(perm.toString());
+                if (secure && isLogging(perm)) {
+                    throw new SecurityException(perm.toString());
+                }
+            } catch (SecurityException se) {
+                if (secure && isLogging(perm)) {
+                    throw se;
+                }
             }
+        }
+
+        private static boolean isLogging(java.security.Permission perm) {
+            return perm instanceof LoggingPermission;
         }
     }
 
