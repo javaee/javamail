@@ -283,6 +283,31 @@ The Sun protocol providers also support properties that are specific to
 those providers.  The package documentation for the
 {@link com.sun.mail.imap IMAP}, {@link com.sun.mail.pop3 POP3},
 and {@link com.sun.mail.smtp SMTP} packages provide details.
+<P>
+In addition to printing debugging output as controlled by the
+{@link javax.mail.Session Session} configuration, the current
+implementation of classes in this package log the same information using
+{@link java.util.logging.Logger} as described in the following table:
+<P>
+<TABLE BORDER>
+<TR>
+<TH>Logger Name</TH>
+<TH>Logging Level</TH>
+<TH>Purpose</TH>
+</TR>
+
+<TR>
+<TD>javax.mail</TD>
+<TD>CONFIG</TD>
+<TD>Configuration of the Session</TD>
+</TR>
+
+<TR>
+<TD>javax.mail</TD>
+<TD>FINE</TD>
+<TD>General debugging output</TD>
+</TR>
+</TABLE>
 
 </BODY>
 </HTML>

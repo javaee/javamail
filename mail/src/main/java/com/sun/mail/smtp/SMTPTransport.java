@@ -43,6 +43,7 @@ package com.sun.mail.smtp;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.lang.reflect.*;
 import javax.net.ssl.SSLSocket;
 
@@ -125,7 +126,8 @@ public class SMTPTransport extends Transport {
     private boolean useRset;		// use RSET instead of NOOP
     private boolean noopStrict = true;	// NOOP must return 250 for success
 
-    private PrintStream out;		// debug output stream
+    private MailLogger logger;		// debug logger
+    private MailLogger traceLogger;	// protocol trace logger
     private String localHostName;	// our own host name
     private String lastServerResponse;	// last SMTP response
     private int lastReturnCode;		// last SMTP return code
@@ -155,8 +157,10 @@ public class SMTPTransport extends Transport {
     protected SMTPTransport(Session session, URLName urlname,
 				String name, boolean isSSL) {
 	super(session, urlname);
-	noauthdebug = debug && !PropUtil.getBooleanSessionProperty(session,
-	    "mail.debug.auth", false);
+	logger = new MailLogger(this.getClass(), "DEBUG SMTP", session);
+	traceLogger = logger.getSubLogger("protocol", null);
+	noauthdebug = !PropUtil.getBooleanSessionProperty(session,
+			    "mail.debug.auth", false);
 	if (urlname != null)
 	    name = urlname.getProtocol();
 	this.name = name;
@@ -168,8 +172,6 @@ public class SMTPTransport extends Transport {
 	else
 	    this.defaultPort = 25;
 	this.isSSL = isSSL;
-
-	out = session.getDebugOut();
 
 	// setting mail.smtp.quitwait to false causes us to not wait for the
 	// response from the QUIT command
@@ -200,8 +202,8 @@ public class SMTPTransport extends Transport {
 	// check if SASL is enabled
 	enableSASL = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".sasl.enable", false);
-	if (debug && enableSASL)
-	    out.println("DEBUG SMTP: enable SASL");
+	if (enableSASL)
+	    logger.config("enable SASL");
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -370,8 +372,8 @@ public class SMTPTransport extends Transport {
 	    List v = new ArrayList(5);
 	    String s = session.getProperty("mail." + name + ".sasl.mechanisms");
 	    if (s != null && s.length() > 0) {
-		if (debug)
-		    out.println("DEBUG SMTP: SASL mechanisms allowed: " + s);
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("SASL mechanisms allowed: " + s);
 		StringTokenizer st = new StringTokenizer(s, " ,");
 		while (st.hasMoreTokens()) {
 		    String m = st.nextToken();
@@ -614,9 +616,8 @@ public class SMTPTransport extends Transport {
 	boolean useAuth = PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".auth", false);
 
-	if (debug)
-	    out.println("DEBUG SMTP: useEhlo " + useEhlo +
-				", useAuth " + useAuth);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("useEhlo " + useEhlo + ", useAuth " + useAuth);
 
 	/*
 	 * If mail.smtp.auth is set, make sure we have a valid username
@@ -660,9 +661,7 @@ public class SMTPTransport extends Transport {
 
 	    if (useStartTLS || requireStartTLS) {
 		if (serverSocket instanceof SSLSocket) {
-		    if (debug)
-			out.println(
-			"DEBUG SMTP: STARTTLS requested but already using SSL");
+		    logger.fine("STARTTLS requested but already using SSL");
 		} else if (supportsExtension("STARTTLS")) {
 		    startTLS();
 		    /*
@@ -673,9 +672,7 @@ public class SMTPTransport extends Transport {
 		     */
 		    ehlo(getLocalHost());
 		} else if (requireStartTLS) {
-		    if (debug)
-			out.println(
-			    "DEBUG SMTP: STARTTLS required but not supported");
+		    logger.fine("STARTTLS required but not supported");
 		    throw new MessagingException(
 			"STARTTLS is required but " +
 			"host does not support STARTTLS");
@@ -720,19 +717,15 @@ public class SMTPTransport extends Transport {
 	if (authzid == null)
 	    authzid = user;
 	if (enableSASL) {
-	    if (debug)
-		out.println("DEBUG SMTP: Authenticate with SASL");
+	    logger.fine("Authenticate with SASL");
 	    if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
 			    user, passwd))
 		return true;	// success
-	    if (debug)
-		out.println("DEBUG SMTP: SASL authentication failed");
+	    logger.fine("SASL authentication failed");
 	}
 
-	if (debug) {
-	    out.println("DEBUG SMTP: Attempt to authenticate");
-	    out.println("DEBUG SMTP: check mechanisms: " + mechs);
-	}
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("Attempt to authenticate using mechanisms: " + mechs);
 
 	/*
 	 * Loop through the list of mechanisms supplied by the user
@@ -748,23 +741,20 @@ public class SMTPTransport extends Transport {
 	    boolean disabled =
 		PropUtil.getBooleanSessionProperty(session, dprop, false);
 	    if (disabled) {
-		if (debug)
-		    out.println("DEBUG SMTP: mechanism " + m +
-					" disabled by property: " + dprop);
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine(
+			"mechanism " + m + " disabled by property: " + dprop);
 		continue;
 	    }
 	    m = m.toUpperCase(Locale.ENGLISH);
 	    if (!supportsAuthentication(m)) {
-		if (debug)
-		    out.println("DEBUG SMTP: mechanism " + m +
-					    " not supported by server");
+		logger.log(Level.FINE, "mechanism {0} not supported by server",
+					m);
 		continue;
 	    }
 	    Authenticator a = (Authenticator)authenticators.get(m);
 	    if (a == null) {
-		if (debug)
-		    out.println("DEBUG SMTP: " +
-			"no authenticator for mechanism " + m);
+		logger.log(Level.FINE, "no authenticator for mechanism {0}", m);
 		continue;
 	    }
 	    // only first supported mechanism is used
@@ -801,9 +791,8 @@ public class SMTPTransport extends Transport {
 	    try {
 		// use "initial response" capability, if supported
 		String ir = getInitialResponse(host, authzid, user, passwd);
-		if (noauthdebug) {
-		    out.println("DEBUG SMTP: AUTH " + mech +
-				    " command trace suppressed");
+		if (noauthdebug && isTracing()) {
+		    logger.fine("AUTH " + mech + " command trace suppressed");
 		    suspendTracing();
 		}
 		if (ir != null)
@@ -826,11 +815,10 @@ public class SMTPTransport extends Transport {
 		if (resp == 334)
 		    doAuth(host, authzid, user, passwd);
 	    } catch (IOException ex) {	// should never happen, ignore
-		if (debug)
-		    out.println("DEBUG SMTP: " + mech + " failed: " + ex);
+		logger.log(Level.FINE, "AUTH " + mech + " failed", ex);
 	    } finally {
-		if (noauthdebug)
-		    out.println("DEBUG SMTP: AUTH " + mech + " " +
+		if (noauthdebug && isTracing())
+		    logger.fine("AUTH " + mech + " " +
 				    (resp == 235 ? "succeeded" : "failed"));
 		resumeTracing();
 		if (resp != 235) {
@@ -921,7 +909,7 @@ public class SMTPTransport extends Transport {
 
 	private synchronized DigestMD5 getMD5() {
 	    if (md5support == null)
-		md5support = new DigestMD5(debug ? out : null);
+		md5support = new DigestMD5(logger);
 	    return md5support;
 	}
 
@@ -962,7 +950,7 @@ public class SMTPTransport extends Transport {
 	String getInitialResponse(String host, String authzid, String user,
 		String passwd) throws MessagingException, IOException {
 	    ntlm = new Ntlm(getNTLMDomain(), getLocalHost(),
-				user, passwd, debug ? out : null);
+				user, passwd, logger);
 
 	    flags = PropUtil.getIntProperty(
 		    session.getProperties(),
@@ -1003,14 +991,11 @@ public class SMTPTransport extends Transport {
 					this,
 					name,
 					session.getProperties(),
-					debug ? Boolean.TRUE : Boolean.FALSE,
-					out,
+					logger,
 					host
 					});
 	    } catch (Exception ex) {
-		if (debug)
-		    out.println("DEBUG SMTP: Can't load SASL authenticator: " +
-								ex);
+		logger.log(Level.FINE, "Can't load SASL authenticator", ex);
 		// probably because we're running on a system without SASL
 		return false;	// not authenticated, try without SASL
 	    }
@@ -1038,8 +1023,8 @@ public class SMTPTransport extends Transport {
 	}
 	String[] mechs = (String[])v.toArray(new String[v.size()]);
 	try {
-	    if (noauthdebug) {
-		out.println("DEBUG SMTP: SASL AUTH command trace suppressed");
+	    if (noauthdebug && isTracing()) {
+		logger.fine("SASL AUTH command trace suppressed");
 		suspendTracing();
 	    }
 	    return saslAuthenticator.authenticate(mechs, realm, authzid, u, p);
@@ -1092,8 +1077,7 @@ public class SMTPTransport extends Transport {
 	// check if the message is a valid MIME/RFC822 message and that
 	// it has all valid InternetAddresses; fail if not
         if (!(message instanceof MimeMessage)) {
-	    if (debug)
-		out.println("DEBUG SMTP: Can only send RFC822 msgs");
+	    logger.fine("Can only send RFC822 msgs");
 	    throw new MessagingException("SMTP can only send RFC822 messages");
 	}
 	for (int i = 0; i < addresses.length; i++) {
@@ -1116,8 +1100,8 @@ public class SMTPTransport extends Transport {
 	if (!use8bit)
 	    use8bit = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".allow8bitmime", false);
-	if (debug)
-	    out.println("DEBUG SMTP: use8bit " + use8bit);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("use8bit " + use8bit);
 	if (use8bit && supportsExtension("8BITMIME")) {
 	    if (convertTo8Bit(this.message)) {
 		// in case we made any changes, save those changes
@@ -1138,8 +1122,7 @@ public class SMTPTransport extends Transport {
 	    if (sendPartiallyFailed) {
 		// throw the exception,
 		// fire TransportEvent.MESSAGE_PARTIALLY_DELIVERED event
-		if (debug)
-		    out.println("DEBUG SMTP: Sending partially failed " +
+		logger.fine("Sending partially failed " +
 			"because of invalid destination addresses");
 		notifyTransportListeners(
 			TransportEvent.MESSAGE_PARTIALLY_DELIVERED,
@@ -1154,16 +1137,12 @@ public class SMTPTransport extends Transport {
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
 	} catch (MessagingException mex) {
-	    if (debug) {
-		out.println("DEBUG SMTP: MessagingException while sending");
-		mex.printStackTrace(out);
-	    }
+	    logger.log(Level.FINE, "MessagingException while sending", mex);
 	    // the MessagingException might be wrapping an IOException
 	    if (mex.getNextException() instanceof IOException) {
 		// if we catch an IOException, it means that we want
 		// to drop the connection so that the message isn't sent
-		if (debug)
-		    out.println("DEBUG SMTP: nested IOException, closing");
+		logger.fine("nested IOException, closing");
 		try {
 		    closeConnection();
 		} catch (MessagingException cex) { /* ignore it */ }
@@ -1175,10 +1154,7 @@ public class SMTPTransport extends Transport {
 
 	    throw mex;
 	} catch (IOException ex) {
-	    if (debug) {
-		out.println("DEBUG SMTP: IOException while sending, closing");
-		ex.printStackTrace(out);
-	    }
+	    logger.log(Level.FINE, "IOException while sending, closing", ex);
 	    // if we catch an IOException, it means that we want
 	    // to drop the connection so that the message isn't sent
 	    try {
@@ -1235,8 +1211,9 @@ public class SMTPTransport extends Transport {
 		sendCommand("QUIT");
 		if (quitWait) {
 		    int resp = readServerResponse();
-		    if (resp != 221 && resp != -1 && debug)
-			out.println("DEBUG SMTP: QUIT failed with " + resp);
+		    if (resp != 221 && resp != -1 &&
+			    logger.isLoggable(Level.FINE))
+			logger.fine("QUIT failed with " + resp);
 		}
 	    }
 	} finally {
@@ -1459,8 +1436,8 @@ public class SMTPTransport extends Transport {
 	} catch (IOException ex) {
 	    return false;
 	}
-	if (debug && need8bit)
-	    out.println("DEBUG SMTP: found an 8bit part");
+	if (need8bit)
+	    logger.fine("found an 8bit part");
 	return need8bit;
     }
 
@@ -1534,8 +1511,8 @@ public class SMTPTransport extends Transport {
 			arg = line.substring(i + 1);
 			line = line.substring(0, i);
 		    }
-		    if (debug)
-			out.println("DEBUG SMTP: Found extension \"" +
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("Found extension \"" +
 					    line + "\", arg \"" + arg + "\"");
 		    extMap.put(line.toUpperCase(Locale.ENGLISH), arg);
 		}
@@ -1611,9 +1588,9 @@ public class SMTPTransport extends Transport {
 		    String s = xtext(submitter);
 		    cmd += " AUTH=" + s;
 		} catch (IllegalArgumentException ex) {
-		    if (debug)
-			out.println("DEBUG SMTP: ignoring invalid submitter: " +
-			    submitter + ", Exception: " + ex);
+		    if (logger.isLoggable(Level.FINE))
+			logger.log(Level.FINE, "ignoring invalid submitter: " +
+			    submitter, ex);
 		}
 	    }
 	}
@@ -1685,8 +1662,8 @@ public class SMTPTransport extends Transport {
 	if (!sendPartial)
 	    sendPartial = PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".sendpartial", false);
-	if (debug && sendPartial)
-	    out.println("DEBUG SMTP: sendPartial set");
+	if (sendPartial)
+	    logger.fine("sendPartial set");
 
 	boolean dsn = false;
 	String notify = null;
@@ -1768,8 +1745,8 @@ public class SMTPTransport extends Transport {
 		    invalid.addElement(ia);
 		} else {
 		    // completely unexpected response, just give up
-		    if (debug)
-			out.println("DEBUG SMTP: got response code " + retCode +
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("got response code " + retCode +
 			    ", with response: " + lastServerResponse);
 		    String _lsr = lastServerResponse; // else rset will nuke it
 		    int _lrc = lastReturnCode;
@@ -1835,32 +1812,31 @@ public class SMTPTransport extends Transport {
 
 
 	// print out the debug info
-	if (debug) {
+	if (logger.isLoggable(Level.FINE)) {
 	    if (validSentAddr != null && validSentAddr.length > 0) {
-		out.println("DEBUG SMTP: Verified Addresses");
+		logger.fine("Verified Addresses");
 		for (int l = 0; l < validSentAddr.length; l++) {
-		    out.println("DEBUG SMTP:   " + validSentAddr[l]);
+		    logger.fine("  " + validSentAddr[l]);
 		}
 	    }
 	    if (validUnsentAddr != null && validUnsentAddr.length > 0) {
-		out.println("DEBUG SMTP: Valid Unsent Addresses");
+		logger.fine("Valid Unsent Addresses");
 		for (int j = 0; j < validUnsentAddr.length; j++) {
-		    out.println("DEBUG SMTP:   " + validUnsentAddr[j]);
+		    logger.fine("  " + validUnsentAddr[j]);
 		}
 	    }
 	    if (invalidAddr != null && invalidAddr.length > 0) {
-		out.println("DEBUG SMTP: Invalid Addresses");
+		logger.fine("Invalid Addresses");
 		for (int k = 0; k < invalidAddr.length; k++) {
-		    out.println("DEBUG SMTP:   " + invalidAddr[k]);
+		    logger.fine("  " + invalidAddr[k]);
 		}
 	    }
 	}
 
 	// throw the exception, fire TransportEvent.MESSAGE_NOT_DELIVERED event
 	if (sendFailed) {
-	    if (debug)
-		out.println("DEBUG SMTP: Sending failed " +
-				   "because of invalid destination addresses");
+	    logger.fine(
+		"Sending failed because of invalid destination addresses");
 	    notifyTransportListeners(TransportEvent.MESSAGE_NOT_DELIVERED,
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
@@ -1877,8 +1853,7 @@ public class SMTPTransport extends Transport {
 		    close();
 		} catch (MessagingException ex2) {
 		    // thrown by close()--ignore, will close() later anyway
-		    if (debug)
-			ex2.printStackTrace(out);
+		    logger.log(Level.FINE, "close failed", ex2);
 		}
 	    } finally {
 		lastServerResponse = lsr;	// restore
@@ -1943,8 +1918,8 @@ public class SMTPTransport extends Transport {
     private void openServer(String host, int port)
 				throws MessagingException {
 
-        if (debug)
-	    out.println("DEBUG SMTP: trying to connect to host \"" + host +
+        if (logger.isLoggable(Level.FINE))
+	    logger.fine("trying to connect to host \"" + host +
 				"\", port " + port + ", isSSL " + isSSL);
 
 	try {
@@ -1968,8 +1943,8 @@ public class SMTPTransport extends Transport {
 		serverOutput = null;
 		serverInput = null;
 		lineInputStream = null;
-		if (debug)
-		    out.println("DEBUG SMTP: could not connect to host \"" +
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("could not connect to host \"" +
 				    host + "\", port: " + port +
 				    ", response: " + r + "\n");
 		throw new MessagingException(
@@ -1977,8 +1952,8 @@ public class SMTPTransport extends Transport {
 				    ", port: " + port +
 				    ", response: " + r);
 	    } else {
-		if (debug)
-		    out.println("DEBUG SMTP: connected to host \"" +
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("connected to host \"" +
 				       host + "\", port: " + port + "\n");
 	    }
 	} catch (UnknownHostException uhex) {
@@ -1999,8 +1974,8 @@ public class SMTPTransport extends Transport {
 	try {
 	    port = serverSocket.getPort();
 	    host = serverSocket.getInetAddress().getHostName();
-	    if (debug)
-		out.println("DEBUG SMTP: starting protocol to host \"" +
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("starting protocol to host \"" +
 					host + "\", port " + port);
 
 	    initStreams();
@@ -2012,8 +1987,8 @@ public class SMTPTransport extends Transport {
 		serverOutput = null;
 		serverInput = null;
 		lineInputStream = null;
-		if (debug)
-		    out.println("DEBUG SMTP: got bad greeting from host \"" +
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("got bad greeting from host \"" +
 				    host + "\", port: " + port +
 				    ", response: " + r + "\n");
 		throw new MessagingException(
@@ -2021,8 +1996,8 @@ public class SMTPTransport extends Transport {
 				    ", port: " + port +
 				    ", response: " + r);
 	    } else {
-		if (debug)
-		    out.println("DEBUG SMTP: protocol started to host \"" +
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("protocol started to host \"" +
 				       host + "\", port: " + port + "\n");
 	    }
 	} catch (IOException ioe) {
@@ -2034,17 +2009,15 @@ public class SMTPTransport extends Transport {
 
 
     private void initStreams() throws IOException {
-	PrintStream out = session.getDebugOut();
 	boolean quote = PropUtil.getBooleanSessionProperty(session,
 					"mail.debug.quote", false);
 
-	traceInput = new TraceInputStream(serverSocket.getInputStream(), out);
-	traceInput.setTrace(debug);
+	traceInput =
+	    new TraceInputStream(serverSocket.getInputStream(), traceLogger);
 	traceInput.setQuote(quote);
 
 	traceOutput =
-	    new TraceOutputStream(serverSocket.getOutputStream(), out);
-	traceOutput.setTrace(debug);
+	    new TraceOutputStream(serverSocket.getOutputStream(), traceLogger);
 	traceOutput.setQuote(quote);
 
 	serverOutput =
@@ -2055,11 +2028,18 @@ public class SMTPTransport extends Transport {
     }
 
     /**
+     * Is protocol tracing enabled?
+     */
+    private boolean isTracing() {
+	return traceLogger.isLoggable(Level.FINEST);
+    }
+
+    /**
      * Temporarily turn off protocol tracing, e.g., to prevent
      * tracing the authentication sequence, including the password.
      */
     private void suspendTracing() {
-	if (debug) {
+	if (traceLogger.isLoggable(Level.FINEST)) {
 	    traceInput.setTrace(false);
 	    traceOutput.setTrace(false);
 	}
@@ -2069,7 +2049,7 @@ public class SMTPTransport extends Transport {
      * Resume protocol tracing, if it was enabled to begin with.
      */
     private void resumeTracing() {
-	if (debug) {
+	if (traceLogger.isLoggable(Level.FINEST)) {
 	    traceInput.setTrace(true);
 	    traceOutput.setTrace(true);
 	}
@@ -2117,8 +2097,8 @@ public class SMTPTransport extends Transport {
 		System.arraycopy(validUnsentAddr, 0, valid, vsl, vul);
 	    validSentAddr = null;
 	    validUnsentAddr = valid;
-	    if (debug)
-		out.println("DEBUG SMTP: got response code " + ret +
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("got response code " + ret +
 		    ", with response: " + lastServerResponse);
 	    String _lsr = lastServerResponse; // else rset will nuke it
 	    int _lrc = lastReturnCode;
@@ -2167,8 +2147,8 @@ public class SMTPTransport extends Transport {
 
     private void sendCommand(byte[] cmdBytes) throws MessagingException {
 	assert Thread.holdsLock(this);
-	//if (debug)
-	    //out.println("DEBUG SMTP SENT: " + new String(cmdBytes, 0));
+	//if (logger.isLoggable(Level.FINE))
+	    //logger.fine("SENT: " + new String(cmdBytes, 0));
 
         try {
 	    serverOutput.write(cmdBytes);
@@ -2207,8 +2187,7 @@ public class SMTPTransport extends Transport {
 			serverResponse = "[EOF]";
 		    lastServerResponse = serverResponse;
 		    lastReturnCode = -1;
-		    if (debug)
-			out.println("DEBUG SMTP: EOF: " + serverResponse);
+		    logger.log(Level.FINE, "EOF: {0}", serverResponse);
 		    return -1;
 		}
 		buf.append(line);
@@ -2217,8 +2196,7 @@ public class SMTPTransport extends Transport {
 
             serverResponse = buf.toString();
         } catch (IOException ioex) {
-	    if (debug)
-		out.println("DEBUG SMTP: exception reading response: " + ioex);
+	    logger.log(Level.FINE, "exception reading response", ioex);
             //ioex.printStackTrace(out);
 	    lastServerResponse = "";
 	    lastReturnCode = 0;
@@ -2227,8 +2205,8 @@ public class SMTPTransport extends Transport {
         }
 
 	// print debug info
-        //if (debug)
-            //out.println("DEBUG SMTP RCVD: " + serverResponse);
+        //if (logger.isLoggable(Level.FINE))
+            //logger.fine("RCVD: " + serverResponse);
 
 	// parse out the return code
         if (serverResponse.length() >= 3) {
@@ -2239,26 +2217,23 @@ public class SMTPTransport extends Transport {
 		    close();
 		} catch (MessagingException mex) {
 		    // thrown by close()--ignore, will close() later anyway
-		    if (debug)
-			mex.printStackTrace(out);
+		    logger.log(Level.FINE, "close failed", mex);
 		}
 		returnCode = -1;
             } catch (StringIndexOutOfBoundsException ex) {
-		//if (debug) ex.printStackTrace(out);
 		try {
 		    close();
 		} catch (MessagingException mex) {
 		    // thrown by close()--ignore, will close() later anyway
-		    if (debug)
-			mex.printStackTrace(out);
+		    logger.log(Level.FINE, "close failed", mex);
 		}
                 returnCode = -1;
 	    }
 	} else {
 	    returnCode = -1;
 	}
-	if (returnCode == -1 && debug)
-	    out.println("DEBUG SMTP: bad server response: " + serverResponse);
+	if (returnCode == -1)
+	    logger.log(Level.FINE, "bad server response: {0}", serverResponse);
 
         lastServerResponse = serverResponse;
 	lastReturnCode = returnCode;
@@ -2347,7 +2322,7 @@ public class SMTPTransport extends Transport {
 	}
 	// hack for buggy servers that advertise capability incorrectly
 	if (auth.equalsIgnoreCase("LOGIN") && supportsExtension("AUTH=LOGIN")) {
-	    out.println("DEBUG SMTP: use AUTH=LOGIN hack");
+	    logger.fine("use AUTH=LOGIN hack");
 	    return true;
 	}
 	return false;

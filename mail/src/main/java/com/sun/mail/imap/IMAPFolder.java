@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.Vector;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import java.util.logging.Level;
 import java.io.*;
 
 import javax.mail.*;
@@ -266,10 +267,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     private boolean hasMessageCountListener = false;	// optimize notification
 
-    protected boolean debug = false;
-    protected PrintStream out;		// debug output stream
-
-    private boolean connectionPoolDebug;
+    protected MailLogger logger;
+    private MailLogger connectionPoolLogger;
 
     /**
      * A fetch profile item for fetching headers.
@@ -328,11 +327,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    throw new NullPointerException("Folder name is null");
 	this.fullName = fullName;
 	this.separator = separator;
-        debug = store.getSession().getDebug();
-        connectionPoolDebug = ((IMAPStore)store).getConnectionPoolDebug();
-	out = store.getSession().getDebugOut();
-	if (out == null)	// should never happen
-	    out = System.out;
+	logger = new MailLogger(this.getClass(),
+				"DEBUG IMAP", store.getSession());
+	connectionPoolLogger = ((IMAPStore)store).getConnectionPoolLogger();
 
 	/*
 	 * Work around apparent bug in Exchange.  Exchange
@@ -1273,16 +1270,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    try {
 		waitIfIdle();
 		if (force) {
-                    if (debug)
-                        out.println("DEBUG: forcing folder " + fullName +
-					" to close");
+		    logger.log(Level.FINE, "forcing folder {0} to close",
+								    fullName);
 		    if (protocol != null)
 			protocol.disconnect();
                 } else if (((IMAPStore)store).isConnectionPoolFull()) {
 		    // If the connection pool is full, logout the connection
-                    if (debug)
-                        out.println("DEBUG: pool is full, not adding " +
-                            "an Authenticated connection");
+		    logger.fine(
+			"pool is full, not adding an Authenticated connection");
 
 		    // If the expunge flag is set, close the folder first.
 		    if (expunge && protocol != null)
@@ -2605,8 +2600,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	if (!(r instanceof IMAPResponse)) {
 	    // Probably a bug in our code !
 	    // XXX - should be an assert
-	    out.println("UNEXPECTED RESPONSE : " + r.toString());
-	    out.println("CONTACT javamail@sun.com");
+	    logger.fine("UNEXPECTED RESPONSE : " + r.toString());
 	    return;
 	}
 
@@ -2709,10 +2703,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     protected synchronized IMAPProtocol getStoreProtocol() 
             throws ProtocolException {
-	if (connectionPoolDebug) {
-	    out.println("DEBUG: getStoreProtocol() - " + 
-		"borrowing a connection");
-	}
+	connectionPoolLogger.fine("getStoreProtocol() borrowing a connection");
 	return ((IMAPStore)store).getFolderStoreProtocol();
     }
 
@@ -2925,8 +2916,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
             ((IMAPStore)store).releaseFolderStoreProtocol(p);
 	else {
 	    // XXX - should never happen
-	    if (debug)
-		out.println("DEBUG: releasing our protocol as store protocol?");
+	    logger.fine("releasing our protocol as store protocol?");
 	}
     }
 

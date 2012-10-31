@@ -44,12 +44,10 @@ import java.util.*;
 import java.net.*;
 import java.io.*;
 import java.security.*;
+import java.util.logging.Level;
 import javax.net.ssl.SSLSocket;
 
-import com.sun.mail.util.LineInputStream;
-import com.sun.mail.util.SocketFetcher;
-import com.sun.mail.util.PropUtil;
-import com.sun.mail.util.SharedByteArrayOutputStream;
+import com.sun.mail.util.*;
 
 class Response {
     boolean ok = false;		// true if "+OK"
@@ -72,8 +70,10 @@ class Protocol {
     private String prefix;		// protocol name prefix, for props
     private DataInputStream input;	// input buf
     private PrintWriter output;		// output buf
-    private boolean debug = false;
-    private PrintStream out;
+    private TraceInputStream traceInput;
+    private TraceOutputStream traceOutput;
+    private MailLogger logger;
+    private MailLogger traceLogger;
     private String apopChallenge = null;
     private Map capabilities = null;
     private boolean pipelining;
@@ -88,24 +88,25 @@ class Protocol {
     /** 
      * Open a connection to the POP3 server.
      */
-    Protocol(String host, int port, boolean debug, PrintStream out,
+    Protocol(String host, int port, MailLogger logger,
 			Properties props, String prefix, boolean isSSL)
 			throws IOException {
-	this.debug = debug;
-	this.out = out;
 	this.host = host;
 	this.props = props;
 	this.prefix = prefix;
-	noauthdebug = debug && !PropUtil.getBooleanProperty(props,
-	    "mail.debug.auth", false);
+	this.logger = logger;
+	traceLogger = logger.getSubLogger("protocol", null);
+	noauthdebug = !PropUtil.getBooleanProperty(props,
+			    "mail.debug.auth", false);
+
 	Response r;
 	boolean enableAPOP = getBoolProp(props, prefix + ".apop.enable");
 	boolean disableCapa = getBoolProp(props, prefix + ".disablecapa");
 	try {
 	    if (port == -1)
 		port = POP3_PORT;
-	    if (debug)
-		out.println("DEBUG POP3: connecting to host \"" + host +
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("connecting to host \"" + host +
 				"\", port " + port + ", isSSL " + isSSL);
 
 	    socket = SocketFetcher.getSocket(host, port, props, prefix, isSSL);
@@ -131,8 +132,7 @@ class Protocol {
 	    int challEnd = r.data.indexOf('>', challStart); // end of challenge
 	    if (challStart != -1 && challEnd != -1)
 		apopChallenge = r.data.substring(challStart, challEnd + 1);
-	    if (debug)
-		out.println("DEBUG POP3: APOP challenge: " + apopChallenge);
+	    logger.log(Level.FINE, "APOP challenge: {0}", apopChallenge);
 	}
 
 	// if server supports RFC 2449, set capabilities
@@ -141,29 +141,37 @@ class Protocol {
 
 	pipelining = hasCapability("PIPELINING") ||
 	    PropUtil.getBooleanProperty(props, prefix + ".pipelining", false);
-	if (pipelining && debug)
-	    out.println("DEBUG POP3: PIPELINING enabled");
+	if (pipelining)
+	    logger.config("PIPELINING enabled");
     }
 
     /**
      * Get the value of a boolean property.
-     * Print out the value if debug is set.
+     * Print out the value if logging is enabled.
      */
     private final synchronized boolean getBoolProp(Properties props,
 				String prop) {
 	boolean val = PropUtil.getBooleanProperty(props, prop, false);
-	if (debug)
-	    out.println("DEBUG POP3: " + prop + ": " + val);
+	if (logger.isLoggable(Level.CONFIG))
+	    logger.config(prop + ": " + val);
 	return val;
     }
 
     private void initStreams() throws IOException {
-	input = new DataInputStream(
-	    new BufferedInputStream(socket.getInputStream()));
+	boolean quote = PropUtil.getBooleanProperty(props,
+					"mail.debug.quote", false);
+	traceInput =
+	    new TraceInputStream(socket.getInputStream(), traceLogger);
+	traceInput.setQuote(quote);
+
+	traceOutput =
+	    new TraceOutputStream(socket.getOutputStream(), traceLogger);
+	traceOutput.setQuote(quote);
+
+	input = new DataInputStream(new BufferedInputStream(traceInput));
 	output = new PrintWriter(
 		    new BufferedWriter(
-			new OutputStreamWriter(socket.getOutputStream(),
-			    "iso-8859-1")));
+			new OutputStreamWriter(traceOutput, "iso-8859-1")));
 			    // should be US-ASCII, but not all JDK's support
     }
 
@@ -237,8 +245,8 @@ class Protocol {
 
 	try {
 
-	if (noauthdebug) {
-	    out.println("DEBUG POP3: authentication command trace suppressed");
+	if (noauthdebug && isTracing()) {
+	    logger.fine("authentication command trace suppressed");
 	    suspendTracing();
 	}
 	String dpw = null;
@@ -268,8 +276,8 @@ class Protocol {
 		return r.data != null ? r.data : "USER command failed";
 	    r = simpleCommand("PASS " + password);
 	}
-	if (noauthdebug)
-	    out.println("DEBUG POP3: authentication command " +
+	if (noauthdebug && isTracing())
+	    logger.log(Level.FINE, "authentication command {0}",
 			(r.ok ? "succeeded" : "failed"));
 	if (!r.ok)
 	    return r.data != null ? r.data : "login failed";
@@ -429,9 +437,8 @@ class Protocol {
 		    if (size > 1024*1024*1024 || size < 0)
 			size = 0;
 		    else {
-			if (debug)
-			    out.println(
-				"DEBUG POP3: pipeline message size " + size);
+			if (logger.isLoggable(Level.FINE))
+			    logger.fine("pipeline message size " + size);
 			size += SLOP;
 		    }
 		} catch (Exception e) {
@@ -469,10 +476,8 @@ class Protocol {
 			if (size > 1024*1024*1024 || size < 0)
 			    size = 0;
 			else {
-			    if (debug)
-				out.println(
-				    "DEBUG POP3: guessing message size: " +
-					size);
+			    if (logger.isLoggable(Level.FINE))
+				logger.fine("guessing message size: " + size);
 			    size += SLOP;
 			}
 		    }
@@ -483,9 +488,8 @@ class Protocol {
 	    multilineCommandEnd();
 	}
 	if (r.ok) {
-	    if (debug && size > 0)
-		out.println(
-		    "DEBUG POP3: got message size " + r.bytes.available());
+	    if (size > 0 && logger.isLoggable(Level.FINE))
+		logger.fine("got message size " + r.bytes.available());
 	}
 	return r.bytes;
     }
@@ -509,16 +513,10 @@ class Protocol {
 	try {
 	    while ((b = input.read()) >= 0) {
 		if (lastb == '\n' && b == '.') {
-		    if (debug)
-			out.write(b);
 		    b = input.read();
 		    if (b == '\r') {
-			if (debug)
-			    out.write(b);
 			// end of response, consume LF as well
 			b = input.read();
-			if (debug)
-			    out.write(b);
 			break;
 		    }
 		}
@@ -531,19 +529,13 @@ class Protocol {
 		    try {
 			os.write(b);
 		    } catch (IOException ex) {
-			if (debug)
-			    out.println(
-				"DEBUG POP3: exception while streaming: " + ex);
+			logger.log(Level.FINE, "exception while streaming", ex);
 			terr = ex;
 		    } catch (RuntimeException ex) {
-			if (debug)
-			    out.println(
-				"DEBUG POP3: exception while streaming: " + ex);
+			logger.log(Level.FINE, "exception while streaming", ex);
 			terr = ex;
 		    }
 		}
-		if (debug)
-		    out.write(b);
 		lastb = b;
 	    }
 	} catch (InterruptedIOException iioex) {
@@ -707,8 +699,6 @@ class Protocol {
 	    throw new IOException("Folder is closed");	// XXX
 
 	if (cmd != null) {
-	    if (debug && !traceSuspended)
-		out.println("C: " + cmd);
 	    cmd += CRLF;
 	    output.print(cmd);	// do it in one write
 	    output.flush();
@@ -747,12 +737,9 @@ class Protocol {
 	}
 
 	if (line == null) {
-	    if (debug)
-		out.println("S: EOF");
+	    traceLogger.finest("<EOF>");
 	    throw new EOFException("EOF on socket");
 	}
-	if (debug && !traceSuspended)
-	    out.println("S: " + line);
 	Response r = new Response();
 	if (line.startsWith("+OK"))
 	    r.ok = true;
@@ -795,22 +782,14 @@ class Protocol {
 	try {
 	    while ((b = input.read()) >= 0) {
 		if (lastb == '\n' && b == '.') {
-		    if (debug && !traceSuspended)
-			out.write(b);
 		    b = input.read();
 		    if (b == '\r') {
-			if (debug && !traceSuspended)
-			    out.write(b);
 			// end of response, consume LF as well
 			b = input.read();
-			if (debug && !traceSuspended)
-			    out.write(b);
 			break;
 		    }
 		}
 		buf.write(b);
-		if (debug && !traceSuspended)
-		    out.write(b);
 		lastb = b;
 	    }
 	} catch (InterruptedIOException iioex) {
@@ -828,18 +807,31 @@ class Protocol {
     }
 
     /**
+     * Is protocol tracing enabled?
+     */
+    protected boolean isTracing() {
+	return traceLogger.isLoggable(Level.FINEST);
+    }
+
+    /**
      * Temporarily turn off protocol tracing, e.g., to prevent
      * tracing the authentication sequence, including the password.
      */
     private void suspendTracing() {
-	traceSuspended = true;
+	if (traceLogger.isLoggable(Level.FINEST)) {
+	    traceInput.setTrace(false);
+	    traceOutput.setTrace(false);
+	}
     }
 
     /**
      * Resume protocol tracing, if it was enabled to begin with.
      */
     private void resumeTracing() {
-	traceSuspended = false;
+	if (traceLogger.isLoggable(Level.FINEST)) {
+	    traceInput.setTrace(true);
+	    traceOutput.setTrace(true);
+	}
     }
 
     /*

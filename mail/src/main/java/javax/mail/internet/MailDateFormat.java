@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,12 +45,15 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.logging.Level;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
 import java.text.ParseException;
+
+import com.sun.mail.util.MailLogger;
 
 /**
  * Formats and parses date specification based on the
@@ -252,6 +255,11 @@ public class MailDateFormat extends SimpleDateFormat {
      */
 
     static boolean debug = false;
+    private static MailLogger logger = new MailLogger(
+	MailDateFormat.class,
+	"DEBUG",
+	debug,
+	System.out);
 
     /**
      * create a Date by parsing the char array
@@ -312,9 +320,9 @@ public class MailDateFormat extends SimpleDateFormat {
 		p.skipWhiteSpace();
 		offset = p.parseTimeZone();
 	    } catch (ParseException pe) {
-		if (debug) {
-		    System.out.println("No timezone? : '" +
-						new String(orig) + "'");
+		if (logger.isLoggable(Level.FINE)) {
+		    logger.log(Level.FINE,
+			"No timezone? : '" + new String(orig) + "'", pe);
 		}
 	    }
 			
@@ -329,9 +337,9 @@ public class MailDateFormat extends SimpleDateFormat {
 	    // extra tolerant of all those bogus dates that might screw
 	    // up our parser. Sigh.
 
-	    if (debug) {
-		System.out.println("Bad date: '" + new String(orig) + "'");
-		e.printStackTrace();
+	    if (logger.isLoggable(Level.FINE)) {
+		logger.log(Level.FINE,
+		    "Bad date: '" + new String(orig) + "'", e);
 	    }
 	    pos.setIndex(1); // to prevent DateFormat.parse() from throwing ex
 	    return null;

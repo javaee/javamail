@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,10 +49,12 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
 
 import javax.activation.*;
 
 import com.sun.mail.util.LineInputStream;
+import com.sun.mail.util.MailLogger;
 
 /**
  * The Session class represents a mail session and is not subclassed.
@@ -190,6 +192,7 @@ public final class Session {
     private final Hashtable authTable = new Hashtable();
     private boolean debug = false;
     private PrintStream out;			// debug output stream
+    private MailLogger logger;
     private final Vector providers = new Vector();
     private final Hashtable providersByProtocol = new Hashtable();
     private final Hashtable providersByClassName = new Hashtable();
@@ -206,8 +209,8 @@ public final class Session {
 	if (Boolean.valueOf(props.getProperty("mail.debug")).booleanValue())
 	    debug = true;
 
-	if (debug)
-	    pr("DEBUG: JavaMail version " + Version.version);
+	initLogger();
+	logger.log(Level.CONFIG, "JavaMail version {0}", Version.version);
 
 	// get the Class associated with the Authenticator
 	Class cl;
@@ -218,6 +221,10 @@ public final class Session {
 	// load the resources
 	loadProviders(cl);
 	loadAddressMap(cl);
+    }
+
+    private final void initLogger() {
+	logger = new MailLogger(this.getClass(), "DEBUG", debug, getDebugOut());
     }
 
     /**
@@ -365,8 +372,9 @@ public final class Session {
      */
     public synchronized void setDebug(boolean debug) {
 	this.debug = debug;
-	if (debug)
-	    pr("DEBUG: setDebug: JavaMail version " + Version.version);
+	initLogger();
+	logger.log(Level.CONFIG, "setDebug: JavaMail version {0}",
+				    Version.version);
     }
 
     /**
@@ -390,6 +398,7 @@ public final class Session {
      */
     public synchronized void setDebugOut(PrintStream out) {
 	this.out = out;
+	initLogger();
     }
 
     /**
@@ -445,8 +454,8 @@ public final class Session {
 	// check if the mail.<protocol>.class property exists
 	String _className = props.getProperty("mail."+protocol+".class");
 	if (_className != null) {
-	    if (debug) {
-		pr("DEBUG: mail."+protocol+
+	    if (logger.isLoggable(Level.FINE)) {
+		logger.fine("mail."+protocol+
 				   ".class property exists and points to " + 
 				   _className);
 	    }
@@ -463,9 +472,8 @@ public final class Session {
 	if (_provider == null) {
 	    throw new NoSuchProviderException("No provider for " + protocol);
 	} else {
-	    if (debug) {
-		pr("DEBUG: getProvider() returning " + 
-				   _provider.toString());
+	    if (logger.isLoggable(Level.FINE)) {
+		logger.fine("getProvider() returning " + _provider.toString());
 	    }
 	    return _provider;
 	}
@@ -780,7 +788,7 @@ public final class Session {
 		serviceClass = Class.forName(provider.getClassName());
 	    } catch (Exception ex) {
 		// Nothing worked, give up.
-		if (debug) ex.printStackTrace(getDebugOut());
+		logger.log(Level.FINE, "Exception loading provider", ex);
 		throw new NoSuchProviderException(provider.getProtocol());
 	    }
 	}
@@ -794,7 +802,7 @@ public final class Session {
 	    service = cons.newInstance(o);
 
 	} catch (Exception ex) {
-	    if (debug) ex.printStackTrace(getDebugOut());
+	    logger.log(Level.FINE, "Exception loading provider", ex);
 	    throw new NoSuchProviderException(provider.getProtocol());
 	}
 
@@ -894,8 +902,7 @@ public final class Session {
 				File.separator + "javamail.providers";
 	    loadFile(res, loader);
 	} catch (SecurityException sex) {
-	    if (debug)
-		pr("DEBUG: can't get java.home: " + sex);
+	    logger.log(Level.CONFIG, "can't get java.home", sex);
 	}
 
 	// load the META-INF/javamail.providers file supplied by an application
@@ -905,8 +912,7 @@ public final class Session {
 	loadResource("/META-INF/javamail.default.providers", cl, loader);
 
 	if (providers.size() == 0) {
-	    if (debug)
-		pr("DEBUG: failed to load any providers, using defaults");
+	    logger.config("failed to load any providers, using defaults");
 	    // failed to load any providers, initialize with our defaults
 	    addProvider(new Provider(Provider.Type.STORE,
 			"imap", "com.sun.mail.imap.IMAPStore",
@@ -928,12 +934,12 @@ public final class Session {
 			"Sun Microsystems, Inc.", Version.version));
 	}
 
-	if (debug) {
+	if (logger.isLoggable(Level.CONFIG)) {
 	    // dump the output of the tables for debugging
-	    pr("DEBUG: Tables of loaded providers");
-	    pr("DEBUG: Providers Listed By Class Name: " + 
+	    logger.config("Tables of loaded providers");
+	    logger.config("Providers Listed By Class Name: " + 
 	       providersByClassName.toString());
-	    pr("DEBUG: Providers Listed By Protocol: " + 
+	    logger.config("Providers Listed By Protocol: " + 
 	       providersByProtocol.toString());
 	}
     }
@@ -982,8 +988,8 @@ public final class Session {
 		if (type == null || protocol == null || className == null 
 		    || protocol.length() <= 0 || className.length() <= 0) {
 			
-		    if (debug)
-			pr("DEBUG: Bad provider entry: " + currLine);
+		    logger.log(Level.CONFIG, "Bad provider entry: {0}",
+						currLine);
 		    continue;
 		}
 		Provider provider = new Provider(type, protocol, className,
@@ -1030,13 +1036,11 @@ public final class Session {
 				File.separator + "javamail.address.map";
 	    loadFile(res, loader);
 	} catch (SecurityException sex) {
-	    if (debug)
-		pr("DEBUG: can't get java.home: " + sex);
+	    logger.log(Level.CONFIG, "can't get java.home", sex);
 	}
 
 	if (addressMap.isEmpty()) {
-	    if (debug)
-		pr("DEBUG: failed to load address map, using defaults");
+	    logger.config("failed to load address map, using defaults");
 	    addressMap.put("rfc822", "smtp");
 	}
     }
@@ -1068,20 +1072,15 @@ public final class Session {
 	try {
 	    clis = new BufferedInputStream(new FileInputStream(name));
 	    loader.load(clis);
-	    if (debug)
-		pr("DEBUG: successfully loaded file: " + name);
+	    logger.log(Level.CONFIG, "successfully loaded file: {0}", name);
 	} catch (FileNotFoundException fex) {
 	    // ignore it
 	} catch (IOException e) {
-	    if (debug) {
-		pr("DEBUG: not loading file: " + name);
-		pr("DEBUG: " + e);
-	    }
+	    if (logger.isLoggable(Level.CONFIG))
+		logger.log(Level.CONFIG, "not loading file: " + name, e);
 	} catch (SecurityException sex) {
-	    if (debug) {
-		pr("DEBUG: not loading file: " + name);
-		pr("DEBUG: " + sex);
-	    }
+	    if (logger.isLoggable(Level.CONFIG))
+		logger.log(Level.CONFIG, "not loading file: " + name, sex);
 	} finally {
 	    try {
 		if (clis != null)
@@ -1099,20 +1098,17 @@ public final class Session {
 	    clis = getResourceAsStream(cl, name);
 	    if (clis != null) {
 		loader.load(clis);
-		if (debug)
-		    pr("DEBUG: successfully loaded resource: " + name);
+		logger.log(Level.CONFIG, "successfully loaded resource: {0}",
+					    name);
 	    } else {
 		/*
-		if (debug)
-		    pr("DEBUG: not loading resource: " + name);
+		logger.log(Level.CONFIG, "not loading resource: {0}", name);
 		*/
 	    }
 	} catch (IOException e) {
-	    if (debug)
-		pr("DEBUG: " + e);
+	    logger.log(Level.CONFIG, "Exception loading resource", e);
 	} catch (SecurityException sex) {
-	    if (debug)
-		pr("DEBUG: " + sex);
+	    logger.log(Level.CONFIG, "Exception loading resource", sex);
 	} finally {
 	    try {
 		if (clis != null)
@@ -1141,28 +1137,26 @@ public final class Session {
 		for (int i = 0; i < urls.length; i++) {
 		    URL url = urls[i];
 		    InputStream clis = null;
-		    if (debug)
-			pr("DEBUG: URL " + url);
+		    logger.log(Level.CONFIG, "URL {0}", url);
 		    try {
 			clis = openStream(url);
 			if (clis != null) {
 			    loader.load(clis);
 			    anyLoaded = true;
-			    if (debug)
-				pr("DEBUG: successfully loaded resource: " +
-				    url);
+			    logger.log(Level.CONFIG,
+				"successfully loaded resource: {0}", url);
 			} else {
-			    if (debug)
-				pr("DEBUG: not loading resource: " + url);
+			    logger.log(Level.CONFIG,
+				"not loading resource: {0}", url);
 			}
 		    } catch (FileNotFoundException fex) {
 			// ignore it
 		    } catch (IOException ioex) {
-			if (debug)
-			    pr("DEBUG: " + ioex);
+			logger.log(Level.CONFIG, "Exception loading resource",
+				    ioex);
 		    } catch (SecurityException sex) {
-			if (debug)
-			    pr("DEBUG: " + sex);
+			logger.log(Level.CONFIG, "Exception loading resource",
+				    sex);
 		    } finally {
 			try {
 			    if (clis != null)
@@ -1172,22 +1166,16 @@ public final class Session {
 		}
 	    }
 	} catch (Exception ex) {
-	    if (debug)
-		pr("DEBUG: " + ex);
+	    logger.log(Level.CONFIG, "Exception loading resource", ex);
 	}
 
 	// if failed to load anything, fall back to old technique, just in case
 	if (!anyLoaded) {
 	    /*
-	    if (debug)
-		pr("DEBUG: !anyLoaded");
+	    logger.config("!anyLoaded");
 	    */
 	    loadResource("/" + name, cl, loader);
 	}
-    }
-
-    private void pr(String str) {
-	getDebugOut().println(str);
     }
 
     /*

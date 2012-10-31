@@ -87,10 +87,9 @@ public class GmailStore extends IMAPStore {
     protected IMAPProtocol newIMAPProtocol(String host, int port)
 				throws IOException, ProtocolException {
 	return new GmailProtocol(name, host, port, 
-		    			    session.getDebug(),
-		    			    session.getDebugOut(),
 					    session.getProperties(),
-					    isSSL
+					    isSSL,
+					    logger
 					   );
     }
 

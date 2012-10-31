@@ -25,6 +25,7 @@ K  5233	Infinite loop if Quota information is not correctly reported by server
 <no id>	add mail.imap.ignorebodystructuresize to work around server bugs
 <no id>	add "gimap" EXPERIMENTAL Gmail IMAP provider
 <no id>	add isSSL() method to all protocol providers
+<no id>	add support for debug output using java.util.logging
 
 
 		  CHANGES IN THE 1.4.5 RELEASE

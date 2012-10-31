@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.smtp;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import javax.security.sasl.*;
 import javax.security.auth.callback.*;
 import javax.mail.MessagingException;
@@ -59,17 +60,15 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
     private SMTPTransport pr;
     private String name;
     private Properties props;
-    private boolean debug;
-    private PrintStream out;
+    private MailLogger logger;
     private String host;
 
     public SMTPSaslAuthenticator(SMTPTransport pr, String name,
-		Properties props, boolean debug, PrintStream out, String host) {
+		Properties props, MailLogger logger, String host) {
 	this.pr = pr;
 	this.name = name;
 	this.props = props;
-	this.debug = debug;
-	this.out = out;
+	this.logger = logger;
 	this.host = host;
     }
 
@@ -78,23 +77,21 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 				final String p) throws MessagingException {
 
 	boolean done = false;
-	if (debug) {
-	    out.print("DEBUG SMTP SASL: Mechanisms:");
+	if (logger.isLoggable(Level.FINE)) {
+	    logger.fine("SASL Mechanisms:");
 	    for (int i = 0; i < mechs.length; i++)
-		out.print(" " + mechs[i]);
-	    out.println();
+		logger.fine(" " + mechs[i]);
+	    logger.fine("");
 	}
 
 	SaslClient sc;
 	CallbackHandler cbh = new CallbackHandler() {
 	    public void handle(Callback[] callbacks) {
-		if (debug)
-		    out.println("DEBUG SMTP SASL: callback length: " +
-							callbacks.length);
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("SASL callback length: " + callbacks.length);
 		for (int i = 0; i < callbacks.length; i++) {
-		    if (debug)
-			out.println("DEBUG SMTP SASL: callback " + i + ": " +
-							callbacks[i]);
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("SASL callback " + i + ": " + callbacks[i]);
 		    if (callbacks[i] instanceof NameCallback) {
 			NameCallback ncb = (NameCallback)callbacks[i];
 			ncb.setName(u);
@@ -129,19 +126,15 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 	    sc = Sasl.createSaslClient(mechs, authzid, name, host,
 					(Map)props, cbh);
 	} catch (SaslException sex) {
-	    if (debug)
-		out.println("DEBUG SMTP SASL: Failed to create SASL client: " +
-								sex);
+	    logger.log(Level.FINE, "Failed to create SASL client: ", sex);
 	    return false;
 	}
 	if (sc == null) {
-	    if (debug)
-		out.println("DEBUG SMTP SASL: No SASL support");
+	    logger.fine("No SASL support");
 	    return false;
 	}
-	if (debug)
-	    out.println("DEBUG SMTP SASL: SASL client " +
-						sc.getMechanismName());
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("SASL client " + sc.getMechanismName());
 
 	int resp;
 	try {
@@ -175,8 +168,7 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 	    if (resp != 334)
 		return false;
 	} catch (Exception ex) {
-	    if (debug)
-		out.println("DEBUG SMTP SASL: AUTHENTICATE Exception: " + ex);
+	    logger.log(Level.FINE, "SASL AUTHENTICATE Exception", ex);
 	    return false;
 	}
 
@@ -188,18 +180,17 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 			ba = ASCIIUtility.getBytes(responseText(pr));
 			if (ba.length > 0)
 			    ba = BASE64DecoderStream.decode(ba);
-			if (debug)
-			    out.println("DEBUG SMTP SASL: challenge: " +
+			if (logger.isLoggable(Level.FINE))
+			    logger.fine("SASL challenge: " +
 				ASCIIUtility.toString(ba, 0, ba.length) + " :");
 			ba = sc.evaluateChallenge(ba);
 		    }
 		    if (ba == null) {
-			if (debug)
-			    out.println("DEBUG SMTP SASL: no response");
+			logger.fine("SASL: no response");
 			resp = pr.simpleCommand("*");
 		    } else {
-			if (debug)
-			    out.println("DEBUG SMTP SASL: response: " +
+			if (logger.isLoggable(Level.FINE))
+			    logger.fine("SASL response: " +
 				ASCIIUtility.toString(ba, 0, ba.length) + " :");
 			ba = BASE64EncoderStream.encode(ba);
 			resp = pr.simpleCommand(ba);
@@ -207,8 +198,7 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 		} else
 		    done = true;
 	    } catch (Exception ioex) {
-		if (debug)
-		    ioex.printStackTrace();
+		logger.log(Level.FINE, "SASL Exception", ioex);
 		done = true;
 		// XXX - ultimately return true???
 	    }
@@ -219,9 +209,8 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 	    if (qop != null && (qop.equalsIgnoreCase("auth-int") ||
 				qop.equalsIgnoreCase("auth-conf"))) {
 		// XXX - NOT SUPPORTED!!!
-		if (debug)
-		    out.println("DEBUG SMTP SASL: " +
-			"Mechanism requires integrity or confidentiality");
+		logger.fine(
+		    "SASL Mechanism requires integrity or confidentiality");
 		return false;
 	    }
 	}

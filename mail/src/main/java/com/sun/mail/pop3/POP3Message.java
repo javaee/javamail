@@ -42,6 +42,7 @@ package com.sun.mail.pop3;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.logging.Level;
 import java.lang.ref.SoftReference;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -159,10 +160,9 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 		TempFile cache = folder.getFileCache();
 		if (cache != null) {
 		    Session s = ((POP3Store)(folder.getStore())).getSession();
-		    if (s.getDebug())
-			s.getDebugOut().println(
-			    "DEBUG POP3: caching message #" + msgnum +
-			    " in temp file");
+		    if (folder.logger.isLoggable(Level.FINE))
+			folder.logger.fine("caching message #" + msgnum +
+					    " in temp file");
 		    AppendStream os = cache.getAppendStream();
 		    BufferedOutputStream bos = new BufferedOutputStream(os);
 		    try {
@@ -566,8 +566,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	if (rawcontent == null && ignoreList == null &&
 			!((POP3Store)(folder.getStore())).cacheWriteTo) {
 	    Session s = ((POP3Store)(folder.getStore())).getSession();
-	    if (s.getDebug())
-		s.getDebugOut().println("DEBUG POP3: streaming msg " + msgnum);
+	    if (folder.logger.isLoggable(Level.FINE))
+		folder.logger.fine("streaming msg " + msgnum);
 	    if (!folder.getProtocol().retr(msgnum, os)) {
 		expunged = true;
 		throw new MessageRemovedException("can't retrieve message #" +

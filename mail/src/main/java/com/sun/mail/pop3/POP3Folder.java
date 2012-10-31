@@ -50,9 +50,11 @@ import java.io.IOException;
 import java.io.EOFException;
 import java.util.Vector;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 import java.lang.reflect.Constructor;
 
 import com.sun.mail.util.LineInputStream;
+import com.sun.mail.util.MailLogger;
 
 /**
  * A POP3 Folder (can only be "INBOX").
@@ -76,12 +78,16 @@ public class POP3Folder extends Folder {
     private boolean doneUidl = false;
     private volatile TempFile fileCache = null;
 
+    MailLogger logger;	// package private, for POP3Message
+
     POP3Folder(POP3Store store, String name) {
 	super(store);
 	this.name = name;
 	this.store = store;
 	if (name.equalsIgnoreCase("INBOX"))
 	    exists = true;
+	logger = new MailLogger(this.getClass(),
+				"DEBUG POP3", store.getSession());
     }
 
     public String getName() {
@@ -208,9 +214,7 @@ public class POP3Folder extends Folder {
 		try {
 		    fileCache = new TempFile(store.fileCacheDir);
 		} catch (IOException ex) {
-		    if (store.getSession().getDebug())
-			store.getSession().getDebugOut().println(
-			    "DEBUG POP3: failed to create file cache: " + ex);
+		    logger.log(Level.FINE, "failed to create file cache", ex);
 		    throw ex;	// caught below
 		}
 	    }

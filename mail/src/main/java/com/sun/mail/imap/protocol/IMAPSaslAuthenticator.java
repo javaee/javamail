@@ -42,6 +42,7 @@ package com.sun.mail.imap.protocol;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import javax.security.sasl.*;
 import javax.security.auth.callback.*;
 
@@ -60,17 +61,15 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
     private IMAPProtocol pr;
     private String name;
     private Properties props;
-    private boolean debug;
-    private PrintStream out;
+    private MailLogger logger;
     private String host;
 
     public IMAPSaslAuthenticator(IMAPProtocol pr, String name, Properties props,
-				boolean debug, PrintStream out, String host) {
+				MailLogger logger, String host) {
 	this.pr = pr;
 	this.name = name;
 	this.props = props;
-	this.debug = debug;
-	this.out = out;
+	this.logger = logger;
 	this.host = host;
     }
 
@@ -83,23 +82,21 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	String tag = null;
 	Response r = null;
 	boolean done = false;
-	if (debug) {
-	    out.print("IMAP SASL DEBUG: Mechanisms:");
+	if (logger.isLoggable(Level.FINE)) {
+	    logger.fine("SASL Mechanisms:");
 	    for (int i = 0; i < mechs.length; i++)
-		out.print(" " + mechs[i]);
-	    out.println();
+		logger.fine(" " + mechs[i]);
+	    logger.fine("");
 	}
 
 	SaslClient sc;
 	CallbackHandler cbh = new CallbackHandler() {
 	    public void handle(Callback[] callbacks) {
-		if (debug)
-		    out.println("IMAP SASL DEBUG: callback length: " +
-							callbacks.length);
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("SASL callback length: " + callbacks.length);
 		for (int i = 0; i < callbacks.length; i++) {
-		    if (debug)
-			out.println("IMAP SASL DEBUG: callback " + i + ": " +
-							callbacks[i]);
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("SASL callback " + i + ": " + callbacks[i]);
 		    if (callbacks[i] instanceof NameCallback) {
 			NameCallback ncb = (NameCallback)callbacks[i];
 			ncb.setName(u);
@@ -134,26 +131,21 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	    sc = Sasl.createSaslClient(mechs, authzid, name, host,
 					(Map)props, cbh);
 	} catch (SaslException sex) {
-	    if (debug)
-		out.println("IMAP SASL DEBUG: Failed to create SASL client: " +
-								sex);
+	    logger.log(Level.FINE, "Failed to create SASL client", sex);
 	    return false;
 	}
 	if (sc == null) {
-	    if (debug)
-		out.println("IMAP SASL DEBUG: No SASL support");
+	    logger.fine("No SASL support");
 	    return false;
 	}
-	if (debug)
-	    out.println("IMAP SASL DEBUG: SASL client " +
-						sc.getMechanismName());
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("SASL client " + sc.getMechanismName());
 
 	try {
 	    tag = pr.writeCommand("AUTHENTICATE " + sc.getMechanismName(),
 						null);
 	} catch (Exception ex) {
-	    if (debug)
-		out.println("IMAP SASL DEBUG: AUTHENTICATE Exception: " + ex);
+	    logger.log(Level.FINE, "SASL AUTHENTICATE Exception", ex);
 	    return false;
 	}
 
@@ -189,20 +181,19 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 			ba = r.readByteArray().getNewBytes();
 			if (ba.length > 0)
 			    ba = BASE64DecoderStream.decode(ba);
-			if (debug)
-			    out.println("IMAP SASL DEBUG: challenge: " +
+			if (logger.isLoggable(Level.FINE))
+			    logger.fine("SASL challenge: " +
 				ASCIIUtility.toString(ba, 0, ba.length) + " :");
 			ba = sc.evaluateChallenge(ba);
 		    }
 		    if (ba == null) {
-			if (debug)
-			    out.println("IMAP SASL DEBUG: no response");
+			logger.fine("SASL no response");
 			os.write(CRLF); // write out empty line
 			os.flush(); 	// flush the stream
 			bos.reset(); 	// reset buffer
 		    } else {
-			if (debug)
-			    out.println("IMAP SASL DEBUG: response: " +
+			if (logger.isLoggable(Level.FINE))
+			    logger.fine("SASL response: " +
 				ASCIIUtility.toString(ba, 0, ba.length) + " :");
 			ba = BASE64EncoderStream.encode(ba);
 			if (isXGWTRUSTEDAPP)
@@ -222,8 +213,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 		else // hmm .. unsolicited response here ?!
 		    v.addElement(r);
 	    } catch (Exception ioex) {
-		if (debug)
-		    ioex.printStackTrace();
+		logger.log(Level.FINE, "SASL Exception", ioex);
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 		done = true;
@@ -236,9 +226,8 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	    if (qop != null && (qop.equalsIgnoreCase("auth-int") ||
 				qop.equalsIgnoreCase("auth-conf"))) {
 		// XXX - NOT SUPPORTED!!!
-		if (debug)
-		    out.println("IMAP SASL DEBUG: " +
-			"Mechanism requires integrity or confidentiality");
+		logger.fine(
+			"SASL Mechanism requires integrity or confidentiality");
 		return false;
 	    }
 	}

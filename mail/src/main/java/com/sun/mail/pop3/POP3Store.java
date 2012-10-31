@@ -41,6 +41,7 @@
 package com.sun.mail.pop3;
 
 import java.util.Properties;
+import java.util.logging.Level;
 import java.lang.reflect.*;
 
 import javax.mail.*;
@@ -53,6 +54,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
 
 /**
  * A POP3 Message Store.  Contains only one folder, "INBOX".
@@ -79,7 +81,7 @@ public class POP3Store extends Store {
     private boolean requireStartTLS = false;
     private boolean usingSSL = false;
     private Map capabilities;
-    private PrintStream out;
+    private MailLogger logger;
 
     // following set here and accessed by other classes in this package
     volatile Constructor messageConstructor = null;
@@ -102,9 +104,8 @@ public class POP3Store extends Store {
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
-	out = session.getDebugOut();
-	if (out == null)	// should never happen
-	    out = System.out;
+	logger = new MailLogger(this.getClass(),
+				"DEBUG POP3", session);
 
 	if (!isSSL)
 	    isSSL = PropUtil.getBooleanSessionProperty(session,
@@ -121,8 +122,8 @@ public class POP3Store extends Store {
 	cacheWriteTo = getBoolProp("cachewriteto");
 	useFileCache = getBoolProp("filecache.enable");
 	String dir = session.getProperty("mail." + name + ".filecache.dir");
-	if (debug && dir != null)
-	    out.println("DEBUG POP3: mail." + name + ".filecache.dir: " + dir);
+	if (dir != null && logger.isLoggable(Level.CONFIG))
+	    logger.config("mail." + name + ".filecache.dir: " + dir);
 	if (dir != null)
 	    fileCacheDir = new File(dir);
 	keepMessageContent = getBoolProp("keepmessagecontent");
@@ -135,8 +136,7 @@ public class POP3Store extends Store {
 
 	String s = session.getProperty("mail." + name + ".message.class");
 	if (s != null) {
-	    if (debug)
-		out.println("DEBUG POP3: message class: " + s);
+	    logger.log(Level.CONFIG, "message class: {0}", s);
 	    try {
 		ClassLoader cl = this.getClass().getClassLoader();
 
@@ -157,22 +157,20 @@ public class POP3Store extends Store {
 		Class[] c = {javax.mail.Folder.class, int.class};
 		messageConstructor = messageClass.getConstructor(c);
 	    } catch (Exception ex) {
-		if (debug)
-		    out.println(
-			"DEBUG POP3: failed to load message class: " + ex);
+		logger.log(Level.CONFIG, "failed to load message class", ex);
 	    }
 	}
     }
 
     /**
      * Get the value of a boolean property.
-     * Print out the value if debug is set.
+     * Print out the value if logging is enabled.
      */
     private final synchronized boolean getBoolProp(String prop) {
 	prop = "mail." + name + "." + prop;
 	boolean val = PropUtil.getBooleanSessionProperty(session, prop, false);
-	if (debug)
-	    out.println("DEBUG POP3: " + prop + ": " + val);
+	if (logger.isLoggable(Level.CONFIG))
+	    logger.config(prop + ": " + val);
 	return val;
     }
 
@@ -259,7 +257,7 @@ public class POP3Store extends Store {
 	}
 
 	// need a new port, create it and try to login
-	p = new Protocol(host, portNum, debug, out,
+	p = new Protocol(host, portNum, logger,
 	    session.getProperties(), "mail." + name, isSSL);
 
 	if (useStartTLS || requireStartTLS) {
@@ -268,8 +266,7 @@ public class POP3Store extends Store {
 		    // success, refresh capabilities
 		    p.setCapabilities(p.capa());
 		} else if (requireStartTLS) {
-		    if (debug)
-			out.println("DEBUG POP3: STLS required but failed");
+		    logger.fine("STLS required but failed");
 		    try {
 			p.quit();
 		    } catch (IOException ioex) {
@@ -278,8 +275,7 @@ public class POP3Store extends Store {
 		    }
 		}
 	    } else if (requireStartTLS) {
-		if (debug)
-		    out.println("DEBUG POP3: STLS required but not supported");
+		logger.fine("STLS required but not supported");
 		try {
 		    p.quit();
 		} catch (IOException ioex) {
@@ -301,9 +297,7 @@ public class POP3Store extends Store {
 	if (!disableTop &&
 		capabilities != null && !capabilities.containsKey("TOP")) {
 	    disableTop = true;
-	    if (debug)
-		out.println(
-		    "DEBUG POP3: server doesn't support TOP, disabling it");
+	    logger.fine("server doesn't support TOP, disabling it");
 	}
 
 	supportsUidl = capabilities == null || capabilities.containsKey("UIDL");

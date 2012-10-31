@@ -47,6 +47,8 @@ import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
 import com.sun.mail.gimap.GmailFolder.FetchProfileItem;
 
+import com.sun.mail.util.MailLogger;
+
 /**
  * Extend IMAP support to handle Gmail-specific protocol extensions.
  *
@@ -92,22 +94,21 @@ public class GmailProtocol extends IMAPProtocol {
      *
      * @param host	host to connect to
      * @param port	portnumber to connect to
-     * @param debug     debug mode
-     * @param props     Properties object used by this protocol
+     * @param props	Properties object used by this protocol
+     * @param isSSL	use SSL?
+     * @param logger	for log messages
      */
     public GmailProtocol(String name, String host, int port, 
-			boolean debug, PrintStream out, Properties props,
-			boolean isSSL) throws IOException, ProtocolException {
-	super(name, host, port, debug, out, props, isSSL);
+			Properties props, boolean isSSL, MailLogger logger)
+			throws IOException, ProtocolException {
+	super(name, host, port, props, isSSL, logger);
 
 	// check to see if this is really Gmail
 	if (!hasCapability("X-GM-EXT-1")) {
-	    if (debug)
-		out.println("DEBUG GIMAP: WARNING! Not connected to Gmail!");
+	    logger.fine("WARNING! Not connected to Gmail!");
 	    // XXX - could call "disconnect()" here and make this a fatal error
 	} else {
-	    if (debug)
-		out.println("DEBUG GIMAP: connected to Gmail");
+	    logger.fine("connected to Gmail");
 	}
 	supportsXlist = hasCapability("XLIST");
     }

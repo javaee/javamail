@@ -50,6 +50,7 @@ import java.io.PrintStream;
 import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
+import java.util.logging.Level;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -58,6 +59,7 @@ import javax.crypto.spec.DESKeySpec;
 
 import com.sun.mail.util.BASE64DecoderStream;
 import com.sun.mail.util.BASE64EncoderStream;
+import com.sun.mail.util.MailLogger;
 
 
 /**
@@ -79,7 +81,7 @@ public class Ntlm {
     private String username;
     private String password;
 
-    private PrintStream debugout;	// if not null, debug output stream
+    private MailLogger logger;
 
     private void init0() {
         type1 = new byte[256];
@@ -117,7 +119,7 @@ public class Ntlm {
      * from the ntdomain parameter.
      */
     public Ntlm(String ntdomain, String hostname, String username,
-				String password, PrintStream debugout) {
+				String password, MailLogger logger) {
 	int i = hostname.indexOf('.');
 	if (i != -1) {
 	    hostname = hostname.substring(0, i);
@@ -133,7 +135,7 @@ public class Ntlm {
 	this.hostname = hostname;
 	this.username = username;
 	this.password = password;
-	this.debugout = debugout;
+	this.logger = logger.getLogger(this.getClass(), "DEBUG NTLM");
         init0();
     }
 
@@ -169,8 +171,8 @@ public class Ntlm {
 
         byte[] msg = new byte[32 + hlen + dlen];
         System.arraycopy(type1, 0, msg, 0, 32 + hlen + dlen);
-	if (debugout != null)
-	    debugout.println("DEBUG NTLM: type 1 message: " + toHex(msg));
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("type 1 message: " + toHex(msg));
 
         String result = null;
 	try {
@@ -329,8 +331,8 @@ public class Ntlm {
 
         byte[] msg = new byte[l];
         System.arraycopy(type3, 0, msg, 0, l);
-	if (debugout != null)
-	    debugout.println("DEBUG NTLM: type 3 message: " + toHex(msg));
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("type 3 message: " + toHex(msg));
 
         String result = null;
 	try {
@@ -342,8 +344,7 @@ public class Ntlm {
 
 	} catch (GeneralSecurityException ex) {
 	    // should never happen
-	    if (debugout != null)
-		debugout.println("DEBUG NTLM: " + ex);
+	    logger.log(Level.FINE, "GeneralSecurityException", ex);
 	    return "";	// will fail later
 	}
     }

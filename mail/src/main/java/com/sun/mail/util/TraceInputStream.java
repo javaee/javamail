@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.util;
 
 import java.io.*;
+import java.util.logging.Level;
 
 /**
  * This class is a FilterInputStream that writes the bytes
@@ -61,7 +62,20 @@ public class TraceInputStream extends FilterInputStream {
      * input stream.
      *   
      * @param   in   the underlying input stream.
-     * @param   traceOut  the trace stream
+     * @param   logger	log trace here
+     */
+    public TraceInputStream(InputStream in, MailLogger logger) {
+	super(in);
+	this.trace = logger.isLoggable(Level.FINEST);
+	this.traceOut = new LogOutputStream(logger);
+    }
+
+    /**
+     * Creates an input stream filter built on top of the specified
+     * input stream.
+     *   
+     * @param   in   the underlying input stream.
+     * @param	traceOut	the trace stream.
      */
     public TraceInputStream(InputStream in, OutputStream traceOut) {
 	super(in);

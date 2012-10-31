@@ -42,6 +42,7 @@ package com.sun.mail.smtp;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.security.*;
 
 import com.sun.mail.util.*;
@@ -55,15 +56,14 @@ import com.sun.mail.util.*;
 
 public class DigestMD5 {
 
-    private PrintStream debugout;	// if not null, debug output stream
+    private MailLogger logger;
     private MessageDigest md5;
     private String uri;
     private String clientResponse;
 
-    public DigestMD5(PrintStream debugout) {
-	this.debugout = debugout;
-	if (debugout != null)
-	    debugout.println("DEBUG DIGEST-MD5: Loaded");
+    public DigestMD5(MailLogger logger) {
+	this.logger = logger.getLogger(this.getClass(), "DEBUG DIGEST-MD5");
+	logger.config("DIGEST-MD5 Loaded");
     }
 
     /**
@@ -82,8 +82,7 @@ public class DigestMD5 {
 	    random = new SecureRandom();
 	    md5 = MessageDigest.getInstance("MD5");
 	} catch (NoSuchAlgorithmException ex) {
-	    if (debugout != null)
-		debugout.println("DEBUG DIGEST-MD5: " + ex);
+	    logger.log(Level.FINE, "NoSuchAlgorithmException", ex);
 	    throw new IOException(ex.toString());
 	}
 	StringBuffer result = new StringBuffer();
@@ -94,8 +93,7 @@ public class DigestMD5 {
 	byte[] bytes = new byte[32];	// arbitrary size ...
 	int resp;
 
-	if (debugout != null)
-	    debugout.println("DEBUG DIGEST-MD5: Begin authentication ...");
+	logger.fine("Begin authentication ...");
 
 	// Code based on http://www.ietf.org/rfc/rfc2831.txt
 	Hashtable map = tokenize(serverChallenge);
@@ -138,9 +136,8 @@ public class DigestMD5 {
 	result.append(",digest-uri=\"" + uri + "\"");
 	result.append(",response=" + toHex(md5.digest()));
 
-	if (debugout != null)
-	    debugout.println("DEBUG DIGEST-MD5: Response => "
-			 + result.toString());
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("Response => " + result.toString());
 	b64os.write(ASCIIUtility.getBytes(result.toString()));
 	b64os.flush();
 	return bos.toByteArray();
@@ -159,9 +156,8 @@ public class DigestMD5 {
 	md5.update(ASCIIUtility.getBytes(clientResponse + toHex(md5.digest())));
 	String text = toHex(md5.digest());
 	if (!text.equals((String)map.get("rspauth"))) {
-	    if (debugout != null)
-		debugout.println("DEBUG DIGEST-MD5: " +
-			    "Expected => rspauth=" + text);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("Expected => rspauth=" + text);
 	    return false;	// server NOT authenticated by client !!!
 	}
 	return true;
@@ -197,9 +193,9 @@ public class DigestMD5 {
 		}
 		// fall-thru
 	    case '"':
-		if (debugout != null)
-		    debugout.println("DEBUG DIGEST-MD5: Received => "
-			 	 + key + "='" + tokens.sval + "'");
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("Received => " +
+			 	 key + "='" + tokens.sval + "'");
 		if (map.containsKey(key)) {  // concatenate multiple values
 		    map.put(key, map.get(key) + "," + tokens.sval);
 		} else {

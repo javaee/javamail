@@ -57,7 +57,7 @@ public class MessageCacheTest {
 	for (int n = 1; n <= 100; n++) {
 	    //System.out.println("MessageCache.testExpungeAdd: test " + n);
 	    // start with one message
-	    MessageCache mc = new MessageCache(null, null, 1);
+	    MessageCache mc = new MessageCache(1, false);
 	    // add the remaining messages (eat into SLOP)
 	    mc.addMessages(n - 1, 2);
 	    // now expunge a message to cause the seqnums array to be created
@@ -81,7 +81,7 @@ public class MessageCacheTest {
 	for (int n = 2; n <= 100; n++) {
 	    //System.out.println("MessageCache.testExpungeAdd: test " + n);
 	    // start with two messages
-	    MessageCache mc = new MessageCache(null, null, 2);
+	    MessageCache mc = new MessageCache(2, false);
 	    // now expunge a message to cause the seqnums array to be created
 	    mc.expungeMessage(1);
 	    // add the remaining messages (eat into SLOP)

@@ -44,6 +44,7 @@ import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.lang.reflect.*;
+import java.util.logging.Level;
 
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -109,14 +110,14 @@ public class IMAPProtocol extends Protocol {
      * @param props     Properties object used by this protocol
      */
     public IMAPProtocol(String name, String host, int port, 
-			boolean debug, PrintStream out, Properties props,
-			boolean isSSL) throws IOException, ProtocolException {
-	super(host, port, debug, out, props, "mail." + name, isSSL);
+			Properties props, boolean isSSL, MailLogger logger)
+			throws IOException, ProtocolException {
+	super(host, port, props, "mail." + name, isSSL, logger);
 
 	try {
 	    this.name = name;
-	    noauthdebug = debug && !PropUtil.getBooleanProperty(props,
-		"mail.debug.auth", false);
+	    noauthdebug =
+		!PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
 
 	    if (capabilities == null)
 		capability();
@@ -229,8 +230,8 @@ public class IMAPProtocol extends Protocol {
 		capabilities.put(s.toUpperCase(Locale.ENGLISH), s);
 		if (s.regionMatches(true, 0, "AUTH=", 0, 5)) {
 		    authmechs.add(s.substring(5));
-		    if (debug)
-			out.println("DEBUG IMAP: AUTH: " + s.substring(5));
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("AUTH: " + s.substring(5));
 		}
 	    }
 	}
@@ -332,8 +333,7 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.1.2"
      */
     public void noop() throws ProtocolException {
-	if (debug)
-	    out.println("DEBUG IMAP: IMAPProtocol noop");
+	logger.fine("IMAPProtocol noop");
 	simpleCommand("NOOP", null);
     }
 
@@ -367,8 +367,8 @@ public class IMAPProtocol extends Protocol {
 
 	Response[] r = null;
 	try {
-	    if (noauthdebug) {
-		out.println("DEBUG IMAP: LOGIN command trace suppressed");
+	    if (noauthdebug && isTracing()) {
+		logger.fine("LOGIN command trace suppressed");
 		suspendTracing();
 	    }
 	    r = command("LOGIN", args);
@@ -380,8 +380,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 
 	// Handle result of this command
-	if (noauthdebug)
-	    out.println("DEBUG IMAP: LOGIN command result: " + r[r.length-1]);
+	if (noauthdebug && isTracing())
+	    logger.fine("LOGIN command result: " + r[r.length-1]);
 	handleResult(r[r.length-1]);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r[r.length-1]);
@@ -403,9 +403,8 @@ public class IMAPProtocol extends Protocol {
 
 	try {
 
-	if (noauthdebug) {
-	    out.println(
-		"DEBUG IMAP: AUTHENTICATE LOGIN command trace suppressed");
+	if (noauthdebug && isTracing()) {
+	    logger.fine("AUTHENTICATE LOGIN command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -488,8 +487,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
-	if (noauthdebug)
-	    out.println("DEBUG IMAP: AUTHENTICATE LOGIN command result: " + r);
+	if (noauthdebug && isTracing())
+	    logger.fine("AUTHENTICATE LOGIN command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -519,9 +518,8 @@ public class IMAPProtocol extends Protocol {
 
 	try {
 
-	if (noauthdebug) {
-	    out.println(
-		"DEBUG IMAP: AUTHENTICATE PLAIN command trace suppressed");
+	if (noauthdebug && isTracing()) {
+	    logger.fine("AUTHENTICATE PLAIN command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -600,8 +598,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
-	if (noauthdebug)
-	    out.println("DEBUG IMAP: AUTHENTICATE PLAIN command result: " + r);
+	if (noauthdebug && isTracing())
+	    logger.fine("AUTHENTICATE PLAIN command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -633,13 +631,12 @@ public class IMAPProtocol extends Protocol {
 	    "mail." + name + ".auth.ntlm.flags", 0);
 	String domain = props.getProperty(
 	    "mail." + name + ".auth.ntlm.domain", "");
-	Ntlm ntlm = new Ntlm(domain, getLocalHost(), u, p, debug ? out : null);
+	Ntlm ntlm = new Ntlm(domain, getLocalHost(), u, p, logger);
 
 	try {
 
-	if (noauthdebug) {
-	    out.println(
-		"DEBUG IMAP: AUTHENTICATE NTLM command trace suppressed");
+	if (noauthdebug && isTracing()) {
+	    logger.fine("AUTHENTICATE NTLM command trace suppressed");
 	    suspendTracing();
 	}
 
@@ -700,8 +697,8 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
-	if (noauthdebug)
-	    out.println("DEBUG IMAP: AUTHENTICATE NTLM command result: " + r);
+	if (noauthdebug && isTracing())
+	    logger.fine("AUTHENTICATE NTLM command result: " + r);
 	handleResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
@@ -731,14 +728,11 @@ public class IMAPProtocol extends Protocol {
 					this,
 					name,
 					props,
-					debug ? Boolean.TRUE : Boolean.FALSE,
-					out,
+					logger,
 					host
 					});
 	    } catch (Exception ex) {
-		if (debug)
-		    out.println("DEBUG IMAP: Can't load SASL authenticator: " +
-								ex);
+		logger.log(Level.FINE, "Can't load SASL authenticator", ex);
 		// probably because we're running on a system without SASL
 		return;	// not authenticated, try without SASL
 	    }
@@ -760,19 +754,18 @@ public class IMAPProtocol extends Protocol {
 
 	try {
 
-	    if (noauthdebug) {
-		out.println(
-		    "DEBUG IMAP: SASL authentication command trace suppressed");
+	    if (noauthdebug && isTracing()) {
+		logger.fine("SASL authentication command trace suppressed");
 		suspendTracing();
 	    }
 
 	    if (saslAuthenticator.authenticate(mechs, realm, authzid, u, p)) {
-		if (noauthdebug)
-		    out.println("DEBUG IMAP: SASL authentication succeeded");
+		if (noauthdebug && isTracing())
+		    logger.fine("SASL authentication succeeded");
 		authenticated = true;
 	    } else {
-		if (noauthdebug)
-		    out.println("DEBUG IMAP: SASL authentication failed");
+		if (noauthdebug && isTracing())
+		    logger.fine("SASL authentication failed");
 	    }
 	} finally {
 	    resumeTracing();
@@ -827,15 +820,13 @@ public class IMAPProtocol extends Protocol {
 	try {
 	    super.startTLS("STARTTLS");
 	} catch (ProtocolException pex) {
-	    if (debug)
-		out.println("DEBUG IMAP: STARTTLS ProtocolException: " + pex);
+	    logger.log(Level.FINE, "STARTTLS ProtocolException", pex);
 	    // ProtocolException just means the command wasn't recognized,
 	    // or failed.  This should never happen if we check the
 	    // CAPABILITY first.
 	    throw pex;
 	} catch (Exception ex) {
-	    if (debug)
-		out.println("DEBUG IMAP: STARTTLS Exception: " + ex);
+	    logger.log(Level.FINE, "STARTTLS Exception", ex);
 	    // any other exception means we have to shut down the connection
 	    // generate an artificial BYE response and disconnect
 	    Response[] r = { Response.byeResponse(ex) };

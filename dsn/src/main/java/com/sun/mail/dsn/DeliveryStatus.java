@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.dsn;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 
 import javax.activation.*;
 import javax.mail.*;
@@ -49,6 +50,7 @@ import javax.mail.internet.*;
 
 import com.sun.mail.util.LineOutputStream;	// XXX
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
 
 /**
  * A message/delivery-status message content, as defined in
@@ -58,8 +60,11 @@ import com.sun.mail.util.PropUtil;
  */
 public class DeliveryStatus extends Report {
 
-    private static boolean debug =
-	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false);
+    private static MailLogger logger = new MailLogger(
+	DeliveryStatus.class,
+	"DEBUG DSN",
+	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false),
+	System.out);
 
     /**
      * The DSN fields for the message.
@@ -88,22 +93,19 @@ public class DeliveryStatus extends Report {
 				throws MessagingException, IOException {
 	super("delivery-status");
 	messageDSN = new InternetHeaders(is);
-	if (debug)
-	    System.out.println("DSN: got messageDSN");
+	logger.fine("got messageDSN");
 	Vector v = new Vector();
 	try {
 	    while (is.available() > 0) {
 		InternetHeaders h = new InternetHeaders(is);
-		if (debug)
-		    System.out.println("DSN: got recipientDSN");
+		logger.fine("got recipientDSN");
 		v.addElement(h);
 	    }
 	} catch (EOFException ex) {
-	    if (debug)
-		System.out.println("DSN: got EOFException");
+	    logger.log(Level.FINE, "got EOFException", ex);
 	}
-	if (debug)
-	    System.out.println("DSN: recipientDSN size " + v.size());
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("recipientDSN size " + v.size());
 	recipientDSN = new InternetHeaders[v.size()];
 	v.copyInto(recipientDSN);
     }

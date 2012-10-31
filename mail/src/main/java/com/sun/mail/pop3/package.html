@@ -566,6 +566,38 @@ never construct instances of <code>POP3Store</code> or
 appropriate <code>Store</code> object, and from that acquire
 <code>Folder</code> objects.
 <P>
+In addition to printing debugging output as controlled by the
+{@link javax.mail.Session Session} configuration,
+the com.sun.mail.pop3 provider logs the same information using
+{@link java.util.logging.Logger} as described in the following table:
+<P>
+<TABLE BORDER>
+<TR>
+<TH>Logger Name</TH>
+<TH>Logging Level</TH>
+<TH>Purpose</TH>
+</TR>
+
+<TR>
+<TD>com.sun.mail.pop3</TD>
+<TD>CONFIG</TD>
+<TD>Configuration of the POP3Store</TD>
+</TR>
+
+<TR>
+<TD>com.sun.mail.pop3</TD>
+<TD>FINE</TD>
+<TD>General debugging output</TD>
+</TR>
+
+<TR>
+<TD>com.sun.mail.pop3.protocol</TD>
+<TD>FINEST</TD>
+<TD>Complete protocol trace</TD>
+</TR>
+</TABLE>
+
+<P>
 <strong>WARNING:</strong> The APIs unique to this package should be
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the

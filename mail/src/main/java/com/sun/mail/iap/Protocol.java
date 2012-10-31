@@ -44,6 +44,7 @@ import java.util.Vector;
 import java.util.Properties;
 import java.io.*;
 import java.net.*;
+import java.util.logging.Level;
 import javax.net.ssl.SSLSocket;
 import com.sun.mail.util.*;
 
@@ -61,9 +62,9 @@ public class Protocol {
     protected String host;
     private Socket socket;
     // in case we turn on TLS, we'll need these later
-    protected boolean debug;
     protected boolean quote;
-    protected PrintStream out;
+    protected MailLogger logger;
+    protected MailLogger traceLogger;
     protected Properties props;
     protected String prefix;
 
@@ -96,26 +97,27 @@ public class Protocol {
      *
      * @param host	host to connect to
      * @param port	portnumber to connect to
-     * @param debug     debug mode
-     * @param out	debug output stream
      * @param props     Properties object used by this protocol
      * @param prefix 	Prefix to prepend to property keys
+     * @param isSSL 	use SSL?
+     * @param logger 	log messages here
      */
-    public Protocol(String host, int port, boolean debug,
-		    PrintStream out, Properties props, String prefix,
-		    boolean isSSL) throws IOException, ProtocolException {
+    public Protocol(String host, int port, 
+		    Properties props, String prefix,
+		    boolean isSSL, MailLogger logger)
+		    throws IOException, ProtocolException {
 	try {
 	    this.host = host;
-	    this.debug = debug;
-	    this.out = out;
 	    this.props = props;
 	    this.prefix = prefix;
+	    this.logger = logger;
+	    traceLogger = logger.getSubLogger("protocol", null);
 
 	    socket = SocketFetcher.getSocket(host, port, props, prefix, isSSL);
 	    quote = PropUtil.getBooleanProperty(props,
 					"mail.debug.quote", false);
 
-	    initStreams(out);
+	    initStreams();
 
 	    // Read server greeting
 	    processGreeting(readResponse());
@@ -135,14 +137,13 @@ public class Protocol {
 	}
     }
 
-    private void initStreams(PrintStream out) throws IOException {
-	traceInput = new TraceInputStream(socket.getInputStream(), out);
-	traceInput.setTrace(debug);
+    private void initStreams() throws IOException {
+	traceInput = new TraceInputStream(socket.getInputStream(), traceLogger);
 	traceInput.setQuote(quote);
 	input = new ResponseInputStream(traceInput);
 
-	traceOutput = new TraceOutputStream(socket.getOutputStream(), out);
-	traceOutput.setTrace(debug);
+	traceOutput =
+	    new TraceOutputStream(socket.getOutputStream(), traceLogger);
 	traceOutput.setQuote(quote);
 	output = new DataOutputStream(new BufferedOutputStream(traceOutput));
     }
@@ -150,21 +151,19 @@ public class Protocol {
     /**
      * Constructor for debugging.
      */
-    public Protocol(InputStream in, OutputStream out, boolean debug)
+    public Protocol(InputStream in, PrintStream out, boolean debug)
 				throws IOException {
 	this.host = "localhost";
-	this.debug = debug;
 	this.quote = false;
-	this.out = System.out;
+	logger = new MailLogger(this.getClass(), "DEBUG", debug, out);
+	traceLogger = logger.getSubLogger("protocol", null);
 
 	// XXX - inlined initStreams, won't allow later startTLS
-	traceInput = new TraceInputStream(in, System.out);
-	traceInput.setTrace(debug);
+	traceInput = new TraceInputStream(in, traceLogger);
 	traceInput.setQuote(quote);
 	input = new ResponseInputStream(traceInput);
 
-	traceOutput = new TraceOutputStream(out, System.out);
-	traceOutput.setTrace(debug);
+	traceOutput = new TraceOutputStream(out, traceLogger);
 	traceOutput.setQuote(quote);
 	output = new DataOutputStream(new BufferedOutputStream(traceOutput));
 
@@ -387,7 +386,7 @@ public class Protocol {
 	    return;	// nothing to do
 	simpleCommand(cmd, null);
 	socket = SocketFetcher.startTLS(socket, host, props, prefix);
-	initStreams(out);
+	initStreams();
     }
 
     /**
@@ -454,11 +453,18 @@ public class Protocol {
     }
 
     /**
+     * Is protocol tracing enabled?
+     */
+    protected boolean isTracing() {
+	return traceLogger.isLoggable(Level.FINEST);
+    }
+
+    /**
      * Temporarily turn off protocol tracing, e.g., to prevent
      * tracing the authentication sequence, including the password.
      */
     protected void suspendTracing() {
-	if (debug) {
+	if (traceLogger.isLoggable(Level.FINEST)) {
 	    traceInput.setTrace(false);
 	    traceOutput.setTrace(false);
 	}
@@ -468,7 +474,7 @@ public class Protocol {
      * Resume protocol tracing, if it was enabled to begin with.
      */
     protected void resumeTracing() {
-	if (debug) {
+	if (traceLogger.isLoggable(Level.FINEST)) {
 	    traceInput.setTrace(true);
 	    traceOutput.setTrace(true);
 	}

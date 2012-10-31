@@ -42,9 +42,11 @@ package com.sun.mail.imap;
 
 import java.io.PrintStream;
 import java.util.*;
+import java.util.logging.Level;
 
 import javax.mail.*;
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
 
 /**
  * A cache of IMAPMessage objects along with the
@@ -82,9 +84,8 @@ public class MessageCache {
      */
     private IMAPFolder folder;
 
-    // debugging flag and stream
-    private boolean debug;
-    private PrintStream out;
+    // debugging logger
+    private MailLogger logger;
 
     /**
      * Grow the array by at least this much, to avoid constantly
@@ -97,12 +98,10 @@ public class MessageCache {
      */
     MessageCache(IMAPFolder folder, IMAPStore store, int size) {
 	this.folder = folder;
-	if (store != null) {	// allow null store, for testing
-	    this.debug = store.getMessageCacheDebug();
-	    this.out = store.getSession().getDebugOut();
-	}
-	if (debug)
-	    out.println("DEBUG IMAP MC: create cache of size " + size);
+	logger = folder.logger.getSubLogger("messagecache", "DEBUG IMAP MC",
+						store.getMessageCacheDebug());
+	if (logger.isLoggable(Level.CONFIG))
+	    logger.config("create cache of size " + size);
 	ensureCapacity(size, 1);
     }
 
@@ -110,9 +109,13 @@ public class MessageCache {
      * Constructor for debugging and testing.
      */
     MessageCache(int size, boolean debug) {
-	this(null, null, size);
-	this.debug = debug;
-	this.out = System.out;
+	this.folder = null;
+	logger = new MailLogger(
+		    this.getClass(), "messagecache",
+		    "DEBUG IMAP MC", debug, System.out);
+	if (logger.isLoggable(Level.CONFIG))
+	    logger.config("create DEBUG cache of size " + size);
+	ensureCapacity(size, 1);
     }
 
     /**
@@ -133,14 +136,13 @@ public class MessageCache {
 		"message number (" + msgnum + ") out of bounds (" + size + ")");
 	IMAPMessage msg = messages[msgnum-1];
 	if (msg == null) {
-	    if (debug)
-		out.println("DEBUG IMAP MC: create message number " + msgnum);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("create message number " + msgnum);
 	    msg = folder.newIMAPMessage(msgnum);
 	    messages[msgnum-1] = msg;
 	    // mark message expunged if no seqnum
 	    if (seqnumOf(msgnum) <= 0) {
-		if (debug)
-		    out.println("DEBUG IMAP MC: it's expunged!");
+		logger.fine("it's expunged!");
 		msg.setExpunged(true);
 	    }
 	}
@@ -155,8 +157,8 @@ public class MessageCache {
     public IMAPMessage getMessageBySeqnum(int seqnum) {
 	int msgnum = msgnumOf(seqnum);
 	if (msgnum < 0) {		// XXX - < 1 ?
-	    if (debug)
-		out.println("DEBUG IMAP MC: no message seqnum " + seqnum);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("no message seqnum " + seqnum);
 	    return null;
 	} else
 	    return getMessage(msgnum);
@@ -168,19 +170,18 @@ public class MessageCache {
     public void expungeMessage(int seqnum) {
 	int msgnum = msgnumOf(seqnum);
 	if (msgnum < 0) {
-	    if (debug)
-		out.println("DEBUG IMAP MC: expunge no seqnum " + seqnum);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("expunge no seqnum " + seqnum);
 	    return;		// XXX - should never happen
 	}
 	IMAPMessage msg = messages[msgnum-1];
 	if (msg != null) {
-	    if (debug)
-		out.println("DEBUG IMAP MC: expunge existing " + msgnum);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("expunge existing " + msgnum);
 	    msg.setExpunged(true);
 	}
 	if (seqnums == null) {		// time to fill it in
-	    if (debug)
-		out.println("DEBUG IMAP MC: create seqnums array");
+	    logger.fine("create seqnums array");
 	    seqnums = new int[messages.length];
 	    for (int i = 1; i < msgnum; i++)
 		seqnums[i-1] = i;
@@ -202,8 +203,7 @@ public class MessageCache {
      * returning a list of removed message objects.
      */
     public IMAPMessage[] removeExpungedMessages() {
-	if (debug)
-	    out.println("DEBUG IMAP MC: remove expunged messages");
+	logger.fine("remove expunged messages");
 	List mlist = new ArrayList();	// list of expunged messages
 
 	/*
@@ -237,8 +237,8 @@ public class MessageCache {
 	shrink(newnum, oldnum);
 
 	IMAPMessage[] rmsgs = new IMAPMessage[mlist.size()];
-	if (debug)
-	    out.println("DEBUG IMAP MC: return " + rmsgs.length);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("return " + rmsgs.length);
 	mlist.toArray(rmsgs);
 	return rmsgs;
     }
@@ -250,8 +250,7 @@ public class MessageCache {
      * from this folder.
      */
     public IMAPMessage[] removeExpungedMessages(Message[] msgs) {
-	if (debug)
-	    out.println("DEBUG IMAP MC: remove expunged messages");
+	logger.fine("remove expunged messages");
 	List mlist = new ArrayList();	// list of expunged messages
 
 	/*
@@ -322,8 +321,8 @@ public class MessageCache {
 	shrink(newnum, oldnum);
 
 	IMAPMessage[] rmsgs = new IMAPMessage[mlist.size()];
-	if (debug)
-	    out.println("DEBUG IMAP MC: return " + rmsgs.length);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("return " + rmsgs.length);
 	mlist.toArray(rmsgs);
 	return rmsgs;
     }
@@ -334,15 +333,14 @@ public class MessageCache {
      */
     private void shrink(int newend, int oldend) {
 	size = newend - 1;
-	if (debug)
-	    out.println("DEBUG IMAP MC: size now " + size);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("size now " + size);
 	if (size == 0) {	// no messages left
 	    messages = null;
 	    seqnums = null;
 	} else if (size > SLOP && size < messages.length / 2) {
 	    // if array shrinks by too much, reallocate it
-	    if (debug)
-		out.println("DEBUG IMAP MC: reallocate array");
+	    logger.fine("reallocate array");
 	    IMAPMessage[] newm = new IMAPMessage[size + SLOP];
 	    System.arraycopy(messages, 0, newm, 0, size);
 	    messages = newm;
@@ -352,8 +350,8 @@ public class MessageCache {
 		seqnums = news;
 	    }
 	} else {
-	    if (debug)
-		out.println("DEBUG IMAP MC: clean " + newend + " to " + oldend);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("clean " + newend + " to " + oldend);
 	    // clear out unused entries in array
 	    for (int msgnum = newend; msgnum < oldend; msgnum++) {
 		messages[msgnum-1] = null;
@@ -368,8 +366,8 @@ public class MessageCache {
      * newSeqNum is the sequence number of the first message added.
      */
     public void addMessages(int count, int newSeqNum) {
-	if (debug)
-	    out.println("DEBUG IMAP MC: add " + count + " messages");
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("add " + count + " messages");
 	// don't have to do anything other than making sure there's space
 	ensureCapacity(size + count, newSeqNum);
     }
@@ -382,8 +380,8 @@ public class MessageCache {
 	if (messages == null)
 	    messages = new IMAPMessage[newsize + SLOP];
 	else if (messages.length < newsize) {
-	    if (debug)
-		out.println("DEBUG IMAP MC: expand capacity to " + newsize);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("expand capacity to " + newsize);
 	    IMAPMessage[] newm = new IMAPMessage[newsize + SLOP];
 	    System.arraycopy(messages, 0, newm, 0, messages.length);
 	    messages = newm;
@@ -393,14 +391,14 @@ public class MessageCache {
 		for (int i = size; i < news.length; i++)
 		    news[i] = newSeqNum++;
 		seqnums = news;
-		if (debug)
-		    out.println("DEBUG IMAP MC: message " + newsize +
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("message " + newsize +
 			" has sequence number " + seqnums[newsize-1]);
 	    }
 	} else if (newsize < size) {		// shrinking?
 	    // this should never happen
-	    if (debug)
-		out.println("DEBUG IMAP MC: shrink capacity to " + newsize);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("shrink capacity to " + newsize);
 	    for (int msgnum = newsize + 1; msgnum <= size; msgnum++) {
 		messages[msgnum-1] = null;
 		if (seqnums != null)
@@ -417,8 +415,8 @@ public class MessageCache {
 	if (seqnums == null)
 	    return msgnum;
 	else {
-	    if (debug)
-		out.println("DEBUG IMAP MC: msgnum " + msgnum + " is seqnum " +
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("msgnum " + msgnum + " is seqnum " +
 			    seqnums[msgnum-1]);
 	    return seqnums[msgnum-1];
 	}
@@ -431,8 +429,8 @@ public class MessageCache {
 	if (seqnums == null)
 	    return seqnum;
 	if (seqnum < 1) {		// should never happen
-	    if (debug)
-		out.println("DEBUG IMAP MC: bad seqnum " + seqnum);
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("bad seqnum " + seqnum);
 	    return -1;
 	}
 	for (int msgnum = seqnum; msgnum <= size; msgnum++) {

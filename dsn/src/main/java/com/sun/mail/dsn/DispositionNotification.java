@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,7 @@ import javax.mail.internet.*;
 
 import com.sun.mail.util.LineOutputStream;	// XXX
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
 
 /**
  * A message/disposition-notification message content, as defined in
@@ -57,8 +58,11 @@ import com.sun.mail.util.PropUtil;
  */
 public class DispositionNotification extends Report {
 
-    private static boolean debug =
-	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false);
+    private static MailLogger logger = new MailLogger(
+	DeliveryStatus.class,
+	"DEBUG DSN",
+	PropUtil.getBooleanSystemProperty("mail.dsn.debug", false),
+	System.out);
 
     /**
      * The disposition notification content fields.
@@ -81,8 +85,7 @@ public class DispositionNotification extends Report {
 				throws MessagingException, IOException {
 	super("disposition-notification");
 	notifications = new InternetHeaders(is);
-	if (debug)
-	    System.out.println("MDN: got notification content");
+	logger.fine("got MDN notification content");
     }
 
     /**

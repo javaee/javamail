@@ -691,6 +691,38 @@ Instead, they should use the
 <code>Session</code> method <code>getTransport</code> to acquire an
 appropriate <code>Transport</code> object.
 <P>
+In addition to printing debugging output as controlled by the
+{@link javax.mail.Session Session} configuration,
+the com.sun.mail.smtp provider logs the same information using
+{@link java.util.logging.Logger} as described in the following table:
+<P>
+<TABLE BORDER>
+<TR>
+<TH>Logger Name</TH>
+<TH>Logging Level</TH>
+<TH>Purpose</TH>
+</TR>
+
+<TR>
+<TD>com.sun.mail.smtp</TD>
+<TD>CONFIG</TD>
+<TD>Configuration of the SMTPTransport</TD>
+</TR>
+
+<TR>
+<TD>com.sun.mail.smtp</TD>
+<TD>FINE</TD>
+<TD>General debugging output</TD>
+</TR>
+
+<TR>
+<TD>com.sun.mail.smtp.protocol</TD>
+<TD>FINEST</TD>
+<TD>Complete protocol trace</TD>
+</TR>
+</TABLE>
+
+<P>
 <strong>WARNING:</strong> The APIs unique to this package should be
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the

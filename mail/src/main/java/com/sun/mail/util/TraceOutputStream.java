@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.util;
 
 import java.io.*;
+import java.util.logging.Level;
 
 /**
  * This class is a subclass of DataOutputStream that copies the
@@ -55,6 +56,19 @@ public class TraceOutputStream extends FilterOutputStream {
     private boolean trace = false;
     private boolean quote = false;
     private OutputStream traceOut;
+
+    /**
+     * Creates an output stream filter built on top of the specified
+     * underlying output stream.
+     *
+     * @param   out   the underlying output stream.
+     * @param	logger	log trace here
+     */
+    public TraceOutputStream(OutputStream out, MailLogger logger) {
+	super(out);
+	this.trace = logger.isLoggable(Level.FINEST);
+	this.traceOut = new LogOutputStream(logger);;
+    }
 
     /**
      * Creates an output stream filter built on top of the specified

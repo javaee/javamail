@@ -46,6 +46,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
+import java.util.logging.Level;
 import java.security.cert.*;
 import javax.net.*;
 import javax.net.ssl.*;
@@ -62,8 +63,12 @@ import javax.security.auth.x500.X500Principal;
  */
 public class SocketFetcher {
 
-    private static boolean debug =
-	PropUtil.getBooleanSystemProperty("mail.socket.debug", false);
+    private static MailLogger logger = new MailLogger(
+	SocketFetcher.class,
+	"socket",
+	"DEBUG SocketFetcher",
+	PropUtil.getBooleanSystemProperty("mail.socket.debug", false),
+	System.out);
 
     private static final String SOCKS_SUPPORT =
 					    "com.sun.mail.util.SocksSupport";
@@ -135,9 +140,8 @@ public class SocketFetcher {
 				String prefix, boolean useSSL)
 				throws IOException {
 
-	if (debug)
-	    System.out.println("DEBUG SocketFetcher: getSocket" +
-				", host " + host + ", port " + port +
+	if (logger.isLoggable(Level.FINER))
+	    logger.finer("getSocket" + ", host " + host + ", port " + port +
 				", prefix " + prefix + ", useSSL " + useSSL);
 	if (prefix == null)
 	    prefix = "socket";
@@ -274,9 +278,8 @@ public class SocketFetcher {
 	    }
 	    socksPort = PropUtil.getIntProperty(props,
 					prefix + ".socks.port", socksPort);
-	    if (debug)
-		System.out.println("DEBUG SocketFetcher: socks host " +
-				socksHost + ", port " + socksPort);
+	    if (logger.isLoggable(Level.FINER))
+		logger.finer("socks host " + socksHost + ", port " + socksPort);
 	}
 
 	if (sf != null)
@@ -301,9 +304,8 @@ public class SocketFetcher {
 			    new Object[] { socksHost, new Integer(socksPort) });
 		} catch (Exception ex) {
 		    // ignore any errors
-		    if (debug)
-			System.out.println("DEBUG SocketFetcher: " +
-			    "failed to load ProxySupport class: " + ex);
+		    logger.log(Level.FINER, "failed to load ProxySupport class",
+						ex);
 		}
 	    }
 	    if (socket == null)
@@ -414,9 +416,8 @@ public class SocketFetcher {
     public static Socket startTLS(Socket socket, String host, Properties props,
 				String prefix) throws IOException {
 	int port = socket.getPort();
-	if (debug)
-	    System.out.println("DEBUG SocketFetcher: startTLS host " +
-				host + ", port " + port);
+	if (logger.isLoggable(Level.FINER))
+	    logger.finer("startTLS host " + host + ", port " + port);
 
 	String sfErr = "unknown socket factory";
 	try {
@@ -533,10 +534,10 @@ public class SocketFetcher {
 	String ciphers = props.getProperty(prefix + ".ssl.ciphersuites", null);
 	if (ciphers != null)
 	    sslsocket.setEnabledCipherSuites(stringArray(ciphers));
-	if (debug) {
-	    System.out.println("DEBUG SocketFetcher: SSL protocols after " +
+	if (logger.isLoggable(Level.FINER)) {
+	    logger.finer("SSL protocols after " +
 		Arrays.asList(sslsocket.getEnabledProtocols()));
-	    System.out.println("DEBUG SocketFetcher: SSL ciphers after " +
+	    logger.finer("SSL ciphers after " +
 		Arrays.asList(sslsocket.getEnabledCipherSuites()));
 	}
 
@@ -606,8 +607,8 @@ public class SocketFetcher {
      * @return  true if it matches
      */
     private static boolean matchCert(String server, X509Certificate cert) {
-	if (debug)
-	    System.out.println("DEBUG SocketFetcher: matchCert server " +
+	if (logger.isLoggable(Level.FINER))
+	    logger.finer("matchCert server " +
 		server + ", cert " + cert);
 
 	/*
@@ -627,23 +628,19 @@ public class SocketFetcher {
 					new Object[] { new Byte((byte)2) });
 
 	    // invoke hostnameChecker.match( server, cert)
-	    if (debug)
-		System.out.println("DEBUG SocketFetcher: " +
-			"using sun.security.util.HostnameChecker");
+	    if (logger.isLoggable(Level.FINER))
+		logger.finer("using sun.security.util.HostnameChecker");
 	    Method match = hnc.getMethod("match",
 			new Class[] { String.class, X509Certificate.class });
 	    try {
 		match.invoke(hostnameChecker, new Object[] { server, cert });
 		return true;
 	    } catch (InvocationTargetException cex) {
-		if (debug)
-		    System.out.println("DEBUG SocketFetcher: FAIL: " + cex);
+		logger.log(Level.FINER, "FAIL", cex);
 		return false;
 	    }
 	} catch (Exception ex) {
-	    if (debug)
-		System.out.println("DEBUG SocketFetcher: " +
-			"NO sun.security.util.HostnameChecker: " + ex);
+	    logger.log(Level.FINER, "NO sun.security.util.HostnameChecker", ex);
 	    // ignore failure and continue below
 	}
 
@@ -666,9 +663,8 @@ public class SocketFetcher {
 		    if (type.intValue() == 2) {	// 2 == dNSName
 			foundName = true;
 			String name = (String)nameEnt.get(1);
-			if (debug)
-			    System.out.println("DEBUG SocketFetcher: " +
-				"found name: " + name);
+			if (logger.isLoggable(Level.FINER))
+			    logger.finer("found name: " + name);
 			if (matchServer(server, name))
 			    return true;
 		    }
@@ -698,9 +694,8 @@ public class SocketFetcher {
      * @param	name		name from the server's certificate
      */
     private static boolean matchServer(String server, String name) {
-	if (debug)
-	    System.out.println("DEBUG SocketFetcher: match server " + server +
-				" with " + name);
+	if (logger.isLoggable(Level.FINER))
+	    logger.finer("match server " + server + " with " + name);
 	if (name.startsWith("*.")) {
 	    // match "foo.example.com" with "*.example.com"
 	    String tail = name.substring(2);
