@@ -217,9 +217,8 @@ public final class MailLogger {
     public void log(Level level, String msg) {
 	ifDebugOut(msg);
 	if (logger.isLoggable(level)) {
-	    final StackTraceElement frame = inferCaller();
-	    logger.logp(level, frame.getClassName(), frame.getMethodName(),
-			msg);
+	    final String[] frame = inferCaller();
+	    logger.logp(level, frame[0], frame[1], msg);
 	}
     }
 
@@ -233,9 +232,8 @@ public final class MailLogger {
 	}
 	
 	if (logger.isLoggable(level)) {
-	    final StackTraceElement frame = inferCaller();
-	    logger.logp(level, frame.getClassName(), frame.getMethodName(),
-			msg, param1);
+	    final String[] frame = inferCaller();
+	    logger.logp(level, frame[0], frame[1], msg, param1);
 	}
     }
 
@@ -249,9 +247,8 @@ public final class MailLogger {
 	}
 	
 	if (logger.isLoggable(level)) {
-	    final StackTraceElement frame = inferCaller();
-	    logger.logp(level, frame.getClassName(), frame.getMethodName(),
-			msg, params);
+	    final String[] frame = inferCaller();
+	    logger.logp(level, frame[0], frame[1], msg, params);
 	}
     }
 
@@ -279,9 +276,8 @@ public final class MailLogger {
 	}
  
 	if (logger.isLoggable(level)) {
-	    final StackTraceElement frame = inferCaller();
-	    logger.logp(level, frame.getClassName(), frame.getMethodName(),
-			msg, thrown);
+	    final String[] frame = inferCaller();
+	    logger.logp(level, frame[0], frame[1], msg, thrown);
 	}
     }
 
@@ -358,7 +354,7 @@ public final class MailLogger {
      * Logger doesn't have to do it (and get the wrong answer), and because
      * our caller is what's wanted.
      */
-    private StackTraceElement inferCaller() {
+    private String[] inferCaller() {
 	// Get the stack trace.
 	StackTraceElement stack[] = (new Throwable()).getStackTrace();
 	// First, search back to a method in the Logger class.
@@ -377,14 +373,13 @@ public final class MailLogger {
 	    String cname = frame.getClassName();
 	    if (!isLoggerImplFrame(cname)) {
 		// We've found the relevant frame.
-		return frame;
+		return new String[]{cname, frame.getMethodName()};
 	    }
 	    ix++;
 	}
 	// We haven't found a suitable frame, so just punt.  This is
 	// OK as we are only committed to making a "best effort" here.
-	return new StackTraceElement(MailLogger.class.getName(), "log",
-                MailLogger.class.getName(), -1);
+	return new String[]{null, null};
     }
     
     private boolean isLoggerImplFrame(String cname) {
