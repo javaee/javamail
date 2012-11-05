@@ -40,11 +40,14 @@
 
 package javax.mail.internet;
 
-import javax.activation.DataSource;
+import java.io.File;
+import java.util.Set;
+import java.util.HashSet;
+import javax.activation.*;
 import javax.mail.util.ByteArrayDataSource;
 
 import org.junit.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Test MimeUtility methods.
@@ -65,6 +68,9 @@ public class MimeUtilityTest {
 	(byte)0x0d, (byte)0x00, (byte)0x0a, (byte)0x00
     };
 
+    private static final Set encodings = new HashSet() {{
+	add("7bit"); add("8bit"); add("quoted-printable"); add("base64"); }};
+
     /**
      * Test that utf-16be data is encoded with base64 and not quoted-printable.
      */
@@ -74,5 +80,59 @@ public class MimeUtilityTest {
 						"text/plain; charset=utf-16be");
 	String en = MimeUtility.getEncoding(ds);
 	assertEquals("non-ASCII encoding", "base64", en);
+    }
+
+    /**
+     * Test that getEncoding returns a valid value even if the file
+     * doesn't exist.  The return value should be a valid
+     * Content-Transfer-Encoding, but mostly we care that it doesn't
+     * throw NullPointerException.
+     */
+    @Test
+    public void getEncodingMissingFile() throws Exception {
+	File missing = new File(getClass().getName());
+	assertFalse(missing.toString(), missing.exists());
+	FileDataSource fds = new FileDataSource(missing);
+	assertEquals(fds.getName(), missing.getName());
+	assertTrue("getEncoding(DataSource)",
+	    encodings.contains(MimeUtility.getEncoding(fds)));
+	assertTrue("getEncoding(DataHandler)",
+	    encodings.contains(MimeUtility.getEncoding(new DataHandler(fds))));
+    }
+
+    /**
+     * Test that getEncoding returns a valid value even if the content
+     * type is bad.  The return value should be a valid
+     * Content-Transfer-Encoding, but mostly we care that it doesn't
+     * throw NullPointerException.
+     */
+    @Test
+    public void getEncodingBadContent() throws Exception {
+	String content = "bad-content-type";
+	ContentType type = null;
+	try {
+	    type = new ContentType(content);
+	    fail(type.toString());
+	} catch (ParseException expect) {
+	    if (type != null) {
+	       throw expect; 
+	    }
+	}
+
+	ByteArrayDataSource bads = new ByteArrayDataSource("", content);
+	bads.setName(null);
+	assertTrue(encodings.contains(MimeUtility.getEncoding(bads)));
+	assertTrue(encodings.contains(
+			MimeUtility.getEncoding(new DataHandler(bads))));
+
+	bads.setName("");
+	assertTrue(encodings.contains(MimeUtility.getEncoding(bads)));
+	assertTrue(encodings.contains(
+			MimeUtility.getEncoding(new DataHandler(bads))));
+
+	bads.setName(getClass().getName());
+	assertTrue(encodings.contains(MimeUtility.getEncoding(bads)));
+	assertTrue(encodings.contains(
+			MimeUtility.getEncoding(new DataHandler(bads))));
     }
 }

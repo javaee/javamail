@@ -223,7 +223,8 @@ public class MimeUtility {
 	} finally {
 	    // Close the input stream
 	    try {
-		is.close();
+		if (is != null)
+		    is.close();
 	    } catch (IOException ioex) { }
 	}
 
