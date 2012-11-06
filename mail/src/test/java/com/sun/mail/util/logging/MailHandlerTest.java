@@ -333,9 +333,9 @@ public class MailHandlerTest {
         props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
         instance.setLevel(Level.ALL);
-        instance.setFilter(null);
+        instance.setFilter((Filter) null);
         instance.setPushLevel(Level.OFF);
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
 
         final String msg = instance.toString();
         for (int i = 0; i < lvls.length; i++) {
@@ -557,7 +557,7 @@ public class MailHandlerTest {
                 fail("Doesn't match the memory handler.");
             }
         }
-        instance.setFilter(null);
+        instance.setFilter((Filter) null);
 
 
         Properties props = new Properties();
@@ -664,7 +664,7 @@ public class MailHandlerTest {
                 fail("Doesn't match the memory handler.");
             }
         }
-        instance.setFilter(null);
+        instance.setFilter((Filter) null);
 
 
         Properties props = new Properties();
@@ -950,9 +950,9 @@ public class MailHandlerTest {
         props.put("mail.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
         instance.setLevel(Level.ALL);
-        instance.setFilter(null);
+        instance.setFilter((Filter) null);
         instance.setPushLevel(Level.OFF);
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
 
         instance.setFormatter(new SimpleFormatter() {
 
@@ -1269,7 +1269,7 @@ public class MailHandlerTest {
         instance = new MailHandler(1);
         instance.setLevel(Level.ALL);
         instance.setErrorManager(new PushErrorManager(instance));
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
         instance.setPushLevel(Level.INFO);
         LogRecord record = new LogRecord(Level.SEVERE, "");
         instance.publish(record); //should push.
@@ -1303,7 +1303,7 @@ public class MailHandlerTest {
         instance = new MailHandler(1);
         instance.setLevel(Level.ALL);
         instance.setErrorManager(new FlushErrorManager(instance));
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
         instance.setPushLevel(Level.SEVERE);
         LogRecord record = new LogRecord(Level.INFO, "");
         instance.publish(record); //should flush.
@@ -1357,7 +1357,7 @@ public class MailHandlerTest {
         assertNotNull(instance.getLevel());
 
         try {
-            instance.setLevel(null);
+            instance.setLevel((Level) null);
             fail("Null level was allowed");
         } catch (NullPointerException pass) {
         } catch (RuntimeException re) {
@@ -1546,7 +1546,7 @@ public class MailHandlerTest {
         assertNotNull(instance.getPushLevel());
 
         try {
-            instance.setPushLevel(null);
+            instance.setPushLevel((Level) null);
             fail("Null level was allowed");
         } catch (NullPointerException pass) {
         } catch (RuntimeException re) {
@@ -1574,7 +1574,7 @@ public class MailHandlerTest {
         instance.setErrorManager(em);
 
         try {
-            instance.setPushFilter(null);
+            instance.setPushFilter((Filter) null);
         } catch (RuntimeException RE) {
             fail(RE.toString());
         }
@@ -1599,7 +1599,7 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
-        instance.setEncoding(null);
+        instance.setEncoding((String) null);
         String head = instance.contentTypeOf(new XMLFormatter().getHead(instance));
         assertEquals("application/xml", head);
         instance.setEncoding("US-ASCII");
@@ -1607,7 +1607,7 @@ public class MailHandlerTest {
         head = instance.contentTypeOf(new XMLFormatter().getHead(instance));
         assertEquals("application/xml", head);
 
-        instance.setEncoding(null);
+        instance.setEncoding((String) null);
         head = instance.contentTypeOf(new SimpleFormatter().getHead(instance));
         assertNull(head);
 
@@ -1615,11 +1615,11 @@ public class MailHandlerTest {
         head = instance.contentTypeOf(new SimpleFormatter().getHead(instance));
         assertNull(head);
 
-        instance.setEncoding(null);
+        instance.setEncoding((String) null);
         head = instance.contentTypeOf(new HeadFormatter("<HTML><BODY>").getHead(instance));
         assertEquals("text/html", head);
 
-        instance.setEncoding(null);
+        instance.setEncoding((String) null);
         head = instance.contentTypeOf(new HeadFormatter("<html><body>").getHead(instance));
         assertEquals("text/html", head);
 
@@ -1632,7 +1632,7 @@ public class MailHandlerTest {
                 + "<BODY></BODY></HTML>").getHead(instance));
         assertEquals("text/html", head);
 
-        instance.setEncoding(null);
+        instance.setEncoding((String) null);
         head = instance.contentTypeOf(new HeadFormatter("Head").getHead(instance));
         if (head != null) {//null is assumed to be plain text.
             assertEquals("text/plain", head);
@@ -2291,7 +2291,7 @@ public class MailHandlerTest {
         instance.setErrorManager(em);
 
         try {
-            instance.setComparator(null);
+            instance.setComparator((Comparator) null);
         } catch (RuntimeException RE) {
             fail(RE.toString());
         }
@@ -2406,7 +2406,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testAuthenticator() {
+    public void testAuthenticator_Authenticator_Arg() {
         Authenticator auth = new EmptyAuthenticator();
 
         MailHandler instance = new MailHandler();
@@ -2414,7 +2414,7 @@ public class MailHandlerTest {
         instance.setErrorManager(em);
 
         try {
-            instance.setAuthenticator(null);
+            instance.setAuthenticator((Authenticator) null);
         } catch (RuntimeException RE) {
             fail(RE.toString());
         }
@@ -2444,6 +2444,45 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testAuthenticator_Char_Array_Arg() {
+        MailHandler instance = new MailHandler();
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        try {
+            instance.setAuthenticator((char[]) null);
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
+
+        try {
+            instance.setAuthenticator(instance.getAuthenticator());
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
+
+        try {
+            instance.setAuthenticator("password".toCharArray());
+            PasswordAuthentication pa = passwordAuthentication(
+                    instance.getAuthenticator(), "user");
+            assertEquals("user", pa.getUserName());
+            assertEquals("password", pa.getPassword());
+        } catch (RuntimeException RE) {
+            fail(RE.toString());
+        }
+
+        assertEquals(true, em.exceptions.isEmpty());
+
+        instance = createHandlerWithRecords();
+        instance.setAuthenticator("password".toCharArray());
+        em = internalErrorManagerFrom(instance);
+        instance.close();
+
+        assertEquals(1, em.exceptions.size());
+        assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
+    }
+
+    @Test
     public void testMailProperties() throws Exception {
         Properties props = new Properties();
         MailHandler instance = new MailHandler();
@@ -2454,7 +2493,7 @@ public class MailHandlerTest {
         assertEquals(Properties.class, instance.getMailProperties().getClass());
 
         try {
-            instance.setMailProperties(null);
+            instance.setMailProperties((Properties) null);
             fail("Null was allowed.");
         } catch (NullPointerException pass) {
         } catch (RuntimeException RE) {
@@ -2534,7 +2573,7 @@ public class MailHandlerTest {
         }
 
         try {
-            instance.setAttachmentFilters(null);
+            instance.setAttachmentFilters((Filter[]) null);
             fail("Null allowed.");
         } catch (NullPointerException pass) {
         } catch (RuntimeException re) {
@@ -2646,7 +2685,7 @@ public class MailHandlerTest {
                 instance.getAttachmentFormatters()[1].getClass());
 
         try {
-            instance.setAttachmentFormatters(null);
+            instance.setAttachmentFormatters((Formatter[]) null);
             fail("Null was allowed.");
         } catch (NullPointerException NPE) {
         } catch (RuntimeException re) {
@@ -2907,7 +2946,7 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler(10);
         instance.setLevel(Level.ALL);
         instance.setPushLevel(Level.OFF);
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
         instance.setFilter(BooleanFilter.FALSE);
         instance.setAttachmentFormatters(new Formatter[]{new XMLFormatter()});
         instance.setAttachmentFilters(new Filter[]{null});
@@ -2944,7 +2983,7 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler(10);
         instance.setLevel(Level.ALL);
         instance.setPushLevel(Level.OFF);
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
 
@@ -2976,7 +3015,7 @@ public class MailHandlerTest {
         MailHandler instance = new MailHandler(10);
         instance.setLevel(Level.ALL);
         instance.setPushLevel(Level.OFF);
-        instance.setPushFilter(null);
+        instance.setPushFilter((Filter) null);
         FlipFlopFilter badFilter = new FlipFlopFilter();
         instance.setFilter(badFilter);
 
@@ -3045,7 +3084,7 @@ public class MailHandlerTest {
             assertTrue("No IllegalStateException", seenIse > 0);
         } finally {
             logger.removeHandler(instance);
-            logger.setLevel(null);
+            logger.setLevel((Level) null);
             logger.setUseParentHandlers(true);
             hardRef = null;
         }
@@ -3091,7 +3130,7 @@ public class MailHandlerTest {
             assertFalse(em.exceptions.isEmpty());
         } finally {
             logger.removeHandler(instance);
-            logger.setLevel(null);
+            logger.setLevel((Level) null);
             logger.setUseParentHandlers(true);
             hardRef = null;
         }
@@ -3290,7 +3329,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setAuthenticator(null);
+                h.setAuthenticator((Authenticator) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -3299,7 +3338,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setComparator(null);
+                h.setComparator((Comparator) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -3349,7 +3388,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setFilter(null);
+                h.setFilter((Filter) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (Exception fail) {
@@ -3373,7 +3412,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setFormatter(null);
+                h.setFormatter((Formatter) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -3406,7 +3445,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setErrorManager(null);
+                h.setErrorManager((ErrorManager) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -3415,7 +3454,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setEncoding(null);
+                h.setEncoding((String) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (Exception fail) {
@@ -3464,7 +3503,7 @@ public class MailHandlerTest {
             }
 
             try {
-                h.setPushFilter(null);
+                h.setPushFilter((Filter) null);
                 fail("Missing secure check.");
             } catch (SecurityException pass) {
             } catch (NullPointerException pass) {
@@ -3646,7 +3685,7 @@ public class MailHandlerTest {
         } finally {
             hardRef = null;
             manager.secure = false;
-            System.setSecurityManager(null);
+            System.setSecurityManager((SecurityManager) null);
             if (h != null) {
                 h.close();
             }
@@ -4178,7 +4217,7 @@ public class MailHandlerTest {
                 manager.reset();
             }
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4228,7 +4267,7 @@ public class MailHandlerTest {
                 manager.reset();
             }
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4291,7 +4330,7 @@ public class MailHandlerTest {
             assertNotNull(props.remove(key));
             assertNotNull(props.remove(name));
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4358,7 +4397,7 @@ public class MailHandlerTest {
             assertNotNull(props.remove(key));
             assertNotNull(props.remove(name));
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4446,7 +4485,7 @@ public class MailHandlerTest {
             }
             assertNotNull(props.remove(key));
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4510,7 +4549,7 @@ public class MailHandlerTest {
             assertNotNull(props.remove(key));
             assertNotNull(props.remove(name));
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4583,7 +4622,7 @@ public class MailHandlerTest {
             assertNotNull(props.remove(key));
             assertNotNull(props.remove(name));
         } finally {
-            setPending(null);
+            setPending((Throwable) null);
         }
     }
 
@@ -4828,6 +4867,11 @@ public class MailHandlerTest {
         h.close();
     }
 
+    private PasswordAuthentication passwordAuthentication(javax.mail.Authenticator auth, String user) {
+        final Session s = Session.getInstance(new Properties(), auth);
+        return s.requestPasswordAuthentication(null, 25, "SMTP", "", user);
+    }
+
     private void initBadTest(File cfg, Class<? extends MailHandler> type,
             Class[] types, Object[] params) throws Exception {
         final String encoding = System.getProperty("file.encoding", "8859_1");
@@ -4843,7 +4887,7 @@ public class MailHandlerTest {
             props.put(p.concat(".level"), "BAD");
             props.put(p.concat(".formatter"), "InvalidFormatter");
             props.put(p.concat(".filter"), "InvalidFilter");
-            props.put(p.concat(".authenticator"), ThrowAuthenticator.class.getName());
+            props.put(p.concat(".authenticator"), "password");
             props.put(p.concat(".pushLevel"), "PUSHBAD");
             props.put(p.concat(".pushFilter"), "InvalidPushFilter");
             props.put(p.concat(".comparator"), "InvalidComparator");
@@ -4916,7 +4960,9 @@ public class MailHandlerTest {
         assertEquals(null, h.getPushFilter());
         assertEquals(null, h.getEncoding());
         assertEquals(ThrowFilter.class.getName(), h.getSubject().toString());
-        assertEquals(ThrowAuthenticator.class, h.getAuthenticator().getClass());
+        PasswordAuthentication pa = passwordAuthentication(h.getAuthenticator(), "user");
+        assertEquals("user", pa.getUserName());
+        assertEquals("password", pa.getPassword());
         assertEquals(3, h.getAttachmentFormatters().length);
         assertTrue(null != h.getAttachmentFormatters()[0]);
         assertTrue(null != h.getAttachmentFormatters()[1]);
@@ -4941,7 +4987,7 @@ public class MailHandlerTest {
             if (Modifier.isStatic(fields[i].getModifiers())
                     && Level.class.isAssignableFrom(fields[i].getType())) {
                 try {
-                    a.add(fields[i].get(null));
+                    a.add(fields[i].get((Object) null));
                 } catch (IllegalArgumentException ex) {
                     fail(ex.toString());
                 } catch (IllegalAccessException ex) {
@@ -5064,10 +5110,13 @@ public class MailHandlerTest {
                 assertEquals("High", message.getHeader("Importance")[0]);
                 assertNotNull(message.getHeader("Priority"));
                 assertEquals("urgent", message.getHeader("Priority")[0]);
+                assertEquals("auto-generated", message.getHeader("auto-submitted")[0]);
                 message.saveChanges();
             } catch (RuntimeException RE) {
+                dump(RE);
                 fail(RE.toString());
             } catch (MessagingException ME) {
+                dump(ME);
                 fail(ME.toString());
             }
         }
@@ -5120,6 +5169,7 @@ public class MailHandlerTest {
                 ContentType type = new ContentType(body.getContentType());
                 assertEquals("text/plain", type.getBaseType());
                 assertEquals("us-ascii", type.getParameter("charset").toLowerCase(Locale.US));
+                assertEquals("auto-generated", message.getHeader("auto-submitted")[0]);
 
                 if (lang.length() != 0) {
                     assertEquals(lang, body.getHeader("Accept-Language", null));
@@ -5127,9 +5177,11 @@ public class MailHandlerTest {
                     assertEquals("", locale.getLanguage());
                 }
             } catch (MessagingException me) {
-                throw new AssertionError(me);
+                dump(me);
+                fail(me.toString());
             } catch (IOException ioe) {
-                throw new AssertionError(ioe);
+                dump(ioe);
+                fail(ioe.toString());
             }
         }
     }
@@ -5148,10 +5200,13 @@ public class MailHandlerTest {
                 assertNull(message.getHeader("X-Priority"));
                 assertNull(message.getHeader("Importance"));
                 assertNull(message.getHeader("Priority"));
+                assertEquals("auto-generated", message.getHeader("auto-submitted")[0]);
                 message.saveChanges();
             } catch (RuntimeException RE) {
+                dump(RE);
                 fail(RE.toString());
             } catch (MessagingException ME) {
+                dump(ME);
                 fail(ME.toString());
             }
         }
@@ -5249,7 +5304,7 @@ public class MailHandlerTest {
         private final String name;
 
         public HeadFormatter() {
-            this(null);
+            this((String) null);
         }
 
         public HeadFormatter(final String name) {
@@ -5304,37 +5359,49 @@ public class MailHandlerTest {
     public static final class ThrowSecurityManager extends SecurityManager {
 
         boolean secure = false;
+        private final boolean debug;
+
+        public ThrowSecurityManager() {
+            final String value = System.getProperty("java.security.debug");
+            if (value != null) {
+                debug = value.indexOf("all") > -1
+                        || value.indexOf("access") > -1
+                        || value.indexOf("stack") > -1;
+            } else {
+                debug = false;
+            }
+        }
 
         @Override
         public void checkPermission(java.security.Permission perm) {
-            try { //Call super class always for 'java.security.debug=all'.
+            try { //Call super class always for java.security.debug tracing.
                 super.checkPermission(perm);
-                if (secure && isLogging(perm)) {
-                    throw new SecurityException(perm.toString());
-                }
+                checkPermission(perm, new SecurityException(perm.toString()));
             } catch (SecurityException se) {
-                if (secure && isLogging(perm)) {
-                    throw se;
-                }
+                checkPermission(perm, se);
             }
         }
 
         @Override
         public void checkPermission(java.security.Permission perm, Object context) {
-            try { //Call super class always for 'java.security.debug=all'.
+            try { //Call super class always for java.security.debug tracing.
                 super.checkPermission(perm, context);
-                if (secure && isLogging(perm)) {
-                    throw new SecurityException(perm.toString());
-                }
+                checkPermission(perm, new SecurityException(perm.toString()));
             } catch (SecurityException se) {
-                if (secure && isLogging(perm)) {
-                    throw se;
-                }
+                checkPermission(perm, se);
             }
         }
 
-        private static boolean isLogging(java.security.Permission perm) {
-            return perm instanceof LoggingPermission;
+        private void checkPermission(java.security.Permission perm, SecurityException se) {
+            if (secure && perm instanceof LoggingPermission) {
+                throw se;
+            } else {
+                if (debug) {
+                    final PrintStream err = System.err;
+                    err.println("Suppressed security exception to allow access:");
+                    se.printStackTrace(err);
+                }
+            }
         }
     }
 

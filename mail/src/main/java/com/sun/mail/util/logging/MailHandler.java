@@ -92,117 +92,130 @@ import javax.mail.util.ByteArrayDataSource;
  *      com.sun.mail.util.logging.MailHandler.verify = local
  * </pre></tt>
  *
+ * For a custom handler, e.g. com.foo.MyHandler, the properties would be:
+ * <tt><pre>
+ *      #Subclass com.foo.MyHandler settings.
+ *      com.foo.MyHandler.mail.smtp.host = my-mail-server
+ *      com.foo.MyHandler.mail.to = me@example.com
+ *      com.foo.MyHandler.level = WARNING
+ *      com.foo.MyHandler.verify = local
+ * </pre></tt>
+ *
  * All mail properties documented in the <tt>Java Mail API</tt> cascade to the
  * LogManager by prefixing a key using the fully qualified class name of this
- * <tt>MailHandler</tt> dot mail property.  If the prefixed property is not
- * found, then the mail property itself is searched in the LogManager.
- * By default each <tt>MailHandler</tt> is initialized using the following
- * LogManager configuration properties.  If properties are not defined,
- * or contain invalid values, then the specified default values are used.
+ * <tt>MailHandler</tt> or the fully qualified derived class name dot mail
+ * property.  If the prefixed property is not found, then the mail property
+ * itself is searched in the LogManager. By default each <tt>MailHandler</tt> is
+ * initialized using the following LogManager configuration properties where
+ * <tt><handler-name></tt> refers to the fully-qualified class name of the
+ * handler.  If properties are not defined, or contain invalid values, then the
+ * specified default values are used.
  *
  * <ul>
- * <li>com.sun.mail.util.logging.MailHandler.attachment.filters a comma
+ * <li>&lt;handler-name&gt;.attachment.filters a comma
  * separated list of <tt>Filter</tt> class names used to create each attachment.
  * The literal <tt>null</tt> is reserved for attachments that do not require
  * filtering. (default is no filters)
  *
- * <li>com.sun.mail.util.logging.MailHandler.attachment.formatters a comma
+ * <li>&lt;handler-name&gt;.attachment.formatters a comma
  * separated list of <tt>Formatter</tt> class names used to create each
  * attachment. (default is no attachments)
  *
- * <li>com.sun.mail.util.logging.MailHandler.attachment.names a comma separated
+ * <li>&lt;handler-name&gt;.attachment.names a comma separated
  * list of names or <tt>Formatter</tt> class names of each attachment.  The
  * attachment file names must not contain any line breaks.
  * (default is no attachments names)
  *
- * <li>com.sun.mail.util.logging.MailHandler.authenticator name of an
+ * <li>&lt;handler-name&gt;.authenticator name of an
  * {@linkplain javax.mail.Authenticator} class used to provide login credentials
- * to the email server. (default is <tt>null</tt>)
+ * to the email server or string literal that is the password used with the
+ * {@linkplain Authenticator#getDefaultUserName() default} user name.
+ * (default is <tt>null</tt>)
  *
- * <li>com.sun.mail.util.logging.MailHandler.capacity the max number of
+ * <li>&lt;handler-name&gt;.capacity the max number of
  * <tt>LogRecord</tt> objects include in each email message.
  * (defaults to <tt>1000</tt>)
  *
- * <li>com.sun.mail.util.logging.MailHandler.comparator name of a
+ * <li>&lt;handler-name&gt;.comparator name of a
  * {@linkplain java.util.Comparator} class used to sort the published
  * <tt>LogRecord</tt> objects prior to all formatting.
  * (defaults to <tt>null</tt> meaning records are unsorted).
  *
  * <!--
- * <li>com.sun.mail.util.logging.MailHandler.comparator.reverse a boolean
+ * <li>&lt;handler-name&gt;.comparator.reverse a boolean
  * <tt>true</tt> to reverse the order of the specified comparator or
  * <tt>false</tt> to retain the original order. (defaults to <tt>false</tt>)
  * -->
  *
- * <li>com.sun.mail.util.logging.MailHandler.encoding the name of the Java
+ * <li>&lt;handler-name&gt;.encoding the name of the Java
  * {@linkplain java.nio.charset.Charset#name() character set} to use for the
  * email message. (defaults to <tt>null</tt>, the
  * {@linkplain javax.mail.internet.MimeUtility#getDefaultJavaCharset() default}
  * platform encoding).
  *
- * <li>com.sun.mail.util.logging.MailHandler.errorManager name of an
+ * <li>&lt;handler-name&gt;.errorManager name of an
  * <tt>ErrorManager</tt> class used to handle any configuration or mail
  * transport problems. (defaults to <tt>java.util.logging.ErrorManager</tt>)
  *
- * <li>com.sun.mail.util.logging.MailHandler.filter name of a <tt>Filter</tt>
+ * <li>&lt;handler-name&gt;.filter name of a <tt>Filter</tt>
  * class used for the body of the message. (defaults to <tt>null</tt>,
  * allow all records)
  *
- * <li>com.sun.mail.util.logging.MailHandler.formatter name of a
+ * <li>&lt;handler-name&gt;.formatter name of a
  * <tt>Formatter</tt> class used to format the body of this message.
  * (defaults to <tt>java.util.logging.SimpleFormatter</tt>)
  *
- * <li>com.sun.mail.util.logging.MailHandler.level specifies the default level
+ * <li>&lt;handler-name&gt;.level specifies the default level
  * for this <tt>Handler</tt> (defaults to <tt>Level.WARNING</tt>).
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.bcc a comma separated list of
+ * <li>&lt;handler-name&gt;.mail.bcc a comma separated list of
  * addresses which will be blind carbon copied.  Typically, this is set to the
  * recipients that may need to be privately notified of a log message or
  * notified that a log message was sent to a third party such as a support team.
  * (defaults to <tt>null</tt>, none)
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.cc a comma separated list of
+ * <li>&lt;handler-name&gt;.mail.cc a comma separated list of
  * addresses which will be carbon copied.  Typically, this is set to the
  * recipients that may need to be notified of a log message but, are not
  * required to provide direct support.  (defaults to <tt>null</tt>, none)
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.from a comma separated list of
+ * <li>&lt;handler-name&gt;.mail.from a comma separated list of
  * addresses which will be from addresses. Typically, this is set to the email
  * address identifying the user running the application.
  * (defaults to {@linkplain javax.mail.Message#setFrom()})
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.host the host name or IP
+ * <li>&lt;handler-name&gt;.mail.host the host name or IP
  * address of the email server. (defaults to <tt>null</tt>, use
  * {@linkplain Transport#protocolConnect default}
  * <tt>Java Mail</tt> behavior)
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.reply.to a comma separated
+ * <li>&lt;handler-name&gt;.mail.reply.to a comma separated
  * list of addresses which will be reply-to addresses.  Typically, this is set
  * to the recipients that provide support for the application itself.
  * (defaults to <tt>null</tt>, none)
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.to a comma separated list of
+ * <li>&lt;handler-name&gt;.mail.to a comma separated list of
  * addresses which will be send-to addresses. Typically, this is set to the
  * recipients that provide support for the application, system, and/or
  * supporting infrastructure.  (defaults to <tt>null</tt>, none)
  *
- * <li>com.sun.mail.util.logging.MailHandler.mail.sender a single address
+ * <li>&lt;handler-name&gt;.mail.sender a single address
  * identifying sender of the email; never equal to the from address.  Typically,
  * this is set to the email address identifying the application itself.
  * (defaults to <tt>null</tt>, none)
  *
- * <li>com.sun.mail.util.logging.MailHandler.pushLevel the level which will
+ * <li>&lt;handler-name&gt;.pushLevel the level which will
  * trigger an early push. (defaults to <tt>Level.OFF</tt>, only push when full)
  *
- * <li>com.sun.mail.util.logging.MailHandler.pushFilter the name of a
+ * <li>&lt;handler-name&gt;.pushFilter the name of a
  * <tt>Filter</tt> class used to trigger an early push.
  * (defaults to <tt>null</tt>, no early push)
  *
- * <li>com.sun.mail.util.logging.MailHandler.subject the name of a
+ * <li>&lt;handler-name&gt;.subject the name of a
  * <tt>Formatter</tt> class or string literal used to create the subject line.
  * The subject line must not contain any line breaks. (defaults to empty string)
  *
- * <li>com.sun.mail.util.logging.MailHandler.verify <a name="verify">used</a> to
+ * <li>&lt;handler-name&gt;.verify <a name="verify">used</a> to
  * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a
  * value of <tt>local</tt> the <tt>Handler</tt> will only verify settings of the
  * local machine. If set to a value of <tt>remote</tt>, the <tt>Handler</tt>
@@ -755,6 +768,27 @@ public class MailHandler extends Handler {
      * @throws IllegalStateException if called from inside a push.
      */
     public final void setAuthenticator(final Authenticator auth) {
+        this.setAuthenticator0(auth);
+    }
+
+    /**
+     * Sets the <tt>Authenticator</tt> used to login to the email server.
+     * @param password a password or null if none is required.
+     * @throws SecurityException  if a security manager exists and the
+     * caller does not have <tt>LoggingPermission("control")</tt>.
+     * @throws IllegalStateException if called from inside a push.
+     * @see String#toCharArray()
+     * @since JavaMail 1.4.6
+     */
+    public final void setAuthenticator(final char[] password) {
+        if (password == null) {
+            setAuthenticator0((Authenticator) null);
+        } else {
+            setAuthenticator0(new DefaultAuthenticator(new String(password)));
+        }
+    }
+
+    private void setAuthenticator0(final Authenticator auth) {
         checkAccess();
 
         Session settings;
@@ -1577,6 +1611,10 @@ public class MailHandler extends Handler {
                 this.auth = LogManagerProperties.newAuthenticator(name);
             } catch (final SecurityException SE) {
                 throw SE;
+            } catch (final ClassNotFoundException literalAuth) {
+                this.auth = new DefaultAuthenticator(name);
+            } catch (final ClassCastException literalAuth) {
+                this.auth = new DefaultAuthenticator(name);
             } catch (final Exception E) {
                 reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
             }
@@ -2375,6 +2413,7 @@ public class MailHandler extends Handler {
         setReplyTo(msg, proxyProps);
         setSender(msg, proxyProps);
         setMailer(msg);
+        setAutoSubmitted(msg);
         if (priority) {
             setPriority(msg);
         }
@@ -2725,6 +2764,20 @@ public class MailHandler extends Handler {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
         }
     }
+    
+    /**
+     * Signals that this message was generated by automatic process.
+     * This header is defined in RFC 3834 section 5.
+     * @param msg the message.
+     * @since JavaMail 1.4.6
+     */
+    private void setAutoSubmitted(final Message msg) {
+        try {
+            msg.setHeader("auto-submitted", "auto-generated"); //RFC 3834 (5.2)
+        } catch (final MessagingException ME) {
+            reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
+        }
+    }
 
     private void setFrom(final Message msg, final Properties props) {
         final String from = props.getProperty("mail.from");
@@ -2884,6 +2937,24 @@ public class MailHandler extends Handler {
 
     private static String atIndexMsg(final int i) {
         return "At index: " + i + '.';
+    }
+
+    /**
+     * Used for storing a password from the LogManager or literal string.
+     * @since JavaMail 1.4.6
+     */
+    private static final class DefaultAuthenticator extends Authenticator {
+
+        private final String pass;
+
+        DefaultAuthenticator(final String pass) {
+            assert pass != null;
+            this.pass = pass;
+        }
+
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(getDefaultUserName(), pass);
+        }
     }
 
     /**
