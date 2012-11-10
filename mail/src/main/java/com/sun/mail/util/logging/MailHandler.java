@@ -327,6 +327,39 @@ public class MailHandler extends Handler {
      */
     private static final int offValue = Level.OFF.intValue();
     /**
+     * A thread local mutex used to prevent logging loops.
+     * The MUTEX has 3 states:
+     * 1. MUTEX_RESET which is the null state.
+     * 2. MUTEX_PUBLISH on first entry of a push or publish.
+     * 3. MUTEX_REPORT when cycle of records is detected.
+     */
+    private static final ThreadLocal MUTEX = new ThreadLocal();
+    /**
+     * The marker object used to report a publishing state.
+     */
+    private static final Object MUTEX_PUBLISH = Level.ALL;
+    /**
+     * The marker object used to report a error reporting state.
+     */
+    private static final Object MUTEX_REPORT = Level.OFF;
+    /**
+     * Java 1.4 does not have a ThreadLocal remove method.
+     * Try reflection to access it on newer platforms.
+     */
+    private static final Method REMOVE;
+
+    static {
+        Method m;
+        try {
+            m = ThreadLocal.class.getMethod("remove", (Class[]) null);
+        } catch (final RuntimeException noAccess) {
+            m = null;
+        } catch (final Exception javaOnePointFour) {
+            m = null;
+        }
+        REMOVE = m;
+    }
+    /**
      * Used to turn off security checks.
      */
     private volatile boolean sealed;
@@ -501,9 +534,17 @@ public class MailHandler extends Handler {
          * will push to ensure that all published records are sent.
          * See close().
          */
-        if (isLoggable(record)) {
-            record.getSourceMethodName(); //Infer caller, outside of lock.
-            publish0(record);
+        if (tryMutex()) {
+            try {
+                if (isLoggable(record)) {
+                    record.getSourceMethodName(); //Infer caller.
+                    publish0(record);
+                }
+            } finally {
+                releaseMutex();
+            }
+        } else {
+            reportUnPublishedError(record);
         }
     }
 
@@ -529,9 +570,9 @@ public class MailHandler extends Handler {
                 } else {
                     ctx = null;
                 }
-            } else { //Drain the buffer and try again.
+            } else {
                 priority = false;
-                ctx = flushAndRePublish(record);
+                ctx = null;
             }
         }
 
@@ -541,37 +582,69 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Flushes the buffer into a MessageContext and then tries to store
-     * the given record.  This method will only be called in cases of
-     * reentrant filters, formatters, or comparators.  The push filter is
-     * the only filter allowed to be reentrant.  This is because the push filter
-     * is never used during formatting and only called after a record is stored.
-     * @param record the log record still needed to publish.
-     * @return the MessageContext containing the previous push or null.
-     * @since JavaMail 1.4.5
+     * Report to the error manager that a logging loop was detected and
+     * we are going to break the cycle of messages.  It is possible that
+     * a custom error manager could continue the cycle in which case
+     * we will stop trying to report errors.
+     * @param record the record or null.
+     * @since JavaMail 1.4.6
      */
-    private MessageContext flushAndRePublish(final LogRecord record) {
-        MessageContext ctx = writeLogRecords(ErrorManager.WRITE_FAILURE);
-        if (ctx != null) { //Try again with an empty buffer.
-            /**
-             * The common case should be a simple store, no push.
-             * Rarely should we be pushing while holding a lock.
-             */
-            publish0(record);
-        } else {
-            /**
-             * This record is lost, report this to the error manager.
-             * Use ISE because this is a push inside of a push.
-             */
-            final SimpleFormatter f = new SimpleFormatter();
-            final String msg = "Log record " + record.getSequenceNumber()
-                + " was not published. "
-                + head(f) + format(f, record) + tail(f, "");
-            reportError(msg,
-                    new IllegalStateException("Unable to drain buffer."),
-                    ErrorManager.WRITE_FAILURE);
+    private void reportUnPublishedError(LogRecord record) {
+        if (MUTEX_PUBLISH.equals(MUTEX.get())) {
+            MUTEX.set(MUTEX_REPORT);
+            try {
+                final String msg;
+                if (record != null) {
+                    final SimpleFormatter f = new SimpleFormatter();
+                    msg = "Log record " + record.getSequenceNumber()
+                                + " was not published. "
+                                + head(f) + format(f, record) + tail(f, "");
+                } else {
+                    msg = null;
+                }
+                Exception e = new IllegalStateException(
+                            "Recursive publish detected by thread "
+                            + Thread.currentThread());
+                reportError(msg, e, ErrorManager.WRITE_FAILURE);
+           } finally {
+                MUTEX.set(MUTEX_PUBLISH);
+           }
         }
-        return ctx;
+    }
+
+    /**
+     * Used to detect reentrance by the current thread to the publish method.
+     * This mutex is thread local scope and will not block other threads.
+     * The state is advanced on if the current thread is in a reset state.
+     * @return true if the mutex was acquired.
+     * @since JavaMail 1.4.6
+     */
+    private boolean tryMutex() {
+        if (MUTEX.get() == null) {
+            MUTEX.set(MUTEX_PUBLISH);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Releases the mutex held by the current thread.
+     * This mutex is thread local scope and will not block other threads.
+     * @since JavaMail 1.4.6
+     */
+    private void releaseMutex() {
+        if (REMOVE != null) {
+            try {
+                REMOVE.invoke(MUTEX, (Object[]) null);
+            } catch (RuntimeException ignore) {
+                MUTEX.set(null);
+            } catch (Exception ignore) {
+                MUTEX.set(null);
+            }
+        } else {
+            MUTEX.set(null);
+        }
     }
 
     /**
@@ -1266,7 +1339,7 @@ public class MailHandler extends Handler {
             final ContentType ct = new ContentType(type);
             ct.setParameter("charset", MimeUtility.mimeCharset(encoding));
             encoding = ct.toString(); //See javax.mail.internet.ContentType.
-            if (encoding != null) { //Value is null if the conversion failed.
+            if (!isEmpty(encoding)) { //Value is null if the conversion failed.
                 type = encoding;
             }
         } catch (final MessagingException ME) {
@@ -1857,9 +1930,17 @@ public class MailHandler extends Handler {
      * @param code the error manager code.
      */
     private void push(final boolean priority, final int code) {
-        final MessageContext ctx = writeLogRecords(code);
-        if (ctx != null) {
-            send(ctx, priority, code);
+        if (tryMutex()) {
+            try {
+                final MessageContext ctx = writeLogRecords(code);
+                if (ctx != null) {
+                    send(ctx, priority, code);
+                }
+            } finally {
+                releaseMutex();
+            }
+        } else {
+            reportUnPublishedError(null);
         }
     }
 
@@ -2496,7 +2577,7 @@ public class MailHandler extends Handler {
     private String toString(final Formatter f) {
         //Should never be null but, guard against formatter bugs.
         final String name = f.toString();
-        if (name != null && name.length() > 0) {
+        if (!isEmpty(name)) {
             return name;
         } else {
             return getClassId(f);
@@ -2764,7 +2845,7 @@ public class MailHandler extends Handler {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
         }
     }
-    
+
     /**
      * Signals that this message was generated by automatic process.
      * This header is defined in RFC 3834 section 5.
@@ -2952,7 +3033,7 @@ public class MailHandler extends Handler {
             this.pass = pass;
         }
 
-        protected PasswordAuthentication getPasswordAuthentication() {
+        protected final PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(getDefaultUserName(), pass);
         }
     }

@@ -1238,8 +1238,14 @@ public class MailHandlerTest {
         instance.flush();
 
         for (int i = 0; i < em.exceptions.size(); i++) {
-            assertEquals(false, em.exceptions.get(i) instanceof RuntimeException);
+            Throwable t = em.exceptions.get(i);
+            if ((t instanceof MessagingException == false)
+                    && (t instanceof IllegalStateException == false)) {
+                dump(t);
+                fail(String.valueOf(t));
+            }
         }
+        assertFalse(em.exceptions.isEmpty());
     }
 
     @Test
@@ -3123,8 +3129,11 @@ public class MailHandlerTest {
             instance.close();
 
             for (int i = 0; i < em.exceptions.size(); i++) {
-                if (em.exceptions.get(i) instanceof MessagingException == false) {
-                    fail(String.valueOf(em.exceptions.get(i)));
+                Throwable t = em.exceptions.get(i);
+                if ((t instanceof MessagingException == false)
+                        && (t instanceof IllegalStateException == false)) {
+                    dump(t);
+                    fail(String.valueOf(t));
                 }
             }
             assertFalse(em.exceptions.isEmpty());
@@ -3133,6 +3142,142 @@ public class MailHandlerTest {
             logger.setLevel((Level) null);
             logger.setUseParentHandlers(true);
             hardRef = null;
+        }
+    }
+
+    @Test
+    public void testMailDebugLowCap() throws Exception {
+        MailHandler instance = new MailHandler(1);
+        try {
+            testMailDebug(instance, 2);
+        } finally {
+            instance.close();
+        }
+    }
+
+    @Test
+    public void testMailDebugPushLevel() throws Exception {
+        MailHandler instance = new MailHandler(1000);
+        try {
+            instance.setPushLevel(Level.ALL);
+            testMailDebug(instance, 2);
+        } finally {
+            instance.close();
+        }
+    }
+
+    @Test
+    public void testMailDebugPush() throws Exception {
+        MailHandler instance = new MailHandler(4);
+        try {
+            testMailDebug(instance, -3);
+        } finally {
+            instance.close();
+        }
+    }
+
+    @Test
+    public void testMailDebugFlush() throws Exception {
+        MailHandler instance = new MailHandler(3);
+        try {
+            testMailDebug(instance, -2);
+        } finally {
+            instance.close();
+        }
+    }
+
+    @Test
+    public void testMailDebugClose() throws Exception {
+        MailHandler instance = new MailHandler(1000);
+        try {
+            testMailDebug(instance, -1);
+        } finally {
+            instance.close();
+        }
+    }
+
+    @Test
+    public void testMailDebugErrorManager() throws Exception {
+        MailHandler instance = new MailHandler(1);
+        try {
+            instance.setErrorManager(new MailDebugErrorManager());
+            testMailDebug(instance, 2);
+        } finally {
+            instance.close();
+        }
+    }
+
+    private void testMailDebug(MailHandler instance, int records) throws Exception {
+        final Properties props = createInitProperties("");
+        props.put("mail.debug", "true");
+        props.put("verify", "local");
+
+        instance.setLevel(Level.ALL);
+        testMailDebugQuietLog(instance, props, records);
+    }
+
+    private void testMailDebugQuietLog(MailHandler instance, Properties props, int records) throws Exception {
+        final Logger root = Logger.getLogger("");
+        hardRef = root;
+        try {
+            final Handler[] handlers = root.getHandlers();
+            for(Handler h : handlers) {
+                root.removeHandler(h);
+            }
+            try {
+                root.setLevel(Level.ALL);
+                root.addHandler(instance);
+                try {
+                    testMailDebugQuietStreams(instance, props, records);
+                } finally {
+                    root.setLevel(null);
+                    root.removeHandler(instance);
+                }
+            } finally {
+                for (Handler h : handlers) {
+                    root.addHandler(h);
+                }
+            }
+        } finally {
+            hardRef = null;
+        }
+    }
+
+    private void testMailDebugQuietStreams(MailHandler instance, Properties props, int records) throws Exception {
+        final PrintStream out = System.out;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            System.setOut(new PrintStream(baos, true, "ISO-8859-1"));
+            final PrintStream err = System.err;
+            try {
+                System.setErr(new PrintStream(baos, true, "ISO-8859-1"));
+                instance.setMailProperties(props);
+
+                if(records > 0) {
+                    for (int i = 0; i < records; i++) {
+                        baos.reset();
+                        instance.publish(new LogRecord(Level.SEVERE, ""));
+                    }
+                } else {
+                    records = -records;
+                    for (int i = 0; i < records; i++) {
+                        baos.reset();
+                        instance.publish(new LogRecord(Level.SEVERE, ""));
+                    }
+
+                    if (records == 1) {
+                       instance.close();
+                    } else if (records == 2) {
+                        instance.flush();
+                    } else if (records == 3) {
+                        instance.push();
+                    }
+                }
+            } finally {
+                System.setErr(err);
+            }
+        } finally {
+            System.setOut(out);
         }
     }
 
@@ -4175,7 +4320,7 @@ public class MailHandlerTest {
     public void testInitErrorManagerException() throws Exception {
         final String encoding = System.getProperty("file.encoding", "8859_1");
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String key;
 
         setPending(new RuntimeException());
@@ -4225,7 +4370,7 @@ public class MailHandlerTest {
     public void testInitErrorManagerError() throws Exception {
         final String encoding = System.getProperty("file.encoding", "8859_1");
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String key;
 
         setPending(new Error());
@@ -4274,7 +4419,7 @@ public class MailHandlerTest {
     @Test
     public void testInitError() throws Exception {
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String filter;
         String name;
         String key;
@@ -4341,7 +4486,7 @@ public class MailHandlerTest {
     @Test
     public void testInitException() throws Exception {
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String filter;
         String name;
         String key;
@@ -4433,7 +4578,7 @@ public class MailHandlerTest {
         final String encoding = System.getProperty("file.encoding", "8859_1");
         final String test = MailHandlerTest.class.getName();
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String key;
 
         setPending(new RuntimeException());
@@ -4493,7 +4638,7 @@ public class MailHandlerTest {
     public void testStaticInitException() throws Exception {
         final String test = MailHandlerTest.class.getName();
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String filter;
         String name;
         String key;
@@ -4561,7 +4706,7 @@ public class MailHandlerTest {
     public void testStaticInitError() throws Exception {
         final String test = MailHandlerTest.class.getName();
         final String p = MailHandler.class.getName();
-        final Properties props = this.createInitProperties(p);
+        final Properties props = createInitProperties(p);
         String filter;
         String name;
         String key;
@@ -4656,7 +4801,7 @@ public class MailHandlerTest {
         manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
     }
 
-    private Properties createInitProperties(String p) {
+    static Properties createInitProperties(String p) {
         final Properties props = new Properties();
         if (p.length() != 0) {
             p = p.concat(".");
@@ -5738,6 +5883,25 @@ public class MailHandlerTest {
             final ResourceBundle rb = record.getResourceBundle();
             return rb == null ? allow : locale.equals(rb.getLocale());
         }
+    }
+
+    public static class MailDebugErrorManager extends ErrorManager {
+
+        @Override
+        public void error(String msg, Exception ex, int code) {
+            try {
+                Session session = Session.getInstance(createInitProperties(""));
+                session.setDebug(true);
+                Message m = new MimeMessage(session);
+                m.setFrom();
+                m.setRecipient(Message.RecipientType.TO, m.getFrom()[0]);
+                m.setText(MailDebugErrorManager.class.getName());
+                Transport.send(m);
+            } catch (Exception e) {
+                super.error(msg, e, code);
+            }
+        }
+
     }
 
     public final static class MailHandlerExt extends MailHandler {
