@@ -1227,6 +1227,31 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
+     * Set the specified flags for the given range of message numbers.
+     */
+    public synchronized void setFlags(int start, int end,
+			Flags flag, boolean value) throws MessagingException {
+	checkOpened();
+	Message[] msgs = new Message[end - start + 1];
+	int i = 0;
+	for (int n = start; n <= end; n++)
+	    msgs[i++] = getMessage(n);
+	setFlags(msgs, flag, value);
+    }
+
+    /**
+     * Set the specified flags for the given array of message numbers.
+     */
+    public synchronized void setFlags(int[] msgnums, Flags flag, boolean value)
+			throws MessagingException {
+	checkOpened();
+	Message[] msgs = new Message[msgnums.length];
+	for (int i = 0; i < msgnums.length; i++)
+	    msgs[i] = getMessage(msgnums[i]);
+	setFlags(msgs, flag, value);
+    }
+
+    /**
      * Close this folder.
      */
     public synchronized void close(boolean expunge) throws MessagingException {
