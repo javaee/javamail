@@ -48,6 +48,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
@@ -326,6 +328,12 @@ public class MailHandler extends Handler {
      * Cache the off value.
      */
     private static final int offValue = Level.OFF.intValue();
+    /**
+     * The action to get and set the context class loader.
+     * Load this before it is loaded in the close method.
+     */
+    private static final GetAndSetContext GET_AND_SET_CCL =
+            new GetAndSetContext(MailHandler.class);
     /**
      * A thread local mutex used to prevent logging loops.
      * The MUTEX has 3 states:
@@ -681,29 +689,37 @@ public class MailHandler extends Handler {
      * @see #flush()
      */
     public void close() {
-        MessageContext ctx = null;
-        synchronized (this) {
-            super.setLevel(Level.OFF); //Security check first.
-            try {
-                ctx = writeLogRecords(ErrorManager.CLOSE_FAILURE);
-            } finally {
-                /**
-                 * The sign bit of the capacity is set to ensure that records
-                 * that have passed isLoggable, but have yet to be added to the
-                 * internal buffer, are immediately pushed as an email.
-                 */
-                if (this.capacity > 0) {
-                    this.capacity = -this.capacity;
-                }
+        //The LogManager$Cleaner has a context class loader set to null.
+        //Set the CCL to this class loader for loading content handlers.
+        final Object ccl = getAndSetContextClassLoader();
+        try {
+            MessageContext ctx = null;
+            synchronized (this) {
+                super.setLevel(Level.OFF); //Security check first.
+                try {
+                    ctx = writeLogRecords(ErrorManager.CLOSE_FAILURE);
+                } finally {
+                   /**
+                    * The sign bit of the capacity is set to ensure that records
+                    * that have passed isLoggable, but have yet to be added to
+                    * the internal buffer, are immediately pushed as an email.
+                    */
+                    if (this.capacity > 0) {
+                        this.capacity = -this.capacity;
+                    }
 
-                if (size == 0 && data.length != 1) { //Ensure not inside a push.
-                    this.data = new LogRecord[1];
+                    //Ensure not inside a push.
+                    if (size == 0 && data.length != 1) {
+                        this.data = new LogRecord[1];
+                    }
                 }
             }
-        }
 
-        if (ctx != null) {
-            send(ctx, false, ErrorManager.CLOSE_FAILURE);
+            if (ctx != null) {
+                send(ctx, false, ErrorManager.CLOSE_FAILURE);
+            }
+        } finally {
+            setContextClassLoader(ccl);
         }
     }
 
@@ -2994,6 +3010,33 @@ public class MailHandler extends Handler {
         }
     }
 
+    /**
+     * Replaces the current context class loader with our class loader.
+     * @return null for the boot class loader, a class loader, or a marker
+     * object to signal that no modification was required.
+     * @since JavaMail 1.4.6
+     */
+    private Object getAndSetContextClassLoader() {
+        try {
+            return AccessController.doPrivileged(GET_AND_SET_CCL);
+        } catch (final SecurityException ignore) {
+            return GET_AND_SET_CCL; //return not modified.
+        }
+    }
+
+    /**
+     * Restores the original context class loader.
+     * @param ccl null for the boot class loader, a class loader, or a
+     * marker object to signal that no modification is required.
+     * @since JavaMail 1.4.6
+     */
+    private void setContextClassLoader(final Object ccl) {
+        //Boot class loader or a new context class loader.
+        if (ccl == null || ccl instanceof ClassLoader) {
+            AccessController.doPrivileged(new GetAndSetContext(ccl));
+        }
+    }
+
     private static RuntimeException attachmentMismatch(final String msg) {
         return new IndexOutOfBoundsException(msg);
     }
@@ -3035,6 +3078,55 @@ public class MailHandler extends Handler {
 
         protected final PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(getDefaultUserName(), pass);
+        }
+    }
+
+    /**
+     * Performs a get and set of the context class loader with privileges
+     * enabled.
+     * @since JavaMail 1.4.6
+     */
+    private static final class GetAndSetContext implements PrivilegedAction {
+        /**
+         * The source containing the class loader.
+         */
+        private final Object source;
+        /**
+         * Create the action.
+         * @param source null for boot class loader, a class loader, a class
+         * used to get the class loader, or a source object to get the class
+         * loader.
+         */
+        GetAndSetContext(final Object source) {
+            this.source = source;
+        }
+
+        /**
+         * Gets the class loader from the source and sets the CCL only if
+         * the source and CCL are not the same.
+         * @return the replaced context class loader which can be null or this
+         * to indicate that nothing was modified.
+         */
+        public final Object run() {
+            final Thread current = Thread.currentThread();
+            final ClassLoader ccl = current.getContextClassLoader();
+            final ClassLoader loader;
+            if (source == null) {
+                loader = null; //boot class loader
+            } else if (source instanceof ClassLoader) {
+                loader = (ClassLoader) source;
+            } else if (source instanceof Class) {
+                loader = ((Class) source).getClassLoader();
+            } else {
+                loader = source.getClass().getClassLoader();
+            }
+
+            if (ccl != loader) {
+                current.setContextClassLoader(loader);
+                return ccl;
+            } else {
+                return this; //Unchanged, return non null and non classloader.
+            }
         }
     }
 

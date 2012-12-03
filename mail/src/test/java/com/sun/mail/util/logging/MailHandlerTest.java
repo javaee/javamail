@@ -59,6 +59,7 @@ import org.junit.*;
 
 /**
  * Test case for the MailHandler spec.
+ *
  * @author Jason Mehrens
  */
 public class MailHandlerTest {
@@ -80,8 +81,8 @@ public class MailHandlerTest {
      */
     private static final String UNKNOWN_HOST = "bad-host-name";
     /**
-     * Stores a writable directory that is in the class path and visible
-     * to the context class loader.
+     * Stores a writable directory that is in the class path and visible to the
+     * context class loader.
      */
     private static volatile File anyClassPathDir = null;
     /**
@@ -169,6 +170,25 @@ public class MailHandlerTest {
         } else {
             throw new AssertionError(t);
         }
+    }
+
+    static boolean isSecurityDebug() {
+        boolean debug;
+        final String value = System.getProperty("java.security.debug");
+        if (value != null) {
+            debug = value.indexOf("all") > -1
+                    || value.indexOf("access") > -1
+                    || value.indexOf("stack") > -1;
+        } else {
+            debug = false;
+        }
+        return debug;
+    }
+
+    static void securityDebugPrint(Throwable se) {
+        final PrintStream err = System.err;
+        err.println("Suppressed security exception to allow access:");
+        se.printStackTrace(err);
     }
 
     @Test
@@ -443,7 +463,7 @@ public class MailHandlerTest {
         boolean normal = false;
         try {
             try {
-                for (int i=0; i<records; ++i) {
+                for (int i = 0; i < records; ++i) {
                     instance.publish(new LogRecord(Level.SEVERE, ""));
                 }
             } finally {
@@ -463,7 +483,7 @@ public class MailHandlerTest {
         }
 
         if (normal) {
-           assertTrue(records == 0);
+            assertTrue(records == 0);
         }
     }
 
@@ -607,7 +627,7 @@ public class MailHandlerTest {
         instance.setComparator(new ThrowComparator());
         instance.setErrorManager(new InternalErrorManager());
         try {
-            for (int i=0; i<records; ++i) {
+            for (int i = 0; i < records; ++i) {
                 instance.publish(new LogRecord(Level.SEVERE, ""));
             }
         } finally {
@@ -1355,6 +1375,62 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testCloseContextClassLoader() {
+        assertNull(System.getSecurityManager());
+        final Thread thread = Thread.currentThread();
+        final ClassLoader ccl = thread.getContextClassLoader();
+        try {
+            testCloseContextClassLoader((CloseClassLoaderSecurityManager) null);
+            thread.setContextClassLoader(ccl);
+            testCloseContextClassLoader(new CloseClassLoaderSecurityManager());
+        } finally {
+            thread.setContextClassLoader(ccl);
+        }
+    }
+
+    private void testCloseContextClassLoader(CloseClassLoaderSecurityManager sm) {
+        InternalErrorManager em = null;
+        try {
+            MailHandler instance = createHandlerWithRecords();
+            try {
+                em = internalErrorManagerFrom(instance);
+                ClassLoader expect = instance.getClass().getClassLoader();
+                assertNotNull("Unexpected class loader.", expect);
+                /**
+                 * java.util.logging.LogManager$Cleaner has a null CCL.
+                 */
+                Thread.currentThread().setContextClassLoader(null);
+                if (sm != null) {
+                    instance.setFormatter(new CloseClassLoaderFormatter(null));
+                    System.setSecurityManager(sm);
+                    sm.secure = true;
+                } else {
+                    instance.setFormatter(new CloseClassLoaderFormatter(expect));
+                }
+            } finally {
+                instance.close();
+            }
+
+            assertEquals(CloseClassLoaderFormatter.class,
+                    instance.getFormatter().getClass());
+        } finally {
+            if (sm != null) {
+                sm.secure = false;
+                System.setSecurityManager((SecurityManager) null);
+            }
+        }
+
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            Throwable t = em.exceptions.get(i);
+            if (t instanceof MessagingException == false) {
+                dump(t);
+                fail(t.toString());
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
     public void testLevel() {
         MailHandler instance = new MailHandler();
         InternalErrorManager em = new InternalErrorManager();
@@ -1490,6 +1566,7 @@ public class MailHandlerTest {
 
     /**
      * Setup and load the standard properties.
+     *
      * @param verify the value of verify enum.
      * @return a MailHandler
      * @throws IOException if there is a problem.
@@ -2223,6 +2300,7 @@ public class MailHandlerTest {
 
     /**
      * Find a writable directory that is in the class path.
+     *
      * @return a File directory.
      * @throws IOException if there is a problem.
      * @throws FileNotFoundException if there are no directories in class path.
@@ -2392,6 +2470,7 @@ public class MailHandlerTest {
 
     /**
      * Test all numbers between 1 and low capacity.
+     *
      * @param capacity
      * @return
      */
@@ -3221,7 +3300,7 @@ public class MailHandlerTest {
         hardRef = root;
         try {
             final Handler[] handlers = root.getHandlers();
-            for(Handler h : handlers) {
+            for (Handler h : handlers) {
                 root.removeHandler(h);
             }
             try {
@@ -3253,7 +3332,7 @@ public class MailHandlerTest {
                 System.setErr(new PrintStream(baos, true, "ISO-8859-1"));
                 instance.setMailProperties(props);
 
-                if(records > 0) {
+                if (records > 0) {
                     for (int i = 0; i < records; i++) {
                         baos.reset();
                         instance.publish(new LogRecord(Level.SEVERE, ""));
@@ -3266,7 +3345,7 @@ public class MailHandlerTest {
                     }
 
                     if (records == 1) {
-                       instance.close();
+                        instance.close();
                     } else if (records == 2) {
                         instance.flush();
                     } else if (records == 3) {
@@ -3326,9 +3405,9 @@ public class MailHandlerTest {
     }
 
     /**
-     * Test logging permissions of the MailHandler.
-     * Must run by itself or run in isolated VM.
-     * Use system property java.security.debug=all to troubleshoot failures.
+     * Test logging permissions of the MailHandler. Must run by itself or run in
+     * isolated VM. Use system property java.security.debug=all to troubleshoot
+     * failures.
      */
     @Test
     public void testSecurityManager() {
@@ -5059,9 +5138,10 @@ public class MailHandlerTest {
         System.setErr(new PrintStream(oldErrors, false, encoding));
         try {
             /**
-             * Bad level value for property: com.sun.mail.util.logging.MailHandler.level
-             * The LogManager.setLevelsOnExistingLoggers triggers an error.
-             * This code swallows that error message.
+             * Bad level value for property:
+             * com.sun.mail.util.logging.MailHandler.level The
+             * LogManager.setLevelsOnExistingLoggers triggers an error. This
+             * code swallows that error message.
              */
             LogManager.getLogManager().readConfiguration();
             System.err.print(""); //flushBuffer.
@@ -5077,9 +5157,9 @@ public class MailHandlerTest {
             }
 
             /**
-             * The default error manager writes to System.err.
-             * Since this test is trying to install an invalid ErrorManager
-             * we can only capture the error by capturing System.err.
+             * The default error manager writes to System.err. Since this test
+             * is trying to install an invalid ErrorManager we can only capture
+             * the error by capturing System.err.
              */
             h = type.getConstructor(types).newInstance(params);
             System.err.flush();
@@ -5159,6 +5239,7 @@ public class MailHandlerTest {
 
     /**
      * http://www.iana.org/assignments/port-numbers
+     *
      * @return a open dynamic port.
      */
     private static int findOpenPort() {
@@ -5507,14 +5588,7 @@ public class MailHandlerTest {
         private final boolean debug;
 
         public ThrowSecurityManager() {
-            final String value = System.getProperty("java.security.debug");
-            if (value != null) {
-                debug = value.indexOf("all") > -1
-                        || value.indexOf("access") > -1
-                        || value.indexOf("stack") > -1;
-            } else {
-                debug = false;
-            }
+            debug = isSecurityDebug();
         }
 
         @Override
@@ -5542,9 +5616,7 @@ public class MailHandlerTest {
                 throw se;
             } else {
                 if (debug) {
-                    final PrintStream err = System.err;
-                    err.println("Suppressed security exception to allow access:");
-                    se.printStackTrace(err);
+                    securityDebugPrint(se);
                 }
             }
         }
@@ -5901,7 +5973,6 @@ public class MailHandlerTest {
                 super.error(msg, e, code);
             }
         }
-
     }
 
     public final static class MailHandlerExt extends MailHandler {
@@ -5916,6 +5987,67 @@ public class MailHandlerTest {
 
         public MailHandlerExt(int capacity) {
             super(capacity);
+        }
+    }
+
+    private final static class CloseClassLoaderSecurityManager extends SecurityManager {
+
+        boolean secure = false;
+        private final boolean debug;
+
+        public CloseClassLoaderSecurityManager() {
+            debug = isSecurityDebug();
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm) {
+            try { //Call super class always for java.security.debug tracing.
+                super.checkPermission(perm);
+                checkPermission(perm, new SecurityException(perm.toString()));
+            } catch (SecurityException se) {
+                checkPermission(perm, se);
+            }
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm, Object context) {
+            try { //Call super class always for java.security.debug tracing.
+                super.checkPermission(perm, context);
+                checkPermission(perm, new SecurityException(perm.toString()));
+            } catch (SecurityException se) {
+                checkPermission(perm, se);
+            }
+        }
+
+        private void checkPermission(java.security.Permission perm, SecurityException se) {
+            //Check for set and get context class loader.
+            if (secure && perm.getName().contains("ContextClassLoader")) {
+                throw se;
+            } else {
+                if (debug) {
+                    securityDebugPrint(se);
+                }
+            }
+        }
+    }
+
+    private final static class CloseClassLoaderFormatter extends Formatter {
+
+        private final ClassLoader expect;
+
+        CloseClassLoaderFormatter(final ClassLoader expect) {
+            this.expect = expect;
+        }
+
+        @Override
+        public String format(final LogRecord lr) {
+            Object ccl = Thread.currentThread().getContextClassLoader();
+            if (expect != ccl) {
+                AssertionError ae = new AssertionError(expect + " != " + ccl);
+                dump(ae);
+                throw ae;
+            }
+            return "";
         }
     }
 
