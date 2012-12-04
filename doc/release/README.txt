@@ -40,6 +40,7 @@ in the JavaMail API) and their capabilities:
 	-------------------------------------------------
 	imap		Store		No	Yes
 	imaps		Store		Yes	N/A
+	gimap		Store		Yes	N/A
 	pop3		Store		No	Yes
 	pop3s		Store		Yes	N/A
 	smtp		Transport	No	Yes
@@ -67,6 +68,7 @@ Contents
     lib/smtp.jar	The SMTP service provider
     lib/pop3.jar	The POP3 service provider
     lib/dsn.jar		multipart/report DSN message support
+    lib/gimap.jar	Gmail IMAP provider
 
     docs/JavaMail-1.1-changes.txt
 			Description of the new APIs that were added in

@@ -15,7 +15,7 @@ Protocol Providers
 ------------------
 
 The JavaMail API jar file "mail.jar" includes the full JavaMail API
-implementation and *all* the Sun protocol providers - IMAP, SMTP, and
+implementation and the Sun protocol providers - IMAP, SMTP, and
 POP3.  The simplest way to use the JavaMail API is to just use the
 mail.jar file and ignore the other jar files in this package.
 
@@ -35,13 +35,23 @@ An important note when using the separate protocol provider jar files:
    should work fine.)
 
 
-NOTE: The Sun protocol provider documentation that was previously
-      included in this file is now available in javadoc format, see
-      docs/javadocs/index.html in the directory where you extracted
+NOTE: The Sun protocol provider documentation is available in javadoc format,
+      see docs/javadocs/index.html in the directory where you extracted
       the JavaMail API zip file.  This documentation describes how to
       use features of the Sun protocol providers to directly access
       some features of the SMTP, IMAP, and POP3 protocols that are
       not otherwise supported by the standard JavaMail API.
+
+
+Gmail IMAP Provider
+-------------------
+
+This release includes an EXPERIMENTAL Gmail IMAP provider.
+Normal use of Gmail is handled by the standard "imap" protocol
+provider, but the new "gimap" protocol provider supports additional
+Gmail-specific non-standard features.  See the javadocs for the
+com.sun.mail.gimap package for details.  Note that the gimap.jar file
+needs to be added to your CLASSPATH to use this new provider.
 
 
 SASL Support
