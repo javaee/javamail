@@ -48,7 +48,7 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>1.4.6-rc1</version>
+	<version>1.4.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
