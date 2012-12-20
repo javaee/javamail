@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,9 +45,9 @@ import java.util.*;
 import java.io.*;
 
 /**
- * This class represents a MIME ContentType value. It provides
- * methods to parse a ContentType string into individual components
- * and to generate a MIME style ContentType string.
+ * This class represents a MIME Content-Type value. It provides
+ * methods to parse a Content-Type string into individual components
+ * and to generate a MIME style Content-Type string.
  *
  * @author  John Mani
  */
@@ -203,14 +203,14 @@ public class ContentType {
 
     /**
      * Retrieve a RFC2045 style string representation of
-     * this Content-Type. Returns <code>null</code> if
+     * this Content-Type. Returns an empty string if
      * the conversion failed.
      *
      * @return	RFC2045 style string
      */
     public String toString() {
 	if (primaryType == null || subType == null) // need both
-	    return null;
+	    return "";
 
 	StringBuffer sb = new StringBuffer();
 	sb.append(primaryType).append('/').append(subType);
