@@ -217,8 +217,7 @@ public class HeaderTokenizer {
      * @exception	ParseException if the parse fails
      * @since		JavaMail 1.5
      */
-    // package-private; can't be public until JavaMail 1.5
-    Token next(char endOfAtom) throws ParseException { 
+    public Token next(char endOfAtom) throws ParseException { 
 	return next(endOfAtom, false);
     }
 
@@ -236,8 +235,7 @@ public class HeaderTokenizer {
      * @exception	ParseException if the parse fails
      * @since		JavaMail 1.5
      */
-    // package-private; can't be public until JavaMail 1.5
-    Token next(char endOfAtom, boolean keepEscapes)
+    public Token next(char endOfAtom, boolean keepEscapes)
 				throws ParseException { 
 	Token tk;
 
