@@ -160,13 +160,18 @@ public class MimeMessage extends Message implements MimePart {
     protected boolean saved = false;
 
     /**
-     * If our content is a Multipart of Message object, we save it
+     * If our content is a Multipart or Message object, we save it
      * the first time it's created by parsing a stream so that changes
-     * to the contained objects will not be lost.
+     * to the contained objects will not be lost. <p>
      *
-     * XXX - must have package access for MimeBodyPart.updateHeaders
+     * If this field is not null, it's return by the {@link #getContent}
+     * method.  The {@link #getContent} method sets this field if it
+     * would return a Multipart or MimeMessage object.  This field is
+     * is cleared by the {@link #setDataHandler} method.
+     *
+     * @since	JavaMail 1.5
      */
-    Object cachedContent;
+    protected Object cachedContent;
 
     // Used to parse dates
     private static final MailDateFormat mailDateFormat = new MailDateFormat();
@@ -2154,7 +2159,13 @@ public class MimeMessage extends Message implements MimePart {
      * and not already set), the <code>MIME-Version</code> header
      * and the <code>Message-ID</code> header. Also, if the content
      * of this message is a <code>MimeMultipart</code>, its
-     * <code>updateHeaders</code> method is called.
+     * <code>updateHeaders</code> method is called. <p>
+     *
+     * If the {@link #cachedContent} field is not null (that is,
+     * it references a Multipart or Message object), then
+     * that object is used to set a new DataHandler, any
+     * stream data used to create this object is discarded,
+     * and the {@link #cachedContent} field is cleared.
      *
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
@@ -2167,12 +2178,6 @@ public class MimeMessage extends Message implements MimePart {
 	setHeader("MIME-Version", "1.0");
         updateMessageID();
 
-	/*
-	 * If we've cached a Multipart or Message object then
-	 * we're now committed to using this instance of the
-	 * object and we discard any stream data used to create
-	 * this object.
-	 */
 	if (cachedContent != null) {
 	    dh = new DataHandler(cachedContent, getContentType());
 	    cachedContent = null;

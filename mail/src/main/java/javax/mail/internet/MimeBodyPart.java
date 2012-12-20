@@ -135,8 +135,15 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * If our content is a Multipart of Message object, we save it
      * the first time it's created by parsing a stream so that changes
      * to the contained objects will not be lost.
+     *
+     * If this field is not null, it's return by the {@link #getContent}
+     * method.  The {@link #getContent} method sets this field if it
+     * would return a Multipart or MimeMessage object.  This field is
+     * is cleared by the {@link #setDataHandler} method.
+     *
+     * @since	JavaMail 1.5
      */
-    private Object cachedContent;
+    protected Object cachedContent;
 
     /**
      * An empty MimeBodyPart object is created.
@@ -1017,7 +1024,13 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      *
      * <br>
      * In both cases this method is typically called by the
-     * <code>Message.saveChanges</code> method.
+     * <code>Message.saveChanges</code> method. <p>
+     *
+     * If the {@link #cachedContent} field is not null (that is,
+     * it references a Multipart or Message object), then
+     * that object is used to set a new DataHandler, any
+     * stream data used to create this object is discarded,
+     * and the {@link #cachedContent} field is cleared.
      */
     protected void updateHeaders() throws MessagingException {
 	updateHeaders(this);
