@@ -54,7 +54,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.4.6-rc1</version>
+    <version>1.5-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
@@ -91,9 +91,9 @@
     </organization>
 
     <properties>
-	<mail.version>1.4.6-rc1</mail.version>
+	<mail.version>1.5-SNAPSHOT</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_4_6-rc1</mail.zipversion>
+	<mail.zipversion>1_5-SNAPSHOT</mail.zipversion>
 	<mail.spec.version>1.4</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
@@ -278,14 +278,14 @@
 	</profile>
 
 	<!--
-	    A special profile for compiling with the real JDK 1.4
+	    A special profile for compiling with the real JDK 1.5
 	    compiler, to make sure there are no accidental dependencies
-	    on JDK 1.5 APIs.  Set the property javac.path to the path
-	    to the JDK 1.4 compiler, e.g.,
-	    "mvn -P1.4 -Djavac.path=/opt/jdk1.4/bin/javac".
+	    on JDK 1.6 or newer APIs.  Set the property javac.path to the path
+	    to the JDK 1.5 compiler, e.g.,
+	    "mvn -P1.5 -Djavac.path=/opt/jdk1.5/bin/javac".
 	-->
 	<profile>
-	    <id>1.4</id>
+	    <id>1.5</id>
 	    <build>
 		<plugins>
 		    <plugin>
@@ -297,20 +297,8 @@
 				    <fork>true</fork>
 				    <executable>${javac.path}</executable>
 				    <compilerVersion>1.4</compilerVersion>
-				    <source>1.4</source>
-				    <target>1.4</target>
-				    <!-- these classes depend on JDK 1.5 APIs -->
-				    <excludes>
-					<exclude>
-			com/sun/mail/imap/protocol/IMAPSaslAuthenticator.java
-					</exclude>
-					<exclude>
-			com/sun/mail/smtp/SMTPSaslAuthenticator.java
-					</exclude>
-					<exclude>
-			com/sun/mail/util/SocksSupport.java
-					</exclude>
-				    </excludes>
+				    <source>1.5</source>
+				    <target>1.5</target>
 				</configuration>
 			    </execution>
 			</executions>
@@ -419,8 +407,7 @@
 	    </plugin>
 
 	    <!--
-		Use the 1.4 compiler for JavaMail itself, but use the
-		1.5 compiler for the test classes, so we can use JUnit 4.
+		Use the 1.5 compiler for JavaMail itself and the test classes.
 	    -->
 	    <plugin>
 		<artifactId>maven-compiler-plugin</artifactId>
@@ -428,8 +415,8 @@
 		    <execution>
 			<id>default-compile</id>
 			<configuration>
-			    <source>1.4</source>
-			    <target>1.4</target>
+			    <source>1.5</source>
+			    <target>1.5</target>
 			</configuration>
 		    </execution>
 		    <execution>
