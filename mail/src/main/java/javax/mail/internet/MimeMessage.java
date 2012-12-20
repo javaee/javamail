@@ -387,6 +387,26 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     /**
+     * Set the RFC 822 "From" header field. Any existing values are 
+     * replaced with the given addresses. If address is <code>null</code>,
+     * this header is removed.
+     *
+     * @param address	the sender(s) of this message
+     * @exception	IllegalWriteException if the underlying
+     *			implementation does not support modification
+     *			of existing values
+     * @exception	IllegalStateException if this message is
+     *			obtained from a READ_ONLY folder.
+     * @exception	MessagingException
+     */
+    public void setFrom(String address) throws MessagingException {
+	if (address == null)
+	    removeHeader("From");
+	else
+	    setAddressHeader("From", InternetAddress.parse(address));
+    }
+
+    /**
      * Set the RFC 822 "From" header field using the value of the
      * <code>InternetAddress.getLocalAddress</code> method.
      *
