@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -775,7 +775,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * The simple file name is used as the file name for this
      * part and the data in the file is used as the data for this
      * part.  The encoding will be chosen appropriately for the
-     * file data.
+     * file data.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
      *
      * @param		file		the File object to attach
      * @exception	IOException	errors related to accessing the file
@@ -783,9 +784,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * @since		JavaMail 1.4
      */
     public void attachFile(File file) throws IOException, MessagingException {
-    	FileDataSource fds = new FileDataSource(file);   	
-        this.setDataHandler(new DataHandler(fds));
-        this.setFileName(fds.getName());
+	FileDataSource fds = new FileDataSource(file);   	
+	this.setDataHandler(new DataHandler(fds));
+	this.setFileName(fds.getName());
+	this.setDisposition(ATTACHMENT);
     }
 
     /**
