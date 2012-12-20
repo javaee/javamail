@@ -306,7 +306,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 * This item indicates that the sizes of the messages in the specified 
 	 * range are desired to be prefetched. <p>
 	 *
-	 * SIZE should move to FetchProfile.Item in JavaMail 1.3.
+	 * SIZE was moved to FetchProfile.Item in JavaMail 1.5.
+	 *
+	 * @deprecated
 	 */
 	public static final FetchProfileItem SIZE = 
 		new FetchProfileItem("SIZE");
@@ -1045,7 +1047,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		command.append(first ? "RFC822.HEADER" : " RFC822.HEADER");
 	    first = false;
 	}
-	if (fp.contains(IMAPFolder.FetchProfileItem.SIZE)) {
+	if (fp.contains(FetchProfile.Item.SIZE) ||
+		fp.contains(IMAPFolder.FetchProfileItem.SIZE)) {
 	    command.append(first ? "RFC822.SIZE" : " RFC822.SIZE");
 	    first = false;
 	}

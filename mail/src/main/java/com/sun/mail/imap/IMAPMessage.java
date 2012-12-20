@@ -990,6 +990,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		needFlags = true;
 	    if (fp.contains(FetchProfile.Item.CONTENT_INFO))
 		needBodyStructure = true;
+	    if (fp.contains(FetchProfile.Item.SIZE))
+		needSize = true;
 	    if (fp.contains(UIDFolder.FetchProfileItem.UID))
 		needUID = true;
 	    if (fp.contains(IMAPFolder.FetchProfileItem.HEADERS))
