@@ -302,6 +302,36 @@ public class ParameterList {
     }
 
     /**
+     * Normal users of this class will use simple parameter names.
+     * In some cases, for example, when processing IMAP protocol
+     * messages, individual segments of a multi-segment name
+     * (specified by RFC 2231) will be encountered and passed to
+     * the {@link #set} method.  After all these segments are added
+     * to this ParameterList, they need to be combined to represent
+     * the logical parameter name and value.  This method will combine
+     * all segments of multi-segment names. <p>
+     *
+     * Normal users should never need to call this method.
+     *
+     * @since	JavaMail 1.5
+     */ 
+    public void combineSegments() {
+	/*
+	 * If we've accumulated any multi-segment names from calls to
+	 * the set method from (e.g.) the IMAP provider, combine the pieces.
+	 * Ignore any parse errors (e.g., from decoding the values)
+	 * because it's too late to report them.
+	 */
+	if (decodeParameters && multisegmentNames.size() > 0) {
+	    try {
+		combineMultisegmentNames(true);
+	    } catch (ParseException pex) {
+		// too late to do anything about it
+	    }
+	}
+    }
+
+    /**
      * If the name is an encoded or multi-segment name (or both)
      * handle it appropriately, storing the appropriate String
      * or Value object.  Multi-segment names are stored in the
@@ -486,24 +516,6 @@ public class ParameterList {
      * @param	value	value of the parameter.
      */
     public void set(String name, String value) {
-	// XXX - an incredible kludge used by the IMAP provider
-	// to indicate that it's done setting parameters
-	if (name == null && value != null && value.equals("DONE")) {
-	    /*
-	     * If we've accumulated any multi-segment names from calls to
-	     * the set method from the IMAP provider, combine the pieces.
-	     * Ignore any parse errors (e.g., from decoding the values)
-	     * because it's too late to report them.
-	     */
-	    if (decodeParameters && multisegmentNames.size() > 0) {
-		try {
-		    combineMultisegmentNames(true);
-		} catch (ParseException pex) {
-		    // too late to do anything about it
-		}
-	    }
-	    return;
-	}
 	name = name.trim().toLowerCase(Locale.ENGLISH);
 	if (decodeParameters) {
 	    try {

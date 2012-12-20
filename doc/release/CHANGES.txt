@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.5 release.
 K 5682	add FetchProfile.Item.SIZE
 K 5683	fix protected fields in final classes in javax.mail.search
 K 5684	add MimeMultipart(String subtype, BodyPart... bps) constructor
+K 5686	ParameterList needs to support use by IMAP
 
 
 		  CHANGES IN THE 1.4.6 RELEASE
