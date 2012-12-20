@@ -25,6 +25,7 @@ K 5686	ParameterList needs to support use by IMAP
 K 5687	ContentType.toString & ContentDisposition.toString shouldn't return null
 K 5689	add Transport.send(msg, username, password) method
 K 5690	add MimeMessage.setFrom(String) method
+K 5691	add Message.getSession() method
 
 
 		  CHANGES IN THE 1.4.6 RELEASE

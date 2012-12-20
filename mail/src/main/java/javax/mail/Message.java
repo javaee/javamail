@@ -132,6 +132,16 @@ public abstract class Message implements Part {
     }
 
     /**
+     * Return the Session used when this message was created.
+     *
+     * @return		the message's Session
+     * @since		JavaMail 1.5
+     */
+    public Session getSession() {
+	return session;
+    }
+
+    /**
      * Returns the "From" attribute. The "From" attribute contains
      * the identity of the person(s) who wished this message to 
      * be sent. <p>
