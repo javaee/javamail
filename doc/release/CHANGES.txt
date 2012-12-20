@@ -27,6 +27,7 @@ K 5689	add Transport.send(msg, username, password) method
 K 5690	add MimeMessage.setFrom(String) method
 K 5691	add Message.getSession() method
 K 5692	MimeBodyPart.attachFile should set the disposition to ATTACHMENT
+K 5693	add MimeMessage.reply(replyToAll, setAnswered) method
 
 
 		  CHANGES IN THE 1.4.6 RELEASE

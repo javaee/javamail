@@ -1605,6 +1605,43 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException
      */
     public Message reply(boolean replyToAll) throws MessagingException {
+	return reply(replyToAll, true);
+    }
+
+    /**
+     * Get a new Message suitable for a reply to this message.
+     * The new Message will have its attributes and headers 
+     * set up appropriately.  Note that this new message object
+     * will be empty, i.e., it will <strong>not</strong> have a "content".
+     * These will have to be suitably filled in by the client. <p>
+     *
+     * If <code>replyToAll</code> is set, the new Message will be addressed
+     * to all recipients of this message.  Otherwise, the reply will be
+     * addressed to only the sender of this message (using the value
+     * of the <code>getReplyTo</code> method).  <p>
+     *
+     * If <code>setAnswered> is set, the {@link Flags.Flag.ANSWERED ANSWERED}
+     * flag is set in this messaage. <p>
+     *
+     * The "Subject" field is filled in with the original subject
+     * prefixed with "Re:" (unless it already starts with "Re:").
+     * The "In-Reply-To" header is set in the new message if this
+     * message has a "Message-Id" header.
+     *
+     * The current implementation also sets the "References" header
+     * in the new message to include the contents of the "References"
+     * header (or, if missing, the "In-Reply-To" header) in this message,
+     * plus the contents of the "Message-Id" header of this message,
+     * as described in RFC 2822.
+     *
+     * @param	replyToAll	reply should be sent to all recipients
+     *				of this message
+     * @return		the reply Message
+     * @exception	MessagingException
+     * @since		JavaMail 1.5
+     */
+    public Message reply(boolean replyToAll, boolean setAnswered)
+				throws MessagingException {
 	MimeMessage reply = createMimeMessage(session);
 	/*
 	 * Have to manipulate the raw Subject header so that we don't lose
@@ -1692,10 +1729,12 @@ public class MimeMessage extends Message implements MimePart {
 	if (refs != null)
 	    reply.setHeader("References", MimeUtility.fold(12, refs));
 
-	try {
-	    setFlags(answeredFlag, true);
-	} catch (MessagingException mex) {
-	    // ignore it
+	if (setAnswered) {
+	    try {
+		setFlags(answeredFlag, true);
+	    } catch (MessagingException mex) {
+		// ignore it
+	    }
 	}
 	return reply;
     }
