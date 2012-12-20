@@ -183,6 +183,31 @@ public class MimeMultipart extends Multipart {
     }
 
     /**
+     * Construct a MimeMultipart object of the default "mixed" subtype,
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(BodyPart... parts) throws MessagingException {
+	this();
+	for (BodyPart bp : parts)
+	    super.addBodyPart(bp);
+    }
+
+    /**
+     * Construct a MimeMultipart object of the given subtype
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(String subtype, BodyPart... parts)
+				throws MessagingException {
+	this(subtype);
+	for (BodyPart bp : parts)
+	    super.addBodyPart(bp);
+    }
+
+    /**
      * Constructs a MimeMultipart object and its bodyparts from the 
      * given DataSource. <p>
      *
