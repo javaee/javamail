@@ -1625,8 +1625,9 @@ public class MimeMessage extends Message implements MimePart {
      * addressed to only the sender of this message (using the value
      * of the <code>getReplyTo</code> method).  <p>
      *
-     * If <code>setAnswered> is set, the {@link Flags.Flag.ANSWERED ANSWERED}
-     * flag is set in this messaage. <p>
+     * If <code>setAnswered</code> is set, the
+     * {@link javax.mail.Flags.Flag#ANSWERED ANSWERED} flag is set
+     * in this messaage. <p>
      *
      * The "Subject" field is filled in with the original subject
      * prefixed with "Re:" (unless it already starts with "Re:").
