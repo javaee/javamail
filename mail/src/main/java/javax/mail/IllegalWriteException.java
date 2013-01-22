@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,23 +48,37 @@ package javax.mail;
  * @author John Mani
  */
 
-public
-class IllegalWriteException extends MessagingException {
+public class IllegalWriteException extends MessagingException {
 
     private static final long serialVersionUID = 3974370223328268013L;
 
     /**
-     * Constructs a IllegalWriteException with no detail message.
+     * Constructs an IllegalWriteException with no detail message.
      */
     public IllegalWriteException() {
 	super();
     }
 
     /**
-     * Constructs a IllegalWriteException with the specified detail message.
-     * @param s		the detail message
+     * Constructs an IllegalWriteException with the specified
+     * detail message.
+     *
+     * @param s		The detailed error message
      */
     public IllegalWriteException(String s) {
 	super(s);
+    }
+
+    /**
+     * Constructs an IllegalWriteException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param s		The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public IllegalWriteException(String s, Exception e) {
+	super(s, e);
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,7 +56,9 @@ public class ReadOnlyFolderException extends MessagingException {
     private static final long serialVersionUID = 5711829372799039325L;
     
     /**
-     * Constructs a MessagingException with the specified folder.
+     * Constructs a ReadOnlyFolderException with the specified
+     * folder and no detail message.
+     *
      * @param folder	the Folder
      * @since 		JavaMail 1.2
      */
@@ -65,14 +67,30 @@ public class ReadOnlyFolderException extends MessagingException {
     }
 
     /**
-     * Constructs a MessagingException with the specified folder and
-     * the specified detail message.
-     * @param folder 	the Folder
-     * @param message	the detailed error message
+     * Constructs a ReadOnlyFolderException with the specified
+     * detail message.
+     *
+     * @param folder 	The Folder
+     * @param message	The detailed error message
      * @since 		JavaMail 1.2
      */
     public ReadOnlyFolderException(Folder folder, String message) {
 	super(message);
+	this.folder = folder;
+    }
+
+    /**
+     * Constructs a ReadOnlyFolderException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param folder 	The Folder
+     * @param message	The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public ReadOnlyFolderException(Folder folder, String message, Exception e) {
+	super(message, e);
 	this.folder = folder;
     }
 
