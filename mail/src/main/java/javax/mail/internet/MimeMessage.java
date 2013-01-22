@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -403,6 +403,7 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	IllegalStateException if this message is
      *			obtained from a READ_ONLY folder.
      * @exception	MessagingException
+     * @since		JvaMail 1.5
      */
     public void setFrom(String address) throws MessagingException {
 	if (address == null)
@@ -1627,7 +1628,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * If <code>setAnswered</code> is set, the
      * {@link javax.mail.Flags.Flag#ANSWERED ANSWERED} flag is set
-     * in this messaage. <p>
+     * in this message. <p>
      *
      * The "Subject" field is filled in with the original subject
      * prefixed with "Re:" (unless it already starts with "Re:").
@@ -1642,6 +1643,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @param	replyToAll	reply should be sent to all recipients
      *				of this message
+     * @param	setAnswered	set the ANSWERED flag in this message?
      * @return		the reply Message
      * @exception	MessagingException
      * @since		JavaMail 1.5
