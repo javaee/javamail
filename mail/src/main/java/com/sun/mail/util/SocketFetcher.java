@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -69,9 +69,6 @@ public class SocketFetcher {
 	"DEBUG SocketFetcher",
 	PropUtil.getBooleanSystemProperty("mail.socket.debug", false),
 	System.out);
-
-    private static final String SOCKS_SUPPORT =
-					    "com.sun.mail.util.SocksSupport";
 
     // No one should instantiate this class.
     private SocketFetcher() {
@@ -285,30 +282,11 @@ public class SocketFetcher {
 	if (sf != null)
 	    socket = sf.createSocket();
 	if (socket == null) {
-	    if (socksHost != null) {
-		try {
-		    ClassLoader cl = getContextClassLoader();
-		    Class proxySupport = null;
-		    if (cl != null) {
-			try {
-			    proxySupport = Class.forName(SOCKS_SUPPORT,
-							    false, cl);
-			} catch (Exception cex) { }
-		    }
-		    if (proxySupport == null)
-			proxySupport = Class.forName(SOCKS_SUPPORT);
-		    // get & invoke the getSocket(host, port) method
-		    Method mthGetSocket = proxySupport.getMethod("getSocket", 
-			    new Class[] { String.class, int.class });
-		    socket = (Socket)mthGetSocket.invoke(new Object(),
-			    new Object[] { socksHost, new Integer(socksPort) });
-		} catch (Exception ex) {
-		    // ignore any errors
-		    logger.log(Level.FINER, "failed to load ProxySupport class",
-						ex);
-		}
-	    }
-	    if (socket == null)
+	    if (socksHost != null)
+		socket = new Socket(
+				new java.net.Proxy(java.net.Proxy.Type.SOCKS,
+				new InetSocketAddress(socksHost, socksPort)));
+	    else
 		socket = new Socket();
 	}
 	if (to >= 0)
