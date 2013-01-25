@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -143,7 +143,7 @@ public class MimeMultipart extends Multipart {
     protected String preamble = null;
 
     /**
-     * Flag corresponding to the "mail.mime.ignoremissingendboundary"
+     * Flag corresponding to the "mail.mime.multipart.ignoremissingendboundary"
      * property, set in the {@link #initializeProperties} method called from
      * constructors and the parse method.
      *
@@ -152,7 +152,8 @@ public class MimeMultipart extends Multipart {
     protected boolean ignoreMissingEndBoundary = true;
 
     /**
-     * Flag corresponding to the "mail.mime.ignoremissingboundaryparameter"
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoremissingboundaryparameter"
      * property, set in the {@link #initializeProperties} method called from
      * constructors and the parse method.
      *
@@ -161,7 +162,8 @@ public class MimeMultipart extends Multipart {
     protected boolean ignoreMissingBoundaryParameter = true;
 
     /**
-     * Flag corresponding to the "mail.mime.ignoreexistingboundaryparameter"
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoreexistingboundaryparameter"
      * property, set in the {@link #initializeProperties} method called from
      * constructors and the parse method.
      *
@@ -170,7 +172,7 @@ public class MimeMultipart extends Multipart {
     protected boolean ignoreExistingBoundaryParameter = false;
 
     /**
-     * Flag corresponding to the "mail.mime.allowempty"
+     * Flag corresponding to the "mail.mime.multipart.allowempty"
      * property, set in the {@link #initializeProperties} method called from
      * constructors and the parse method.
      *
