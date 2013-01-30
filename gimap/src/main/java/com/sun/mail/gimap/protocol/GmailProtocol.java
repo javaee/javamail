@@ -87,7 +87,6 @@ public class GmailProtocol extends IMAPProtocol {
     };
 
     private FetchItem[] fetchItems = null;
-    private boolean supportsXlist;
 
     /**
      * Connect to Gmail.
@@ -110,7 +109,6 @@ public class GmailProtocol extends IMAPProtocol {
 	} else {
 	    logger.fine("connected to Gmail");
 	}
-	supportsXlist = hasCapability("XLIST");
     }
 
     /**
@@ -139,15 +137,5 @@ public class GmailProtocol extends IMAPProtocol {
 	if (searchSequence == null)
 	    searchSequence = new GmailSearchSequence();
 	return searchSequence;
-    }
-
-    /**
-     * LIST Command.  Use XLIST for Gmail.
-     * Note that Gmail is deprecating XLIST in favor of RFC 6154
-     * so this won't be necessary in future releases.
-     */
-    public ListInfo[] list(String ref, String pattern) 
-			throws ProtocolException {
-	return doList(supportsXlist ? "XLIST" : "LIST", ref, pattern);
     }
 }
