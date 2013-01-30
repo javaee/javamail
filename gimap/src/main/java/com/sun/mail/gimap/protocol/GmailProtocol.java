@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -76,7 +76,7 @@ public class GmailProtocol extends IMAPProtocol {
     public static final FetchItem LABELS_ITEM =
 	new FetchItem("X-GM-LABELS", FetchProfileItem.LABELS) {
 	    public Object parseItem(FetchResponse r) {
-		return r.readStringList();
+		return r.readAtomStringList();
 	    }
 	};
 
@@ -143,6 +143,8 @@ public class GmailProtocol extends IMAPProtocol {
 
     /**
      * LIST Command.  Use XLIST for Gmail.
+     * Note that Gmail is deprecating XLIST in favor of RFC 6154
+     * so this won't be necessary in future releases.
      */
     public ListInfo[] list(String ref, String pattern) 
 			throws ProtocolException {
