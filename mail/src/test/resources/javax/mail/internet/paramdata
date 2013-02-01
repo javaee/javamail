@@ -2,7 +2,7 @@ Comment:
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -119,21 +119,39 @@ Content-Type: application/x-stuff;
 Expect: 2
 	title=This is even more ***fun***
 	title*3=isn't it!
+Comment:
+	This is an error case with no right answer.
+	Should we assume earlier segments are missing and just decode
+	this segment?  Or should we assume that the "*3" is part of
+	the parameter name and this is a single segment encoded parameter?
+	Currently we do the former.
 Content-Type: application/x-stuff; title*3*=us-ascii'en'isn't%20it!
 Expect: 1
-	title*3=isn't it!
+	title*3=us-ascii'en'isn't it!
 Content-Type: application/x-stuff; title*3*=unknown'en'isn't%20it!
 Expect: 1
-	title*3=unknown'en'isn't%20it!
+	title*3=unknown'en'isn't it!
 Content-Type: application/x-stuff;
 	title*0*=us-ascii'en'This%20is%20even%20more%20;
 	title*1*=%XX%2A%2Afun%2A%2A%2A%20;
 	title*2="isn't it!"
 Expect: 1
-	title=This is even more %XX%2A%2Afun%2A%2A%2A%20isn't it!
+	title=This is even more %XX**fun*** isn't it!
 Content-Type: application/x-stuff;
 	title*0*=us-ascii'en'This%20is%20even%20more%20;
 	title*1="***fun***";
 	title*2*=%20isn't%20it!
 Expect: 1
 	title=This is even more ***fun*** isn't it!
+Content-Type: image/png;
+	name*0*=ISO-2022-JP''%1B%24B%24%22%24%24%24%26%24%28%24*%24%22%24%24%24%26;
+	name*1*=%24%28%24*%24%22%24%24%24%26%24%28%24*%24%22%24%24%24%26%24%28;
+	name*2*=%24*%1B%28B.png
+Expect: 1
+	name=\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a.png
+Content-Type: image/png;
+	filename*0*=ISO-2022-JP''%1B%24B%24%22%24%24%24%26%24%28%24*%24%22%24%24;
+	filename*1*=%24%26%24%28%24*%24%22%24%24%24%26%24%28%24*%24%22%24%24%24;
+	filename*2*=%26%24%28%24*%1B%28B.png
+Expect: 1
+	filename=\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a\u3042\u3044\u3046\u3048\u304a.png
