@@ -815,6 +815,80 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     }
 
     /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the File object to attach
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(File file, String contentType, String encoding)
+				throws IOException, MessagingException {
+	DataSource fds = new EncodedFileDataSource(file, contentType, encoding);
+	this.setDataHandler(new DataHandler(fds));
+	this.setFileName(fds.getName());
+	this.setDisposition(ATTACHMENT);
+    }
+
+    /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the name of the file
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(String file, String contentType, String encoding)
+				throws IOException, MessagingException {
+	attachFile(new File(file), contentType, encoding);
+    }
+
+    /**
+     * A FileDataSource class that allows us to specify the
+     * Content-Type and Content-Transfer-Encoding.
+     */
+    private static class EncodedFileDataSource extends FileDataSource
+					implements EncodingAware {
+	private String contentType;
+	private String encoding;
+
+	public EncodedFileDataSource(File file, String contentType,
+						String encoding) {
+	    super(file);
+	    this.contentType = contentType;
+	    this.encoding = encoding;
+	}
+
+	// overrides DataSource.getContentType()
+	public String getContentType() {
+	    return contentType != null ? contentType : super.getContentType();
+	}
+
+	// implements EncodingAware.getEncoding()
+	public String getEncoding() {
+	    return encoding;
+	}
+    }
+
+    /**
      * Save the contents of this part in the specified file.  The content
      * is decoded and saved, without any of the MIME headers.
      *
