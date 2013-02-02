@@ -22,6 +22,8 @@ K  4906	IMAP Store socket leak on connect with ProtocolException
 K  5086	STARTTLS when already using SSL may cause connection to fail
 K  5090	Yahoo: Error reading emails containing "undisclosed recipients"
 K  5233	Infinite loop if Quota information is not correctly reported by server
+K  5816	Issue in decoding filename with charset iso-2022-jp from Mime header
+	based on rfc 2231
 <no id>	add mail.imap.ignorebodystructuresize to work around server bugs
 <no id>	add "gimap" EXPERIMENTAL Gmail IMAP provider
 <no id>	add isSSL() method to all protocol providers
