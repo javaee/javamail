@@ -50,7 +50,7 @@ import com.sun.mail.util.PropUtil;
  * <code>mail.mime.decodeparameters</code> System properties
  * control whether encoded parameters, as specified by 
  * <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>,
- * are supported.  By default, such encoded parameters are not
+ * are supported.  By default, such encoded parameters <b>are</b>
  * supported. <p>
  *
  * Also, in the current implementation, setting the System property
@@ -136,9 +136,9 @@ public class ParameterList {
     private String lastName = null;
 
     private static final boolean encodeParameters =
-	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", false);
+	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", true);
     private static final boolean decodeParameters =
-	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", false);
+	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", true);
     private static final boolean decodeParametersStrict =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.decodeparameters.strict", false);

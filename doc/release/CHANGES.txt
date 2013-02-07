@@ -34,6 +34,7 @@ K 5743	add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7
 K 5769	make cachedContent field protected in MimeMessage and MimeBodyPart
 K 5770	make MimeMultipart fields protected to allow subclassing
 K 5818	need simple way to override MIME type and encoding of attachment
+K 5819	enable RFC 2231 support by default
 
 
 		  CHANGES IN THE 1.4.6 RELEASE
