@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -248,6 +248,14 @@ public class Response {
     }
 
     public String[] readStringList() {
+	return readStringList(false);
+    }
+
+    public String[] readAtomStringList() {
+	return readStringList(true);
+    }
+
+    private String[] readStringList(boolean atom) {
 	skipSpaces();
 
 	if (buffer[index] != '(') // not what we expected
@@ -256,7 +264,7 @@ public class Response {
 
 	Vector v = new Vector();
 	do {
-	    v.addElement(readString());
+	    v.addElement(atom ? readAtomString() : readString());
 	} while (buffer[index++] != ')');
 
 	int size = v.size();

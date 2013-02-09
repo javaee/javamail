@@ -43,6 +43,7 @@ package javax.mail.internet;
 import java.util.*;
 import java.io.*;
 import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.ASCIIUtility;
 
 /**
  * This class holds MIME parameters (attribute-value pairs).
@@ -124,8 +125,10 @@ public class ParameterList {
      * The Value object is not decoded during the initial parse
      * because the segments may appear in any order and until the
      * first segment appears we don't know what charset to use to
-     * decode any encoded segments.  The segments are decoded in
-     * order in the combineMultisegmentNames method.
+     * decode the encoded segments.  The segments are hex decoded
+     * in order, combined into a single byte array, and converted
+     * to a String using the specified charset in the
+     * combineMultisegmentNames method.
      */
     private Map slist;
 
@@ -350,7 +353,14 @@ public class ParameterList {
 	} else if (star == name.length() - 1) {
 	    // single parameter, encoded value
 	    name = name.substring(0, star);
-	    list.put(name, decodeValue(value));
+	    Value v = extractCharset(value);
+	    try {
+		v.value = decodeBytes(v.value, v.charset);
+	    } catch (UnsupportedEncodingException ex) {
+		if (decodeParametersStrict)
+		    throw new ParseException(ex.toString());
+	    }
+	    list.put(name, v);
 	} else {
 	    // multiple segments
 	    String rname = name.substring(0, star);
@@ -360,9 +370,13 @@ public class ParameterList {
 	    Object v;
 	    if (name.endsWith("*")) {
 		// encoded value
-		v = new Value();
-		((Value)v).encodedValue = value;
-		((Value)v).value = value;	// default; decoded later
+		if (name.endsWith("*0*")) {	// first segment
+		    v = extractCharset(value);
+		} else {
+		    v = new Value();
+		    ((Value)v).encodedValue = value;
+		    ((Value)v).value = value;	// default; decoded later
+		}
 		name = name.substring(0, name.length() - 1);
 	    } else {
 		// unencoded value
@@ -393,6 +407,7 @@ public class ParameterList {
 		 * decode each segment as needed.
 		 */
 		String charset = null;
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		int segment;
 		for (segment = 0; ; segment++) {
 		    String sname = name + "*" + segment;
@@ -400,49 +415,44 @@ public class ParameterList {
 		    if (v == null)	// out of segments
 			break;
 		    mv.add(v);
-		    String value = null;
-		    if (v instanceof Value) {
-			try {
+		    try {
+			if (v instanceof Value) {
 			    Value vv = (Value)v;
-			    String evalue = vv.encodedValue;
-			    value = evalue;		// in case of exception
 			    if (segment == 0) {
-				// the first segment specified the charset
+				// the first segment specifies the charset
 				// for all other encoded segments
-				Value vnew = decodeValue(evalue);
-				charset = vv.charset = vnew.charset;
-				value = vv.value = vnew.value;
+				charset = vv.charset;
 			    } else {
 				if (charset == null) {
 				    // should never happen
 				    multisegmentNames.remove(name);
 				    break;
 				}
-				value = vv.value = decodeBytes(evalue, charset);
 			    }
-			} catch (NumberFormatException nex) {
-			    if (decodeParametersStrict)
-				throw new ParseException(nex.toString());
-			} catch (UnsupportedEncodingException uex) {
-			    if (decodeParametersStrict)
-				throw new ParseException(uex.toString());
-			} catch (StringIndexOutOfBoundsException ex) {
-			    if (decodeParametersStrict)
-				throw new ParseException(ex.toString());
+			    decodeBytes(vv.value, bos);
+			} else {
+			    bos.write(ASCIIUtility.getBytes((String)v));
 			}
-			// if anything went wrong decoding the value,
-			// we just use the original value (set above)
-		    } else {
-			value = (String)v;
+		    } catch (IOException ex) {
+			// XXX - should never happen
 		    }
-		    sb.append(value);
 		    slist.remove(sname);
 		}
 		if (segment == 0) {
 		    // didn't find any segments at all
 		    list.remove(name);
 		} else {
-		    mv.value = sb.toString();
+		    try {
+			if (charset != null)
+			    mv.value = bos.toString(charset);
+			else
+			    mv.value = bos.toString();
+		    } catch (UnsupportedEncodingException uex) {
+			if (decodeParametersStrict)
+			    throw new ParseException(uex.toString());
+			// convert as if ASCII
+			mv.value = bos.toString(0);
+		    }
 		    list.put(name, mv);
 		}
 	    }
@@ -463,9 +473,13 @@ public class ParameterList {
 			Object v = sit.next();
 			if (v instanceof Value) {
 			    Value vv = (Value)v;
-			    Value vnew = decodeValue(vv.encodedValue);
-			    vv.charset = vnew.charset;
-			    vv.value = vnew.value;
+			    try {
+				vv.value =
+				    decodeBytes(vv.value, vv.charset);
+			    } catch (UnsupportedEncodingException ex) {
+				if (decodeParametersStrict)
+				    throw new ParseException(ex.toString());
+			    }
 			}
 		    }
 		    list.putAll(slist);
@@ -710,12 +724,12 @@ public class ParameterList {
     }
 
     /**
-     * Decode a parameter value.
+     * Extract charset and encoded value.
+     * Value will be decoded later.
      */
-    private static Value decodeValue(String value) throws ParseException {
+    private static Value extractCharset(String value) throws ParseException {
 	Value v = new Value();
-	v.encodedValue = value;
-	v.value = value;	// in case we fail to decode it
+	v.value = v.encodedValue = value;
 	try {
 	    int i = value.indexOf('\'');
 	    if (i <= 0) {
@@ -733,15 +747,11 @@ public class ParameterList {
 		return v;	// not encoded correctly?  return as is.
 	    }
 	    String lang = value.substring(i + 1, li);
-	    value = value.substring(li + 1);
+	    v.value = value.substring(li + 1);
 	    v.charset = charset;
-	    v.value = decodeBytes(value, charset);
 	} catch (NumberFormatException nex) {
 	    if (decodeParametersStrict)
 		throw new ParseException(nex.toString());
-	} catch (UnsupportedEncodingException uex) {
-	    if (decodeParametersStrict)
-		throw new ParseException(uex.toString());
 	} catch (StringIndexOutOfBoundsException ex) {
 	    if (decodeParametersStrict)
 		throw new ParseException(ex.toString());
@@ -753,7 +763,7 @@ public class ParameterList {
      * Decode the encoded bytes in value using the specified charset.
      */
     private static String decodeBytes(String value, String charset)
-				throws UnsupportedEncodingException {
+			throws ParseException, UnsupportedEncodingException {
 	/*
 	 * Decode the ASCII characters in value
 	 * into an array of bytes, and then convert
@@ -767,12 +777,52 @@ public class ParameterList {
 	for (i = 0, bi = 0; i < value.length(); i++) {
 	    char c = value.charAt(i);
 	    if (c == '%') {
-		String hex = value.substring(i + 1, i + 3);
-		c = (char)Integer.parseInt(hex, 16);
-		i += 2;
+		try {
+		    String hex = value.substring(i + 1, i + 3);
+		    c = (char)Integer.parseInt(hex, 16);
+		    i += 2;
+		} catch (NumberFormatException ex) {
+		    if (decodeParametersStrict)
+			throw new ParseException(ex.toString());
+		} catch (StringIndexOutOfBoundsException ex) {
+		    if (decodeParametersStrict)
+			throw new ParseException(ex.toString());
+		}
 	    }
 	    b[bi++] = (byte)c;
 	}
-	return new String(b, 0, bi, MimeUtility.javaCharset(charset));
+	charset = MimeUtility.javaCharset(charset);
+	if (charset == null)
+	    charset = MimeUtility.getDefaultJavaCharset();
+	return new String(b, 0, bi, charset);
+    }
+
+    /**
+     * Decode the encoded bytes in value and write them to the OutputStream.
+     */
+    private static void decodeBytes(String value, OutputStream os)
+				throws ParseException, IOException {
+	/*
+	 * Decode the ASCII characters in value
+	 * and write them to the stream.
+	 */
+	int i;
+	for (i = 0; i < value.length(); i++) {
+	    char c = value.charAt(i);
+	    if (c == '%') {
+		try {
+		    String hex = value.substring(i + 1, i + 3);
+		    c = (char)Integer.parseInt(hex, 16);
+		    i += 2;
+		} catch (NumberFormatException ex) {
+		    if (decodeParametersStrict)
+			throw new ParseException(ex.toString());
+		} catch (StringIndexOutOfBoundsException ex) {
+		    if (decodeParametersStrict)
+			throw new ParseException(ex.toString());
+		}
+	    }
+	    os.write((byte)c);
+	}
     }
 }

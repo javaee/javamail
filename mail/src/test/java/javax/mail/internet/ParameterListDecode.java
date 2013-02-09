@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -198,7 +198,7 @@ public class ParameterListDecode {
 			int nexpect = Integer.parseInt(s.substring(8));
 			expect = new String[nexpect];
 			for (i = 0; i < nexpect; i++)
-			    expect[i] = trim(in.readLine());
+			    expect[i] = decode(trim(in.readLine()));
 		    } catch (NumberFormatException e) {
 			try {
 			    if (s.substring(8, 17).equals("Exception")) {
@@ -240,6 +240,22 @@ public class ParameterListDecode {
 	while (i < s.length() && s.charAt(i) <= ' ')
 	    i++;
 	return s.substring(i);
+    }
+
+    /**
+     * Decode Unicode escapes.
+     */
+    public static String decode(String s) {
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0; i < s.length(); i++) {
+	    char c = s.charAt(i);
+	    if (c == '\\' && s.charAt(i + 1) == 'u') {
+		c = (char)Integer.parseInt(s.substring(i + 2, i + 6), 16);
+		i += 5;
+	    }
+	    sb.append(c);
+	}
+	return sb.toString();
     }
 
     /**
