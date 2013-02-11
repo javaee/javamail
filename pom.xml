@@ -296,7 +296,7 @@
 				<configuration>
 				    <fork>true</fork>
 				    <executable>${javac.path}</executable>
-				    <compilerVersion>1.4</compilerVersion>
+				    <compilerVersion>1.5</compilerVersion>
 				    <source>1.5</source>
 				    <target>1.5</target>
 				</configuration>
