@@ -162,6 +162,14 @@
 			    <overview>
 				${basedir}/target/javadoc/overview.html
 			    </overview>
+			    <bottom>
+<![CDATA[Copyright &#169; 1996-2013,
+    <a href="http://www.oracle.com">Oracle</a>
+    and/or its affiliates. All Rights Reserved.
+    Use is subject to
+    <a href="doc-files/speclicense.html" target="_top">license terms</a>.
+]]>
+			    </bottom>
 			    <groups>
 				<group>
 				    <title>JavaMail API Packages</title>
@@ -185,7 +193,7 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
 			    </additionalparam>
 			    <sourcepath>${basedir}/target/javadoc</sourcepath>
 			    <links>
-				<link>http://docs.oracle.com/javase/1.4.2/docs/api</link>
+				<link>http://docs.oracle.com/javase/1.5.0/docs/api</link>
 				<!-- following for javax.activation -->
 				<link>http://docs.oracle.com/javase/6/docs/api</link>
 			    </links>
