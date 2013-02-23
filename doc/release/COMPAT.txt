@@ -4,12 +4,57 @@
 		    JavaMail(TM) API ${mail.version} release
 		    ------------------------------
 
-The JavaMail 1.4 specification is fully compatible with the JavaMail
-1.3 specification.  However, changes in the implementation may impact
+The JavaMail 1.5 specification is fully compatible with the JavaMail
+1.4 specification, with the exceptions listed below.
+
+In addition, changes in the implementation may impact
 applications that depend on behavior beyond what is defined by the
-JavaMail specification, or that use features specific to the Sun
+JavaMail specification, or that use features specific to the reference
 implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
+
+
+-- JavaMail 1.5 --
+
+- RFC 2231 parameter encoding/decoding enabled by default
+
+	The System properties "mail.mime.decodeparameters" and
+	"mail.mime.encodeparameters" now default to true instead of false.
+	Now that most mailers support RFC 2231, this is expected to
+	increase interoperability, although in rare cases, and especially
+	when dealing with older mailers, this may cause problems.
+	Parameters may appear encoded, and with a different name,
+	than what the receiver is expecting.
+
+- ContentType.toString and ContentDisposition.toString never return null
+
+	These methods were previously documented to return null in
+	error cases when the fields of the class were not valid.
+	These methods now return an empty string in these cases, to
+	be consistent with the general contract of Object.toString.
+
+- additional classes, methods, and fields
+
+	JavaMail 1.5 adds classes to existing packages, methods to
+	existing classes, and fields to existing classes.  All of
+	these changes have the potential to break source compatibility
+	for applications using the JavaMail API.
+
+- JDK 1.5 or newer required
+
+	The JavaMail reference implementation now requires JDK 1.5
+	or newer.  It is expected that the large majority of users
+	are already using JDK 1.6 or newer.
+
+- protected fields in final classes in javax.mail.search made private
+
+	Some of the final classes in the javax.mail.search package
+	contained protected fields.  Since these classes were final
+	and couldn't be subclassed, the "protected" access qualifier
+	had no effect.  These fields are now private.  It's hard to
+	imagine how this change could impact any applications other
+	than perhaps those using reflection to access these classes.
+
 
 
 -- JavaMail 1.4.4 --
@@ -62,7 +107,7 @@ with this release of the JavaMail API.
 	(if the property isn't specified) has changed so that JavaMail
 	will wait for the response from the server before dropping the
 	connection.  In some cases, with some servers, this additional
-	wait time may be noticable.
+	wait time may be noticeable.
 
 
 - MessagingException.getMessage output changed
