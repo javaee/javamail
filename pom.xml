@@ -54,7 +54,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.5-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
@@ -91,10 +91,10 @@
     </organization>
 
     <properties>
-	<mail.version>1.5-SNAPSHOT</mail.version>
+	<mail.version>1.5.0-SNAPSHOT</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_5-SNAPSHOT</mail.zipversion>
-	<mail.spec.version>1.4</mail.spec.version>
+	<mail.zipversion>1_5_0-SNAPSHOT</mail.zipversion>
+	<mail.spec.version>1.5</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
 	<mail.extensionName>
@@ -123,7 +123,7 @@
 	<mail.probeFile/>
 	<!-- for the osgiversion-maven-plugin -->
 	<hk2.plugin.version>2.0.0</hk2.plugin.version>
-	<javac.path>/opt/jdk1.4/bin/javac</javac.path>
+	<javac.path>/opt/jdk1.5/bin/javac</javac.path>
 	<project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
 	<findbugs.threshold>
 	    High

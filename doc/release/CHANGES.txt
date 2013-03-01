@@ -14,9 +14,9 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
-		  CHANGES IN THE 1.5 RELEASE
-		  --------------------------
-The following bugs have been fixed in the 1.5 release.
+		  CHANGES IN THE 1.5.0 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.0 release.
 
 K  5682	add FetchProfile.Item.SIZE
 K  5683	fix protected fields in final classes in javax.mail.search
