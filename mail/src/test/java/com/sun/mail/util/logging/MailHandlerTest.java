@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -143,6 +143,7 @@ public class MailHandlerTest {
         }
     }
 
+    @SuppressWarnings("CallToThreadDumpStack")
     private static void dump(Throwable t) {
         t.printStackTrace();
     }
@@ -2375,20 +2376,24 @@ public class MailHandlerTest {
         instance.setErrorManager(em);
 
         try {
-            instance.setComparator((Comparator) null);
+            instance.setComparator((Comparator<LogRecord>) null);
         } catch (RuntimeException RE) {
             fail(RE.toString());
         }
         assertNull(instance.getComparator());
 
-        Comparator uselessComparator = new UselessComparator();
-        Comparator result = instance.getComparator();
+        UselessComparator uselessComparator = new UselessComparator();
+        Comparator<? super LogRecord> result = instance.getComparator();
         assertEquals(false, uselessComparator.equals(result));
 
         instance.setComparator(uselessComparator);
         result = instance.getComparator();
 
-        assertEquals(true, uselessComparator.equals(result));
+        assertTrue(uselessComparator.equals(result));
+
+        RawTypeComparator raw = new RawTypeComparator();
+        instance.setComparator(raw);
+        assertTrue(raw.equals(instance.getComparator()));
 
         assertEquals(true, em.exceptions.isEmpty());
         instance.close();
@@ -4919,7 +4924,6 @@ public class MailHandlerTest {
                         new Class[0], new Object[0]);
                 initBadTest(cfg, MailHandler.class,
                         new Class[0], new Object[0]);
-
                 initGoodTest(cfg, MailHandler.class,
                         new Class[]{Integer.TYPE}, new Object[]{10});
                 initBadTest(cfg, MailHandler.class,
@@ -5019,6 +5023,7 @@ public class MailHandlerTest {
         assertEquals(XMLFormatter.class, h.getFormatter().getClass());
         assertEquals(Level.WARNING, h.getPushLevel());
         assertEquals(ThrowFilter.class, h.getPushFilter().getClass());
+        assertEquals(ThrowComparator.class, h.getComparator().getClass());
         assertEquals("UTF-8", h.getEncoding());
         assertEquals(EmptyFormatter.class, h.getSubject().getClass());
         assertEquals(EmptyAuthenticator.class, h.getAuthenticator().getClass());
@@ -5041,6 +5046,7 @@ public class MailHandlerTest {
         }
         assertTrue(em.exceptions.isEmpty());
 
+        h.setComparator(null);
         h.close();
         assertEquals(em.exceptions.isEmpty(), true);
 
@@ -5183,6 +5189,7 @@ public class MailHandlerTest {
         assertEquals(SimpleFormatter.class, h.getFormatter().getClass());
         assertEquals(Level.OFF, h.getPushLevel());
         assertEquals(null, h.getPushFilter());
+        assertNull(h.getComparator());
         assertEquals(null, h.getEncoding());
         assertEquals(ThrowFilter.class.getName(), h.getSubject().toString());
         PasswordAuthentication pa = passwordAuthentication(h.getAuthenticator(), "user");
@@ -5472,14 +5479,25 @@ public class MailHandlerTest {
         }
     }
 
-    public static class UselessComparator implements Comparator, Serializable {
+    public static class UselessComparator implements Comparator<LogRecord>, Serializable {
 
         private static final long serialVersionUID = 7973575043680596722L;
 
-        public int compare(Object o1, Object o2) {
+        public int compare(LogRecord o1, LogRecord o2) {
             return o1.toString().compareTo(o2.toString());
         }
     };
+
+    public static class RawTypeComparator implements Comparator<Object>, Serializable {
+        private static final long serialVersionUID = -6539179106541617400L;
+
+        public int compare(Object o1, Object o2) {
+            long s1 = LogRecord.class.cast(o1).getSequenceNumber();
+            long s2 = LogRecord.class.cast(o2).getSequenceNumber();
+            return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
+        }
+
+    }
 
     public static final class BooleanFilter implements Filter {
 

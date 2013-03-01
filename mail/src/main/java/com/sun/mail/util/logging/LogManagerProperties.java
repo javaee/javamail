@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,7 +42,8 @@ package com.sun.mail.util.logging;
 
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
-import java.security.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -68,7 +69,7 @@ import javax.mail.Authenticator;
  * <p>
  * This class should never be exposed outside of this package.  Keep this
  * class package private (default access).
- * 
+ *
  * @author Jason Mehrens
  * @since JavaMail 1.4.3
  */
@@ -136,7 +137,7 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.4.5
      */
     static Filter newFilter(String name) throws Exception {
-        return (Filter) newObjectFrom(name, Filter.class);
+        return newObjectFrom(name, Filter.class);
     }
 
     /**
@@ -156,7 +157,7 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.4.5
      */
     static Formatter newFormatter(String name) throws Exception {
-        return (Formatter) newObjectFrom(name, Formatter.class);
+        return newObjectFrom(name, Formatter.class);
     }
 
     /**
@@ -176,8 +177,9 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.4.5
      * @see java.util.logging.LogRecord
      */
-    static Comparator newComparator(String name) throws Exception {
-        return (Comparator) newObjectFrom(name, Comparator.class);
+    @SuppressWarnings("unchecked")
+    static Comparator<? super LogRecord> newComparator(String name) throws Exception {
+        return newObjectFrom(name, Comparator.class);
     }
 
     /**
@@ -197,7 +199,7 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.4.5
      */
     static ErrorManager newErrorManager(String name) throws Exception {
-        return (ErrorManager) newObjectFrom(name, ErrorManager.class);
+        return newObjectFrom(name, ErrorManager.class);
     }
 
     /**
@@ -217,7 +219,7 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.4.5
      */
     static Authenticator newAuthenticator(String name) throws Exception {
-        return (Authenticator) newObjectFrom(name, Authenticator.class);
+        return newObjectFrom(name, Authenticator.class);
     }
 
     /**
@@ -237,14 +239,14 @@ final class LogManagerProperties extends Properties {
      * argument constructor.
      * @since JavaMail 1.4.5
      */
-    private static Object newObjectFrom(String name, Class type) throws Exception {
+    private static <T> T newObjectFrom(String name, Class<T> type) throws Exception {
         try {
-            final Class clazz = LogManagerProperties.findClass(name);
+            final Class<?> clazz = LogManagerProperties.findClass(name);
             //This check avoids additional side effects when the name parameter
             //is a literal name and not a class name.
             if (type.isAssignableFrom(clazz)) {
                 try {
-                    return clazz.getConstructor((Class[]) null).newInstance((Object[]) null);
+                    return type.cast(clazz.getConstructor().newInstance());
                 } catch (final InvocationTargetException ITE) {
                     throw paramOrError(ITE);
                 }
@@ -302,7 +304,7 @@ final class LogManagerProperties extends Properties {
      * @throws ClassNotFoundException if the class name was not found.
      * @throws ExceptionInInitializerError if static initializer fails.
      */
-    private static Class findClass(String name) throws ClassNotFoundException {
+    private static Class<?> findClass(String name) throws ClassNotFoundException {
         ClassLoader[] loaders = getClassLoaders();
         assert loaders.length == 2 : loaders.length;
         Class clazz;
@@ -318,7 +320,7 @@ final class LogManagerProperties extends Properties {
         return clazz;
     }
 
-    private static Class tryLoad(String name, ClassLoader l) throws ClassNotFoundException {
+    private static Class<?> tryLoad(String name, ClassLoader l) throws ClassNotFoundException {
         if (l != null) {
             return Class.forName(name, false, l);
         } else {
@@ -327,9 +329,9 @@ final class LogManagerProperties extends Properties {
     }
 
     private static ClassLoader[] getClassLoaders() {
-        return (ClassLoader[]) AccessController.doPrivileged(new PrivilegedAction() {
+        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader[]>() {
 
-            public Object run() {
+            public ClassLoader[] run() {
                 final ClassLoader[] loaders = new ClassLoader[2];
                 try {
                     loaders[0] = ClassLoader.getSystemClassLoader();
@@ -377,6 +379,7 @@ final class LogManagerProperties extends Properties {
      * @return the snapshot.
      * @since JavaMail 1.4.4
      */
+    @Override
     public synchronized Object clone() {
         return exportCopy(defaults);
     }
@@ -387,6 +390,7 @@ final class LogManagerProperties extends Properties {
      * @param key a non null key.
      * @return the value for that key.
      */
+    @Override
     public synchronized String getProperty(final String key) {
         String value = defaults.getProperty(key);
         if (value == null) {
@@ -424,6 +428,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key.
      * @since JavaMail 1.4.4
      */
+    @Override
     public String getProperty(final String key, final String def) {
         final String value = this.getProperty(key);
         return value == null ? def : value;
@@ -436,6 +441,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key or null.
      * @since JavaMail 1.4.5
      */
+    @Override
     public Object get(final Object key) {
         if (key instanceof String) {
             return this.getProperty((String) key);
@@ -451,6 +457,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
      */
+    @Override
     public synchronized Object put(final Object key, final Object value) {
         final Object def = preWrite(key);
         final Object man = super.put(key, value);
@@ -463,6 +470,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
      */
+    @Override
     public Object setProperty(String key, String value) {
         return this.put(key, value);
     }
@@ -474,6 +482,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key or null.
      * @since JavaMail 1.4.5
      */
+    @Override
     public boolean containsKey(final Object key) {
         if (key instanceof String) {
             return this.getProperty((String) key) != null;
@@ -489,6 +498,7 @@ final class LogManagerProperties extends Properties {
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
      */
+    @Override
     public synchronized Object remove(final Object key) {
         final Object def = preWrite(key);
         final Object man = super.remove(key);
@@ -500,6 +510,7 @@ final class LogManagerProperties extends Properties {
      * No way to get the property names from LogManager.
      * @return the property names
      */
+    @Override
     public Enumeration propertyNames() {
         assert false;
         return super.propertyNames();
@@ -511,6 +522,7 @@ final class LogManagerProperties extends Properties {
      * @param o any object or null.
      * @return true if equal, otherwise false.
      */
+    @Override
     public boolean equals(final Object o) {
         if (o == null) {
             return false;
@@ -529,6 +541,7 @@ final class LogManagerProperties extends Properties {
      * It is assumed that this method will never be called.  See equals.
      * @return the hash code.
      */
+    @Override
     public int hashCode() {
         assert false : prefix.hashCode();
         return super.hashCode();

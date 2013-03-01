@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,20 +43,20 @@ package com.sun.mail.util.logging;
 
 import com.sun.mail.smtp.SMTPTransport;
 import java.io.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Array;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.logging.Formatter;
 import java.util.logging.*;
-import javax.activation.*;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileTypeMap;
+import javax.activation.MimetypesFileTypeMap;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.util.ByteArrayDataSource;
@@ -341,32 +341,15 @@ public class MailHandler extends Handler {
      * 2. MUTEX_PUBLISH on first entry of a push or publish.
      * 3. MUTEX_REPORT when cycle of records is detected.
      */
-    private static final ThreadLocal MUTEX = new ThreadLocal();
+    private static final ThreadLocal<Level> MUTEX = new ThreadLocal<Level>();
     /**
      * The marker object used to report a publishing state.
      */
-    private static final Object MUTEX_PUBLISH = Level.ALL;
+    private static final Level MUTEX_PUBLISH = Level.ALL;
     /**
      * The marker object used to report a error reporting state.
      */
-    private static final Object MUTEX_REPORT = Level.OFF;
-    /**
-     * Java 1.4 does not have a ThreadLocal remove method.
-     * Try reflection to access it on newer platforms.
-     */
-    private static final Method REMOVE;
-
-    static {
-        Method m;
-        try {
-            m = ThreadLocal.class.getMethod("remove", (Class[]) null);
-        } catch (final RuntimeException noAccess) {
-            m = null;
-        } catch (final Exception javaOnePointFour) {
-            m = null;
-        }
-        REMOVE = m;
-    }
+    private static final Level MUTEX_REPORT = Level.OFF;
     /**
      * Used to turn off security checks.
      */
@@ -411,7 +394,7 @@ public class MailHandler extends Handler {
      * and all attachments use the order determined by this comparator.  If no
      * comparator is present the log records will be in no specified order.
      */
-    private Comparator/*<? super LogRecord>*/ comparator;
+    private Comparator<? super LogRecord> comparator;
     /**
      * Holds the formatter used to create the subject line of the email.
      * A subject formatter is not required for the email message.
@@ -507,6 +490,7 @@ public class MailHandler extends Handler {
      * @param record  a <tt>LogRecord</tt>
      * @return true if the <tt>LogRecord</tt> would be logged.
      */
+    @Override
     public boolean isLoggable(final LogRecord record) {
         int levelValue = getLevel().intValue();
         if (record.getLevel().intValue() < levelValue || levelValue == offValue) {
@@ -642,17 +626,7 @@ public class MailHandler extends Handler {
      * @since JavaMail 1.4.6
      */
     private void releaseMutex() {
-        if (REMOVE != null) {
-            try {
-                REMOVE.invoke(MUTEX, (Object[]) null);
-            } catch (RuntimeException ignore) {
-                MUTEX.set(null);
-            } catch (Exception ignore) {
-                MUTEX.set(null);
-            }
-        } else {
-            MUTEX.set(null);
-        }
+        MUTEX.remove();
     }
 
     /**
@@ -732,6 +706,7 @@ public class MailHandler extends Handler {
      * @throws SecurityException  if a security manager exists and
      *          the caller does not have <tt>LoggingPermission("control")</tt>.
      */
+    @Override
     public synchronized void setLevel(final Level newLevel) {
         if (this.capacity > 0) {
             super.setLevel(newLevel);
@@ -807,7 +782,7 @@ public class MailHandler extends Handler {
      * to formatting.  If <tt>null</tt> then the order is unspecified.
      * @return the <tt>LogRecord</tt> comparator.
      */
-    public final synchronized Comparator/*<? super LogRecord>*/ getComparator() {
+    public final synchronized Comparator<? super LogRecord> getComparator() {
         return this.comparator;
     }
 
@@ -819,7 +794,7 @@ public class MailHandler extends Handler {
      * caller does not have <tt>LoggingPermission("control")</tt>.
      * @throws IllegalStateException if called from inside a push.
      */
-    public final synchronized void setComparator(Comparator/*<? super LogRecord>*/ c) {
+    public final synchronized void setComparator(Comparator<? super LogRecord> c) {
         checkAccess();
         if (isWriting) {
             throw new IllegalStateException();
@@ -869,7 +844,7 @@ public class MailHandler extends Handler {
      * @see String#toCharArray()
      * @since JavaMail 1.4.6
      */
-    public final void setAuthenticator(final char[] password) {
+    public final void setAuthenticator(final char... password) {
         if (password == null) {
             setAuthenticator0((Authenticator) null);
         } else {
@@ -957,7 +932,7 @@ public class MailHandler extends Handler {
      * name formatters do not match the number of attachment formatters.
      * @throws IllegalStateException if called from inside a push.
      */
-    public final void setAttachmentFilters(Filter[] filters) {
+    public final void setAttachmentFilters(Filter... filters) {
         checkAccess();
         filters = (Filter[]) copyOf(filters, filters.length, Filter[].class);
         synchronized (this) {
@@ -997,7 +972,7 @@ public class MailHandler extends Handler {
      * <tt>null</tt>.
      * @throws IllegalStateException if called from inside a push.
      */
-    public final void setAttachmentFormatters(Formatter[] formatters) {
+    public final void setAttachmentFormatters(Formatter... formatters) {
         checkAccess();
         if (formatters.length == 0) { //Null check and length check.
             formatters = emptyFormatterArray();
@@ -1050,8 +1025,9 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if any given array or name is <tt>null</tt>.
      * @throws IllegalStateException if called from inside a push.
      * @see Character#isISOControl(char)
+     * @see Character#isISOControl(int)
      */
-    public final void setAttachmentNames(final String[] names) {
+    public final void setAttachmentNames(final String... names) {
         checkAccess();
 
         final Formatter[] formatters;
@@ -1105,8 +1081,9 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if any given array or name is <tt>null</tt>.
      * @throws IllegalStateException if called from inside a push.
      * @see Character#isISOControl(char)
+     * @see Character#isISOControl(int)
      */
-    public final void setAttachmentNames(Formatter[] formatters) {
+    public final void setAttachmentNames(Formatter... formatters) {
         checkAccess();
 
         formatters = (Formatter[]) copyOf(formatters, formatters.length, Formatter[].class);
@@ -1148,6 +1125,7 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if <tt>subject</tt> is <tt>null</tt>.
      * @throws IllegalStateException if called from inside a push.
      * @see Character#isISOControl(char)
+     * @see Character#isISOControl(int)
      */
     public final void setSubject(final String subject) {
         if (subject != null) {
@@ -1175,6 +1153,7 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if <tt>format</tt> is <tt>null</tt>.
      * @throws IllegalStateException if called from inside a push.
      * @see Character#isISOControl(char)
+     * @see Character#isISOControl(int)
      */
     public final void setSubject(final Formatter format) {
         checkAccess();
@@ -1200,6 +1179,7 @@ public class MailHandler extends Handler {
      * @param ex     an exception (may be null)
      * @param code   an error code defined in ErrorManager
      */
+    @Override
     protected void reportError(String msg, Exception ex, int code) {
         if (msg != null) {
             super.reportError(Level.SEVERE.getName() + ": " + msg, ex, code);
@@ -1845,8 +1825,9 @@ public class MailHandler extends Handler {
                         }
                     }
                 }
-            }
-            catch (final RuntimeException RE) {
+            } catch (final SecurityException SE) {
+                throw SE; //Avoid catch all.
+            } catch (final RuntimeException RE) {
                 reportError(RE.getMessage(), RE, ErrorManager.OPEN_FAILURE);
             }*/
         }
@@ -1986,16 +1967,16 @@ public class MailHandler extends Handler {
      */
     private void sort() {
         assert Thread.holdsLock(this);
-        if (comparator != null) {
-            try {
+        try {
+            if (comparator != null) {
                 if (size != 1) {
                     Arrays.sort(data, 0, size, comparator);
                 } else {
                     comparator.compare(data[0], data[0]);
                 }
-            } catch (final RuntimeException RE) {
-                reportError(RE.getMessage(), RE, ErrorManager.FORMAT_FAILURE);
             }
+        } catch (final RuntimeException RE) {
+            reportError(RE.getMessage(), RE, ErrorManager.FORMAT_FAILURE);
         }
     }
 
@@ -2119,7 +2100,7 @@ public class MailHandler extends Handler {
 
             if (buf != null) {
                 buf.append(tail(bodyFormat, ""));
-                //This body part is always added, even it the buffer is empty,
+                //This body part is always added, even if the buffer is empty,
                 //so the body is never considered an incomplete-copy.
             } else {
                 buf = new StringBuffer(0);
@@ -3076,6 +3057,7 @@ public class MailHandler extends Handler {
             this.pass = pass;
         }
 
+        @Override
         protected final PasswordAuthentication getPasswordAuthentication() {
             return new PasswordAuthentication(getDefaultUserName(), pass);
         }
@@ -3086,7 +3068,7 @@ public class MailHandler extends Handler {
      * enabled.
      * @since JavaMail 1.4.6
      */
-    private static final class GetAndSetContext implements PrivilegedAction {
+    private static final class GetAndSetContext implements PrivilegedAction<Object> {
         /**
          * The source containing the class loader.
          */
@@ -3151,6 +3133,7 @@ public class MailHandler extends Handler {
             return "";
         }
 
+        @Override
         public final String getTail(Handler h) {
             return name;
         }
@@ -3161,6 +3144,7 @@ public class MailHandler extends Handler {
          * @return true if equal
          * @since JavaMail 1.4.4
          */
+        @Override
         public final boolean equals(Object o) {
             if (o instanceof TailNameFormatter) {
                 return name.equals(((TailNameFormatter) o).name);
@@ -3173,10 +3157,12 @@ public class MailHandler extends Handler {
          * @return the hash code.
          * @since JavaMail 1.4.4
          */
+        @Override
         public final int hashCode() {
             return getClass().hashCode() + name.hashCode();
         }
 
+        @Override
         public final String toString() {
             return name;
         }

@@ -10,9 +10,10 @@ rather how to use the features of the MailHandler.
 To run the demo:
 ================
 
-    1.  The demo requires Java version 1.4 or newer.
+    1.  The demo requires Java version 1.5 or newer.
 	We *strongly* encourage you to use the latest version of J2SE,
-	which you can download from http://java.sun.com/j2se/.
+	which you can download from 
+        http://www.oracle.com/technetwork/java/javase/downloads.
 
     2.  Set your CLASSPATH to include the "mail.jar" and "activation.jar".
 

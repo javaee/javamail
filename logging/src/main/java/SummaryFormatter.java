@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,12 +30,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.util.logging.*;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 /**
  * A compact formatter used to summarize an error report.
+ *
  * @author Jason Mehrens
  */
 public class SummaryFormatter extends Formatter {
@@ -59,6 +62,7 @@ public class SummaryFormatter extends Formatter {
         return data;
     }
 
+    @Override
     public synchronized String getTail(Handler h) {
         try {
             if (count > 0L) {
@@ -70,6 +74,7 @@ public class SummaryFormatter extends Formatter {
         }
     }
 
+    @Override
     public synchronized String toString() {
         return formatNow();
     }
@@ -77,9 +82,9 @@ public class SummaryFormatter extends Formatter {
     private String formatNow() {
         assert Thread.holdsLock(this);
         DateFormat f = DateFormat.getDateTimeInstance();
-        return newLine() + "These " + count + " messages occured between " +
-                f.format(new Date(oldest)) + " and " +
-                f.format(new Date(newest));
+        return newLine() + "These " + count + " messages occurred between "
+                + f.format(new Date(oldest)) + " and "
+                + f.format(new Date(newest));
 
     }
 

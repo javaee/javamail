@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2010 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,15 +30,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.text.MessageFormat;
-import java.util.logging.*;
 import com.sun.mail.util.logging.MailHandler;
+import static java.lang.Character.isISOControl;
+import static java.lang.Character.isValidCodePoint;
+import java.text.MessageFormat;
+import java.util.logging.Formatter;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.XMLFormatter;
 
 /**
- * Creates an attachment name based on the number of records and errors.
- * The pattern is a <tt>java.text.MesageFormat</tt> with two parameters.
- * The first parameter is the number of records formatted.  The second is the
- * number of records with errors.
+ * Creates an attachment name based on the number of records and errors. The
+ * pattern is a <tt>java.text.MesageFormat</tt> with two parameters. The first
+ * parameter is the number of records formatted. The second is the number of
+ * records with errors.
+ *
  * @author Jason Mehrens
  */
 public class SummaryNameFormatter extends Formatter {
@@ -56,16 +62,20 @@ public class SummaryNameFormatter extends Formatter {
 
     /**
      * Creates formatter using a message format style pattern.
+     *
      * @param pattern the pattern.
      * @throws NullPointerException if pattern is null.
      * @throws IllegalArgumentException if pattern contains an ISO control
-     * character.
+     * character or invalid code points.
      */
     public SummaryNameFormatter(final String pattern) {
-        for (int i=0; i<pattern.length(); i++) {
-            if (Character.isISOControl(pattern.charAt(i))) {
-               throw new IllegalArgumentException("At index "+ i);
+        for (int i = 0; i < pattern.length(); ) {
+            final int codePoint = pattern.codePointAt(i);
+            if (!isValidCodePoint(codePoint) || isISOControl(codePoint)) {
+                throw new IllegalArgumentException("At index " + i);
             }
+
+            i += Character.charCount(codePoint);
         }
         this.pattern = pattern;
     }
@@ -78,30 +88,32 @@ public class SummaryNameFormatter extends Formatter {
         return "";
     }
 
+    @Override
     public synchronized String getTail(Handler h) {
         final long records = this.count; //read
         final long thrown = this.errors;
         this.count = 0; //reset
         this.errors = 0;
-        return toString(records, thrown) + extFrom(h);
+        return toString(records, thrown).concat(extFrom(h));
     }
 
+    @Override
     public synchronized String toString() {
         return toString(count, errors);
     }
 
     private String toString(final long count, final long errors) {
-        return MessageFormat.format(pattern, new Object[]{new Long(count), new Long(errors)});
+        return MessageFormat.format(pattern, count, errors);
     }
 
     private String extFrom(Handler h) {
         if (h instanceof MailHandler) {
-            MailHandler mh = (MailHandler)h;
+            MailHandler mh = (MailHandler) h;
             if (mh.getSubject() != this) {
                 Formatter[] content = mh.getAttachmentFormatters();
                 Formatter[] names = mh.getAttachmentNames();
                 assert content.length == names.length;
-                for (int i=0; i<content.length; i++) {
+                for (int i = 0; i < content.length; i++) {
                     if (names[i] == this) {
                         if (content[i] instanceof XMLFormatter) {
                             return ".xml";
