@@ -14,6 +14,14 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.4.7 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.4.7 release.
+
+K  5829	NullPointerException when accessing the content of a message attachment
+K  5830	IMAPProtocol.sasllogin uses old constructor for IMAPSaslAuthenticator
+
+
 		  CHANGES IN THE 1.4.6 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.6 release.

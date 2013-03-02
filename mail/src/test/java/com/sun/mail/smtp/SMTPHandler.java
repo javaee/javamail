@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -61,7 +61,7 @@ import java.util.logging.Level;
 public class SMTPHandler implements Runnable, Cloneable {
 
     /** Logger for this class. */
-    private static final Logger LOGGER =
+    protected static final Logger LOGGER =
 	Logger.getLogger(SMTPHandler.class.getName());
 
     /** Client socket. */
@@ -184,11 +184,21 @@ public class SMTPHandler implements Runnable, Cloneable {
         } else if (commandName.equals("QUIT")) {
             quit();
         } else if (commandName.equals("AUTH")) {
-            auth();
+            auth(currentLine);
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}", commandName);
             println("-ERR unknown command");
         }
+    }
+
+    protected String readLine() throws IOException {
+        currentLine = reader.readLine();
+
+        if (currentLine == null) {
+            LOGGER.severe("Current line is null!");
+            exit();
+        }
+	return currentLine;
     }
 
     /**
@@ -284,7 +294,7 @@ public class SMTPHandler implements Runnable, Cloneable {
      * @throws IOException
      *             unable to read/write to socket
      */
-    public void auth() throws IOException {
+    public void auth(String line) throws IOException {
         println("235 Authorized");
     }
 

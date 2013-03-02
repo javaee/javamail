@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -60,7 +60,7 @@ import java.util.logging.Level;
 public class IMAPHandler implements Runnable, Cloneable {
 
     /** Logger for this class. */
-    private static final Logger LOGGER =
+    protected static final Logger LOGGER =
 	Logger.getLogger(IMAPHandler.class.getName());
 
     /** Client socket. */
@@ -183,6 +183,16 @@ public class IMAPHandler implements Runnable, Cloneable {
     }
 
     /**
+     * Send a tagged NO response with a message.
+     *
+     * @param msg the message to send
+     * @throws IOException unable to read/write to socket
+     */
+    public void no(final String msg) throws IOException {
+	tagged("NO " + (msg != null ? msg : ""));
+    }
+
+    /**
      * Send a tagged BAD response with a message.
      *
      * @param msg the message to send
@@ -199,6 +209,15 @@ public class IMAPHandler implements Runnable, Cloneable {
      */
     public void cont() throws IOException {
 	println("+ please continue");
+    }
+
+    /**
+     * Send a "continue" command with a message.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void cont(String msg) throws IOException {
+	println("+ " + (msg != null ? msg : ""));
     }
 
     /**
@@ -227,6 +246,8 @@ public class IMAPHandler implements Runnable, Cloneable {
 
         if (commandName.equals("LOGIN")) {
             login();
+        } else if (commandName.equals("AUTHENTICATE")) {
+            authenticate(currentLine);
         } else if (commandName.equals("NOOP")) {
             noop();
         } else if (commandName.equals("SELECT")) {
@@ -254,6 +275,15 @@ public class IMAPHandler implements Runnable, Cloneable {
      */
     public void login() throws IOException {
         ok("[CAPABILITY " + capabilities + "]");
+    }
+
+    /**
+     * AUTHENTICATE command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void authenticate(String line) throws IOException {
+        bad("AUTHENTICATE not supported");
     }
 
     /**
@@ -289,15 +319,19 @@ public class IMAPHandler implements Runnable, Cloneable {
 	ok();
     }
 
-    protected void idleWait() throws IOException {
+    protected String readLine() throws IOException {
         currentLine = reader.readLine();
-
         if (currentLine == null) {
             LOGGER.severe("Current line is null!");
             exit();
-            return;
         }
-        if (!currentLine.equalsIgnoreCase("DONE")) {
+	return currentLine;
+    }
+
+    protected void idleWait() throws IOException {
+        String line = readLine();
+
+        if (line != null && !line.equalsIgnoreCase("DONE")) {
             LOGGER.severe("Didn't get DONE response to IDLE");
             exit();
             return;
