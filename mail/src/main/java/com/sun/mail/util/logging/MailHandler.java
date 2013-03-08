@@ -117,7 +117,8 @@ import javax.mail.util.ByteArrayDataSource;
  * <li>&lt;handler-name&gt;.attachment.filters a comma
  * separated list of <tt>Filter</tt> class names used to create each attachment.
  * The literal <tt>null</tt> is reserved for attachments that do not require
- * filtering. (default is no filters)
+ * filtering. (defaults to
+ * {@linkplain java.util.logging.Handler#getFilter() body} filter)
  *
  * <li>&lt;handler-name&gt;.attachment.formatters a comma
  * separated list of <tt>Formatter</tt> class names used to create each
@@ -126,7 +127,8 @@ import javax.mail.util.ByteArrayDataSource;
  * <li>&lt;handler-name&gt;.attachment.names a comma separated
  * list of names or <tt>Formatter</tt> class names of each attachment.  The
  * attachment file names must not contain any line breaks.
- * (default is no attachments names)
+ * (default is {@linkplain java.util.logging.Formatter#toString() toString}
+ * of the attachment formatter)
  *
  * <li>&lt;handler-name&gt;.authenticator name of an
  * {@linkplain javax.mail.Authenticator} class used to provide login credentials
@@ -582,7 +584,7 @@ public class MailHandler extends Handler {
      * @since JavaMail 1.4.5
      */
     private void publish0(final LogRecord record) {
-        MessageContext ctx;
+        Message msg;
         boolean priority;
         synchronized (this) {
             if (size == data.length && size < capacity) {
@@ -594,18 +596,18 @@ public class MailHandler extends Handler {
                 ++size; //Be nice to client compiler.
                 priority = isPushable(record);
                 if (priority || size >= capacity) {
-                    ctx = writeLogRecords(ErrorManager.WRITE_FAILURE);
+                    msg = writeLogRecords(ErrorManager.WRITE_FAILURE);
                 } else {
-                    ctx = null;
+                    msg = null;
                 }
             } else {
                 priority = false;
-                ctx = null;
+                msg = null;
             }
         }
 
-        if (ctx != null) {
-            send(ctx, priority, ErrorManager.WRITE_FAILURE);
+        if (msg != null) {
+            send(msg, priority, ErrorManager.WRITE_FAILURE);
         }
     }
 
@@ -704,10 +706,10 @@ public class MailHandler extends Handler {
         //Set the CCL to this class loader for loading content handlers.
         final Object ccl = getAndSetContextClassLoader();
         try {
-            MessageContext ctx = null;
+            Message msg = null;
             synchronized (this) {
                 try {
-                    ctx = writeLogRecords(ErrorManager.CLOSE_FAILURE);
+                    msg = writeLogRecords(ErrorManager.CLOSE_FAILURE);
                 } finally {
                     super.setLevel(Level.OFF); //Change level after formatting.
                    /**
@@ -726,8 +728,8 @@ public class MailHandler extends Handler {
                 }
             }
 
-            if (ctx != null) {
-                send(ctx, false, ErrorManager.CLOSE_FAILURE);
+            if (msg != null) {
+                send(msg, false, ErrorManager.CLOSE_FAILURE);
             }
         } finally {
             setContextClassLoader(ccl);
@@ -954,7 +956,7 @@ public class MailHandler extends Handler {
      * @return a non null array of attachment filters.
      */
     public final Filter[] getAttachmentFilters() {
-        return (Filter[]) readOnlyAttachmentFilters().clone();
+        return readOnlyAttachmentFilters().clone();
     }
 
     /**
@@ -971,7 +973,7 @@ public class MailHandler extends Handler {
      */
     public final void setAttachmentFilters(Filter... filters) {
         checkAccess();
-        filters = (Filter[]) copyOf(filters, filters.length, Filter[].class);
+        filters = copyOf(filters, filters.length, Filter[].class);
         synchronized (this) {
             if (this.attachmentFormatters.length != filters.length) {
                 throw attachmentMismatch(this.attachmentFormatters.length, filters.length);
@@ -994,7 +996,7 @@ public class MailHandler extends Handler {
         synchronized (this) {
             formatters = this.attachmentFormatters;
         }
-        return (Formatter[]) formatters.clone();
+        return formatters.clone();
     }
 
     /**
@@ -1014,7 +1016,7 @@ public class MailHandler extends Handler {
         if (formatters.length == 0) { //Null check and length check.
             formatters = emptyFormatterArray();
         } else {
-            formatters = (Formatter[]) copyOf(formatters,
+            formatters = copyOf(formatters,
                     formatters.length, Formatter[].class);
             for (int i = 0; i < formatters.length; ++i) {
                 if (formatters[i] == null) {
@@ -1046,7 +1048,7 @@ public class MailHandler extends Handler {
         synchronized (this) {
             formatters = this.attachmentNames;
         }
-        return (Formatter[]) formatters.clone();
+        return formatters.clone();
     }
 
     /**
@@ -1123,7 +1125,7 @@ public class MailHandler extends Handler {
     public final void setAttachmentNames(Formatter... formatters) {
         checkAccess();
 
-        formatters = (Formatter[]) copyOf(formatters, formatters.length, Formatter[].class);
+        formatters = copyOf(formatters, formatters.length, Formatter[].class);
         for (int i = 0; i < formatters.length; ++i) {
             if (formatters[i] == null) {
                 throw new NullPointerException(atIndexMsg(i));
@@ -1441,7 +1443,7 @@ public class MailHandler extends Handler {
         final int expect = this.attachmentFormatters.length;
         final int current = this.attachmentNames.length;
         if (current != expect) {
-            this.attachmentNames = (Formatter[]) copyOf(attachmentNames, expect);
+            this.attachmentNames = copyOf(attachmentNames, expect);
             fixed = current != 0;
         }
 
@@ -1471,8 +1473,17 @@ public class MailHandler extends Handler {
         final int expect = this.attachmentFormatters.length;
         final int current = this.attachmentFilters.length;
         if (current != expect) {
-            this.attachmentFilters = (Filter[]) copyOf(attachmentFilters, expect);
+            this.attachmentFilters = copyOf(attachmentFilters, expect);
             fixed = current != 0;
+
+            //Array elements default to null so skip filling if body filter
+            //is null.  If not null then only assign to expanded elements.
+            final Filter body = super.getFilter();
+            if (body != null) {
+                for (int i = current; i < expect; ++i) {
+                    this.attachmentFilters[i] = body;
+                }
+            }
         }
 
         //Copy of zero length array is cheap, warm up copyOf.
@@ -1486,14 +1497,11 @@ public class MailHandler extends Handler {
     /**
      * Copies the given array. Can be removed when Java Mail requires Java 1.6.
      * @param a the original array.
-     * @param size the new size.
+     * @param len the new size.
      * @return new copy
      */
-    private static Object[] copyOf(final Object[] a, final int size) {
-        final Object[] copy = (Object[]) Array.newInstance(
-                a.getClass().getComponentType(), size);
-        System.arraycopy(a, 0, copy, 0, Math.min(a.length, size));
-        return copy;
+    private static <T> T[] copyOf(final T[] a, final int len) {
+        return (T[]) copyOf(a, len, a.getClass());
     }
 
     /**
@@ -1501,17 +1509,13 @@ public class MailHandler extends Handler {
      * Can be removed when Java Mail requires Java 1.6.
      * @param a the original array.
      * @param len the new size.
+     * @param type the array type.
      * @return new copy
      */
-    private static Object[] copyOf(Object[] a, int len, Class type) {
-        if (type == a.getClass()) {
-           return (Object[]) a.clone();
-        } else {
-            final Object[] copy = (Object[]) Array.newInstance(
-                    type.getComponentType(), len);
-            System.arraycopy(a, 0, copy, 0, Math.min(len, a.length));
-            return copy;
-        }
+    private static <T,U> T[] copyOf(U[] a, int len, Class<? extends T[]> type) {
+        final T[] copy = (T[]) Array.newInstance(type.getComponentType(), len);
+        System.arraycopy(a, 0, copy, 0, Math.min(len, a.length));
+        return copy;
     }
 
     /**
@@ -1538,7 +1542,7 @@ public class MailHandler extends Handler {
             newCapacity = capacity;
         }
         assert len != capacity : len;
-        this.data = (LogRecord[]) copyOf(data, newCapacity);
+        this.data = copyOf(data, newCapacity);
     }
 
     /**
@@ -1585,7 +1589,7 @@ public class MailHandler extends Handler {
      * handler.  The comparator is not interned.  This method can only be
      * called from init after all of formatters and filters are in a constructed
      * and in a consistent state.
-     * @since JavaMail 1.5
+     * @since JavaMail 1.5.0
      */
     private void intern() {
         assert Thread.holdsLock(this);
@@ -1660,7 +1664,7 @@ public class MailHandler extends Handler {
      * @throws SecurityException if this operation is not allowed by the
      * security manager.
      * @throws Exception if there is an unexpected problem.
-     * @since JavaMail 1.5
+     * @since JavaMail 1.5.0
      */
     private Object intern(Map<Object, Object> m, Object o) throws Exception {
         if (o == null) {
@@ -1798,20 +1802,20 @@ public class MailHandler extends Handler {
                     try {
                         a[i] = LogManagerProperties.newFormatter(names[i]);
                         if (a[i] instanceof TailNameFormatter) {
-                            a[i] = new SimpleFormatter();
                             final Exception CNFE = new ClassNotFoundException(a[i].toString());
                             reportError("Attachment formatter.", CNFE, ErrorManager.OPEN_FAILURE);
+                            a[i] = new SimpleFormatter();
                         }
                     } catch (final SecurityException SE) {
                         throw SE; //Avoid catch all.
                     } catch (final Exception E) {
-                        a[i] = new SimpleFormatter();
                         reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
+                        a[i] = new SimpleFormatter();
                     }
                 } else {
-                    a[i] = new SimpleFormatter();
                     final Exception NPE = new NullPointerException(atIndexMsg(i));
                     reportError("Attachment formatter.", NPE, ErrorManager.OPEN_FAILURE);
+                    a[i] = new SimpleFormatter();
                 }
             }
 
@@ -1999,8 +2003,8 @@ public class MailHandler extends Handler {
             if (hasValue(name)) {
                 comparator = LogManagerProperties.newComparator(name);
                 if (Boolean.parseBoolean(reverse)) {
-                    assert comparator != null;
-                    comparator = Collections.reverseOrder(comparator);
+                    assert comparator != null : "null";
+                    comparator = LogManagerProperties.reverseOrder(comparator);
                 }
             } else {
                 if (!isEmpty(reverse)) {
@@ -2115,9 +2119,9 @@ public class MailHandler extends Handler {
     private void push(final boolean priority, final int code) {
         if (tryMutex()) {
             try {
-                final MessageContext ctx = writeLogRecords(code);
-                if (ctx != null) {
-                    send(ctx, priority, code);
+                final Message msg = writeLogRecords(code);
+                if (msg != null) {
+                    send(msg, priority, code);
                 }
             } finally {
                 releaseMutex();
@@ -2132,15 +2136,14 @@ public class MailHandler extends Handler {
      * error manager for this handler.  This method does not hold any
      * locks so new records can be added to this handler during a send or
      * failure.
-     * @param ctx the message context or null.
+     * @param msg the message or null.
      * @param priority true for high priority or false for normal.
      * @param code the ErrorManager code.
-     * @throws NullPointerException if message context is null.
+     * @throws NullPointerException if message is null.
      */
-    private void send(MessageContext ctx, boolean priority, int code) {
-        final Message msg = ctx.getMessage();
+    private void send(Message msg, boolean priority, int code) {
         try {
-            envelopeFor(ctx, priority);
+            envelopeFor(msg, priority);
             Transport.send(msg); //Calls save changes.
         } catch (final Exception E) {
             reportError(msg, E, code);
@@ -2169,14 +2172,12 @@ public class MailHandler extends Handler {
     /**
      * Formats all records in the buffer and places the output in a Message.
      * This method holds a lock on this handler.
-     * Normally code would not aggressively null locals (dead local store) but
-     * with this running on older JVMs it seems better to trade time for space.
      * @param code the error manager code.
      * @return null if there are no records or is currently in a push.
-     * Otherwise a new message context is created with a formatted message and
+     * Otherwise a new message is created with a formatted message and
      * attached session.
      */
-    private synchronized MessageContext writeLogRecords(final int code) {
+    private synchronized Message writeLogRecords(final int code) {
         if (size == 0 || isWriting) {
             return null;
         }
@@ -2282,7 +2283,6 @@ public class MailHandler extends Handler {
                     buffers[i] = null;
                 }
             }
-            buffers = null;  //Read the method comments above.
 
             if (buf != null) {
                 buf.append(tail(bodyFormat, ""));
@@ -2297,7 +2297,6 @@ public class MailHandler extends Handler {
             MimeMultipart multipart = new MimeMultipart();
             String altType = getContentType(bodyFormat.getClass().getName());
             setContent(body, buf, altType == null ? contentType : altType);
-            buf = null;  //Read the method comments above.
             multipart.addBodyPart(body);
 
             for (int i = 0; i < parts.length; ++i) {
@@ -2306,9 +2305,8 @@ public class MailHandler extends Handler {
                 }
             }
 
-            parts = null; //Read the method comments above.
             msg.setContent(multipart);
-            return new MessageContext(msg);
+            return msg;
         } catch (final RuntimeException re) {
             reportError(re.getMessage(), re, code);
         } catch (final Exception e) {
@@ -2394,7 +2392,7 @@ public class MailHandler extends Handler {
         }
 
         setIncompleteCopy(abort); //Original body part is never added.
-        envelopeFor(new MessageContext(abort), true);
+        envelopeFor(abort, true);
         try {
             abort.saveChanges();
         } catch (final MessagingException ME) {
@@ -2677,21 +2675,20 @@ public class MailHandler extends Handler {
     /**
      * Creates all of the envelope information for a message.
      * This method is safe to call outside of a lock because the message
-     * context provides the safe snapshot of the mail properties.
-     * @param ctx the MessageContext to write the envelope information.
+     * provides the safe snapshot of the mail properties.
+     * @param msg the Message to write the envelope information.
      * @param priority true for high priority.
      */
-    private void envelopeFor(MessageContext ctx, boolean priority) {
-        final Message msg = ctx.getMessage();
+    private void envelopeFor(Message msg, boolean priority) {
         setAcceptLang(msg);
-        setFrom(ctx);
-        if (!setRecipient(ctx, "mail.to", Message.RecipientType.TO)) {
-            setDefaultRecipient(ctx);
+        setFrom(msg);
+        if (!setRecipient(msg, "mail.to", Message.RecipientType.TO)) {
+            setDefaultRecipient(msg);
         }
-        setRecipient(ctx, "mail.cc", Message.RecipientType.CC);
-        setRecipient(ctx, "mail.bcc", Message.RecipientType.BCC);
-        setReplyTo(ctx);
-        setSender(ctx);
+        setRecipient(msg, "mail.cc", Message.RecipientType.CC);
+        setRecipient(msg, "mail.bcc", Message.RecipientType.BCC);
+        setReplyTo(msg);
+        setSender(msg);
         setMailer(msg);
         setAutoSubmitted(msg);
         if (priority) {
@@ -2968,7 +2965,7 @@ public class MailHandler extends Handler {
      * @param o the test object must be non null.
      * @param found the possible intern, must be non null.
      * @throws NullPointerException if any argument is null.
-     * @since JavaMail 1.5
+     * @since JavaMail 1.5.0
      */
     private void reportNonSymmetric(final Object o, final Object found) {
         reportError("Non symmetric equals implementation."
@@ -2983,7 +2980,7 @@ public class MailHandler extends Handler {
      * @param o the test object must be non null.
      * @param found the possible intern, must be non null.
      * @throws NullPointerException if any argument is null.
-     * @since JavaMail 1.5
+     * @since JavaMail 1.5.0
      */
     private void reportNonDiscriminating(final Object o, final Object found) {
         reportError("Non discriminating equals implementation."
@@ -3088,16 +3085,16 @@ public class MailHandler extends Handler {
         }
     }
 
-    private void setFrom(final MessageContext ctx) {
-        final String from = ctx.getSession().getProperty("mail.from");
+    private void setFrom(final Message msg) {
+        final String from = msg.getSession().getProperty("mail.from");
         if (from != null) {
             try {
                 final Address[] address = InternetAddress.parse(from, false);
-                if (address != null && address.length > 0) {
+                if (address.length > 0) {
                     if (address.length == 1) {
-                        ctx.getMessage().setFrom(address[0]);
+                        msg.setFrom(address[0]);
                     } else { //Greater than 1 address.
-                        ctx.getMessage().addFrom(address);
+                        msg.addFrom(address);
                     }
                 }
                 //Can't place an else statement here because the 'from' is
@@ -3106,16 +3103,16 @@ public class MailHandler extends Handler {
                 //header.
             } catch (final MessagingException ME) {
                 reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
-                setDefaultFrom(ctx);
+                setDefaultFrom(msg);
             }
         } else {
-            setDefaultFrom(ctx);
+            setDefaultFrom(msg);
         }
     }
 
-    private void setDefaultFrom(final MessageContext ctx) {
+    private void setDefaultFrom(final Message msg) {
         try {
-            ctx.getMessage().setFrom();
+            msg.setFrom();
         } catch (final MessagingException ME) {
             reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
         }
@@ -3124,20 +3121,20 @@ public class MailHandler extends Handler {
     /**
      * Computes the default to-address if none was specified.  This can
      * fail if the local address can't be computed.
-     * @param ctx the message context
-     * @since JavaMail 1.5
+     * @param msg the message
+     * @since JavaMail 1.5.0
      */
-    private void setDefaultRecipient(final MessageContext ctx) {
+    private void setDefaultRecipient(final Message msg) {
         try {
-            Address a = InternetAddress.getLocalAddress(ctx.getSession());
+            Address a = InternetAddress.getLocalAddress(msg.getSession());
             if (a != null) {
-                ctx.getMessage().setRecipient(Message.RecipientType.TO, a);
+                msg.setRecipient(Message.RecipientType.TO, a);
             } else {
-                final MimeMessage m = new MimeMessage(ctx.getSession());
+                final MimeMessage m = new MimeMessage(msg.getSession());
                 m.setFrom(); //Should throw an exception with a cause.
                 Address[] from = m.getFrom();
-                if (from != null && from.length > 0) {
-                    ctx.getMessage().addFrom(from);
+                if (from.length > 0) {
+                    msg.addFrom(from);
                 } else {
                     throw new MessagingException("No local address.");
                 }
@@ -3148,13 +3145,13 @@ public class MailHandler extends Handler {
         }
     }
 
-    private void setReplyTo(final MessageContext ctx) {
-        final String reply = ctx.getSession().getProperty("mail.reply.to");
+    private void setReplyTo(final Message msg) {
+        final String reply = msg.getSession().getProperty("mail.reply.to");
         if (!isEmpty(reply)) {
             try {
                 final Address[] address = InternetAddress.parse(reply, false);
-                if (address != null && address.length > 0) {
-                    ctx.getMessage().setReplyTo(address);
+                if (address.length > 0) {
+                    msg.setReplyTo(address);
                 }
             } catch (final MessagingException ME) {
                 reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);
@@ -3162,15 +3159,14 @@ public class MailHandler extends Handler {
         }
     }
 
-    private void setSender(final MessageContext ctx) {
-        final Message msg = ctx.getMessage();
+    private void setSender(final Message msg) {
         assert msg instanceof MimeMessage : msg;
-        final String sender = ctx.getSession().getProperty("mail.sender");
+        final String sender = msg.getSession().getProperty("mail.sender");
         if (!isEmpty(sender)) {
             try {
                 final InternetAddress[] address =
                         InternetAddress.parse(sender, false);
-                if (address != null && address.length > 0) {
+                if (address.length > 0) {
                     ((MimeMessage) msg).setSender(address[0]);
                     if (address.length > 1) {
                         reportError("Ignoring other senders.",
@@ -3191,21 +3187,21 @@ public class MailHandler extends Handler {
 
     /**
      * Sets the recipient for the given message.
-     * @param ctx the context containing the message.
+     * @param msg the message.
      * @param key the key to search in the session.
      * @param type the recipient type.
      * @return true if the key was contained in the session.
      */
-    private boolean setRecipient(final MessageContext ctx,
+    private boolean setRecipient(final Message msg,
             final String key, final Message.RecipientType type) {
         boolean containsKey;
-        final String value = ctx.getSession().getProperty(key);
+        final String value = msg.getSession().getProperty(key);
         containsKey = value != null;
         if (!isEmpty(value)) {
             try {
                 final Address[] address = InternetAddress.parse(value, false);
-                if (address != null && address.length > 0) {
-                    ctx.getMessage().setRecipients(type, address);
+                if (address.length > 0) {
+                    msg.setRecipients(type, address);
                 }
             } catch (final MessagingException ME) {
                 reportError(ME.getMessage(), ME, ErrorManager.FORMAT_FAILURE);

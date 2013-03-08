@@ -2692,9 +2692,9 @@ public class MailHandlerTest {
 
     @Test
     public void testEmptyAddressParse() throws Exception {
-        //Assumed in the MailHandler.setFrom.
+        //Assumed to never return null in the MailHandler.
         InternetAddress[] a = InternetAddress.parse("", false);
-        assertTrue(a == null || a.length == 0);
+        assertTrue(a.length == 0);
     }
 
     @Test
@@ -2914,13 +2914,41 @@ public class MailHandlerTest {
             fail(re.toString());
         }
 
-
         assertEquals(instance.getAttachmentFormatters().length, 2);
+        //Force a subclass array.
         instance.setAttachmentFilters(new ThrowFilter[]{new ThrowFilter(), new ThrowFilter()});
         assertEquals(Filter[].class, instance.getAttachmentFilters().getClass());
 
         assertEquals(em.exceptions.isEmpty(), true);
         instance.close();
+    }
+
+    @Test
+    public void testAttachmentFiltersDefaults() {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+        instance.setFilter(new ErrorFilter());
+        final Formatter f = new SimpleFormatter();
+        instance.setAttachmentFormatters(f, f, f, f);
+
+        for (int i = 0; i < em.exceptions.size(); i++) {
+            dump(em.exceptions.get(i));
+        }
+        assertTrue(em.exceptions.isEmpty());
+
+        assertEquals(ErrorFilter.class, instance.getFilter().getClass());
+        assertEquals(instance.getFilter(), instance.getAttachmentFilters()[0]);
+        assertEquals(instance.getFilter(), instance.getAttachmentFilters()[1]);
+        assertEquals(instance.getFilter(), instance.getAttachmentFilters()[2]);
+        assertEquals(instance.getFilter(), instance.getAttachmentFilters()[3]);
+
+        instance.setAttachmentFilters(null, null, null, null);
+        assertEquals(ErrorFilter.class, instance.getFilter().getClass());
+        assertNull(instance.getAttachmentFilters()[0]);
+        assertNull(instance.getAttachmentFilters()[1]);
+        assertNull(instance.getAttachmentFilters()[2]);
+        assertNull(instance.getAttachmentFilters()[3]);
     }
 
     @Test
@@ -4331,11 +4359,28 @@ public class MailHandlerTest {
             }
             assertTrue(em.exceptions.isEmpty());
 
-            final Comparator<? super LogRecord> c = instance.getComparator();
+            Comparator<? super LogRecord> c = instance.getComparator();
             assertTrue(SequenceComparator.class != c.getClass());
             assertFalse(instance.getComparator().compare(low, high) < 0);
             assertFalse(instance.getComparator().compare(high, low) > 0);
 
+            props.put(p.concat(".comparator"),
+                    SequenceComparatorWithReverse.class.getName());
+            read(manager, props);
+            instance = new MailHandler();
+            instance.close();
+            em = internalErrorManagerFrom(instance);
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                dump(t);
+                fail(t.toString());
+            }
+            assertTrue(em.exceptions.isEmpty());
+
+            c = instance.getComparator();
+            assertTrue(SequenceDescComparator.class == c.getClass());
+            assertFalse(instance.getComparator().compare(low, high) < 0);
+            assertFalse(instance.getComparator().compare(high, low) > 0);
 
             props.put(p.concat(".comparator"), "");
             read(manager, props);
@@ -4703,6 +4748,76 @@ public class MailHandlerTest {
         } finally {
             manager.reset();
         }
+    }
+
+    @Test
+    public void testInitAttachmentFilters() throws Exception {
+        InternalErrorManager em;
+        MailHandler target;
+        final String p = MailHandler.class.getName();
+        final LogManager manager = LogManager.getLogManager();
+        final Properties props = createInitProperties(p);
+        props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+        props.put(p.concat(".filter"), ErrorFilter.class.getName());
+        props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.names"), Properties.class.getName());
+        assertNull(props.getProperty(p.concat(".attachment.filters")));
+
+        read(manager, props);
+        try {
+            target = new MailHandler();
+            try {
+                em = internalErrorManagerFrom(target);
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    dump(em.exceptions.get(i));
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+        } finally {
+            manager.reset();
+        }
+
+        assertEquals(ErrorFilter.class, target.getFilter().getClass());
+        assertEquals(target.getFilter(), target.getAttachmentFilters()[0]);
+
+
+        props.put(p.concat(".attachment.formatters"),
+                SimpleFormatter.class.getName() + ", "
+                + SimpleFormatter.class.getName() + ", "
+                + SimpleFormatter.class.getName() + ", "
+                + SimpleFormatter.class.getName());
+        props.put(p.concat(".attachment.names"), "a.txt, b.txt, c.txt, d.txt");
+        props.put(p.concat(".attachment.filters"), "null, "
+                + ThrowFilter.class.getName());
+
+        read(manager, props);
+        try {
+            target = new MailHandler();
+            try {
+                em = internalErrorManagerFrom(target);
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    final Throwable t = em.exceptions.get(i);
+                    if (t instanceof IndexOutOfBoundsException) {
+                        continue;
+                    }
+                    dump(t);
+                }
+                assertFalse(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+        } finally {
+            manager.reset();
+        }
+
+        assertEquals(ErrorFilter.class, target.getFilter().getClass());
+        assertNull(target.getAttachmentFilters()[0]);
+        assertEquals(ThrowFilter.class,
+                target.getAttachmentFilters()[1].getClass());
+        assertEquals(target.getFilter(), target.getAttachmentFilters()[2]);
+        assertEquals(target.getFilter(), target.getAttachmentFilters()[3]);
     }
 
     @Test
@@ -5805,7 +5920,8 @@ public class MailHandlerTest {
         }
     }
 
-    public static class UselessComparator implements Comparator<LogRecord>, Serializable {
+    public static class UselessComparator
+            implements Comparator<LogRecord>, Serializable {
 
         private static final long serialVersionUID = 7973575043680596722L;
 
@@ -5814,7 +5930,8 @@ public class MailHandlerTest {
         }
     };
 
-    public static class SequenceComparator implements Comparator<LogRecord>, Serializable {
+    public static class SequenceComparator
+            implements Comparator<LogRecord>, Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -5825,7 +5942,36 @@ public class MailHandlerTest {
         }
     }
 
-    public static class RawTypeComparator implements Comparator<Object>, Serializable {
+    public static class SequenceDescComparator
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord o1, LogRecord o2) {
+            long s1 = o1.getSequenceNumber();
+            long s2 = o2.getSequenceNumber();
+            return s1 < s2 ? 1 : s1 > s2 ? -1 : 0;
+        }
+    }
+
+    public static final class SequenceComparatorWithReverse
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord o1, LogRecord o2) {
+            long s1 = o1.getSequenceNumber();
+            long s2 = o2.getSequenceNumber();
+            return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
+        }
+
+        public Comparator<LogRecord> reverseOrder() {
+            return new SequenceDescComparator();
+        }
+    }
+
+    public static class RawTypeComparator
+            implements Comparator<Object>, Serializable {
 
         private static final long serialVersionUID = -6539179106541617400L;
 

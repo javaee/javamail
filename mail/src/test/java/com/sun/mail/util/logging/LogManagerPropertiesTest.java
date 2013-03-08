@@ -407,6 +407,31 @@ public class LogManagerPropertiesTest {
     }
 
     @Test
+    public void testReverseOrder() throws Exception {
+        try {
+            LogManagerProperties.reverseOrder(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        Comparator<LogRecord> c = new ErrorComparator();
+        Comparator<LogRecord> r = LogManagerProperties.reverseOrder(c);
+        assertTrue(c.getClass() != r.getClass());
+        assertFalse(r instanceof ErrorComparator);
+        assertFalse(r instanceof AscComparator);
+        assertFalse(r instanceof DescComparator);
+
+        c = new AscComparator();
+        r = LogManagerProperties.reverseOrder(c);
+        assertTrue(r instanceof DescComparator);
+
+        c = new AscComparator();
+        r = LogManagerProperties.reverseOrder(c);
+        assertTrue(r instanceof DescComparator);
+    }
+
+
+    @Test
     public void testNewErrorManager() throws Exception {
         try {
             LogManagerProperties.newErrorManager(null);
@@ -703,7 +728,8 @@ public class LogManagerPropertiesTest {
         }
     }
 
-    public static class ErrorComparator implements Comparator<LogRecord>, Serializable {
+    public static class ErrorComparator implements Comparator<LogRecord>,
+                                                                Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -713,6 +739,32 @@ public class LogManagerPropertiesTest {
 
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
+        }
+    }
+
+    public static class AscComparator implements Comparator<LogRecord>,
+                                                                Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord r1, LogRecord r2) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Comparator<LogRecord> reverseOrder() {
+            return new DescComparator();
+        }
+    }
+
+    public static class DescComparator implements Comparator<LogRecord>,
+                                                                Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord r1, LogRecord r2) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Comparator<LogRecord> reverseOrder() {
+            return new AscComparator();
         }
     }
 

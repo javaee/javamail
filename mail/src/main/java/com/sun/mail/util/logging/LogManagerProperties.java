@@ -42,12 +42,11 @@ package com.sun.mail.util.logging;
 
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Properties;
+import java.util.*;
+import java.util.logging.Formatter;
 import java.util.logging.*;
 import javax.mail.Authenticator;
 
@@ -183,6 +182,50 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
+     * Returns a comparator that imposes the reverse ordering of the specified
+     * {@link Comparator}. If the given comparator declares a public
+     * reverseOrder method that method is called first and the return value is
+     * used. If that method is not declared or the caller does not have access
+     * then a comparator wrapping the given comparator is returned.
+     *
+     * @param <T> the element type to be compared
+     * @param c a comparator whose ordering is to be reversed by the returned
+     * comparator
+     * @return A comparator that imposes the reverse ordering of the specified
+     * comparator.
+     * @throws NullPointerException if the given comparator is null.
+     * @since JavaMail 1.5.0
+     */
+    @SuppressWarnings("unchecked")
+    static <T> Comparator<T> reverseOrder(final Comparator<T> c) {
+        Comparator<T> reverse = null;
+        //Comparator in Java 1.8 has 'reverseOrder' as a default method.
+        //This code calls that method first to allow custom code to define what
+        //reverse order means.
+        try {
+            //assert Modifier.isPublic(c.getClass().getModifiers()) :
+            //        Modifier.toString(c.getClass().getModifiers());
+            final Method m = c.getClass().getMethod("reverseOrder");
+            if (Comparator.class.isAssignableFrom(m.getReturnType())) {
+                try {
+                    reverse = (Comparator<T>) m.invoke(c);
+                } catch (final ExceptionInInitializerError eiie) {
+                    throw wrapOrThrow(eiie);
+                }
+            }
+        } catch (final NoSuchMethodException ignore) {
+        } catch (final IllegalAccessException ignore) {
+        } catch (final InvocationTargetException ite) {
+            paramOrError(ite); //Ignore invocation bugs.
+        }
+
+        if (reverse == null) {
+            reverse = Collections.reverseOrder(c);
+        }
+        return reverse;
+    }
+
+    /**
      * Creates a new error manager from the given class name.
      * @param name the fully qualified class name.
      * @return a new error manager.
@@ -262,15 +305,7 @@ final class LogManagerProperties extends Properties {
             //This is also a nice way to adap this error for the error manager.
             throw new ClassNotFoundException(NCDFE.toString(), NCDFE);
         } catch (final ExceptionInInitializerError EIIE) {
-            //This linkage error will escape the constructor new instance call.
-            //If the cause is an error, rethrow to skip any error manager.
-            if (EIIE.getCause() instanceof Error) {
-                throw EIIE;
-            } else {
-                //Considered a bug in the code, wrap the error so it can be
-                //reported to the error manager.
-                throw new InvocationTargetException(EIIE);
-            }
+            throw wrapOrThrow(EIIE);
         }
     }
 
@@ -291,6 +326,26 @@ final class LogManagerProperties extends Properties {
             }
         }
         return ite;
+    }
+
+    /**
+     * Throws the given error if the cause is an error otherwise
+     * the given error is wrapped.
+     * @param eiie the error.
+     * @return an InvocationTargetException.
+     * @since JavaMail 1.5.0
+     */
+    private static InvocationTargetException wrapOrThrow(
+            ExceptionInInitializerError eiie) {
+        //This linkage error will escape the constructor new instance call.
+        //If the cause is an error, rethrow to skip any error manager.
+        if (eiie.getCause() instanceof Error) {
+            throw eiie;
+        } else {
+            //Considered a bug in the code, wrap the error so it can be
+            //reported to the error manager.
+            return new InvocationTargetException(eiie);
+        }
     }
 
     /**
