@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -92,8 +92,6 @@ import com.sun.mail.util.PropUtil;
  * parsing code will look for a line that looks like a bounary line and
  * use that as the boundary separating the parts. <p>
  *
- * The current implementation also supports the following properties: <p>
- *
  * The <code>mail.mime.multipart.ignoreexistingboundaryparameter</code>
  * System property may be set to <code>true</code> to cause any boundary
  * to be ignored and instead search for a boundary line in the message
@@ -131,24 +129,56 @@ public class MimeMultipart extends Multipart {
 
     /**
      * Have we seen the final bounary line?
+     *
+     * @since	JavaMail 1.5
      */
-    private boolean complete = true;
+    protected boolean complete = true;
 
     /**
      * The MIME multipart preamble text, the text that
      * occurs before the first boundary line.
+     *
+     * @since	JavaMail 1.5
      */
-    private String preamble = null;
+    protected String preamble = null;
 
     /**
-     * Flags to control parsing, initialized from System properties
-     * in the parse() method.
+     * Flag corresponding to the "mail.mime.multipart.ignoremissingendboundary"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
      */
-    private boolean ignoreMissingEndBoundary = true;
-    private boolean ignoreMissingBoundaryParameter = true;
-    private boolean ignoreExistingBoundaryParameter = false;
-    private boolean allowEmpty = false;
-    private boolean bmparse = true;
+    protected boolean ignoreMissingEndBoundary = true;
+
+    /**
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoremissingboundaryparameter"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean ignoreMissingBoundaryParameter = true;
+
+    /**
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoreexistingboundaryparameter"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean ignoreExistingBoundaryParameter = false;
+
+    /**
+     * Flag corresponding to the "mail.mime.multipart.allowempty"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean allowEmpty = false;
 
     /**
      * Default constructor. An empty MimeMultipart object
@@ -167,7 +197,8 @@ public class MimeMultipart extends Multipart {
      * Construct a MimeMultipart object of the given subtype.
      * A unique boundary string is generated and this string is
      * setup as the "boundary" parameter for the 
-     * <code>contentType</code> field. <p>
+     * <code>contentType</code> field.
+     * Calls the {@link #initializeProperties} method.<p>
      *
      * MimeBodyParts may be added later.
      */
@@ -180,6 +211,32 @@ public class MimeMultipart extends Multipart {
 	ContentType cType = new ContentType("multipart", subtype, null);
 	cType.setParameter("boundary", boundary);
 	contentType = cType.toString();
+	initializeProperties();
+    }
+
+    /**
+     * Construct a MimeMultipart object of the default "mixed" subtype,
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(BodyPart... parts) throws MessagingException {
+	this();
+	for (BodyPart bp : parts)
+	    super.addBodyPart(bp);
+    }
+
+    /**
+     * Construct a MimeMultipart object of the given subtype
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(String subtype, BodyPart... parts)
+				throws MessagingException {
+	this(subtype);
+	for (BodyPart bp : parts)
+	    super.addBodyPart(bp);
     }
 
     /**
@@ -219,6 +276,30 @@ public class MimeMultipart extends Multipart {
 	parsed = false;
 	this.ds = ds;
 	contentType = ds.getContentType();
+    }
+
+    /**
+     * Initialize flags that control parsing behavior,
+     * based on System properties described above in
+     * the class documentation.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected void initializeProperties() {
+	// read properties that control parsing
+
+	// default to true
+	ignoreMissingEndBoundary = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoremissingendboundary", true);
+	// default to true
+	ignoreMissingBoundaryParameter = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoremissingboundaryparameter", true);
+	// default to false
+	ignoreExistingBoundaryParameter = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.ignoreexistingboundaryparameter", false);
+	// default to false
+	allowEmpty = PropUtil.getBooleanSystemProperty(
+	    "mail.mime.multipart.allowempty", false);
     }
 
     /**
@@ -444,11 +525,6 @@ public class MimeMultipart extends Multipart {
 	}
 
 	if (parts.size() == 0) {
-	    // have to read the property every time because parse won't
-	    // read it if the message was *not* constructed from a stream.
-	    // default to false
-	    allowEmpty = PropUtil.getBooleanSystemProperty(
-		"mail.mime.multipart.allowempty", false);
 	    if (allowEmpty) {
 		// write out a single empty body part
 		los.writeln(boundary); // put out boundary
@@ -474,6 +550,8 @@ public class MimeMultipart extends Multipart {
      * set to true, and if true on entry nothing is done.  This
      * method is called by all other methods that need data for
      * the body parts, to make sure the data has been parsed.
+     * The {@link #initializeProperties} method is called before
+     * parsing the data.
      *
      * @since	JavaMail 1.2
      */
@@ -481,302 +559,8 @@ public class MimeMultipart extends Multipart {
 	if (parsed)
 	    return;
 
-	// read properties that control parsing
+	initializeProperties();
 
-	// default to true
-	ignoreMissingEndBoundary = PropUtil.getBooleanSystemProperty(
-	    "mail.mime.multipart.ignoremissingendboundary", true);
-	// default to true
-	ignoreMissingBoundaryParameter = PropUtil.getBooleanSystemProperty(
-	    "mail.mime.multipart.ignoremissingboundaryparameter", true);
-	// default to false
-	ignoreExistingBoundaryParameter = PropUtil.getBooleanSystemProperty(
-	    "mail.mime.multipart.ignoreexistingboundaryparameter", false);
-	// default to false
-	allowEmpty = PropUtil.getBooleanSystemProperty(
-	    "mail.mime.multipart.allowempty", false);
-	// default to true
-	bmparse = PropUtil.getBooleanSystemProperty(
-	    "mail.mime.multipart.bmparse", true);
-
-	if (bmparse) {
-	    parsebm();
-	    return;
-	}
-
-	InputStream in = null;
-	SharedInputStream sin = null;
-	long start = 0, end = 0;
-
-	try {
-	    in = ds.getInputStream();
-	    if (!(in instanceof ByteArrayInputStream) &&
-		!(in instanceof BufferedInputStream) &&
-		!(in instanceof SharedInputStream))
-		in = new BufferedInputStream(in);
-	} catch (Exception ex) {
-	    throw new MessagingException("No inputstream from datasource", ex);
-	}
-	if (in instanceof SharedInputStream)
-	    sin = (SharedInputStream)in;
-
-	ContentType cType = new ContentType(contentType);
-	String boundary = null;
-	if (!ignoreExistingBoundaryParameter) {
-	    String bp = cType.getParameter("boundary");
-	    if (bp != null)
-		boundary = "--" + bp;
-	}
-	if (boundary == null && !ignoreMissingBoundaryParameter &&
-		!ignoreExistingBoundaryParameter)
-	    throw new MessagingException("Missing boundary parameter");
-
-	try {
-	    // Skip and save the preamble
-	    LineInputStream lin = new LineInputStream(in);
-	    StringBuffer preamblesb = null;
-	    String line;
-	    String lineSeparator = null;
-	    while ((line = lin.readLine()) != null) {
-		/*
-		 * Strip trailing whitespace.  Can't use trim method
-		 * because it's too aggressive.  Some bogus MIME
-		 * messages will include control characters in the
-		 * boundary string.
-		 */
-		int i;
-		for (i = line.length() - 1; i >= 0; i--) {
-		    char c = line.charAt(i);
-		    if (!(c == ' ' || c == '\t'))
-			break;
-		}
-		line = line.substring(0, i + 1);
-		if (boundary != null) {
-		    if (line.equals(boundary))
-			break;
-		    if (line.length() == boundary.length() + 2 &&
-			    line.startsWith(boundary) && line.endsWith("--")) {
-			line = null;	// signal end of multipart
-			break;
-		    }
-		} else {
-		    /*
-		     * Boundary hasn't been defined, does this line
-		     * look like a boundary?  If so, assume it is
-		     * the boundary and save it.
-		     */
-		    if (line.length() > 2 && line.startsWith("--")) {
-			if (line.length() > 4 && allDashes(line)) {
-			    /*
-			     * The first boundary-like line we find is
-			     * probably *not* the end-of-multipart boundary
-			     * line.  More likely it's a line full of dashes
-			     * in the preamble text.  Just keep reading.
-			     */
-			} else {
-			    boundary = line;
-			    break;
-			}
-		    }
-		}
-
-		// save the preamble after skipping blank lines
-		if (line.length() > 0) {
-		    // if we haven't figured out what the line separator
-		    // is, do it now
-		    if (lineSeparator == null) {
-			try {
-			    lineSeparator =
-				System.getProperty("line.separator", "\n");
-			} catch (SecurityException ex) {
-			    lineSeparator = "\n";
-			}
-		    }
-		    // accumulate the preamble
-		    if (preamblesb == null)
-			preamblesb = new StringBuffer(line.length() + 2);
-		    preamblesb.append(line).append(lineSeparator);
-		}
-	    }
-
-	    if (preamblesb != null)
-		preamble = preamblesb.toString();
-
-	    if (line == null) {
-		if (allowEmpty)
-		    return;
-		else
-		    throw new MessagingException("Missing start boundary");
-	    }
-
-	    // save individual boundary bytes for easy comparison later
-	    byte[] bndbytes = ASCIIUtility.getBytes(boundary);
-	    int bl = bndbytes.length;
-	    
-	    /*
-	     * Read and process body parts until we see the
-	     * terminating boundary line (or EOF).
-	     */
-	    boolean done = false;
-	getparts:
-	    while (!done) {
-		InternetHeaders headers = null;
-		if (sin != null) {
-		    start = sin.getPosition();
-		    // skip headers
-		    while ((line = lin.readLine()) != null && line.length() > 0)
-			;
-		    if (line == null) {
-			if (!ignoreMissingEndBoundary)
-			    throw new MessagingException(
-					"missing multipart end boundary");
-			// assume there's just a missing end boundary
-			complete = false;
-			break getparts;
-		    }
-		} else {
-		    // collect the headers for this body part
-		    headers = createInternetHeaders(in);
-		}
-
-		if (!in.markSupported())
-		    throw new MessagingException("Stream doesn't support mark");
-
-		ByteArrayOutputStream buf = null;
-		// if we don't have a shared input stream, we copy the data
-		if (sin == null)
-		    buf = new ByteArrayOutputStream();
-		else
-		    end = sin.getPosition();
-		int b;
-		boolean bol = true;    // beginning of line flag
-		// the two possible end of line characters
-		int eol1 = -1, eol2 = -1;
-
-		/*
-		 * Read and save the content bytes in buf.
-		 */
-		for (;;) {
-		    if (bol) {
-			/*
-			 * At the beginning of a line, check whether the
-			 * next line is a boundary.
-			 */
-			int i;
-			in.mark(bl + 4 + 1000); // bnd + "--\r\n" + lots of LWSP
-			// read bytes, matching against the boundary
-			for (i = 0; i < bl; i++)
-			    if (in.read() != (bndbytes[i] & 0xff))
-				break;
-			if (i == bl) {
-			    // matched the boundary, check for last boundary
-			    int b2 = in.read();
-			    if (b2 == '-') {
-				if (in.read() == '-') {
-				    complete = true;
-				    done = true;
-				    break;	// ignore trailing text
-				}
-			    }
-			    // skip linear whitespace
-			    while (b2 == ' ' || b2 == '\t')
-				b2 = in.read();
-			    // check for end of line
-			    if (b2 == '\n')
-				break;	// got it!  break out of the loop
-			    if (b2 == '\r') {
-				in.mark(1);
-				if (in.read() != '\n')
-				    in.reset();
-				break;	// got it!  break out of the loop
-			    }
-			}
-			// failed to match, reset and proceed normally
-			in.reset();
-
-			// if this is not the first line, write out the
-			// end of line characters from the previous line
-			if (buf != null && eol1 != -1) {
-			    buf.write(eol1);
-			    if (eol2 != -1)
-				buf.write(eol2);
-			    eol1 = eol2 = -1;
-			}
-		    }
-
-		    // read the next byte
-		    if ((b = in.read()) < 0) {
-			if (!ignoreMissingEndBoundary)
-			    throw new MessagingException(
-					"missing multipart end boundary");
-			complete = false;
-			done = true;
-			break;
-		    }
-
-		    /*
-		     * If we're at the end of the line, save the eol characters
-		     * to be written out before the beginning of the next line.
-		     */
-		    if (b == '\r' || b == '\n') {
-			bol = true;
-			if (sin != null)
-			    end = sin.getPosition() - 1;
-			eol1 = b;
-			if (b == '\r') {
-			    in.mark(1);
-			    if ((b = in.read()) == '\n')
-				eol2 = b;
-			    else
-				in.reset();
-			}
-		    } else {
-			bol = false;
-			if (buf != null)
-			    buf.write(b);
-		    }
-		}
-
-		/*
-		 * Create a MimeBody element to represent this body part.
-		 */
-		MimeBodyPart part;
-		if (sin != null)
-		    part = createMimeBodyPartIs(sin.newStream(start, end));
-		else
-		    part = createMimeBodyPart(headers, buf.toByteArray());
-		super.addBodyPart(part);
-	    }
-	} catch (IOException ioex) {
-	    throw new MessagingException("IO Error", ioex);
-	} finally {
-	    try {
-		in.close();
-	    } catch (IOException cex) {
-		// ignore
-	    }
-	}
-
-	parsed = true;
-    }
-
-    /**
-     * Parse the InputStream from our DataSource, constructing the
-     * appropriate MimeBodyParts.  The <code>parsed</code> flag is
-     * set to true, and if true on entry nothing is done.  This
-     * method is called by all other methods that need data for
-     * the body parts, to make sure the data has been parsed.
-     *
-     * @since	JavaMail 1.2
-     */
-    /*
-     * Boyer-Moore version of parser.  Keep both versions around
-     * until we're sure this new one works.
-     */
-    private synchronized void parsebm() throws MessagingException {
-	if (parsed)
-	    return;
-	
 	InputStream in = null;
 	SharedInputStream sin = null;
 	long start = 0, end = 0;

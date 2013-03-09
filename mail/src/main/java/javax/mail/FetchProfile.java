@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -126,6 +126,16 @@ public class FetchProfile {
 	 * included as well.
 	 */
 	public static final Item CONTENT_INFO = new Item("CONTENT_INFO");
+
+	/**
+	 * SIZE is a fetch profile item that can be included in a
+	 * <code>FetchProfile</code> during a fetch request to a Folder.
+	 * This item indicates that the sizes of the messages in the specified 
+	 * range should be prefetched. <p>
+	 *
+	 * @since	JavaMail 1.5
+	 */
+	public static final Item SIZE = new Item("SIZE");
 
 	/**
 	 * This is the Flags item.

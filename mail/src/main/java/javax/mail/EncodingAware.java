@@ -41,44 +41,39 @@
 package javax.mail;
 
 /**
- * This exception is thrown when the connect method on a Store or
- * Transport object fails due to an authentication failure (e.g.,
- * bad user name or password).
+ * A {@link javax.activation.DataSource DataSource} that also implements
+ * <code>EncodingAware</code> may specify the Content-Transfer-Encoding
+ * to use for its data.  Valid Content-Transfer-Encoding values specified
+ * by RFC 2045 are "7bit", "8bit", "quoted-printable", "base64", and "binary".
+ * <p>
+ * For example, a {@link javax.activation.FileDataSource FileDataSource}
+ * could be created that forces all files to be base64 encoded: <p>
+ * <blockquote><pre>
+ *  public class Base64FileDataSource extends FileDataSource
+ *					implements EncodingAware {
+ *	public Base64FileDataSource(File file) {
+ *	    super(file);
+ *	}
  *
- * @author Bill Shannon
+ *	// implements EncodingAware.getEncoding()
+ *	public String getEncoding() {
+ *	    return "base64";
+ *	}
+ *  }
+ * </pre></blockquote><p>
+ *
+ * @since	JavaMail 1.5
+ * @author	Bill Shannon
  */
 
-public class AuthenticationFailedException extends MessagingException {
-
-    private static final long serialVersionUID = 492080754054436511L;
+public interface EncodingAware {
 
     /**
-     * Constructs an AuthenticationFailedException.
-     */
-    public AuthenticationFailedException() {
-	super();
-    }
-
-    /**
-     * Constructs an AuthenticationFailedException with the specified
-     * detail message.
+     * Return the MIME Content-Transfer-Encoding to use for this data,
+     * or null to indicate that an appropriate value should be chosen
+     * by the caller.
      *
-     * @param message	The detailed error message
+     * @return		the Content-Transfer-Encoding value, or null
      */
-    public AuthenticationFailedException(String message) {
-	super(message);
-    }
-
-    /**
-     * Constructs an AuthenticationFailedException with the specified
-     * detail message and embedded exception.  The exception is chained
-     * to this exception.
-     *
-     * @param message	The detailed error message
-     * @param e		The embedded exception
-     * @since		JavaMail 1.5
-     */
-    public AuthenticationFailedException(String message, Exception e) {
-	super(message, e);
-    }
+    public String getEncoding();
 }

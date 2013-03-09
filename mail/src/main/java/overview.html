@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -55,7 +55,7 @@ to mail systems based on internet standards such as MIME, SMTP, POP3, and IMAP.
 The JavaMail API includes the <code>javax.mail</code> package and subpackages.
 <P>
 For an overview of the JavaMail API, read the JavaMail specification
-<A HREF="../JavaMail-1.4.pdf" TARGET="_top">
+<A HREF="../JavaMail-1.5.pdf" TARGET="_top">
 included in the download bundle</A> or
 <A HREF="http://www.oracle.com/technetwork/java/javamail-1-149769.pdf" TARGET="_top">
 available on the JavaMail web site</A>.
@@ -64,18 +64,17 @@ The code to send a plain text message can be as simple as the following:
 <PRE>
     Properties props = new Properties();
     props.put("mail.smtp.host", "my-mail-server");
-    props.put("mail.from", "me@example.com");
     Session session = Session.getInstance(props, null);
 
     try {
 	MimeMessage msg = new MimeMessage(session);
-	msg.setFrom();
+	msg.setFrom("me@example.com");
 	msg.setRecipients(Message.RecipientType.TO,
 			  "you@example.com");
 	msg.setSubject("JavaMail hello world example");
 	msg.setSentDate(new Date());
 	msg.setText("Hello, world!\n");
-	Transport.send(msg);
+	Transport.send(msg, "me@example.com", "my-password");
     } catch (MessagingException mex) {
 	System.out.println("send failed, exception: " + mex);
     }

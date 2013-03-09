@@ -51,7 +51,7 @@ import com.sun.mail.util.ASCIIUtility;
  * <code>mail.mime.decodeparameters</code> System properties
  * control whether encoded parameters, as specified by 
  * <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>,
- * are supported.  By default, such encoded parameters are not
+ * are supported.  By default, such encoded parameters <b>are</b>
  * supported. <p>
  *
  * Also, in the current implementation, setting the System property
@@ -139,9 +139,9 @@ public class ParameterList {
     private String lastName = null;
 
     private static final boolean encodeParameters =
-	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", false);
+	PropUtil.getBooleanSystemProperty("mail.mime.encodeparameters", true);
     private static final boolean decodeParameters =
-	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", false);
+	PropUtil.getBooleanSystemProperty("mail.mime.decodeparameters", true);
     private static final boolean decodeParametersStrict =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.decodeparameters.strict", false);
@@ -301,6 +301,36 @@ public class ParameterList {
 	     * multi-segment parameter values together.
 	     */
 	    combineMultisegmentNames(false);
+	}
+    }
+
+    /**
+     * Normal users of this class will use simple parameter names.
+     * In some cases, for example, when processing IMAP protocol
+     * messages, individual segments of a multi-segment name
+     * (specified by RFC 2231) will be encountered and passed to
+     * the {@link #set} method.  After all these segments are added
+     * to this ParameterList, they need to be combined to represent
+     * the logical parameter name and value.  This method will combine
+     * all segments of multi-segment names. <p>
+     *
+     * Normal users should never need to call this method.
+     *
+     * @since	JavaMail 1.5
+     */ 
+    public void combineSegments() {
+	/*
+	 * If we've accumulated any multi-segment names from calls to
+	 * the set method from (e.g.) the IMAP provider, combine the pieces.
+	 * Ignore any parse errors (e.g., from decoding the values)
+	 * because it's too late to report them.
+	 */
+	if (decodeParameters && multisegmentNames.size() > 0) {
+	    try {
+		combineMultisegmentNames(true);
+	    } catch (ParseException pex) {
+		// too late to do anything about it
+	    }
 	}
     }
 
@@ -500,24 +530,6 @@ public class ParameterList {
      * @param	value	value of the parameter.
      */
     public void set(String name, String value) {
-	// XXX - an incredible kludge used by the IMAP provider
-	// to indicate that it's done setting parameters
-	if (name == null && value != null && value.equals("DONE")) {
-	    /*
-	     * If we've accumulated any multi-segment names from calls to
-	     * the set method from the IMAP provider, combine the pieces.
-	     * Ignore any parse errors (e.g., from decoding the values)
-	     * because it's too late to report them.
-	     */
-	    if (decodeParameters && multisegmentNames.size() > 0) {
-		try {
-		    combineMultisegmentNames(true);
-		} catch (ParseException pex) {
-		    // too late to do anything about it
-		}
-	    }
-	    return;
-	}
 	name = name.trim().toLowerCase(Locale.ENGLISH);
 	if (decodeParameters) {
 	    try {

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,8 +31,11 @@
  */
 
 import java.io.*;
-import java.security.*;
-import java.util.logging.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.logging.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
 
 /**
  * An error manager used to store mime messages from the <tt>MailHandler</tt>
@@ -56,7 +59,7 @@ import java.util.logging.*;
  * If properties are not defined, or contain invalid values, then the specified
  * default values are used.
  * <ul>
- * <li>FileErrorManager.pattern the absolute file path to the directory which 
+ * <li>FileErrorManager.pattern the absolute file path to the directory which
  * will store any failed email messages. (defaults to the value of the system
  * property <tt>java.io.tmpdir</tt>)
  * </ul>
@@ -79,7 +82,7 @@ public class FileErrorManager extends ErrorManager {
     private final File emailStore;
 
     /**
-     * Creates a new error manager.  Files are stored in the users temp 
+     * Creates a new error manager.  Files are stored in the users temp
      * directory.
      * @exception SecurityException if unable to access system properties or
      * if a security manager is present and unable to read or write to users
@@ -115,6 +118,7 @@ public class FileErrorManager extends ErrorManager {
      * @param ex Exception that occurred in the mail handler.
      * @param code int error manager code.
      */
+    @Override
     public void error(String msg, Exception ex, int code) {
         if (isRawEmail(msg, ex, code)) {
             try {
@@ -245,9 +249,9 @@ public class FileErrorManager extends ErrorManager {
         String dir = manager.getProperty(
                 getClass().getName().concat(".pattern"));
         if (dir == null) {
-            dir = (String) AccessController.doPrivileged(new PrivilegedAction() {
+            dir = AccessController.doPrivileged(new PrivilegedAction<String>() {
 
-                public Object run() {
+                public String run() {
                     return System.getProperty("java.io.tmpdir", "");
                 }
             });

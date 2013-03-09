@@ -401,7 +401,7 @@ public class BODYSTRUCTURE implements Item {
 		    System.out.println("DEBUG IMAP: parameter value " + value);
 		list.set(name, value);
 	    } while (r.readByte() != ')');
-	    list.set(null, "DONE");	// XXX - hack
+	    list.combineSegments();
 	} else if (b == 'N' || b == 'n') {
 	    if (parseDebug)
 		System.out.println("DEBUG IMAP: parameter list NIL");

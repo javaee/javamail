@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,13 +31,17 @@
  */
 
 import com.sun.mail.util.logging.MailHandler;
-import java.util.logging.*;
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
-import java.io.*;
+import java.util.logging.*;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
 
 /**
  * Demo for the different configurations for the MailHandler.
@@ -126,9 +130,9 @@ public class MailHandlerDemo {
             String to = manager.getProperty(key);
             err.println(prefix + ": TO=" + to);
             err.println(prefix + ": TO="
-                    + Arrays.asList(InternetAddress.parse(to, false)));
+                    + Arrays.toString(InternetAddress.parse(to, false)));
             err.println(prefix + ": TO="
-                    + Arrays.asList(InternetAddress.parse(to, true)));
+                    + Arrays.toString(InternetAddress.parse(to, true)));
 
             key = p.concat(".mail.from");
             String from = manager.getProperty(key);
@@ -160,7 +164,7 @@ public class MailHandlerDemo {
 
     /**
      * Example showing that when the mail handler reaches capacity it
-     * will format and send the current records.  Capacity is used to roughly 
+     * will format and send the current records.  Capacity is used to roughly
      * limit the size of an outgoing message.
      * On close any remaining messages are sent.
      */
@@ -240,6 +244,7 @@ public class MailHandlerDemo {
         h.setSubject("Push normal demo");
         MemoryHandler m = new MemoryHandler(h, capacity, Level.WARNING) {
 
+            @Override
             public void push() {
                 super.push();  //push to target.
                 super.flush(); //make the target send the email.
@@ -368,7 +373,7 @@ public class MailHandlerDemo {
      * Orders log records by level then sequence number.
      */
     private static final class LevelAndSeqComparator
-            implements Comparator, java.io.Serializable {
+            implements Comparator<LogRecord>, java.io.Serializable {
 
         private static final long serialVersionUID = 6269562326337300267L;
         private final boolean reverse;
@@ -381,9 +386,7 @@ public class MailHandlerDemo {
             this.reverse = reverse;
         }
 
-        public int compare(Object o1, Object o2) {
-            LogRecord r1 = (LogRecord) o1;
-            LogRecord r2 = (LogRecord) o2;
+        public int compare(LogRecord r1, LogRecord r2) {
             final int first = r1.getLevel().intValue();
             final int second = r2.getLevel().intValue();
             if (first < second) {

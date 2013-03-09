@@ -1,0 +1,823 @@
+
+		JavaMail 1.5
+		============
+
+		(Updated February 7, 2013)
+
+Following is a description of the changes to the JavaMail
+API introduced in JavaMail 1.5.  The numbers in parentheses
+are bug numbers; you can find more information about the
+bug reports at:
+
+    https://kenai.com/bugzilla/
+
+Please send comments and feedback to javamail_ww@oracle.com.
+
+JavaMail 1.5 will also require at least J2SE 5.0.  This allows
+JavaMail to take advantage of features of more modern Java SE releases.
+
+
+===================================================================
+
+1. Add FetchProfile.Item.SIZE (5682)
+------------------------------------
+
+The FetchProfile.Item.SIZE item allows prefetching the size of
+a message.  Previously this was an IMAP-specific fetch item.
+
+	/**
+	 * SIZE is a fetch profile item that can be included in a
+	 * <code>FetchProfile</code> during a fetch request to a Folder.
+	 * This item indicates that the sizes of the messages in the specified 
+	 * range should be prefetched. <p>
+	 *
+	 * @since	JavaMail 1.5
+	 */
+	public static final Item SIZE;
+
+
+===================================================================
+
+2. Fix protected fields in final classes in javax.mail.search (5683)
+--------------------------------------------------------------------
+
+Several final classes in the javax.mail.search package contain
+protected fields.  Since the classes are final, they can't be
+subclassed, and the protected fields can not be accessed.  This
+change cleans up these fields by making them private.  The following
+fields are changed:
+
+javax.mail.search.AndTerm:
+    private SearchTerm[] terms;
+
+javax.mail.search.FlagTerm:
+    private boolean set;
+    private Flags flags;
+
+javax.mail.search.HeaderTerm:
+    private String headerName;
+
+javax.mail.search.NotTerm:
+    private SearchTerm term;
+
+javax.mail.search.OrTerm:
+    private SearchTerm[] terms;
+
+javax.mail.search.RecipientTerm:
+    private Message.RecipientType type;
+
+
+===================================================================
+
+3. Add MimeMultipart(String subtype, BodyPart... bps) constructor (5684)
+------------------------------------------------------------------------
+
+These convenience constructors create a MimeMultipart object given an
+array or varargs list of BodyParts.
+
+    /**
+     * Construct a MimeMultipart object of the default "mixed" subtype,
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(BodyPart... parts) throws MessagingException
+
+    /**
+     * Construct a MimeMultipart object of the given subtype
+     * and with the given body parts.  More body parts may be added later.
+     *
+     * @since	JavaMail 1.5
+     */
+    public MimeMultipart(String subtype, BodyPart... parts)
+				throws MessagingException
+
+
+===================================================================
+
+4. Exceptions should support exception chaining (5685)
+------------------------------------------------------
+
+javax.mail.MessagingException was designed before exception chainging
+was added to Java SE, but it does support a similar concept itself,
+and that support should be made available to all subclasses.
+
+javax.mail.AuthenticationFailedException:
+   /**
+    * Constructs an AuthenticationFailedException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param message	The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public AuthenticationFailedException(String message, Exception e)
+
+javax.mail.FolderClosedException:
+   /**
+    * Constructs a FolderClosedException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param folder 	The Folder
+    * @param message	The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public FolderClosedException(Folder folder, String message, Exception e)
+
+javax.mail.FolderNotFoundException:
+   /**
+    * Constructs a FolderNotFoundException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param folder	The Folder
+    * @param s		The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public FolderNotFoundException(Folder folder, String s, Exception e)
+
+javax.mail.IllegalWriteException:
+   /**
+    * Constructs an IllegalWriteException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param s		The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public IllegalWriteException(String s, Exception e)
+
+javax.mail.MessageRemovedException:
+   /**
+    * Constructs a MessageRemovedException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param s		The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public MessageRemovedException(String s, Exception e)
+
+javax.mail.MethodNotSupportedException:
+   /**
+    * Constructs a MethodNotSupportedException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param s		The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public MethodNotSupportedException(String s, Exception e)
+
+javax.mail.NoSuchProviderException:
+   /**
+    * Constructs a NoSuchProviderException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param message	The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public NoSuchProviderException(String message, Exception e)
+
+javax.mail.ReadOnlyFolderException:
+   /**
+    * Constructs a ReadOnlyFolderException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param folder 	The Folder
+    * @param message	The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public ReadOnlyFolderException(Folder folder, String message, Exception e)
+
+javax.mail.StoreClosedException:
+   /**
+    * Constructs a StoreClosedException with the specified
+    * detail message and embedded exception.  The exception is chained
+    * to this exception.
+    *
+    * @param store	The dead Store object
+    * @param message	The detailed error message
+    * @param e		The embedded exception
+    * @since		JavaMail 1.5
+    */
+   public StoreClosedException(Store store, String message, Exception e)
+
+
+===================================================================
+
+5. ParameterList needs to support use by IMAP (5686)
+----------------------------------------------------
+
+The IMAP provider has special needs when processing multi-segment
+parameters defined by RFC 2231.  This new method supports such use
+by the IMAP provider.
+
+   /**
+    * Normal users of this class will use simple parameter names.
+    * In some cases, for example, when processing IMAP protocol
+    * messages, individual segments of a multi-segment name
+    * (specified by RFC 2231) will be encountered and passed to
+    * the {@link #set} method.  After all these segments are added
+    * to this ParameterList, they need to be combined to represent
+    * the logical parameter name and value.  This method will combine
+    * all segments of multi-segment names. <p>
+    *
+    * Normal users should never need to call this method.
+    *
+    * @since	JavaMail 1.5
+    */ 
+   public void combineSegments()
+
+
+===================================================================
+
+6. ContentType and ContentDisposition toString should never return null (5687)
+------------------------------------------------------------------------------
+
+The general contract of Object.toString is that it never returns null.
+The toString methods of ContentType and ContentDisposition were defined
+to return null in certain error cases.  Given the general toString contract
+it seems unlikely that anyone ever depended on these special cases, and
+it would be more useful for these classes to obey the general contract.
+These methods have been changed to return an empty string in these error
+cases.
+
+javax.mail.internet.ContentType:
+    /**
+     * Retrieve a RFC2045 style string representation of
+     * this Content-Type. Returns an empty string if
+     * the conversion failed.
+     *
+     * @return	RFC2045 style string
+     */
+    public String toString()
+
+javax.mail.internet.ContentDisposition:
+    /**
+     * Retrieve a RFC2045 style string representation of
+     * this ContentDisposition. Returns an empty string if
+     * the conversion failed.
+     *
+     * @return	RFC2045 style string
+     * @since		JavaMail 1.2
+     */
+    public String toString()
+
+
+===================================================================
+
+7. Add Transport.send(msg, username, password) method (5689)
+------------------------------------------------------------
+
+It's now very common that email servers require authentication before
+sending a message, so we add these new convenience methods.
+
+    /**
+     * Send a message.  The message will be sent to all recipient
+     * addresses specified in the message (as returned from the
+     * <code>Message</code> method <code>getAllRecipients</code>).
+     * The <code>send</code> method calls the <code>saveChanges</code>
+     * method on the message before sending it. <p>
+     *
+     * Use the specified user name and password to authenticate to
+     * the mail server.
+     *
+     * @param	msg	the message to send
+     * @param	user	the user name
+     * @param	password this user's password
+     * @exception	SendFailedException if the message could not
+     *			be sent to some or any of the recipients.
+     * @exception	MessagingException
+     * @see		Message#saveChanges
+     * @see             #send(Message)
+     * @see		javax.mail.SendFailedException
+     * @since		JavaMail 1.5
+     */
+    public static void send(Message msg,
+		String user, String password) throws MessagingException
+
+    /**
+     * Send the message to the specified addresses, ignoring any
+     * recipients specified in the message itself. The
+     * <code>send</code> method calls the <code>saveChanges</code>
+     * method on the message before sending it. <p>
+     *
+     * Use the specified user name and password to authenticate to
+     * the mail server.
+     *
+     * @param	msg	the message to send
+     * @param	addresses the addresses to which to send the message
+     * @param	user	the user name
+     * @param	password this user's password
+     * @exception	SendFailedException if the message could not
+     *			be sent to some or any of the recipients.
+     * @exception	MessagingException
+     * @see		Message#saveChanges
+     * @see             #send(Message)
+     * @see		javax.mail.SendFailedException
+     * @since		JavaMail 1.5
+     */
+    public static void send(Message msg, Address[] addresses,
+		String user, String password) throws MessagingException
+
+
+===================================================================
+
+8. Add MimeMessage.setFrom(String) method (5690)
+------------------------------------------------
+
+This new convenience method allows the From header to be set using a String.
+
+    /**
+     * Set the RFC 822 "From" header field. Any existing values are 
+     * replaced with the given addresses. If address is <code>null</code>,
+     * this header is removed.
+     *
+     * @param address	the sender(s) of this message
+     * @exception	IllegalWriteException if the underlying
+     *			implementation does not support modification
+     *			of existing values
+     * @exception	IllegalStateException if this message is
+     *			obtained from a READ_ONLY folder.
+     * @exception	MessagingException
+     * @since		JvaMail 1.5
+     */
+    public void setFrom(String address) throws MessagingException
+
+
+===================================================================
+
+9. Add Message.getSesssion() method (5691)
+------------------------------------------
+
+Alow access to the Session used when the Message was created.
+
+    /**
+     * Return the Session used when this message was created.
+     *
+     * @return		the message's Session
+     * @since		JavaMail 1.5
+     */
+    public Session getSession()
+
+
+===================================================================
+
+10. MimeBodyPart.attachFile should set the disposition to ATTACHMENT (5692)
+---------------------------------------------------------------------------
+
+An oversight when these methods were originally added.  Clearly attachments
+should set the disposition to ATTACHMENT.
+
+    /**
+     * Use the specified file to provide the data for this part.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The encoding will be chosen appropriately for the
+     * file data.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the File object to attach
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.4
+     */
+    public void attachFile(File file) throws IOException, MessagingException
+
+    /**
+     * Use the specified file to provide the data for this part.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The encoding will be chosen appropriately for the
+     * file data.
+     *
+     * @param		file		the name of the file to attach
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.4
+     */
+    public void attachFile(String file) throws IOException, MessagingException
+
+
+===================================================================
+
+11. Add MimeMessage.reply(replyToAll, setAnswered) method (5693)
+----------------------------------------------------------------
+
+Add a method to control whether the ANSWERED flag is set in the original
+message when creating a reply message.
+
+    /**
+     * Get a new Message suitable for a reply to this message.
+     * The new Message will have its attributes and headers 
+     * set up appropriately.  Note that this new message object
+     * will be empty, i.e., it will <strong>not</strong> have a "content".
+     * These will have to be suitably filled in by the client. <p>
+     *
+     * If <code>replyToAll</code> is set, the new Message will be addressed
+     * to all recipients of this message.  Otherwise, the reply will be
+     * addressed to only the sender of this message (using the value
+     * of the <code>getReplyTo</code> method).  <p>
+     *
+     * If <code>setAnswered</code> is set, the
+     * {@link javax.mail.Flags.Flag#ANSWERED ANSWERED} flag is set
+     * in this message. <p>
+     *
+     * The "Subject" field is filled in with the original subject
+     * prefixed with "Re:" (unless it already starts with "Re:").
+     * The "In-Reply-To" header is set in the new message if this
+     * message has a "Message-Id" header.
+     *
+     * The current implementation also sets the "References" header
+     * in the new message to include the contents of the "References"
+     * header (or, if missing, the "In-Reply-To" header) in this message,
+     * plus the contents of the "Message-Id" header of this message,
+     * as described in RFC 2822.
+     *
+     * @param	replyToAll	reply should be sent to all recipients
+     *				of this message
+     * @param	setAnswered	set the ANSWERED flag in this message?
+     * @return		the reply Message
+     * @exception	MessagingException
+     * @since		JavaMail 1.5
+     */
+    public Message reply(boolean replyToAll, boolean setAnswered)
+				throws MessagingException
+
+
+===================================================================
+
+12. Add additional "next" methods to HeaderTokenizer (5694)
+-----------------------------------------------------------
+
+These additional "next" methods make it easier to parse headers that don't
+obey the MIME syntax requirements.
+
+    /**
+     * Parses the next token from this String.
+     * If endOfAtom is not NUL, the token extends until the
+     * endOfAtom character is seen, or to the end of the header.
+     * This method is useful when parsing headers that don't
+     * obey the MIME specification, e.g., by failing to quote
+     * parameter values that contain spaces.
+     *
+     * @param	endOfAtom	if not NUL, character marking end of token
+     * @return		the next Token
+     * @exception	ParseException if the parse fails
+     * @since		JavaMail 1.5
+     */
+    public Token next(char endOfAtom) throws ParseException
+
+    /**
+     * Parses the next token from this String.
+     * endOfAtom is handled as above.  If keepEscapes is true,
+     * any backslash escapes are preserved in the returned string.
+     * This method is useful when parsing headers that don't
+     * obey the MIME specification, e.g., by failing to escape
+     * backslashes in the filename parameter.
+     *
+     * @param	endOfAtom	if not NUL, character marking end of token
+     * @param	keepEscapes	keep all backslashes in returned string?
+     * @return		the next Token
+     * @exception	ParseException if the parse fails
+     * @since		JavaMail 1.5
+     */
+    public Token next(char endOfAtom, boolean keepEscapes)
+				throws ParseException
+
+
+===================================================================
+
+13. Add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7 (5743)
+-------------------------------------------------------------------------------
+
+These new annotations support configuring JavaMail Session resources in
+Java EE 7 application servers.
+
+javax.mail.MailSessionDefinition:
+
+/**
+ * Annotation used by Java EE applications to define a <code>MailSession</code>
+ * to be registered with JNDI.  The <code>MailSession</code> may be configured
+ * by setting the annotation elements for commonly used <code>Session</code>
+ * properties.  Additional standard and vendor-specific properties may be
+ * specified using the <code>properties</code> element.
+ * <p/>
+ * The session will be registered under the name specified in the
+ * <code>name</code> element.  It may be defined to be in any valid
+ * <code>Java EE</code> namespace, and will determine the accessibility of
+ * the session from other components.
+ *
+ * @since JavaMail 1.5
+ */
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MailSessionDefinition {
+
+    /**
+     * Description of this mail session.
+     */
+    String description() default "";
+
+    /**
+     * JNDI name by which the mail session will be registered.
+     */
+    String name();
+
+    /**
+     * Store protocol name.
+     */
+    String storeProtocol() default "";
+
+    /**
+     * Transport protocol name.
+     */
+    String transportProtocol() default "";
+
+    /**
+     * Host name for the mail server.
+     */
+    String host() default "";
+
+    /**
+     * User name to use for authentication.
+     */
+    String user() default "";
+
+    /**
+     * Password to use for authentication.
+     */
+    String password() default "";
+
+    /**
+     * From address for the user.
+     */
+    String from() default "";
+
+    /**
+     * Properties to include in the Session.
+     * Properties are specified using the format:
+     * <i>propertyName=propertyValue</i> with one property per array element.
+     */
+    String[] properties() default {};
+}
+
+
+javax.mail.MailSessionDefinitions:
+
+import java.lang.annotation.Target;
+import java.lang.annotation.Retention;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.RetentionPolicy;
+
+/**
+ * Declares one or more <code>MailSessionDefinition</code> annotations.
+ *
+ * @see MailSessionDefinition
+ * @since JavaMail 1.5
+ */
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MailSessionDefinitions {
+    MailSessionDefinition[] value();
+}
+
+
+===================================================================
+
+14. Make cachedContent field protected in MimeMessage and MimeBodyPart (5769)
+-----------------------------------------------------------------------------
+
+Exposing this previously private field makes it easier to subclass these
+classes.
+
+    /**
+     * If our content is a Multipart or Message object, we save it
+     * the first time it's created by parsing a stream so that changes
+     * to the contained objects will not be lost. <p>
+     *
+     * If this field is not null, it's return by the {@link #getContent}
+     * method.  The {@link #getContent} method sets this field if it
+     * would return a Multipart or MimeMessage object.  This field is
+     * is cleared by the {@link #setDataHandler} method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected Object cachedContent;
+
+
+===================================================================
+
+15. Make MimeMultipart fields protected to allow subclassing (5770)
+-------------------------------------------------------------------
+
+Most of these fields control how the MimeMultipart class parses messages
+that don't conform to the MIME spec.  The new initializeProperties method
+initializes these fields based on System properties.  Exposing these
+previously private fields makes it easier to subclass MimeMultipart.
+
+    /**
+     * Have we seen the final bounary line?
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean complete = true;
+
+    /**
+     * The MIME multipart preamble text, the text that
+     * occurs before the first boundary line.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected String preamble = null;
+
+    /**
+     * Flag corresponding to the "mail.mime.multipart.ignoremissingendboundary"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean ignoreMissingEndBoundary = true;
+
+    /**
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoremissingboundaryparameter"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean ignoreMissingBoundaryParameter = true;
+
+    /**
+     * Flag corresponding to the
+     * "mail.mime.multipart.ignoreexistingboundaryparameter"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean ignoreExistingBoundaryParameter = false;
+
+    /**
+     * Flag corresponding to the "mail.mime.multipart.allowempty"
+     * property, set in the {@link #initializeProperties} method called from
+     * constructors and the parse method.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected boolean allowEmpty = false;
+
+    /**
+     * Initialize flags that control parsing behavior,
+     * based on System properties described above in
+     * the class documentation.
+     *
+     * @since	JavaMail 1.5
+     */
+    protected void initializeProperties()
+
+The following additional System properties are defined corresponding to
+the last two fields above:
+
+mail.mime.multipart.ignoreexistingboundaryparameter:
+
+  Normally the boundary parameter in the Content-Type header of a multipart
+  body part is used to specify the separator between parts of the multipart
+  body.  This System property may be set to <code>"true"</code> to cause
+  the parser to look for a line in the multipart body that looks like a
+  boundary line and use that value as the separator between subsequent parts.
+  This may be useful in cases where a broken anti-virus product has rewritten
+  the message incorrectly such that the boundary parameter and the actual
+  boundary value no longer match.
+  The default value of this property is false.
+
+mail.mime.multipart.allowempty:
+
+  Normally, when writing out a MimeMultipart that contains no body
+  parts, or when trying to parse a multipart message with no body parts,
+  a <code>MessagingException</code> is thrown.  The MIME spec does not allow
+  multipart content with no body parts.  This
+  System property may be set to <code>"true"</code> to override this behavior.
+  When writing out such a MimeMultipart, a single empty part will be
+  included.  When reading such a multipart, a MimeMultipart will be created
+  with no body parts.
+  The default value of this property is false.
+
+
+===================================================================
+
+16. Need simple way to override MIME type and encoding of attachment (5818)
+---------------------------------------------------------------------------
+
+First, we define an interface that allows a DataSource to specify the
+Content-Transfer-Encoding to use:
+
+package javax.mail;
+
+/**
+ * A {@link javax.activation.DataSource DataSource} that also implements
+ * <code>EncodingAware</code> may specify the Content-Transfer-Encoding
+ * to use for its data.  Valid Content-Transfer-Encoding values specified
+ * by RFC 2045 are "7bit", "8bit", "quoted-printable", "base64", and "binary".
+ * <p>
+ * For example, a {@link javax.activation.FileDataSource FileDataSource}
+ * could be created that forces all files to be base64 encoded: <p>
+ * <blockquote><pre>
+ *  public class Base64FileDataSource extends FileDataSource
+ *					implements EncodingAware {
+ *	public Base64FileDataSource(File file) {
+ *	    super(file);
+ *	}
+ *
+ *	// implements EncodingAware.getEncoding()
+ *	public String getEncoding() {
+ *	    return "base64";
+ *	}
+ *  }
+ * </pre></blockquote><p>
+ *
+ * @since	JavaMail 1.5
+ * @author	Bill Shannon
+ */
+
+public interface EncodingAware {
+
+    /**
+     * Return the MIME Content-Transfer-Encoding to use for this data,
+     * or null to indicate that an appropriate value should be chosen
+     * by the caller.
+     *
+     * @return		the Content-Transfer-Encoding value, or null
+     */
+    public String getEncoding();
+}
+
+Then we add new methods to MimeBodyPart:
+
+    /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the File object to attach
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(File file, String contentType, String encoding)
+				throws IOException, MessagingException
+
+    /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the name of the file
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(String file, String contentType, String encoding)
+				throws IOException, MessagingException
+
+
+===================================================================
+
+17. Enable RFC 2231 support by default (5819)
+---------------------------------------------
+
+RFC 2231 support for encoded parameter values is now widely implemented,
+it's time to change the default to support this standard.  Given the
+way RFC 2231 is defined, it's extremely unlikely that this would cause
+compatibility problems with existing applications.
+
+The System properties mail.mime.decodeparameters and mail.mime.encodeparameters
+now default to true instead of false.

@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -233,10 +233,10 @@
 	</fileSet>
 	<fileSet>
 	    <!-- only works within Sun -->
-	    <directory>/net/anybodys.sfbay/export6/javamail/spec</directory>
+	    <directory>/net/anybodys.us.oracle.com/export6/javamail/spec</directory>
 	    <outputDirectory>docs</outputDirectory>
 	    <includes>
-		<include>JavaMail-1.4.pdf</include>
+		<include>JavaMail-1.5.pdf</include>
 		<include>Providers.pdf</include>
 	    </includes>
 	</fileSet>

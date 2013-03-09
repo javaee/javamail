@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,8 +48,7 @@ package javax.mail;
  * @author John Mani
  */
 
-public
-class MethodNotSupportedException extends MessagingException {
+public class MethodNotSupportedException extends MessagingException {
 
     private static final long serialVersionUID = -3757386618726131322L;
 
@@ -61,10 +60,25 @@ class MethodNotSupportedException extends MessagingException {
     }
 
     /**
-     * Constructs a MethodNotSupportedException with the specified detail message.
-     * @param s		the detail message
+     * Constructs a MethodNotSupportedException with the specified
+     * detail message.
+     *
+     * @param s		The detailed error message
      */
     public MethodNotSupportedException(String s) {
 	super(s);
+    }
+
+    /**
+     * Constructs a MethodNotSupportedException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param s		The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public MethodNotSupportedException(String s, Exception e) {
+	super(s, e);
     }
 }

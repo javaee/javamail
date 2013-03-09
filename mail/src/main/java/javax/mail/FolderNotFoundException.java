@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -55,15 +55,16 @@ public class FolderNotFoundException extends MessagingException {
     private static final long serialVersionUID = 472612108891249403L;
 
     /**
-     * Constructs a MessagingException with no detail message.
+     * Constructs a FolderNotFoundException with no detail message.
      */
     public FolderNotFoundException() {
 	super();
     }
 
     /**
-     * Constructs a MessagingException with the specified folder.
-     * @param folder	the Folder
+     * Constructs a FolderNotFoundException.
+     *
+     * @param folder	The Folder
      * @since		JavaMail 1.2 
      */
     public FolderNotFoundException(Folder folder) {
@@ -72,10 +73,11 @@ public class FolderNotFoundException extends MessagingException {
     }
 
     /**
-     * Constructs a MessagingException with the specified folder and 
-     * the specified detail message.
-     * @param folder	the Folder
-     * @param s		the detail message
+     * Constructs a FolderNotFoundException with the specified
+     * detail message.
+     *
+     * @param folder	The Folder
+     * @param s		The detailed error message
      * @since		JavaMail 1.2
      */
     public FolderNotFoundException(Folder folder, String s) {
@@ -84,10 +86,26 @@ public class FolderNotFoundException extends MessagingException {
     }
 
     /**
-     * Constructs a MessagingException with the specified detail message
+     * Constructs a FolderNotFoundException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param folder	The Folder
+     * @param s		The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public FolderNotFoundException(Folder folder, String s, Exception e) {
+	super(s, e);
+	this.folder = folder;
+    }
+
+    /**
+     * Constructs a FolderNotFoundException with the specified detail message
      * and the specified folder.
-     * @param s		the detail message
-     * @param folder	the Folder
+     *
+     * @param s		The detail message
+     * @param folder	The Folder
      */
     public FolderNotFoundException(String s, Folder folder) {
 	super(s);
@@ -96,6 +114,7 @@ public class FolderNotFoundException extends MessagingException {
 
     /**
      * Returns the offending Folder object.
+     *
      * @return	the Folder object. Note that the returned value can be
      * 		<code>null</code>.
      */

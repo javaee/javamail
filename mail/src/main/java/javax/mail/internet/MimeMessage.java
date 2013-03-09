@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -160,13 +160,18 @@ public class MimeMessage extends Message implements MimePart {
     protected boolean saved = false;
 
     /**
-     * If our content is a Multipart of Message object, we save it
+     * If our content is a Multipart or Message object, we save it
      * the first time it's created by parsing a stream so that changes
-     * to the contained objects will not be lost.
+     * to the contained objects will not be lost. <p>
      *
-     * XXX - must have package access for MimeBodyPart.updateHeaders
+     * If this field is not null, it's return by the {@link #getContent}
+     * method.  The {@link #getContent} method sets this field if it
+     * would return a Multipart or MimeMessage object.  This field is
+     * is cleared by the {@link #setDataHandler} method.
+     *
+     * @since	JavaMail 1.5
      */
-    Object cachedContent;
+    protected Object cachedContent;
 
     // Used to parse dates
     private static final MailDateFormat mailDateFormat = new MailDateFormat();
@@ -384,6 +389,27 @@ public class MimeMessage extends Message implements MimePart {
 	    removeHeader("From");
 	else
 	    setHeader("From", address.toString());
+    }
+
+    /**
+     * Set the RFC 822 "From" header field. Any existing values are 
+     * replaced with the given addresses. If address is <code>null</code>,
+     * this header is removed.
+     *
+     * @param address	the sender(s) of this message
+     * @exception	IllegalWriteException if the underlying
+     *			implementation does not support modification
+     *			of existing values
+     * @exception	IllegalStateException if this message is
+     *			obtained from a READ_ONLY folder.
+     * @exception	MessagingException
+     * @since		JvaMail 1.5
+     */
+    public void setFrom(String address) throws MessagingException {
+	if (address == null)
+	    removeHeader("From");
+	else
+	    setAddressHeader("From", InternetAddress.parse(address));
     }
 
     /**
@@ -1585,6 +1611,45 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException
      */
     public Message reply(boolean replyToAll) throws MessagingException {
+	return reply(replyToAll, true);
+    }
+
+    /**
+     * Get a new Message suitable for a reply to this message.
+     * The new Message will have its attributes and headers 
+     * set up appropriately.  Note that this new message object
+     * will be empty, i.e., it will <strong>not</strong> have a "content".
+     * These will have to be suitably filled in by the client. <p>
+     *
+     * If <code>replyToAll</code> is set, the new Message will be addressed
+     * to all recipients of this message.  Otherwise, the reply will be
+     * addressed to only the sender of this message (using the value
+     * of the <code>getReplyTo</code> method).  <p>
+     *
+     * If <code>setAnswered</code> is set, the
+     * {@link javax.mail.Flags.Flag#ANSWERED ANSWERED} flag is set
+     * in this message. <p>
+     *
+     * The "Subject" field is filled in with the original subject
+     * prefixed with "Re:" (unless it already starts with "Re:").
+     * The "In-Reply-To" header is set in the new message if this
+     * message has a "Message-Id" header.
+     *
+     * The current implementation also sets the "References" header
+     * in the new message to include the contents of the "References"
+     * header (or, if missing, the "In-Reply-To" header) in this message,
+     * plus the contents of the "Message-Id" header of this message,
+     * as described in RFC 2822.
+     *
+     * @param	replyToAll	reply should be sent to all recipients
+     *				of this message
+     * @param	setAnswered	set the ANSWERED flag in this message?
+     * @return		the reply Message
+     * @exception	MessagingException
+     * @since		JavaMail 1.5
+     */
+    public Message reply(boolean replyToAll, boolean setAnswered)
+				throws MessagingException {
 	MimeMessage reply = createMimeMessage(session);
 	/*
 	 * Have to manipulate the raw Subject header so that we don't lose
@@ -1672,10 +1737,12 @@ public class MimeMessage extends Message implements MimePart {
 	if (refs != null)
 	    reply.setHeader("References", MimeUtility.fold(12, refs));
 
-	try {
-	    setFlags(answeredFlag, true);
-	} catch (MessagingException mex) {
-	    // ignore it
+	if (setAnswered) {
+	    try {
+		setFlags(answeredFlag, true);
+	    } catch (MessagingException mex) {
+		// ignore it
+	    }
 	}
 	return reply;
     }
@@ -2095,7 +2162,13 @@ public class MimeMessage extends Message implements MimePart {
      * and not already set), the <code>MIME-Version</code> header
      * and the <code>Message-ID</code> header. Also, if the content
      * of this message is a <code>MimeMultipart</code>, its
-     * <code>updateHeaders</code> method is called.
+     * <code>updateHeaders</code> method is called. <p>
+     *
+     * If the {@link #cachedContent} field is not null (that is,
+     * it references a Multipart or Message object), then
+     * that object is used to set a new DataHandler, any
+     * stream data used to create this object is discarded,
+     * and the {@link #cachedContent} field is cleared.
      *
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
@@ -2108,12 +2181,6 @@ public class MimeMessage extends Message implements MimePart {
 	setHeader("MIME-Version", "1.0");
         updateMessageID();
 
-	/*
-	 * If we've cached a Multipart or Message object then
-	 * we're now committed to using this instance of the
-	 * object and we discard any stream data used to create
-	 * this object.
-	 */
 	if (cachedContent != null) {
 	    dh = new DataHandler(cachedContent, getContentType());
 	    cachedContent = null;

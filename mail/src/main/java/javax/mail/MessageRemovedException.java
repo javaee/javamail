@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,10 +62,25 @@ public class MessageRemovedException extends MessagingException {
     }
 
     /**
-     * Constructs a MessageRemovedException with the specified detail message.
-     * @param s		the detail message
+     * Constructs a MessageRemovedException with the specified
+     * detail message.
+     *
+     * @param s		The detailed error message
      */
     public MessageRemovedException(String s) {
 	super(s);
+    }
+
+    /**
+     * Constructs a MessageRemovedException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param s		The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public MessageRemovedException(String s, Exception e) {
+	super(s, e);
     }
 }

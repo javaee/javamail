@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -67,14 +67,14 @@ import java.util.*;
  * JavaMail API releases.  The current serialization support is
  * appropriate for short term storage. <p>
  *
- * The below code sample illustrates how to set, examine and get the 
+ * The below code sample illustrates how to set, examine, and get the 
  * flags for a message. <p>
  * <pre>
  *
  * Message m = folder.getMessage(1);
  * m.setFlag(Flags.Flag.DELETED, true); // set the DELETED flag
  *
- * // Check if DELETED flag is set of this message
+ * // Check if DELETED flag is set on this message
  * if (m.isSet(Flags.Flag.DELETED))
  *	System.out.println("DELETED message");
  *

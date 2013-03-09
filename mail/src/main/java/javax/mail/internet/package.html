@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -163,11 +163,11 @@ The default is false.
 <TD>mail.mime.decodeparameters</TD>
 <TD>boolean</TD>
 <TD>
-If set to <code>"true"</code>, non-ASCII parameters in a
+If set to <code>"false"</code>, non-ASCII parameters in a
 <code>ParameterList</code>, e.g., in a Content-Type header,
-will be decoded as specified by
+will <b>not</b> be decoded as specified by
 <A HREF="http://www.ietf.org/rfc/rfc2231.txt" TARGET="_top">RFC 2231</A>.
-The default is false.
+The default is true.
 </TD>
 </TR>
 
@@ -175,11 +175,11 @@ The default is false.
 <TD>mail.mime.encodeparameters</TD>
 <TD>boolean</TD>
 <TD>
-If set to <code>"true"</code>, non-ASCII parameters in a
+If set to <code>"false"</code>, non-ASCII parameters in a
 <code>ParameterList</code>, e.g., in a Content-Type header,
-will be encoded as specified by
+will <b>not</b> be encoded as specified by
 <A HREF="http://www.ietf.org/rfc/rfc2231.txt" TARGET="_top">RFC 2231</A>.
-The default is false.
+The default is true.
 </TD>
 </TR>
 
@@ -210,6 +210,38 @@ If this property is set to <code>"false"</code>, a
 <code>MessagingException</code> will be thrown if the Content-Type
 header doesn't specify a boundary parameter.
 The default is true.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. ignoreexistingboundaryparameter</TD>
+<TD>boolean</TD>
+<TD>
+Normally the boundary parameter in the Content-Type header of a multipart
+body part is used to specify the separator between parts of the multipart
+body.  This System property may be set to <code>"true"</code> to cause
+the parser to look for a line in the multipart body that looks like a
+boundary line and use that value as the separator between subsequent parts.
+This may be useful in cases where a broken anti-virus product has rewritten
+the message incorrectly such that the boundary parameter and the actual
+boundary value no longer match.
+The default value of this property is false.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.mime.multipart. allowempty</TD>
+<TD>boolean</TD>
+<TD>
+Normally, when writing out a MimeMultipart that contains no body
+parts, or when trying to parse a multipart message with no body parts,
+a <code>MessagingException</code> is thrown.  The MIME spec does not allow
+multipart content with no body parts.  This
+System property may be set to <code>"true"</code> to override this behavior.
+When writing out such a MimeMultipart, a single empty part will be
+included.  When reading such a multipart, a MimeMultipart will be created
+with no body parts.
+The default value of this property is false.
 </TD>
 </TR>
 
@@ -361,39 +393,7 @@ The default is false.
 </TR>
 
 <TR>
-<TD>mail.mime.multipart. allowempty</TD>
-<TD>boolean</TD>
-<TD>
-Normally, when writing out a MimeMultipart that contains no body
-parts, or when trying to parse a multipart message with no body parts,
-a <code>MessagingException</code> is thrown.  The MIME spec does not allow
-multipart content with no body parts.  This
-System property may be set to <code>"true"</code> to override this behavior.
-When writing out such a MimeMultipart, a single empty part will be
-included.  When reading such a multipart, a MimeMultipart will be created
-with no body parts.
-The default value of this property is false.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.mime.multipart. ignoreexistingboundaryparameter</TD>
-<TD>boolean</TD>
-<TD>
-Normally the boundary parameter in the Content-Type header of a multipart
-body part is used to specify the separator between parts of the multipart
-body.  This System property may be set to <code>"true"</code> to cause
-the parser to look for a line in the multipart body that looks like a
-boundary line and use that value as the separator between subsequent parts.
-This may be useful in cases where a broken anti-virus product has rewritten
-the message incorrectly such that the boundary parameter and the actual
-boundary value no longer match.
-The default value of this property is false.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.mime.multipart. ignorewhitespacelines</TD>
+<TD>mail.mime. ignorewhitespacelines</TD>
 <TD>boolean</TD>
 <TD>
 Normally the header of a MIME part is separated from the body by an empty

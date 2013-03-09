@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -279,7 +279,7 @@ public class IMAPStore extends Store
 	 *
 	 * When an IDLE command is in progress, the thread calling
 	 * the idle method will be reading from the IMAP connection
-	 * while not holding the sotre's lock.
+	 * while not holding the store's lock.
 	 * It's obviously critical that no other thread try to send a
 	 * command or read from the connection while in this state.
 	 * However, other threads can send the DONE continuation
@@ -1797,13 +1797,11 @@ public class IMAPStore extends Store
 	synchronized (this) {
 	    checkConnected();
 	}
+	boolean needNotification = false;
 	try {
 	    synchronized (pool) {
 		p = getStoreProtocol();
-		if (pool.idleState == ConnectionPool.RUNNING) {
-		    p.idleStart();
-		    pool.idleState = ConnectionPool.IDLE;
-		} else {
+		if (pool.idleState != ConnectionPool.RUNNING) {
 		    // some other thread must be running the IDLE
 		    // command, we'll just wait for it to finish
 		    // without aborting it ourselves
@@ -1813,6 +1811,9 @@ public class IMAPStore extends Store
 		    } catch (InterruptedException ex) { }
 		    return;
 		}
+		p.idleStart();
+		needNotification = true;
+		pool.idleState = ConnectionPool.IDLE;
 		pool.idleProtocol = p;
 	    }
 
@@ -1834,7 +1835,9 @@ public class IMAPStore extends Store
 		synchronized (pool) {
 		    if (r == null || !p.processIdleResponse(r)) {
 			pool.idleState = ConnectionPool.RUNNING;
+			pool.idleProtocol = null;
 			pool.notifyAll();
+			needNotification = false;
 			break;
 		    }
 		}
@@ -1862,8 +1865,12 @@ public class IMAPStore extends Store
 	} catch (ProtocolException pex) {
 	    throw new MessagingException(pex.getMessage(), pex);
 	} finally {
-	    synchronized (pool) {
-		pool.idleProtocol = null;
+	    if (needNotification) {
+		synchronized (pool) {
+		    pool.idleState = ConnectionPool.RUNNING;
+		    pool.idleProtocol = null;
+		    pool.notifyAll();
+		}
 	    }
 	    releaseStoreProtocol(p);
 	}

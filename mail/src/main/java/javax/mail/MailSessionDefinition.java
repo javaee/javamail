@@ -38,26 +38,75 @@
  * holder.
  */
 
-package com.sun.mail.util;
+package javax.mail;
 
-import java.net.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Create a Socket configured to use a SOCKS proxy.
- * This simple static method is in a separate class because it relies
- * on JDK 1.5 or newer.  It's loaded conditionally from SocketFetcher
- * using reflection so that SocketFetcher will still work on JDK 1.4
- * systems.
+ * Annotation used by Java EE applications to define a <code>MailSession</code>
+ * to be registered with JNDI.  The <code>MailSession</code> may be configured
+ * by setting the annotation elements for commonly used <code>Session</code>
+ * properties.  Additional standard and vendor-specific properties may be
+ * specified using the <code>properties</code> element.
+ * <p/>
+ * The session will be registered under the name specified in the
+ * <code>name</code> element.  It may be defined to be in any valid
+ * <code>Java EE</code> namespace, and will determine the accessibility of
+ * the session from other components.
  *
- * @author Bill Shannon
- * @since JavaMail 1.4.5
+ * @since JavaMail 1.5
  */
-class SocksSupport {
-    public static Socket getSocket(String host, int port) {
-	if (host == null || host.length() == 0)
-	    return new Socket(Proxy.NO_PROXY);
-	else
-	    return new Socket(new Proxy(Proxy.Type.SOCKS,
-				new InetSocketAddress(host, port)));
-    }
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MailSessionDefinition {
+
+    /**
+     * Description of this mail session.
+     */
+    String description() default "";
+
+    /**
+     * JNDI name by which the mail session will be registered.
+     */
+    String name();
+
+    /**
+     * Store protocol name.
+     */
+    String storeProtocol() default "";
+
+    /**
+     * Transport protocol name.
+     */
+    String transportProtocol() default "";
+
+    /**
+     * Host name for the mail server.
+     */
+    String host() default "";
+
+    /**
+     * User name to use for authentication.
+     */
+    String user() default "";
+
+    /**
+     * Password to use for authentication.
+     */
+    String password() default "";
+
+    /**
+     * From address for the user.
+     */
+    String from() default "";
+
+    /**
+     * Properties to include in the Session.
+     * Properties are specified using the format:
+     * <i>propertyName=propertyValue</i> with one property per array element.
+     */
+    String[] properties() default {};
 }

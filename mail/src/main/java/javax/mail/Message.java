@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -129,6 +129,16 @@ public abstract class Message implements Part {
      */
     protected Message(Session session) {
 	this.session = session;
+    }
+
+    /**
+     * Return the Session used when this message was created.
+     *
+     * @return		the message's Session
+     * @since		JavaMail 1.5
+     */
+    public Session getSession() {
+	return session;
     }
 
     /**

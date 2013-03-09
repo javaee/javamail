@@ -203,6 +203,17 @@ public class IMAPHandler implements Runnable, Cloneable {
     }
 
     /**
+     * Send an untagged BYE response with a message, then exit.
+     *
+     * @param msg the message to send
+     * @throws IOException unable to read/write to socket
+     */
+    public void bye(final String msg) throws IOException {
+	untagged("BYE " + (msg != null ? msg : ""));
+	exit();
+    }
+
+    /**
      * Send a "continue" command.
      *
      * @throws IOException unable to read/write to socket

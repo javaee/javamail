@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -217,8 +217,7 @@ public class HeaderTokenizer {
      * @exception	ParseException if the parse fails
      * @since		JavaMail 1.5
      */
-    // package-private; can't be public until JavaMail 1.5
-    Token next(char endOfAtom) throws ParseException { 
+    public Token next(char endOfAtom) throws ParseException { 
 	return next(endOfAtom, false);
     }
 
@@ -236,8 +235,7 @@ public class HeaderTokenizer {
      * @exception	ParseException if the parse fails
      * @since		JavaMail 1.5
      */
-    // package-private; can't be public until JavaMail 1.5
-    Token next(char endOfAtom, boolean keepEscapes)
+    public Token next(char endOfAtom, boolean keepEscapes)
 				throws ParseException { 
 	Token tk;
 

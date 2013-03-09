@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -121,7 +121,7 @@ public abstract class Transport extends Service {
      */
     public static void send(Message msg) throws MessagingException {
 	msg.saveChanges(); // do this first
-	send0(msg, msg.getAllRecipients());
+	send0(msg, msg.getAllRecipients(), null, null);
     }
 
     /**
@@ -143,12 +143,68 @@ public abstract class Transport extends Service {
 		throws MessagingException {
 
 	msg.saveChanges();
-	send0(msg, addresses);
+	send0(msg, addresses, null, null);
+    }
+
+    /**
+     * Send a message.  The message will be sent to all recipient
+     * addresses specified in the message (as returned from the
+     * <code>Message</code> method <code>getAllRecipients</code>).
+     * The <code>send</code> method calls the <code>saveChanges</code>
+     * method on the message before sending it. <p>
+     *
+     * Use the specified user name and password to authenticate to
+     * the mail server.
+     *
+     * @param	msg	the message to send
+     * @param	user	the user name
+     * @param	password this user's password
+     * @exception	SendFailedException if the message could not
+     *			be sent to some or any of the recipients.
+     * @exception	MessagingException
+     * @see		Message#saveChanges
+     * @see             #send(Message)
+     * @see		javax.mail.SendFailedException
+     * @since		JavaMail 1.5
+     */
+    public static void send(Message msg,
+		String user, String password) throws MessagingException {
+
+	msg.saveChanges();
+	send0(msg, msg.getAllRecipients(), user, password);
+    }
+
+    /**
+     * Send the message to the specified addresses, ignoring any
+     * recipients specified in the message itself. The
+     * <code>send</code> method calls the <code>saveChanges</code>
+     * method on the message before sending it. <p>
+     *
+     * Use the specified user name and password to authenticate to
+     * the mail server.
+     *
+     * @param	msg	the message to send
+     * @param	addresses the addresses to which to send the message
+     * @param	user	the user name
+     * @param	password this user's password
+     * @exception	SendFailedException if the message could not
+     *			be sent to some or any of the recipients.
+     * @exception	MessagingException
+     * @see		Message#saveChanges
+     * @see             #send(Message)
+     * @see		javax.mail.SendFailedException
+     * @since		JavaMail 1.5
+     */
+    public static void send(Message msg, Address[] addresses,
+		String user, String password) throws MessagingException {
+
+	msg.saveChanges();
+	send0(msg, addresses, user, password);
     }
 
     // send, but without the saveChanges
-    private static void send0(Message msg, Address[] addresses) 
-		throws MessagingException {
+    private static void send0(Message msg, Address[] addresses,
+		String user, String password) throws MessagingException {
 
 	if (addresses == null || addresses.length == 0)
 	    throw new SendFailedException("No recipient addresses");
@@ -191,7 +247,10 @@ public abstract class Transport extends Service {
 	if (dsize == 1) {
 	    transport = s.getTransport(addresses[0]);
 	    try {
-		transport.connect();
+		if (user != null)
+		    transport.connect(user, password);
+		else
+		    transport.connect();
 		transport.sendMessage(msg, addresses);
 	    } finally {
 		transport.close();

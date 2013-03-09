@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -135,8 +135,15 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * If our content is a Multipart of Message object, we save it
      * the first time it's created by parsing a stream so that changes
      * to the contained objects will not be lost.
+     *
+     * If this field is not null, it's return by the {@link #getContent}
+     * method.  The {@link #getContent} method sets this field if it
+     * would return a Multipart or MimeMessage object.  This field is
+     * is cleared by the {@link #setDataHandler} method.
+     *
+     * @since	JavaMail 1.5
      */
-    private Object cachedContent;
+    protected Object cachedContent;
 
     /**
      * An empty MimeBodyPart object is created.
@@ -775,7 +782,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * The simple file name is used as the file name for this
      * part and the data in the file is used as the data for this
      * part.  The encoding will be chosen appropriately for the
-     * file data.
+     * file data.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
      *
      * @param		file		the File object to attach
      * @exception	IOException	errors related to accessing the file
@@ -783,9 +791,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * @since		JavaMail 1.4
      */
     public void attachFile(File file) throws IOException, MessagingException {
-    	FileDataSource fds = new FileDataSource(file);   	
-        this.setDataHandler(new DataHandler(fds));
-        this.setFileName(fds.getName());
+	FileDataSource fds = new FileDataSource(file);   	
+	this.setDataHandler(new DataHandler(fds));
+	this.setFileName(fds.getName());
+	this.setDisposition(ATTACHMENT);
     }
 
     /**
@@ -803,6 +812,80 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     public void attachFile(String file) throws IOException, MessagingException {
     	File f = new File(file);
     	attachFile(f);
+    }
+
+    /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the File object to attach
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(File file, String contentType, String encoding)
+				throws IOException, MessagingException {
+	DataSource fds = new EncodedFileDataSource(file, contentType, encoding);
+	this.setDataHandler(new DataHandler(fds));
+	this.setFileName(fds.getName());
+	this.setDisposition(ATTACHMENT);
+    }
+
+    /**
+     * Use the specified file with the specified Content-Type and
+     * Content-Transfer-Encoding to provide the data for this part.
+     * If contentType or encoding are null, appropriate values will
+     * be chosen.
+     * The simple file name is used as the file name for this
+     * part and the data in the file is used as the data for this
+     * part.  The disposition of this part is set to
+     * {@link Part#ATTACHMENT Part.ATTACHMENT}.
+     *
+     * @param		file		the name of the file
+     * @param		contentType	the Content-Type, or null
+     * @param		encoding	the Content-Transfer-Encoding, or null
+     * @exception	IOException	errors related to accessing the file
+     * @exception	MessagingException	message related errors
+     * @since		JavaMail 1.5
+     */
+    public void attachFile(String file, String contentType, String encoding)
+				throws IOException, MessagingException {
+	attachFile(new File(file), contentType, encoding);
+    }
+
+    /**
+     * A FileDataSource class that allows us to specify the
+     * Content-Type and Content-Transfer-Encoding.
+     */
+    private static class EncodedFileDataSource extends FileDataSource
+					implements EncodingAware {
+	private String contentType;
+	private String encoding;
+
+	public EncodedFileDataSource(File file, String contentType,
+						String encoding) {
+	    super(file);
+	    this.contentType = contentType;
+	    this.encoding = encoding;
+	}
+
+	// overrides DataSource.getContentType()
+	public String getContentType() {
+	    return contentType != null ? contentType : super.getContentType();
+	}
+
+	// implements EncodingAware.getEncoding()
+	public String getEncoding() {
+	    return encoding;
+	}
     }
 
     /**
@@ -1015,7 +1098,13 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      *
      * <br>
      * In both cases this method is typically called by the
-     * <code>Message.saveChanges</code> method.
+     * <code>Message.saveChanges</code> method. <p>
+     *
+     * If the {@link #cachedContent} field is not null (that is,
+     * it references a Multipart or Message object), then
+     * that object is used to set a new DataHandler, any
+     * stream data used to create this object is discarded,
+     * and the {@link #cachedContent} field is cleared.
      */
     protected void updateHeaders() throws MessagingException {
 	updateHeaders(this);

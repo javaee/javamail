@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2012 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,17 +40,20 @@
  */
 package com.sun.mail.util.logging;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.*;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
-import java.io.*;
-import java.util.logging.*;
-import java.util.Properties;
-import java.util.Map;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  * Test case for the LogManagerProperties spec.
@@ -351,7 +354,7 @@ public class LogManagerPropertiesTest {
         } catch (ClassCastException expect) {
         }
 
-        final Class type = ErrorAuthenticator.class;
+        final Class<?> type = ErrorAuthenticator.class;
         final javax.mail.Authenticator a =
                 LogManagerProperties.newAuthenticator(type.getName());
         assertEquals(type, a.getClass());
@@ -388,7 +391,7 @@ public class LogManagerPropertiesTest {
         } catch (ClassCastException expect) {
         }
 
-        final Class type = ErrorComparator.class;
+        final Class<?> type = ErrorComparator.class;
         final Comparator c = LogManagerProperties.newComparator(type.getName());
         assertEquals(type, c.getClass());
 
@@ -402,6 +405,31 @@ public class LogManagerPropertiesTest {
             setPending(null);
         }
     }
+
+    @Test
+    public void testReverseOrder() throws Exception {
+        try {
+            LogManagerProperties.reverseOrder(null);
+            fail("Null was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        Comparator<LogRecord> c = new ErrorComparator();
+        Comparator<LogRecord> r = LogManagerProperties.reverseOrder(c);
+        assertTrue(c.getClass() != r.getClass());
+        assertFalse(r instanceof ErrorComparator);
+        assertFalse(r instanceof AscComparator);
+        assertFalse(r instanceof DescComparator);
+
+        c = new AscComparator();
+        r = LogManagerProperties.reverseOrder(c);
+        assertTrue(r instanceof DescComparator);
+
+        c = new AscComparator();
+        r = LogManagerProperties.reverseOrder(c);
+        assertTrue(r instanceof DescComparator);
+    }
+
 
     @Test
     public void testNewErrorManager() throws Exception {
@@ -423,7 +451,7 @@ public class LogManagerPropertiesTest {
         } catch (ClassCastException expect) {
         }
 
-        final Class type = ErrorManager.class;
+        final Class<?> type = ErrorManager.class;
         ErrorManager f = LogManagerProperties.newErrorManager(type.getName());
         assertEquals(type, f.getClass());
 
@@ -459,7 +487,7 @@ public class LogManagerPropertiesTest {
         } catch (ClassCastException expect) {
         }
 
-        final Class type = ErrorFilter.class;
+        final Class<?> type = ErrorFilter.class;
         final Filter f = LogManagerProperties.newFilter(type.getName());
         assertEquals(type, f.getClass());
 
@@ -494,7 +522,7 @@ public class LogManagerPropertiesTest {
         } catch (ClassCastException expect) {
         }
 
-        final Class type = SimpleFormatter.class;
+        final Class<?> type = SimpleFormatter.class;
         final Formatter f = LogManagerProperties.newFormatter(type.getName());
         assertEquals(type, f.getClass());
 
@@ -513,7 +541,7 @@ public class LogManagerPropertiesTest {
     @Test
     public void testEscapingAuthenticator() throws Exception {
         try {
-            Class k = ErrorAuthenticator.class;
+            Class<?> k = ErrorAuthenticator.class;
             javax.mail.Authenticator a;
 
             a = LogManagerProperties.newAuthenticator(k.getName());
@@ -540,7 +568,7 @@ public class LogManagerPropertiesTest {
     @Test
     public void testEscapingComparator() throws Exception {
         try {
-            Class k = ErrorComparator.class;
+            Class<?> k = ErrorComparator.class;
             Comparator c;
 
             c = LogManagerProperties.newComparator(k.getName());
@@ -567,7 +595,7 @@ public class LogManagerPropertiesTest {
     @Test
     public void testEscapingErrorErrorManager() throws Exception {
         try {
-            Class k = ErrorErrorManager.class;
+            Class<?> k = ErrorErrorManager.class;
             ErrorManager f;
 
             f = LogManagerProperties.newErrorManager(k.getName());
@@ -594,7 +622,7 @@ public class LogManagerPropertiesTest {
     @Test
     public void testEscapingFilter() throws Exception {
         try {
-            Class k = ErrorFilter.class;
+            Class<?> k = ErrorFilter.class;
             Filter f;
 
             f = LogManagerProperties.newFilter(k.getName());
@@ -621,7 +649,7 @@ public class LogManagerPropertiesTest {
     @Test
     public void testEscapingFormatter() throws Exception {
         try {
-            Class k = ErrorFormatter.class;
+            Class<?> k = ErrorFormatter.class;
             Formatter f;
 
             f = LogManagerProperties.newFormatter(k.getName());
@@ -700,7 +728,8 @@ public class LogManagerPropertiesTest {
         }
     }
 
-    public static class ErrorComparator implements Comparator<LogRecord>, Serializable {
+    public static class ErrorComparator implements Comparator<LogRecord>,
+                                                                Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -710,6 +739,32 @@ public class LogManagerPropertiesTest {
 
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
+        }
+    }
+
+    public static class AscComparator implements Comparator<LogRecord>,
+                                                                Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord r1, LogRecord r2) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Comparator<LogRecord> reverseOrder() {
+            return new DescComparator();
+        }
+    }
+
+    public static class DescComparator implements Comparator<LogRecord>,
+                                                                Serializable {
+        private static final long serialVersionUID = 1L;
+
+        public int compare(LogRecord r1, LogRecord r2) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Comparator<LogRecord> reverseOrder() {
+            return new AscComparator();
         }
     }
 

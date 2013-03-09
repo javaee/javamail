@@ -14,6 +14,31 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.5.0 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.0 release.
+
+K  5682	add FetchProfile.Item.SIZE
+K  5683	fix protected fields in final classes in javax.mail.search
+K  5684	add MimeMultipart(String subtype, BodyPart... bps) constructor
+K  5685	exceptions should support exception chaining
+K  5686	ParameterList needs to support use by IMAP
+K  5687	ContentType.toString & ContentDisposition.toString shouldn't return null
+K  5689	add Transport.send(msg, username, password) method
+K  5690	add MimeMessage.setFrom(String) method
+K  5691	add Message.getSession() method
+K  5692	MimeBodyPart.attachFile should set the disposition to ATTACHMENT
+K  5693	add MimeMessage.reply(replyToAll, setAnswered) method
+K  5694	add "next" methods to HeaderTokenizer to help parsing bad headers
+K  5743	add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7
+K  5769	make cachedContent field protected in MimeMessage and MimeBodyPart
+K  5770	make MimeMultipart fields protected to allow subclassing
+K  5818	need simple way to override MIME type and encoding of attachment
+K  5819	enable RFC 2231 support by default
+K  5829	NullPointerException when accessing the content of a message attachment
+K  5830	IMAPProtocol.sasllogin uses old constructor for IMAPSaslAuthenticator
+
+
 		  CHANGES IN THE 1.4.7 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.7 release.

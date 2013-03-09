@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -61,20 +61,38 @@ public class FolderClosedException extends MessagingException {
     private static final long serialVersionUID = 1687879213433302315L;
     
     /**
-     * Constructor
-     * @param folder	the Folder
+     * Constructs a FolderClosedException.
+     *
+     * @param folder	The Folder
      */
     public FolderClosedException(Folder folder) {
 	this(folder, null);
     }
 
     /**
-     * Constructor
-     * @param folder 	the Folder
-     * @param message	the detailed error message
+     * Constructs a FolderClosedException with the specified
+     * detail message.
+     *
+     * @param folder 	The Folder
+     * @param message	The detailed error message
      */
     public FolderClosedException(Folder folder, String message) {
 	super(message);
+	this.folder = folder;
+    }
+
+    /**
+     * Constructs a FolderClosedException with the specified
+     * detail message and embedded exception.  The exception is chained
+     * to this exception.
+     *
+     * @param folder 	The Folder
+     * @param message	The detailed error message
+     * @param e		The embedded exception
+     * @since		JavaMail 1.5
+     */
+    public FolderClosedException(Folder folder, String message, Exception e) {
+	super(message, e);
 	this.folder = folder;
     }
 

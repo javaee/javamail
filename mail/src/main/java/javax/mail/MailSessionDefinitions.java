@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,45 +40,19 @@
 
 package javax.mail;
 
+import java.lang.annotation.Target;
+import java.lang.annotation.Retention;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * This exception is thrown when the connect method on a Store or
- * Transport object fails due to an authentication failure (e.g.,
- * bad user name or password).
+ * Declares one or more <code>MailSessionDefinition</code> annotations.
  *
- * @author Bill Shannon
+ * @see MailSessionDefinition
+ * @since JavaMail 1.5
  */
-
-public class AuthenticationFailedException extends MessagingException {
-
-    private static final long serialVersionUID = 492080754054436511L;
-
-    /**
-     * Constructs an AuthenticationFailedException.
-     */
-    public AuthenticationFailedException() {
-	super();
-    }
-
-    /**
-     * Constructs an AuthenticationFailedException with the specified
-     * detail message.
-     *
-     * @param message	The detailed error message
-     */
-    public AuthenticationFailedException(String message) {
-	super(message);
-    }
-
-    /**
-     * Constructs an AuthenticationFailedException with the specified
-     * detail message and embedded exception.  The exception is chained
-     * to this exception.
-     *
-     * @param message	The detailed error message
-     * @param e		The embedded exception
-     * @since		JavaMail 1.5
-     */
-    public AuthenticationFailedException(String message, Exception e) {
-	super(message, e);
-    }
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MailSessionDefinitions {
+    MailSessionDefinition[] value();
 }
