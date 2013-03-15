@@ -75,7 +75,7 @@ public final class IMAPIdleStateTest {
             properties.setProperty("mail.imap.host", "localhost");
             properties.setProperty("mail.imap.port", "26422");
             final Session session = Session.getInstance(properties);
-            session.setDebug(true);
+            //session.setDebug(true);
 
             final IMAPStore store = (IMAPStore)session.getStore("imap");
             try {
