@@ -2,7 +2,7 @@ Comment:
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -487,6 +487,8 @@ To: Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
         iconv@cachaca, questions@cachaca
 Expect: Exception javax.mail.internet.AddressException: Nested group in string ``Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
         iconv@cachaca, questions@cachaca'' at position 20
+To: " <string@string.ru>  
+Expect: Exception javax.mail.internet.AddressException: Missing '"' in string ``" <string@string.ru>  '' at position 22
 Comment:
 	Now parse all the above bad addresses as if they were in a header,
 	expecting no failures.
@@ -680,7 +682,7 @@ Expect: 4
 	Navy.Beans@4email-03
 To: \(^^/@nwkea-mail-2.sun.com
 Expect: 1
-	\
+	\\
 Cc: <tom.ross@sun.com>, Cc: <javamail@sun.com>, Cc: <javahi@sun.com>,
    Cc: <javadoc-tool@sun.com>, Cc: <javacard-feedback@sun.com>
 Expect: 5
@@ -726,6 +728,43 @@ Expect: 1
 To: "ULTIMA. OPORTUNIDAD*
 Expect: 1
 	"ULTIMA. OPORTUNIDAD*
+Cc: 55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,
+        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,
+        streetwalker!AA00159;, streetwalker!AA08484;, streetwalker!AA16178;,
+        streetwalker!Date:, streetwalker!EDT, streetwalker!Ecd.Sun.COM,
+        streetwalker!From, streetwalker!From:, streetwalker!Message-Id:,
+        streetwalker!Mon, streetwalker!Oct, streetwalker!PDT, streetwalker!RO,
+        streetwalker!Received:, streetwalker!Return-Path:,
+        streetwalker!Status:, streetwalker!To:, streetwalker!by,
+        streetwalker!from, streetwalker!id, streetwalker!oak.sunecd.com,
+        streetwalker!root, streetwalker!rr, streetwalker!streetwalker.sun.com
+Expect: 24
+	55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,\
+        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,\
+        streetwalker!AA00159;
+	streetwalker!AA08484
+	streetwalker!AA16178
+	streetwalker!Date:
+	streetwalker!EDT
+	streetwalker!Ecd.Sun.COM
+	streetwalker!From
+	streetwalker!From:
+	streetwalker!Message-Id:
+	streetwalker!Mon
+	streetwalker!Oct
+	streetwalker!PDT
+	streetwalker!RO
+	streetwalker!Received:
+	streetwalker!Return-Path:
+	streetwalker!Status:
+	streetwalker!To:
+	streetwalker!by
+	streetwalker!from
+	streetwalker!id
+	streetwalker!oak.sunecd.com
+	streetwalker!root
+	streetwalker!rr
+	streetwalker!streetwalker.sun.com
 To: Re:@cachaca, Subject:@cachaca, and@cachaca, getmclist@cachaca, glenn@ivrel,
         iconv@cachaca, questions@cachaca
 Expect: 7
@@ -736,4 +775,7 @@ Expect: 7
 	glenn@ivrel
 	iconv@cachaca
 	questions@cachaca
+To: " <string@string.ru>  
+Expect: 1
+	string@string.ru
 Header: false

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -367,7 +367,7 @@ public class InternetAddress extends Address implements Cloneable {
     }
 
     private static String unquote(String s) {
-	if (s.startsWith("\"") && s.endsWith("\"")) {
+	if (s.startsWith("\"") && s.endsWith("\"") && s.length() > 1) {
 	    s = s.substring(1, s.length() - 1);
 	    // check for any escaped characters
 	    if (s.indexOf('\\') >= 0) {

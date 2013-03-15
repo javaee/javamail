@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -185,7 +185,7 @@ public class InternetAddressTest {
 			int nexpect = Integer.parseInt(s.substring(8));
 			expect = new String[nexpect];
 			for (i = 0; i < nexpect; i++)
-			    expect[i] = in.readLine().trim();
+			    expect[i] = readLine(in).trim();
 		    } catch (NumberFormatException e) {
 			try {
 			    if (s.substring(8, 17).equals("Exception")) {
@@ -228,6 +228,34 @@ public class InternetAddressTest {
 	return header.substring(header.indexOf(':') + 1).trim();
     }
 
+    /**
+     * Read an "expected" line, handling continuations
+     * (backslash at end of line).  If line ends with
+     * two backslashes, it's not a continuation, just a
+     * line that ends with a single backslash.
+     */
+    private static String readLine(BufferedReader in) throws IOException {
+	String line = in.readLine();
+	if (!line.endsWith("\\"))
+	    return line;
+	if (line.endsWith("\\\\"))
+	    return line.substring(0, line.length() - 1);
+	StringBuilder sb = new StringBuilder(line);
+	sb.setCharAt(sb.length() - 1, '\n');
+	for (;;) {
+	    line = in.readLine();
+	    sb.append(line);
+	    if (!line.endsWith("\\"))
+		break;
+	    if (line.endsWith("\\\\")) {
+		sb.setLength(sb.length() - 1);
+		break;
+	    }
+	    sb.setCharAt(sb.length() - 1, '\n');
+	}
+	return sb.toString();
+    }
+
     @Test
     public void testAddress() {
 	test(headerName, headerValue, expected, doStrict, doParseHeader);
@@ -265,7 +293,7 @@ public class InternetAddressTest {
 	    }
 	    for (int i = 0; i < al.length; i++) {
 		if (gen_test_input)
-		    pr("\t" + al[i].getAddress());
+		    pr("\t" + al[i].getAddress());	// XXX - escape newlines
 		else {
 		    pr("\t[" + (i+1) + "] " + al[i].getAddress() +
 			"\t\tPersonal: " + n(al[i].getPersonal()));
