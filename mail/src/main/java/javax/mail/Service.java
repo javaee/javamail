@@ -95,8 +95,58 @@ public abstract class Service {
      */
     protected Service(Session session, URLName urlname) {
 	this.session = session;
-	url = urlname;
 	debug = session.getDebug();
+	url = urlname;
+
+	/*
+	 * Initialize the URLName with default values.
+	 * The URLName will be updated when connect is called.
+	 */
+	String protocol = null;
+	String host = null;
+	int port = -1;
+	String user = null;
+	String password = null;
+	String file = null;
+
+	// get whatever information we can from the URL
+	// XXX - url should always be non-null here, Session
+	//       passes it into the constructor
+	if (url != null) {
+	    protocol = url.getProtocol();
+	    host = url.getHost();
+	    port = url.getPort();
+	    user = url.getUsername();
+	    password = url.getPassword();
+	    file = url.getFile();
+	}
+
+	// try to get protocol-specific default properties
+	if (protocol != null) {
+	    if (host == null)
+		host = session.getProperty("mail." + protocol + ".host");
+	    if (user == null)
+		user = session.getProperty("mail." + protocol + ".user");
+	}
+
+	// try to get mail-wide default properties
+	if (host == null)
+	    host = session.getProperty("mail.host");
+
+	if (user == null)
+	    user = session.getProperty("mail.user");
+
+	// try using the system username
+	if (user == null) {
+	    try {
+		user = System.getProperty("user.name");
+	    } catch (SecurityException sex) {
+		// XXX - it's not worth creating a MailLogger just for this
+		//logger.log(Level.CONFIG, "Can't get user.name property", sex);
+	    }
+	}
+
+	url = new URLName(protocol, host, port, file, user, password);
     }
 
     /**
@@ -266,8 +316,8 @@ public abstract class Service {
 	    try {
 		user = System.getProperty("user.name");
 	    } catch (SecurityException sex) {
-		if (debug)
-		    sex.printStackTrace(session.getDebugOut());
+		// XXX - it's not worth creating a MailLogger just for this
+		//logger.log(Level.CONFIG, "Can't get user.name property", sex);
 	    }
 	}
 
