@@ -2823,6 +2823,15 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testDefaultUrlName() throws Exception {
+        Properties props = createInitProperties("");
+        props.put("mail.transport.protocol", "smtp");
+        Session s = Session.getInstance(props);
+        Transport t = s.getTransport();
+        assertEquals(UNKNOWN_HOST, t.getURLName().getHost());
+    }
+
+    @Test
     public void testAttachmentFilters() {
         MailHandler instance = new MailHandler(createInitProperties(""));
         InternalErrorManager em = new InternalErrorManager();
@@ -4487,6 +4496,30 @@ public class MailHandlerTest {
 
             instance.close();
 
+            props.put(p.concat(".verify"), "resolve");
+
+            read(manager, props);
+
+            instance = new MailHandler();
+            em = internalErrorManagerFrom(instance);
+
+            assertEquals(InternalErrorManager.class, em.getClass());
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (isConnectOrTimeout(t)) {
+                    continue;
+                }
+
+                if (t instanceof AddressException == false) {
+                    dump(t);
+                    fail(t.toString());
+                }
+            }
+            assertFalse(em.exceptions.isEmpty());
+
+            instance.close();
+
             props.put(p.concat(".verify"), "remote");
             read(manager, props);
 
@@ -4544,6 +4577,28 @@ public class MailHandlerTest {
 
             for (int i = 0; i < em.exceptions.size(); i++) {
                 final Throwable t = em.exceptions.get(i);
+                if (t instanceof AddressException == false) {
+                    dump(t);
+                    fail(t.toString());
+                }
+            }
+        } finally {
+            instance.close();
+        }
+
+        props.put("verify", "resolve");
+        instance = new MailHandler();
+        try {
+            em = new InternalErrorManager();
+            instance.setErrorManager(em);
+            instance.setMailProperties(props);
+
+            for (int i = 0; i < em.exceptions.size(); i++) {
+                final Throwable t = em.exceptions.get(i);
+                if (isConnectOrTimeout(t)) {
+                   continue;
+                }
+
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4622,6 +4677,27 @@ public class MailHandlerTest {
 
                 for (int i = 0; i < em.exceptions.size(); i++) {
                     final Throwable t = em.exceptions.get(i);
+                    if (t instanceof AddressException == false) {
+                        dump(t);
+                        fail(t.toString());
+                    }
+                }
+                assertFalse(em.exceptions.isEmpty());
+            } finally {
+                instance.close();
+            }
+
+            props.put("verify", "resolve");
+
+            instance = new MailHandler(props);
+            try {
+                InternalErrorManager em = internalErrorManagerFrom(instance);
+
+                for (int i = 0; i < em.exceptions.size(); i++) {
+                    final Throwable t = em.exceptions.get(i);
+                    if (isConnectOrTimeout(t)) {
+                        continue;
+                    }
                     if (t instanceof AddressException == false) {
                         dump(t);
                         fail(t.toString());

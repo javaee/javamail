@@ -117,7 +117,7 @@ import javax.mail.util.ByteArrayDataSource;
  * <li>&lt;handler-name&gt;.attachment.filters a comma
  * separated list of <tt>Filter</tt> class names used to create each attachment.
  * The literal <tt>null</tt> is reserved for attachments that do not require
- * filtering. (defaults to
+ * filtering. (defaults to the
  * {@linkplain java.util.logging.Handler#getFilter() body} filter)
  *
  * <li>&lt;handler-name&gt;.attachment.formatters a comma
@@ -227,16 +227,24 @@ import javax.mail.util.ByteArrayDataSource;
  * trigger an early push. (defaults to <tt>Level.OFF</tt>, only push when full)
  *
  * <li>&lt;handler-name&gt;.verify <a name="verify">used</a> to
- * verify all of the <tt>Handler</tt> properties prior to a push.  If set to a
- * value of <tt>limited</tt> then the <tt>Handler</tt> will verify minimal
- * local machine settings.  If set to a value of <tt>local</tt> the
- * <tt>Handler</tt> will verify all of settings of the local machine. If set to
- * a value of <tt>remote</tt>, the <tt>Handler</tt> will verify all local
- * settings and try to establish a connection with the email server.  If the
- * value is not set, equal to an empty string, or equal to the literal
- * <tt>null</tt> then no settings are verified prior to a push.  If this
- * <tt>Handler</tt> is only implicitly closed by the <tt>LogManager</tt>, then
- * verification should be turned on.  (defaults to <tt>null</tt>, no verify).
+ * verify the <tt>Handler</tt> configuration prior to a push.
+ * <ul>
+ *      <li>If the value is not set, equal to an empty string, or equal to the
+ *      literal <tt>null</tt> then no settings are verified prior to a push.
+ *      <li>If set to a value of <tt>limited</tt> then the <tt>Handler</tt> will
+ *      verify minimal local machine settings.
+ *      <li>If set to a value of <tt>local</tt> the <tt>Handler</tt> will verify
+ *      all of settings of the local machine.
+ *      <li>If set to a value of <tt>resolve</tt>, the <tt>Handler</tt> will
+ *      verify all local settings and try to resolve the remote host name with
+ *      the domain name server.
+ *      <li>If set to a value of <tt>remote</tt>, the <tt>Handler</tt> will
+ *      verify all local settings and try to establish a connection with the
+ *      email server.
+ * </ul>
+ * If this <tt>Handler</tt> is only implicitly closed by the
+ * <tt>LogManager</tt>, then verification should be turned on.
+ * (defaults to <tt>null</tt>, no verify).
  *
  * <p>
  * <b>Normalization:</b>
@@ -2360,8 +2368,9 @@ public class MailHandler extends Handler {
     private void verifySettings0(Session session, String verify) {
         assert verify != null : (String) null;
         if (!"local".equals(verify) && !"remote".equals(verify)
-                && !"limited".equals(verify)) {
-            reportError("Verify must be 'limited', local', or 'remote'.",
+                && !"limited".equals(verify) && !"resolve".equals(verify)) {
+            reportError("Verify must be 'limited', local', "
+                    + "'resolve' or 'remote'.",
                     new IllegalArgumentException(verify),
                     ErrorManager.OPEN_FAILURE);
             return;
@@ -2425,7 +2434,7 @@ public class MailHandler extends Handler {
                 }
             }
 
-            String host = null;
+            String local = null;
             if ("remote".equals(verify)) {
                 MessagingException closed = null;
                 t.connect();
@@ -2433,7 +2442,7 @@ public class MailHandler extends Handler {
                     try {
                         //Capture localhost while connection is open.
                         if (t instanceof SMTPTransport) {
-                            host = ((SMTPTransport) t).getLocalHost();
+                            local = ((SMTPTransport) t).getLocalHost();
                         }
                         //A message without content will fail at message writeTo
                         //when sendMessage is called.  This allows the handler
@@ -2469,17 +2478,34 @@ public class MailHandler extends Handler {
                     fixUpContent(abort, verify, closed);
                     reportError(abort, closed, ErrorManager.CLOSE_FAILURE);
                 }
-            } else { //Force a property copy.
+            } else {
+                //Force a property copy.
                 final String protocol = t.getURLName().getProtocol();
                 session.getProperty("mail.host");
                 session.getProperty("mail.user");
                 session.getProperty("mail." + protocol + ".host");
                 session.getProperty("mail." + protocol + ".port");
                 session.getProperty("mail." + protocol + ".user");
-                host = session.getProperty("mail." + protocol + ".localhost");
-                if (isEmpty(host)) {
-                    host = session.getProperty("mail."
+                local = session.getProperty("mail." + protocol + ".localhost");
+                if (isEmpty(local)) {
+                    local = session.getProperty("mail."
                             + protocol + ".localaddress");
+                }
+
+                if ("resolve".equals(verify)) {
+                    try { //Resolve the remote host name.
+                        verifyHost(t.getURLName().getHost());
+                    } catch (final IOException IOE) {
+                        MessagingException ME =
+                                new MessagingException(msg, IOE);
+                        fixUpContent(abort, verify, ME);
+                        reportError(abort, ME, ErrorManager.OPEN_FAILURE);
+                    } catch (final RuntimeException RE) {
+                        MessagingException ME =
+                                new MessagingException(msg, RE);
+                        fixUpContent(abort, verify, RE);
+                        reportError(abort, ME, ErrorManager.OPEN_FAILURE);
+                    }
                 }
             }
 
@@ -2487,20 +2513,9 @@ public class MailHandler extends Handler {
                 try { //Verify host name and hit the host name cache.
                     if (!"remote".equals(verify)
                             && t instanceof SMTPTransport) {
-                       host = ((SMTPTransport) t).getLocalHost();
+                       local = ((SMTPTransport) t).getLocalHost();
                     }
-
-                    if (isEmpty(host)) {
-                        if (InetAddress.getLocalHost()
-                                .getCanonicalHostName().length() == 0) {
-                                throw new UnknownHostException();
-                        }
-                    } else {
-                        if (InetAddress.getByName(host)
-                                .getCanonicalHostName().length() == 0) {
-                                throw new UnknownHostException(host);
-                        }
-                    }
+                    verifyHost(local);
                 } catch (final IOException IOE) {
                     MessagingException ME = new MessagingException(msg, IOE);
                     fixUpContent(abort, verify, ME);
@@ -2572,6 +2587,26 @@ public class MailHandler extends Handler {
             fixUpContent(abort, verify, RE);
             reportError(abort, RE, ErrorManager.OPEN_FAILURE);
         }
+    }
+
+    /**
+     * Perform a lookup of the host address or FQDN.
+     * @param host the host or null.
+     * @return the address.
+     * @throws IOException if the host name is not valid.
+     * @since JavaMail 1.5.0
+     */
+    private static InetAddress verifyHost(String host) throws IOException {
+        InetAddress a;
+        if (isEmpty(host)) {
+            a = InetAddress.getLocalHost();
+        } else {
+            a = InetAddress.getByName(host);
+        }
+        if (a.getCanonicalHostName().length() == 0) {
+            throw new UnknownHostException();
+        }
+        return a;
     }
 
     /**
@@ -2683,7 +2718,7 @@ public class MailHandler extends Handler {
         setAcceptLang(msg);
         setFrom(msg);
         if (!setRecipient(msg, "mail.to", Message.RecipientType.TO)) {
-            setDefaultRecipient(msg);
+            setDefaultRecipient(msg, Message.RecipientType.TO);
         }
         setRecipient(msg, "mail.cc", Message.RecipientType.CC);
         setRecipient(msg, "mail.bcc", Message.RecipientType.BCC);
@@ -3122,19 +3157,21 @@ public class MailHandler extends Handler {
      * Computes the default to-address if none was specified.  This can
      * fail if the local address can't be computed.
      * @param msg the message
+     * @param type the recipient type.
      * @since JavaMail 1.5.0
      */
-    private void setDefaultRecipient(final Message msg) {
+    private void setDefaultRecipient(final Message msg,
+            final Message.RecipientType type) {
         try {
             Address a = InternetAddress.getLocalAddress(msg.getSession());
             if (a != null) {
-                msg.setRecipient(Message.RecipientType.TO, a);
+                msg.setRecipient(type, a);
             } else {
                 final MimeMessage m = new MimeMessage(msg.getSession());
                 m.setFrom(); //Should throw an exception with a cause.
                 Address[] from = m.getFrom();
                 if (from.length > 0) {
-                    msg.addFrom(from);
+                    msg.setRecipients(type, from);
                 } else {
                     throw new MessagingException("No local address.");
                 }
@@ -3142,6 +3179,9 @@ public class MailHandler extends Handler {
         } catch (final MessagingException ME) {
             reportError("Unable to compute a default recipient.",
                     ME, ErrorManager.FORMAT_FAILURE);
+        } catch (final RuntimeException RE) {
+            reportError("Unable to compute a default recipient.",
+                    RE, ErrorManager.FORMAT_FAILURE);
         }
     }
 
