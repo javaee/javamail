@@ -48,13 +48,13 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>1.5.0-SNAPSHOT</version>
+	<version>1.5.0-b02</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
     <artifactId>javadoc</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-b02</version>
     <name>JavaMail API javadocs</name>
     <description>${project.name}</description>
 
@@ -101,6 +101,7 @@
 			com/sun/mail/smtp/SMTPSenderFailedException.java,
 			com/sun/mail/smtp/SMTPTransport.java,
 			com/sun/mail/smtp/SMTPSSLTransport.java,
+			com/sun/mail/util/MailConnectException.java,
 			com/sun/mail/util/MailSSLSocketFactory.java,
 			com/sun/mail/util/ReadableMime.java,
 			com/sun/mail/util/logging/MailHandler.java

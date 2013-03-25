@@ -54,7 +54,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.5.0-b02</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
@@ -91,10 +91,13 @@
     </organization>
 
     <properties>
-	<mail.version>1.5.0-SNAPSHOT</mail.version>
+	<mail.version>1.5.0-b02</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_5_0-SNAPSHOT</mail.zipversion>
+	<mail.zipversion>1_5_0-b02</mail.zipversion>
+	<!-- XXX - temporary until 1.5 is final
 	<mail.spec.version>1.5</mail.spec.version>
+	-->
+	<mail.spec.version>1.4.99.02</mail.spec.version>
 	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
 	<mail.extensionName>
@@ -106,6 +109,9 @@
 	<mail.implementationTitle>
 	    ${project.groupId}.${project.artifactId}
 	</mail.implementationTitle>
+	<mail.bundle.symbolicName>
+	    ${project.groupId}.${project.artifactId}
+	</mail.bundle.symbolicName>
 	<mail.bundle.symbolicName>
 	    ${project.groupId}.${project.artifactId}
 	</mail.bundle.symbolicName>
@@ -350,6 +356,10 @@
 			<Bundle-SymbolicName>
 			    ${mail.bundle.symbolicName}
 			</Bundle-SymbolicName>
+			<!-- XXX - temporary until 1.5 is final -->
+			<Bundle-Version>
+			    1.4.99.b02
+			</Bundle-Version>
 			<Export-Package>
 			    ${mail.packages.export}
 			</Export-Package>
