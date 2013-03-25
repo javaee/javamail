@@ -56,6 +56,8 @@ import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
 import com.sun.mail.util.PropUtil;
 import com.sun.mail.util.MailLogger;
+import com.sun.mail.util.SocketConnectException;
+import com.sun.mail.util.MailConnectException;
 
 /**
  * This class provides access to an IMAP message store. <p>
@@ -666,6 +668,8 @@ public class IMAPStore extends Store
 		protocol.disconnect();
 	    protocol = null;
 	    throw new MessagingException(pex.getMessage(), pex);
+	} catch (SocketConnectException scex) {
+	    throw new MailConnectException(scex);
 	} catch (IOException ioex) {
 	    throw new MessagingException(ioex.getMessage(), ioex);
 	} 

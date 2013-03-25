@@ -220,13 +220,8 @@ public class SocketFetcher {
 		}
 		if (ex instanceof IOException)
 		    throw (IOException)ex;
-		IOException ioex = new IOException(
-				    "Couldn't connect using " + sfErr +
-				    " to host, port: " +
-				    host + ", " + sfPort +
-				    "; Exception: " + ex);
-		ioex.initCause(ex);
-		throw ioex;
+		throw new SocketConnectException("Using " + sfErr, ex,
+						host, sfPort, cto);
 	    }
 	}
 
@@ -263,6 +258,7 @@ public class SocketFetcher {
 
 	String socksHost = props.getProperty(prefix + ".socks.host", null);
 	int socksPort = 1080;
+	String err = null;
 	if (socksHost != null) {
 	    int i = socksHost.indexOf(':');
 	    if (i >= 0) {
@@ -275,6 +271,7 @@ public class SocketFetcher {
 	    }
 	    socksPort = PropUtil.getIntProperty(props,
 					prefix + ".socks.port", socksPort);
+	    err = "Using SOCKS host, port: " + socksHost + ", " + socksPort;
 	    if (logger.isLoggable(Level.FINER))
 		logger.finer("socks host " + socksHost + ", port " + socksPort);
 	}
@@ -293,10 +290,14 @@ public class SocketFetcher {
 	    socket.setSoTimeout(to);
 	if (localaddr != null)
 	    socket.bind(new InetSocketAddress(localaddr, localport));
-	if (cto >= 0)
-	    socket.connect(new InetSocketAddress(host, port), cto);
-	else
-	    socket.connect(new InetSocketAddress(host, port));
+	try {
+	    if (cto >= 0)
+		socket.connect(new InetSocketAddress(host, port), cto);
+	    else
+		socket.connect(new InetSocketAddress(host, port));
+	} catch (IOException ex) {
+	    throw new SocketConnectException(err, ex, host, port, cto);
+	}
 
 	/*
 	 * If we want an SSL connection and we didn't get an SSLSocket,

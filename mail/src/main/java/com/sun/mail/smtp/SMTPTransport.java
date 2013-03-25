@@ -1957,6 +1957,8 @@ public class SMTPTransport extends Transport {
 	    }
 	} catch (UnknownHostException uhex) {
 	    throw new MessagingException("Unknown SMTP host: " + host, uhex);
+	} catch (SocketConnectException scex) {
+	    throw new MailConnectException(scex);
 	} catch (IOException ioe) {
 	    throw new MessagingException("Could not connect to SMTP host: " +
 				    host + ", port: " + port, ioe);
