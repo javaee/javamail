@@ -71,7 +71,8 @@ public class SocketConnectException extends IOException {
      */
     public SocketConnectException(String msg, Exception cause,
 				    String host, int port, int cto) {
-	super(msg, cause);
+	super(msg);
+	initCause(cause);
 	this.host = host;
 	this.port = port;
 	this.cto = cto;
