@@ -54,7 +54,7 @@
     <groupId>com.sun.mail</groupId>
     <artifactId>all</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0-b02</version>
+    <version>1.5.0-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
     <url>http://kenai.com/projects/javamail</url>
@@ -91,9 +91,9 @@
     </organization>
 
     <properties>
-	<mail.version>1.5.0-b02</mail.version>
+	<mail.version>1.5.0-SNAPSHOT</mail.version>
 	<!-- like mail.version, but with underscores instead of dots -->
-	<mail.zipversion>1_5_0-b02</mail.zipversion>
+	<mail.zipversion>1_5_0-SNAPSHOT</mail.zipversion>
 	<!-- XXX - temporary until 1.5 is final
 	<mail.spec.version>1.5</mail.spec.version>
 	-->
