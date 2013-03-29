@@ -56,9 +56,8 @@ public class SocketConnectException extends IOException {
     private String host;
     private int port;
     private int cto;
-    private Exception ex;
 
-    //private static final long serialVersionUID = 4280468026581616424L;
+    private static final long serialVersionUID = 3997871560538755463L;
 
     /**
      * Constructs a SocketConnectException.
@@ -76,7 +75,6 @@ public class SocketConnectException extends IOException {
 	this.host = host;
 	this.port = port;
 	this.cto = cto;
-	this.ex = cause;
     }
 
     /**
@@ -85,7 +83,9 @@ public class SocketConnectException extends IOException {
      * @return	the exception
      */
     public Exception getException() {
-	return ex;
+	// the "cause" is always an Exception; see constructor above
+	assert getCause() instanceof Exception;
+	return (Exception)getCause();
     }
 
     /**

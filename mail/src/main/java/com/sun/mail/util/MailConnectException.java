@@ -58,7 +58,7 @@ public class MailConnectException extends MessagingException {
     private int port;
     private int cto;
 
-    //private static final long serialVersionUID = 4280468026581616424L;
+    private static final long serialVersionUID = -3818807731125317729L;
 
     /**
      * Constructs a MailConnectException.
