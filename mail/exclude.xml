@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -387,6 +387,27 @@
     <Match>
 	<Class name="javax.mail.internet.MimeUtility"/>
 	<Method name="getDefaultJavaCharset"/>
+	<Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+
+    <!--
+	We're purposely using the platform default encoding when a
+	charset hasn't been specified.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.ParameterList"/>
+	<Method name="combineMultisegmentNames"/>
+	<Bug pattern="DM_DEFAULT_ENCODING"/>
+    </Match>
+
+    <!--
+	We're purposely using the platform default encoding because
+	we're converting bytes that were written using the platform
+	default encoding back to a String.
+    -->
+    <Match>
+	<Class name="com.sun.mail.util.LogOutputStream"/>
+	<Method name="logBuf"/>
 	<Bug pattern="DM_DEFAULT_ENCODING"/>
     </Match>
 
