@@ -60,36 +60,27 @@
     <build>
 	<plugins>
 	    <!--
-		This is the rule that creates the zip file for distribution.
+		This is the rule that collects the release artifacts and
+		creates the samples zip file for a release.
 	    -->
 	    <plugin>
 		<artifactId>maven-assembly-plugin</artifactId>
 		<inherited>false</inherited>
-		<!--
-		    I'd like this to be run as part of the
-		    package phase, but that doesn't work.
-		    Have to run it explicitly as:
-
-		    mvn package assembly:single
-
 		<executions>
 		    <execution>
 			<phase>package</phase>
 			<goals>
 			    <goal>assembly</goal>
 			</goals>
-		-->
 			<configuration>
-			    <finalName>javamail${mail.zipversion}</finalName>
+			    <finalName>javamail</finalName>
 			    <descriptors>
 				<descriptor>publish.xml</descriptor>
 				<descriptor>samples.xml</descriptor>
 			    </descriptors>
 			</configuration>
-		<!--
 		    </execution>
 		</executions>
-		-->
 	    </plugin>
 	</plugins>
     </build>

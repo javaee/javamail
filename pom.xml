@@ -158,6 +158,7 @@
 	<module>gimap</module>
 	<module>pop3</module>
 	<module>dsn</module>
+	<module>publish</module>
     </modules>
 
     <profiles>
