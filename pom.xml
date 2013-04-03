@@ -57,12 +57,12 @@
     <version>1.5.0-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
-    <url>http://kenai.com/projects/javamail</url>
+    <url>http://javamail.java.net</url>
 
     <scm>
-	<connection>scm:hg:http://kenai.com/hg/javamail~mercurial</connection>
-	<developerConnection>scm:hg:https://kenai.com/hg/javamail~mercurial</developerConnection>
-	<url>http://kenai.com/hg/javamail~mercurial</url>
+	<connection>scm:hg:http://java.net/hg/javamail~mercurial</connection>
+	<developerConnection>scm:hg:https://java.net/hg/javamail~mercurial</developerConnection>
+	<url>http://java.net/hg/javamail~mercurial</url>
     </scm>
 
     <issueManagement>
@@ -72,16 +72,10 @@
 
     <licenses>
       <license>
-	<name>CDDL</name>
-	<url>http://www.sun.com/cddl</url>
-	<distribution>repo</distribution>
-	<comments>A business-friendly OSS license</comments>
-      </license>
-      <license>
-	<name>GPLv2+CE</name>
+	<name>CDDL/GPLv2+CE</name>
 	<url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</url>
 	<distribution>repo</distribution>
-	<comments>GPL version 2 plus the Classpath Exception</comments>
+	<comments>CDDL or GPL version 2 plus the Classpath Exception</comments>
       </license>
     </licenses>
 
@@ -552,38 +546,6 @@
 		</configuration>
 	    </plugin>
 
-	    <!--
-		This is the rule that creates the zip file for distribution.
-	    -->
-	    <plugin>
-		<artifactId>maven-assembly-plugin</artifactId>
-		<inherited>false</inherited>
-		<!--
-		    I'd like this to be run as part of the
-		    package phase, but that doesn't work.
-		    Have to run it explicitly as:
-
-		    mvn package assembly:assembly
-
-		<executions>
-		    <execution>
-			<phase>package</phase>
-			<goals>
-			    <goal>assembly</goal>
-			</goals>
-		-->
-			<configuration>
-			    <finalName>javamail${mail.zipversion}</finalName>
-			    <descriptors>
-				<descriptor>assembly.xml</descriptor>
-			    </descriptors>
-			</configuration>
-		<!--
-		    </execution>
-		</executions>
-		-->
-	    </plugin>
-
 <!-- not used
 	    <plugin>
 		<artifactId>maven-release-plugin</artifactId>
@@ -615,6 +577,11 @@
 		    <groupId>org.codehaus.mojo</groupId>
 		    <artifactId>build-helper-maven-plugin</artifactId>
 		    <version>1.7</version>
+		</plugin>
+		<plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-assembly-plugin</artifactId>
+		    <version>2.4</version>
 		</plugin>
 		<plugin>
 		    <!--
