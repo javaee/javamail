@@ -158,7 +158,6 @@
 	<module>gimap</module>
 	<module>pop3</module>
 	<module>dsn</module>
-	<module>publish</module>
     </modules>
 
     <profiles>
@@ -178,6 +177,7 @@
 		<module>logging</module>
 		<module>outlook</module>
 		<module>javadoc</module>
+		<module>publish</module>
 	    </modules>
 	    <activation>
 		<activeByDefault>true</activeByDefault>
