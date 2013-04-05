@@ -55,6 +55,32 @@ with this release of the JavaMail API.
 	imagine how this change could impact any applications other
 	than perhaps those using reflection to access these classes.
 
+- MailHandler default attachment filters
+
+	The default used for attachment filters has changed from allow
+	all log records (null) to instead use body filter assigned to
+	getFilter().  This is a safer choice as it maintains any
+	existing filter rules when attachments are added.
+
+- MailHandler default 'TO' address recipient
+
+	If the 'TO' address key is not specified then the local address
+	is used.  The previous behavior was to omit the 'TO' address
+	header.  This can break configurations that are only sending to
+	a set of 'CC' or 'BCC' addresses.  To revert this behavior
+	simply specify a 'TO' address key with an empty address value.
+
+- MailHandler intern of error manager, filters, and formatters.
+
+	When MailHandler is created, the error manager, filters, and
+	formatters are checked for equality.  When equal objects are
+	found they are replaced with a single representation.  This
+	allows objects of the same type to share state for improving
+	performance, adding functionality, etc.  To revert to the
+	previous behavior the error manager, filters, and formatters
+	must retain or be wrapped with objects that retain the identity
+	equals and hash code to prevent interning.
+
 
 
 -- JavaMail 1.4.4 --
