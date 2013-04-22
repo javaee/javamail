@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,16 @@
 <!DOCTYPE project [
   <!ENTITY commonBuild SYSTEM "ant-common.xml">
 ]>
+
+<!--
+
+    NOTE: JavaMail is now built using Maven:
+    https://java.net/projects/javamail/pages/BuildInstructions
+
+    This ant build file is obsolete and may not work.
+
+-->
+
 <project name="JavaMail" default="all" basedir=".">
 
 <!-- ========== Initialize Properties =================================== -->
@@ -95,7 +105,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${activation.jar}"/>
             </classpath>
@@ -159,6 +170,15 @@
 		<filter token="mail.version" value="${release.version}"/>
             </filterset>
         </copy>
+        <mkdir dir="${component.classes.gimap.dir}/manifest"/>
+        <copy file="${resources.gimap.dir}/META-INF/MANIFEST.MF"
+		tofile="${component.classes.gimap.dir}/manifest/MANIFEST.MF">
+            <filterset begintoken="{" endtoken="}">
+		<filter token="mail.spec.version"
+		    value="${release.specversion}"/>
+		<filter token="mail.version" value="${release.version}"/>
+            </filterset>
+        </copy>
     </target>
 
     <!--
@@ -179,6 +199,28 @@
     </target>
     -->
 
+    <!-- gimap compile -->
+    <target name="gimapcompile" depends="init"
+            description="Compile com/sun/mail/gimap sources">
+
+        <mkdir dir="${component.classes.gimap.dir}"/>
+        <javac srcdir="${src.gimap.dir}"
+               destdir="${component.classes.gimap.dir}"
+               debug="${javac.debug}"
+               optimize="${javac.optimize}"
+               source="${javac.source}"
+               deprecation="${javac.deprecation}"
+               failonerror="true"
+               target="${javac.target}"
+	       includeantruntime="false">
+            <classpath>
+                <pathelement location="${component.classes.dir}"/>
+                <pathelement location="${activation.jar}"/>
+            </classpath>
+            <include name="com/sun/mail/gimap/**"/>
+        </javac>
+    </target>
+
     <!-- dsn compile -->
     <target name="dsncompile" depends="init"
             description="Compile com/sun/mail/dsn sources">
@@ -191,7 +233,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${activation.jar}"/>
@@ -212,7 +255,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${activation.jar}"/>
@@ -228,7 +272,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${activation.jar}"/>
@@ -244,7 +289,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${activation.jar}"/>
@@ -261,7 +307,8 @@
                source="${javac.source}"
                deprecation="${javac.deprecation}"
                failonerror="true"
-               target="${javac.target}">
+               target="${javac.target}"
+	       includeantruntime="false">
             <classpath>
                 <pathelement location="${component.classes.dir}"/>
                 <pathelement location="${component.classes.demo.dir}"/>
@@ -281,6 +328,7 @@
         <delete includeEmptyDirs="true" failonerror="false">
             <fileset dir="${component.classes.dir}"/>
             <fileset dir="${component.classes.dsn.dir}"/>
+            <fileset dir="${component.classes.gimap.dir}"/>
             <fileset dir="${component.classes.demo.dir}"/>
             <fileset dir="${component.classes.client.dir}"/>
             <fileset dir="${component.classes.servlet.dir}"/>
@@ -326,7 +374,7 @@
 
     <!-- Build all jars needed for release -->
     <target name="jars"
-	    depends="jar, mailapijar, pop3jar, imapjar, smtpjar, dsnjar"/>
+	depends="jar, mailapijar, pop3jar, imapjar, smtpjar, gimapjar, dsnjar"/>
 
     <!-- Assemble mail.jar -->
     <target name="jar" depends="init, compile, cook-manifest">
@@ -398,6 +446,20 @@
         </jar>
      </target>
 
+     <target name="gimapjar" depends="init, gimapcompile, cook-manifest">
+        <mkdir dir="${release.dir}/lib"/>
+        <jar jarfile="${release.gimap.jar}"
+		manifest="${component.classes.gimap.dir}/manifest/MANIFEST.MF">
+            <metainf dir="${resources.legal.dir}/META-INF"
+		    includes="LICENSE.txt"/>
+            <metainf dir="${resources.gimap.dir}/META-INF"
+		    includes="mailcap"/>
+            <fileset dir="${component.classes.gimap.dir}">
+                <include name="com/sun/mail/gimap/*.class"/>
+            </fileset>
+        </jar>
+     </target>
+
      <target name="dsnjar" depends="init, dsncompile, cook-manifest">
         <mkdir dir="${release.dir}/lib"/>
         <jar jarfile="${release.dsn.jar}"
@@ -436,8 +498,6 @@
         <mkdir dir="${release.docs.dir}"/>
         <copy todir="${release.docs.dir}">
             <fileset dir="${basedir}/doc/spec" includes="*.txt" />
-            <fileset dir="${spec.dir}"
-		    includes="JavaMail-1.4.pdf,Providers.pdf" />
         </copy>
 	<!--
 	    To allow us to generate javadocs that only include some
@@ -471,7 +531,9 @@
 		    com/sun/mail/smtp/SMTPSenderFailedException.java,
 		    com/sun/mail/smtp/SMTPTransport.java,
 		    com/sun/mail/smtp/SMTPSSLTransport.java,
+		    com/sun/mail/util/MailConnectException.java,
 		    com/sun/mail/util/MailSSLSocketFactory.java,
+		    com/sun/mail/util/ReadableMime.java,
 		    com/sun/mail/util/logging/MailHandler.java
 		"/>
 	    <fileset dir="${src.dsn.dir}"
@@ -483,6 +545,17 @@
 		    com/sun/mail/dsn/MultipartReport.java,
 		    com/sun/mail/dsn/Report.java
 		"/>
+	    <fileset dir="${src.dsn.dir}"
+		includes="
+		    com/sun/mail/gimap/package.html,
+		    com/sun/mail/gimap/GmailStore.java,
+		    com/sun/mail/gimap/GmailSSLStore.java,
+		    com/sun/mail/gimap/GmailFolder.java,
+		    com/sun/mail/gimap/GmailMessage.java,
+		    com/sun/mail/gimap/GmailMsgIdTerm.java,
+		    com/sun/mail/gimap/GmailThrIdTerm.java,
+		    com/sun/mail/gimap/GmailRawSearchTerm.java
+		"/>
         </copy>
         <mkdir dir="${release.javadocs.dir}"/>
         <javadoc packagenames="javax.mail, javax.mail.internet,
@@ -491,11 +564,12 @@
                                com.sun.mail.imap,
                                com.sun.mail.pop3,
                                com.sun.mail.smtp,
+                               com.sun.mail.gimap,
                                com.sun.mail.util, com.sun.mail.util.logging,
                                com.sun.mail.dsn"
             destdir="${release.javadocs.dir}"
 	    sourcepath="${release.dir}/javadoc"
-            classpath="${activation.jar}:${release.mail.jar}:${release.dsn.jar}"
+            classpath="${activation.jar}:${release.mail.jar}:${release.dsn.jar}:${release.gimap.jar}"
             author="false"
             version="false"
             use="true"
@@ -504,6 +578,16 @@
             doctitle="JavaMail API documentation">
             <group title="JavaMail API Packages" packages="javax.*"/>
             <group title="Sun-specific Packages" packages="com.sun.*"/>
+	    <bottom>
+<![CDATA[Copyright &#169; 1996-2013,
+    <a href="http://www.oracle.com">Oracle</a>
+    and/or its affiliates. All Rights Reserved.
+    Use is subject to
+    <a href="{@docRoot}/doc-files/speclicense.html" target="_top">license terms<
+    /a>.
+]]>
+
+	    </bottom>
 	    <!-- following can really slow down javadoc generation
 	    <link href="${javase.url}"/>
 	    <link href="${jaf.url}"/>
