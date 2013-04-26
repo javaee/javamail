@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -67,7 +67,7 @@ public final class ReceivedDateTerm extends DateTerm {
      * The match method.
      *
      * @param msg	the date comparator is applied to this Message's
-     *			sent date
+     *			received date
      * @return		true if the comparison succeeds, otherwise false
      */
     public boolean match(Message msg) {
