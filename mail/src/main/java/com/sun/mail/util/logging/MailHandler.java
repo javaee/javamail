@@ -205,7 +205,7 @@ import javax.mail.util.ByteArrayDataSource;
  * recipients that provide support for the application, system, and/or
  * supporting infrastructure.  The empty string can be used to specify no
  * send-to address which overrides the default behavior.  (defaults to
- * {@linkplain javax.mail.internet.InternetAddress.getLocalAddress
+ * {@linkplain javax.mail.internet.InternetAddress#getLocalAddress
  * local address}.)
  *
  * <li>&lt;handler-name&gt;.mail.sender a single address
