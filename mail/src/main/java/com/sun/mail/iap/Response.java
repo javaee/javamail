@@ -216,13 +216,13 @@ public class Response {
 
 	/*
 	 * An ATOM is any CHAR delimited by :
-	 * SPACE | CTL | '(' | ')' | '{' | '%' | '*' | '"' | '\'
+	 * SPACE | CTL | '(' | ')' | '{' | '%' | '*' | '"' | '\' | ']'
 	 */
 	byte b;
 	int start = index;
 	while (index < size && ((b = buffer[index]) > ' ') &&
 	       b != '(' && b != ')' && b != '%' && b != '*' && 
-	       b != '"' && b != '\\' && b != 0x7f &&
+	       b != '"' && b != '\\'  && b != ']' && b != 0x7f &&
 	       (delim == '\0' || b != delim))
 	    index++;
 

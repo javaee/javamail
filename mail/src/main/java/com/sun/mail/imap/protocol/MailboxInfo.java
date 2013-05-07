@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,13 +40,18 @@
 
 package com.sun.mail.imap.protocol;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.mail.Flags;
+
 import com.sun.mail.iap.*;
 
 /**
- * This class 
+ * Information collected when opening a mailbox.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class MailboxInfo { 
@@ -57,7 +62,9 @@ public class MailboxInfo {
     public int first = -1;
     public long uidvalidity = -1;
     public long uidnext = -1;
+    public long highestmodseq = -1;	// RFC 4551 - CONDSTORE
     public int mode;
+    public List<IMAPResponse> responses;
 
     public MailboxInfo(Response[] r) throws ParsingException {
 	for (int i = 0; i < r.length; i++) {
@@ -69,22 +76,30 @@ public class MailboxInfo {
 	    if (ir.keyEquals("EXISTS")) {
 		total = ir.getNumber();
 		r[i] = null; // remove this response
-	    }
-	    else if (ir.keyEquals("RECENT")) {
+	    } else if (ir.keyEquals("RECENT")) {
 		recent = ir.getNumber();
 		r[i] = null; // remove this response
-	    }
-	    else if (ir.keyEquals("FLAGS")) {
+	    } else if (ir.keyEquals("FLAGS")) {
 		availableFlags = new FLAGS(ir);
 		r[i] = null; // remove this response
-	    }
-	    else if (ir.isUnTagged() && ir.isOK()) {
-		/* should be one of:
-		   	* OK [UNSEEN 12]
-		   	* OK [UIDVALIDITY 3857529045]
-		   	* OK [PERMANENTFLAGS (\Deleted)]
-		   	* OK [UIDNEXT 44]
-		*/
+	    } else if (ir.keyEquals("VANISHED")) {
+		if (responses == null)
+		    responses = new ArrayList<IMAPResponse>();
+		responses.add(ir);
+		r[i] = null; // remove this response
+	    } else if (ir.keyEquals("FETCH")) {
+		if (responses == null)
+		    responses = new ArrayList<IMAPResponse>();
+		responses.add(ir);
+		r[i] = null; // remove this response
+	    } else if (ir.isUnTagged() && ir.isOK()) {
+		/*
+		 * should be one of:
+		 * 	* OK [UNSEEN 12]
+		 * 	* OK [UIDVALIDITY 3857529045]
+		 * 	* OK [PERMANENTFLAGS (\Deleted)]
+		 * 	* OK [UIDNEXT 44]
+		 */
 		ir.skipSpaces();
 
 		if (ir.readByte() != '[') {	// huh ???
@@ -102,6 +117,8 @@ public class MailboxInfo {
 		    permanentFlags = new FLAGS(ir);
 		else if (s.equalsIgnoreCase("UIDNEXT"))
 		    uidnext = ir.readLong();
+		else if (s.equalsIgnoreCase("HIGHESTMODSEQ"))
+		    highestmodseq = ir.readLong();
 		else
 		    handled = false;	// possibly an ALERT
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -100,16 +100,17 @@ public class FetchResponse extends IMAPResponse {
 	return items[index];
     }
 
-    public Item getItem(Class c) {
+    public <T extends Item> T getItem(Class<T> c) {
 	for (int i = 0; i < items.length; i++) {
 	    if (c.isInstance(items[i]))
-		return items[i];
+		return c.cast(items[i]);
 	}
 
 	return null;
     }
 
-    public static Item getItem(Response[] r, int msgno, Class c) {
+    public static <T extends Item> T getItem(Response[] r, int msgno,
+				Class<T> c) {
 	if (r == null)
 	    return null;
 
@@ -123,7 +124,7 @@ public class FetchResponse extends IMAPResponse {
 	    FetchResponse f = (FetchResponse)r[i];
 	    for (int j = 0; j < f.items.length; j++) {
 		if (c.isInstance(f.items[j]))
-		    return f.items[j];
+		    return c.cast(f.items[j]);
 	    }
 	}
 
@@ -217,6 +218,10 @@ public class FetchResponse extends IMAPResponse {
 	case 'U': case 'u':
 	    if (match(UID.name))
 		return new UID(this);
+	    break;
+	case 'M': case 'm':
+	    if (match(MODSEQ.name))
+		return new MODSEQ(this);
 	    break;
 	default: 
 	    break;

@@ -40,80 +40,35 @@
 
 package com.sun.mail.imap.protocol;
 
-import com.sun.mail.iap.*;
+import com.sun.mail.iap.*; 
 
 /**
- * STATUS response.
+ * This class represents the MODSEQ data item.
  *
- * @author  John Mani
+ * @since	JavaMail 1.5.1
+ * @author	Bill Shannon
  */
 
-public class Status { 
-    public String mbox = null;
-    public int total = -1;
-    public int recent = -1;
-    public long uidnext = -1;
-    public long uidvalidity = -1;
-    public int unseen = -1;
-    public long highestmodseq = -1;
+public class MODSEQ implements Item {
+    
+    static final char[] name = {'M','O','D','S','E','Q'};
+    public int seqnum;
 
-    static final String[] standardItems =
-	{ "MESSAGES", "RECENT", "UNSEEN", "UIDNEXT", "UIDVALIDITY" };
+    public long modseq;
 
-    public Status(Response r) throws ParsingException {
-	mbox = r.readAtomString(); // mailbox := astring
-
-	// Workaround buggy IMAP servers that don't quote folder names
-	// with spaces.
-	final StringBuffer buffer = new StringBuffer();
-	boolean onlySpaces = true;
-
-	while (r.peekByte() != '(' && r.peekByte() != 0) {
-	    final char next = (char)r.readByte();
-
-	    buffer.append(next);
-
-	    if (next != ' ') {
-		onlySpaces = false;
-	    }
-	}
-
-	if (!onlySpaces) {
-	    mbox = (mbox + buffer).trim();
-	}
+    /**
+     * Constructor
+     */
+    public MODSEQ(FetchResponse r) throws ParsingException {
+	seqnum = r.getNumber();
+	r.skipSpaces();
 
 	if (r.readByte() != '(')
-	    throw new ParsingException("parse error in STATUS");
-	
-	do {
-	    String attr = r.readAtom();
-	    if (attr.equalsIgnoreCase("MESSAGES"))
-		total = r.readNumber();
-	    else if (attr.equalsIgnoreCase("RECENT"))
-		recent = r.readNumber();
-	    else if (attr.equalsIgnoreCase("UIDNEXT"))
-		uidnext = r.readLong();
-	    else if (attr.equalsIgnoreCase("UIDVALIDITY"))
-		uidvalidity = r.readLong();
-	    else if (attr.equalsIgnoreCase("UNSEEN"))
-		unseen = r.readNumber();
-	    else if (attr.equalsIgnoreCase("HIGHESTMODSEQ"))
-		highestmodseq = r.readLong();
-	} while (r.readByte() != ')');
-    }
+	    throw new ParsingException("MODSEQ parse error");
 
-    public static void add(Status s1, Status s2) {
-	if (s2.total != -1)
-	    s1.total = s2.total;
-	if (s2.recent != -1)
-	    s1.recent = s2.recent;
-	if (s2.uidnext != -1)
-	    s1.uidnext = s2.uidnext;
-	if (s2.uidvalidity != -1)
-	    s1.uidvalidity = s2.uidvalidity;
-	if (s2.unseen != -1)
-	    s1.unseen = s2.unseen;
-	if (s2.highestmodseq != -1)
-	    s1.highestmodseq = s2.highestmodseq;
+	modseq = r.readLong();
+
+	if (r.readByte() != ')')
+	    throw new ParsingException("MODSEQ parse error");
     }
 }

@@ -58,6 +58,8 @@ import com.sun.mail.imap.ACL;
 import com.sun.mail.imap.Rights;
 import com.sun.mail.imap.AppendUID;
 import com.sun.mail.imap.SortTerm;
+import com.sun.mail.imap.ResyncData;
+import com.sun.mail.imap.Utility;
 
 /**
  * This class extends the iap.Protocol object and implements IMAP
@@ -91,8 +93,11 @@ public class IMAPProtocol extends Protocol {
     protected SearchSequence searchSequence;
     protected String[] searchCharsets; 	// array of search charsets
 
+    protected Set<String> enabled;	// enabled capabilities - RFC 5161
+
     private String name;
     private SaslAuthenticator saslAuthenticator;	// if SASL is being used
+    private String proxyAuthUser;	// user name used with PROXYAUTH
 
     private ByteArray ba;		// a buffer for fetchBody
 
@@ -786,6 +791,17 @@ public class IMAPProtocol extends Protocol {
 	args.writeString(u);
 
 	simpleCommand("PROXYAUTH", args);
+	proxyAuthUser = u;
+    }
+
+    /**
+     * Get the user name used with the PROXYAUTH command.
+     * Returns null if PROXYAUTH was not used.
+     *
+     * @since	JavaMail 1.5.1
+     */
+    public String getProxyAuthUser() {
+	return proxyAuthUser;
     }
 
     /**
@@ -841,11 +857,35 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.3.1"
      */
     public MailboxInfo select(String mbox) throws ProtocolException {
+	return select(mbox, null);
+    }
+
+    /**
+     * SELECT Command with QRESYNC data.
+     *
+     * @see "RFC2060, section 6.3.1"
+     * @see "RFC5162, section 3.1"
+     * @since	JavaMail 1.5.1
+     */
+    public MailboxInfo select(String mbox, ResyncData rd)
+				throws ProtocolException {
 	// encode the mbox as per RFC2060
 	mbox = BASE64MailboxEncoder.encode(mbox);
 
 	Argument args = new Argument();	
 	args.writeString(mbox);
+
+	if (rd != null) {
+	    if (rd == ResyncData.CONDSTORE) {
+		if (!hasCapability("CONDSTORE"))
+		    throw new BadCommandException("CONDSTORE not supported");
+		args.writeArgument(new Argument().writeAtom("CONDSTORE"));
+	    } else {
+		if (!hasCapability("QRESYNC")) 
+		    throw new BadCommandException("QRESYNC not supported");
+		args.writeArgument(resyncArgs(rd));
+	    }
+	}
 
 	Response[] r = command("SELECT", args);
 
@@ -875,11 +915,35 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.3.2"
      */
     public MailboxInfo examine(String mbox) throws ProtocolException {
+	return examine(mbox, null);
+    }
+
+    /**
+     * EXAMINE Command with QRESYNC data.
+     *
+     * @see "RFC2060, section 6.3.2"
+     * @see "RFC5162, section 3.1"
+     * @since	JavaMail 1.5.1
+     */
+    public MailboxInfo examine(String mbox, ResyncData rd)
+				throws ProtocolException {
 	// encode the mbox as per RFC2060
 	mbox = BASE64MailboxEncoder.encode(mbox);
 
 	Argument args = new Argument();	
 	args.writeString(mbox);
+
+	if (rd != null) {
+	    if (rd == ResyncData.CONDSTORE) {
+		if (!hasCapability("CONDSTORE"))
+		    throw new BadCommandException("CONDSTORE not supported");
+		args.writeArgument(new Argument().writeAtom("CONDSTORE"));
+	    } else {
+		if (!hasCapability("QRESYNC")) 
+		    throw new BadCommandException("QRESYNC not supported");
+		args.writeArgument(resyncArgs(rd));
+	    }
+	}
 
 	Response[] r = command("EXAMINE", args);
 
@@ -893,6 +957,52 @@ public class IMAPProtocol extends Protocol {
 
 	handleResult(r[r.length-1]);
 	return minfo;
+    }
+
+    /**
+     * Generate a QRESYNC argument list based on the ResyncData.
+     */
+    private static Argument resyncArgs(ResyncData rd) {
+	Argument cmd = new Argument();
+	cmd.writeAtom("QRESYNC");
+	Argument args = new Argument();
+	args.writeNumber(rd.getUIDValidity());
+	args.writeNumber(rd.getModSeq());
+	UIDSet[] uids = Utility.getResyncUIDSet(rd);
+	if (uids != null)
+	    args.writeString(UIDSet.toString(uids));
+	cmd.writeArgument(args);
+	return cmd;
+    }
+
+    /**
+     * ENABLE Command.
+     *
+     * @see "RFC 5161"
+     * @since	JavaMail 1.5.1
+     */
+    public void enable(String cap) throws ProtocolException {
+	if (!hasCapability("ENABLE")) 
+	    throw new BadCommandException("ENABLE not supported");
+	Argument args = new Argument();
+	args.writeAtom(cap);
+	simpleCommand("ENABLE", args);
+	if (enabled == null)
+	    enabled = new HashSet<String>();
+	enabled.add(cap.toUpperCase(Locale.ENGLISH));
+    }
+
+    /**
+     * Is the capability/extension enabled?
+     *
+     * @see "RFC 5161"
+     * @since	JavaMail 1.5.1
+     */
+    public boolean isEnabled(String cap) {
+	if (enabled == null)
+	    return false;
+	else
+	    return enabled.contains(cap.toUpperCase(Locale.ENGLISH));
     }
 
     /**
@@ -1237,8 +1347,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 	if (response.isOK())
-	    return (BODYSTRUCTURE)FetchResponse.getItem(r, msgno, 
-					BODYSTRUCTURE.class);
+	    return FetchResponse.getItem(r, msgno, BODYSTRUCTURE.class);
 	else if (response.isNO())
 	    return null;
 	else {
@@ -1279,7 +1388,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 	if (response.isOK())
-	    return (BODY)FetchResponse.getItem(r, msgno, BODY.class);
+	    return FetchResponse.getItem(r, msgno, BODY.class);
 	else if (response.isNO())
 	    return null;
 	else {
@@ -1334,7 +1443,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 	if (response.isOK())
-	    return (BODY)FetchResponse.getItem(r, msgno, BODY.class);
+	    return FetchResponse.getItem(r, msgno, BODY.class);
 	else if (response.isNO())
 	    return null;
 	else {
@@ -1370,8 +1479,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1]; 
 	if (response.isOK())
-	    return (RFC822DATA)FetchResponse.getItem(r, msgno, 
-					RFC822DATA.class);
+	    return FetchResponse.getItem(r, msgno, RFC822DATA.class);
 	else if (response.isNO())
 	    return null;
 	else {
@@ -1395,7 +1503,7 @@ public class IMAPProtocol extends Protocol {
 		continue;		
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((flags = (Flags)fr.getItem(Flags.class)) != null) {
+	    if ((flags = fr.getItem(FLAGS.class)) != null) {
 		r[i] = null; // remove this response
 		break;
 	    }
@@ -1418,7 +1526,29 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1]; 
 	if (response.isOK())
-	    return (UID)FetchResponse.getItem(r, msgno, UID.class);
+	    return FetchResponse.getItem(r, msgno, UID.class);
+	else if (response.isNO()) // XXX: Issue NOOP ?
+	    return null;
+	else {
+	    handleResult(response);
+	    return null; // NOTREACHED
+	}
+    }
+
+    /**
+     * Fetch the IMAP MODSEQ for the given message.
+     *
+     * @since	JavaMail 1.5.1
+     */
+    public MODSEQ fetchMODSEQ(int msgno) throws ProtocolException {
+	Response[] r = fetch(msgno, "MODSEQ");
+
+	// dispatch untagged responses
+	notifyResponseHandlers(r);
+
+	Response response = r[r.length-1]; 
+	if (response.isOK())
+	    return FetchResponse.getItem(r, msgno, MODSEQ.class);
 	else if (response.isNO()) // XXX: Issue NOOP ?
 	    return null;
 	else {
@@ -1441,7 +1571,7 @@ public class IMAPProtocol extends Protocol {
 		continue;
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((u = (UID)fr.getItem(UID.class)) != null) {
+	    if ((u = fr.getItem(UID.class)) != null) {
 		if (u.uid == uid) // this is the one we want
 		    break;
 		else
@@ -1473,7 +1603,7 @@ public class IMAPProtocol extends Protocol {
 		continue;
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((u = (UID)fr.getItem(UID.class)) != null)
+	    if ((u = fr.getItem(UID.class)) != null)
 		v.addElement(u);
 	}
 		
@@ -1486,7 +1616,7 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
-     * Get the sequence numbers for UIDs ranging from start till end.
+     * Get the sequence numbers for UIDs specified in the array.
      * UID objects that contain the sequence numbers are returned.
      * If no UIDs in the given range are found, an empty array is returned.
      */
@@ -1507,7 +1637,7 @@ public class IMAPProtocol extends Protocol {
 		continue;
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((u = (UID)fr.getItem(UID.class)) != null)
+	    if ((u = fr.getItem(UID.class)) != null)
 		v.addElement(u);
 	}
 		

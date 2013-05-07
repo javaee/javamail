@@ -38,82 +38,80 @@
  * holder.
  */
 
-package com.sun.mail.imap.protocol;
+package com.sun.mail.imap;
 
-import com.sun.mail.iap.*;
+import java.util.Date;
+import javax.mail.Message;
+import javax.mail.search.SearchTerm;
 
 /**
- * STATUS response.
+ * Find messages that are younger than a given interval (in seconds).
+ * Relies on the server implementing the WITHIN search extension
+ * (<A HREF="http://www.ietf.org/rfc/rfc5032.txt">RFC 5032</A>).
  *
- * @author  John Mani
+ * @since	JavaMail 1.5.1
+ * @author	Bill Shannon
  */
+public final class YoungerTerm extends SearchTerm {
 
-public class Status { 
-    public String mbox = null;
-    public int total = -1;
-    public int recent = -1;
-    public long uidnext = -1;
-    public long uidvalidity = -1;
-    public int unseen = -1;
-    public long highestmodseq = -1;
+    private int interval;
 
-    static final String[] standardItems =
-	{ "MESSAGES", "RECENT", "UNSEEN", "UIDNEXT", "UIDVALIDITY" };
+    private static final long serialVersionUID = 1592714210688163496L;
 
-    public Status(Response r) throws ParsingException {
-	mbox = r.readAtomString(); // mailbox := astring
-
-	// Workaround buggy IMAP servers that don't quote folder names
-	// with spaces.
-	final StringBuffer buffer = new StringBuffer();
-	boolean onlySpaces = true;
-
-	while (r.peekByte() != '(' && r.peekByte() != 0) {
-	    final char next = (char)r.readByte();
-
-	    buffer.append(next);
-
-	    if (next != ' ') {
-		onlySpaces = false;
-	    }
-	}
-
-	if (!onlySpaces) {
-	    mbox = (mbox + buffer).trim();
-	}
-
-	if (r.readByte() != '(')
-	    throw new ParsingException("parse error in STATUS");
-	
-	do {
-	    String attr = r.readAtom();
-	    if (attr.equalsIgnoreCase("MESSAGES"))
-		total = r.readNumber();
-	    else if (attr.equalsIgnoreCase("RECENT"))
-		recent = r.readNumber();
-	    else if (attr.equalsIgnoreCase("UIDNEXT"))
-		uidnext = r.readLong();
-	    else if (attr.equalsIgnoreCase("UIDVALIDITY"))
-		uidvalidity = r.readLong();
-	    else if (attr.equalsIgnoreCase("UNSEEN"))
-		unseen = r.readNumber();
-	    else if (attr.equalsIgnoreCase("HIGHESTMODSEQ"))
-		highestmodseq = r.readLong();
-	} while (r.readByte() != ')');
+    /**
+     * Constructor.
+     *
+     * @param interval	number of seconds younger
+     */
+    public YoungerTerm(int interval) {
+	this.interval = interval;
     }
 
-    public static void add(Status s1, Status s2) {
-	if (s2.total != -1)
-	    s1.total = s2.total;
-	if (s2.recent != -1)
-	    s1.recent = s2.recent;
-	if (s2.uidnext != -1)
-	    s1.uidnext = s2.uidnext;
-	if (s2.uidvalidity != -1)
-	    s1.uidvalidity = s2.uidvalidity;
-	if (s2.unseen != -1)
-	    s1.unseen = s2.unseen;
-	if (s2.highestmodseq != -1)
-	    s1.highestmodseq = s2.highestmodseq;
+    /**
+     * Return the interval.
+     *
+     * @return	the interval
+     */
+    public int getInterval() {
+	return interval;
+    }
+
+    /**
+     * The match method.
+     *
+     * @param msg	the date comparator is applied to this Message's
+     *			received date
+     * @return		true if the comparison succeeds, otherwise false
+     */
+    public boolean match(Message msg) {
+	Date d;
+
+	try {
+	    d = msg.getReceivedDate();
+	} catch (Exception e) {
+	    return false;
+	}
+
+	if (d == null)
+	    return false;
+
+	return d.getTime() >=
+		    System.currentTimeMillis() - ((long)interval * 1000);
+    }
+
+    /**
+     * Equality comparison.
+     */
+    public boolean equals(Object obj) {
+	if (!(obj instanceof YoungerTerm))
+	    return false;
+	return interval == ((YoungerTerm)obj).interval;
+    }
+
+    /**
+     * Compute a hashCode for this object.
+     */
+    public int hashCode() {
+	return interval + super.hashCode();
     }
 }

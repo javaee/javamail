@@ -14,6 +14,14 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.5.1 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.1 release.
+
+K  5924	IMAP provider should support the QRESYNC extension (RFC 5162)
+K  5925	IMAP provider should support the WITHIN search extension (RFC 5032)
+
+
 		  CHANGES IN THE 1.5.0 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.0 release.

@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -49,22 +49,31 @@
 An IMAP protocol provider for the JavaMail API
 that provides access to an IMAP message store.
 Both the IMAP4 and IMAP4rev1 protocols are supported.
-Refer to <A HREF="http://www.ietf.org/rfc/rfc2060.txt" TARGET="_top">
-RFC 2060</A>
+Refer to <A HREF="http://www.ietf.org/rfc/rfc3501.txt" TARGET="_top">
+RFC 3501</A>
 for more information.
+The IMAP protocol provider also supports many IMAP extensions (described below).
+Note that the server needs to support these extensions (and not all servers do)
+in order to use the support in the IMAP provider.
+You can query the server for support of these extensions using the
+{@link com.sun.mail.imap.IMAPStore#hasCapability IMAPStore hasCapability}
+method using the capability name defined by the extension
+(see the appropriate RFC) after connecting to the server.
+<H4>SASL Support</H4>
 <P>
 The IMAP protocol provider can use SASL
 (<A HREF="http://www.ietf.org/rfc/rfc2222.txt" TARGET="_top">RFC 2222</A>)
 authentication mechanisms on systems that support the
-<CODE>javax.security.sasl</CODE> APIs, such as J2SE 5.0.
+<CODE>javax.security.sasl</CODE> APIs.
 In addition to the SASL mechanisms that are built into 
 the SASL implementation, users can also provide additional
 SASL mechanisms of their own design to support custom authentication
 schemes.  See the
-<A HREF="http://docs.oracle.com/javase/1.5.0/docs/guide/security/sasl/sasl-refguide.html" TARGET="_top">
+<A HREF="http://download.oracle.com/javase/6/docs/technotes/guides/security/sasl/sasl-refguide.html" TARGET="_top">
 Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
+<H4>Connection Pool</H4>
 <P>
 A connected IMAPStore maintains a pool of IMAP protocol objects for
 use in communicating with the IMAP server. The IMAPStore will create
@@ -83,6 +92,96 @@ The connected IMAPStore object may or may not maintain a separate IMAP
 protocol object that provides the store a dedicated connection to the
 IMAP server. This is provided mainly for compatibility with previous
 implementations of the IMAP protocol provider.
+<H4>QUOTA Support</H4>
+<P>
+The IMAP QUOTA extension
+(<A HREF="http://www.ietf.org/rfc/rfc2087.txt">RFC 2087</A>)
+is supported via the
+{@link javax.mail.QuotaAwareStore QuotaAwareStore} interface implemented by
+{@link com.sun.mail.imap.IMAPStore IMAPStore}, and the
+{@link com.sun.mail.imap.IMAPFolder#getQuota IMAPFolder getQuota} and
+{@link com.sun.mail.imap.IMAPFolder#setQuota IMAPFolder setQuota} methods.
+<H4>ACL Support</H4>
+<P>
+The IMAP ACL extension
+(<A HREF="http://www.ietf.org/rfc/rfc2086.txt">RFC 2086</A>)
+is supported via the
+{@link com.sun.mail.imap.Rights Rights} class and the IMAPFolder methods
+{@link com.sun.mail.imap.IMAPFolder#getACL getACL},
+{@link com.sun.mail.imap.IMAPFolder#addACL addACL},
+{@link com.sun.mail.imap.IMAPFolder#removeACL removeACL},
+{@link com.sun.mail.imap.IMAPFolder#addRights addRights},
+{@link com.sun.mail.imap.IMAPFolder#removeRights removeRights},
+{@link com.sun.mail.imap.IMAPFolder#listRights listRights}, and
+{@link com.sun.mail.imap.IMAPFolder#myRights myRights}.
+<H4>SORT Support</H4>
+<P>
+The IMAP SORT extension
+(<A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>)
+is supported via the
+{@link com.sun.mail.imap.SortTerm SortTerm} class and the IMAPFolder
+{@link com.sun.mail.imap.IMAPFolder#getSortedMessages getSortedMessages}
+methods.
+<H4>CONDSTORE and QRESYNC Support</H4>
+<P>
+Basic support is provided for the IMAP CONDSTORE
+(<A HREF="http://www.ietf.org/rfc/rfc4551.txt" TARGET="_top">RFC 4551</A>)
+and QRESYNC
+(<A HREF="http://www.ietf.org/rfc/rfc5162.txt" TARGET="_top">RFC 5162</A>)
+extensions for the purpose of resynchronizing a folder after offline operation.
+Of course, the server must support these extensions.
+Use of these extensions is enabled by using the new
+{@link com.sun.mail.imap.IMAPFolder#open(int,com.sun.mail.imap.ResyncData)
+IMAPFolder open} method and supplying an appropriate
+{@link com.sun.mail.imap.ResyncData ResyncData} instance.
+Using
+{@link com.sun.mail.imap.ResyncData#CONDSTORE ResyncData.CONDSTORE}
+enables the CONDSTORE extension, which allows you to discover the
+modification sequence number (modseq) of messages using the
+{@link com.sun.mail.imap.IMAPMessage#getModSeq IMAPMessage getModSeq}
+method and the
+{@link com.sun.mail.imap.IMAPFolder#getHighestModSeq
+IMAPFolder getHighestModSeq} method.
+Using a
+{@link com.sun.mail.imap.ResyncData ResyncData} instance with appropriate
+values also allows the server to report any changes in messages since the last
+resynchronization.
+The changes are reported as a list of
+{@link javax.mail.event.MailEvent MailEvent} instances.
+The special
+{@link com.sun.mail.imap.MessageVanishedEvent MessageVanishedEvent} reports on
+UIDs of messages that have been removed since the last resynchronization.
+A
+{@link javax.mail.event.MessageChangedEvent MessageChangedEvent} reports on
+changes to flags of messages.
+For example:
+<PRE>
+	Folder folder = store.getFolder("whatever");
+	IMAPFolder ifolder = (IMAPFolder)folder;
+	List&lt;MailEvent&gt; events = ifolder.open(Folder.READ_WRITE,
+		    new ResyncData(prevUidValidity, prevModSeq));
+	for (MailEvent ev : events) {
+	    if (ev instanceOf MessageChangedEvent) {
+		// process flag changes
+	    } else if (ev instanceof MessageVanishedEvent) {
+		// process messages that were removed
+	    }
+	}
+</PRE>
+See the referenced RFCs for more details on these IMAP extensions.
+<H4>WITHIN Search Support</H4>
+<P>
+The IMAP WITHIN search extension
+(<A HREF="http://www.ietf.org/rfc/rfc5032.txt" TARGET="_top">RFC 5032</A>)
+is supported via the
+{@link com.sun.mail.imap.YoungerTerm YoungerTerm} and
+{@link com.sun.mail.imap.OlderTerm OlderTerm} 
+{@link javax.mail.search.SearchTerm SearchTerms}, which can be used as follows:
+<PRE>
+	// search for messages delivered in the last day
+	Message[] msgs = folder.search(new YoungerTerm(24 * 60 * 60));
+</PRE>
+<H4>Properties</H4>
 <P>
 The IMAP protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
@@ -557,6 +656,7 @@ never construct instances of <code>IMAPStore</code> or
 <code>Session</code> method <code>getStore</code> to acquire an
 appropriate <code>Store</code> object, and from that acquire
 <code>Folder</code> objects.
+<H4>Loggers</H4>
 <P>
 In addition to printing debugging output as controlled by the
 {@link javax.mail.Session Session} configuration,
@@ -614,6 +714,7 @@ the com.sun.mail.imap provider logs the same information using
 </TABLE>
 
 <P>
+<H4>WARNING</H4>
 <strong>WARNING:</strong> The APIs unique to this package should be
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,6 +43,8 @@ package com.sun.mail.imap;
 import java.util.Date;
 import java.util.Vector;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.io.*;
@@ -64,7 +66,9 @@ import com.sun.mail.imap.protocol.*;
  *
  * Applications that need to make use of IMAP-specific features may cast
  * a <code>Folder</code> object to an <code>IMAPFolder</code> object and
- * use the methods on this class. The {@link #getQuota getQuota} and
+ * use the methods on this class. <p>
+ *
+ * The {@link #getQuota getQuota} and
  * {@link #setQuota setQuota} methods support the IMAP QUOTA extension.
  * Refer to <A HREF="http://www.ietf.org/rfc/rfc2087.txt">RFC 2087</A>
  * for more information. <p>
@@ -79,6 +83,13 @@ import com.sun.mail.imap.protocol.*;
  * The {@link #getSortedMessages getSortedMessages}
  * methods support the IMAP SORT extension.
  * Refer to <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>
+ * for more information. <p>
+ *
+ * The {@link #open(int,com.sun.mail.imap.ResyncData) open(int,ResyncData)}
+ * method and {@link com.sun.mail.imap.ResyncData ResyncData} class supports
+ * the IMAP CONDSTORE and QRESYNC extensions.
+ * Refer to <A HREF="http://www.ietf.org/rfc/rfc4551.txt">RFC 4551</A>
+ * and <A HREF="http://www.ietf.org/rfc/rfc5162.txt">RFC 5162</A>
  * for more information. <p>
  *
  * The {@link #doCommand doCommand} method and
@@ -119,7 +130,7 @@ import com.sun.mail.imap.protocol.*;
  *
  * The most important thing to note here is that the server can send
  * unsolicited EXPUNGE notifications as part of the responses for "most"
- * commands. Refer RFC2060, sections 5.3 &  5.5 for gory details. Also, 
+ * commands. Refer RFC 3501, sections 5.3 & 5.5 for gory details. Also, 
  * the server sends these  notifications AFTER the message has been 
  * expunged. And once a message is expunged, the sequence-numbers of 
  * those messages after the expunged one are renumbered. This essentially
@@ -260,6 +271,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     					// the server
     private long uidvalidity = -1;	// UIDValidity
     private long uidnext = -1;		// UIDNext
+    private long highestmodseq = -1;	// HIGHESTMODSEQ: RFC 4551 - CONDSTORE
     private boolean doExpungeNotification = true; // used in expunge handler
 
     private Status cachedStatus = null;
@@ -903,12 +915,28 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Open this folder in the given mode.
      */
     public synchronized void open(int mode) throws MessagingException {
+	open(mode, null);
+    }
+
+    /**
+     * Open this folder in the given mode, with the given
+     * resynchronization data.
+     *
+     * @param	mode	the open mode (Folder.READ_WRITE or Folder.READ_ONLY)
+     * @param	rd	the ResyncData instance
+     * @return		a List of MailEvent instances, or null if none
+     * @exception MessagingException	if the open fails
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized List<MailEvent> open(int mode, ResyncData rd)
+				throws MessagingException {
 	checkClosed(); // insure that we are not already open
 	
 	MailboxInfo mi = null;
 	// Request store for our own protocol connection.
 	protocol = ((IMAPStore)store).getProtocol(this);
 
+	List<MailEvent> openEvents = null;
 	synchronized(messageCacheLock) { // Acquire messageCacheLock
 
 	    /*
@@ -920,10 +948,31 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    protocol.addResponseHandler(this);
 
 	    try {
+		/*
+		 * Enable QRESYNC or CONDSTORE if needed and not enabled.
+		 * QRESYNC implies CONDSTORE, but servers that support
+		 * QRESYNC are not required to support just CONDSTORE
+		 * per RFC 5162.
+		 */
+		if (rd != null) {
+		    if (rd == ResyncData.CONDSTORE) {
+			if (!protocol.isEnabled("CONDSTORE") &&
+			    !protocol.isEnabled("QRESYNC")) {
+			    if (protocol.hasCapability("CONDSTORE"))
+				protocol.enable("CONDSTORE");
+			    else
+				protocol.enable("QRESYNC");
+			}
+		    } else {
+			if (!protocol.isEnabled("QRESYNC"))
+			    protocol.enable("QRESYNC");
+		    }
+		}
+
 		if (mode == READ_ONLY)
-		    mi = protocol.examine(fullName);
+		    mi = protocol.examine(fullName, rd);
 		else
-		    mi = protocol.select(fullName);
+		    mi = protocol.select(fullName, rd);
 	    } catch (CommandFailedException cex) {
 		/*
 		 * Handle SELECT or EXAMINE failure.
@@ -997,10 +1046,35 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    recent = mi.recent;
 	    uidvalidity = mi.uidvalidity;
 	    uidnext = mi.uidnext;
+	    highestmodseq = mi.highestmodseq;
 
 	    // Create the message cache of appropriate size
 	    messageCache = new MessageCache(this, (IMAPStore)store, total);
 
+	    // process saved responses and return corresponding events
+	    if (mi.responses != null) {
+		openEvents = new ArrayList<MailEvent>();
+		for (IMAPResponse ir : mi.responses) {
+		    if (ir.keyEquals("VANISHED")) {
+			// "VANISHED" SP ["(EARLIER)"] SP known-uids
+			String[] s = ir.readAtomStringList();
+			// XXX - check that it really is "EARLIER"?
+			String uids = ir.readAtom();
+			UIDSet[] uidset = UIDSet.parseUIDSets(uids);
+			long[] luid = UIDSet.toArray(uidset, uidnext);
+			if (luid != null && luid.length > 0)
+			    openEvents.add(
+				new MessageVanishedEvent(this, luid));
+		    } else if (ir.keyEquals("FETCH")) {
+			assert ir instanceof FetchResponse :
+				"!ir instanceof FetchResponse";
+			Message msg = processFetchResponse((FetchResponse)ir);
+			if (msg != null)
+			    openEvents.add(new MessageChangedEvent(this,
+				    MessageChangedEvent.FLAGS_CHANGED, msg));
+		    }
+		}
+	    }
 	} // Release lock
 
 	exists = true;		// if we opened it, it must exist
@@ -1009,6 +1083,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	// notify listeners
 	notifyConnectionListeners(ConnectionEvent.OPENED);
+
+	return openEvents;
     }
 
     /**
@@ -1833,7 +1909,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    /* remove this message from the UIDTable */
 		    long uid = m.getUID();
 		    if (uid != -1)
-			uidTable.remove(new Long(uid));
+			uidTable.remove(Long.valueOf(uid));
 		}
 	    }
 
@@ -2086,7 +2162,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	try {
 	    synchronized(messageCacheLock) {
-		Long l = new Long(uid);
+		Long l = Long.valueOf(uid);
 
 		if (uidTable != null) {
 		    // Check in uidTable
@@ -2142,7 +2218,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    m = getMessageBySeqNumber(ua[i].seqnum);
 		    m.setUID(ua[i].uid);
 		    msgs[i] = m;
-		    uidTable.put(new Long(ua[i].uid), m);
+		    uidTable.put(Long.valueOf(ua[i].uid), m);
 		}
 	    }
 	} catch(ConnectionException cex) {
@@ -2172,7 +2248,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    Vector v = new Vector(); // to collect unavailable UIDs
 		    Long l;
 		    for (int i = 0; i < uids.length; i++) {
-			if (!uidTable.containsKey(l = new Long(uids[i])))
+			if (!uidTable.containsKey(l = Long.valueOf(uids[i])))
 			    // This UID has not been loaded yet.
 			    v.addElement(l);
 		    }
@@ -2191,14 +2267,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    for (int i = 0; i < ua.length; i++) {
 			m = getMessageBySeqNumber(ua[i].seqnum);
 			m.setUID(ua[i].uid);
-			uidTable.put(new Long(ua[i].uid), m);
+			uidTable.put(Long.valueOf(ua[i].uid), m);
 		    }
 		}
 
 		// Return array of size = uids.length
 		Message[] msgs = new Message[uids.length];
 		for (int i = 0; i < uids.length; i++)
-		    msgs[i] = (Message)uidTable.get(new Long(uids[i]));
+		    msgs[i] = (Message)uidTable.get(Long.valueOf(uids[i]));
 		return msgs;
 	    }
 	} catch(ConnectionException cex) {
@@ -2238,7 +2314,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    // insert this message into uidTable
 		    if (uidTable == null)
 			uidTable = new Hashtable();
-		    uidTable.put(new Long(uid), m);
+		    uidTable.put(Long.valueOf(uid), m);
 		}
 	    } catch (ConnectionException cex) {
 		throw new FolderClosedException(this, cex.getMessage());
@@ -2248,6 +2324,60 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	}
 
 	return uid;
+    }
+
+    /**
+     * Get or create Message objects for the UIDs.
+     */
+    private Message[] createMessagesForUIDs(long[] uids) {
+	IMAPMessage[] msgs = new IMAPMessage[uids.length];
+	for (int i = 0; i < uids.length; i++) {
+	    IMAPMessage m = null;
+	    if (uidTable != null)
+		m = (IMAPMessage)uidTable.get(Long.valueOf(uids[i]));
+	    if (m == null) {
+		// fake it, we don't know what message this really is
+		m = newIMAPMessage(-1);	// no sequence number
+		m.setUID(uids[i]);
+		m.setExpunged(true);
+	    }
+	    msgs[i++] = m;
+	}
+	return msgs;
+    }
+
+    /**
+     * Returns the HIGHESTMODSEQ for this folder.
+     *
+     * @see "RFC 4551"
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized long getHighestModSeq() throws MessagingException {
+	if (opened) // we already have this information
+	    return highestmodseq;
+
+        IMAPProtocol p = null;
+        Status status = null;
+
+	try {
+	    p = getStoreProtocol();	// XXX
+	    if (!p.hasCapability("CONDSTORE"))
+		throw new BadCommandException("CONDSTORE not supported");
+	    String[] item = { "HIGHESTMODSEQ" };
+	    status = p.status(fullName, item);
+	} catch (BadCommandException bex) {
+	    // Probably a RFC1730 server
+	    throw new MessagingException("Cannot obtain HIGHESTMODSEQ", bex);
+	} catch (ConnectionException cex) {
+            // Oops, the store or folder died on us.
+            throwClosedException(cex);
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
+	} finally {
+            releaseStoreProtocol(p);
+        }
+
+	return status.highestmodseq;
     }
 
     /**
@@ -2677,27 +2807,85 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (msgs != null)	// Do the notification here.
 		notifyMessageRemovedListeners(false, msgs);
 
-	} else if (ir.keyEquals("FETCH")) {
-	    // The only unsolicited FETCH response that makes sense
-	    // to me (for now) is FLAGS updates. Ignore any other junk.
-	    assert ir instanceof FetchResponse : "!ir instanceof FetchResponse";
-	    FetchResponse f = (FetchResponse)ir;
-	    // Get FLAGS response, if present
-	    Flags flags = (Flags)f.getItem(Flags.class);
+	} else if (ir.keyEquals("VANISHED")) {
+	    // after the folder is opened with QRESYNC, a VANISHED response
+	    // without the (EARLIER) tag is used instead of the EXPUNGE
+	    // response
 
-	    if (flags != null) {
-		IMAPMessage msg = getMessageBySeqNumber(f.getNumber());
-		if (msg != null) {	// should always be true
-		    msg._setFlags(flags);
-		    notifyMessageChangedListeners(
-			    MessageChangedEvent.FLAGS_CHANGED, msg);
+	    // "VANISHED" SP ["(EARLIER)"] SP known-uids
+	    String[] s = ir.readAtomStringList();
+	    if (s == null) {	// no (EARLIER)
+		String uids = ir.readAtom();
+		UIDSet[] uidset = UIDSet.parseUIDSets(uids);
+		// assume no duplicates and no UIDs out of range
+		realTotal -= UIDSet.size(uidset);
+		long[] luid = UIDSet.toArray(uidset);
+		Message[] msgs = createMessagesForUIDs(luid);
+		for (Message m : msgs) {
+		    if (m.getMessageNumber() > 0)
+			messageCache.expungeMessage(m.getMessageNumber());
 		}
-	    }
+		if (doExpungeNotification && hasMessageCountListener) {
+		    notifyMessageRemovedListeners(true, msgs);
+		}
+	    } // else if (EARLIER), ignore
+
+	} else if (ir.keyEquals("FETCH")) {
+	    assert ir instanceof FetchResponse : "!ir instanceof FetchResponse";
+	    Message msg = processFetchResponse((FetchResponse)ir);
+	    if (msg != null)
+		notifyMessageChangedListeners(
+			MessageChangedEvent.FLAGS_CHANGED, msg);
 
 	} else if (ir.keyEquals("RECENT")) {
 	    // update 'recent'
 	    recent = ir.getNumber();
 	}
+    }
+
+    /**
+     * Process a FETCH response.
+     * The only unsolicited FETCH response that makes sense
+     * to me (for now) is FLAGS updates, which might include
+     * UID and MODSEQ information.  Ignore any other junk.
+     */
+    private Message processFetchResponse(FetchResponse fr) {
+	IMAPMessage msg = getMessageBySeqNumber(fr.getNumber());
+	if (msg != null) {	// should always be true
+	    boolean notify = false;
+
+	    UID uid = fr.getItem(UID.class);
+	    if (uid != null && msg.getUID() != uid.uid) {
+		msg.setUID(uid.uid);
+		if (uidTable == null)
+		    uidTable = new Hashtable();
+		uidTable.put(Long.valueOf(uid.uid), msg);
+		notify = true;
+	    }
+
+	    MODSEQ modseq = fr.getItem(MODSEQ.class);
+	    if (modseq != null && msg._getModSeq() != modseq.modseq) {
+		msg.setModSeq(modseq.modseq);
+		/*
+		 * XXX - should we update the folder's HIGHESTMODSEQ or not?
+		 *
+		if (modseq.modseq > highestmodseq)
+		    highestmodseq = modseq.modseq;
+		 */
+		notify = true;
+	    }
+
+	    // Get FLAGS response, if present
+	    FLAGS flags = fr.getItem(FLAGS.class);
+	    if (flags != null) {
+		msg._setFlags(flags);	// assume flags changed
+		notify = true;
+	    }
+
+	    if (!notify)
+		msg = null;
+	}
+	return msg;
     }
 
     /**

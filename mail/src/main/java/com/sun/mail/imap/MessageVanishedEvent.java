@@ -38,82 +38,49 @@
  * holder.
  */
 
-package com.sun.mail.imap.protocol;
+package com.sun.mail.imap;
 
-import com.sun.mail.iap.*;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.event.MessageCountEvent;
 
 /**
- * STATUS response.
+ * This class provides notification of messages that have been removed
+ * since the folder was last synchronized.
  *
- * @author  John Mani
+ * @since	JavaMail 1.5.1
+ * @author	Bill Shannon
  */
 
-public class Status { 
-    public String mbox = null;
-    public int total = -1;
-    public int recent = -1;
-    public long uidnext = -1;
-    public long uidvalidity = -1;
-    public int unseen = -1;
-    public long highestmodseq = -1;
+public class MessageVanishedEvent extends MessageCountEvent {
 
-    static final String[] standardItems =
-	{ "MESSAGES", "RECENT", "UNSEEN", "UIDNEXT", "UIDVALIDITY" };
+    /**
+     * The message UIDs.
+     */
+    private long[] uids;
 
-    public Status(Response r) throws ParsingException {
-	mbox = r.readAtomString(); // mailbox := astring
+    // a reusable empty array
+    private static final Message[] noMessages = { };
 
-	// Workaround buggy IMAP servers that don't quote folder names
-	// with spaces.
-	final StringBuffer buffer = new StringBuffer();
-	boolean onlySpaces = true;
+    private static final long serialVersionUID = 2142028010250024922L;
 
-	while (r.peekByte() != '(' && r.peekByte() != 0) {
-	    final char next = (char)r.readByte();
-
-	    buffer.append(next);
-
-	    if (next != ' ') {
-		onlySpaces = false;
-	    }
-	}
-
-	if (!onlySpaces) {
-	    mbox = (mbox + buffer).trim();
-	}
-
-	if (r.readByte() != '(')
-	    throw new ParsingException("parse error in STATUS");
-	
-	do {
-	    String attr = r.readAtom();
-	    if (attr.equalsIgnoreCase("MESSAGES"))
-		total = r.readNumber();
-	    else if (attr.equalsIgnoreCase("RECENT"))
-		recent = r.readNumber();
-	    else if (attr.equalsIgnoreCase("UIDNEXT"))
-		uidnext = r.readLong();
-	    else if (attr.equalsIgnoreCase("UIDVALIDITY"))
-		uidvalidity = r.readLong();
-	    else if (attr.equalsIgnoreCase("UNSEEN"))
-		unseen = r.readNumber();
-	    else if (attr.equalsIgnoreCase("HIGHESTMODSEQ"))
-		highestmodseq = r.readLong();
-	} while (r.readByte() != ')');
+    /**
+     * Constructor.
+     *
+     * @param folder  	the containing folder
+     * @param uids	the UIDs for the vanished messages
+     */
+    public MessageVanishedEvent(Folder folder, long[] uids) {
+	super(folder, REMOVED, true, noMessages);
+	this.uids = uids;
     }
 
-    public static void add(Status s1, Status s2) {
-	if (s2.total != -1)
-	    s1.total = s2.total;
-	if (s2.recent != -1)
-	    s1.recent = s2.recent;
-	if (s2.uidnext != -1)
-	    s1.uidnext = s2.uidnext;
-	if (s2.uidvalidity != -1)
-	    s1.uidvalidity = s2.uidvalidity;
-	if (s2.unseen != -1)
-	    s1.unseen = s2.unseen;
-	if (s2.highestmodseq != -1)
-	    s1.highestmodseq = s2.highestmodseq;
+    /**
+     * Return the UIDs for this event.
+     *
+     * @return  the UIDs
+     */
+    public long[] getUIDs() {
+	return uids;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,33 +40,34 @@
 
 package com.sun.mail.iap;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.io.*;
 import com.sun.mail.util.*;
 
 /**
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class Argument {
-    protected Vector items;
+    protected List items;
 
     /**
      * Constructor
      */
     public Argument() {
-	items = new Vector(1);
+	items = new ArrayList(1);
     }
 
     /**
-     * append the given Argument to this Argument. All items
+     * Append the given Argument to this Argument. All items
      * from the source argument are copied into this destination
      * argument.
      */
-    public void append(Argument arg) {
-	items.ensureCapacity(items.size() + arg.items.size());
-	for (int i=0; i < arg.items.size(); i++)
-	    items.addElement(arg.items.elementAt(i));
+    public Argument append(Argument arg) {
+	items.addAll(arg.items);
+	return this;
     }
 
     /**
@@ -78,44 +79,49 @@ public class Argument {
      *
      * @param s  String to write out
      */
-    public void writeString(String s) {
-	items.addElement(new AString(ASCIIUtility.getBytes(s)));
+    public Argument writeString(String s) {
+	items.add(new AString(ASCIIUtility.getBytes(s)));
+	return this;
     }
 
     /**
      * Convert the given string into bytes in the specified
      * charset, and write the bytes out as an ASTRING
      */
-    public void writeString(String s, String charset)
+    public Argument writeString(String s, String charset)
 		throws UnsupportedEncodingException {
 	if (charset == null) // convenience
 	    writeString(s);
 	else
-	    items.addElement(new AString(s.getBytes(charset)));
+	    items.add(new AString(s.getBytes(charset)));
+	return this;
     }
 
     /**
      * Write out given byte[] as a Literal.
      * @param b  byte[] to write out
      */
-    public void writeBytes(byte[] b)  {
-	items.addElement(b);
+    public Argument writeBytes(byte[] b)  {
+	items.add(b);
+	return this;
     }
 
     /**
      * Write out given ByteArrayOutputStream as a Literal.
      * @param b  ByteArrayOutputStream to be written out.
      */
-    public void writeBytes(ByteArrayOutputStream b)  {
-	items.addElement(b);
+    public Argument writeBytes(ByteArrayOutputStream b)  {
+	items.add(b);
+	return this;
     }
 
     /**
      * Write out given data as a literal.
      * @param b  Literal representing data to be written out.
      */
-    public void writeBytes(Literal b)  {
-	items.addElement(b);
+    public Argument writeBytes(Literal b)  {
+	items.add(b);
+	return this;
     }
 
     /**
@@ -124,31 +130,35 @@ public class Argument {
      * in the string.
      * @param s  String
      */
-    public void writeAtom(String s) {
-	items.addElement(new Atom(s));
+    public Argument writeAtom(String s) {
+	items.add(new Atom(s));
+	return this;
     }
 
     /**
      * Write out number.
      * @param i number
      */
-    public void writeNumber(int i) {
-	items.addElement(new Integer(i));
+    public Argument writeNumber(int i) {
+	items.add(new Integer(i));
+	return this;
     }
 
     /**
      * Write out number.
      * @param i number
      */
-    public void writeNumber(long i) {
-	items.addElement(new Long(i));
+    public Argument writeNumber(long i) {
+	items.add(new Long(i));
+	return this;
     }
 
     /**
      * Write out as parenthesised list.
      */
-    public void writeArgument(Argument c) {
-	items.addElement(c);
+    public Argument writeArgument(Argument c) {
+	items.add(c);
+	return this;
     }
 
     /*
@@ -163,7 +173,7 @@ public class Argument {
 	    if (i > 0)	// write delimiter if not the first item
 		os.write(' ');
 
-	    Object o = items.elementAt(i);
+	    Object o = items.get(i);
 	    if (o instanceof Atom) {
 		os.writeBytes(((Atom)o).string);
 	    } else if (o instanceof Number) {

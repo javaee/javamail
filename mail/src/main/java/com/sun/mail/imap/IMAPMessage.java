@@ -96,7 +96,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     private boolean peek;		// use BODY.PEEK when fetching content?
 
     // this message's IMAP UID
-    private long uid = -1;
+    private volatile long uid = -1;
+
+    // this message's IMAP MODSEQ - RFC 4551 CONDSTORE
+    private volatile long modseq = -1;
 
     // this message's IMAP sectionId (null for toplevel message, 
     // 	non-null for a nested message)
@@ -194,12 +197,56 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	super.setMessageNumber(msgnum);
     }
 
+    /**
+     * Return the UID for this message.
+     * Returns -1 if not known; use UIDFolder.getUID() in this case.
+     *
+     * @return	the UID
+     * @see	javax.mail.UIDFolder#getUID
+     */
     protected long getUID() {
 	return uid;
     }
 
     protected void setUID(long uid) {
 	this.uid = uid;
+    }
+
+    /**
+     * Return the modification sequence number (MODSEQ) for this message.
+     * Returns -1 if not known.
+     *
+     * @return	the modification sequence number
+     * @see	"RFC 4551"
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized long getModSeq() throws MessagingException {
+	if (modseq != -1)
+	    return modseq;
+
+	synchronized (getMessageCacheLock()) { // Acquire Lock
+	    try {
+		IMAPProtocol p = getProtocol();
+		checkExpunged(); // insure that message is not expunged
+		MODSEQ ms = p.fetchMODSEQ(getSequenceNumber());
+
+		if (ms != null)
+		    modseq = ms.modseq;
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(folder, cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+	}
+	return modseq;
+    }
+
+    long _getModSeq() {
+	return modseq;
+    }
+
+    void setModSeq(long modseq) {
+	this.modseq = modseq;
     }
 
     // expose to MessageCache
