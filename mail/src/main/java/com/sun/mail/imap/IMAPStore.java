@@ -904,6 +904,32 @@ public class IMAPStore extends Store
 		    }
 		}
 
+		// if proxyAuthUser has changed, switch to new user
+		if (proxyAuthUser != null &&
+			!proxyAuthUser.equals(p.getProxyAuthUser())) {
+		    try {
+			/*
+			 * Swap in a special response handler that will handle
+			 * alerts, but won't cause the store to be closed and
+			 * cleaned up if the connection is dead.
+			 */
+			p.removeResponseHandler(this);
+			p.addResponseHandler(nonStoreResponseHandler);
+			p.proxyauth(proxyAuthUser);
+			p.removeResponseHandler(nonStoreResponseHandler);
+			p.addResponseHandler(this);
+		    } catch (ProtocolException pex) {
+			try {
+			    p.removeResponseHandler(nonStoreResponseHandler);
+			    p.disconnect();
+			} finally {
+			    // don't let any exception stop us
+			    p = null;
+			    continue;	// try again, from the top
+			}
+		    }
+		}
+
                 // remove the store as a response handler.
                 p.removeResponseHandler(this);
 	    }
@@ -983,6 +1009,11 @@ public class IMAPStore extends Store
                         "connection available -- size: " +
                         pool.authenticatedConnections.size());
                 p = (IMAPProtocol)pool.authenticatedConnections.firstElement();
+
+		// if proxyAuthUser has changed, switch to new user
+		if (proxyAuthUser != null &&
+			!proxyAuthUser.equals(p.getProxyAuthUser()))
+		    p.proxyauth(proxyAuthUser);
             }
  
 	    if (pool.storeConnectionInUse) {
@@ -1320,6 +1351,29 @@ public class IMAPStore extends Store
     }
 
     /**
+     * Set the user name to be used with the PROXYAUTH command.
+     * The PROXYAUTH user name can also be set using the
+     * <code>mail.imap.proxyauth.user<code> property when this
+     * Store is created.
+     *
+     * @param	user	the user name to set
+     * @since	JavaMail 1.5.1
+     */
+    public void setProxyAuthUser(String user) {
+	proxyAuthUser = user;
+    }
+
+    /**
+     * Get the user name to be used with the PROXYAUTH command.
+     *
+     * @return	the user name
+     * @since	JavaMail 1.5.1
+     */
+    public String getProxyAuthUser() {
+	return proxyAuthUser;
+    }
+
+    /**
      * Check whether this store is connected. Override superclass
      * method, to actually ping our server connection.
      */
@@ -1408,7 +1462,7 @@ public class IMAPStore extends Store
 	     * connection, regardless of what happens ..
 	     *
 	     * Also note that protocol.logout() results in a BYE
-	     * response (As per rfc 2060, BYE is a *required* response
+	     * response (As per RFC 3501, BYE is a *required* response
 	     * to LOGOUT). In fact, even if protocol.logout() fails
 	     * with an IOException (if the server connection is dead),
 	     * iap.Protocol.command() converts that exception into a 
