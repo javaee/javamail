@@ -22,3 +22,4 @@ mail/src/test/resources/javax/mail/internet/paramdata
 mail/src/test/resources/javax/mail/internet/paramdatanostrict
 mail/src/test/resources/javax/mail/internet/tokenlist
 mail/src/test/resources/javax/mail/internet/addrlist
+mail/src/main/java/doc-files/speclicense.html
