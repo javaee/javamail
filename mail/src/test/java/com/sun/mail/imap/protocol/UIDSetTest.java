@@ -194,7 +194,6 @@ public class UIDSetTest {
 	// XXX - handle nulls
 
 	// first, test string to array
-System.out.println("UIDs " + t.uids);
 	UIDSet[] uidset = UIDSet.parseUIDSets(t.uids);
 	long[] uids = UIDSet.toArray(uidset);
 	if (junit)
