@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -265,14 +265,16 @@ public class SharedFileInputStream extends BufferedInputStream
 		buf = nbuf;
 	    }
         count = pos;
-	in.seek(bufpos + pos);
 	// limit to datalen
 	int len = buf.length - pos;
 	if (bufpos - start + pos + len > datalen)
 	    len = (int)(datalen - (bufpos - start + pos));
-	int n = in.read(buf, pos, len);
-        if (n > 0)
-            count = n + pos;
+	synchronized (in) {
+	    in.seek(bufpos + pos);
+	    int n = in.read(buf, pos, len);
+	    if (n > 0)
+		count = n + pos;
+	}
     }
 
     /**
