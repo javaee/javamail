@@ -2749,6 +2749,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		cleanup(false); 
 	    return;
 	} else if (r.isOK()) {
+	    // HIGHESTMODSEQ can be updated on any OK response
+	    r.skipSpaces();
+	    if (r.readByte() == '[') {
+		String s = r.readAtom();
+		if (s.equalsIgnoreCase("HIGHESTMODSEQ"))
+		    highestmodseq = r.readLong();
+	    }
+	    r.reset();
 	    return;
 	} else if (!r.isUnTagged()) {
 	    return;	// might be a continuation for IDLE

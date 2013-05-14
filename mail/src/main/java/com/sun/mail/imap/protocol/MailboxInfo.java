@@ -99,6 +99,7 @@ public class MailboxInfo {
 		 * 	* OK [UIDVALIDITY 3857529045]
 		 * 	* OK [PERMANENTFLAGS (\Deleted)]
 		 * 	* OK [UIDNEXT 44]
+		 * 	* OK [HIGHESTMODSEQ 103]
 		 */
 		ir.skipSpaces();
 
