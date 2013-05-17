@@ -181,7 +181,7 @@
 				    <packages>javax.*</packages>
 				</group>
 				<group>
-				    <title>Sun-specific Packages</title>
+				    <title>RI-specific Packages</title>
 				    <packages>com.sun.*</packages>
 				</group>
 			    </groups>
