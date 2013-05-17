@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,84 +56,84 @@ import java.text.ParseException;
 import com.sun.mail.util.MailLogger;
 
 /**
- * Formats and parses date specification based on the
- * draft-ietf-drums-msg-fmt-08 dated January 26, 2000. This is a followup
- * spec to RFC822.<p>
+ * Formats and parses date specification based on
+ * <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a>. <p>
  *
  * This class does not take pattern strings. It always formats the
  * date based on the specification below.<p>
  *
- * 3.3 Date and Time Specification<p>
+ * 3.3. Date and Time Specification
+ * <p>
+ * Date and time occur in several header fields.  This section specifies
+ * the syntax for a full date and time specification.  Though folding
+ * white space is permitted throughout the date-time specification, it is
+ * RECOMMENDED that a single space be used in each place that FWS appears
+ * (whether it is required or optional); some older implementations may
+ * not interpret other occurrences of folding white space correctly.
+ * <pre>
+ * date-time       =       [ day-of-week "," ] date FWS time [CFWS]
  *
- * Date and time occur in several header fields of a message. This section
- * specifies the syntax for a full date and time specification. Though folding
- * whitespace is permitted throughout the date-time specification, it is
- * recommended that only a single space be used where FWS is required and no
- * space be used where FWS is optional in the date-time specification; some
- * older implementations may not interpret other occurrences of folding
- * whitespace correctly.<p>
+ * day-of-week     =       ([FWS] day-name) / obs-day-of-week
  *
- * date-time = [ day-of-week "," ] date FWS time [CFWS]<p>
+ * day-name        =       "Mon" / "Tue" / "Wed" / "Thu" /
+ *                         "Fri" / "Sat" / "Sun"
  *
- * day-of-week = ([FWS] day-name) / obs-day-of-week<p>
+ * date            =       day month year
  *
- * day-name = "Mon" / "Tue" / "Wed" / "Thu" / "Fri" / "Sat" / "Sun"<p>
+ * year            =       4*DIGIT / obs-year
  *
- * date = day month year<p>
+ * month           =       (FWS month-name FWS) / obs-month
  *
- * year = 4*DIGIT / obs-year<p>
+ * month-name      =       "Jan" / "Feb" / "Mar" / "Apr" /
+ *                         "May" / "Jun" / "Jul" / "Aug" /
+ *                         "Sep" / "Oct" / "Nov" / "Dec"
  *
- * month = (FWS month-name FWS) / obs-month<p>
+ * day             =       ([FWS] 1*2DIGIT) / obs-day
  *
- *<pre>month-name = "Jan" / "Feb" / "Mar" / "Apr" /
- *             "May" / "Jun" / "Jul" / "Aug" /
- *             "Sep" / "Oct" / "Nov" / "Dec"
- * </pre><p>
- * day = ([FWS] 1*2DIGIT) / obs-day<p>
+ * time            =       time-of-day FWS zone
  *
- * time = time-of-day FWS zone<p>
+ * time-of-day     =       hour ":" minute [ ":" second ]
  *
- * time-of-day = hour ":" minute [ ":" second ]<p>
+ * hour            =       2DIGIT / obs-hour
  *
- * hour = 2DIGIT / obs-hour<p>
+ * minute          =       2DIGIT / obs-minute
  *
- * minute = 2DIGIT / obs-minute<p>
+ * second          =       2DIGIT / obs-second
  *
- * second = 2DIGIT / obs-second<p>
- *
- * zone = (( "+" / "-" ) 4DIGIT) / obs-zone<p>
- *
- *
- * The day is the numeric day of the month. The year is any numeric year in
- * the common era.<p>
- *
+ * zone            =       (( "+" / "-" ) 4DIGIT) / obs-zone
+ * </pre>
+ * The day is the numeric day of the month.  The year is any numeric year
+ * 1900 or later.
+ * <p>
  * The time-of-day specifies the number of hours, minutes, and optionally
- * seconds since midnight of the date indicated.<p>
- *
- * The date and time-of-day SHOULD express local time.<p>
- *
+ * seconds since midnight of the date indicated.
+ * <p>
+ * The date and time-of-day SHOULD express local time.
+ * <p>
  * The zone specifies the offset from Coordinated Universal Time (UTC,
  * formerly referred to as "Greenwich Mean Time") that the date and
- * time-of-day represent. The "+" or "-" indicates whether the time-of-day is
- * ahead of or behind Universal Time. The first two digits indicate the number
- * of hours difference from Universal Time, and the last two digits indicate
- * the number of minutes difference from Universal Time. (Hence, +hhmm means
- * +(hh * 60 + mm) minutes, and -hhmm means -(hh * 60 + mm) minutes). The form
- * "+0000" SHOULD be used to indicate a time zone at Universal Time. Though
- * "-0000" also indicates Universal Time, it is used to indicate that the time
- * was generated on a system that may be in a local time zone other than
- * Universal Time.<p>
+ * time-of-day represent.  The "+" or "-" indicates whether the
+ * time-of-day is ahead of (i.e., east of) or behind (i.e., west of)
+ * Universal Time.  The first two digits indicate the number of hours
+ * difference from Universal Time, and the last two digits indicate the
+ * number of minutes difference from Universal Time.  (Hence, +hhmm means
+ * +(hh * 60 + mm) minutes, and -hhmm means -(hh * 60 + mm) minutes).  The
+ * form "+0000" SHOULD be used to indicate a time zone at Universal Time.
+ * Though "-0000" also indicates Universal Time, it is used to indicate
+ * that the time was generated on a system that may be in a local time
+ * zone other than Universal Time and therefore indicates that the
+ * date-time contains no information about the local time zone.
+ * <p>
+ * A date-time specification MUST be semantically valid.  That is, the
+ * day-of-the-week (if included) MUST be the day implied by the date, the
+ * numeric day-of-month MUST be between 1 and the number of days allowed
+ * for the specified month (in the specified year), the time-of-day MUST
+ * be in the range 00:00:00 through 23:59:60 (the number of seconds
+ * allowing for a leap second; see [STD12]), and the zone MUST be within
+ * the range -9959 through +9959.
  *
- * A date-time specification MUST be semantically valid. That is, the
- * day-of-the week (if included) MUST be the day implied by the date, the
- * numeric day-of-month MUST be between 1 and the number of days allowed for
- * the specified month (in the specified year), the time-of-day MUST be in the
- * range 00:00:00 through 23:59:60 (the number of seconds allowing for a leap
- * second; see [STD-12]), and the zone MUST be within the range -9959 through
- * +9959.<p>
- *
- * @author Max Spivak
- * @since		JavaMail 1.2
+ * @author	Max Spivak
+ * @since	JavaMail 1.2
  */
 
 public class MailDateFormat extends SimpleDateFormat {
