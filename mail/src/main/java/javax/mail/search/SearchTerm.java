@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -58,15 +58,6 @@ import javax.mail.Message;
  * Serialized objects of this class may not be compatible with future
  * JavaMail API releases.  The current serialization support is
  * appropriate for short term storage. <p>
- *
- * <strong>Warning:</strong>
- * Search terms that include references to objects of type
- * <code>Message.RecipientType</code> will not be deserialized
- * correctly on JDK 1.1 systems.  While these objects will be deserialized
- * without throwing any exceptions, the resulting objects violate the
- * <i>type-safe enum</i> contract of the <code>Message.RecipientType</code>
- * class.  Proper deserialization of these objects depends on support
- * for the <code>readReplace</code> method, added in JDK 1.2.
  *
  * @author Bill Shannon
  * @author John Mani

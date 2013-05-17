@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -91,13 +91,7 @@ import com.sun.mail.util.MailLogger;
  * File location depends upon how the <code>ClassLoader</code> method
  * <code>getResource</code> is implemented.  Usually, the
  * <code>getResource</code> method searches through CLASSPATH until it
- * finds the requested file and then stops.  JDK 1.1 has a limitation that
- * the number of files of each name that will be found in the CLASSPATH is
- * limited to one.  However, this only affects method two, above; method
- * one is loaded from a specific location (if allowed by the
- * SecurityManager) and method three uses a different name to ensure that
- * the default resource file is always loaded successfully.  J2SE 1.2 and
- * later are not limited to one file of a given name. <p>
+ * finds the requested file and then stops. <p>
  *
  * The ordering of entries in the resource files matters.  If multiple
  * entries exist, the first entries take precedence over the later
@@ -292,7 +286,7 @@ public final class Session {
      * <code>getInstance</code> method to get a new Session object every
      * time the method is called. <p>
      *
-     * In JDK 1.2, additional security Permission objects may be used to
+     * Additional security Permission objects may be used to
      * control access to the default session.
      *
      * @param	props	Properties object. Used only if a new Session

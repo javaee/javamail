@@ -284,7 +284,12 @@ public class SocketFetcher {
 				new java.net.Proxy(java.net.Proxy.Type.SOCKS,
 				new InetSocketAddress(socksHost, socksPort)));
 	    else
+	    { String s = System.getenv("WRITE_TIMEOUT");
+		if (s != null)
+		socket = new WriteTimeoutSocket(Integer.parseInt(s));
+		else
 		socket = new Socket();
+	    }
 	}
 	if (to >= 0)
 	    socket.setSoTimeout(to);
