@@ -146,8 +146,8 @@ import com.sun.mail.util.MailLogger;
  * Here's an example of <code>META-INF/javamail.default.providers</code>
  * file contents:
  * <pre>
- * protocol=imap; type=store; class=com.sun.mail.imap.IMAPStore; vendor=Sun Microsystems, Inc.;
- * protocol=smtp; type=transport; class=com.sun.mail.smtp.SMTPTransport; vendor=Sun Microsystems, Inc.;
+ * protocol=imap; type=store; class=com.sun.mail.imap.IMAPStore; vendor=Oracle;
+ * protocol=smtp; type=transport; class=com.sun.mail.smtp.SMTPTransport; vendor=Oracle;
  * </pre><p>
  *
  * <b><code>javamail.address.map</code></b> and
@@ -910,22 +910,22 @@ public final class Session {
 	    // failed to load any providers, initialize with our defaults
 	    addProvider(new Provider(Provider.Type.STORE,
 			"imap", "com.sun.mail.imap.IMAPStore",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	    addProvider(new Provider(Provider.Type.STORE,
 			"imaps", "com.sun.mail.imap.IMAPSSLStore",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	    addProvider(new Provider(Provider.Type.STORE,
 			"pop3", "com.sun.mail.pop3.POP3Store",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	    addProvider(new Provider(Provider.Type.STORE,
 			"pop3s", "com.sun.mail.pop3.POP3SSLStore",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	    addProvider(new Provider(Provider.Type.TRANSPORT,
 			"smtp", "com.sun.mail.smtp.SMTPTransport",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	    addProvider(new Provider(Provider.Type.TRANSPORT,
 			"smtps", "com.sun.mail.smtp.SMTPSSLTransport",
-			"Sun Microsystems, Inc.", Version.version));
+			"Oracle", Version.version));
 	}
 
 	if (logger.isLoggable(Level.CONFIG)) {
