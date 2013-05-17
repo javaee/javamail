@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -37,7 +37,7 @@ import javax.mail.internet.*;
 /**
  * This class demonstrates how to query the registry for available
  * Providers, set default providers, etc. See section 5.2 in the
- * JavaMail 1.0 Spec for details on how to use the registry.
+ * JavaMail Spec for details on how to use the registry.
  * 
  * See the comments inline for what's happening.
  *
@@ -89,11 +89,11 @@ public class registry {
 		_sunIMAP = providers[i];
 	    }
 
-	    // this Provider will be found as well since there is a
-	    // Sun Microsystems SMTP transport configured by 
+	    // this Provider will be found as well since there is an
+	    // Oracle SMTP transport configured by 
 	    // default in javamail.default.providers
 	    if (((s = providers[i].getVendor()) != null) &&
-		s.startsWith("Sun Microsystems") && 
+		s.startsWith("Oracle") && 
 		providers[i].getType() == Provider.Type.TRANSPORT &&
 		providers[i].getProtocol().equalsIgnoreCase("smtp")) {
 		_sunSMTP = providers[i];
