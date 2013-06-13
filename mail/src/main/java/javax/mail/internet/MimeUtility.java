@@ -981,7 +981,7 @@ public class MimeUtility {
      * @see	javax.mail.internet.HeaderTokenizer#RFC822
      */
     public static String quote(String word, String specials) {
-	int len = word.length();
+	int len = word == null ? 0 : word.length();
 	if (len == 0)
 	    return "\"\"";	// an empty string is handled specially
 
