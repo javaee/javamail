@@ -392,7 +392,8 @@ public class LogManagerPropertiesTest {
         }
 
         final Class<?> type = ErrorComparator.class;
-        final Comparator c = LogManagerProperties.newComparator(type.getName());
+        final Comparator<? super LogRecord> c =
+                LogManagerProperties.newComparator(type.getName());
         assertEquals(type, c.getClass());
 
         setPending(new RuntimeException());
@@ -569,7 +570,7 @@ public class LogManagerPropertiesTest {
     public void testEscapingComparator() throws Exception {
         try {
             Class<?> k = ErrorComparator.class;
-            Comparator c;
+            Comparator<? super LogRecord> c;
 
             c = LogManagerProperties.newComparator(k.getName());
             assertEquals(k, c.getClass());
@@ -750,7 +751,7 @@ public class LogManagerPropertiesTest {
             throw new UnsupportedOperationException();
         }
 
-        public Comparator<LogRecord> reverseOrder() {
+        public Comparator<LogRecord> reversed() {
             return new DescComparator();
         }
     }
@@ -763,7 +764,7 @@ public class LogManagerPropertiesTest {
             throw new UnsupportedOperationException();
         }
 
-        public Comparator<LogRecord> reverseOrder() {
+        public Comparator<LogRecord> reversed() {
             return new AscComparator();
         }
     }

@@ -40,6 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
+import com.sun.mail.util.SocketConnectException;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -5723,12 +5724,12 @@ public class MailHandlerTest {
 
     private Level[] getAllLevels() {
         Field[] fields = Level.class.getFields();
-        List a = new ArrayList(fields.length);
+        List<Level> a = new ArrayList<Level>(fields.length);
         for (int i = 0; i < fields.length; i++) {
             if (Modifier.isStatic(fields[i].getModifiers())
                     && Level.class.isAssignableFrom(fields[i].getType())) {
                 try {
-                    a.add(fields[i].get((Object) null));
+                    a.add((Level) fields[i].get((Object) null));
                 } catch (IllegalArgumentException ex) {
                     fail(ex.toString());
                 } catch (IllegalAccessException ex) {
@@ -5736,11 +5737,11 @@ public class MailHandlerTest {
                 }
             }
         }
-        return (Level[]) a.toArray(new Level[a.size()]);
+        return a.toArray(new Level[a.size()]);
     }
 
     private static boolean isConnectOrTimeout(Throwable t) {
-        if (t instanceof MessagingException) {
+        if (t instanceof MessagingException || t instanceof SocketConnectException) {
             return isConnectOrTimeout(t.getCause());
         } else {
             return t instanceof java.net.ConnectException
@@ -6041,7 +6042,7 @@ public class MailHandlerTest {
             return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
         }
 
-        public Comparator<LogRecord> reverseOrder() {
+        public Comparator<LogRecord> reversed() {
             return new SequenceDescComparator();
         }
     }

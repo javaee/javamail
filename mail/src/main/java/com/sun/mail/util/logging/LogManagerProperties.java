@@ -43,6 +43,7 @@ package com.sun.mail.util.logging;
 import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
@@ -198,15 +199,20 @@ final class LogManagerProperties extends Properties {
      */
     @SuppressWarnings("unchecked")
     static <T> Comparator<T> reverseOrder(final Comparator<T> c) {
+        if (c == null) {
+           throw new NullPointerException();
+        }
+
         Comparator<T> reverse = null;
-        //Comparator in Java 1.8 has 'reverseOrder' as a default method.
-        //This code calls that method first to allow custom code to define what
-        //reverse order means.
+        //Comparator in Java 1.8 has 'reversed' as a default method.
+        //This code calls that method first to allow custom
+        //code to define what reverse order means.
         try {
             //assert Modifier.isPublic(c.getClass().getModifiers()) :
             //        Modifier.toString(c.getClass().getModifiers());
-            final Method m = c.getClass().getMethod("reverseOrder");
-            if (Comparator.class.isAssignableFrom(m.getReturnType())) {
+            final Method m = c.getClass().getMethod("reversed");
+            if (!Modifier.isStatic(m.getModifiers())
+                    && Comparator.class.isAssignableFrom(m.getReturnType())) {
                 try {
                     reverse = (Comparator<T>) m.invoke(c);
                 } catch (final ExceptionInInitializerError eiie) {
@@ -215,6 +221,7 @@ final class LogManagerProperties extends Properties {
             }
         } catch (final NoSuchMethodException ignore) {
         } catch (final IllegalAccessException ignore) {
+        } catch (final RuntimeException ignore) {
         } catch (final InvocationTargetException ite) {
             paramOrError(ite); //Ignore invocation bugs.
         }
