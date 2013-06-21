@@ -1850,6 +1850,118 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
+     * Copy the specified messages from this folder, to the
+     * specified destination.
+     * Return array of AppendUID objects containing
+     * UIDs of these messages in the destination folder.
+     * Each element of the returned array corresponds to
+     * an element of the <code>msgs</code> array.  A null
+     * element means the server didn't return UID information
+     * for the copied message.  <p>
+     *
+     * Depends on the COPYUID response code defined by the
+     * UIDPLUS extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     *
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized AppendUID[] copyUIDMessages(Message[] msgs,
+			Folder folder) throws MessagingException {
+	checkOpened();
+
+	if (msgs.length == 0) // boundary condition
+	    return null;
+
+	// the destination must belong to our same store
+	if (folder.getStore() == store) {
+	    synchronized (messageCacheLock) {
+		try {
+		    IMAPProtocol p = getProtocol();
+		    // XXX - messages have to be from this Folder, who checks?
+		    MessageSet[] ms = Utility.toMessageSet(msgs, null);
+		    if (ms == null)
+			throw new MessageRemovedException(
+					"Messages have been removed");
+		    CopyUID cuid = p.copyuid(ms, folder.getFullName());
+
+		    /*
+		     * Correlate source UIDs with destination UIDs.
+		     * This won't be time or space efficient if there's
+		     * a lot of messages.
+		     *
+		     * In order to make sense of the returned UIDs, we need
+		     * the UIDs for every one of the original messages.
+		     * If we already have them, great, otherwise we need
+		     * to fetch them from the server.
+		     *
+		     * Assume the common case is that the messages are
+		     * in in order by UID.  Map the returned source
+		     * UIDs to their corresponding Message objects.
+		     * Step through the msgs array looking for the
+		     * Message object in the returned source message
+		     * list.  Most commonly the source message (UID)
+		     * for the Nth original message will be in the Nth
+		     * position in the returned source message (UID)
+		     * list.  Thus, the destination UID is in the Nth
+		     * position in the returned destination UID list.
+		     * But if the source message isn't where expected,
+		     * we have to search the entire source message
+		     * list, starting from where we expect it and
+		     * wrapping around until we've searched it all.
+		     */
+		    long[] srcuids = UIDSet.toArray(cuid.src);
+		    long[] dstuids = UIDSet.toArray(cuid.dst);
+		    // map source UIDs to Message objects
+		    // XXX - could inline/optimize this
+		    Message[] srcmsgs = getMessagesByUID(srcuids);
+		    AppendUID[] result = new AppendUID[msgs.length];
+		    for (int i = 0; i < srcmsgs.length; i++) {
+			int j = i;
+			do {
+			    if (msgs[j] == srcmsgs[i]) {
+				result[j] = new AppendUID(
+						cuid.uidvalidity, dstuids[i]);
+				break;
+			    }
+			    j++;
+			    if (j >= msgs.length)
+				j = 0;
+			} while (j != i);
+		    }
+		    for (int i = 0; i < msgs.length; i++) {
+			int j = i;
+			do {
+			    if (msgs[i] == srcmsgs[j]) {
+				result[i] = new AppendUID(
+						cuid.uidvalidity, dstuids[j]);
+				break;
+			    }
+			    j++;
+			    if (j >= msgs.length)
+				j = 0;
+			} while (j != i);
+		    }
+		    return result;
+		} catch (CommandFailedException cfx) {
+		    if (cfx.getMessage().indexOf("TRYCREATE") != -1)
+			throw new FolderNotFoundException(
+                            folder,
+			    folder.getFullName() + " does not exist"
+			   );
+		    else 
+			throw new MessagingException(cfx.getMessage(), cfx);
+		} catch (ConnectionException cex) {
+		    throw new FolderClosedException(this, cex.getMessage());
+		} catch (ProtocolException pex) {
+		    throw new MessagingException(pex.getMessage(), pex);
+	    	}
+	    }
+	} else // destination is a different store.
+	    throw new MessagingException(
+			"can't copyUIDMessages to a different store");
+    }
+
+    /**
      * Expunge all messages marked as DELETED.
      */
     public synchronized Message[] expunge() throws MessagingException {

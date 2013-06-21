@@ -57,6 +57,7 @@ import com.sun.mail.auth.Ntlm;
 import com.sun.mail.imap.ACL;
 import com.sun.mail.imap.Rights;
 import com.sun.mail.imap.AppendUID;
+import com.sun.mail.imap.CopyUID;
 import com.sun.mail.imap.SortTerm;
 import com.sun.mail.imap.ResyncData;
 import com.sun.mail.imap.Utility;
@@ -1678,17 +1679,33 @@ public class IMAPProtocol extends Protocol {
      */
     public void copy(MessageSet[] msgsets, String mbox)
 			throws ProtocolException {
-	copy(MessageSet.toString(msgsets), mbox);
+	copyuid(MessageSet.toString(msgsets), mbox, false);
     }
 
     public void copy(int start, int end, String mbox)
 			throws ProtocolException {
-	copy(String.valueOf(start) + ":" + String.valueOf(end),
-		    mbox);
+	copyuid(String.valueOf(start) + ":" + String.valueOf(end),
+		    mbox, false);
     }
 
-    private void copy(String msgSequence, String mbox)
+    /**
+     * COPY Command, return uid from COPYUID response code.
+     *
+     * @see "RFC2359, section 4.3"
+     */
+    public CopyUID copyuid(MessageSet[] msgsets, String mbox)
 			throws ProtocolException {
+	return copyuid(MessageSet.toString(msgsets), mbox, true);
+    }
+
+    public CopyUID copyuid(int start, int end, String mbox)
+			throws ProtocolException {
+	return copyuid(String.valueOf(start) + ":" + String.valueOf(end),
+		    mbox, true);
+    }
+
+    public CopyUID copyuid(String msgSequence, String mbox, boolean uid)
+				throws ProtocolException {
 	// encode the mbox as per RFC2060
 	mbox = BASE64MailboxEncoder.encode(mbox);
 
@@ -1696,7 +1713,42 @@ public class IMAPProtocol extends Protocol {
 	args.writeAtom(msgSequence);
 	args.writeString(mbox);
 
-	simpleCommand("COPY", args);
+	Response[] r = command("COPY", args);
+
+	// dispatch untagged responses
+	notifyResponseHandlers(r);
+
+	// Handle result of this command
+	handleResult(r[r.length-1]);
+
+	if (uid)
+	    return getCopyUID(r[r.length-1]);
+	else
+	    return null;
+    }
+
+    /**
+     * If the response contains a COPYUID response code, extract
+     * it and return a CopyUID object with the information.
+     */
+    private CopyUID getCopyUID(Response r) {
+	if (!r.isOK())
+	    return null;
+	byte b;
+	while ((b = r.readByte()) > 0 && b != (byte)'[')
+	    ;
+	if (b == 0)
+	    return null;
+	String s;
+	s = r.readAtom();
+	if (!s.equalsIgnoreCase("COPYUID"))
+	    return null;
+
+	long uidvalidity = r.readLong();
+	String src = r.readAtom();
+	String dst = r.readAtom();
+	return new CopyUID(uidvalidity,
+			    UIDSet.parseUIDSets(src), UIDSet.parseUIDSets(dst));
     }
 		    
     public void storeFlags(MessageSet[] msgsets, Flags flags, boolean set)
