@@ -284,15 +284,14 @@ public class SocketFetcher {
 				new java.net.Proxy(java.net.Proxy.Type.SOCKS,
 				new InetSocketAddress(socksHost, socksPort)));
 	    else
-	    { String s = System.getenv("WRITE_TIMEOUT");
-		if (s != null)
-		socket = new WriteTimeoutSocket(Integer.parseInt(s));
-		else
 		socket = new Socket();
-	    }
 	}
 	if (to >= 0)
 	    socket.setSoTimeout(to);
+	int writeTimeout = PropUtil.getIntProperty(props,
+						prefix + ".writetimeout", -1);
+	if (writeTimeout != -1)	// wrap original
+	    socket = new WriteTimeoutSocket(socket, writeTimeout);
 	if (localaddr != null)
 	    socket.bind(new InetSocketAddress(localaddr, localport));
 	try {

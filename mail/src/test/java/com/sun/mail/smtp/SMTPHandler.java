@@ -249,12 +249,20 @@ public class SMTPHandler implements Runnable, Cloneable {
      *             unable to read/write to socket
      */
     public void data() throws IOException {
+        println("354 go ahead");
+	readMessage();
+	ok();
+    }
+
+    /**
+     * For now, just consume the message and throw it away.
+     */
+    protected void readMessage() throws IOException {
 	String line;
 	while ((line = reader.readLine()) != null) {
 	    if (line.equals("."))
 		break;
 	}
-	ok();
     }
 
     /**
@@ -324,7 +332,7 @@ public class SMTPHandler implements Runnable, Cloneable {
         }
     }
 
-    private void ok() throws IOException {
+    protected void ok() throws IOException {
 	println("250 OK");
     }
 }

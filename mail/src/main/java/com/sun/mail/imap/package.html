@@ -253,13 +253,27 @@ Defaults to false.</TD>
 <TD>mail.imap.connectiontimeout</TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
+This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
 <TR>
 <TD>mail.imap.timeout</TD>
 <TD>int</TD>
-<TD>Socket I/O timeout value in milliseconds.  Default is infinite timeout.</TD>
+<TD>Socket read timeout value in milliseconds.
+This timeout is implemented by java.net.Socket.
+Default is infinite timeout.</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.writetimeout</TD>
+<TD>int</TD>
+<TD>Socket write timeout value in milliseconds.
+This timeout is implemented by using a
+java.util.concurrent.ScheduledExecutorService per connection
+that schedules a thread to close the socket if the timeout expires.
+Thus, the overhead of using this timeout is one thread per connection.
+Default is infinite timeout.</TD>
 </TR>
 
 <TR>

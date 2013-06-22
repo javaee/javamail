@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -196,13 +196,27 @@ explicitly specify one. Defaults to 25.</TD>
 <TD>mail.smtp.connectiontimeout</TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
+This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
 <TR>
 <TD>mail.smtp.timeout</TD>
 <TD>int</TD>
-<TD>Socket I/O timeout value in milliseconds.  Default is infinite timeout.</TD>
+<TD>Socket read timeout value in milliseconds.
+This timeout is implemented by java.net.Socket.
+Default is infinite timeout.</TD>
+</TR>
+
+<TR>
+<TD>mail.smtp.writetimeout</TD>
+<TD>int</TD>
+<TD>Socket write timeout value in milliseconds.
+This timeout is implemented by using a
+java.util.concurrent.ScheduledExecutorService per connection
+that schedules a thread to close the socket if the timeout expires.
+Thus, the overhead of using this timeout is one thread per connection.
+Default is infinite timeout.</TD>
 </TR>
 
 <TR>

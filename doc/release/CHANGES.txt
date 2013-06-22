@@ -20,6 +20,7 @@ The following bugs have been fixed in the 1.5.1 release.
 
 K  5924	IMAP provider should support the QRESYNC extension (RFC 5162)
 K  5925	IMAP provider should support the WITHIN search extension (RFC 5032)
+K  5933	JavaMail does not handle write timeouts
 K  5934	method fill() isn't synchronized correctly in SharedFileInputStream
 K  5978	NullPointerException in MimeUtility#quote()
 K  5987	support RFC 2359 COPYUID response code
