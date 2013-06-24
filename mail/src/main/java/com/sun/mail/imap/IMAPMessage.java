@@ -325,7 +325,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     public Address getSender() throws MessagingException {
 	checkExpunged();
 	loadEnvelope();
-	if (envelope.sender != null)
+	if (envelope.sender != null && envelope.sender.length > 0)
 		return (envelope.sender)[0];	// there can be only one sender
 	else 
 		return null;
