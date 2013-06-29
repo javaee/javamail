@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -469,7 +469,7 @@ public class MboxMessage extends MimeMessage {
 		 */
 		ContentLengthCounter cos = new ContentLengthCounter();
 		OutputStream oos = new NewlineOutputStream(cos);
-		super.writeTo(oos);
+		super.writeTo(oos, null);
 		oos.flush();
 		setHeader("Content-Length", String.valueOf(cos.getSize()));
 		// setContentSize((int)cos.getSize());
@@ -479,7 +479,7 @@ public class MboxMessage extends MimeMessage {
 	    PrintStream pos = new PrintStream(os, false, "iso-8859-1");
 
 	    pos.println(unix_from);
-	    super.writeTo(pos);
+	    super.writeTo(pos, null);
 	    pos.println();	// make sure there's a blank line at the end
 	    pos.flush();
 	} catch (MessagingException e) {
