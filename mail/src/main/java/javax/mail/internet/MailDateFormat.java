@@ -146,7 +146,7 @@ public class MailDateFormat extends SimpleDateFormat {
 
     /**
      * Formats the given date in the format specified by 
-     * draft-ietf-drums-msg-fmt-08 in the current TimeZone.
+     * RFC 2822 in the current TimeZone.
      *
      * @param   date            the Date object
      * @param   dateStrBuf      the formatted string
@@ -202,7 +202,7 @@ public class MailDateFormat extends SimpleDateFormat {
 
     /**
      * Parses the given date in the format specified by
-     * draft-ietf-drums-msg-fmt-08 in the current TimeZone.
+     * RFC 2822 in the current TimeZone.
      *
      * @param   text    the formatted date to be parsed
      * @param   pos     the current parse position
