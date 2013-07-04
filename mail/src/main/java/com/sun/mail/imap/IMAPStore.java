@@ -43,6 +43,7 @@ package com.sun.mail.imap;
 import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.StringTokenizer;
+import java.util.Locale;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -420,7 +421,7 @@ public class IMAPStore extends Store
 	debugpassword = PropUtil.getBooleanSessionProperty(session,
 			"mail.debug.auth.password", false);
 	logger = new MailLogger(this.getClass(),
-				"DEBUG " + name.toUpperCase(), session);
+			"DEBUG " + name.toUpperCase(Locale.ENGLISH), session);
 
 	boolean partialFetch = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".partialfetch", true);
@@ -788,7 +789,7 @@ public class IMAPStore extends Store
      * @return	true if using SSL
      * @since	JavaMail 1.4.6
      */
-    public boolean isSSL() {
+    public synchronized boolean isSSL() {
         return usingSSL;
     }
 
@@ -1565,7 +1566,9 @@ public class IMAPStore extends Store
 	// to set the state and send the closed connection event
 	try {
 	    super.close();
-	} catch (MessagingException mex) { }
+	} catch (MessagingException mex) {
+	    // ignore it
+	}
 	logger.fine("IMAPStore cleanup done");
     }
 
@@ -1606,7 +1609,7 @@ public class IMAPStore extends Store
 	if (folderConstructor != null) {
 	    try {
 		Object[] o =
-		    { fullName, new Character(separator), this, isNamespace };
+		  { fullName, Character.valueOf(separator), this, isNamespace };
 		f = (IMAPFolder)folderConstructor.newInstance(o);
 	    } catch (Exception ex) {
 		logger.log(Level.FINE,

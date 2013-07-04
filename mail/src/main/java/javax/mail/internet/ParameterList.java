@@ -400,7 +400,6 @@ public class ParameterList {
 	    Iterator it = multisegmentNames.iterator();
 	    while (it.hasNext()) {
 		String name = (String)it.next();
-		StringBuffer sb = new StringBuffer();
 		MultiValue mv = new MultiValue();
 		/*
 		 * Now find all the segments for this name and
@@ -746,7 +745,7 @@ public class ParameterList {
 			"Missing language in encoded value: " + value);
 		return v;	// not encoded correctly?  return as is.
 	    }
-	    String lang = value.substring(i + 1, li);
+	    // String lang = value.substring(i + 1, li);
 	    v.value = value.substring(li + 1);
 	    v.charset = charset;
 	} catch (NumberFormatException nex) {

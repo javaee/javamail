@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -151,7 +151,7 @@ public class MboxFolder extends Folder {
 	}
 	Vector flist = new Vector();
 	listWork(realdir, refdir, pattern, fromStore ? 0 : 1, flist);
-	if (match.path("INBOX", pattern, '\0'))
+	if (Match.path("INBOX", pattern, '\0'))
 	    flist.addElement("INBOX");
 
 	Folder fl[] = new Folder[flist.size()];
@@ -623,7 +623,6 @@ e.printStackTrace();
 	    throw me;
 	} catch (IOException ioe) {
 	    throw ioe;
-	} catch (Exception e) {
 	}
     }
 
@@ -1021,7 +1020,7 @@ e.printStackTrace();
 	}
 
 	if (level == 0 && dir != null &&
-		match.path(dir, pat, File.separatorChar))
+		Match.path(dir, pat, File.separatorChar))
 	    flist.addElement(dir);
 
 	if (sl == null)
@@ -1043,18 +1042,18 @@ e.printStackTrace();
 	    else
 		name = sl[i];
 	    if (mf.isDirectory()) {
-		if (match.path(name, pat, File.separatorChar)) {
+		if (Match.path(name, pat, File.separatorChar)) {
 		    flist.addElement(name);
 		    name += File.separator;
 		} else {
 		    name += File.separator;
-		    if (match.path(name, pat, File.separatorChar))
+		    if (Match.path(name, pat, File.separatorChar))
 			flist.addElement(name);
 		}
-		if (match.dir(name, pat, File.separatorChar))
+		if (Match.dir(name, pat, File.separatorChar))
 		    listWork(md, name, pat, level + 1, flist);
 	    } else {
-		if (match.path(name, pat, File.separatorChar))
+		if (Match.path(name, pat, File.separatorChar))
 		    flist.addElement(name);
 	    }
 	}
@@ -1066,7 +1065,7 @@ e.printStackTrace();
  * Should probably be more public.
  */
 // Translated from the c-client functions pmatch_full() and dmatch().
-class match {
+class Match {
     /**
      * Pathname pattern match
      *

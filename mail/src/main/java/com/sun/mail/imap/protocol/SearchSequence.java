@@ -125,17 +125,11 @@ public class SearchSequence {
      * non US-ASCII characters.
      */
     public static boolean isAscii(SearchTerm term) {
-	if (term instanceof AndTerm || term instanceof OrTerm) {
-	    SearchTerm[] terms;
-	    if (term instanceof AndTerm)
-		terms = ((AndTerm)term).getTerms();
-	    else
-		terms = ((OrTerm)term).getTerms();
-
-	    for (int i = 0; i < terms.length; i++)
-		if (!isAscii(terms[i])) // outta here !
-		    return false;
-	} else if (term instanceof NotTerm)
+	if (term instanceof AndTerm)
+	    return isAscii(((AndTerm)term).getTerms());
+	else if (term instanceof OrTerm)
+	    return isAscii(((OrTerm)term).getTerms());
+	else if (term instanceof NotTerm)
 	    return isAscii(((NotTerm)term).getTerm());
 	else if (term instanceof StringTerm)
 	    return isAscii(((StringTerm)term).getPattern());
@@ -143,6 +137,17 @@ public class SearchSequence {
 	    return isAscii(((AddressTerm)term).getAddress().toString());
 	
 	// Any other term returns true.
+	return true;
+    }
+
+    /**
+     * Check if any of the "text" terms in the given SearchTerms contain
+     * non US-ASCII characters.
+     */
+    public static boolean isAscii(SearchTerm[] terms) {
+	for (int i = 0; i < terms.length; i++)
+	    if (!isAscii(terms[i])) // outta here !
+		return false;
 	return true;
     }
 

@@ -253,6 +253,7 @@ public class IMAPProtocol extends Protocol {
 	    return;
 	}
 	// only other choice is PREAUTH
+	assert r instanceof IMAPResponse;
 	IMAPResponse ir = (IMAPResponse)r;
 	if (ir.keyEquals("PREAUTH")) {
 	    authenticated = true;
@@ -1948,7 +1949,7 @@ public class IMAPProtocol extends Protocol {
 		// There *will* be one SEARCH response.
 		if (ir.keyEquals("SEARCH")) {
 		    while ((num = ir.readNumber()) != -1)
-			v.addElement(new Integer(num));
+			v.addElement(Integer.valueOf(num));
 		    r[i] = null;
 		}
 	    }
@@ -2036,7 +2037,7 @@ public class IMAPProtocol extends Protocol {
 		IMAPResponse ir = (IMAPResponse)r[i];
 		if (ir.keyEquals("SORT")) {
 		    while ((num = ir.readNumber()) != -1)
-			v.addElement(new Integer(num));
+			v.addElement(Integer.valueOf(num));
 		    r[i] = null;
 		}
 	    }
@@ -2137,7 +2138,14 @@ public class IMAPProtocol extends Protocol {
 		    Quota quota = parseQuota(ir);
 		    Quota q = (Quota)tab.get(quota.quotaRoot);
 		    if (q != null && q.resources != null) {
-			// XXX - should merge resources
+			// merge resources
+			int newl = q.resources.length + quota.resources.length;
+			Quota.Resource[] newr = new Quota.Resource[newl];
+			System.arraycopy(q.resources, 0, newr, 0,
+							q.resources.length);
+			System.arraycopy(quota.resources, 0,
+			    newr, q.resources.length, quota.resources.length);
+			quota.resources = newr;
 		    }
 		    tab.put(quota.quotaRoot, quota);
 		    r[i] = null;

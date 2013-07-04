@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -94,20 +94,18 @@ public class ResponseInputStream {
 	    // Read a CRLF terminated line from the InputStream
 	    while (!gotCRLF &&
 		   ((b =  bin.read()) != -1)) {
-		switch (b) {
-		case '\n':
+		if (b == '\n') {
 		    if ((idx > 0) && buffer[idx-1] == '\r')
 			gotCRLF = true;
-		default:
-		    if (idx >= buffer.length) {
-			int incr = buffer.length;
-			if (incr > maxIncrement)
-			    incr = maxIncrement;
-			ba.grow(incr);
-			buffer = ba.getBytes();
-		    }
-		    buffer[idx++] = (byte)b;
 		}
+		if (idx >= buffer.length) {
+		    int incr = buffer.length;
+		    if (incr > maxIncrement)
+			incr = maxIncrement;
+		    ba.grow(incr);
+		    buffer = ba.getBytes();
+		}
+		buffer[idx++] = (byte)b;
 	    }
 
 	    if (b == -1)

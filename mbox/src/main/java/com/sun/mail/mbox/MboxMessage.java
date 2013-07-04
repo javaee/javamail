@@ -192,15 +192,22 @@ public class MboxMessage extends MimeMessage {
      */  
     public int getLineCount() throws MessagingException {
 	if (lineCount < 0 && isMimeType("text/plain")) {
-	    LineCounter lc = new LineCounter(nullOutputStream);
+	    LineCounter lc = null;
 	    // writeTo will set the SEEN flag, remember the original state
 	    boolean seen = isSet(Flags.Flag.SEEN);
 	    try {
+		lc = new LineCounter(nullOutputStream);
 		getDataHandler().writeTo(lc);
 		lineCount = lc.getLineCount();
-		lc.close();
 	    } catch (IOException ex) {
 		// ignore it, can't happen
+	    } finally {
+		try {
+		    if (lc != null)
+			lc.close();
+		} catch (IOException ex) {
+		    // can't happen
+		}
 	    }
 	    if (!seen)
 		setFlag(Flags.Flag.SEEN, false);

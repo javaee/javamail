@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,9 +48,11 @@ import javax.activation.ActivationDataFlavor;
 import javax.activation.DataContentHandler;
 import javax.activation.DataSource;
 import javax.mail.internet.ContentType;
+import javax.mail.internet.ParseException;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
@@ -137,10 +139,18 @@ public class text_xml extends text_plain {
 	    } else {
 		transformer.transform((Source)obj, result);
 	    }
-	} catch (Exception ex) {
-	    throw new IOException(
+	} catch (TransformerException ex) {
+	    IOException ioex = new IOException(
 		"Unable to run the JAXP transformer on a stream "
 		    + ex.getMessage());
+	    ioex.initCause(ex);
+	    throw ioex;
+	} catch (RuntimeException ex) {
+	    IOException ioex = new IOException(
+		"Unable to run the JAXP transformer on a stream "
+		    + ex.getMessage());
+	    ioex.initCause(ex);
+	    throw ioex;
 	}
     }
 
@@ -150,7 +160,9 @@ public class text_xml extends text_plain {
 	    return ct.getSubType().equals("xml") &&
 		    (ct.getPrimaryType().equals("text") ||
 		    ct.getPrimaryType().equals("application"));
-	} catch (Exception ex) {
+	} catch (ParseException ex) {
+	    return false;
+	} catch (RuntimeException ex) {
 	    return false;
 	}
     }

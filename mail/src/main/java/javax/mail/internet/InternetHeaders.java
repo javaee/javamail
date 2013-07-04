@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -160,7 +160,7 @@ public class InternetHeaders {
      * InternetHeaders object.  Can return
      * either a String or a Header object.
      */
-    static class matchEnum implements Enumeration {
+    static class MatchEnum implements Enumeration {
 	private Iterator e;	// enum object of headers List
 	// XXX - is this overkill?  should we step through in index
 	// order instead?
@@ -175,7 +175,7 @@ public class InternetHeaders {
 	 * matching or non-matching headers, and whether to return
 	 * header lines or Header objects.
 	 */
-	matchEnum(List v, String n[], boolean m, boolean l) {
+	MatchEnum(List v, String n[], boolean m, boolean l) {
 	    e = v.iterator();
 	    names = n;
 	    match = m;
@@ -538,7 +538,7 @@ public class InternetHeaders {
      * @return	Header objects	
      */
     public Enumeration getAllHeaders() {
-	return (new matchEnum(headers, null, false, false));
+	return (new MatchEnum(headers, null, false, false));
     }
 
     /**
@@ -547,7 +547,7 @@ public class InternetHeaders {
      * @return	matching Header objects	
      */
     public Enumeration getMatchingHeaders(String[] names) {
-	return (new matchEnum(headers, names, true, false));
+	return (new MatchEnum(headers, names, true, false));
     }
 
     /**
@@ -556,7 +556,7 @@ public class InternetHeaders {
      * @return	non-matching Header objects	
      */
     public Enumeration getNonMatchingHeaders(String[] names) {
-	return (new matchEnum(headers, names, false, false));
+	return (new MatchEnum(headers, names, false, false));
     }
 
     /**
@@ -597,13 +597,13 @@ public class InternetHeaders {
      * Return all matching header lines as an Enumeration of Strings.
      */
     public Enumeration getMatchingHeaderLines(String[] names) {
-	return (new matchEnum(headers, names, true, true));	
+	return (new MatchEnum(headers, names, true, true));	
     }
 
     /**
      * Return all non-matching header lines
      */
     public Enumeration getNonMatchingHeaderLines(String[] names) {
-	return (new matchEnum(headers, names, false, true));
+	return (new MatchEnum(headers, names, false, true));
     }
 }

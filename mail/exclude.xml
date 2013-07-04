@@ -45,6 +45,20 @@
 
 <FindBugsFilter>
     <!--
+	FindBugs *really* wants us to use zero length arrays instead
+	of null.  Unfortunately, there's a bunch of places we can't
+	do this for various reasons:
+	  - The API specifies null and we can't make an incompatible change.
+	  - We use null to indicate no header and an empty array to indicate
+	    the header exists but has no entries.
+	  - We use null to indicate NIL in the protocol and an empty array
+	    to indicate an empty list "()" in the protocol.
+	This error occurs often enough that we just ignore it everywhere.
+    -->
+    <Match>
+	<Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+    </Match>
+    <!--
 	There are a bunch of places where FindBugs complains about
 	exposing internal representations.  We exclude cases where
 	this only happens in internal classes that are never visible
@@ -56,10 +70,12 @@
     -->
     <Match>
 	<Or>
-	    <Class name="com.sun.mail.iap.ByteArray"/>
 	    <Class name="javax.mail.SendFailedException"/>
 	    <Class name="javax.mail.event.MessageCountEvent"/>
 	    <Class name="javax.mail.event.TransportEvent"/>
+	    <Class name="com.sun.mail.iap.ByteArray"/>
+	    <Class name="com.sun.mail.imap.MessageVanishedEvent"/>
+	    <Class name="com.sun.mail.imap.protocol.FetchResponse"/>
 	</Or>
 	<Or>
 	    <Bug pattern="EI_EXPOSE_REP"/>
@@ -107,6 +123,11 @@
 	-->
 	<Bug pattern="EI_EXPOSE_REP"/>
     </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.CopyUID"/>
+	<Method name="&lt;init&gt;"/> <!-- match constructor -->
+	<Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
 
     <!--
 	A few places where it complains about wait not being in a loop.
@@ -130,20 +151,46 @@
 	explicitly thrown.  We need to make sure that if anything
 	goes wrong we clean things up.  Perhaps these should be
 	converted to a finally block and a boolean "success" flag?
+	Most of these are related to reflection or ClassLoader
+	operations, which can fail for all sorts of unexpected reasons.
+	Some of these could be converted to use multi-catch with JDK 1.7.
     -->
     <Match>
 	<Class name="com.sun.mail.imap.IMAPStore"/>
-	<Method name="getProtocol"/>
+	<Or>
+	    <Method name="&lt;init&gt;"/> <!-- match constructor -->
+	    <Method name="getProtocol"/>
+	    <Method name="getStoreProtocol"/>
+	    <Method name="newIMAPFolder"/>
+	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
     <Match>
-	<Class name="com.sun.mail.imap.IMAPStore"/>
-	<Method name="getStoreProtocol"/>
+	<Class name="com.sun.mail.imap.protocol.IMAPProtocol"/>
+	<Or>
+	    <Method name="authlogin"/>
+	    <Method name="authntlm"/>
+	    <Method name="authplain"/>
+	    <Method name="sasllogin"/>
+	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
     <Match>
 	<Class name="com.sun.mail.imap.protocol.IMAPSaslAuthenticator"/>
 	<Method name="authenticate"/>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.pop3.POP3Store"/>
+	<Method name="&lt;init&gt;"/> <!-- match constructor -->
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport"/>
+	<Or>
+	    <Method name="isConnected"/>
+	    <Method name="sasllogin"/>
+	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
     <Match>
@@ -156,12 +203,32 @@
     </Match>
     <Match>
 	<Class name="com.sun.mail.util.SocketFetcher"/>
-	<Method name="startTLS"/>
+	<Or>
+	    <Method name="getSocket"/>
+	    <Method name="startTLS"/>
+	    <Method name="matchCert"/>
+	</Or>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.util.MimeUtil"/>
+	<Method name="cleanContentType"/>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
     <Match>
 	<Class name="javax.mail.Session"/>
-	<Method name="loadAllResources"/>
+	<Or>
+	    <Method name="getService"/>
+	    <Method name="loadAllResources"/>
+	</Or>
+	<Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.internet.MimeUtility"/>
+	<Or>
+	    <Method name="&lt;clinit&gt;"/> <!-- match static initializer -->
+	    <Method name="getEncoding"/>
+	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
 
@@ -231,7 +298,7 @@
 	about transient fields in subclasses.  I don't know why it's
 	complaining about these fields but not others, but since I don't
 	really expect anyone to serialize these events I'm just ignoring
-	this complaint.
+	this complaint.  Ditto Exception fields.
     -->
     <Match>
 	<Class name="javax.mail.event.TransportEvent"/>
@@ -242,12 +309,47 @@
 	</Or>
 	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
     </Match>
+    <Match>
+	<Class name="javax.mail.event.FolderEvent"/>
+	<Or>
+	    <Field name="folder"/>
+	    <Field name="newFolder"/>
+	</Or>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.event.MessageChangedEvent"/>
+	<Field name="msg"/>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.event.MessageCountEvent"/>
+	<Field name="msgs"/>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.event.TransportEvent"/>
+	<Field name="msg"/>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.SendFailedException"/>
+	<Or>
+	    <Field name="invalid"/>
+	    <Field name="validSent"/>
+	    <Field name="validUnsent"/>
+	</Or>
+	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
+    </Match>
 
     <!--
-	This string comparison using == is just an optimization.
+	These string comparisons are just optimizations.
     -->
     <Match>
-	<Class name="javax.mail.internet.InternetAddress"/>
+	<Or>
+	    <Class name="javax.mail.URLName"/>
+	    <Class name="javax.mail.internet.InternetAddress"/>
+	</Or>
 	<Method name="equals"/>
 	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
     </Match>
@@ -422,6 +524,152 @@
 	<Class name="javax.mail.internet.MimeBodyPart"/>
 	<Field name="headers"/>
 	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
+    </Match>
+
+    <!--
+	Refactoring these anonymous inner classes to be static classes
+	makes the code less readable.  Too bad there's no way for an
+	anonymous inner class to be static.
+	XXX - these class names aren't going to be stable as the code changes
+    -->
+    <Match>
+	<Or>
+	    <Class name="com.sun.mail.imap.DefaultFolder$1"/>
+	    <Class name="com.sun.mail.imap.DefaultFolder$2"/>
+	    <Class name="com.sun.mail.imap.IMAPFolder$1"/>
+	    <Class name="com.sun.mail.imap.IMAPFolder$4"/>
+	    <Class name="com.sun.mail.imap.IMAPFolder$7"/>
+	    <Class name="com.sun.mail.imap.IMAPFolder$13"/>
+	</Or>
+	<Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+    </Match>
+
+    <!--
+	Even though only this array reference is volatile, the array is
+	used in such a way that it's safe.  The aray elements are created
+	and initialized before the array is assigned to this array
+	reference, and after being assigned neither the array nor the
+	array elements are changed.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPFolder"/>
+	<Field name="attributes"/>
+	<Bug pattern="VO_VOLATILE_REFERENCE_TO_ARRAY"/>
+    </Match>
+
+    <!--
+	This code is easier to understand with empty "if" clauses;
+	the "match" method is being called for its side effects.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.FetchResponse"/>
+	<Method name="parseItem"/>
+	<Bug pattern="UCF_USELESS_CONTROL_FLOW"/>
+    </Match>
+
+    <!--
+	Even though these fields are unread for now, we'll keep them
+	since they represent data in the protocol message being parsed.
+    -->
+    <Match>
+	<Or>
+	    <Class name="com.sun.mail.imap.protocol.ENVELOPE"/>
+	    <Class name="com.sun.mail.imap.protocol.INTERNALDATE"/>
+	    <Class name="com.sun.mail.imap.protocol.RFC822SIZE"/>
+	</Or>
+	<Field name="msgno"/>
+	<Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.MailboxInfo"/>
+	<Field name="first"/>
+	<Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <!--
+	These unread fields are part of the public API.
+    -->
+    <Match>
+	<Class name="javax.mail.Service"/>
+	<Field name="debug"/>
+	<Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+	<Class name="javax.mail.Quota$Resource"/>
+	<Field name="usage"/>
+	<Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+
+    <!--
+	We use a static MailDateFormat instance, which uses a static
+	GregorianCalendar instance.  The MailDateFormat.parse method
+	uses only local data except for the GregorianCalendar instance,
+	which is invoked through a static synchronized method.
+    -->
+    <Match>
+	<Class name="com.sun.mail.imap.protocol.ENVELOPE"/>
+	<Bug pattern="STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE"/>
+    </Match>
+
+    <!--
+	A special String instance is used to indicate that the POP3
+	UID is unknown.  The uid field is initialized to this String
+	instance, which we then compare with later to see if the uid
+	has been set.
+    -->
+    <Match>
+	<Class name="com.sun.mail.pop3.POP3Folder"/>
+	<Method name="getUID"/>
+	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+    </Match>
+    <!--
+	As above, a special String instance is used to indicate whether
+	certain fields have been set.
+    -->
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport"/>
+	<Or>
+	    <Method name="getAuthorizationId"/>
+	    <Method name="getNTLMDomain"/>
+	    <Method name="getSASLRealm"/>
+	</Or>
+	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+    </Match>
+
+    <!--
+	I know Exception.toString is never supposed to return null,
+	but this extra check is cheap insurance.
+    -->
+    <Match>
+	<Class name="javax.mail.MessagingException"/>
+	<Method name="toString"/>
+	<Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+    <!--
+	I know ClassLoader.getResources is never supposed to return null,
+	but this extra check is cheap insurance.
+    -->
+    <Match>
+	<Class name="~javax\.mail\.Session\$.*"/>
+	<Method name="run"/>
+	<Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+    </Match>
+
+    <!--
+	These names may be confusing, but we're stuck with them.
+    -->
+    <Match>
+	<Class name="javax.mail.PasswordAuthentication"/>
+	<Method name="getUserName"/>
+	<Bug pattern="NM_CONFUSING"/>
+    </Match>
+
+    <!--
+	This trivial inner class extends ArrayList, but is never serialized,
+	so it doesn't really need a serialVersionUID.
+    -->
+    <Match>
+	<Class name="javax.mail.internet.ParameterList$MultiValue"/>
+	<Bug pattern="SE_NO_SERIALVERSIONID"/>
     </Match>
 
 </FindBugsFilter>

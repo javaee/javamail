@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -66,14 +66,17 @@ public final class GmailThrIdTerm extends LongTerm {
     /**
      * The match method.
      *
-     * @param thr	the Message number is matched with this Message
+     * @param msg	the Message number is matched with this Message
      * @return		true if the match succeeds, otherwise false
      */
-    public boolean match(Message thr) {
+    public boolean match(Message msg) {
 	long thrId;
 
 	try {
-	    thrId = ((GmailMessage)thr).getThrId();
+	    if (msg instanceof GmailMessage)
+		thrId = ((GmailMessage)msg).getThrId();
+	    else
+		return false;
 	} catch (Exception e) {
 	    return false;
 	}

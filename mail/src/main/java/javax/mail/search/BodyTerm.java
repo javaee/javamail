@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@
 
 package javax.mail.search;
 
+import java.io.IOException;
 import javax.mail.*;
 
 /**
@@ -106,7 +107,9 @@ public final class BodyTerm extends StringTerm {
 	    } else if (p.isMimeType("message/rfc822")) {
 		return matchPart((Part)p.getContent());
 	    }
-	} catch (Exception ex) {
+	} catch (MessagingException ex) {
+	} catch (IOException ex) {
+	} catch (RuntimeException ex) {
 	}
 	return false;
     }

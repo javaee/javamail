@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -264,7 +264,7 @@ class Protocol {
 	    r = readResponse();
 	    if (!r.ok) {
 		String err = r.data != null ? r.data : "USER command failed";
-		r = readResponse();
+		readResponse();	// read and ignore PASS response
 		batchCommandEnd();
 		return err;
 	    }
@@ -378,7 +378,7 @@ class Protocol {
 		StringTokenizer st = new StringTokenizer(r.data);
 		s.total = Integer.parseInt(st.nextToken());
 		s.size = Integer.parseInt(st.nextToken());
-	    } catch (Exception e) {
+	    } catch (RuntimeException e) {
 	    }
 	}
 	return s;
@@ -395,7 +395,8 @@ class Protocol {
 		StringTokenizer st = new StringTokenizer(r.data);
 		st.nextToken();    // skip message number
 		size = Integer.parseInt(st.nextToken());
-	    } catch (Exception e) {
+	    } catch (RuntimeException e) {
+		// ignore it
 	    }
 	}
 	return size;
@@ -441,7 +442,7 @@ class Protocol {
 			    logger.fine("pipeline message size " + size);
 			size += SLOP;
 		    }
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 		}
 	    }
 	    r = readResponse();
@@ -481,7 +482,7 @@ class Protocol {
 			    size += SLOP;
 			}
 		    }
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 		}
 	    }
 	    r.bytes = readMultilineResponse(size);
@@ -612,7 +613,9 @@ class Protocol {
 	}
 	try {
 	    r.bytes.close();
-	} catch (IOException ex) { }
+	} catch (IOException ex) {
+	    // ignore it
+	}
 	return true;
     }
 

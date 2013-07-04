@@ -140,7 +140,7 @@ public class Argument {
      * @param i number
      */
     public Argument writeNumber(int i) {
-	items.add(new Integer(i));
+	items.add(Integer.valueOf(i));
 	return this;
     }
 
@@ -149,7 +149,7 @@ public class Argument {
      * @param i number
      */
     public Argument writeNumber(long i) {
-	items.add(new Long(i));
+	items.add(Long.valueOf(i));
 	return this;
     }
 

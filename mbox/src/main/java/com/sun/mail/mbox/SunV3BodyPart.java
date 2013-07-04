@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -120,7 +120,7 @@ public class SunV3BodyPart extends MimeBodyPart {
 	    this.v3 = v3;
 	}
 
-	private static MimeV3Map[] MimeV3Table = new MimeV3Map[] {
+	private static MimeV3Map[] mimeV3Table = new MimeV3Map[] {
 	    new MimeV3Map("text/plain", "text"),
 	    new MimeV3Map("text/plain", "default"),
 	    new MimeV3Map("multipart/x-sun-attachment", "X-sun-attachment"),
@@ -132,18 +132,18 @@ public class SunV3BodyPart extends MimeBodyPart {
 
 	// V3 Content-Type to MIME Content-Type
 	static String toMime(String s) {
-	    for (int i = 0; i < MimeV3Table.length; i++) {
-		if (MimeV3Table[i].v3.equalsIgnoreCase(s))
-		    return MimeV3Table[i].mime;
+	    for (int i = 0; i < mimeV3Table.length; i++) {
+		if (mimeV3Table[i].v3.equalsIgnoreCase(s))
+		    return mimeV3Table[i].mime;
 	    }
 	    return "application/x-" + s;
 	}
 
 	// MIME Content-Type to V3 Content-Type
 	static String toV3(String s) {
-	    for (int i = 0; i < MimeV3Table.length; i++) {
-		if (MimeV3Table[i].mime.equalsIgnoreCase(s))
-		    return MimeV3Table[i].v3;
+	    for (int i = 0; i < mimeV3Table.length; i++) {
+		if (mimeV3Table[i].mime.equalsIgnoreCase(s))
+		    return mimeV3Table[i].v3;
 	    }
 	    return s;
 	}

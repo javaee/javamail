@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -127,7 +127,9 @@ public class SunV3Multipart extends MimeMultipart {
 	    if (!(in instanceof ByteArrayInputStream) &&
 		!(in instanceof BufferedInputStream))
 		in = new BufferedInputStream(in);
-	} catch (Exception ex) {
+	} catch (IOException ex) {
+	    throw new MessagingException("No inputstream from datasource");
+	} catch (RuntimeException ex) {
 	    throw new MessagingException("No inputstream from datasource");
 	}
 

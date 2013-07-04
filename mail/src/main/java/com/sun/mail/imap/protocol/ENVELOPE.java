@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -89,10 +89,11 @@ public class ENVELOPE implements Item {
 	if (s != null) {
 	    try {
 		date = mailDateFormat.parse(s);
-	    } catch (Exception pex) {
+	    } catch (ParseException pex) {
+	    } catch (RuntimeException pex) {
 		// We need to be *very* tolerant about bogus dates (and
-		// there's lot of 'em around), so we ignore any 
-		// exception (including RunTimeExceptions) and just let 
+		// there's lots of 'em around), so we ignore any 
+		// exception (including RuntimeExceptions) and just let 
 		// date be null.
 	    }
 	}

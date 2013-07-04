@@ -97,13 +97,15 @@ public class GmailMessage extends IMAPMessage {
 
     /**
      * Return the Gmail labels associated with this message.
+     *
+     * @return	array of labels, or empty array if none
      */
     public String[] getLabels() throws MessagingException {
 	String[] labels = (String[])getItem(GmailProtocol.LABELS_ITEM);
 	if (labels != null)
 	    return (String[])(labels.clone());
 	else
-	    return null;
+	    return new String[0];
     }
 
 }

@@ -608,7 +608,7 @@ public class SocketFetcher {
 	    Method getInstance = hnc.getMethod("getInstance", 
 					new Class[] { byte.class });
 	    Object hostnameChecker = getInstance.invoke(new Object(),
-					new Object[] { new Byte((byte)2) });
+					new Object[] { Byte.valueOf((byte)2) });
 
 	    // invoke hostnameChecker.match( server, cert)
 	    if (logger.isLoggable(Level.FINER))

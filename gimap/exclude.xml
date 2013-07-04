@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -41,52 +41,17 @@
 
 -->
 
-<!-- FindBugs exclude list for JavaMail mbox provider -->
+<!-- FindBugs exclude list for JavaMail gimap provider -->
 
 <FindBugsFilter>
     <!--
-	Without multi-catch we just catch all possible exceptions.
+	These returned arrays are never exposed to applications so it's
+	safe that it doesn't return a copy.
     -->
     <Match>
-	<Class name="com.sun.mail.mbox.MboxStore"/>
-	<Method name="&lt;init&gt;"/> <!-- match constructor -->
-	<Bug pattern="REC_CATCH_EXCEPTION"/>
+	<Class name="com.sun.mail.gimap.protocol.GmailProtocol"/>
+	<Method name="getFetchItems"/>
+	<Bug pattern="EI_EXPOSE_REP"/>
     </Match>
 
-    <!--
-	We purposely return null instead of an empty list.
-    -->
-    <Match>
-	<Class name="com.sun.mail.mbox.MboxFolder"/>
-	<Method name="load"/>
-	<Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
-    </Match>
-
-    <!--
-	We purposely don't close this stream, which is just a wrapper
-	around the original stream that needs to remain open.
-    -->
-    <Match>
-	<Class name="com.sun.mail.mbox.SunV3Multipart"/>
-	<Method name="parse"/>
-	<Bug pattern="OS_OPEN_STREAM"/>
-    </Match>
-
-    <!--
-	When deleting the temp file fails, there's really nothing to be done.
-    -->
-    <Match>
-	<Class name="com.sun.mail.mbox.TempFile"/>
-	<Method name="close"/>
-	<Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
-    </Match>
-
-    <!--
-	We never serialize this class.
-    -->
-    <Match>
-	<Class name="com.sun.mail.mbox.UNIXInbox"/>
-	<Field name="lockfileName"/>
-	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
-    </Match>
 </FindBugsFilter>

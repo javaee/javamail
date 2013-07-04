@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -356,7 +356,7 @@ public class POP3Folder extends Folder {
 	Constructor cons = store.messageConstructor;
 	if (cons != null) {
 	    try {
-		Object[] o = { this, new Integer(msgno) };
+		Object[] o = { this, Integer.valueOf(msgno) };
 		m = (POP3Message)cons.newInstance(o);
 	    } catch (Exception ex) {
 		// ignore
@@ -454,6 +454,8 @@ public class POP3Folder extends Folder {
      */
     public synchronized String getUID(Message msg) throws MessagingException {
 	checkOpen();
+	if (!(msg instanceof POP3Message))
+	    throw new MessagingException("message is not a POP3Message");
 	POP3Message m = (POP3Message)msg;
 	try {
 	    if (!store.supportsUidl)
@@ -506,7 +508,7 @@ public class POP3Folder extends Folder {
 		    int size = Integer.parseInt(st.nextToken());
 		    if (msgnum > 0 && msgnum <= total)
 			sizes[msgnum - 1] = size;
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 		}
 	    }
 	} catch (IOException ex) {

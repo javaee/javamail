@@ -335,7 +335,7 @@ public abstract class Message implements Part {
 	}
 	if (bcc != null) {
 	    System.arraycopy(bcc, 0, addresses, pos, bcc.length);
-	    pos += bcc.length;
+	    // pos += bcc.length;
 	}
 	return addresses;
     }

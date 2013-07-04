@@ -84,8 +84,9 @@ public class SocketConnectException extends IOException {
      */
     public Exception getException() {
 	// the "cause" is always an Exception; see constructor above
-	assert getCause() instanceof Exception;
-	return (Exception)getCause();
+	Throwable t = getCause();
+	assert t instanceof Exception;
+	return (Exception)t;
     }
 
     /**

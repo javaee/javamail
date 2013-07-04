@@ -271,7 +271,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     					// the server
     private long uidvalidity = -1;	// UIDValidity
     private long uidnext = -1;		// UIDNext
-    private long highestmodseq = -1;	// HIGHESTMODSEQ: RFC 4551 - CONDSTORE
+    private volatile long highestmodseq = -1;	// RFC 4551 - CONDSTORE
     private boolean doExpungeNotification = true; // used in expunge handler
 
     private Status cachedStatus = null;
@@ -1058,7 +1058,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    if (ir.keyEquals("VANISHED")) {
 			// "VANISHED" SP ["(EARLIER)"] SP known-uids
 			String[] s = ir.readAtomStringList();
-			// XXX - check that it really is "EARLIER"?
+			// check that it really is "EARLIER"
+			if (s == null || s.length != 1 ||
+					    !s[0].equalsIgnoreCase("EARLIER"))
+			    continue;	// it's not, what to do with it here?
 			String uids = ir.readAtom();
 			UIDSet[] uidset = UIDSet.parseUIDSets(uids);
 			long[] luid = UIDSet.toArray(uidset, uidnext);
@@ -1400,7 +1403,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				protocol.unselect();
 			    else {
 				if (protocol != null) {
-				    MailboxInfo mi = protocol.examine(fullName);
+				    protocol.examine(fullName);
 				    if (protocol != null) // XXX - unnecessary?
 					protocol.close();
 				}
@@ -2407,6 +2410,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	checkOpened(); // insure that folder is open
 
+	if (!(message instanceof IMAPMessage))
+	    throw new MessagingException("message is not an IMAPMessage");
 	IMAPMessage m = (IMAPMessage)message;
 	// If the message already knows its UID, great ..
 	long uid;

@@ -511,7 +511,7 @@ public class SMTPTransport extends Transport {
      * @return	true if using SSL
      * @since	JavaMail 1.4.6
      */
-    public boolean isSSL() {
+    public synchronized boolean isSSL() {
 	return serverSocket instanceof SSLSocket;
     }
 
@@ -696,7 +696,9 @@ public class SMTPTransport extends Transport {
 	    if (!connected) {
 		try {
 		    closeConnection();
-		} catch (MessagingException mex) { }	// ignore it
+		} catch (MessagingException mex) {
+		    // ignore it
+		}
 	    }
 	}
     }
@@ -916,10 +918,7 @@ public class SMTPTransport extends Transport {
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    DigestMD5 md5 = getMD5();
-	    if (md5 == null) {
-		resp = -1;
-		return;		// XXX - should never happen
-	    }
+	    assert md5 != null;
 
 	    byte[] b = md5.authClient(host, user, passwd, getSASLRealm(),
 					getLastServerResponse());
@@ -962,6 +961,7 @@ public class SMTPTransport extends Transport {
 
 	void doAuth(String host, String authzid, String user, String passwd)
 		throws MessagingException, IOException {
+	    assert ntlm != null;
 	    String type3 = ntlm.generateType3Msg(
 		    getLastServerResponse().substring(4).trim());
 
@@ -1276,13 +1276,17 @@ public class SMTPTransport extends Transport {
 	    } else {
 		try {
 		    closeConnection();
-		} catch (MessagingException mex) { }	// ignore it
+		} catch (MessagingException mex) {
+		    // ignore it
+		}
 		return false;
 	    }
 	} catch (Exception ex) {
 	    try {
 		closeConnection();
-	    } catch (MessagingException mex) { }	// ignore it
+	    } catch (MessagingException mex) {
+		// ignore it
+	    }
 	    return false;
 	}
     }
@@ -1444,7 +1448,9 @@ public class SMTPTransport extends Transport {
 	super.finalize();
 	try {
 	    closeConnection();
-	} catch (MessagingException mex) { }	// ignore it
+	} catch (MessagingException mex) {
+	    // ignore it
+	}
     }
 
     ///////////////////// smtp stuff ///////////////////////
@@ -1619,6 +1625,8 @@ public class SMTPTransport extends Transport {
 		} catch (AddressException aex) {
 		    // oh well...
 		}
+		break;
+	    default:
 		break;
 	    }
 	    throw ex;

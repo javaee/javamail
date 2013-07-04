@@ -402,7 +402,7 @@ public class POP3Store extends Store {
      * @return	true if using SSL
      * @since	JavaMail 1.4.6
      */
-    public boolean isSSL() {
+    public synchronized boolean isSSL() {
 	return usingSSL;
     }
 

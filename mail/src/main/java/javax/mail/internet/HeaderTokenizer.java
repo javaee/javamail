@@ -270,6 +270,8 @@ public class HeaderTokenizer {
      *			already at end of header
      */
     public String getRemainder() {
+	if (nextPos >= string.length())
+	    return null;
 	return string.substring(nextPos);
     }
 

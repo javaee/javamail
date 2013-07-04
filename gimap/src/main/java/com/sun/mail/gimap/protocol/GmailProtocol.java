@@ -64,13 +64,13 @@ public class GmailProtocol extends IMAPProtocol {
     public static final FetchItem MSGID_ITEM =
 	new FetchItem("X-GM-MSGID", FetchProfileItem.MSGID) {
 	    public Object parseItem(FetchResponse r) {
-		return new Long(r.readLong());
+		return Long.valueOf(r.readLong());
 	    }
 	};
     public static final FetchItem THRID_ITEM =
 	new FetchItem("X-GM-THRID", FetchProfileItem.THRID) {
 	    public Object parseItem(FetchResponse r) {
-		return new Long(r.readLong());
+		return Long.valueOf(r.readLong());
 	    }
 	};
     public static final FetchItem LABELS_ITEM =

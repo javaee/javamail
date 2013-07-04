@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,6 +77,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
     public POP3Message(Folder folder, int msgno)
 			throws MessagingException {
 	super(folder, msgno);
+	assert folder instanceof POP3Folder;
 	this.folder = (POP3Folder)folder;
     }
 
@@ -159,7 +160,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	    if (rawcontent == null) {
 		TempFile cache = folder.getFileCache();
 		if (cache != null) {
-		    Session s = ((POP3Store)(folder.getStore())).getSession();
 		    if (folder.logger.isLoggable(Level.FINE))
 			folder.logger.fine("caching message #" + msgnum +
 					    " in temp file");
@@ -565,7 +565,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	InputStream rawcontent = (InputStream)rawData.get();
 	if (rawcontent == null && ignoreList == null &&
 			!((POP3Store)(folder.getStore())).cacheWriteTo) {
-	    Session s = ((POP3Store)(folder.getStore())).getSession();
 	    if (folder.logger.isLoggable(Level.FINE))
 		folder.logger.fine("streaming msg " + msgnum);
 	    if (!folder.getProtocol().retr(msgnum, os)) {

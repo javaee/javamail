@@ -1119,7 +1119,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    // add entry into uid table
 	    if (((IMAPFolder)folder).uidTable == null)
 		((IMAPFolder)folder).uidTable = new Hashtable();
-	    ((IMAPFolder)folder).uidTable.put(new Long(u.uid), this);
+	    ((IMAPFolder)folder).uidTable.put(Long.valueOf(u.uid), this);
 	}
 
 	// Check for header items
