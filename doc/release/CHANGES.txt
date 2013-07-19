@@ -25,6 +25,7 @@ K  5934	method fill() isn't synchronized correctly in SharedFileInputStream
 K  5978	NullPointerException in MimeUtility#quote()
 K  5987	support RFC 2359 COPYUID response code
 K  5989	Empty FROM Field causes Exception
+K  6004	Filename isn't parsed correctly if charset is not set
 
 
 		  CHANGES IN THE 1.5.0 RELEASE
