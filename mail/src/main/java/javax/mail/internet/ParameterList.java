@@ -443,6 +443,10 @@ public class ParameterList {
 		} else {
 		    try {
 			if (charset != null)
+			    charset = MimeUtility.javaCharset(charset);
+			if (charset == null || charset.length() == 0)
+			    charset = MimeUtility.getDefaultJavaCharset();
+			if (charset != null)
 			    mv.value = bos.toString(charset);
 			else
 			    mv.value = bos.toString();
@@ -731,7 +735,7 @@ public class ParameterList {
 	v.value = v.encodedValue = value;
 	try {
 	    int i = value.indexOf('\'');
-	    if (i <= 0) {
+	    if (i < 0) {
 		if (decodeParametersStrict)
 		    throw new ParseException(
 			"Missing charset in encoded value: " + value);
@@ -790,8 +794,9 @@ public class ParameterList {
 	    }
 	    b[bi++] = (byte)c;
 	}
-	charset = MimeUtility.javaCharset(charset);
-	if (charset == null)
+	if (charset != null)
+	    charset = MimeUtility.javaCharset(charset);
+	if (charset == null || charset.length() == 0)
 	    charset = MimeUtility.getDefaultJavaCharset();
 	return new String(b, 0, bi, charset);
     }

@@ -61,6 +61,12 @@ Content-Type: application/x-stuff;
 Expect: 1
 	title=This is even more ***fun*** isn't it!
 Content-Type: application/x-stuff;
+	title*0*=''This%20is%20even%20more%20;
+	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
+	title*2="isn't it!"
+Expect: 1
+	title=This is even more ***fun*** isn't it!
+Content-Type: application/x-stuff;
 	title*2="isn't it!";
 	title*1*=%2A%2A%2Afun%2A%2A%2A%20;
 	title*0*=us-ascii'en'This%20is%20even%20more%20
