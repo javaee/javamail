@@ -625,7 +625,14 @@ public final class Session {
      * @exception	NoSuchProviderException If the provider is not found.
      */
     public Transport getTransport() throws NoSuchProviderException {
-        return getTransport(getProperty("mail.transport.protocol"));
+	String prot = getProperty("mail.transport.protocol");
+	if (prot != null)
+	    return getTransport(prot);
+	// if the property isn't set, use the protocol for "rfc822"
+	prot = (String)addressMap.get("rfc822");
+	if (prot != null)
+	    return getTransport(prot);
+	return getTransport("smtp");	// if all else fails
     }
 
     /**
