@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,8 +40,16 @@
 
 package javax.mail.internet;
 
+import java.io.*;
+import java.util.Properties;
+
+import javax.activation.DataHandler;
+
+import javax.mail.*;
+
 import org.junit.*;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
 /**
@@ -68,5 +76,86 @@ public class MimeBodyPartTest {
 
 	String[] langs = mbp.getContentLanguage();
 	assertArrayEquals(languages, langs);
+    }
+
+    /**
+     * Test that copying a DataHandler from one message to another
+     * has the desired effect.
+     */
+    @Test
+    public void testCopyDataHandler() throws Exception {
+	Session s = Session.getInstance(new Properties());
+	// create a message and extract the DataHandler for a part
+	MimeMessage orig = createMessage(s);
+	MimeMultipart omp = (MimeMultipart)orig.getContent();
+	MimeBodyPart obp = (MimeBodyPart)omp.getBodyPart(0);
+	DataHandler dh = obp.getDataHandler();
+	// create a new message and use the DataHandler
+	MimeMessage msg = new MimeMessage(s);
+	MimeMultipart mp = new MimeMultipart();
+	MimeBodyPart mbp = new MimeBodyPart();
+	mbp.setDataHandler(dh);
+	mp.addBodyPart(mbp);
+	msg.setContent(mp);
+	// depend on copy constructor streaming the data
+	msg = new MimeMessage(msg);
+	mp = (MimeMultipart)msg.getContent();
+	mbp = (MimeBodyPart)mp.getBodyPart(0);
+	assertEquals("text/x-test", mbp.getContentType());
+	assertEquals("quoted-printable", mbp.getEncoding());
+	assertEquals("test part", getString(mbp.getInputStream()));
+    }
+
+    /**
+     * Test that copying a DataHandler from one message to another
+     * by setting the "dh" filed in a subclass has the desired effect.
+     */
+    @Test
+    public void testSetDataHandler() throws Exception {
+	Session s = Session.getInstance(new Properties());
+	// create a message and extract the DataHandler for a part
+	MimeMessage orig = createMessage(s);
+	MimeMultipart omp = (MimeMultipart)orig.getContent();
+	MimeBodyPart obp = (MimeBodyPart)omp.getBodyPart(0);
+	final DataHandler odh = obp.getDataHandler();
+	// create a new message and use the DataHandler
+	MimeMessage msg = new MimeMessage(s);
+	MimeMultipart mp = new MimeMultipart();
+	MimeBodyPart mbp = new MimeBodyPart() {
+		{ dh = odh; }
+	    };
+	mp.addBodyPart(mbp);
+	msg.setContent(mp);
+	// depend on copy constructor streaming the data
+	msg = new MimeMessage(msg);
+	mp = (MimeMultipart)msg.getContent();
+	mbp = (MimeBodyPart)mp.getBodyPart(0);
+	assertEquals("text/x-test", mbp.getContentType());
+	assertEquals("quoted-printable", mbp.getEncoding());
+	assertEquals("test part", getString(mbp.getInputStream()));
+    }
+
+    private static MimeMessage createMessage(Session s)
+				throws MessagingException {
+        String content =
+	    "Mime-Version: 1.0\n" +
+	    "Subject: Example\n" +
+	    "Content-Type: multipart/mixed; boundary=\"-\"\n" +
+	    "\n" +
+	    "preamble\n" +
+	    "---\n" +
+	    "Content-Type: text/x-test\n" +
+	    "Content-Transfer-Encoding: quoted-printable\n" +
+	    "\n" +
+	    "test part\n" +
+	    "\n" +
+	    "-----\n";
+
+	return new MimeMessage(s, new StringBufferInputStream(content));
+    }
+
+    private static String getString(InputStream is) throws IOException {
+	BufferedReader r = new BufferedReader(new InputStreamReader(is));
+	return r.readLine();
     }
 }

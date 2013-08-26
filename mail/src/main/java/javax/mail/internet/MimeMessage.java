@@ -1382,8 +1382,8 @@ public class MimeMessage extends Message implements MimePart {
     /**                                                            
      * Return a DataHandler for this Message's content. <p>
      *
-     * The implementation provided here works as follows. Note the use of 
-     * the <code>getContentStream</code> method to 
+     * The implementation provided here works approximately as follows.
+     * Note the use of the <code>getContentStream</code> method to 
      * generate the byte stream for the content. Also note that
      * any transfer-decoding is done automatically within this method.<p>
      *
@@ -1410,8 +1410,7 @@ public class MimeMessage extends Message implements MimePart {
     public synchronized DataHandler getDataHandler() 
 		throws MessagingException {
 	if (dh == null)
-	    dh = new MimeBodyPart.MimePartDataHandler(
-						new MimePartDataSource(this));
+	    dh = new MimeBodyPart.MimePartDataHandler(this);
 	return dh;
     }
 

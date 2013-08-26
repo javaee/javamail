@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,10 @@
 
 package javax.mail.internet;
 
+import java.io.*;
 import java.util.Properties;
+
+import javax.activation.DataHandler;
 
 import javax.mail.*;
 import static javax.mail.Message.RecipientType.*;
@@ -71,5 +74,64 @@ public class MimeMessageTest {
 	assertEquals("To: is set", addr, m.getRecipients(TO)[0].toString());
 	m.setRecipients(TO, (String)null);
 	assertEquals("To: is removed", null, m.getRecipients(TO));
+    }
+
+    /**
+     * Test that copying a DataHandler from one message to another
+     * has the desired effect.
+     */
+    @Test
+    public void testCopyDataHandler() throws Exception {
+	Session s = Session.getInstance(new Properties());
+	// create a message and extract the DataHandler
+	MimeMessage orig = createMessage(s);
+	DataHandler dh = orig.getDataHandler();
+	// create a new message and use the DataHandler
+	MimeMessage msg = new MimeMessage(s);
+	msg.setDataHandler(dh);
+	// depend on copy constructor streaming the data
+	msg = new MimeMessage(msg);
+	assertEquals("text/x-test", msg.getContentType());
+	assertEquals("quoted-printable", msg.getEncoding());
+	assertEquals("test message", getString(msg.getInputStream()));
+    }
+
+    /**
+     * Test that copying a DataHandler from one message to another
+     * by setting the "dh" filed in a subclass has the desired effect.
+     */
+    @Test
+    public void testSetDataHandler() throws Exception {
+	Session s = Session.getInstance(new Properties());
+	// create a message and extract the DataHandler for a part
+	MimeMessage orig = createMessage(s);
+	final DataHandler odh = orig.getDataHandler();
+	// create a new message and use the DataHandler
+	MimeMessage msg = new MimeMessage(s) {
+		{ dh = odh; }
+	    };
+	// depend on copy constructor streaming the data
+	msg = new MimeMessage(msg);
+	assertEquals("text/x-test", msg.getContentType());
+	assertEquals("quoted-printable", msg.getEncoding());
+	assertEquals("test message", getString(msg.getInputStream()));
+    }
+
+    private static MimeMessage createMessage(Session s)
+				throws MessagingException {
+        String content =
+	    "Mime-Version: 1.0\n" +
+	    "Subject: Example\n" +
+	    "Content-Type: text/x-test\n" +
+	    "Content-Transfer-Encoding: quoted-printable\n" +
+	    "\n" +
+	    "test message\n";
+
+	return new MimeMessage(s, new StringBufferInputStream(content));
+    }
+
+    private static String getString(InputStream is) throws IOException {
+	BufferedReader r = new BufferedReader(new InputStreamReader(is));
+	return r.readLine();
     }
 }

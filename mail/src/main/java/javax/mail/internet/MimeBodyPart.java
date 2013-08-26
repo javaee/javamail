@@ -611,7 +611,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      */  
     public DataHandler getDataHandler() throws MessagingException {
 	if (dh == null)
-	    dh = new MimePartDataHandler(new MimePartDataSource(this));
+	    dh = new MimePartDataHandler(this);
 	return dh;
     }
 
@@ -1451,11 +1451,27 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    }
 
 	    /*
-	     * If the data for this part comes from a stream,
-	     * we can't update it.
+	     * If this is our own MimePartDataHandler, we can't update any
+	     * of the headers.
+	     *
+	     * If this is a MimePartDataHandler coming from another part,
+	     * we need to copy over the content headers from the other part.
+	     * Note that the MimePartDataHandler still refers to the original
+	     * data and the original MimePart.
 	     */
-	    if (dh instanceof MimePartDataHandler)
-		return;	// can't update it
+	    if (dh instanceof MimePartDataHandler) {
+		MimePartDataHandler mdh = (MimePartDataHandler)dh;
+		MimePart mpart = mdh.getPart();
+		if (mpart != part) {
+		    // XXX - can't change the encoding of the data from the
+		    // other part without decoding and reencoding it, so
+		    // we just force it to match the original
+		    setEncoding(part, mpart.getEncoding());
+		    if (needCTHeader)
+			part.setHeader("Content-Type", mpart.getContentType());
+		}
+		return;
+	    }
 
 	    // Content-Transfer-Encoding, but only if we don't
 	    // already have one
@@ -1554,6 +1570,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    if (dh instanceof MimePartDataHandler) {
 		// call getContentStream to give subclass a chance to
 		// provide the data on demand
+		is = ((MimePartDataHandler)dh).getContentStream();
+		/*
 		if (part instanceof MimeBodyPart) {
 		    MimeBodyPart mbp = (MimeBodyPart)part;
 		    is = mbp.getContentStream();
@@ -1561,6 +1579,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		    MimeMessage msg = (MimeMessage)part;
 		    is = msg.getContentStream();
 		}
+		*/
 	    }
 	    if (is != null) {
 		// now copy the data to the output stream
@@ -1590,8 +1609,27 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * Otherwise the data would need to be decoded and reencoded.
      */
     static class MimePartDataHandler extends DataHandler {
-	public MimePartDataHandler(DataSource ds) {
-	    super(ds);
+	MimePart part;
+	public MimePartDataHandler(MimePart part) {
+	    super(new MimePartDataSource(part));
+	    this.part = part;
+	}
+
+	InputStream getContentStream() throws MessagingException {
+	    InputStream is = null;
+
+	    if (part instanceof MimeBodyPart) {
+		MimeBodyPart mbp = (MimeBodyPart)part;
+		is = mbp.getContentStream();
+	    } else if (part instanceof MimeMessage) {
+		MimeMessage msg = (MimeMessage)part;
+		is = msg.getContentStream();
+	    }
+	    return is;
+	}
+
+	MimePart getPart() {
+	    return part;
 	}
     }
 }
