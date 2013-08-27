@@ -698,8 +698,7 @@ e.printStackTrace();
 		m = loadMessage(is, msgno, mode == READ_WRITE);
 	    } catch (IOException ex) {
 		MessagingException mex =
-		    new MessageRemovedException("mbox message gone: " + ex);
-		mex.initCause(ex);
+		    new MessageRemovedException("mbox message gone", ex);
 		throw mex;
 	    }
 	    md.message = m;
