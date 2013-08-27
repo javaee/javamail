@@ -59,32 +59,49 @@
     <description>JavaMail API mbox native library</description>
     <url>http://java.sun.com/projects/javamail</url>
 
+    <properties>
+	<compiler.name>
+	    c89
+	</compiler.name>
+	<compiler.start.options>
+	    -Xa -xO2 -v -D_REENTRANT
+	    -I${env.JAVA_HOME}/include -I${env.JAVA_HOME}/include/solaris
+	</compiler.start.options>
+	<linker.name>
+	    c89
+	</linker.name>
+	<linker.start.options>
+	    -G
+	</linker.start.options>
+	<linker.end.options>
+	    -L${env.JAVA_HOME}/jre/lib/${env.MACH} -lmail -ljava -lc
+	</linker.end.options>
+    </properties>
+
     <build>
         <plugins>
 	    <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>native-maven-plugin</artifactId>
+		<version>1.0-alpha-7</version>
 		<extensions>true</extensions>
 		<configuration>
 		    <compilerProvider>generic</compilerProvider>
-		    <compilerExecutable>c89</compilerExecutable>
-		    <linkerExecutable>c89</linkerExecutable>
+		    <compilerExecutable>${compiler.name}</compilerExecutable>
+		    <linkerExecutable>${linker.name}</linkerExecutable>
 		    <compilerStartOptions>
 			<compilerStartOption>
-			    -Xa -xO2 -v -D_REENTRANT
-			    -I/usr/java/include
-			    -I/usr/java/include/solaris
+			    ${compiler.start.options}
 			</compilerStartOption>
 		    </compilerStartOptions>
 		    <linkerStartOptions>
 			<linkerStartOption>
-			    -G
+			    ${linker.start.options}
 			</linkerStartOption>
 		    </linkerStartOptions>
 		    <linkerEndOptions>
 			<linkerEndOption>
-			    -L/usr/java/jre/lib/${env.MACH}
-			    -lmail -ljava -lc
+			    ${linker.end.options}
 			</linkerEndOption>
 		    </linkerEndOptions>
 		    <sources>
