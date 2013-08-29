@@ -67,6 +67,8 @@ public class UIDSetTest {
     static class TestData {
 	public String name;
 	public String uids;
+	public long max;
+	public String maxuids;
 	public long[] expect;
     }
 
@@ -158,9 +160,24 @@ public class UIDSetTest {
 	    t.uids = tok;
 
 	line = in.readLine();
-	List<Long> uids = new ArrayList<Long>();
 	st = new StringTokenizer(line);
 	tok = st.nextToken();
+	if (tok.equals("MAX")) {
+	    tok = st.nextToken();
+	    try {
+		t.max = Long.valueOf(tok);
+	    } catch (NumberFormatException ex) {
+		throw new Exception("Bad MAX value in line: " + line);
+	    }
+	    if (st.hasMoreTokens())
+		t.maxuids = st.nextToken();
+	    else
+		t.maxuids = t.uids;
+	    line = in.readLine();
+	    st = new StringTokenizer(line);
+	    tok = st.nextToken();
+	}
+	List<Long> uids = new ArrayList<Long>();
 	if (!tok.equals("EXPECT"))
 	    throw new Exception("Bad test data format: " + line);
 	while (st.hasMoreTokens()) {
@@ -195,7 +212,11 @@ public class UIDSetTest {
 
 	// first, test string to array
 	UIDSet[] uidset = UIDSet.parseUIDSets(t.uids);
-	long[] uids = UIDSet.toArray(uidset);
+	long[] uids;
+	if (t.max > 0)
+	    uids = UIDSet.toArray(uidset, t.max);
+	else
+	    uids = UIDSet.toArray(uidset);
 	if (junit)
 	    Assert.assertArrayEquals(t.expect, uids);
 	else if (!arrayEquals(t.expect, uids)) {
@@ -207,9 +228,10 @@ public class UIDSetTest {
 	// now, test the reverse
 	UIDSet[] uidset2 = UIDSet.createUIDSets(uids);
 	String suid = UIDSet.toString(uidset2);
+	String euid = t.max > 0 ? t.maxuids : t.uids;
 	if (junit)
-	    Assert.assertEquals(t.uids, suid);
-	else if (!t.uids.equals(suid)) {
+	    Assert.assertEquals(euid, suid);
+	else if (!euid.equals(suid)) {
 	    System.out.println("Test: " + t.name);
 	    System.out.println("FAIL2");
 	    errors++;

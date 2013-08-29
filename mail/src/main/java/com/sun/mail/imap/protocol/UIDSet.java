@@ -228,7 +228,7 @@ public class UIDSet {
 	    for (UIDSet u : uidset) {
 		if (uidmax < 0)
 		    count += u.size();
-		else if (u.start < uidmax) {
+		else if (u.start <= uidmax) {
 		    if (u.end < uidmax)
 			count += u.end - u.start + 1;
 		    else
