@@ -697,7 +697,8 @@ public class IMAPStore extends Store
     private void login(IMAPProtocol p, String u, String pw) 
 		throws ProtocolException {
 	// turn on TLS if it's been enabled or required and is supported
-	if (enableStartTLS || requireStartTLS) {
+	// and we're not already using SSL
+	if ((enableStartTLS || requireStartTLS) && !p.isSSL()) {
 	    if (p.hasCapability("STARTTLS")) {
 		p.startTLS();
 		// if startTLS succeeds, refresh capabilities
@@ -907,7 +908,8 @@ public class IMAPStore extends Store
 
 		// if proxyAuthUser has changed, switch to new user
 		if (proxyAuthUser != null &&
-			!proxyAuthUser.equals(p.getProxyAuthUser())) {
+			!proxyAuthUser.equals(p.getProxyAuthUser()) &&
+			p.hasCapability("X-UNAUTHENTICATE")) {
 		    try {
 			/*
 			 * Swap in a special response handler that will handle
@@ -916,7 +918,8 @@ public class IMAPStore extends Store
 			 */
 			p.removeResponseHandler(this);
 			p.addResponseHandler(nonStoreResponseHandler);
-			p.proxyauth(proxyAuthUser);
+			p.unauthenticate();
+			login(p, user, password);
 			p.removeResponseHandler(nonStoreResponseHandler);
 			p.addResponseHandler(this);
 		    } catch (ProtocolException pex) {
@@ -1013,8 +1016,11 @@ public class IMAPStore extends Store
 
 		// if proxyAuthUser has changed, switch to new user
 		if (proxyAuthUser != null &&
-			!proxyAuthUser.equals(p.getProxyAuthUser()))
-		    p.proxyauth(proxyAuthUser);
+			!proxyAuthUser.equals(p.getProxyAuthUser()) &&
+			p.hasCapability("X-UNAUTHENTICATE")) {
+		    p.unauthenticate();
+		    login(p, user, password);
+		}
             }
  
 	    if (pool.storeConnectionInUse) {

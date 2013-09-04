@@ -807,6 +807,19 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * UNAUTHENTICATE Command.
+     * 
+     * @see "Netscape/iPlanet/SunONE Messaging Server extension"
+     * @since	JavaMail 1.5.1
+     */
+    public void unauthenticate() throws ProtocolException {
+	if (!hasCapability("X-UNAUTHENTICATE"))
+	    throw new BadCommandException("UNAUTHENTICATE not supported");
+	simpleCommand("UNAUTHENTICATE", null);
+	authenticated = false;
+    }
+
+    /**
      * ID Command, for Yahoo! Mail IMAP server.
      *
      * See <A HREF="http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access">
