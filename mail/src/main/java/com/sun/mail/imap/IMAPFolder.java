@@ -2498,6 +2498,44 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
+     * Get the messages that have been changed since the given MODSEQ value.
+     * Also, prefetch the flags for the messages. <p>
+     *
+     * The server must support the CONDSTORE extension.
+     *
+     * @see "RFC 4551"
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized Message[] getMessagesByUIDChangedSince(
+				long start, long end, long modseq)
+				throws MessagingException {
+	checkOpened(); // insure that folder is open
+
+	Message[] msgs; // array of messages to be returned
+
+	try {
+	    synchronized (messageCacheLock) {
+		IMAPProtocol p = getProtocol();
+		if (!p.hasCapability("CONDSTORE"))
+		    throw new BadCommandException("CONDSTORE not supported");
+
+		// Issue FETCH for given range
+		int[] nums = p.uidfetchChangedSince(start, end, modseq);
+
+		msgs = new Message[nums.length];
+		for (int i = 0; i < nums.length; i++)
+		    msgs[i] = getMessageBySeqNumber(nums[i]);
+	    }
+	} catch(ConnectionException cex) {
+	    throw new FolderClosedException(this, cex.getMessage());
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
+	}
+
+	return msgs;
+    }
+
+    /**
      * Get the quotas for the quotaroot associated with this
      * folder.  Note that many folders may have the same quotaroot.
      * Quotas are controlled on the basis of a quotaroot, not

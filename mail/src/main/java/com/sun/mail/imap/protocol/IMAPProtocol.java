@@ -1664,6 +1664,42 @@ public class IMAPProtocol extends Protocol {
 	return ua;
     }
 
+    /**
+     * Get the sequence numbers for messages changed since the given
+     * modseq and with UIDs ranging from start till end.
+     * Also, prefetch the flags for the returned messages.
+     *
+     * @see	"RFC 4551"
+     * @since	JavaMail 1.5.1
+     */
+    public int[] uidfetchChangedSince(long start, long end, long modseq)
+			throws ProtocolException {
+	String msgSequence = String.valueOf(start) + ":" + 
+				(end == UIDFolder.LASTUID ? "*" : 
+				String.valueOf(end));
+	Response[] r = command("UID FETCH " + msgSequence +
+		" (FLAGS) (CHANGEDSINCE " + String.valueOf(modseq) + ")", null);
+
+	List v = new ArrayList();
+	for (int i = 0, len = r.length; i < len; i++) {
+	    if (r[i] == null || !(r[i] instanceof FetchResponse))
+		continue;
+ 
+	    FetchResponse fr = (FetchResponse)r[i];
+	    v.add(Integer.valueOf(fr.getNumber()));
+	}
+		
+	notifyResponseHandlers(r);
+	handleResult(r[r.length-1]);
+
+	// Copy the list into 'matches'
+	int vsize = v.size();
+	int[] matches = new int[vsize];
+	for (int i = 0; i < vsize; i++)
+	    matches[i] = ((Integer)v.get(i)).intValue();
+	return matches;
+    }
+
     public Response[] fetch(MessageSet[] msgsets, String what)
 			throws ProtocolException {
 	return fetch(MessageSet.toString(msgsets), what, false);

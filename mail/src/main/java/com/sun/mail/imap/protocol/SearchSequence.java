@@ -48,6 +48,7 @@ import javax.mail.search.*;
 import com.sun.mail.iap.*;
 import com.sun.mail.imap.OlderTerm;
 import com.sun.mail.imap.YoungerTerm;
+import com.sun.mail.imap.ModifiedSinceTerm;
 
 /**
  * This class traverses a search-tree and generates the 
@@ -116,6 +117,8 @@ public class SearchSequence {
 	    return younger((YoungerTerm)term);
 	else if (term instanceof MessageIDTerm) // MessageID
 	    return messageid((MessageIDTerm)term, charset);
+	else if (term instanceof ModifiedSinceTerm)	// RFC 4551 MODSEQ
+	    return modifiedSince((ModifiedSinceTerm)term);
 	else
 	    throw new SearchException("Search too complex");
     }
@@ -476,6 +479,19 @@ public class SearchSequence {
 	Argument result = new Argument();
 	result.writeAtom("YOUNGER");
 	result.writeNumber(term.getInterval());
+	return result;
+    }
+
+    /**
+     * Generate argument for ModifiedSinceTerm.
+     *
+     * @since	JavaMail 1.5.1
+     */
+    protected Argument modifiedSince(ModifiedSinceTerm term)
+				throws SearchException {
+	Argument result = new Argument();
+	result.writeAtom("MODSEQ");
+	result.writeNumber(term.getModSeq());
 	return result;
     }
 }
