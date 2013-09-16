@@ -42,6 +42,7 @@ package javax.mail.internet;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.Enumeration;
 
 import javax.activation.DataHandler;
 
@@ -50,6 +51,7 @@ import static javax.mail.Message.RecipientType.*;
 
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test MimeMessage methods.
@@ -98,7 +100,7 @@ public class MimeMessageTest {
 
     /**
      * Test that copying a DataHandler from one message to another
-     * by setting the "dh" filed in a subclass has the desired effect.
+     * by setting the "dh" field in a subclass has the desired effect.
      */
     @Test
     public void testSetDataHandler() throws Exception {
@@ -115,6 +117,24 @@ public class MimeMessageTest {
 	assertEquals("text/x-test", msg.getContentType());
 	assertEquals("quoted-printable", msg.getEncoding());
 	assertEquals("test message", getString(msg.getInputStream()));
+    }
+
+    /**
+     * Test that address headers account for the header length when folding.
+     */
+    @Test
+    public void testAddressHeaderFolding() throws Exception {
+	Session s = Session.getInstance(new Properties());
+	MimeMessage msg = new MimeMessage(s);
+	InternetAddress[] addrs = InternetAddress.parse(
+	"long-address1@example.com, long-address2@example.com, joe@foobar.com");
+	msg.setReplyTo(addrs);	// use Reply-To because it's a long header name
+	Enumeration e = msg.getMatchingHeaderLines(new String[] { "Reply-To" });
+	String line = (String)e.nextElement();
+	int npos = line.indexOf("\r");
+	// was the line folded where we expected?
+	assertTrue("Header folded",
+	    npos > 9 && npos <= 77 && npos < line.length());
     }
 
     private static MimeMessage createMessage(Session s)

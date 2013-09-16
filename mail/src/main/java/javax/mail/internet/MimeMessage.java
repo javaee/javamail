@@ -731,7 +731,7 @@ public class MimeMessage extends Message implements MimePart {
     // Convenience method to set addresses
     private void setAddressHeader(String name, Address[] addresses)
 			throws MessagingException {
-	String s = InternetAddress.toString(addresses);
+	String s = InternetAddress.toString(addresses, name.length() + 2);
 	if (s == null)
 	    removeHeader(name);
 	else
@@ -751,7 +751,7 @@ public class MimeMessage extends Message implements MimePart {
 	    System.arraycopy(a, 0, anew, 0, a.length);
 	    System.arraycopy(addresses, 0, anew, a.length, addresses.length);
 	}
-	String s = InternetAddress.toString(anew);
+	String s = InternetAddress.toString(anew, name.length() + 2);
 	if (s == null)
 	    return;
 	setHeader(name, s);
