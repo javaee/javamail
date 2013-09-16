@@ -655,7 +655,7 @@ public class InternetAddress extends Address implements Cloneable {
      */
     public static InternetAddress[] parseHeader(String addresslist,
 				boolean strict) throws AddressException {
-	return parse(addresslist, strict, true);
+	return parse(MimeUtility.unfold(addresslist), strict, true);
     }
 
     /*

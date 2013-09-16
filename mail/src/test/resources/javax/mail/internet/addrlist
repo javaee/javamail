@@ -310,6 +310,12 @@ Header: true
 To: "john doe" (john.doe@a.com)
 Expect: 1
 	john.doe@a.com
+Comment: test that headers are unfolded before parsing
+To: "John
+	Smith" <jsmith@
+	crappy-email-archiving-company.com>
+Expect: 1
+	jsmith@ crappy-email-archiving-company.com
 Header: false
 To: (Test) <djoe@zimbra.com>,djoe@zimbra.com (Test) 
 Expect: 2
@@ -739,9 +745,7 @@ Cc: 55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,
         streetwalker!from, streetwalker!id, streetwalker!oak.sunecd.com,
         streetwalker!root, streetwalker!rr, streetwalker!streetwalker.sun.com
 Expect: 24
-	55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,\
-        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,\
-        streetwalker!AA00159;
+	55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5, streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>, streetwalker!AA00159;
 	streetwalker!AA08484
 	streetwalker!AA16178
 	streetwalker!Date:
