@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -55,8 +55,7 @@ public class EnvelopeTest {
      */
     @Test
     public void testYahooUndisclosedRecipientsBug() throws Exception {
-	IMAPResponse response =
-		new IMAPResponse(
+	IMAPResponse response = new IMAPResponse(
     "* 2 FETCH (INTERNALDATE \"24-Apr-2012 20:28:58 +0000\" " +
     "RFC822.SIZE 155937 " +
     "ENVELOPE (\"Wed, 28 Sep 2011 11:16:17 +0100\" \"test\" " +
@@ -68,6 +67,23 @@ public class EnvelopeTest {
     // here's the space inserted by Yahoo IMAP ^
     "NIL NIL NIL " +
     "\"<xxx@mail.gmail.com>\"))");
+	FetchResponse fr = new FetchResponse(response);
+	// no exception means it worked
+    }
+
+    /**
+     * Test workaround for Yahoo IMAP bug that returns an empty list
+     * instad of NIL for some addresses in ENVELOPE response.
+     */
+    @Test
+    public void testYahooEnvelopeAddressListBug() throws Exception {
+	IMAPResponse response = new IMAPResponse(
+    "* 2 FETCH (RFC822.SIZE 2567 INTERNALDATE \"29-Apr-2011 13:49:01 +0000\" " +
+    "ENVELOPE (\"Fri, 29 Apr 2011 19:19:01 +0530\" \"test\" " +
+    "((\"xxx\" NIL \"xxx\" \"milium.com.br\")) " +
+    "((\"xxx\" NIL \"xxx\" \"milium.com.br\")) " +
+    "((NIL NIL \"xxx\" \"live.hk\")) () NIL NIL NIL " +
+    "\"<20110429134718.70333732030A@mail2.milium.com.br>\"))");
 	FetchResponse fr = new FetchResponse(response);
 	// no exception means it worked
     }
