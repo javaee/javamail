@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -168,6 +168,8 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	byte[] CRLF = { (byte)'\r', (byte)'\n'};
 
 	// Hack for Novell GroupWise XGWTRUSTEDAPP authentication mechanism
+	// http://www.novell.com/developer/documentation/gwimap/?
+	//   page=/developer/documentation/gwimap/gwimpenu/data/al7te9j.html
 	boolean isXGWTRUSTEDAPP =
 	    sc.getMechanismName().equals("XGWTRUSTEDAPP") &&
 	    PropUtil.getBooleanProperty(props,
@@ -248,12 +250,12 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 
 	/*
 	 * If we're using the Novell Groupwise XGWTRUSTEDAPP mechanism
-	 * we always have to issue a LOGIN command to select the user
-	 * we want to operate as.
+	 * to run as a specified authorization ID, we have to issue a
+	 * LOGIN command to select the user we want to operate as.
 	 */
-	if (isXGWTRUSTEDAPP) {
+	if (isXGWTRUSTEDAPP && authzid != null) {
 	    Argument args = new Argument();
-	    args.writeString(authzid != null ? authzid : u);
+	    args.writeString(authzid);
 
 	    responses = pr.command("LOGIN", args);
 
