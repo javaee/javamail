@@ -78,7 +78,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 				final String p) throws ProtocolException {
 
 	synchronized (pr) {	// authenticate method should be synchronized
-	Vector v = new Vector();
+	List<Response> v = new ArrayList<Response>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -213,7 +213,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 		else if (r.isBYE()) // outta here
 		    done = true;
 		else // hmm .. unsolicited response here ?!
-		    v.addElement(r);
+		    v.add(r);
 	    } catch (Exception ioex) {
 		logger.log(Level.FINE, "SASL Exception", ioex);
 		// convert this into a BYE response
@@ -240,8 +240,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	Response[] responses = v.toArray(new Response[v.size()]);
 	pr.notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response

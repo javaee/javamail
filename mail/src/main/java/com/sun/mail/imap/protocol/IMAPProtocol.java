@@ -403,7 +403,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authlogin(String u, String p)
 				throws ProtocolException {
-	Vector v = new Vector();
+	List<Response> v = new ArrayList<Response>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -471,7 +471,7 @@ public class IMAPProtocol extends Protocol {
 		else if (r.isBYE()) // outta here
 		    done = true;
 		else // hmm .. unsolicited response here ?!
-		    v.addElement(r);
+		    v.add(r);
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
@@ -489,8 +489,7 @@ public class IMAPProtocol extends Protocol {
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -518,7 +517,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authplain(String authzid, String u, String p)
 				throws ProtocolException {
-	Vector v = new Vector();
+	List<Response> v = new ArrayList<Response>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -582,7 +581,7 @@ public class IMAPProtocol extends Protocol {
 		else if (r.isBYE()) // outta here
 		    done = true;
 		else // hmm .. unsolicited response here ?!
-		    v.addElement(r);
+		    v.add(r);
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
@@ -600,8 +599,7 @@ public class IMAPProtocol extends Protocol {
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -628,7 +626,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authntlm(String authzid, String u, String p)
 				throws ProtocolException {
-	Vector v = new Vector();
+	List<Response> v = new ArrayList<Response>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -680,7 +678,7 @@ public class IMAPProtocol extends Protocol {
 		else if (r.isBYE()) // outta here
 		    done = true;
 		else // hmm .. unsolicited response here ?!
-		    v.addElement(r);
+		    v.add(r);
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
@@ -699,8 +697,7 @@ public class IMAPProtocol extends Protocol {
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -1203,20 +1200,19 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	if (response.isOK()) { // command succesful 
-	    Vector v = new Vector(1);
+	    List<ListInfo> v = new ArrayList<ListInfo>(1);
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
 		    continue;
 
 		IMAPResponse ir = (IMAPResponse)r[i];
 		if (ir.keyEquals(cmd)) {
-		    v.addElement(new ListInfo(ir));
+		    v.add(new ListInfo(ir));
 		    r[i] = null;
 		}
 	    }
 	    if (v.size() > 0) {
-		linfo = new ListInfo[v.size()];
-		v.copyInto(linfo);
+		linfo = v.toArray(new ListInfo[v.size()]);
 	    }
 	}
 	
@@ -1612,22 +1608,20 @@ public class IMAPProtocol extends Protocol {
 			     "UID", true);	
 
 	UID u;
-	Vector v = new Vector();
+	List<UID> v = new ArrayList<UID>();
 	for (int i = 0, len = r.length; i < len; i++) {
 	    if (r[i] == null || !(r[i] instanceof FetchResponse))
 		continue;
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
 	    if ((u = fr.getItem(UID.class)) != null)
-		v.addElement(u);
+		v.add(u);
 	}
 		
 	notifyResponseHandlers(r);
 	handleResult(r[r.length-1]);
 
-	UID[] ua = new UID[v.size()];
-	v.copyInto(ua);
-	return ua;
+	return v.toArray(new UID[v.size()]);
     }
 
     /**
@@ -1646,22 +1640,20 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = fetch(sb.toString(), "UID", true);	
 
 	UID u;
-	Vector v = new Vector();
+	List<UID> v = new ArrayList<UID>();
 	for (int i = 0, len = r.length; i < len; i++) {
 	    if (r[i] == null || !(r[i] instanceof FetchResponse))
 		continue;
 	    
 	    FetchResponse fr = (FetchResponse)r[i];
 	    if ((u = fr.getItem(UID.class)) != null)
-		v.addElement(u);
+		v.add(u);
 	}
 		
 	notifyResponseHandlers(r);
 	handleResult(r[r.length-1]);
 
-	UID[] ua = new UID[v.size()];
-	v.copyInto(ua);
-	return ua;
+	return v.toArray(new UID[v.size()]);
     }
 
     /**
@@ -1988,7 +1980,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Grab all SEARCH responses
 	if (response.isOK()) { // command succesful
-	    Vector v = new Vector();
+	    List<Integer> v = new ArrayList<Integer>();
 	    int num;
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -1998,7 +1990,7 @@ public class IMAPProtocol extends Protocol {
 		// There *will* be one SEARCH response.
 		if (ir.keyEquals("SEARCH")) {
 		    while ((num = ir.readNumber()) != -1)
-			v.addElement(Integer.valueOf(num));
+			v.add(Integer.valueOf(num));
 		    r[i] = null;
 		}
 	    }
@@ -2007,7 +1999,7 @@ public class IMAPProtocol extends Protocol {
 	    int vsize = v.size();
 	    matches = new int[vsize];
 	    for (int i = 0; i < vsize; i++)
-		matches[i] = ((Integer)v.elementAt(i)).intValue();
+		matches[i] = v.get(i).intValue();
 	}
 
 	// dispatch remaining untagged responses
@@ -2077,7 +2069,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Grab all SORT responses
 	if (response.isOK()) { // command succesful
-	    Vector v = new Vector();
+	    List<Integer> v = new ArrayList<Integer>();
 	    int num;
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -2086,7 +2078,7 @@ public class IMAPProtocol extends Protocol {
 		IMAPResponse ir = (IMAPResponse)r[i];
 		if (ir.keyEquals("SORT")) {
 		    while ((num = ir.readNumber()) != -1)
-			v.addElement(Integer.valueOf(num));
+			v.add(Integer.valueOf(num));
 		    r[i] = null;
 		}
 	    }
@@ -2095,7 +2087,7 @@ public class IMAPProtocol extends Protocol {
 	    int vsize = v.size();
 	    matches = new int[vsize];
 	    for (int i = 0; i < vsize; i++)
-		matches[i] = ((Integer)v.elementAt(i)).intValue();
+		matches[i] = v.get(i).intValue();
 	}
 
 	// dispatch remaining untagged responses
@@ -2231,7 +2223,7 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = command("GETQUOTA", args);
 
 	Quota quota = null;
-	Vector v = new Vector();
+	List<Quota> v = new ArrayList<Quota>();
 	Response response = r[r.length-1];
 
 	// Grab all QUOTA responses
@@ -2243,7 +2235,7 @@ public class IMAPProtocol extends Protocol {
 		IMAPResponse ir = (IMAPResponse)r[i];
 		if (ir.keyEquals("QUOTA")) {
 		    quota = parseQuota(ir);
-		    v.addElement(quota);
+		    v.add(quota);
 		    r[i] = null;
 		}
 	    }
@@ -2252,9 +2244,7 @@ public class IMAPProtocol extends Protocol {
 	// dispatch remaining untagged responses
 	notifyResponseHandlers(r);
 	handleResult(response);
-	Quota[] qa = new Quota[v.size()];
-	v.copyInto(qa);
-	return qa;
+	return v.toArray(new Quota[v.size()]);
     }
 
     /**
@@ -2288,7 +2278,7 @@ public class IMAPProtocol extends Protocol {
 
 	/*
 	Quota quota = null;
-	Vector v = new Vector();
+	List<Quota> v = new ArrayList<Quota>();
 
 	// Grab all QUOTA responses
 	if (response.isOK()) { // command succesful 
@@ -2299,7 +2289,7 @@ public class IMAPProtocol extends Protocol {
 		IMAPResponse ir = (IMAPResponse)r[i];
 		if (ir.keyEquals("QUOTA")) {
 		    quota = parseQuota(ir);
-		    v.addElement(quota);
+		    v.add(quota);
 		    r[i] = null;
 		}
 	    }
@@ -2310,9 +2300,7 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 	handleResult(response);
 	/*
-	Quota[] qa = new Quota[v.size()];
-	v.copyInto(qa);
-	return qa;
+	return v.toArray(new Quota[v.size()]);
 	*/
     }
 
@@ -2328,7 +2316,7 @@ public class IMAPProtocol extends Protocol {
 	if (r.readByte() != '(')
 	    throw new ParsingException("parse error in QUOTA");
 
-	Vector v = new Vector();
+	List<Quota.Resource> v = new ArrayList<Quota.Resource>();
 	while (r.peekByte() != ')') {
 	    // quota_resource ::= atom SP number SP number
 	    String name = r.readAtom();
@@ -2336,12 +2324,11 @@ public class IMAPProtocol extends Protocol {
 		long usage = r.readLong();
 		long limit = r.readLong();
 		Quota.Resource res = new Quota.Resource(name, usage, limit);
-		v.addElement(res);
+		v.add(res);
 	    }
 	}
 	r.readByte();
-	q.resources = new Quota.Resource[v.size()];
-	v.copyInto(q.resources);
+	q.resources = v.toArray(new Quota.Resource[v.size()]);
 	return q;
     }
 
@@ -2418,7 +2405,7 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	// Grab all ACL responses
-	Vector v = new Vector();
+	List<ACL> v = new ArrayList<ACL>();
 	if (response.isOK()) { // command succesful 
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -2436,7 +2423,7 @@ public class IMAPProtocol extends Protocol {
 			if (rights == null)
 			    break;
 			ACL acl = new ACL(name, new Rights(rights));
-			v.addElement(acl);
+			v.add(acl);
 		    }
 		    r[i] = null;
 		}
@@ -2446,9 +2433,7 @@ public class IMAPProtocol extends Protocol {
 	// dispatch remaining untagged responses
 	notifyResponseHandlers(r);
 	handleResult(response);
-	ACL[] aa = new ACL[v.size()];
-	v.copyInto(aa);
-	return aa;
+	return v.toArray(new ACL[v.size()]);
     }
 
     /**
@@ -2472,7 +2457,7 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	// Grab LISTRIGHTS response
-	Vector v = new Vector();
+	List<Rights> v = new ArrayList<Rights>();
 	if (response.isOK()) { // command succesful 
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -2488,7 +2473,7 @@ public class IMAPProtocol extends Protocol {
 		    ir.readAtomString();
 		    String rights;
 		    while ((rights = ir.readAtomString()) != null)
-			v.addElement(new Rights(rights));
+			v.add(new Rights(rights));
 		    r[i] = null;
 		}
 	    }
@@ -2497,9 +2482,7 @@ public class IMAPProtocol extends Protocol {
 	// dispatch remaining untagged responses
 	notifyResponseHandlers(r);
 	handleResult(response);
-	Rights[] ra = new Rights[v.size()];
-	v.copyInto(ra);
-	return ra;
+	return v.toArray(new Rights[v.size()]);
     }
 
     /**
@@ -2573,7 +2556,7 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("IDLE")) 
 	    throw new BadCommandException("IDLE not supported");
 
-	Vector v = new Vector();
+	List<Response> v = new ArrayList<Response>();
 	boolean done = false;
 	Response r = null;
 
@@ -2581,11 +2564,11 @@ public class IMAPProtocol extends Protocol {
 	try {
 	    idleTag = writeCommand("IDLE", null);
 	} catch (LiteralException lex) {
-	    v.addElement(lex.getResponse());
+	    v.add(lex.getResponse());
 	    done = true;
 	} catch (Exception ex) {
 	    // Convert this into a BYE response
-	    v.addElement(Response.byeResponse(ex));
+	    v.add(Response.byeResponse(ex));
 	    done = true;
 	}
 
@@ -2599,14 +2582,13 @@ public class IMAPProtocol extends Protocol {
 		continue; // skip this response
 	    }
 
-	    v.addElement(r);
+	    v.add(r);
 
 	    if (r.isContinuation() || r.isBYE())
 		done = true;
 	}
 
-	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	Response[] responses = v.toArray(new Response[v.size()]);
 	r = responses[responses.length-1];
 
 	// dispatch remaining untagged responses

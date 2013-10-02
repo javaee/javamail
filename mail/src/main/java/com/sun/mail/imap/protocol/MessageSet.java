@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,8 @@
 
 package com.sun.mail.imap.protocol;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * This class holds the 'start' and 'end' for a range of messages
@@ -68,7 +69,7 @@ public class MessageSet {
      * Convert an array of integers into an array of MessageSets
      */
     public static MessageSet[] createMessageSets(int[] msgs) {
-	Vector v = new Vector();
+	List<MessageSet> v = new ArrayList<MessageSet>();
 	int i,j;
 
 	for (i=0; i < msgs.length; i++) {
@@ -81,12 +82,10 @@ public class MessageSet {
 		    break;
 	    }
 	    ms.end = msgs[j-1];
-	    v.addElement(ms);
+	    v.add(ms);
 	    i = j-1; // i gets incremented @ top of the loop
 	}
-	MessageSet[] msgsets = new MessageSet[v.size()];	
-	v.copyInto(msgsets);
-	return msgsets;
+	return v.toArray(new MessageSet[v.size()]);	
     }
 
     /**

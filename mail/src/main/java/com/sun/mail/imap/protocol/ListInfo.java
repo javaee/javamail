@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,8 @@
 
 package com.sun.mail.imap.protocol;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 
 import com.sun.mail.iap.*;
 
@@ -66,7 +67,7 @@ public class ListInfo {
     public ListInfo(IMAPResponse r) throws ParsingException {
 	String[] s = r.readSimpleList();
 
-	Vector v = new Vector();	// accumulate attributes
+	List<String> v = new ArrayList<String>();	// accumulate attributes
 	if (s != null) {
 	    // non-empty attribute list
 	    for (int i = 0; i < s.length; i++) {
@@ -78,11 +79,10 @@ public class ListInfo {
 		    canOpen = false;
 		else if (s[i].equalsIgnoreCase("\\Noinferiors"))
 		    hasInferiors = false;
-		v.addElement(s[i]);
+		v.add(s[i]);
 	    }
 	}
-	attrs = new String[v.size()];
-	v.copyInto(attrs);
+	attrs = v.toArray(new String[v.size()]);
 
 	r.skipSpaces();
 	if (r.readByte() == '"') {

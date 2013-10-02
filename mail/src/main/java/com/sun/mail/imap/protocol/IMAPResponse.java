@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -104,24 +104,22 @@ public class IMAPResponse extends Response {
 	    return null;
 	index++; // skip '('
 
-	Vector v = new Vector();
+	List<String> v = new ArrayList<String>();
 	int start;
 	for (start = index; buffer[index] != ')'; index++) {
 	    if (buffer[index] == ' ') { // got one item
-		v.addElement(ASCIIUtility.toString(buffer, start, index));
+		v.add(ASCIIUtility.toString(buffer, start, index));
 		start = index+1; // index gets incremented at the top
 	    }
 	}
 	if (index > start) // get the last item
-	    v.addElement(ASCIIUtility.toString(buffer, start, index));
+	    v.add(ASCIIUtility.toString(buffer, start, index));
 	index++; // skip ')'
 	
 	int size = v.size();
-	if (size > 0) {
-	    String[] s = new String[size];
-	    v.copyInto(s);
-	    return s;
-	} else  // empty list
+	if (size > 0)
+	    return v.toArray(new String[size]);
+	else  // empty list
 	    return null;
     }
 

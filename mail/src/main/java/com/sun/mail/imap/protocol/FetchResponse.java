@@ -153,7 +153,7 @@ public class FetchResponse extends IMAPResponse {
 	    throw new ParsingException(
 		"error in FETCH parsing, missing '(' at index " + index);
 
-	Vector v = new Vector();
+	List<Item> v = new ArrayList<Item>();
 	Item i = null;
 	do {
 	    index++; // skip '(', or SPACE
@@ -164,15 +164,14 @@ public class FetchResponse extends IMAPResponse {
 
 	    i = parseItem();
 	    if (i != null)
-		v.addElement(i);
+		v.add(i);
 	    else if (!parseExtensionItem())
 		throw new ParsingException(
 		"error in FETCH parsing, unrecognized item at index " + index);
 	} while (buffer[index] != ')');
 
 	index++; // skip ')'
-	items = new Item[v.size()];
-	v.copyInto(items);
+	items = v.toArray(new Item[v.size()]);
     }
 
     /**

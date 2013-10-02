@@ -40,7 +40,8 @@
 
 package com.sun.mail.imap.protocol;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Date;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
@@ -128,21 +129,19 @@ public class ENVELOPE implements Item {
 		return null;
 	    }
 
-	    Vector v = new Vector();
+	    List<InternetAddress> v = new ArrayList<InternetAddress>();
 
 	    do {
 		IMAPAddress a = new IMAPAddress(r);
 		// if we see an end-of-group address at the top, ignore it
 		if (!a.isEndOfGroup())
-		    v.addElement(a);
+		    v.add(a);
 	    } while (r.peekByte() != ')');
 
 	    // skip the terminating ')' at the end of the addresslist
 	    r.skip(1);
 
-	    InternetAddress[] a = new InternetAddress[v.size()];
-	    v.copyInto(a);
-	    return a;
+	    return v.toArray(new InternetAddress[v.size()]);
 	} else if (b == 'N' || b == 'n') { // NIL
 	    r.skip(2); // skip 'NIL'
 	    return null;
@@ -182,11 +181,11 @@ class IMAPAddress extends InternetAddress {
 	    if (groupname == null)	// end of group list
 		return;
 	    // Accumulate a group list.  The members of the group
-	    // are accumulated in a Vector and the corresponding string
+	    // are accumulated in a List and the corresponding string
 	    // representation of the group is accumulated in a StringBuffer.
 	    StringBuffer sb = new StringBuffer();
 	    sb.append(groupname).append(':');
-	    Vector v = new Vector();
+	    List<InternetAddress> v = new ArrayList<InternetAddress>();
 	    while (r.peekByte() != ')') {
 		IMAPAddress a = new IMAPAddress(r);
 		if (a.isEndOfGroup())	// reached end of group
@@ -194,12 +193,11 @@ class IMAPAddress extends InternetAddress {
 		if (v.size() != 0)	// if not first element, need a comma
 		    sb.append(',');
 		sb.append(a.toString());
-		v.addElement(a);
+		v.add(a);
 	    }
 	    sb.append(';');
 	    address = sb.toString();
-	    grouplist = new IMAPAddress[v.size()];
-	    v.copyInto(grouplist);
+	    grouplist = v.toArray(new IMAPAddress[v.size()]);
 	} else {
 	    if (mb == null || mb.length() == 0)
 		address = host;

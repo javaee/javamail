@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,8 @@
 
 package com.sun.mail.imap.protocol;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import javax.mail.internet.ParameterList;
 import com.sun.mail.iap.*; 
 import com.sun.mail.util.PropUtil;
@@ -103,10 +104,10 @@ public class BODYSTRUCTURE implements Item {
 		System.out.println("DEBUG IMAP: parsing multipart");
 	    type = "multipart";
 	    processedType = MULTI;
-	    Vector v = new Vector(1);
+	    List<BODYSTRUCTURE> v = new ArrayList<BODYSTRUCTURE>(1);
 	    int i = 1;
 	    do {
-		v.addElement(new BODYSTRUCTURE(r));
+		v.add(new BODYSTRUCTURE(r));
 		/*
 		 * Even though the IMAP spec says there can't be any spaces
 		 * between parts, some servers erroneously put a space in
@@ -117,8 +118,7 @@ public class BODYSTRUCTURE implements Item {
 	    } while (r.peekByte() == '(');
 
 	    // setup bodies.
-	    bodies = new BODYSTRUCTURE[v.size()];
-	    v.copyInto(bodies);
+	    bodies = v.toArray(new BODYSTRUCTURE[v.size()]);
 
 	    subtype = r.readString(); // subtype
 	    if (parseDebug)
