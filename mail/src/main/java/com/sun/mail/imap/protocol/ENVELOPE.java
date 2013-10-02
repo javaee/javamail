@@ -118,6 +118,16 @@ public class ENVELOPE implements Item {
 
 	byte b = r.readByte();
 	if (b == '(') {
+	    /*
+	     * Some broken servers (e.g., Yahoo Mail) return an empty
+	     * list instead of NIL.  Handle that here even though it
+	     * doesn't conform to the IMAP spec.
+	     */
+	    if (r.peekByte() == ')') {
+		r.skip(1);
+		return null;
+	    }
+
 	    Vector v = new Vector();
 
 	    do {
