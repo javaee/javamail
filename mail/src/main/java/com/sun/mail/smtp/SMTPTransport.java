@@ -609,15 +609,9 @@ public class SMTPTransport extends Transport {
      */
     protected synchronized boolean protocolConnect(String host, int port,
 			String user, String passwd) throws MessagingException {
-	// setting mail.smtp.ehlo to false disables attempts to use EHLO
-	boolean useEhlo =  PropUtil.getBooleanSessionProperty(session,
-					"mail." + name + ".ehlo", true);
 	// setting mail.smtp.auth to true enables attempts to use AUTH
 	boolean useAuth = PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".auth", false);
-
-	if (logger.isLoggable(Level.FINE))
-	    logger.fine("useEhlo " + useEhlo + ", useAuth " + useAuth);
 
 	/*
 	 * If mail.smtp.auth is set, make sure we have a valid username
@@ -625,8 +619,16 @@ public class SMTPTransport extends Transport {
 	 * because the server doesn't support ESMTP or doesn't support
 	 * the AUTH extension).
 	 */
-	if (useAuth && (user == null || passwd == null))
+	if (useAuth && (user == null || passwd == null)) {
+	    logger.fine("need username and password for authentication");
 	    return false;
+	}
+
+	// setting mail.smtp.ehlo to false disables attempts to use EHLO
+	boolean useEhlo =  PropUtil.getBooleanSessionProperty(session,
+					"mail." + name + ".ehlo", true);
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("useEhlo " + useEhlo + ", useAuth " + useAuth);
 
 	/*
 	 * If port is not specified, set it to value of mail.smtp.port
@@ -790,6 +792,7 @@ public class SMTPTransport extends Transport {
 	 */
 	boolean authenticate(String host, String authzid,
 			String user, String passwd) throws MessagingException {
+	    Throwable thrown = null;
 	    try {
 		// use "initial response" capability, if supported
 		String ir = getInitialResponse(host, authzid, user, passwd);
@@ -818,6 +821,9 @@ public class SMTPTransport extends Transport {
 		    doAuth(host, authzid, user, passwd);
 	    } catch (IOException ex) {	// should never happen, ignore
 		logger.log(Level.FINE, "AUTH " + mech + " failed", ex);
+	    } catch (Throwable t) {	// crypto can't be initialized?
+		logger.log(Level.FINE, "AUTH " + mech + " failed", t);
+		thrown = t;
 	    } finally {
 		if (noauthdebug && isTracing())
 		    logger.fine("AUTH " + mech + " " +
@@ -825,6 +831,15 @@ public class SMTPTransport extends Transport {
 		resumeTracing();
 		if (resp != 235) {
 		    closeConnection();
+		    if (thrown != null) {
+			if (thrown instanceof Error)
+			    throw (Error)thrown;
+			if (thrown instanceof Exception)
+			    throw new AuthenticationFailedException(
+					    getLastServerResponse(),
+					    (Exception)thrown);
+			assert false : "unknown Throwable";	// can't happen
+		    }
 		    throw new AuthenticationFailedException(
 					    getLastServerResponse());
 		}
