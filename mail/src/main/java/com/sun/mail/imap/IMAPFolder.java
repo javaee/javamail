@@ -45,6 +45,7 @@ import java.util.Vector;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.io.*;
@@ -2872,6 +2873,31 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		messageCacheLock.wait();
 	    } catch (InterruptedException ex) { }
 	}
+    }
+
+    /**
+     * Send the IMAP ID command (if supported by the server) and return
+     * the result from the server.  The ID command identfies the client
+     * to the server and returns information about the server to the client.
+     * See <A HREF="http://www.ietf.org/rfc/rfc2971.txt">RFC 2971</A>.
+     * The returned Map is unmodifiable.
+     *
+     * @param	clientParams	a Map of keys and values identifying the client
+     * @return			a Map of keys and values identifying the server
+     * @exception MessagingException	if the server doesn't support the
+     *					ID extension
+     * @since	JavaMail 1.5.1
+     */
+    public Map<String, String> id(final Map<String, String> clientParams)
+				throws MessagingException {
+	checkOpened();
+	return (Map<String,String>)doOptionalCommand("ID not supported",
+	    new ProtocolCommand() {
+		public Object doCommand(IMAPProtocol p)
+			throws ProtocolException {
+		    return p.id(clientParams);
+		}
+	    });
     }
 
     /**

@@ -819,23 +819,15 @@ public class IMAPProtocol extends Protocol {
     /**
      * ID Command, for Yahoo! Mail IMAP server.
      *
-     * See <A HREF="http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access">
-     * http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access</A>
-     *
+     * @deprecated As of JavaMail 1.5.1, replaced by
+     *		{@link #id(Map<String,String>)}
      * @since JavaMail 1.4.4
      */
     public void id(String guid) throws ProtocolException {
-	/*
-	 * XXX - need to be able to write a string instead
-	 * of an astring for the following to work.
-	Argument garg = new Argument();
-	garg.writeString("GUID");
-	garg.writeString(guid);
-	Argument args = new Argument();
-	args.writeArgument(garg);
-	simpleCommand("ID", args);
-	 */
-	simpleCommand("ID (\"GUID\" \"" + guid + "\")", null);
+	// support this for now, but remove it soon
+	Map<String,String> gmap = new HashMap<String,String>();
+	gmap.put("GUID", guid);
+	id(gmap);
     }
 
     /**
@@ -2684,5 +2676,42 @@ public class IMAPProtocol extends Protocol {
 	} catch (IOException ex) {
 	    // nothing to do, hope to detect it again later
 	}
+    }
+
+    /**
+     * ID Command.
+     *
+     * @see "RFC 2971"
+     * @since	JavaMail 1.5.1
+     */
+    public Map<String, String> id(Map<String, String> clientParams)
+				throws ProtocolException {
+	if (!hasCapability("ID")) 
+	    throw new BadCommandException("ID not supported");
+
+	Response[] r = command("ID", ID.getArgumentList(clientParams));
+
+	ID id = null;
+	Response response = r[r.length-1];
+
+	// Grab ID response
+	if (response.isOK()) { // command succesful 
+	    for (int i = 0, len = r.length; i < len; i++) {
+		if (!(r[i] instanceof IMAPResponse))
+		    continue;
+
+		IMAPResponse ir = (IMAPResponse)r[i];
+		if (ir.keyEquals("ID")) {
+		    if (id == null)
+			id = new ID(ir);
+		    r[i] = null;
+		}
+	    }
+	}
+
+	// dispatch remaining untagged responses
+	notifyResponseHandlers(r);
+	handleResult(response);
+	return id == null ? null : id.getServerParams();
     }
 }

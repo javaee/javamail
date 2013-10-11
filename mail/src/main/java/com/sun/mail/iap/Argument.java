@@ -98,6 +98,39 @@ public class Argument {
     }
 
     /**
+     * Write out given string as an NSTRING, depending on the type
+     * of the characters inside the string. The string should
+     * contain only ASCII characters. <p>
+     *
+     * @param s  String to write out
+     * @since	JavaMail 1.5.1
+     */
+    public Argument writeNString(String s) {
+	if (s == null)
+	    items.add(new NString(null));
+	else
+	    items.add(new NString(ASCIIUtility.getBytes(s)));
+	return this;
+    }
+
+    /**
+     * Convert the given string into bytes in the specified
+     * charset, and write the bytes out as an NSTRING
+     *
+     * @since	JavaMail 1.5.1
+     */
+    public Argument writeNString(String s, String charset)
+		throws UnsupportedEncodingException {
+	if (s == null)
+	    items.add(new NString(null));
+	else if (charset == null) // convenience
+	    writeString(s);
+	else
+	    items.add(new NString(s.getBytes(charset)));
+	return this;
+    }
+
+    /**
      * Write out given byte[] as a Literal.
      * @param b  byte[] to write out
      */
@@ -180,6 +213,8 @@ public class Argument {
 		os.writeBytes(((Number)o).toString());
 	    } else if (o instanceof AString) {
 		astring(((AString)o).bytes, protocol);
+	    } else if (o instanceof NString) {
+		nstring(((NString)o).bytes, protocol);
 	    } else if (o instanceof byte[]) {
 		literal((byte[])o, protocol);
 	    } else if (o instanceof ByteArrayOutputStream) {
@@ -199,6 +234,23 @@ public class Argument {
      */
     private void astring(byte[] bytes, Protocol protocol) 
 			throws IOException, ProtocolException {
+	nastring(bytes, protocol, false);
+    }
+
+    /**
+     * Write out given String as either NIL, QuotedString, or Literal.
+     */
+    private void nstring(byte[] bytes, Protocol protocol) 
+			throws IOException, ProtocolException {
+	if (bytes == null) {
+	    DataOutputStream os = (DataOutputStream)protocol.getOutputStream();
+	    os.writeBytes("NIL");
+	} else
+	    nastring(bytes, protocol, true);
+    }
+
+    private void nastring(byte[] bytes, Protocol protocol, boolean doQuote) 
+			throws IOException, ProtocolException {
 	DataOutputStream os = (DataOutputStream)protocol.getOutputStream();
 	int len = bytes.length;
 
@@ -209,7 +261,7 @@ public class Argument {
 	}
 
         // if 0 length, send as quoted-string
-        boolean quote = len == 0 ? true: false;
+        boolean quote = len == 0 ? true : doQuote;
 	boolean escape = false;
  	
 	byte b;
@@ -313,6 +365,14 @@ class AString {
     byte[] bytes;
 
     AString(byte[] b) {
+	bytes = b;
+    }
+}
+
+class NString {
+    byte[] bytes;
+
+    NString(byte[] b) {
 	bytes = b;
     }
 }

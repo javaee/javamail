@@ -48,6 +48,8 @@ import java.io.PrintStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.logging.Level;
 
 import javax.mail.*;
@@ -69,6 +71,12 @@ import com.sun.mail.util.MailConnectException;
  * {@link #setQuota setQuota} methods support the IMAP QUOTA extension.
  * Refer to <A HREF="http://www.ietf.org/rfc/rfc2087.txt">RFC 2087</A>
  * for more information. <p>
+ *
+ * The {@link #id id} method supports the IMAP ID extension;
+ * see <A HREF="http://www.ietf.org/rfc/rfc2971.txt">RFC 2971</A>.
+ * The fields ID_NAME, ID_VERSION, etc. represent the suggested field names
+ * in RFC 2971 section 3.3 and may be used as keys in the Map containing
+ * client values or server values. <p>
  *
  * See the <a href="package-summary.html">com.sun.mail.imap</a> package
  * documentation for further information on the IMAP protocol provider. <p>
@@ -160,6 +168,18 @@ public class IMAPStore extends Store
      * response, if the mail.imap.enableimapevents property is set.
      */
     public static final int RESPONSE = 1000;
+
+    public static final String ID_NAME = "name";
+    public static final String ID_VERSION = "version";
+    public static final String ID_OS = "os";
+    public static final String ID_OS_VERSION = "os-version";
+    public static final String ID_VENDOR = "vendor";
+    public static final String ID_SUPPORT_URL = "support-url";
+    public static final String ID_ADDRESS = "address";
+    public static final String ID_DATE = "date";
+    public static final String ID_COMMAND = "command";
+    public static final String ID_ARGUMENTS = "arguments";
+    public static final String ID_ENVIRONMENT = "environment";
 
     protected final String name;	// name of this protocol
     protected final int defaultPort;	// default IMAP port
@@ -716,8 +736,12 @@ public class IMAPStore extends Store
 	preLogin(p);
 
 	// issue special ID command to Yahoo! Mail IMAP server
-	if (guid != null)
-	    p.id(guid);
+	// http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access
+	if (guid != null) {
+	    Map<String,String> gmap = new HashMap<String,String>();
+	    gmap.put("GUID", guid);
+	    p.id(gmap);
+	}
 
 	/*
 	 * Put a special "marker" in the capabilities list so we can
@@ -1960,6 +1984,40 @@ public class IMAPStore extends Store
 		pool.wait();
 	    } catch (InterruptedException ex) { }
 	}
+    }
+
+    /**
+     * Send the IMAP ID command (if supported by the server) and return
+     * the result from the server.  The ID command identfies the client
+     * to the server and returns information about the server to the client.
+     * See <A HREF="http://www.ietf.org/rfc/rfc2971.txt">RFC 2971</A>.
+     * The returned Map is unmodifiable.
+     *
+     * @param	clientParams	a Map of keys and values identifying the client
+     * @return			a Map of keys and values identifying the server
+     * @exception MessagingException	if the server doesn't support the
+     *					ID extension
+     * @since	JavaMail 1.5.1
+     */
+    public synchronized Map<String, String> id(Map<String, String> clientParams)
+				throws MessagingException {
+	checkConnected();
+	Map<String, String> serverParams = null;
+
+        IMAPProtocol p = null;
+	try {
+	    p = getStoreProtocol();
+	    serverParams = p.id(clientParams);
+	} catch (BadCommandException bex) {
+	    throw new MessagingException("ID not supported", bex);
+	} catch (ConnectionException cex) {
+	    throw new StoreClosedException(this, cex.getMessage());
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
+	} finally {
+	    releaseStoreProtocol(p);
+	}
+	return serverParams;
     }
 
     /**

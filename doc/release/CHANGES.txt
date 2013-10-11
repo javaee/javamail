@@ -31,6 +31,7 @@ K  6102	MimeMessage does not unfold address headers before parsing them
 K  6108	When using XGWTRUSTEDAPP mechanism, LOGIN should not be issued if no
 	authzid is specified
 K  6125	support empty IMAP ENVELOPE address list instead of NIL
+K  6137	JavaMail should support the IMAP ID extension
 
 
 		  CHANGES IN THE 1.5.0 RELEASE
