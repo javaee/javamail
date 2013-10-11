@@ -456,9 +456,11 @@ public class MailHandler extends Handler {
     private Filter pushFilter;
     /**
      * Holds the filters for each attachment.  Filters are optional for
-     * each attachment.
+     * each attachment.  This is declared volatile because this is treated as
+     * copy-on-write. VO_VOLATILE_REFERENCE_TO_ARRAY is a false positive.
      */
-    private Filter[] attachmentFilters;
+    @SuppressWarnings("VolatileArrayField")
+    private volatile Filter[] attachmentFilters;
     /**
      * Holds the formatters that create the content for each attachment.
      * Each formatter maps directly to an attachment.  The formatters
@@ -1416,12 +1418,13 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Gets the attachment filters under a lock.  The attachment filters
-     * are treated as copy-on-write, so the returned array must never be
-     * modified or published outside this class.
+     * Gets the attachment filters using a happens-before relationship between
+     * this method and setAttachmentFilters.  The attachment filters are treated
+     * as copy-on-write, so the returned array must never be modified or
+     * published outside this class.
      * @return a read only array of filters.
      */
-    private synchronized Filter[] readOnlyAttachmentFilters() {
+    private Filter[] readOnlyAttachmentFilters() {
         return this.attachmentFilters;
     }
 
@@ -1508,6 +1511,7 @@ public class MailHandler extends Handler {
      * @param len the new size.
      * @return new copy
      */
+    @SuppressWarnings("unchecked")
     private static <T> T[] copyOf(final T[] a, final int len) {
         return (T[]) copyOf(a, len, a.getClass());
     }
@@ -1520,6 +1524,7 @@ public class MailHandler extends Handler {
      * @param type the array type.
      * @return new copy
      */
+    @SuppressWarnings("unchecked")
     private static <T,U> T[] copyOf(U[] a, int len, Class<? extends T[]> type) {
         final T[] copy = (T[]) Array.newInstance(type.getComponentType(), len);
         System.arraycopy(a, 0, copy, 0, Math.min(len, a.length));
@@ -2770,7 +2775,7 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if level is null.
      * @since JavaMail 1.4.5
      */
-    private String descriptionFrom(Comparator c, Level l, Filter f) {
+    private String descriptionFrom(Comparator<?> c, Level l, Filter f) {
         return "Sorted using "+ (c == null ? "no comparator"
                 : c.getClass().getName()) + ", pushed when "+ l.getName()
                 + ", and " + (f == null ? "no push filter"
@@ -3057,8 +3062,8 @@ public class MailHandler extends Handler {
 
     private void setMailer(final Message msg) {
         try {
-            final Class mail = MailHandler.class;
-            final Class k = getClass();
+            final Class<?> mail = MailHandler.class;
+            final Class<?> k = getClass();
             String value;
             if (k == mail) {
                 value = mail.getName();
@@ -3407,6 +3412,7 @@ public class MailHandler extends Handler {
             } else if (source instanceof Class) {
                 loader = ((Class) source).getClassLoader();
             } else {
+                assert !(source instanceof Class) : source;
                 loader = source.getClass().getClassLoader();
             }
 

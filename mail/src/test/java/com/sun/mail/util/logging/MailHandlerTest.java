@@ -663,6 +663,8 @@ public class MailHandlerTest {
                 fail("Doesn't match the memory handler.");
             }
         }
+
+        assert instance != null;
         instance.setFilter((Filter) null);
 
 
@@ -1396,6 +1398,7 @@ public class MailHandlerTest {
             }
         }
 
+        assert em != null;
         for (int i = 0; i < em.exceptions.size(); i++) {
             Throwable t = em.exceptions.get(i);
             if (t instanceof MessagingException == false) {
@@ -2898,6 +2901,7 @@ public class MailHandlerTest {
         try {
             assertEquals(2, instance.getAttachmentFormatters().length);
             Filter[] filters = new Filter[]{null, null};
+            assert filters != null; //Suppress broken NPE hint with assert.
             assertEquals(instance.getAttachmentFormatters().length, filters.length);
             instance.setAttachmentFilters(filters);
         } catch (RuntimeException re) {
@@ -5470,36 +5474,36 @@ public class MailHandlerTest {
         final LogManager manager = LogManager.getLogManager();
         synchronized (manager) {
             try {
-                initGoodTest(MailHandler.class, new Class[0], new Object[0]);
-                initBadTest(MailHandler.class, new Class[0], new Object[0]);
+                initGoodTest(MailHandler.class, new Class<?>[0], new Object[0]);
+                initBadTest(MailHandler.class, new Class<?>[0], new Object[0]);
                 initGoodTest(MailHandler.class,
-                        new Class[]{Integer.TYPE}, new Object[]{10});
+                        new Class<?>[]{Integer.TYPE}, new Object[]{10});
                 initBadTest(MailHandler.class,
-                        new Class[]{Integer.TYPE}, new Object[]{100});
+                        new Class<?>[]{Integer.TYPE}, new Object[]{100});
                 initGoodTest(MailHandler.class,
-                        new Class[]{Properties.class},
+                        new Class<?>[]{Properties.class},
                         new Object[]{new Properties()});
                 initBadTest(MailHandler.class,
-                        new Class[]{Properties.class},
+                        new Class<?>[]{Properties.class},
                         new Object[]{new Properties()});
 
 
                 //Test subclass properties.
                 initGoodTest(MailHandlerExt.class,
-                        new Class[0], new Object[0]);
+                        new Class<?>[0], new Object[0]);
                 initBadTest(MailHandlerExt.class,
-                        new Class[0], new Object[0]);
+                        new Class<?>[0], new Object[0]);
 
                 initGoodTest(MailHandlerExt.class,
-                        new Class[]{Integer.TYPE}, new Object[]{10});
+                        new Class<?>[]{Integer.TYPE}, new Object[]{10});
                 initBadTest(MailHandlerExt.class,
-                        new Class[]{Integer.TYPE}, new Object[]{100});
+                        new Class<?>[]{Integer.TYPE}, new Object[]{100});
 
                 initGoodTest(MailHandlerExt.class,
-                        new Class[]{Properties.class},
+                        new Class<?>[]{Properties.class},
                         new Object[]{new Properties()});
                 initBadTest(MailHandlerExt.class,
-                        new Class[]{Properties.class},
+                        new Class<?>[]{Properties.class},
                         new Object[]{new Properties()});
             } finally {
                 manager.reset();
@@ -5520,7 +5524,7 @@ public class MailHandlerTest {
     }
 
     private void initGoodTest(Class<? extends MailHandler> type,
-            Class[] types, Object[] params) throws Exception {
+            Class<?>[] types, Object[] params) throws Exception {
 
         final String p = type.getName();
         Properties props = createInitProperties(p);
@@ -5618,7 +5622,7 @@ public class MailHandlerTest {
     }
 
     private void initBadTest(Class<? extends MailHandler> type,
-            Class[] types, Object[] params) throws Exception {
+            Class<?>[] types, Object[] params) throws Exception {
         final String encoding = System.getProperty("file.encoding", "8859_1");
         final PrintStream err = System.err;
         ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
@@ -5691,6 +5695,7 @@ public class MailHandlerTest {
             System.setErr(err);
         }
 
+        assert h != null;
         assertEquals(ErrorManager.class, h.getErrorManager().getClass());
         assertTrue(h.getCapacity() != 10);
         assertTrue(h.getCapacity() != -10);

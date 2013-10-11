@@ -47,8 +47,8 @@ import java.lang.reflect.Modifier;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
-import java.util.logging.Formatter;
 import java.util.logging.*;
+import java.util.logging.Formatter;
 import javax.mail.Authenticator;
 
 /**
@@ -369,7 +369,7 @@ final class LogManagerProperties extends Properties {
     private static Class<?> findClass(String name) throws ClassNotFoundException {
         ClassLoader[] loaders = getClassLoaders();
         assert loaders.length == 2 : loaders.length;
-        Class clazz;
+        Class<?> clazz;
         if (loaders[0] != null) {
             try {
                 clazz = Class.forName(name, false, loaders[0]);
@@ -573,7 +573,7 @@ final class LogManagerProperties extends Properties {
      * @return the property names
      */
     @Override
-    public Enumeration propertyNames() {
+    public Enumeration<?> propertyNames() {
         assert false;
         return super.propertyNames();
     }
