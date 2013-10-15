@@ -767,7 +767,7 @@ public class SMTPTransport extends Transport {
 
 	// if no authentication mechanism found, fail
 	throw new AuthenticationFailedException(
-	    "No authentication mechansims supported by both server and client");
+	    "No authentication mechanisms supported by both server and client");
     }
 
     /**
