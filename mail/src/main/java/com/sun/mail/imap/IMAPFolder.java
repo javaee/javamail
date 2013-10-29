@@ -2053,9 +2053,20 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		int[] matches = getProtocol().search(term);
 		if (matches != null) {
 		    matchMsgs = new IMAPMessage[matches.length];
+		    int size = messageCache.size();
 		    // Map seq-numbers into actual Messages.
-		    for (int i = 0; i < matches.length; i++)	
-			matchMsgs[i] = getMessageBySeqNumber(matches[i]);
+		    for (int i = 0; i < matches.length; i++) {
+			// Microsoft Exchange will sometimes return message
+			// numbers that it has not yet notified the client
+			// about via EXISTS; ignore those messages here.
+			if (matches[i] > size) {
+			    if (logger.isLoggable(Level.FINE))
+				logger.fine("ignoring message number " +
+				    matches[i] + " in search results, " +
+				    "outside range " + size);
+			} else
+			    matchMsgs[i] = getMessageBySeqNumber(matches[i]);
+		    }
 		}
 	    }
 	    return matchMsgs;
