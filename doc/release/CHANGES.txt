@@ -34,6 +34,7 @@ K  6125	support empty IMAP ENVELOPE address list instead of NIL
 K  6137	JavaMail should support the IMAP ID extension
 K  6141	Typo: "mechansims"
 K  6160	Exchange returns out of range message numbers for SEARCH
+K  6161	require extra permission to create default Session with SecurityManager
 
 
 		  CHANGES IN THE 1.5.0 RELEASE

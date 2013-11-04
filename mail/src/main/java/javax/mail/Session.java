@@ -287,7 +287,11 @@ public final class Session {
      * time the method is called. <p>
      *
      * Additional security Permission objects may be used to
-     * control access to the default session.
+     * control access to the default session. <p>
+     *
+     * In the current implementation, if a SecurityManager is set, the
+     * caller must have the <code>RuntimePermission("setFactory")</code>
+     * permission.
      *
      * @param	props	Properties object. Used only if a new Session
      *			object is created.<br>
@@ -305,9 +309,12 @@ public final class Session {
      */
     public static synchronized Session getDefaultInstance(Properties props,
 					Authenticator authenticator) {
-	if (defaultSession == null)
+	if (defaultSession == null) {
+	    SecurityManager security = System.getSecurityManager();
+	    if (security != null)
+		security.checkSetFactory();
 	    defaultSession = new Session(props, authenticator);
-	else {
+	} else {
 	    // have to check whether caller is allowed to see default session
 	    if (defaultSession.authenticator == authenticator)
 		;	// either same object or both null, either way OK
