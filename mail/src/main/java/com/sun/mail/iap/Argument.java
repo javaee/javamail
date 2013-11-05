@@ -280,6 +280,19 @@ public class Argument {
 	    }
 	}
 
+	/*
+	 * Make sure the (case-independent) string "NIL" is always quoted,
+	 * so as not to be confused with a real NIL (handled above in nstring).
+	 * This is more than is necessary, but it's rare to begin with and
+	 * this makes it safer than doing the test in nstring above in case
+	 * some code calls writeString when it should call writeNString.
+	 */
+	if (!quote && bytes.length == 3 &&
+		(bytes[0] == 'N' || bytes[0] == 'n') &&
+		(bytes[1] == 'I' || bytes[1] == 'i') &&
+		(bytes[2] == 'L' || bytes[2] == 'l'))
+	    quote = true;
+
 	if (quote) // start quote
 	    os.write('"');
 
