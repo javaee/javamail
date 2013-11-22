@@ -48,13 +48,13 @@
     <parent>
 	<groupId>com.sun.mail</groupId>
 	<artifactId>all</artifactId>
-	<version>1.5.1</version>
+	<version>1.5.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
     <artifactId>publish</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.1</version>
+    <version>1.5.2-SNAPSHOT</version>
     <name>JavaMail API publish project</name>
 
     <build>
@@ -89,44 +89,44 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
     <!--
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>demo</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>client</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>servlet</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>webapp</artifactId>
 	    <type>war</type>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>taglib</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>logging</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>outlook</artifactId>
-	    <version>1.5.1</version>
+	    <version>1.5.2-SNAPSHOT</version>
         </dependency>
     -->
     </dependencies>
