@@ -187,7 +187,7 @@
 				</group>
 			    </groups>
 			    <subpackages>
-javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util:com.sun.mail.util.logging:com.sun.mail.gimap
+javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com.sun.mail.util:com.sun.mail.gimap
 			    </subpackages>
 			    <!-- XXX - following should work, but doesn't -->
 			    <excludePackageNames>
