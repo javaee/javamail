@@ -59,6 +59,8 @@ public class MessageContext {
 
     /**
      * Create a MessageContext object describing the context of the given Part.
+     *
+     * @param	part	the Part
      */
     public MessageContext(Part part) {
 	this.part = part;

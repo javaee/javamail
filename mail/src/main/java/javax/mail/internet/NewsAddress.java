@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -169,7 +169,7 @@ public class NewsAddress extends Address {
      * hence is mail-safe.
      *
      * @param addresses	array of NewsAddress objects
-     * @exception   	ClassCastException, if any address object in the
+     * @exception   	ClassCastException if any address object in the
      *              	given array is not a NewsAddress objects. Note
      *              	that this is a RuntimeException.
      * @return	    	comma separated address strings

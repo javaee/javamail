@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -147,6 +147,9 @@ public class Rights implements Cloneable {
 	/**
 	 * Get a Right object representing the specified character.
 	 * Characters are assigned per RFC 2086.
+	 *
+	 * @param	right	the character representing the right
+	 * @return		the Right object
 	 */
 	public static synchronized Right getInstance(char right) {
 	    if ((int)right >= 128)
@@ -240,6 +243,7 @@ public class Rights implements Cloneable {
     /**
      * Check whether the specified right is present in this Rights object.
      *
+     * @param	right	the Right to check
      * @return 		true of the given right is present, otherwise false.
      */
     public boolean contains(Right right) {
@@ -250,6 +254,7 @@ public class Rights implements Cloneable {
      * Check whether all the rights in the specified Rights object are
      * present in this Rights object.
      *
+     * @param	rights	the Rights to check
      * @return	true if all rights in the given Rights object are present, 
      *		otherwise false.
      */

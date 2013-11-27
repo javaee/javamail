@@ -81,7 +81,7 @@ import java.util.*;
  * // Examine ALL system flags for this message
  * Flags flags = m.getFlags();
  * Flags.Flag[] sf = flags.getSystemFlags();
- * for (int i = 0; i < sf.length; i++) {
+ * for (int i = 0; i &lt; sf.length; i++) {
  *	if (sf[i] == Flags.Flag.DELETED)
  *            System.out.println("DELETED message");
  *	else if (sf[i] == Flags.Flag.SEEN)
@@ -299,6 +299,7 @@ public class Flags implements Cloneable, Serializable {
     /**
      * Check whether the specified system flag is present in this Flags object.
      *
+     * @param	flag	the flag to test
      * @return 		true of the given flag is present, otherwise false.
      */
     public boolean contains(Flag flag) {
@@ -308,6 +309,7 @@ public class Flags implements Cloneable, Serializable {
     /**
      * Check whether the specified user flag is present in this Flags object.
      *
+     * @param	flag	the flag to test
      * @return 		true of the given flag is present, otherwise false.
      */
     public boolean contains(String flag) {
@@ -321,6 +323,7 @@ public class Flags implements Cloneable, Serializable {
      * Check whether all the flags in the specified Flags object are
      * present in this Flags object.
      *
+     * @param	f	the flags to test
      * @return	true if all flags in the given Flags object are present, 
      *		otherwise false.
      */

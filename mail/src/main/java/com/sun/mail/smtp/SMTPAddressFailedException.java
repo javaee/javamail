@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -80,6 +80,8 @@ public class SMTPAddressFailedException extends SendFailedException {
 
     /**
      * Return the address that failed.
+     *
+     * @return	the address
      */
     public InternetAddress getAddress() {
 	return addr;
@@ -87,6 +89,8 @@ public class SMTPAddressFailedException extends SendFailedException {
 
     /**
      * Return the command that failed.
+     *
+     * @return	the command
      */
     public String getCommand() {
 	return cmd;
@@ -98,6 +102,8 @@ public class SMTPAddressFailedException extends SendFailedException {
      * reason for the failure.  See
      * <A HREF="http://www.ietf.org/rfc/rfc821.txt">RFC 821</A>
      * for interpretation of the return code.
+     *
+     * @return	the return code
      */
     public int getReturnCode() {
 	return rc;

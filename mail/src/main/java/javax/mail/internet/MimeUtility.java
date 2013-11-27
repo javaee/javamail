@@ -286,6 +286,8 @@ public class MimeUtility {
      * <code>DataHandler</code> uses a thread, a pair of pipe streams,
      * and the <code>writeTo</code> method to produce the data. <p>
      *
+     * @param	dh	the DataHandler
+     * @return	the Content-Transfer-Encoding
      * @since	JavaMail 1.2
      */
     public static String getEncoding(DataHandler dh) {
@@ -434,6 +436,7 @@ public class MimeUtility {
      *                          with uuencode)
      * @return                  output stream that applies the
      *                          specified encoding.
+     * @exception		MessagingException for unknown encodings
      * @since                   JavaMail 1.2
      */
     public static OutputStream encode(OutputStream os, String encoding,
@@ -522,6 +525,8 @@ public class MimeUtility {
      *		encoded are in the ASCII charset, otherwise "B" encoding
      *		is used.
      * @return	Unicode string containing only US-ASCII characters
+     * @exception       UnsupportedEncodingException if the charset
+     *			conversion failed.
      */
     public static String encodeText(String text, String charset,
 				    String encoding)
@@ -558,6 +563,7 @@ public class MimeUtility {
      * </pre></blockquote><p>
      *
      * @param	etext	the possibly encoded value
+     * @return	the decoded text
      * @exception       UnsupportedEncodingException if the charset
      *			conversion failed.
      */
@@ -819,6 +825,7 @@ public class MimeUtility {
      * fails, an UnsupportedEncodingException is thrown.<p>
      *
      * @param	eword	the encoded value
+     * @return	the decoded word
      * @exception       ParseException if the string is not an
      *			encoded-word as per RFC 2047 and RFC 2231.
      * @exception       UnsupportedEncodingException if the charset

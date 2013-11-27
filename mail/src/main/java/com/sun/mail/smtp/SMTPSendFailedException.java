@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -71,6 +71,10 @@ public class SMTPSendFailedException extends SendFailedException {
      * @param cmd	the command that was sent to the SMTP server
      * @param rc	the SMTP return code indicating the failure
      * @param err	the error string from the SMTP server
+     * @param ex	a chained exception
+     * @param vs	the valid addresses the message was sent to
+     * @param vus	the valid addresses the message was not sent to
+     * @param inv	the invalid addresses
      */
     public SMTPSendFailedException(String cmd, int rc, String err, Exception ex,
 				Address[] vs, Address[] vus, Address[] inv) {
@@ -81,6 +85,8 @@ public class SMTPSendFailedException extends SendFailedException {
 
     /**
      * Return the command that failed.
+     *
+     * @return	the command
      */
     public String getCommand() {
 	return cmd;
@@ -91,6 +97,8 @@ public class SMTPSendFailedException extends SendFailedException {
      * reason for the failure.  See
      * <A HREF="http://www.ietf.org/rfc/rfc821.txt">RFC 821</A>
      * for interpretation of the return code.
+     *
+     * @return	the return code
      */
     public int getReturnCode() {
 	return rc;

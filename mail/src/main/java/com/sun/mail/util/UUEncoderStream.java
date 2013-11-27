@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,8 +56,8 @@ public class UUEncoderStream extends FilterOutputStream {
     private int bufsize = 0;	// size of the cache
     private boolean wrotePrefix = false;
 
-    protected String name; 	// name of file
-    protected int mode;		// permissions mode
+    private String name; 	// name of file
+    private int mode;		// permissions mode
 
     /**
      * Create a UUencoder that encodes the specified input stream
@@ -93,6 +93,9 @@ public class UUEncoderStream extends FilterOutputStream {
      * Set up the buffer name and permission mode.
      * This method has any effect only if it is invoked before
      * you start writing into the output stream
+     *
+     * @param	name	the buffer name
+     * @param	mode	the permission mode
      */
     public void setNameMode(String name, int mode) {
 	this.name = name;

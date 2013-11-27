@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -164,6 +164,7 @@ public abstract class Folder {
      * does <em>not</em> include the password used to access the store.
      *
      * @return	the URLName representing this folder
+     * @exception	MessagingException for failures
      * @see	URLName
      * @since	JavaMail 1.1
      */
@@ -206,6 +207,7 @@ public abstract class Folder {
     /**
      * Returns the Store that owns this Folder object.
      * This method can be invoked on a closed Folder.
+     *
      * @return 		the Store
      */
     public Store getStore() {
@@ -221,6 +223,7 @@ public abstract class Folder {
      * returns a new distinct Folder object.
      *
      * @return		Parent folder
+     * @exception	MessagingException for failures
      */
     public abstract Folder getParent() throws MessagingException;
 
@@ -269,7 +272,7 @@ public abstract class Folder {
      * @see 		#listSubscribed
      * @exception 	FolderNotFoundException if this folder does 
      *			not exist.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public abstract Folder[] list(String pattern) throws MessagingException;
 
@@ -302,7 +305,7 @@ public abstract class Folder {
      * @see 		#list
      * @exception 	FolderNotFoundException if this folder does
      *			not exist.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public Folder[] listSubscribed(String pattern) throws MessagingException {
 	return list(pattern);
@@ -319,7 +322,7 @@ public abstract class Folder {
      * @see		#list
      * @exception 	FolderNotFoundException if this folder does
      *			not exist.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
 
     public Folder[] list() throws MessagingException {
@@ -338,7 +341,7 @@ public abstract class Folder {
      * @see		#listSubscribed
      * @exception 	FolderNotFoundException if this folder does
      *			not exist.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public Folder[] listSubscribed() throws MessagingException {
 	return listSubscribed("%");
@@ -389,7 +392,7 @@ public abstract class Folder {
      * @param  type	The type of this folder. 
      *
      * @return		true if the creation succeeds, else false.
-     * @exception 	MessagingException  
+     * @exception 	MessagingException for failures
      * @see 		#HOLDS_FOLDERS
      * @see		#HOLDS_MESSAGES
      * @see		javax.mail.event.FolderEvent
@@ -423,7 +426,7 @@ public abstract class Folder {
      *			not exist.
      * @exception 	MethodNotSupportedException if this store
      *			does not support subscription
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public void setSubscribed(boolean subscribe) 
 			throws MessagingException {
@@ -451,7 +454,7 @@ public abstract class Folder {
      * @return		true if the Store has new Messages
      * @exception	FolderNotFoundException if this folder does
      *			not exist.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public abstract boolean hasNewMessages() throws MessagingException;
 
@@ -473,7 +476,7 @@ public abstract class Folder {
      *
      * @param name 	name of the Folder
      * @return		Folder object
-     * @exception 	MessagingException
+     * @exception 	MessagingException for failures
      */
     public abstract Folder getFolder(String name)
 				throws MessagingException;
@@ -538,12 +541,13 @@ public abstract class Folder {
      * </ol>
      * </ul>
      *
+     * @param	recurse	also delete subfolders?
      * @return		true if the Folder is deleted successfully
      * @exception	FolderNotFoundException if this folder does 
      *			not exist
      * @exception	IllegalStateException if this folder is not in 
      *			the closed state.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see		javax.mail.event.FolderEvent
      */
     public abstract boolean delete(boolean recurse) 
@@ -563,7 +567,7 @@ public abstract class Folder {
      *			not exist
      * @exception	IllegalStateException if this folder is not in 
      *			the closed state.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see		javax.mail.event.FolderEvent
      */
     public abstract boolean renameTo(Folder f) throws MessagingException;
@@ -597,7 +601,7 @@ public abstract class Folder {
      *			not exist.
      * @exception	IllegalStateException if this folder is not in 
      *			the closed state.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see 		#READ_ONLY
      * @see 		#READ_WRITE
      * @see 		#getType()
@@ -615,7 +619,7 @@ public abstract class Folder {
      *
      * @param expunge	expunges all deleted messages if this flag is true
      * @exception	IllegalStateException if this folder is not opened
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see 		javax.mail.event.ConnectionEvent
      */
     public abstract void close(boolean expunge) throws MessagingException;
@@ -676,7 +680,7 @@ public abstract class Folder {
      *			invoked on a closed folder.
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      */
     public abstract int getMessageCount() throws MessagingException;
 
@@ -705,7 +709,7 @@ public abstract class Folder {
      *			invoked on a closed folder.
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      */
     public synchronized int getNewMessageCount() 
 			throws MessagingException {
@@ -751,7 +755,7 @@ public abstract class Folder {
      *			invoked on a closed folder.
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      */
     public synchronized int getUnreadMessageCount() 
 			throws MessagingException {
@@ -797,7 +801,7 @@ public abstract class Folder {
      *			invoked on a closed folder.
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @since		JavaMail 1.3
      */
     public synchronized int getDeletedMessageCount() throws MessagingException {
@@ -848,7 +852,7 @@ public abstract class Folder {
      * @exception	IllegalStateException if this folder is not opened
      * @exception	IndexOutOfBoundsException if the message number
      *			is out of range.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */
     public abstract Message getMessage(int msgnum)
 				throws MessagingException;
@@ -875,7 +879,7 @@ public abstract class Folder {
      * @exception	IllegalStateException if this folder is not opened.
      * @exception	IndexOutOfBoundsException if the start or end
      *			message numbers are out of range.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */ 
     public synchronized Message[] getMessages(int start, int end) 
 			throws MessagingException {
@@ -905,7 +909,7 @@ public abstract class Folder {
      * @exception	IllegalStateException if this folder is not opened.
      * @exception	IndexOutOfBoundsException if any message number
      *			in the given array is out of range.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */ 
     public synchronized Message[] getMessages(int[] msgnums)
 			throws MessagingException {
@@ -936,7 +940,7 @@ public abstract class Folder {
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
      * @exception	IllegalStateException if this folder is not opened.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      */ 
     public synchronized Message[] getMessages() throws MessagingException {
 	if (!isOpen())	// otherwise getMessageCount might return -1
@@ -988,7 +992,7 @@ public abstract class Folder {
      *  fp.add("X-mailer");
      *  folder.fetch(msgs, fp);
      *  
-     *  for (int i = 0; i < folder.getMessageCount(); i++) {
+     *  for (int i = 0; i &lt; folder.getMessageCount(); i++) {
      *      display(msg[i].getFrom());
      *      display(msg[i].getSubject());
      *      display(msg[i].getHeader("X-mailer"));
@@ -1003,7 +1007,7 @@ public abstract class Folder {
      * @param msgs	fetch items for these messages
      * @param fp	the FetchProfile
      * @exception	IllegalStateException if this folder is not opened
-     * @exception	MessagingException.
+     * @exception	MessagingException for other failures
      */
     public void fetch(Message[] msgs, FetchProfile fp)
 			throws MessagingException {
@@ -1033,7 +1037,7 @@ public abstract class Folder {
      * @param value	set the flags to this boolean value
      * @exception	IllegalStateException if this folder is not opened
      *			or if it has been opened READ_ONLY.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      * @see		Message#setFlags
      * @see		javax.mail.event.MessageChangedEvent
      */
@@ -1076,7 +1080,7 @@ public abstract class Folder {
      *			or if it has been opened READ_ONLY.
      * @exception	IndexOutOfBoundsException if the start or end
      *			message numbers are out of range.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      * @see		Message#setFlags
      * @see		javax.mail.event.MessageChangedEvent
      */
@@ -1118,7 +1122,7 @@ public abstract class Folder {
      *			or if it has been opened READ_ONLY.
      * @exception	IndexOutOfBoundsException if any message number
      *			in the given array is out of range.
-     * @exception 	MessagingException
+     * @exception 	MessagingException for other failures
      * @see		Message#setFlags
      * @see		javax.mail.event.MessageChangedEvent
      */
@@ -1159,7 +1163,7 @@ public abstract class Folder {
      * @exception	FolderNotFoundException if the destination
      *			folder does not exist.
      * @exception	IllegalStateException if this folder is not opened.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @see		#appendMessages
      */
     public void copyMessages(Message[] msgs, Folder folder)
@@ -1200,7 +1204,7 @@ public abstract class Folder {
      * @exception	FolderNotFoundException if this folder does not
      *			exist
      * @exception	IllegalStateException if this folder is not opened.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see		Message#isExpunged
      * @see		javax.mail.event.MessageCountEvent
      */
@@ -1224,7 +1228,7 @@ public abstract class Folder {
      * @exception	FolderNotFoundException if this folder does 
      *			not exist.
      * @exception	IllegalStateException if this folder is not opened.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see		javax.mail.search.SearchTerm
      */
     public Message[] search(SearchTerm term) throws MessagingException {
@@ -1257,7 +1261,7 @@ public abstract class Folder {
      * @exception       javax.mail.search.SearchException if the search 
      *			term is too complex for the implementation to handle.
      * @exception	IllegalStateException if this folder is not opened
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      * @see		javax.mail.search.SearchTerm
      */
     public Message[] search(SearchTerm term, Message[] msgs)
@@ -1490,6 +1494,8 @@ public abstract class Folder {
      * events from the queue and dispatches them to the registered
      * MessageCountListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	msgs	the messages that were added
      */
     protected void notifyMessageAddedListeners(Message[] msgs) { 
    	if (messageCountListeners == null)
@@ -1515,6 +1521,9 @@ public abstract class Folder {
      * events from the queue and dispatches them to the registered
      * MessageCountListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	removed	was the message removed by this client?
+     * @param	msgs	the messages that were removed
      */
     protected void notifyMessageRemovedListeners(boolean removed, 
 						 Message[] msgs) { 
@@ -1572,6 +1581,9 @@ public abstract class Folder {
      * events from the queue and dispatches them to registered
      * MessageChangedListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	type	the MessageChangedEvent type
+     * @param	msg	the message that changed
      */
     protected void notifyMessageChangedListeners(int type, Message msg) {
 	if (messageChangedListeners == null)

@@ -97,7 +97,9 @@ public class StoreClosedException extends MessagingException {
     }
 
     /**
-     * Returns the dead Store object 
+     * Returns the dead Store object.
+     *
+     * @return	the dead Store object
      */
     public Store getStore() {
 	return store;

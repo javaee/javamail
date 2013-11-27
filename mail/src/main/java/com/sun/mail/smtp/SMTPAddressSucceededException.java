@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -79,6 +79,8 @@ public class SMTPAddressSucceededException extends MessagingException {
 
     /**
      * Return the address that succeeded.
+     *
+     * @return	the address
      */
     public InternetAddress getAddress() {
 	return addr;
@@ -86,6 +88,8 @@ public class SMTPAddressSucceededException extends MessagingException {
 
     /**
      * Return the command that succeeded.
+     *
+     * @return	the command
      */
     public String getCommand() {
 	return cmd;
@@ -97,6 +101,8 @@ public class SMTPAddressSucceededException extends MessagingException {
      * reason for the success.  See
      * <A HREF="http://www.ietf.org/rfc/rfc821.txt">RFC 821</A>
      * for interpretation of the return code.
+     *
+     * @return	the return code
      */
     public int getReturnCode() {
 	return rc;

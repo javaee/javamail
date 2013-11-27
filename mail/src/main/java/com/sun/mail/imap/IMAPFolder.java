@@ -334,6 +334,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @param separator the default separator character for this 
      *			folder's namespace
      * @param store	the Store
+     * @param isNamespace if this folder represents a namespace
      */
     protected IMAPFolder(String fullName, char separator, IMAPStore store,
 				Boolean isNamespace) {
@@ -373,6 +374,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Constructor used to create an existing folder.
+     *
+     * @param	li	the ListInfo for this folder
+     * @param	store	the store containing this folder
      */
     protected IMAPFolder(ListInfo li, IMAPStore store) {
 	this(li.name, li.separator, store, null);
@@ -1239,6 +1243,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * method to fetch more data when FetchProfile.Item.ENVELOPE
      * is requested.
      *
+     * @return	the IMAP FETCH items to request
      * @since JavaMail 1.4.6
      */
     protected String getEnvelopeCommand() {
@@ -1250,6 +1255,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Subclasses of IMAPFolder may override this method to create a
      * subclass of IMAPMessage.
      *
+     * @param	msgnum	the message sequence number
+     * @return	the new IMAPMessage object
      * @since JavaMail 1.4.6
      */
     protected IMAPMessage newIMAPMessage(int msgnum) {
@@ -1343,6 +1350,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Close this folder without waiting for the server.
+     *
+     * @exception	MessagingException for failures
      */
     public synchronized void forceClose() throws MessagingException {
 	close(false, true);
@@ -1733,6 +1742,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * UIDPLUS extension -
      * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
      *
+     * @param	msgs	the messages to append
+     * @return		array of AppendUID objects
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.4
      */
     public synchronized AppendUID[] appendUIDMessages(Message[] msgs)
@@ -1792,6 +1804,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * UIDPLUS extension -
      * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
      *
+     * @param	msgs	the messages to add
+     * @return		the messages in this folder
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.4
      */
     public synchronized Message[] addMessages(Message[] msgs)
@@ -1867,6 +1882,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * UIDPLUS extension -
      * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
      *
+     * @param	msgs	the messages to copy
+     * @param	folder	the folder to copy the messages to
+     * @return		array of AppendUID objects
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.5.1
      */
     public synchronized AppendUID[] copyUIDMessages(Message[] msgs,
@@ -1977,6 +1996,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * Depends on the UIDPLUS extension -
      * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     *
+     * @param	msgs	the messages to expunge
+     * @return		the expunged messages
+     * @exception	MessagingException for failures
      */
     public synchronized Message[] expunge(Message[] msgs)
 				throws MessagingException {
@@ -2138,6 +2161,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Depends on the SORT extension -
      * <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>.
      *
+     * @param	term	the SortTerms
+     * @return		the messages in sorted order
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.4
      */
     public synchronized Message[] getSortedMessages(SortTerm[] term)
@@ -2154,6 +2180,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Depends on the SORT extension -
      * <A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>.
      *
+     * @param	term	the SortTerms
+     * @param	sterm	the SearchTerm
+     * @return		the messages in sorted order
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.4
      */
     public synchronized Message[] getSortedMessages(SortTerm[] term,
@@ -2248,6 +2278,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * should return this value when a folder is opened. <p>
      *
      * @return	the UIDNEXT value, or -1 if unknown
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.3.3
      */
     // Not a UIDFolder method, but still useful
@@ -2478,6 +2509,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Returns the HIGHESTMODSEQ for this folder.
      *
+     * @return	the HIGHESTMODSEQ value
+     * @exception	MessagingException for failures
      * @see "RFC 4551"
      * @since	JavaMail 1.5.1
      */
@@ -2515,6 +2548,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * The server must support the CONDSTORE extension.
      *
+     * @param	start	the first message number
+     * @param	end	the last message number
+     * @param	modseq	the MODSEQ value
+     * @return	the changed messages
+     * @exception	MessagingException for failures
      * @see "RFC 4551"
      * @since	JavaMail 1.5.1
      */
@@ -2730,6 +2768,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Get the attributes that the IMAP server returns with the
      * LIST response.
      *
+     * @return	array of attributes for this folder
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.3.3
      */
     public synchronized String[] getAttributes() throws MessagingException {
@@ -2772,6 +2812,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * IDLE command after the first notification, to allow the caller
      * to process any notification synchronously.
      *
+     * @param	once	only do one notification?
      * @exception MessagingException	if the server doesn't support the
      *					IDLE extension
      * @exception IllegalStateException	if the folder isn't open
@@ -3107,6 +3148,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * When acquiring a store protocol object, it is important to
      * use the following steps:
      *
+     * <blockquote><pre>
      *     IMAPProtocol p = null;
      *     try {
      *         p = getStoreProtocol();
@@ -3116,6 +3158,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *     } finally {
      *         releaseStoreProtocol(p);
      *     }
+     * </pre></blockquote>
+     *
+     * @return	the IMAPProtocol for the Store's connection
+     * @exception	ProtocolException for protocol errors
      */
     protected synchronized IMAPProtocol getStoreProtocol() 
             throws ProtocolException {
@@ -3125,6 +3171,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Throw the appropriate 'closed' exception.
+     *
+     * @param	cex	the ConnectionException
+     * @exception	FolderClosedException if the folder is closed
+     * @exception	StoreClosedException if the store is closed
      */
     protected synchronized void throwClosedException(ConnectionException cex) 
             throws FolderClosedException, StoreClosedException {
@@ -3149,6 +3199,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * command to finish.
      *
      * @return	the IMAPProtocol object used when the folder is open
+     * @exception	ProtocolException for protocol errors
      */
     protected IMAPProtocol getProtocol() throws ProtocolException {
 	assert Thread.holdsLock(messageCacheLock);
@@ -3163,6 +3214,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	/**
 	 * Execute the user-defined command using the supplied IMAPProtocol
 	 * object.
+	 *
+	 * @param	protocol	the IMAPProtocol for the connection
+	 * @return			the results of the command
+	 * @exception	ProtocolException for protocol errors
 	 */
 	public Object doCommand(IMAPProtocol protocol) throws ProtocolException;
     }
@@ -3207,7 +3262,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Here's a more complex example showing how to use the proposed
      * IMAP SORT extension: <p>
      *
-     * <pre><blockquote>
+     * <blockquote><pre>
      * import com.sun.mail.iap.*;
      * import com.sun.mail.imap.*;
      * import com.sun.mail.imap.protocol.*;
@@ -3231,7 +3286,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *	    // Grab response
      *	    Vector v = new Vector();
      *	    if (response.isOK()) { // command succesful 
-     *		for (int i = 0, len = r.length; i < len; i++) {
+     *		for (int i = 0, len = r.length; i &lt; len; i++) {
      *		    if (!(r[i] instanceof IMAPResponse))
      *			continue;
      *
@@ -3253,6 +3308,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *	}
      * });
      * </pre></blockquote>
+     *
+     * @param	cmd	the protocol command
+     * @return		the result of the command
+     * @exception	MessagingException for failures
      */
     public Object doCommand(ProtocolCommand cmd) throws MessagingException {
 	try {
@@ -3326,6 +3385,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Release the store protocol object.  If we borrowed a protocol
      * object from the connection pool, give it back.  If we used our
      * own protocol object, nothing to do.
+     *
+     * @param	p	the IMAPProtocol object
      */
     protected synchronized void releaseStoreProtocol(IMAPProtocol p) {
         if (p != protocol)
@@ -3341,6 +3402,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
+     *
+     * @param	returnToPool	return the protocol object to the pool?
      */
     protected void releaseProtocol(boolean returnToPool) {
         if (protocol != null) {
@@ -3363,6 +3426,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
+     *
+     * @param	keepStoreAlive	keep the Store alive too?
+     * @exception	ProtocolException for protocol errors
      */
     protected void keepConnectionAlive(boolean keepStoreAlive) 
                     throws ProtocolException {
@@ -3391,6 +3457,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * ASSERT: This method must be called only when holding the
      *  messageCacheLock
+     *
+     * @param	seqnum	the message sequence number
+     * @return	the IMAPMessage object
      */
     protected IMAPMessage getMessageBySeqNumber(int seqnum) {
 	return messageCache.getMessageBySeqnum(seqnum);

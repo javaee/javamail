@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -144,6 +144,8 @@ public class ContentType {
     /**
      * Return the specified parameter value. Returns <code>null</code>
      * if this parameter is absent.
+     *
+     * @param	name	the parameter name
      * @return	parameter value
      */
     public String getParameter(String name) {
@@ -240,6 +242,7 @@ public class ContentType {
      * and <strong>"text/*" </strong>
      *
      * @param   cType	ContentType to compare this against
+     * @return	true if it matches
      */
     public boolean match(ContentType cType) {
 	// Match primaryType
@@ -274,6 +277,9 @@ public class ContentType {
      * For example, this method will return <code>true</code> when 
      * comparing the ContentType for <strong>"text/plain"</strong> 
      * with <strong>"text/*" </strong>
+     *
+     * @param	s	the content-type string to match
+     * @return	true if it matches
      */
     public boolean match(String s) {
 	try {

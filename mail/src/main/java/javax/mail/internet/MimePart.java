@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -83,17 +83,20 @@ public interface MimePart extends Part {
      * @param delimiter		delimiter between fields in returned string
      * @return                  the value fields for all headers with 
      *				this name
-     * @exception       	MessagingException
+     * @exception       	MessagingException for failures
      */
     public String getHeader(String name, String delimiter)
 				throws MessagingException;
 
     /**
      * Add a raw RFC822 header-line. 
+     *
+     * @param	line	the line to add
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      * @exception	IllegalStateException if this Part is
      *			obtained from a READ_ONLY folder
+     * @exception       MessagingException for other failures
      */
     public void addHeaderLine(String line) throws MessagingException;
 
@@ -101,6 +104,9 @@ public interface MimePart extends Part {
      * Get all header lines as an Enumeration of Strings. A Header
      * line is a raw RFC822 header-line, containing both the "name" 
      * and "value" field. 
+     *
+     * @return	an Enumeration of Strings
+     * @exception	MessagingException for failures
      */
     public Enumeration getAllHeaderLines() throws MessagingException;
 
@@ -108,6 +114,10 @@ public interface MimePart extends Part {
      * Get matching header lines as an Enumeration of Strings. 
      * A Header line is a raw RFC822 header-line, containing both 
      * the "name" and "value" field.
+     *
+     * @param	names	the headers to return
+     * @return	an Enumeration of Strings
+     * @exception	MessagingException for failures
      */
     public Enumeration getMatchingHeaderLines(String[] names)
 			throws MessagingException;
@@ -116,6 +126,10 @@ public interface MimePart extends Part {
      * Get non-matching header lines as an Enumeration of Strings. 
      * A Header line is a raw RFC822 header-line, containing both 
      * the "name"  and "value" field.
+     *
+     * @param	names	the headers to not return
+     * @return	an Enumeration of Strings
+     * @exception	MessagingException for failures
      */
     public Enumeration getNonMatchingHeaderLines(String[] names)
 			throws MessagingException;
@@ -124,7 +138,7 @@ public interface MimePart extends Part {
      * Get the transfer encoding of this part.
      *
      * @return		content-transfer-encoding
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public String getEncoding() throws MessagingException;
 
@@ -132,6 +146,7 @@ public interface MimePart extends Part {
      * Get the Content-ID of this part. Returns null if none present.
      *
      * @return		content-ID
+     * @exception	MessagingException for failures
      */
     public String getContentID() throws MessagingException;
 
@@ -140,6 +155,7 @@ public interface MimePart extends Part {
      * none present.
      *
      * @return		content-MD5
+     * @exception	MessagingException for failures
      */
     public String getContentMD5() throws MessagingException;
 
@@ -159,6 +175,9 @@ public interface MimePart extends Part {
      * of this MimePart. The Content-Language header is defined by
      * RFC 1766. Returns <code>null</code> if this header is not
      * available.
+     *
+     * @return	array of content language strings
+     * @exception	MessagingException for failures
      */
     public String[] getContentLanguage() throws MessagingException;
 

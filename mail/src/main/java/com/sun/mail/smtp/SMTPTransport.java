@@ -146,6 +146,9 @@ public class SMTPTransport extends Transport {
     /**
      * Constructor that takes a Session object and a URLName
      * that represents a specific SMTP server.
+     *
+     * @param	session	the Session
+     * @param	urlname	the URLName of this transport
      */
     public SMTPTransport(Session session, URLName urlname) {
 	this(session, urlname, "smtp", false);
@@ -153,6 +156,11 @@ public class SMTPTransport extends Transport {
 
     /**
      * Constructor used by this class and by SMTPSSLTransport subclass.
+     *
+     * @param	session	the Session
+     * @param	urlname	the URLName of this transport
+     * @param	name	the protocol name of this transport
+     * @param	isSSL	use SSL to connect?
      */
     protected SMTPTransport(Session session, URLName urlname,
 				String name, boolean isSSL) {
@@ -224,6 +232,8 @@ public class SMTPTransport extends Transport {
      * Get the name of the local host, for use in the EHLO and HELO commands.
      * The property mail.smtp.localhost overrides mail.smtp.localaddress,
      * which overrides what InetAddress would tell us.
+     *
+     * @return	the local host name
      */
     public synchronized String getLocalHost() {
 	// get our hostname and cache it for future use
@@ -262,6 +272,7 @@ public class SMTPTransport extends Transport {
     /**
      * Set the name of the local host, for use in the EHLO and HELO commands.
      *
+     * @param	localhost	the local host name
      * @since JavaMail 1.3.1
      */
     public synchronized void setLocalHost(String localhost) {
@@ -274,6 +285,8 @@ public class SMTPTransport extends Transport {
      * command (RFC 2645) where an existing connection is used when
      * the server reverses roles and becomes the client.
      *
+     * @param	socket	the already connected socket
+     * @exception	MessagingException for failures
      * @since JavaMail 1.3.3
      */
     public synchronized void connect(Socket socket) throws MessagingException {
@@ -986,6 +999,14 @@ public class SMTPTransport extends Transport {
 
     /**
      * SASL-based login.
+     *
+     * @param	allowed	the allowed SASL mechanisms
+     * @param	realm	the SASL realm
+     * @param	authzid	the authorization ID
+     * @param	u	the user name for authentication
+     * @param	p	the password for authentication
+     * @return		true for success
+     * @exception	MessagingException for failures
      */
     public boolean sasllogin(String[] allowed, String realm, String authzid,
 				String u, String p) throws MessagingException {
@@ -1482,7 +1503,7 @@ public class SMTPTransport extends Transport {
      * Issue the <code>HELO</code> command.
      *
      * @param	domain	our domain
-     *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected void helo(String domain) throws MessagingException {
@@ -1498,7 +1519,7 @@ public class SMTPTransport extends Transport {
      *
      * @param	domain	our domain
      * @return		true if command succeeds
-     *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected boolean ehlo(String domain) throws MessagingException {
@@ -1553,6 +1574,7 @@ public class SMTPTransport extends Transport {
      * InternetAddress.getLocalAddress() method</li>
      * </ol>
      *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected void mailFrom() throws MessagingException {
@@ -1655,6 +1677,7 @@ public class SMTPTransport extends Transport {
      * Sets the <code>sendFailed</code>
      * flag to true if any addresses failed.
      *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     /*
@@ -1892,6 +1915,8 @@ public class SMTPTransport extends Transport {
      * Send the <code>DATA</code> command to the SMTP host and return
      * an OutputStream to which the data is to be written.
      *
+     * @return		the stream to write to
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected OutputStream data() throws MessagingException {
@@ -1904,6 +1929,8 @@ public class SMTPTransport extends Transport {
     /**
      * Terminate the sent data.
      *
+     * @exception	IOException for I/O errors
+     * @exception	MessagingException for other failures
      * @since JavaMail 1.4.1
      */
     protected void finishData() throws IOException, MessagingException {
@@ -1916,6 +1943,7 @@ public class SMTPTransport extends Transport {
      * Issue the <code>STARTTLS</code> command and switch the socket to
      * TLS mode if it succeeds.
      *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected void startTLS() throws MessagingException {
@@ -2085,7 +2113,7 @@ public class SMTPTransport extends Transport {
      *
      * @param	cmd	the command to send
      * @param	expect	the expected response code (-1 means don't care)
-     *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     public synchronized void issueCommand(String cmd, int expect)
@@ -2139,6 +2167,9 @@ public class SMTPTransport extends Transport {
      * Send the command to the server and return the response code
      * from the server.
      *
+     * @param	cmd	the command
+     * @return		the response code
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     public synchronized int simpleCommand(String cmd)
@@ -2151,6 +2182,9 @@ public class SMTPTransport extends Transport {
      * Send the command to the server and return the response code
      * from the server.
      *
+     * @param	cmd	the command
+     * @return		the response code
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected int simpleCommand(byte[] cmd) throws MessagingException {
@@ -2163,6 +2197,8 @@ public class SMTPTransport extends Transport {
      * Sends command <code>cmd</code> to the server terminating
      * it with <code>CRLF</code>.
      *
+     * @param	cmd	the command
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected void sendCommand(String cmd) throws MessagingException {
@@ -2189,7 +2225,7 @@ public class SMTPTransport extends Transport {
      * <code>lastServerResponse</code> and <code>lastReturnCode</code>.
      *
      * @return		server response code
-     *
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.1
      */
     protected int readServerResponse() throws MessagingException {
@@ -2360,7 +2396,8 @@ public class SMTPTransport extends Transport {
     /**
      * Convert a string to RFC 1891 xtext format.
      *
-     * <p><pre>
+     * <p>
+     * <pre>
      *     xtext = *( xchar / hexchar )
      *
      *     xchar = any ASCII CHAR between "!" (33) and "~" (126) inclusive,
@@ -2371,8 +2408,10 @@ public class SMTPTransport extends Transport {
      *
      *     hexchar = ASCII "+" immediately followed by two upper case
      *          hexadecimal digits
-     * </pre></p>
+     * </pre>
      *
+     * @param	s	the string to convert
+     * @return	the xtext format string
      * @since JavaMail 1.4.1
      */
     protected static String xtext(String s) {

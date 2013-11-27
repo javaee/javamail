@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -68,8 +68,10 @@ public class ConnectionEvent extends MailEvent  {
     private static final long serialVersionUID = -1855480171284792957L;
 
     /**
-     * Constructor
-     * @param source  The source object
+     * Construct a ConnectionEvent.
+     *
+     * @param	source  The source object
+     * @param	type	the event type
      */
     public ConnectionEvent(Object source, int type) {
 	super(source);

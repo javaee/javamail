@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -129,6 +129,7 @@ public interface UIDFolder {
      * UIDs are not stale.
      *
      * @return UIDValidity
+     * @exception	MessagingException for failures
      */
     public long getUIDValidity() throws MessagingException;
 
@@ -139,7 +140,7 @@ public interface UIDFolder {
      * @param uid	UID for the desired message
      * @return		the Message object. <code>null</code> is returned
      *			if no message corresponding to this UID is obtained.
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public Message getMessageByUID(long uid) throws MessagingException;
 
@@ -157,7 +158,7 @@ public interface UIDFolder {
      * @param start	start UID
      * @param end	end UID
      * @return		array of Message objects
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      * @see 		#LASTUID
      */
     public Message[] getMessagesByUID(long start, long end)
@@ -173,7 +174,7 @@ public interface UIDFolder {
      *
      * @param uids	array of UIDs
      * @return		array of Message objects
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public Message[] getMessagesByUID(long[] uids) 
 				throws MessagingException;
@@ -187,6 +188,7 @@ public interface UIDFolder {
      * @return		UID for this message
      * @exception	NoSuchElementException if the given Message
      *			is not in this Folder.
+     * @exception	MessagingException for other failures
      */
     public long getUID(Message message) throws MessagingException;
 }

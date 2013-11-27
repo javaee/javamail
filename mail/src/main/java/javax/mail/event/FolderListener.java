@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,16 +51,22 @@ import java.util.*;
 public interface FolderListener extends java.util.EventListener {
     /**
      * Invoked when a Folder is created.
+     *
+     * @param	e	the FolderEvent
      */
     public void folderCreated(FolderEvent e);
 
     /**
      * Invoked when a folder is deleted.
+     *
+     * @param	e	the FolderEvent
      */
     public void folderDeleted(FolderEvent e);
 
     /**
      * Invoked when a folder is renamed.
+     *
+     * @param	e	the FolderEvent
      */
     public void folderRenamed(FolderEvent e);
 }

@@ -98,6 +98,8 @@ public class FolderClosedException extends MessagingException {
 
     /**
      * Returns the dead Folder object
+     *
+     * @return	the dead Folder object
      */
     public Folder getFolder() {
 	return folder;

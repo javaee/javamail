@@ -74,6 +74,9 @@ public class ResyncData {
      * changes will be reported.  The application must check the
      * UIDVALIDITY of the folder after open to make sure it's
      * the expected folder.
+     *
+     * @param	uidvalidity	the UIDVALIDITY
+     * @param	modseq		the MODSEQ
      */
     public ResyncData(long uidvalidity, long modseq) {
 	this.uidvalidity = uidvalidity;
@@ -84,6 +87,11 @@ public class ResyncData {
     /**
      * Used to limit the reported message changes to those with UIDs
      * in the specified range.
+     *
+     * @param	uidvalidity	the UIDVALIDITY
+     * @param	modseq		the MODSEQ
+     * @param	uidFirst	the first UID
+     * @param	uidLast		the last UID
      */
     public ResyncData(long uidvalidity, long modseq,
 				long uidFirst, long uidLast) {
@@ -95,6 +103,10 @@ public class ResyncData {
     /**
      * Used to limit the reported message changes to those with the
      * specified UIDs.
+     *
+     * @param	uidvalidity	the UIDVALIDITY
+     * @param	modseq		the MODSEQ
+     * @param	uids		the UID values
      */
     public ResyncData(long uidvalidity, long modseq, long[] uids) {
 	this.uidvalidity = uidvalidity;
@@ -104,6 +116,8 @@ public class ResyncData {
 
     /**
      * Get the UIDVALIDITY value specified when this instance was created.
+     *
+     * @return	the UIDVALIDITY value
      */
     public long getUIDValidity() {
 	return uidvalidity;
@@ -111,6 +125,8 @@ public class ResyncData {
 
     /**
      * Get the MODSEQ value specified when this instance was created.
+     *
+     * @return	the MODSEQ value
      */
     public long getModSeq() {
 	return modseq;

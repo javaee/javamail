@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,11 +65,23 @@ public abstract class StringTerm extends SearchTerm {
 
     private static final long serialVersionUID = 1274042129007696269L;
 
+    /**
+     * Construct a StringTerm with the given pattern.
+     * Case will be ignored.
+     *
+     * @param	pattern		the pattern
+     */
     protected StringTerm(String pattern) {
 	this.pattern = pattern;
 	ignoreCase = true;
     }
 
+    /**
+     * Construct a StringTerm with the given pattern and ignoreCase flag.
+     *
+     * @param	pattern		the pattern
+     * @param	ignoreCase	should we ignore case?
+     */
     protected StringTerm(String pattern, boolean ignoreCase) {
 	this.pattern = pattern;
 	this.ignoreCase = ignoreCase;
@@ -77,6 +89,8 @@ public abstract class StringTerm extends SearchTerm {
 
     /**
      * Return the string to match with.
+     *
+     * @return	the string to match
      */
     public String getPattern() {
 	return pattern;
@@ -84,6 +98,8 @@ public abstract class StringTerm extends SearchTerm {
 
     /**
      * Return true if we should ignore case when matching.
+     *
+     * @return	true if we should ignore case
      */
     public boolean getIgnoreCase() {
 	return ignoreCase;

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -79,7 +79,8 @@ public abstract class Store extends Service {
      * the default namespace presented to the user by the Store.
      *
      * @return the root Folder
-     * @exception IllegalStateException if this Store is not connected.
+     * @exception	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
      */
     public abstract Folder getDefaultFolder() throws MessagingException;
 
@@ -100,6 +101,7 @@ public abstract class Store extends Service {
      *			relative to the 'root' of this namespace.
      * @return		Folder object
      * @exception 	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
      * @see 		Folder#exists
      * @see		Folder#create
      */
@@ -116,9 +118,10 @@ public abstract class Store extends Service {
      * URLName, and use that name to create the folder.
      * 
      * @param url	URLName that denotes a folder
-     * @see 		URLName
-     * @exception 	IllegalStateException if this Store is not connected.
      * @return		Folder object
+     * @exception 	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
+     * @see 		URLName
      */
     public abstract Folder getFolder(URLName url)
 			throws MessagingException;
@@ -137,8 +140,9 @@ public abstract class Store extends Service {
      * the return value of the <code>getDefaultFolder</code> method.
      * Subclasses should override this method to return appropriate information.
      *
-     * @exception 	IllegalStateException if this Store is not connected.
      * @return		array of Folder objects
+     * @exception 	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
      * @since		JavaMail 1.2
      */
     public Folder[] getPersonalNamespaces() throws MessagingException {
@@ -157,8 +161,10 @@ public abstract class Store extends Service {
      * This implementation returns an empty array.  Subclasses should
      * override this method to return appropriate information.
      *
-     * @exception 	IllegalStateException if this Store is not connected.
+     * @param	user	the user name
      * @return		array of Folder objects
+     * @exception 	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
      * @since		JavaMail 1.2
      */
     public Folder[] getUserNamespaces(String user)
@@ -176,6 +182,7 @@ public abstract class Store extends Service {
      * override this method to return appropriate information.
      *
      * @exception 	IllegalStateException if this Store is not connected.
+     * @exception 	MessagingException for other failures
      * @return		array of Folder objects
      * @since		JavaMail 1.2
      */
@@ -224,6 +231,9 @@ public abstract class Store extends Service {
      * events from the queue and dispatches them to the registered
      * StoreListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	type	the StoreEvent type
+     * @param	message	a message for the StoreEvent
      */
     protected void notifyStoreListeners(int type, String message) {
    	if (storeListeners == null)

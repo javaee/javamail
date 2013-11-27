@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,6 +56,8 @@ public class MessageHeaders extends MimeMessage {
 
     /**
      * Construct a MessageHeaders object.
+     *
+     * @exception	MessagingException for failures
      */
     public MessageHeaders() throws MessagingException {
 	super((Session)null);
@@ -66,6 +68,7 @@ public class MessageHeaders extends MimeMessage {
      * Constructs a MessageHeaders object from the given InputStream.
      *
      * @param	is	InputStream
+     * @exception	MessagingException for failures
      */
     public MessageHeaders(InputStream is) throws MessagingException {
 	super(null, is);
@@ -76,6 +79,7 @@ public class MessageHeaders extends MimeMessage {
      * Constructs a MessageHeaders object using the given InternetHeaders.
      *
      * @param	headers	InternetHeaders to use
+     * @exception	MessagingException for failures
      */
     public MessageHeaders(InternetHeaders headers) throws MessagingException {
 	super((Session)null);

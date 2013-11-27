@@ -412,6 +412,9 @@ public class IMAPStore extends Store
     /**
      * Constructor that takes a Session object and a URLName that
      * represents a specific IMAP server.
+     *
+     * @param	session	the Session
+     * @param	url	the URLName of this store
      */
     public IMAPStore(Session session, URLName url) {
 	this(session, url, "imap", false);
@@ -419,6 +422,11 @@ public class IMAPStore extends Store
 
     /**
      * Constructor used by this class and by IMAPSSLStore subclass.
+     *
+     * @param	session	the Session
+     * @param	url	the URLName of this store
+     * @param	name	the protocol name for this store
+     * @param	isSSL	use SSL?
      */
     protected IMAPStore(Session session, URLName url,
 				String name, boolean isSSL) {
@@ -703,6 +711,11 @@ public class IMAPStore extends Store
      * Subclasses of IMAPStore may override this method to return a
      * subclass of IMAPProtocol that supports product-specific extensions.
      *
+     * @param	host	the host name
+     * @param	port	the port number
+     * @return		the new IMAPProtocol object
+     * @exception	IOException for I/O errors
+     * @exception	ProtocolException for protocol errors
      * @since JavaMail 1.4.6
      */
     protected IMAPProtocol newIMAPProtocol(String host, int port)
@@ -803,6 +816,8 @@ public class IMAPStore extends Store
      *
      * The implementation of this method in this class does nothing.
      *
+     * @param	p	the IMAPProtocol connection
+     * @exception	ProtocolException for protocol errors
      * @since JavaMail 1.4.4
      */
     protected void preLogin(IMAPProtocol p) throws ProtocolException {
@@ -831,6 +846,7 @@ public class IMAPStore extends Store
      *
      * Most applications will never need to use this method.
      *
+     * @param	user	the user name for the store
      * @since	JavaMail 1.3.3
      */
     public synchronized void setUsername(String user) {
@@ -845,6 +861,7 @@ public class IMAPStore extends Store
      *
      * Most applications will never need to use this method.
      *
+     * @param	password	the password for the store
      * @since	JavaMail 1.3.3
      */
     public synchronized void setPassword(String password) {
@@ -1366,6 +1383,9 @@ public class IMAPStore extends Store
      * Return true if the specified capability string is in the list
      * of capabilities the server announced.
      *
+     * @param	capability	the capability string
+     * @return			true if the server supports this capability
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.3.3
      */
     public synchronized boolean hasCapability(String capability)
@@ -1384,7 +1404,7 @@ public class IMAPStore extends Store
     /**
      * Set the user name to be used with the PROXYAUTH command.
      * The PROXYAUTH user name can also be set using the
-     * <code>mail.imap.proxyauth.user<code> property when this
+     * <code>mail.imap.proxyauth.user</code> property when this
      * Store is created.
      *
      * @param	user	the user name to set
@@ -1632,6 +1652,11 @@ public class IMAPStore extends Store
     /**
      * Create an IMAPFolder object.  If user supplied their own class,
      * use it.  Otherwise, call the constructor.
+     *
+     * @param	fullName the full name of the folder
+     * @param	separator the separator character for the folder hierarchy
+     * @param	isNamespace does this name represent a namespace?
+     * @return		the new IMAPFolder object
      */
     protected IMAPFolder newIMAPFolder(String fullName, char separator,
 				Boolean isNamespace) {
@@ -1654,6 +1679,10 @@ public class IMAPStore extends Store
     /**
      * Create an IMAPFolder object.  Call the newIMAPFolder method
      * above with a null isNamespace.
+     *
+     * @param	fullName the full name of the folder
+     * @param	separator the separator character for the folder hierarchy
+     * @return		the new IMAPFolder object
      */
     protected IMAPFolder newIMAPFolder(String fullName, char separator) {
 	return newIMAPFolder(fullName, separator, null);
@@ -1662,6 +1691,9 @@ public class IMAPStore extends Store
     /**
      * Create an IMAPFolder object.  If user supplied their own class,
      * use it.  Otherwise, call the constructor.
+     *
+     * @param	li	the ListInfo for the folder
+     * @return		the new IMAPFolder object
      */
     protected IMAPFolder newIMAPFolder(ListInfo li) {
 	IMAPFolder f = null;

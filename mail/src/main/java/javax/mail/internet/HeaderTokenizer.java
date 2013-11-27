@@ -105,7 +105,7 @@ public class HeaderTokenizer {
 	 * one of the following:
 	 * <ul>
 	 * <li><code>ATOM</code> A sequence of ASCII characters 
-	 *	delimited by either SPACE, CTL, "(", <"> or the 
+	 *	delimited by either SPACE, CTL, "(", &lt;"&gt; or the 
 	 *	specified SPECIALS
 	 * <li><code>QUOTEDSTRING</code> A sequence of ASCII characters
 	 *	within quotes
@@ -113,6 +113,8 @@ public class HeaderTokenizer {
 	 *	within "(" and ")".
 	 * <li><code>EOF</code> End of header
 	 * </ul>
+	 *
+	 * @return	the token type
 	 */
 	public int getType() {
 	    return type;
@@ -186,6 +188,8 @@ public class HeaderTokenizer {
      * Constructor. The RFC822 defined delimiters - RFC822 - are
      * used to delimit ATOMS. Also comments are skipped and not
      * returned as tokens
+     *
+     * @param	header	the header string
      */
     public HeaderTokenizer(String header)  {
 	this(header, RFC822);

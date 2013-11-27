@@ -196,7 +196,7 @@ public class POP3Folder extends Folder {
      * folder is named "INBOX".
      *
      * @exception	FolderNotFoundException	if not INBOX
-     * @exception	AuthenticationException	authentication failures
+     * @exception	AuthenticationFailedException	authentication failures
      * @exception	MessagingException	other open failures
      */
     public synchronized void open(int mode) throws MessagingException {
@@ -449,8 +449,9 @@ public class POP3Folder extends Folder {
      * Return the unique ID string for this message, or null if
      * not available.  Uses the POP3 UIDL command.
      *
+     * @param	msg	the message
      * @return          unique ID string
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public synchronized String getUID(Message msg) throws MessagingException {
 	checkOpen();
@@ -477,6 +478,7 @@ public class POP3Folder extends Folder {
      *
      * @return		folder size
      * @exception	IllegalStateException	if the folder isn't open
+     * @exception	MessagingException for other failures
      */
     public synchronized int getSize() throws MessagingException {
 	checkOpen();
@@ -490,6 +492,7 @@ public class POP3Folder extends Folder {
      *
      * @return		array of message sizes
      * @exception	IllegalStateException	if the folder isn't open
+     * @exception	MessagingException for other failures
      * @since		JavaMail 1.3.3
      */
     public synchronized int[] getSizes() throws MessagingException {
@@ -531,6 +534,8 @@ public class POP3Folder extends Folder {
      *
      * @return		InputStream containing results
      * @exception	IllegalStateException	if the folder isn't open
+     * @exception	IOException for I/O errors talking to the server
+     * @exception	MessagingException for other errors
      * @since		JavaMail 1.3.3
      */
     public synchronized InputStream listCommand()

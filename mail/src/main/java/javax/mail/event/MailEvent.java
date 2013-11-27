@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,11 @@ import java.util.EventObject;
 public abstract class MailEvent extends EventObject {
     private static final long serialVersionUID = 1846275636325456631L;
 
+    /**
+     * Construct a MailEvent referring to the given source.
+     *
+     * @param	source	the source of the event
+     */
     public MailEvent(Object source) {
         super(source);
     }
@@ -58,6 +63,8 @@ public abstract class MailEvent extends EventObject {
     /**
      * This method invokes the appropriate method on a listener for
      * this event. Subclasses provide the implementation.
+     *
+     * @param	listener	the listener to invoke on
      */
     public abstract void dispatch(Object listener);
 }

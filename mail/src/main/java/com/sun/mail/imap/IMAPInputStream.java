@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -74,6 +74,11 @@ public class IMAPInputStream extends InputStream {
 
     /**
      * Create an IMAPInputStream.
+     *
+     * @param	msg	the IMAPMessage the data will come from
+     * @param	section	the IMAP section/part identifier for the data
+     * @param	max	the number of bytes in this section
+     * @param	peek	peek instead of fetch?
      */
     public IMAPInputStream(IMAPMessage msg, String section, int max,
 				boolean peek) {

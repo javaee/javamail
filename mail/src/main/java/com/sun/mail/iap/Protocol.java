@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -415,7 +415,8 @@ public class Protocol {
 
     /**
      * Get the name of the local host.
-     * The property <prefix>.localhost overrides <prefix>.localaddress,
+     * The property &lt;prefix&gt;.localhost overrides
+     * &lt;prefix&gt;.localaddress,
      * which overrides what InetAddress would tell us.
      */
     protected synchronized String getLocalHost() {

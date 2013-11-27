@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -83,18 +83,21 @@ public class AddressException extends ParseException {
      * Constructs an AddressException with the specified detail message
      * and reference info.
      *
-     * @param s		the detail message
+     * @param	s	the detail message
+     * @param	ref	the string being parsed
      */
-
     public AddressException(String s, String ref) {
 	super(s);
 	this.ref = ref;
     }
+
     /**
      * Constructs an AddressException with the specified detail message
      * and reference info.
      *
-     * @param s		the detail message
+     * @param	s	the detail message
+     * @param	ref	the string being parsed
+     * @param	pos	the position of the error
      */
     public AddressException(String s, String ref, int pos) {
 	super(s);
@@ -105,6 +108,8 @@ public class AddressException extends ParseException {
     /**
      * Get the string that was being parsed when the error was detected
      * (null if not relevant).
+     *
+     * @return	the string that was being parsed
      */
     public String getRef() {
 	return ref;
@@ -113,6 +118,8 @@ public class AddressException extends ParseException {
     /**
      * Get the position with the reference string where the error was
      * detected (-1 if not relevant).
+     *
+     * @return	the position within the string of the error
      */
     public int getPos() {
 	return pos;

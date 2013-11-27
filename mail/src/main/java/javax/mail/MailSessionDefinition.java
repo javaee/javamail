@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,7 +51,7 @@ import java.lang.annotation.Target;
  * by setting the annotation elements for commonly used <code>Session</code>
  * properties.  Additional standard and vendor-specific properties may be
  * specified using the <code>properties</code> element.
- * <p/>
+ * <p>
  * The session will be registered under the name specified in the
  * <code>name</code> element.  It may be defined to be in any valid
  * <code>Java EE</code> namespace, and will determine the accessibility of
@@ -65,41 +65,57 @@ public @interface MailSessionDefinition {
 
     /**
      * Description of this mail session.
+     *
+     * @return	the description
      */
     String description() default "";
 
     /**
      * JNDI name by which the mail session will be registered.
+     *
+     * @return	the JNDI name
      */
     String name();
 
     /**
      * Store protocol name.
+     *
+     * @return	the store protocol name
      */
     String storeProtocol() default "";
 
     /**
      * Transport protocol name.
+     *
+     * @return	the transport protocol name
      */
     String transportProtocol() default "";
 
     /**
      * Host name for the mail server.
+     *
+     * @return	the host name
      */
     String host() default "";
 
     /**
      * User name to use for authentication.
+     *
+     * @return	the user name
      */
     String user() default "";
 
     /**
      * Password to use for authentication.
+     *
+     * @return	the password
      */
     String password() default "";
 
     /**
      * From address for the user.
+     *
+     * @return	the from address
      */
     String from() default "";
 
@@ -107,6 +123,8 @@ public @interface MailSessionDefinition {
      * Properties to include in the Session.
      * Properties are specified using the format:
      * <i>propertyName=propertyValue</i> with one property per array element.
+     *
+     * @return	the properties
      */
     String[] properties() default {};
 }

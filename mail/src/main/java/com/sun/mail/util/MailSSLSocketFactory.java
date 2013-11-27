@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -88,7 +88,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
     /**
      * Initializes a new MailSSLSocketFactory.
      * 
-     * @throws  GeneralSecurityException
+     * @throws  GeneralSecurityException for security errors
      */
     public MailSSLSocketFactory() throws GeneralSecurityException {
 	this("TLS");
@@ -100,6 +100,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
      * 
      * @param   protocol  The protocol to use
      * @throws  NoSuchAlgorithmException if given protocol is not supported
+     * @throws  GeneralSecurityException for security errors
      */
     public MailSSLSocketFactory(String protocol)
 				throws GeneralSecurityException {
@@ -124,6 +125,8 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
      * Gets an SSLSocketFactory based on the given (or default)
      * KeyManager array, TrustManager array and SecureRandom and
      * sets it to the instance var adapteeFactory.
+     *
+     * @throws	KeyManagementException for key manager errors
      */
     private synchronized void newAdapteeFactory()
 				throws KeyManagementException {
@@ -142,6 +145,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 
     /**
      * @param keyManagers the keyManagers to set
+     * @throws  GeneralSecurityException for security errors
      */
     public synchronized void setKeyManagers(KeyManager[] keyManagers)
 				throws GeneralSecurityException  {
@@ -158,6 +162,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 
     /**
      * @param secureRandom the secureRandom to set
+     * @throws  GeneralSecurityException for security errors
      */
     public synchronized void setSecureRandom(SecureRandom secureRandom)
 				throws GeneralSecurityException  {
@@ -174,6 +179,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 
     /**
      * @param trustManagers the trustManagers to set
+     * @throws  GeneralSecurityException for security errors
      */
     public synchronized void setTrustManagers(TrustManager[] trustManagers)
 				throws GeneralSecurityException {

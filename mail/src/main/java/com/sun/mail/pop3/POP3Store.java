@@ -383,6 +383,7 @@ public class POP3Store extends Store {
      * <code>if (store.capabilities().containsKey("STLS")) ...</code>
      *
      * @return	Map of capabilities
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.4.3
      */
     public Map capabilities() throws MessagingException {

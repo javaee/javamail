@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -146,6 +146,8 @@ public class FetchProfile {
 
 	/**
 	 * Constructor for an item.  The name is used only for debugging.
+	 *
+	 * @param	name	the item name
 	 */
 	protected Item(String name) {
 	    this.name = name;
@@ -195,14 +197,20 @@ public class FetchProfile {
     }
 
     /**
-     * Returns true if the fetch profile contains given special item.
+     * Returns true if the fetch profile contains the given special item.
+     *
+     * @param	item	the Item to test
+     * @return true if the fetch profile contains the given special item
      */
     public boolean contains(Item item) { 
    	return specials != null && specials.contains(item);
     }
 
     /**
-     * Returns true if the fetch profile contains given header name.
+     * Returns true if the fetch profile contains the given header name.
+     *
+     * @param	headerName	the header to test
+     * @return	true if the fetch profile contains the given header name
      */
     public boolean contains(String headerName) { 
    	return headers != null && headers.contains(headerName);

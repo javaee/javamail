@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -103,6 +103,7 @@ public abstract class Multipart {
      * a specific multipart subtype. 
      * 
      * @param	mp	Multipart datasource
+     * @exception       MessagingException for failures
      */
     protected synchronized void setMultipartDataSource(MultipartDataSource mp)
 			throws MessagingException {
@@ -130,6 +131,7 @@ public abstract class Multipart {
      * Return the number of enclosed BodyPart objects. <p>
      *
      * @return		number of parts
+     * @exception       MessagingException for failures
      * @see		#parts
      */
     public synchronized int getCount() throws MessagingException {
@@ -146,7 +148,7 @@ public abstract class Multipart {
      * @return		the Part
      * @exception       IndexOutOfBoundsException if the given index
      *			is out of range.
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      */
     public synchronized BodyPart getBodyPart(int index)
 				throws MessagingException {
@@ -182,12 +184,12 @@ public abstract class Multipart {
      * Shifts all the parts after the removed part down one.
      *
      * @param   index	Index of the part to remove
-     * @exception	MessagingException
      * @exception       IndexOutOfBoundsException if the given index
      *			is out of range.
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      *			of existing values
+     * @exception	MessagingException for other failures
      */
     public synchronized void removeBodyPart(int index)
 				throws MessagingException {
@@ -204,10 +206,10 @@ public abstract class Multipart {
      * the list of existing Parts.
      *
      * @param  part  The Part to be appended
-     * @exception       MessagingException
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      *			of existing values
+     * @exception       MessagingException for other failures
      */
     public synchronized void addBodyPart(BodyPart part) 
 		throws MessagingException {
@@ -227,10 +229,10 @@ public abstract class Multipart {
      *
      * @param  part  The BodyPart to be inserted
      * @param  index Location where to insert the part
-     * @exception       MessagingException
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      *			of existing values
+     * @exception       MessagingException for other failures
      */
     public synchronized void addBodyPart(BodyPart part, int index) 
 				throws MessagingException {
@@ -247,8 +249,9 @@ public abstract class Multipart {
      * appropriate encoding algorithm to be used. The bytestream
      * is typically used for sending.
      * 
+     * @param	os	the stream to write to
      * @exception       IOException if an IO related exception occurs
-     * @exception       MessagingException
+     * @exception       MessagingException for other failures
      */
     public abstract void writeTo(OutputStream os) 
 		throws IOException, MessagingException;
@@ -256,6 +259,8 @@ public abstract class Multipart {
     /**
      * Return the <code>Part</code> that contains this <code>Multipart</code>
      * object, or <code>null</code> if not known.
+     *
+     * @return	the parent Part
      * @since	JavaMail 1.1
      */
     public synchronized Part getParent() {
@@ -269,6 +274,8 @@ public abstract class Multipart {
      * <code>parent</code> may be <code>null</code> if the
      * <code>Multipart</code> is being removed from its containing
      * <code>Part</code>.
+     *
+     * @param	parent	the parent Part
      * @since	JavaMail 1.1
      */
     public synchronized void setParent(Part parent) {

@@ -155,7 +155,7 @@ import com.sun.mail.util.MailLogger;
  *
  * These resource files map transport address types to the transport
  * protocol.  The <code>getType</code> method of
- * </code>javax.mail.Address</code> returns the address type.  The
+ * <code>javax.mail.Address</code> returns the address type.  The
  * <code>javamail.address.map</code> file maps the transport type to the
  * protocol.  The file format is a series of name-value pairs.  Each key
  * name should correspond to an address type that is currently installed
@@ -519,7 +519,7 @@ public final class Session {
      * appropriate Store object cannot be obtained, 
      * NoSuchProviderException is thrown.
      *
-     * @param	        protocol
+     * @param	        protocol	the Store protocol
      * @return		a Store object 
      * @exception	NoSuchProviderException If a provider for the given
      *			protocol is not found.
@@ -647,6 +647,7 @@ public final class Session {
      * If an appropriate Transport object cannot be obtained, null is
      * returned.
      *
+     * @param	protocol the Transport protocol
      * @return 		a Transport object 
      * @exception	NoSuchProviderException If provider for the given
      *			protocol is not found.
@@ -694,7 +695,7 @@ public final class Session {
      * Get a Transport object that can transport a Message of the
      * specified address type.
      *
-     * @param	address
+     * @param	address	an address for which a Transport is needed
      * @return	A Transport object
      * @see javax.mail.Address
      * @exception	NoSuchProviderException If provider for the 
@@ -824,6 +825,9 @@ public final class Session {
      * This is normally used only by the store or transport implementations
      * to allow authentication information to be shared among multiple
      * uses of a session.
+     *
+     * @param	url	the URLName
+     * @param	pw	the PasswordAuthentication to save
      */
     public void setPasswordAuthentication(URLName url,
 					  PasswordAuthentication pw) {
@@ -837,6 +841,7 @@ public final class Session {
      * Return any saved PasswordAuthentication for this (store or transport)
      * URLName.  Normally used only by store or transport implementations.
      *
+     * @param	url	the URLName
      * @return	the PasswordAuthentication corresponding to the URLName
      */
     public PasswordAuthentication getPasswordAuthentication(URLName url) {
@@ -855,6 +860,7 @@ public final class Session {
      * </pre>
      *
      * @param	addr		InetAddress of the host.  may be null.
+     * @param	port		the port on the host
      * @param	protocol	protocol scheme (e.g. imap, pop3, etc.)
      * @param	prompt		any additional String to show as part of
      *                          the prompt; may be null.
@@ -887,6 +893,7 @@ public final class Session {
      * Returns the value of the specified property. Returns null
      * if this property does not exist.
      *
+     * @param	name	the property name
      * @return		String that is the property value
      */
     public String getProperty(String name) { 

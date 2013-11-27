@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -53,6 +53,8 @@ public abstract class Report {
     /**
      * Construct a report of the indicated MIME subtype.
      * The primary MIME type is always "message".
+     *
+     * @param	type	the MIME subtype
      */
     protected Report(String type) {
 	this.type = type;
@@ -61,6 +63,8 @@ public abstract class Report {
     /**
      * Get the MIME subtype of the report.
      * The primary MIME type is always "message".
+     *
+     * @return	the MIME subtype
      */
     public String getType() {
 	return type;

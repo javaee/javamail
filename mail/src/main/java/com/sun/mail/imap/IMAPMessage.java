@@ -128,6 +128,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
     /**
      * Constructor.
+     *
+     * @param	folder	the folder containing this message
+     * @param	msgnum	the message sequence number
      */
     protected IMAPMessage(IMAPFolder folder, int msgnum) {
 	super(folder, msgnum);
@@ -136,6 +139,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
     /**
      * Constructor, for use by IMAPNestedMessage.
+     *
+     * @param	session	the Session
      */
     protected IMAPMessage(Session session) {
 	super(session);
@@ -147,6 +152,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * is not available.
      *
      * ASSERT: Must hold the messageCacheLock.
+     *
+     * @return	the IMAPProtocol object for the containing folder
+     * @exception	ProtocolException for protocol errors
+     * @exception	FolderClosedException if the folder is closed
      */
     protected IMAPProtocol getProtocol()
 			    throws ProtocolException, FolderClosedException {
@@ -174,6 +183,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get the messageCacheLock, associated with this Message's
      * Folder.
+     *
+     * @return	the message cache lock object
      */
     protected Object getMessageCacheLock() {
 	return ((IMAPFolder)folder).messageCacheLock;
@@ -184,6 +195,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * ASSERT: This method must be called only when holding the
      * 	messageCacheLock.
+     *
+     * @return	the message sequence number
      */
     protected int getSequenceNumber() {
 	return ((IMAPFolder)folder).messageCache.seqnumOf(getMessageNumber());
@@ -217,6 +230,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Returns -1 if not known.
      *
      * @return	the modification sequence number
+     * @exception	MessagingException for failures
      * @see	"RFC 4551"
      * @since	JavaMail 1.5.1
      */
@@ -263,6 +277,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Do a NOOP to force any untagged EXPUNGE responses
      * and then check if this message is expunged.
+     *
+     * @exception	MessageRemovedException if the message has been removed
+     * @exception	FolderClosedException if the folder has been closed
      */
     protected void forceCheckExpunged()
 			throws MessageRemovedException, FolderClosedException {
@@ -490,6 +507,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get the In-Reply-To header.
      *
+     * @return	the In-Reply-To header
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.3.3
      */
     public String getInReplyTo() throws MessagingException {
@@ -974,6 +993,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Set whether or not to use the PEEK variant of FETCH when
      * fetching message content.
      *
+     * @param	peek	the peek flag
      * @since	JavaMail 1.3.3
      */
     public synchronized void setPeek(boolean peek) {
@@ -984,6 +1004,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Get whether or not to use the PEEK variant of FETCH when
      * fetching message content.
      *
+     * @return	the peek flag
      * @since	JavaMail 1.3.3
      */
     public synchronized boolean getPeek() {
@@ -1031,6 +1052,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	/**
 	 * Create a FetchProfileCondition to determine if we need to fetch
 	 * any of the information specified in the FetchProfile.
+	 *
+	 * @param	fp	the FetchProfile
+	 * @param	fitems	the FETCH items
 	 */
 	public FetchProfileCondition(FetchProfile fp, FetchItem[] fitems) {
 	    if (fp.contains(FetchProfile.Item.ENVELOPE))
@@ -1093,6 +1117,11 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * ASSERT: Must hold the messageCacheLock.
      *
+     * @param	item	the fetch item
+     * @param	hdrs	the headers we're asking for
+     * @param	allHeaders load all headers?
+     * @return		did we handle this fetch item?
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
     protected boolean handleFetchItem(Item item,
@@ -1187,6 +1216,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * ASSERT: Must hold the messageCacheLock.
      *
+     * @param	extensionItems	the Map to add fetch items to
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
     protected void handleExtensionFetchItems(Map extensionItems)
@@ -1203,6 +1234,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * to store this item in the message before this method
      * returns.
      *
+     * @param	fitem	the FetchItem
+     * @return		the data associated with the FetchItem
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
     protected Object fetchItem(FetchItem fitem)
@@ -1254,6 +1288,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * method to fetch it.  Returns null if there is no
      * data for the FetchItem.
      *
+     * @param	fitem	the FetchItem
+     * @return		the data associated with the FetchItem
+     * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
     public synchronized Object getItem(FetchItem fitem)

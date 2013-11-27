@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -67,6 +67,8 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
      * Create a PreencodedMimeBodyPart that assumes the data is
      * encoded using the specified encoding.  The encoding must
      * be a MIME supported Content-Transfer-Encoding.
+     *
+     * @param	encoding	the Content-Transfer-Encoding
      */
     public PreencodedMimeBodyPart(String encoding) {
 	this.encoding = encoding;
@@ -83,10 +85,10 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
     /**
      * Output the body part as an RFC 822 format stream.
      *
-     * @exception MessagingException
      * @exception IOException	if an error occurs writing to the
      *				stream or if an error is generated
      *				by the javax.activation layer.
+     * @exception MessagingException for other failures
      * @see javax.activation.DataHandler#writeTo
      */
     public void writeTo(OutputStream os)

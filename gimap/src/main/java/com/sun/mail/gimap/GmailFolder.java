@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -132,6 +132,7 @@ public class GmailFolder extends IMAPFolder {
      * @param separator the default separator character for this 
      *			folder's namespace
      * @param store	the Store
+     * @param isNamespace does this name represent a namespace?
      */
     protected GmailFolder(String fullName, char separator, IMAPStore store,
 				Boolean isNamespace) {
@@ -140,6 +141,9 @@ public class GmailFolder extends IMAPFolder {
 
     /**
      * Constructor used to create an existing folder.
+     *
+     * @param	li	the ListInfo for this folder
+     * @param	store	the store containing this folder
      */
     protected GmailFolder(ListInfo li, IMAPStore store) {
 	super(li, store);

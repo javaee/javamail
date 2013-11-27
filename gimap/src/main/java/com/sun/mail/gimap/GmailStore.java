@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -63,6 +63,9 @@ public class GmailStore extends IMAPStore {
     /**
      * Constructor that takes a Session object and a URLName that
      * represents a specific IMAP server.
+     *
+     * @param	session	the Session
+     * @param	url	the URLName of this store
      */
     public GmailStore(Session session, URLName url) {
 	this(session, url, "gimap", true);
@@ -70,6 +73,11 @@ public class GmailStore extends IMAPStore {
 
     /**
      * Constructor used by GmailSSLStore subclass.
+     *
+     * @param	session	the Session
+     * @param	url	the URLName of this store
+     * @param	name	the protocol name
+     * @param	isSSL	use SSL to connect?
      */
     protected GmailStore(Session session, URLName url,
                                 String name, boolean isSSL) {

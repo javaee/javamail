@@ -70,6 +70,9 @@ public class Namespaces {
 
 	/**
 	 * Parse a namespace element out of the response.
+	 *
+	 * @param	r	the Response to parse
+	 * @exception	ProtocolException	for any protocol errors
 	 */
 	public Namespace(Response r) throws ProtocolException {
 	    // Namespace_Element = "(" string SP (<"> QUOTED_CHAR <"> / nil)
@@ -132,6 +135,9 @@ public class Namespaces {
 
     /**
      * Parse out all the namespaces.
+     *
+     * @param	r	the Response to parse
+     * @throws	ProtocolException	for any protocol errors
      */
     public Namespaces(Response r) throws ProtocolException {
 	personal = getNamespaces(r);

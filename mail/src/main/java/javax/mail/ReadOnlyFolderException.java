@@ -95,7 +95,9 @@ public class ReadOnlyFolderException extends MessagingException {
     }
 
     /**
-     * Returns the dead Folder object.
+     * Returns the Folder object.
+     *
+     * @return	the Folder
      * @since 		JavaMail 1.2
      */
     public Folder getFolder() {

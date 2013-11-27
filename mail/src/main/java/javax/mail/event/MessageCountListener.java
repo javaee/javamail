@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,11 +51,15 @@ import java.util.*;
 public interface MessageCountListener extends java.util.EventListener {
     /**
      * Invoked when messages are added into a folder.
+     *
+     * @param	e	the MessageCountEvent
      */
     public void messagesAdded(MessageCountEvent e);
 
     /**
      * Invoked when messages are removed (expunged) from a folder.
+     *
+     * @param	e	the MessageCountEvent
      */
     public void messagesRemoved(MessageCountEvent e);
 }

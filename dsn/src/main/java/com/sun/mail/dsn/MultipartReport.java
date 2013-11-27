@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -76,6 +76,8 @@ public class MultipartReport extends MimeMultipart {
 
     /**
      * Construct a multipart/report object with no content.
+     *
+     * @exception	MessagingException for failures
      */
     public MultipartReport() throws MessagingException {
 	super("report");
@@ -91,6 +93,10 @@ public class MultipartReport extends MimeMultipart {
      * Construct a multipart/report object with the specified plain
      * text and report type (DeliveryStatus or DispositionNotification)
      * to be returned to the user.
+     *
+     * @param	text	the plain text
+     * @param	report	the Report object
+     * @exception	MessagingException for failures
      */
     public MultipartReport(String text, Report report)
 				throws MessagingException {
@@ -112,6 +118,11 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Construct a multipart/report object with the specified plain
      * text, report, and original message to be returned to the user.
+     *
+     * @param	text	the plain text
+     * @param	report	the Report object
+     * @param	msg	the message this report is about
+     * @exception	MessagingException for failures
      */
     public MultipartReport(String text, Report report, MimeMessage msg)
 				throws MessagingException {
@@ -127,6 +138,11 @@ public class MultipartReport extends MimeMultipart {
      * Construct a multipart/report object with the specified plain
      * text, report, and headers from the original message
      * to be returned to the user.
+     *
+     * @param	text	the plain text
+     * @param	report	the Report object
+     * @param	hdr	the headers of the message this report is about
+     * @exception	MessagingException for failures
      */
     public MultipartReport(String text, Report report, InternetHeaders hdr)
 				throws MessagingException {
@@ -143,6 +159,7 @@ public class MultipartReport extends MimeMultipart {
      * given DataSource. <p>
      *
      * @param	ds	DataSource, can be a MultipartDataSource
+     * @exception	MessagingException for failures
      */
     public MultipartReport(DataSource ds) throws MessagingException {
 	super(ds);
@@ -166,6 +183,9 @@ public class MultipartReport extends MimeMultipart {
      * and contains a text/plain part, the text from that part is
      * returned.  Otherwise, null is return and the {@link #getTextBodyPart
      * getTextBodyPart} method may be used to extract the data.
+     *
+     * @return	the text
+     * @exception	MessagingException for failures
      */
     public synchronized String getText() throws MessagingException {
 	try {
@@ -189,6 +209,9 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Set the message to be presented to the user as just a text/plain
      * part containing the specified text.
+     *
+     * @param	text	the text
+     * @exception	MessagingException for failures
      */
     public synchronized void setText(String text) throws MessagingException {
 	MimeBodyPart mbp = new MimeBodyPart();
@@ -199,6 +222,9 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Return the body part containing the message to be presented to
      * the user, usually just a text/plain part.
+     *
+     * @return	the body part containing the text
+     * @exception	MessagingException for failures
      */
     public synchronized MimeBodyPart getTextBodyPart()
 				throws MessagingException {
@@ -211,6 +237,9 @@ public class MultipartReport extends MimeMultipart {
      * a text/html part or a multipart/alternative part containing
      * text/plain and text/html parts.  Any type is allowed here
      * but these types are most common.
+     *
+     * @param	mbp	the body part containing the text
+     * @exception	MessagingException for failures
      */
     public synchronized void setTextBodyPart(MimeBodyPart mbp)
 				throws MessagingException {
@@ -220,6 +249,8 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Get the report associated with this multipart/report.
      *
+     * @return	the Report object
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.4.2
      */
     public synchronized Report getReport() throws MessagingException {
@@ -239,6 +270,8 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Set the report associated with this multipart/report.
      *
+     * @param	report	the Report object
+     * @exception	MessagingException for failures
      * @since	JavaMail 1.4.2
      */
     public synchronized void setReport(Report report)
@@ -256,6 +289,8 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Get the delivery status associated with this multipart/report.
      *
+     * @return	the delivery status
+     * @exception	MessagingException for failures
      * @deprecated	use getReport instead
      */
     public synchronized DeliveryStatus getDeliveryStatus()
@@ -276,6 +311,8 @@ public class MultipartReport extends MimeMultipart {
     /**
      * Set the delivery status associated with this multipart/report.
      *
+     * @param	status the deliver status
+     * @exception	MessagingException for failures
      * @deprecated	use setReport instead
      */
     public synchronized void setDeliveryStatus(DeliveryStatus status)
@@ -293,6 +330,9 @@ public class MultipartReport extends MimeMultipart {
      * multipart/report.  If no original message is included, null is
      * returned.  In some cases only the headers of the original
      * message will be returned as an object of type MessageHeaders.
+     *
+     * @return	the returned message
+     * @exception	MessagingException for failures
      */
     public synchronized MimeMessage getReturnedMessage()
 				throws MessagingException {
@@ -314,6 +354,9 @@ public class MultipartReport extends MimeMultipart {
      * Set the original message to be returned as part of the
      * multipart/report.  If msg is null, any previously set
      * returned message or headers is removed.
+     *
+     * @param	msg	the returned message
+     * @exception	MessagingException for failures
      */
     public synchronized void setReturnedMessage(MimeMessage msg)
 				throws MessagingException {

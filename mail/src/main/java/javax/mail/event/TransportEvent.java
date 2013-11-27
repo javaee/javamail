@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -86,16 +86,27 @@ public class TransportEvent extends MailEvent {
      */
     protected int type;
 
+    /** The valid address to which the message was sent. */
     transient protected Address[] validSent;
+    /** The valid address to which the message was not sent. */
     transient protected Address[] validUnsent;
+    /** The invalid addresses. */
     transient protected Address[] invalid;
+    /** The Message to which this event applies. */
     transient protected Message msg;
 
     private static final long serialVersionUID = -4729852364684273073L;
 
     /**
      * Constructor.
-     * @param transport  The Transport object
+     *
+     * @param	transport The Transport object
+     * @param	type	the event type (MESSAGE_DELIVERED, etc.)
+     * @param	validSent the valid addresses to which the message was sent
+     * @param	validUnsent the valid addresses to which the message was
+     *				not sent
+     * @param	invalid	the invalid addresses
+     * @param	msg	the message being sent
      */
     public TransportEvent(Transport transport, int type, Address[] validSent,
 			  Address[] validUnsent, Address[] invalid,

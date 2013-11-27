@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -113,7 +113,7 @@ public abstract class Transport extends Service {
      * @param	msg	the message to send
      * @exception	SendFailedException if the message could not
      *			be sent to some or any of the recipients.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @see		Message#saveChanges
      * @see		Message#getAllRecipients
      * @see		#send(Message, Address[])
@@ -134,7 +134,7 @@ public abstract class Transport extends Service {
      * @param	addresses the addresses to which to send the message
      * @exception	SendFailedException if the message could not
      *			be sent to some or any of the recipients.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @see		Message#saveChanges
      * @see             #send(Message)
      * @see		javax.mail.SendFailedException
@@ -161,7 +161,7 @@ public abstract class Transport extends Service {
      * @param	password this user's password
      * @exception	SendFailedException if the message could not
      *			be sent to some or any of the recipients.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @see		Message#saveChanges
      * @see             #send(Message)
      * @see		javax.mail.SendFailedException
@@ -189,7 +189,7 @@ public abstract class Transport extends Service {
      * @param	password this user's password
      * @exception	SendFailedException if the message could not
      *			be sent to some or any of the recipients.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @see		Message#saveChanges
      * @see             #send(Message)
      * @see		javax.mail.SendFailedException
@@ -405,6 +405,12 @@ public abstract class Transport extends Service {
      * events from the queue and dispatches them to the registered
      * TransportListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	type	the TransportEvent type
+     * @param	validSent valid addresses to which message was sent
+     * @param	validUnsent valid addresses to which message was not sent
+     * @param	invalid the invalid addresses
+     * @param	msg	the message
      */
     protected void notifyTransportListeners(int type, Address[] validSent,
 					    Address[] validUnsent,

@@ -61,6 +61,9 @@ import com.sun.mail.gimap.protocol.*;
 public class GmailMessage extends IMAPMessage {
     /**
      * Constructor.
+     *
+     * @param	folder	the containing folder
+     * @param	msgnum	the message sequence number
      */
     protected GmailMessage(IMAPFolder folder, int msgnum) {
 	super(folder, msgnum);
@@ -68,6 +71,8 @@ public class GmailMessage extends IMAPMessage {
 
     /**
      * Constructor, for use by IMAPNestedMessage.
+     *
+     * @param	session	the Session
      */
     protected GmailMessage(Session session) {
 	super(session);
@@ -75,6 +80,9 @@ public class GmailMessage extends IMAPMessage {
 
     /**
      * Return the Gmail unique message ID.
+     *
+     * @return	the message ID
+     * @exception	MessagingException for failures
      */
     public long getMsgId() throws MessagingException {
 	Long msgid = (Long)getItem(GmailProtocol.MSGID_ITEM);
@@ -86,6 +94,9 @@ public class GmailMessage extends IMAPMessage {
 
     /**
      * Return the Gmail unique thread ID.
+     *
+     * @return	the thread ID
+     * @exception	MessagingException for failures
      */
     public long getThrId() throws MessagingException {
 	Long thrid = (Long)getItem(GmailProtocol.THRID_ITEM);
@@ -99,6 +110,7 @@ public class GmailMessage extends IMAPMessage {
      * Return the Gmail labels associated with this message.
      *
      * @return	array of labels, or empty array if none
+     * @exception	MessagingException for failures
      */
     public String[] getLabels() throws MessagingException {
 	String[] labels = (String[])getItem(GmailProtocol.LABELS_ITEM);

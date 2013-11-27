@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,6 +65,8 @@ public abstract class AddressTerm extends SearchTerm {
 
     /**
      * Return the address to match with.
+     *
+     * @return	the adddress
      */
     public Address getAddress() {
 	return address;
@@ -72,6 +74,9 @@ public abstract class AddressTerm extends SearchTerm {
 
     /**
      * Match against the argument Address.
+     *
+     * @param	a	the address to match
+     * @return	true if it matches
      */
     protected boolean match(Address a) {
 	return (a.equals(address));

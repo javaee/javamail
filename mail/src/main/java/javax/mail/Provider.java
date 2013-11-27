@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -97,27 +97,48 @@ public class Provider {
 	this.version = version;
     }
 
-    /** Returns the type of this Provider */
+    /**
+     * Returns the type of this Provider.
+     *
+     * @return	the provider type
+     */
     public Type getType() {
 	return type;
     }
 
-    /** Returns the protocol supported by this Provider */
+    /**
+     * Returns the protocol supported by this Provider.
+     *
+     * @return	the protocol
+     */
     public String getProtocol() {
 	return protocol;
     }
 
-    /** Returns name of the class that implements the protocol */
+    /**
+     * Returns the name of the class that implements the protocol.
+     *
+     * @return	the class name
+     */
     public String getClassName() {
 	return className;
     }
 
-    /** Returns name of vendor associated with this implementation or null */
+    /**
+     * Returns the name of the vendor associated with this implementation
+     * or null.
+     *
+     * @return	the vendor
+     */
     public String getVendor() {
 	return vendor;
     }
 
-    /** Returns version of this implementation or null if no version */
+    /**
+     * Returns the version of this implementation or null if no version.
+     *
+     * @return	the version
+     */
     public String getVersion() {
 	return version;
     }

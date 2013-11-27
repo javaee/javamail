@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -89,6 +89,8 @@ public class SMTPMessage extends MimeMessage {
      * The <code>headers</code> field is set to an empty InternetHeaders
      * object. The <code>flags</code> field is set to an empty Flags
      * object. The <code>modified</code> flag is set to true.
+     *
+     * @param	session	the Session
      */
     public SMTPMessage(Session session) {
 	super(session);
@@ -102,7 +104,7 @@ public class SMTPMessage extends MimeMessage {
      *
      * @param session	Session object for this message
      * @param is	the message input stream
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public SMTPMessage(Session session, InputStream is) 
 			throws MessagingException {
@@ -118,7 +120,7 @@ public class SMTPMessage extends MimeMessage {
      * the data more times than strictly necessary.
      *
      * @param	source	the message to copy content from
-     * @exception	MessagingException
+     * @exception	MessagingException for failures
      */
     public SMTPMessage(MimeMessage source) throws MessagingException {
 	super(source);
@@ -334,6 +336,7 @@ public class SMTPMessage extends MimeMessage {
      *    smtpMsg.setMailExtension("BY=60;R");
      * </pre></blockquote>
      *
+     * @param	extension	the extension string
      * @since	JavaMail 1.3.2
      */
     public void setMailExtension(String extension) {

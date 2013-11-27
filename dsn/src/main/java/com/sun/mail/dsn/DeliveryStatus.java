@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -78,6 +78,8 @@ public class DeliveryStatus extends Report {
 
     /**
      * Construct a delivery status notification with no content.
+     *
+     * @exception	MessagingException for failures
      */
     public DeliveryStatus() throws MessagingException {
 	super("delivery-status");
@@ -88,6 +90,10 @@ public class DeliveryStatus extends Report {
     /**
      * Construct a delivery status notification by parsing the
      * supplied input stream.
+     *
+     * @param	is	the input stream
+     * @exception	IOException for I/O errors reading the stream
+     * @exception	MessagingException for other failures
      */
     public DeliveryStatus(InputStream is)
 				throws MessagingException, IOException {
@@ -123,6 +129,8 @@ public class DeliveryStatus extends Report {
      *          [ arrival-date-field CRLF ]
      *          *( extension-field CRLF )
      * </pre>
+     *
+     * @return	the per-message DSN fields
      */
     // XXX - could parse each of these fields
     public InternetHeaders getMessageDSN() {
@@ -131,6 +139,8 @@ public class DeliveryStatus extends Report {
 
     /**
      * Set the per-message fields in the delivery status notification.
+     *
+     * @param	messageDSN	the per-message DSN fields
      */
     public void setMessageDSN(InternetHeaders messageDSN) {
 	this.messageDSN = messageDSN;
@@ -139,6 +149,8 @@ public class DeliveryStatus extends Report {
     /**
      * Return the number of recipients for which we have
      * per-recipient delivery status notification information.
+     *
+     * @return	the number of recipients
      */
     public int getRecipientDSNCount() {
 	return recipientDSN.length;
@@ -147,6 +159,9 @@ public class DeliveryStatus extends Report {
     /**
      * Return the delivery status notification information for
      * the specified recipient.
+     *
+     * @param	n	the recipient number
+     * @return	the DSN fields for the recipient
      */
     public InternetHeaders getRecipientDSN(int n) {
 	return recipientDSN[n];
@@ -155,6 +170,8 @@ public class DeliveryStatus extends Report {
     /**
      * Add deliver status notification information for another
      * recipient.
+     *
+     * @param	h	the DSN fields for the recipient
      */
     public void addRecipientDSN(InternetHeaders h) {
 	InternetHeaders[] rh = new InternetHeaders[recipientDSN.length + 1];

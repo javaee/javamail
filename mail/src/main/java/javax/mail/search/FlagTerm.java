@@ -82,6 +82,8 @@ public final class FlagTerm extends SearchTerm {
 
     /**
      * Return the Flags to test.
+     *
+     * @return	the flags
      */
     public Flags getFlags() {
 	return (Flags)flags.clone();
@@ -89,6 +91,8 @@ public final class FlagTerm extends SearchTerm {
 
     /**
      * Return true if testing whether the flags are set.
+     *
+     * @return	true if testing whether the flags are set
      */
     public boolean getTestSet() {
 	return set;

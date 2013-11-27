@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -135,6 +135,13 @@ public class URLName {
      * host, port number, file, username, and password. Specifying a port
      * number of -1 indicates that the URL should use the default port for
      * the protocol.
+     *
+     * @param	protocol	the protocol
+     * @param	host		the host name
+     * @param	port		the port number
+     * @param	file		the file
+     * @param	username	the user name
+     * @param	password	the password
      */
     public URLName(
 	String protocol,
@@ -162,6 +169,8 @@ public class URLName {
 
     /**
      * Construct a URLName from a java.net.URL object.
+     *
+     * @param	url	the URL
      */
     public URLName(URL url) {
 	this(url.toString());
@@ -170,6 +179,8 @@ public class URLName {
     /**
      * Construct a URLName from the string.  Parses out all the possible
      * information (protocol, host, port, file, username, password).
+     *
+     * @param	url	the URL string
      */
     public URLName(String url) {
 	parseString(url);
@@ -238,6 +249,8 @@ public class URLName {
 
     /**
      * Method which does all of the work of parsing the string.
+     *
+     * @param	url	the URL string to parse
      */
     protected void parseString(String url) {
 	// initialize everything in case called from subclass
@@ -322,6 +335,8 @@ public class URLName {
     /**
      * Returns the port number of this URLName.
      * Returns -1 if the port is not set. 
+     *
+     * @return	the port number
      */
     public int getPort() {
 	return port;
@@ -330,6 +345,8 @@ public class URLName {
     /**
      * Returns the protocol of this URLName.
      * Returns null if this URLName has no protocol.
+     *
+     * @return	the protocol
      */
     public String getProtocol() {
 	return protocol;
@@ -338,6 +355,8 @@ public class URLName {
     /**
      * Returns the file name of this URLName.
      * Returns null if this URLName has no file name.
+     *
+     * @return	the file name of this URLName
      */
     public String getFile() {
 	return file;
@@ -346,6 +365,8 @@ public class URLName {
     /**
      * Returns the reference of this URLName.
      * Returns null if this URLName has no reference.
+     *
+     * @return	the reference part of the URLName
      */
     public String getRef() {
 	return ref;
@@ -354,6 +375,8 @@ public class URLName {
     /**
      * Returns the host of this URLName.
      * Returns null if this URLName has no host.
+     *
+     * @return	the host name
      */
     public String getHost() {
 	return host;
@@ -362,6 +385,8 @@ public class URLName {
     /**
      * Returns the user name of this URLName.
      * Returns null if this URLName has no user name.
+     *
+     * @return	the user name
      */
     public String getUsername() {
 	return doEncode ? decode(username) : username;
@@ -370,6 +395,8 @@ public class URLName {
     /**
      * Returns the password of this URLName.
      * Returns null if this URLName has no password.
+     *
+     * @return	the password
      */
     public String getPassword() {
 	return doEncode ? decode(password) : password;
@@ -377,6 +404,9 @@ public class URLName {
 
     /**
      * Constructs a URL from the URLName.
+     *
+     * @return	the URL
+     * @exception	MalformedURLException if the URL is malformed
      */
     public URL getURL() throws MalformedURLException {
         return new URL(getProtocol(), getHost(), getPort(), getFile());

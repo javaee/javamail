@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,64 +44,56 @@ import java.io.*;
 
 
 /**
+ * From RFC2060:
  *
+ * <blockquote><pre>
  *
-  from RFC2060
-
-5.1.3.  Mailbox International Naming Convention
-
-   By convention, international mailbox names are specified using a
-   modified version of the UTF-7 encoding described in [UTF-7].  The
-   purpose of these modifications is to correct the following problems
-   with UTF-7:
-
-      1) UTF-7 uses the "+" character for shifting; this conflicts with
-         the common use of "+" in mailbox names, in particular USENET
-         newsgroup names.
-
-      2) UTF-7's encoding is BASE64 which uses the "/" character; this
-         conflicts with the use of "/" as a popular hierarchy delimiter.
-
-      3) UTF-7 prohibits the unencoded usage of "\"; this conflicts with
-         the use of "\" as a popular hierarchy delimiter.
-
-      4) UTF-7 prohibits the unencoded usage of "~"; this conflicts with
-         the use of "~" in some servers as a home directory indicator.
-
-      5) UTF-7 permits multiple alternate forms to represent the same
-         string; in particular, printable US-ASCII chararacters can be
-         represented in encoded form.
-
-   In modified UTF-7, printable US-ASCII characters except for "&"
-   represent themselves; that is, characters with octet values 0x20-0x25
-   and 0x27-0x7e.  The character "&" (0x26) is represented by the two-
-   octet sequence "&-".
-
-   All other characters (octet values 0x00-0x1f, 0x7f-0xff, and all
-   Unicode 16-bit octets) are represented in modified BASE64, with a
-   further modification from [UTF-7] that "," is used instead of "/".
-   Modified BASE64 MUST NOT be used to represent any printing US-ASCII
-   character which can represent itself.
-
-   "&" is used to shift to modified BASE64 and "-" to shift back to US-
-   ASCII.  All names start in US-ASCII, and MUST end in US-ASCII (that
-   is, a name that ends with a Unicode 16-bit octet MUST end with a "-
-   ").
-
-
-
-
-
-Crispin                     Standards Track                    [Page 15]
-
-RFC 2060                       IMAP4rev1                   December 1996
-
-
-      For example, here is a mailbox name which mixes English, Japanese,
-      and Chinese text: ~peter/mail/&ZeVnLIqe-/&U,BTFw-
-
-
- * This class will do the correct Encoding for the IMAP mailboxes
+ * 5.1.3.  Mailbox International Naming Convention
+ *
+ *   By convention, international mailbox names are specified using a
+ *   modified version of the UTF-7 encoding described in [UTF-7].  The
+ *   purpose of these modifications is to correct the following problems
+ *   with UTF-7:
+ *
+ *      1) UTF-7 uses the "+" character for shifting; this conflicts with
+ *         the common use of "+" in mailbox names, in particular USENET
+ *         newsgroup names.
+ *
+ *      2) UTF-7's encoding is BASE64 which uses the "/" character; this
+ *         conflicts with the use of "/" as a popular hierarchy delimiter.
+ *
+ *      3) UTF-7 prohibits the unencoded usage of "\"; this conflicts with
+ *         the use of "\" as a popular hierarchy delimiter.
+ *
+ *      4) UTF-7 prohibits the unencoded usage of "~"; this conflicts with
+ *         the use of "~" in some servers as a home directory indicator.
+ *
+ *      5) UTF-7 permits multiple alternate forms to represent the same
+ *         string; in particular, printable US-ASCII chararacters can be
+ *         represented in encoded form.
+ *
+ *   In modified UTF-7, printable US-ASCII characters except for "&amp;"
+ *   represent themselves; that is, characters with octet values 0x20-0x25
+ *   and 0x27-0x7e.  The character "&amp;" (0x26) is represented by the two-
+ *   octet sequence "&amp;-".
+ *
+ *   All other characters (octet values 0x00-0x1f, 0x7f-0xff, and all
+ *   Unicode 16-bit octets) are represented in modified BASE64, with a
+ *   further modification from [UTF-7] that "," is used instead of "/".
+ *   Modified BASE64 MUST NOT be used to represent any printing US-ASCII
+ *   character which can represent itself.
+ *
+ *   "&amp;" is used to shift to modified BASE64 and "-" to shift back to US-
+ *   ASCII.  All names start in US-ASCII, and MUST end in US-ASCII (that
+ *   is, a name that ends with a Unicode 16-bit octet MUST end with a "-
+ *   ").
+ *
+ *   For example, here is a mailbox name which mixes English, Japanese,
+ *   and Chinese text: ~peter/mail/&amp;ZeVnLIqe-/&amp;U,BTFw-
+ *
+ * </pre></blockquote>
+ *
+ * This class will do the correct Encoding for the IMAP mailboxes.
  *
  * @author	Christopher Cotton
  */

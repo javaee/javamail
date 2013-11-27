@@ -527,6 +527,7 @@ public abstract class Service {
      * The implementation in the Service class simply sets the
      * <code>url</code> field.
      *
+     * @param	url	the URLName
      * @see URLName
      */
     protected synchronized void setURLName(URLName url) {
@@ -568,6 +569,8 @@ public abstract class Service {
      * events from the queue and dispatches them to the registered
      * ConnectionListeners. Note that the event dispatching occurs
      * in a separate thread, thus avoiding potential deadlock problems.
+     *
+     * @param	type	the ConnectionEvent type
      */
     protected void notifyConnectionListeners(int type) {
 	/*
@@ -621,6 +624,9 @@ public abstract class Service {
 
     /**
      * Add the event and vector of listeners to the queue to be delivered.
+     *
+     * @param	event	the event
+     * @param	vector	the vector of listeners
      */
     protected void queueEvent(MailEvent event, Vector vector) {
 	// synchronize creation of the event queue

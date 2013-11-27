@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -71,6 +71,8 @@ public class DispositionNotification extends Report {
 
     /**
      * Construct a disposition notification with no content.
+     *
+     * @exception	MessagingException for failures
      */
     public DispositionNotification() throws MessagingException {
 	super("disposition-notification");
@@ -80,6 +82,10 @@ public class DispositionNotification extends Report {
     /**
      * Construct a disposition notification by parsing the
      * supplied input stream.
+     *
+     * @param	is	the input stream
+     * @exception	IOException for I/O errors reading the stream
+     * @exception	MessagingException for other failures
      */
     public DispositionNotification(InputStream is)
 				throws MessagingException, IOException {
@@ -106,6 +112,8 @@ public class DispositionNotification extends Report {
      *		*( warning-field CRLF )
      *		*( extension-field CRLF )
      * </pre>
+     *
+     * @return	the DSN fields
      */
     // XXX - could parse each of these fields
     public InternetHeaders getNotifications() {
@@ -115,6 +123,8 @@ public class DispositionNotification extends Report {
     /**
      * Set the disposition notification fields in the
      * disposition notification.
+     *
+     * @param	notifications	the DSN fields
      */
     public void setNotifications(InternetHeaders notifications) {
 	this.notifications = notifications;

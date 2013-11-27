@@ -164,6 +164,7 @@ public class SharedFileInputStream extends BufferedInputStream
      * for the file.
      *
      * @param   file   the file
+     * @exception IOException for errors opening the file
      */
     public SharedFileInputStream(File file) throws IOException {
 	this(file, defaultBufferSize);
@@ -174,6 +175,7 @@ public class SharedFileInputStream extends BufferedInputStream
      * for the named file
      *
      * @param   file   the file
+     * @exception IOException for errors opening the file
      */
     public SharedFileInputStream(String file) throws IOException {
 	this(file, defaultBufferSize);
@@ -185,7 +187,8 @@ public class SharedFileInputStream extends BufferedInputStream
      *
      * @param   file	the file
      * @param   size   the buffer size.
-     * @exception IllegalArgumentException if size <= 0.
+     * @exception IOException for errors opening the file
+     * @exception IllegalArgumentException if size &le; 0.
      */
     public SharedFileInputStream(File file, int size) throws IOException {
 	super(null);	// XXX - will it NPE?
@@ -200,7 +203,8 @@ public class SharedFileInputStream extends BufferedInputStream
      *
      * @param   file	the file
      * @param   size   the buffer size.
-     * @exception IllegalArgumentException if size <= 0.
+     * @exception IOException for errors opening the file
+     * @exception IllegalArgumentException if size &le; 0.
      */
     public SharedFileInputStream(String file, int size) throws IOException {
 	super(null);	// XXX - will it NPE?

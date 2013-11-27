@@ -55,17 +55,34 @@ import com.sun.mail.iap.*;
  */
 
 public class MailboxInfo { 
+    /** The available flags. */
     public Flags availableFlags = null;
+    /** The permanent flags. */
     public Flags permanentFlags = null;
+    /** The total number of messages. */
     public int total = -1;
+    /** The number of recent messages. */
     public int recent = -1;
+    /** The first unseen message. */
     public int first = -1;
+    /** The UIDVALIDITY. */
     public long uidvalidity = -1;
+    /** The next UID value to be assigned. */
     public long uidnext = -1;
+    /** The highest MODSEQ value. */
     public long highestmodseq = -1;	// RFC 4551 - CONDSTORE
+    /** Folder.READ_WRITE or Folder.READ_ONLY, set by IMAPProtocol. */
     public int mode;
+    /** VANISHED or FETCH responses received while opening the mailbox. */
     public List<IMAPResponse> responses;
 
+    /**
+     * Collect the information about this mailbox from the
+     * responses to a SELECT or EXAMINE.
+     *
+     * @param	r	the responses
+     * @exception	ParsingException	for errors parsing the responses
+     */
     public MailboxInfo(Response[] r) throws ParsingException {
 	for (int i = 0; i < r.length; i++) {
 	    if (r[i] == null || !(r[i] instanceof IMAPResponse))

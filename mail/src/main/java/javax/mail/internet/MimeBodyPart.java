@@ -169,6 +169,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * the delimiter strings.
      *
      * @param	is	the body part Input Stream
+     * @exception	MessagingException for failures
      */
     public MimeBodyPart(InputStream is) throws MessagingException {
 	if (!(is instanceof ByteArrayInputStream) &&
@@ -199,6 +200,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      *
      * @param	headers	The header of this part
      * @param	content	bytes representing the body of this part.
+     * @exception	MessagingException for failures
      */
     public MimeBodyPart(InternetHeaders headers, byte[] content) 
 			throws MessagingException {
@@ -288,6 +290,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * If the <code>subType</code> of <code>mimeType</code> is the
      * special character '*', then the subtype is ignored during the
      * comparison.
+     *
+     * @exception	MessagingException for failures
      */
     public boolean isMimeType(String mimeType) throws MessagingException {
 	return isMimeType(this, mimeType);
@@ -304,6 +308,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * This implementation uses <code>getHeader(name)</code>
      * to obtain the requisite header field.
      *
+     * @exception	MessagingException for failures
      * @see #headers
      */
     public String getDisposition() throws MessagingException {
@@ -319,6 +324,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      *			implementation does not support modification
      * @exception	IllegalStateException if this body part is
      *			obtained from a READ_ONLY folder.
+     * @exception	MessagingException for other failures
      */
     public void setDisposition(String disposition) throws MessagingException {
 	setDisposition(this, disposition);
@@ -356,11 +362,12 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * If the <code>cid</code> parameter is null, any existing 
      * "Content-ID" is removed.
      *
+     * @param	cid	the Content-ID
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      * @exception	IllegalStateException if this body part is
      *			obtained from a READ_ONLY folder.
-     * @exception	MessagingException
+     * @exception	MessagingException for other failures
      * @since		JavaMail 1.3
      */
     public void setContentID(String cid) throws MessagingException {
@@ -536,10 +543,12 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * characters in filenames.  The default value of this property
      * is false.
      *
+     * @param	filename	the file name
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
      * @exception	IllegalStateException if this body part is
      *			obtained from a READ_ONLY folder.
+     * @exception	MessagingException for other failures
      */
     public void setFileName(String filename) throws MessagingException {
 	setFileName(this, filename);
@@ -552,10 +561,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * That is, it invokes getDataHandler().getInputStream();
      *
      * @return 		an InputStream
-     * @exception	MessagingException
      * @exception       IOException this is typically thrown by the
      *			DataHandler. Refer to the documentation for
      *			javax.activation.DataHandler for more details.
+     * @exception	MessagingException for other failures
      *
      * @see	#getContentStream
      * @see 	javax.activation.DataHandler#getInputStream
@@ -571,6 +580,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * that can provide a separate input stream for just the Part
      * content might want to override this method. <p>
      * 
+     * @return	an InputStream containing the raw bytes
+     * @exception	MessagingException for failures
      * @see #content
      * @see MimeMessage#getContentStream
      */
@@ -594,6 +605,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * This implementation simply calls the <code>getContentStream</code>
      * method.
      *
+     * @return	an InputStream containing the raw bytes
+     * @exception	MessagingException for failures
      * @see	#getInputStream
      * @see	#getContentStream
      * @since	JavaMail 1.2
@@ -631,10 +644,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * calls so that modifications to the content will not be lost.
      *
      * @return          Object
-     * @exception       MessagingException
      * @exception       IOException this is typically thrown by the
      *			DataHandler. Refer to the documentation for
      *			javax.activation.DataHandler for more details.
+     * @exception       MessagingException for other failures
      */  
     public Object getContent() throws IOException, MessagingException {
 	if (cachedContent != null)
@@ -937,10 +950,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     /**
      * Output the body part as an RFC 822 format stream.
      *
-     * @exception MessagingException
      * @exception IOException	if an error occurs writing to the
      *				stream or if an error is generated
      *				by the javax.activation layer.
+     * @exception MessagingException for other failures
      * @see javax.activation.DataHandler#writeTo
      */
     public void writeTo(OutputStream os)
@@ -971,7 +984,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * @param delimiter		delimiter between fields in returned string
      * @return			the value fields for all headers with 
      *				this name
-     * @exception       	MessagingException
+     * @exception       	MessagingException for failures
      */
     public String getHeader(String name, String delimiter)
 				throws MessagingException {
@@ -1105,6 +1118,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * that object is used to set a new DataHandler, any
      * stream data used to create this object is discarded,
      * and the {@link #cachedContent} field is cleared.
+     *
+     * @exception	MessagingException for failures
      */
     protected void updateHeaders() throws MessagingException {
 	updateHeaders(this);

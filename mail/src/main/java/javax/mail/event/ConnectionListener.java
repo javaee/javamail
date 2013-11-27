@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -52,17 +52,23 @@ public interface ConnectionListener extends java.util.EventListener {
 
     /**
      * Invoked when a Store/Folder/Transport is opened.
+     *
+     * @param	e	the ConnectionEvent
      */
     public void opened(ConnectionEvent e);
 
     /**
      * Invoked when a Store is disconnected. Note that a folder
      * cannot be disconnected, so a folder will not fire this event
+     *
+     * @param	e	the ConnectionEvent
      */
     public void disconnected(ConnectionEvent e);
 
     /**
      * Invoked when a Store/Folder/Transport is closed.
+     *
+     * @param	e	the ConnectionEvent
      */
     public void closed(ConnectionEvent e);
 }
