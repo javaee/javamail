@@ -55,7 +55,7 @@ import com.sun.mail.util.PropUtil;
  * {@link javax.mail.Header} objects. <p>
  *
  * This class is mostly intended for service providers. MimeMessage
- * and MimeBody use this class for holding their headers. <p>
+ * and MimeBody use this class for holding their headers.
  * 
  * <hr> <strong>A note on RFC822 and MIME headers</strong><p>
  *

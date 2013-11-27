@@ -175,7 +175,7 @@ public interface Part {
      * Return the disposition of this part.  The disposition
      * describes how the part should be presented to the user.
      * (See RFC 2183.)  The return value should be considered
-     * without regard to case.  For example: <p>
+     * without regard to case.  For example:
      * <blockquote><pre>
      * String disp = part.getDisposition();
      * if (disp == null || disp.equalsIgnoreCase(Part.ATTACHMENT))

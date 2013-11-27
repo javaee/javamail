@@ -111,7 +111,7 @@ import com.sun.mail.util.MailLogger;
  * attributes that describe a protocol implementation.  Each attribute is
  * an "="-separated name-value pair with the name in lowercase. Each
  * name-value pair is semi-colon (";") separated.  The following names
- * are defined. <p>
+ * are defined.
  *
  * <table border=1>
  * <caption>
@@ -851,7 +851,7 @@ public final class Session {
     /**
      * Call back to the application to get the needed user name and password.
      * The application should put up a dialog something like:
-     * <p> <pre>
+     * <pre>
      * Connecting to &lt;protocol&gt; mail service on host &lt;addr&gt;, port &lt;port&gt;.
      * &lt;prompt&gt;
      *

@@ -217,7 +217,7 @@ public abstract class Message implements Part {
      * Message msg = folder.getMessages(1);
      * Address[] a = m.getRecipients(Message.RecipientType.TO);
      *
-     * </pre></blockquote><p>
+     * </pre></blockquote>
      *
      * @see javax.mail.Message#getRecipients
      * @see javax.mail.Message#setRecipients

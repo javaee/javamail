@@ -47,7 +47,7 @@ package javax.mail;
  * by RFC 2045 are "7bit", "8bit", "quoted-printable", "base64", and "binary".
  * <p>
  * For example, a {@link javax.activation.FileDataSource FileDataSource}
- * could be created that forces all files to be base64 encoded: <p>
+ * could be created that forces all files to be base64 encoded:
  * <blockquote><pre>
  *  public class Base64FileDataSource extends FileDataSource
  *					implements EncodingAware {

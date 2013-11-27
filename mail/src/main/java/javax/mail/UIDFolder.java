@@ -66,7 +66,7 @@ import java.util.NoSuchElementException;
  * for more information.
  *
  * All the Folder objects returned by the default IMAP provider implement
- * the UIDFolder interface.  Use it as follows: <p>
+ * the UIDFolder interface.  Use it as follows:
  * <blockquote><pre>
  *
  * 	Folder f = store.getFolder("whatever");
@@ -99,14 +99,14 @@ public interface UIDFolder {
 	 * This item indicates that the UIDs for messages in the specified 
 	 * range are desired to be prefetched. <p>
 	 * 
-	 * An example of how a client uses this is below: <p>
+	 * An example of how a client uses this is below:
 	 * <blockquote><pre>
 	 *
 	 * 	FetchProfile fp = new FetchProfile();
 	 *	fp.add(UIDFolder.FetchProfileItem.UID);
 	 *	folder.fetch(msgs, fp);
 	 *
-	 * </pre></blockquote><p>
+	 * </pre></blockquote>
 	 */ 
 	public static final FetchProfileItem UID = 
 		new FetchProfileItem("UID");

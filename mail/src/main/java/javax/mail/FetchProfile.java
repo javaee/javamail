@@ -63,7 +63,7 @@ import java.util.Vector;
  * does not allow easy, efficient fetching of such profiles. <p>
  *
  * Sample code that illustrates the use of a FetchProfile is given
- * below:  <p>
+ * below:
  * <blockquote>
  * <pre>
  *

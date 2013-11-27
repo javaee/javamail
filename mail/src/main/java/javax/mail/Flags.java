@@ -68,7 +68,7 @@ import java.util.*;
  * appropriate for short term storage. <p>
  *
  * The below code sample illustrates how to set, examine, and get the 
- * flags for a message. <p>
+ * flags for a message.
  * <pre>
  *
  * Message m = folder.getMessage(1);
