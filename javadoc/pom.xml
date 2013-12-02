@@ -194,14 +194,25 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
 				com.sun.mail.imap.protocol
 			    </excludePackageNames>
 			    <!-- have to kludge it with this instead...  -->
+			    <!-- XXX - ignore.symbol.file until JDK8 fixed -->
 			    <additionalparam>
 				-exclude com.sun.mail.imap.protocol
+				-XDignore.symbol.file=true
 			    </additionalparam>
 			    <sourcepath>${basedir}/target/javadoc</sourcepath>
+			    <!--
+				Links to Java SE javadocs.
+
+				XXX - links need to include a trailing "/."
+				      because Maven strips off a trailing "/"
+				      before passing the option to the javadoc
+				      command, which then strips off the last
+				      name if it doesn't end with "/".
+			    -->
 			    <links>
-				<link>http://docs.oracle.com/javase/1.5.0/docs/api</link>
+				<link>http://docs.oracle.com/javase/1.5.0/docs/api/.</link>
 				<!-- following for javax.activation -->
-				<link>http://docs.oracle.com/javase/6/docs/api</link>
+				<link>http://docs.oracle.com/javase/6/docs/api/.</link>
 			    </links>
 			</configuration>
 		    </execution>
