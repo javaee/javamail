@@ -49,8 +49,17 @@ import java.util.logging.XMLFormatter;
  */
 public class SummaryNameFormatter extends Formatter {
 
+    /**
+     * The MessageFormat pattern.
+     */
     private final String pattern;
+    /**
+     * The number of log records formatted.
+     */
     private long count;
+    /**
+     * The number of log records that had a throwable object.
+     */
     private long errors;
 
     /**
@@ -102,10 +111,22 @@ public class SummaryNameFormatter extends Formatter {
         return toString(count, errors);
     }
 
+    /**
+     * Create the toString based off of the current state.
+     * @param count the number of formatted records.
+     * @param errors the number of records with throwables.
+     * @return the formatted message.
+     */
     private String toString(final long count, final long errors) {
         return MessageFormat.format(pattern, count, errors);
     }
 
+    /**
+     * Attachment file names should end with a file extension.  The subject
+     * will end with a period.
+     * @param h the handler using this formatter.
+     * @return the extension string.
+     */
     private String extFrom(Handler h) {
         if (h instanceof MailHandler) {
             MailHandler mh = (MailHandler) h;

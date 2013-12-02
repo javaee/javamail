@@ -43,10 +43,22 @@ import java.util.logging.LogRecord;
  */
 public class SummaryFormatter extends Formatter {
 
+    /**
+     * The oldest record.getMillis() recorded.
+     */
     private long oldest;
+    /**
+     * The newest record.getMillis() recorded.
+     */
     private long newest;
+    /**
+     * The number of log records formatted before the tail is written.
+     */
     private long count;
 
+    /**
+     * Creates the formatter.
+     */
     public SummaryFormatter() {
         reset();
     }
@@ -79,6 +91,10 @@ public class SummaryFormatter extends Formatter {
         return formatNow();
     }
 
+    /**
+     * Creates the tail string using the current values.
+     * @return the formatted tail string.
+     */
     private String formatNow() {
         assert Thread.holdsLock(this);
         DateFormat f = DateFormat.getDateTimeInstance();
@@ -88,18 +104,29 @@ public class SummaryFormatter extends Formatter {
 
     }
 
+    /**
+     * Record the log record time.
+     * @param time the log record time.
+     */
     private synchronized void track(long time) {
         count++;
         this.oldest = Math.min(this.oldest, time);
         this.newest = Math.max(this.newest, time);
     }
 
+    /**
+     * Reset the collected log record statistics.
+     */
     private synchronized void reset() {
         this.count = 0L;
         this.oldest = Long.MAX_VALUE;
         this.newest = Long.MIN_VALUE;
     }
 
+    /**
+     * Generate a new line char.
+     * @return a new line char.
+     */
     private static String newLine() {
         return "\n";
     }

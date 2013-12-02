@@ -51,7 +51,13 @@ import javax.mail.internet.InternetAddress;
  */
 public class MailHandlerDemo {
 
+    /**
+     * This class name.
+     */
     private static final String CLASS_NAME = MailHandlerDemo.class.getName();
+    /**
+     * The logger for this class name.
+     */
     private static final Logger LOGGER = Logger.getLogger(CLASS_NAME);
 
     /**
@@ -229,6 +235,11 @@ public class MailHandlerDemo {
         LOGGER.addHandler(m);
         pushOnlyHandler = h;
     }
+
+    /**
+     * Holds on to the push only handler.
+     * Only declared here to apply fallback settings.
+     */
     private static Handler pushOnlyHandler;
 
     /**
@@ -253,6 +264,11 @@ public class MailHandlerDemo {
         LOGGER.addHandler(m);
         pushNormalHandler = h;
     }
+
+    /**
+     * Holds on to the push normal handler.
+     * Only declared here to apply fallback settings.
+     */
     private static Handler pushNormalHandler;
 
     /**
@@ -314,6 +330,9 @@ public class MailHandlerDemo {
         applyFallbackSettings();
     }
 
+    /**
+     * Close and remove all handlers added to the class logger.
+     */
     private static void closeHandlers() {
         Handler[] handlers = LOGGER.getHandlers();
         for (int i = 0; i < handlers.length; i++) {
@@ -323,6 +342,9 @@ public class MailHandlerDemo {
         }
     }
 
+    /**
+     * Apply some fallback settings if no configuration file was specified.
+     */
     private static void applyFallbackSettings() {
         if (getConfigLocation() == null) {
             LOGGER.setLevel(Level.ALL);
@@ -337,6 +359,10 @@ public class MailHandlerDemo {
         }
     }
 
+    /**
+     * Common fallback settings for a single handler.
+     * @param h the handler.
+     */
     private static void fallbackSettings(Handler h) {
         if (h != null) {
             h.setErrorManager(new FileErrorManager());
@@ -344,10 +370,18 @@ public class MailHandlerDemo {
         }
     }
 
+    /**
+     * Gets the system temp directory.
+     * @return the system temp directory.
+     */
     private static String getTempDir() {
         return System.getProperty("java.io.tmpdir");
     }
 
+    /**
+     * Gets the configuration file or class name.
+     * @return the file name or class name.
+     */
     private static String getConfigLocation() {
         String file = System.getProperty("java.util.logging.config.file");
         if (file == null) {
@@ -356,10 +390,27 @@ public class MailHandlerDemo {
         return file;
     }
 
+    /**
+     * A simple message filter example.
+     */
     private static final class MessageErrorsFilter implements Filter {
 
+        /**
+         * Used to negate this filter.
+         */
         private final boolean complement;
 
+        /**
+         * Default constructor.
+         */
+        MessageErrorsFilter() {
+            this(true);
+        }
+
+        /**
+         * Creates the message filter.
+         * @param complement used to allow or deny message exceptions.
+         */
         MessageErrorsFilter(final boolean complement) {
             this.complement = complement;
         }
@@ -375,17 +426,37 @@ public class MailHandlerDemo {
     private static final class LevelAndSeqComparator
             implements Comparator<LogRecord>, java.io.Serializable {
 
+        /**
+         * Generated serial id.
+         */
         private static final long serialVersionUID = 6269562326337300267L;
+
+        /**
+         * Used to reverse the ordering.
+         */
         private final boolean reverse;
 
+        /**
+         * The default constructor.
+         */
         LevelAndSeqComparator() {
             this(false);
         }
 
+        /**
+         * Creates the comparator.
+         * @param reverse to specify reverse ordering.
+         */
         LevelAndSeqComparator(final boolean reverse) {
             this.reverse = reverse;
         }
 
+        /**
+         * Compare by level.
+         * @param r1 the first log record.
+         * @param r2 the second log record.
+         * @return -1 for less than, 0 for equal, or 1 for greater than.
+         */
         public int compare(LogRecord r1, LogRecord r2) {
             final int first = r1.getLevel().intValue();
             final int second = r2.getLevel().intValue();
@@ -398,6 +469,12 @@ public class MailHandlerDemo {
             }
         }
 
+        /**
+         * Compare by sequence.
+         * @param r1 the first log record.
+         * @param r2 the second log record.
+         * @return -1 for less than, 0 for equal, or 1 for greater than.
+         */
         private int compareSeq(LogRecord r1, LogRecord r2) {
             final long first = r1.getSequenceNumber();
             final long second = r2.getSequenceNumber();

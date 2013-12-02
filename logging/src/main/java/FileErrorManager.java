@@ -42,19 +42,19 @@ import java.util.logging.LogManager;
  * to the file system when the email server is unavailable or unreachable.
  * The code to manually setup this error manager can be as simple as the
  * following:
- * <tt><pre>
+ * <pre>
  *      File dir = new File("path to dir");
  *      FileErrorManager em = new FileErrorManager(dir);
- * </pre></tt>
+ * </pre>
  *
  * <p>
  * <b>Configuration:</b>
  * The code to setup this error manager via the logging properties
  * can be as simple as the following:
- * <tt><pre>
+ * <pre>
  *      #Default FileErrorManager settings.
  *      FileErrorManager.pattern = path to directory
- * </pre></tt>
+ * </pre>
  *
  * If properties are not defined, or contain invalid values, then the specified
  * default values are used.
@@ -135,6 +135,9 @@ public class FileErrorManager extends ErrorManager {
         }
     }
 
+    /**
+     * Performs the initialization for this object.
+     */
     private void init() {
         if (next == null) {
             throw new NullPointerException(ErrorManager.class.getName());
@@ -165,14 +168,29 @@ public class FileErrorManager extends ErrorManager {
         }
     }
 
+    /**
+     * Creates a common temp file prefix.
+     * @return the file prefix.
+     */
     private String prefixName() {
         return "FileErrorManager";
     }
 
+    /**
+     * Creates a common temp file suffix.
+     * @return the file suffix.
+     */
     private String suffixName() {
         return ".eml";
     }
 
+    /**
+     * Determines if the given message is a MIME message or just free text.
+     * @param msg the message to examine.
+     * @param ex the exception that was reported.
+     * @param code the ErrorManager code.
+     * @return true if MIME message otherwise false.
+     */
     private boolean isRawEmail(String msg, Exception ex, int code) {
         if (msg != null && msg.length() > 0) {
             return !msg.startsWith(Level.SEVERE.getName());
@@ -180,6 +198,11 @@ public class FileErrorManager extends ErrorManager {
         return false;
     }
 
+    /**
+     * Stores the given string in a file.
+     * @param email the message to store.
+     * @throws IOException if there is a problem.
+     */
     private void storeEmail(String email) throws IOException {
         File tmp = null;
         FileOutputStream out = null;
@@ -208,6 +231,10 @@ public class FileErrorManager extends ErrorManager {
         }
     }
 
+    /**
+     * Null safe close method.
+     * @param out closes the given stream.
+     */
     private void close(OutputStream out) {
         if (out != null) {
             try {
@@ -218,6 +245,10 @@ public class FileErrorManager extends ErrorManager {
         }
     }
 
+    /**
+     * Null safe delete method.
+     * @param tmp the file to delete.
+     */
     private void delete(File tmp) {
         if (tmp != null) {
             try {

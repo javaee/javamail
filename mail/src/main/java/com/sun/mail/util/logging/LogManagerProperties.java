@@ -75,6 +75,9 @@ import javax.mail.Authenticator;
  */
 final class LogManagerProperties extends Properties {
 
+    /**
+     * Generated serial id.
+     */
     private static final long serialVersionUID = -2239983349056806252L;
     /**
      * Caches the LogManager so we only read the config once.
@@ -274,6 +277,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new object from the given class name.
+     * @param <T> The generic class type.
      * @param name the fully qualified class name.
      * @param type the assignable type for the given name.
      * @return a new object assignable to the given type.
@@ -382,6 +386,13 @@ final class LogManagerProperties extends Properties {
         return clazz;
     }
 
+    /**
+     * Loads a class using the given loader or the class loader of this class.
+     * @param name the class name.
+     * @param l any class loader or null.
+     * @return the raw class.
+     * @throws ClassNotFoundException if not found.
+     */
     private static Class<?> tryLoad(String name, ClassLoader l) throws ClassNotFoundException {
         if (l != null) {
             return Class.forName(name, false, l);
@@ -390,6 +401,10 @@ final class LogManagerProperties extends Properties {
         }
     }
 
+    /**
+     * Gets the class loaders using elevated privileges.
+     * @return any array of class loaders. Indexes may be null.
+     */
     private static ClassLoader[] getClassLoaders() {
         return AccessController.doPrivileged(new PrivilegedAction<ClassLoader[]>() {
 
