@@ -53,10 +53,21 @@ import java.io.IOException;
  */
 
 public class SocketConnectException extends IOException {
+    /**
+     * The socket host name.
+     */
     private String host;
+    /**
+     * The socket port.
+     */
     private int port;
+    /**
+     * The connection timeout.
+     */
     private int cto;
-
+    /**
+     * The generated serial id.
+     */
     private static final long serialVersionUID = 3997871560538755463L;
 
     /**
@@ -85,8 +96,8 @@ public class SocketConnectException extends IOException {
     public Exception getException() {
 	// the "cause" is always an Exception; see constructor above
 	Throwable t = getCause();
-	assert t instanceof Exception;
-	return (Exception)t;
+	assert t == null || t instanceof Exception;
+	return (Exception) t;
     }
 
     /**
