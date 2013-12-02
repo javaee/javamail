@@ -53,7 +53,7 @@ import com.sun.mail.util.*;
  * objects. <p>
  *
  * MimeBodyPart uses the <code>InternetHeaders</code> class to parse
- * and store the headers of that body part. <p>
+ * and store the headers of that body part.
  *
  * <hr><strong>A note on RFC 822 and MIME headers</strong><p>
  *
@@ -1039,7 +1039,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
    
     /**
      * Return matching headers from this Message as an Enumeration of
-     * Header objects. <p>
+     * Header objects.
      */
     public Enumeration getMatchingHeaders(String[] names)
                         throws MessagingException {

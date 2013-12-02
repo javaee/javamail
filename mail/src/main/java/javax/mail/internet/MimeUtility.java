@@ -76,7 +76,7 @@ import com.sun.mail.util.*;
  * <p>
  * Note that to get the actual bytes of a mail-safe String (say,
  * for sending over SMTP), one must do 
- * <p><blockquote><pre>
+ * <blockquote><pre>
  *
  *	byte[] bytes = string.getBytes("iso-8859-1");	
  *
@@ -476,7 +476,7 @@ public class MimeUtility {
      * "unstructured" RFC 822 headers. <p>
      *
      * Example of usage:
-     * <p><blockquote><pre>
+     * <blockquote><pre>
      *
      *  MimePart part = ...
      *  String rawvalue = "FooBar Mailer, Japanese version 1.1"
@@ -545,7 +545,7 @@ public class MimeUtility {
      * returned as-is <p>
      *
      * Example of usage:
-     * <p><blockquote><pre>
+     * <blockquote><pre>
      *
      *  MimePart part = ...
      *  String rawvalue = null;

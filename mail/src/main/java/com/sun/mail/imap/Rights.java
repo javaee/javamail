@@ -54,7 +54,7 @@ import java.util.*;
  * implementations may also support site-defined rights. <p>
  *
  * The following code sample illustrates how to examine your
- * rights for a folder. <p>
+ * rights for a folder.
  * <pre>
  *
  * Rights rights = folder.myRights();

@@ -218,7 +218,7 @@ public class POP3Store extends Store {
 
     /**
      * Check whether this store is connected. Override superclass
-     * method, to actually ping our server connection. <p>
+     * method, to actually ping our server connection.
      */
     /*
      * Note that we maintain somewhat of an illusion of being connected

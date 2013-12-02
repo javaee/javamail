@@ -301,14 +301,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 * This item indicates that the headers for messages in the specified 
 	 * range are desired to be prefetched. <p>
 	 * 
-	 * An example of how a client uses this is below: <p>
+	 * An example of how a client uses this is below:
 	 * <blockquote><pre>
 	 *
 	 * 	FetchProfile fp = new FetchProfile();
 	 *	fp.add(IMAPFolder.FetchProfileItem.HEADERS);
 	 *	folder.fetch(msgs, fp);
 	 *
-	 * </pre></blockquote><p>
+	 * </pre></blockquote>
 	 */ 
 	public static final FetchProfileItem HEADERS = 
 		new FetchProfileItem("HEADERS");
@@ -685,7 +685,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
     
     /**
-     * Check whether this folder is subscribed. <p>
+     * Check whether this folder is subscribed.
      */
     public synchronized boolean isSubscribed() {
 	ListInfo[] li = null;
@@ -840,7 +840,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
-     * Get the named subfolder. <p>
+     * Get the named subfolder.
      */
     public synchronized Folder getFolder(String name)
 				throws MessagingException {
@@ -890,7 +890,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
-     * Rename this folder. <p>
+     * Rename this folder.
      */
     public synchronized boolean renameTo(final Folder f)
 				throws MessagingException {
@@ -3239,7 +3239,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Executing more complex IMAP commands requires intimate knowledge
      * of the <code>com.sun.mail.iap</code> and
      * <code>com.sun.mail.imap.protocol</code> packages, best acquired by
-     * reading the source code. <p>
+     * reading the source code.
      *
      * <blockquote><pre>
      * import com.sun.mail.iap.*;
@@ -3260,7 +3260,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * <p>
      *
      * Here's a more complex example showing how to use the proposed
-     * IMAP SORT extension: <p>
+     * IMAP SORT extension:
      *
      * <blockquote><pre>
      * import com.sun.mail.iap.*;

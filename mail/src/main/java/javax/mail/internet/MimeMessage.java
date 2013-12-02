@@ -72,7 +72,7 @@ import javax.mail.util.SharedByteArrayInputStream;
  * headers is done.  If this property is set to <code>"false"</code>,
  * strict parsing is not done and many illegal addresses that sometimes
  * occur in real messages are allowed.  See the <code>InternetAddress</code>
- * class for details. <p>
+ * class for details.
  *
  * <hr><strong>A note on RFC 822 and MIME headers</strong><p>
  *
@@ -1393,7 +1393,7 @@ public class MimeMessage extends Message implements MimePart {
      * The implementation provided here works approximately as follows.
      * Note the use of the <code>getContentStream</code> method to 
      * generate the byte stream for the content. Also note that
-     * any transfer-decoding is done automatically within this method.<p>
+     * any transfer-decoding is done automatically within this method.
      *
      * <blockquote><pre>
      *  getDataHandler() {

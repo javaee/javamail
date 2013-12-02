@@ -43,7 +43,7 @@ package com.sun.mail.imap;
 import javax.mail.*;
 
 /**
- * This class provides access to an IMAP message store over SSL. <p>
+ * This class provides access to an IMAP message store over SSL.
  */
 
 public class IMAPSSLStore extends IMAPStore {

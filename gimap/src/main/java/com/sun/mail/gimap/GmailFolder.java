@@ -76,14 +76,14 @@ public class GmailFolder extends IMAPFolder {
 	 * This item indicates that the Gmail unique message ID for messages
 	 * in the specified range are desired to be prefetched. <p>
 	 * 
-	 * An example of how a client uses this is below: <p>
+	 * An example of how a client uses this is below:
 	 * <blockquote><pre>
 	 *
 	 * 	FetchProfile fp = new FetchProfile();
 	 *	fp.add(GmailFolder.FetchProfileItem.MSGID);
 	 *	folder.fetch(msgs, fp);
 	 *
-	 * </pre></blockquote><p>
+	 * </pre></blockquote>
 	 */ 
 	public static final FetchProfileItem MSGID = 
 		new FetchProfileItem("X-GM-MSGID");
@@ -94,14 +94,14 @@ public class GmailFolder extends IMAPFolder {
 	 * This item indicates that the Gmail unique thread ID for messages
 	 * in the specified range are desired to be prefetched. <p>
 	 * 
-	 * An example of how a client uses this is below: <p>
+	 * An example of how a client uses this is below:
 	 * <blockquote><pre>
 	 *
 	 * 	FetchProfile fp = new FetchProfile();
 	 *	fp.add(GmailFolder.FetchProfileItem.THRID);
 	 *	folder.fetch(msgs, fp);
 	 *
-	 * </pre></blockquote><p>
+	 * </pre></blockquote>
 	 */ 
 	public static final FetchProfileItem THRID = 
 		new FetchProfileItem("X-GM-THRID");
@@ -112,14 +112,14 @@ public class GmailFolder extends IMAPFolder {
 	 * This item indicates that the Gmail labels for messages
 	 * in the specified range are desired to be prefetched. <p>
 	 * 
-	 * An example of how a client uses this is below: <p>
+	 * An example of how a client uses this is below:
 	 * <blockquote><pre>
 	 *
 	 * 	FetchProfile fp = new FetchProfile();
 	 *	fp.add(GmailFolder.FetchProfileItem.LABELS);
 	 *	folder.fetch(msgs, fp);
 	 *
-	 * </pre></blockquote><p>
+	 * </pre></blockquote>
 	 */ 
 	public static final FetchProfileItem LABELS = 
 		new FetchProfileItem("X-GM-LABELS");

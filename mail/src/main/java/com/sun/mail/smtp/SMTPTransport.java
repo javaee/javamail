@@ -2396,7 +2396,6 @@ public class SMTPTransport extends Transport {
     /**
      * Convert a string to RFC 1891 xtext format.
      *
-     * <p>
      * <pre>
      *     xtext = *( xchar / hexchar )
      *

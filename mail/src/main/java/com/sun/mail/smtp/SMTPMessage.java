@@ -329,7 +329,7 @@ public class SMTPMessage extends MimeMessage {
      * See <A HREF="http://www.ietf.org/rfc/rfc1869.txt">RFC 1869</A>
      * and other RFCs that define specific extensions. <p>
      *
-     * For example: <p>
+     * For example:
      *
      * <blockquote><pre>
      * if (smtpTransport.supportsExtension("DELIVERBY"))
