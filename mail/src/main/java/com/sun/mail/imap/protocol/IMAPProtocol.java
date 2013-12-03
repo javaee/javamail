@@ -216,7 +216,7 @@ public class IMAPProtocol extends Protocol {
      */
     protected void parseCapabilities(Response r) {
 	String s;
-	while ((s = r.readAtom(']')) != null) {
+	while ((s = r.readAtom()) != null) {
 	    if (s.length() == 0) {
 		if (r.peekByte() == (byte)']')
 		    break;

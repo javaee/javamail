@@ -14,6 +14,13 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.5.2 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.2 release.
+
+K  6203	IMAP astring parsing incorrect
+
+
 		  CHANGES IN THE 1.5.1 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.1 release.
