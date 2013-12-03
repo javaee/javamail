@@ -2349,9 +2349,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		if (u != null && u.seqnum <= total) { // Valid UID 
 		    m = getMessageBySeqNumber(u.seqnum);
-		    m.setUID(u.uid); // set this message's UID ..
-		    // .. and put this into the hashtable
-		    uidTable.put(l, m);
+		    if (m != null) {
+			m.setUID(u.uid); // set this message's UID ..
+			// .. and put this into the hashtable
+			uidTable.put(l, m);
+		    }
 		}
 	    }
 	} catch(ConnectionException cex) {
@@ -2387,9 +2389,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		// NOTE: Below must be within messageCacheLock region
 		for (int i = 0; i < ua.length; i++) {
 		    m = getMessageBySeqNumber(ua[i].seqnum);
-		    m.setUID(ua[i].uid);
-		    msgs[i] = m;
-		    uidTable.put(Long.valueOf(ua[i].uid), m);
+		    if (m != null) {
+			m.setUID(ua[i].uid);
+			msgs[i] = m;
+			uidTable.put(Long.valueOf(ua[i].uid), m);
+		    }
 		}
 	    }
 	} catch(ConnectionException cex) {
@@ -2437,8 +2441,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    IMAPMessage m;
 		    for (int i = 0; i < ua.length; i++) {
 			m = getMessageBySeqNumber(ua[i].seqnum);
-			m.setUID(ua[i].uid);
-			uidTable.put(Long.valueOf(ua[i].uid), m);
+			if (m != null) {
+			    m.setUID(ua[i].uid);
+			    uidTable.put(Long.valueOf(ua[i].uid), m);
+			}
 		    }
 		}
 
