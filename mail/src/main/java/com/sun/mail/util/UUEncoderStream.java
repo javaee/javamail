@@ -55,6 +55,7 @@ public class UUEncoderStream extends FilterOutputStream {
     private byte[] buffer; 	// cache of bytes that are yet to be encoded
     private int bufsize = 0;	// size of the cache
     private boolean wrotePrefix = false;
+    private boolean wroteSuffix = false;
 
     private String name; 	// name of file
     private int mode;		// permissions mode
@@ -64,7 +65,7 @@ public class UUEncoderStream extends FilterOutputStream {
      * @param out        the output stream
      */
     public UUEncoderStream(OutputStream out) {
-	this(out, "encoder.buf", 644);
+	this(out, "encoder.buf", 0644);
     }
 
     /**
@@ -73,7 +74,7 @@ public class UUEncoderStream extends FilterOutputStream {
      * @param name	 Specifies a name for the encoded buffer
      */
     public UUEncoderStream(OutputStream out, String name) {
-	this(out, name, 644);	
+	this(out, name, 0644);	
     }
 
     /**
@@ -128,6 +129,7 @@ public class UUEncoderStream extends FilterOutputStream {
 	if (bufsize > 0) { // If there's unencoded characters in the buffer
 	    writePrefix();
 	    encode();      // .. encode them
+	    bufsize = 0;
 	}
 	writeSuffix();
 	out.flush();
@@ -145,7 +147,7 @@ public class UUEncoderStream extends FilterOutputStream {
 	if (!wrotePrefix) {
 	    // name should be ASCII, but who knows...
 	    PrintStream ps = new PrintStream(out, false, "utf-8");
-	    ps.println("begin " + mode + " " + name);
+	    ps.format("begin %o %s%n", mode, name);
 	    ps.flush();
 	    wrotePrefix = true;
 	}
@@ -156,9 +158,12 @@ public class UUEncoderStream extends FilterOutputStream {
      * containing the single word "end" (terminated by a newline)
      */
     private void writeSuffix() throws IOException {
-	PrintStream ps = new PrintStream(out, false, "us-ascii");
-	ps.println(" \nend");
-	ps.flush();
+	if (!wroteSuffix) {
+	    PrintStream ps = new PrintStream(out, false, "us-ascii");
+	    ps.println(" \nend");
+	    ps.flush();
+	    wroteSuffix = true;
+	}
     }
 
     /**
