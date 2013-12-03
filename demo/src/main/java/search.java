@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -60,6 +60,7 @@ public class search {
 	String from = null;
 	boolean or = false;
 	boolean today = false;
+	int size = -1;
 
 	for (optind = 0; optind < argv.length; optind++) {
 	    if (argv[optind].equals("-T")) {
@@ -84,6 +85,8 @@ public class search {
 		from = argv[++optind];
 	    } else if (argv[optind].equals("-today")) {
 		today = true;
+	    } else if (argv[optind].equals("-size")) {
+		size = Integer.parseInt(argv[++optind]);
 	    } else if (argv[optind].equals("--")) {
 		optind++;
 		break;
@@ -100,8 +103,9 @@ public class search {
 
 	try {
 
-	    if ((subject == null) && (from == null) && !today) {
-		System.out.println("Specify either -subject, -from or -today");
+	    if ((subject == null) && (from == null) && !today && size < 0) {
+		System.out.println(
+			    "Specify either -subject, -from, -today, or -size");
 		System.exit(1);
 	    }
 
@@ -183,6 +187,18 @@ public class search {
 		}
 		else
 		    term = dateTerm;
+	    }
+
+	    if (size >= 0) {
+		SizeTerm sizeTerm = new SizeTerm(ComparisonTerm.GT, size);
+		if (term != null) {
+		    if (or)
+			term = new OrTerm(term, sizeTerm);
+		    else
+			term = new AndTerm(term, sizeTerm);
+		}
+		else
+		    term = sizeTerm;
 	    }
 
 	    Message[] msgs = folder.search(term);

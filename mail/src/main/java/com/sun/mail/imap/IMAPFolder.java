@@ -2064,6 +2064,17 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
     /**
      * Search whole folder for messages matching the given term.
+     * If the property <code>mail.imap.throwsearchexception</code> is true,
+     * and the search term is too complex for the IMAP protocol,
+     * SearchException is thrown.  Otherwise, if the search term is too
+     * complex, <code>super.search</code> is called to do the search on
+     * the client.
+     *
+     * @param	term	the search term
+     * @return		the messages that match
+     * @exception	SearchException if mail.imap.throwsearchexception is
+     *			true and the search is too complex for the IMAP protocol
+     * @exception	MessagingException for other failures
      */
     public synchronized Message[] search(SearchTerm term)
 				throws MessagingException {
@@ -2099,6 +2110,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    return super.search(term);
 	} catch (SearchException sex) {
 	    // too complex for IMAP
+	    if (((IMAPStore)store).throwSearchException())
+		throw sex;
 	    return super.search(term);
 	} catch (ConnectionException cex) {
 	    throw new FolderClosedException(this, cex.getMessage());

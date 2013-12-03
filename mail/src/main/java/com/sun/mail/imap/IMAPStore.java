@@ -221,6 +221,7 @@ public class IMAPStore extends Store
     // enable notification of IMAP responses
     private boolean enableImapEvents = false;
     private String guid;			// for Yahoo! Mail IMAP
+    private boolean throwSearchException = false;
 
     /*
      * This field is set in the Store's response handler if we see
@@ -580,6 +581,12 @@ public class IMAPStore extends Store
 	guid = session.getProperty("mail." + name + ".yahoo.guid");
 	if (guid != null)
 	    logger.log(Level.CONFIG, "mail.imap.yahoo.guid: {0}", guid);
+
+	// check if throwsearchexception is enabled
+	throwSearchException = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".throwsearchexception", false);
+	if (throwSearchException)
+	    logger.config("throw SearchException");
 
 	s = session.getProperty("mail." + name + ".folder.class");
 	if (s != null) {
@@ -1377,6 +1384,13 @@ public class IMAPStore extends Store
      */
     int getMinIdleTime() {
 	return minIdleTime;
+    }
+
+    /**
+     * Throw a SearchException if the search expression is too complex?
+     */
+    boolean throwSearchException() {
+	return throwSearchException;
     }
 
     /**

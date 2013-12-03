@@ -648,6 +648,23 @@ in future releases.
 </TR>
 
 <TR>
+<TD>mail.imap.throwsearchexception</TD>
+<TD>boolean</TD>
+<TD>
+If set to true and a {@link javax.mail.search.SearchTerm SearchTerm}
+passed to the
+{@link javax.mail.Folder#search Folder.search}
+method is too complex for the IMAP protocol, throw a
+{@link javax.mail.search.SearchException SearchException}.
+For example, the IMAP protocol only supports less-than and greater-than
+comparisons for a {@link javax.mail.search.SizeTerm SizeTerm}.
+Otherwise, the search will be done locally by fetching the required
+message data and comparing it locally.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.folder.class</TD>
 <TD>String</TD>
 <TD>
