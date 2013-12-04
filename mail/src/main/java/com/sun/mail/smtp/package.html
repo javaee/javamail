@@ -443,6 +443,17 @@ If not set, the authentication ID (user name) is used.
 </TR>
 
 <TR>
+<TD>mail.smtp.sasl.usecanonicalhostname</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, the canonical host name returned by
+{@link java.net.InetAddress#getCanonicalHostName InetAddress.getCanonicalHostName}
+is passed to the SASL mechanism, instead of the host name used to connect.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.smtp.quitwait</TD>
 <TD>boolean</TD>
 <TD>

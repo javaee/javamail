@@ -421,6 +421,17 @@ require a realm, such as DIGEST-MD5.</TD>
 </TR>
 
 <TR>
+<TD>mail.imap.sasl.usecanonicalhostname</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, the canonical host name returned by
+{@link java.net.InetAddress#getCanonicalHostName InetAddress.getCanonicalHostName}
+is passed to the SASL mechanism, instead of the host name used to connect.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.sasl. xgwtrustedapphack.enable</TD>
 <TD>boolean</TD>
 <TD>

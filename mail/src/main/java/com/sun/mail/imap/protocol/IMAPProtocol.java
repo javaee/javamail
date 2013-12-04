@@ -715,6 +715,13 @@ public class IMAPProtocol extends Protocol {
      */
     public void sasllogin(String[] allowed, String realm, String authzid,
 				String u, String p) throws ProtocolException {
+	boolean useCanonicalHostName = PropUtil.getBooleanProperty(props,
+		    "mail." + name + ".sasl.usecanonicalhostname", false);
+	String serviceHost;
+	if (useCanonicalHostName)
+	    serviceHost = getInetAddress().getCanonicalHostName();
+	else
+	    serviceHost = host;
 	if (saslAuthenticator == null) {
 	    try {
 		Class sac = Class.forName(
@@ -732,7 +739,7 @@ public class IMAPProtocol extends Protocol {
 					name,
 					props,
 					logger,
-					host
+					serviceHost
 					});
 	    } catch (Exception ex) {
 		logger.log(Level.FINE, "Can't load SASL authenticator", ex);

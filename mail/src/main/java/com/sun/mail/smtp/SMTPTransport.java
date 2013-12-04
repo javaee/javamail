@@ -116,6 +116,7 @@ public class SMTPTransport extends Transport {
     private String saslRealm = UNKNOWN;
     private String authorizationID = UNKNOWN;
     private boolean enableSASL = false;	// enable SASL authentication
+    private boolean useCanonicalHostName = false; // use canonical host name?
     private String[] saslMechanisms = UNKNOWN_SA;
 
     private String ntlmDomain = UNKNOWN; // for ntlm authentication
@@ -212,6 +213,10 @@ public class SMTPTransport extends Transport {
 	    "mail." + name + ".sasl.enable", false);
 	if (enableSASL)
 	    logger.config("enable SASL");
+	useCanonicalHostName = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".sasl.usecanonicalhostname", false);
+	if (useCanonicalHostName)
+	    logger.config("use canonical host name");
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -369,6 +374,29 @@ public class SMTPTransport extends Transport {
      */
     public synchronized void setSASLRealm(String saslRealm) {
 	this.saslRealm = saslRealm;
+    }
+
+    /**
+     * Should SASL use the canonical host name?
+     *
+     * @return	true if SASL should use the canonical host name
+     *
+     * @since JavaMail 1.5.2
+     */
+    public synchronized boolean getUseCanonicalHostName() {
+	return useCanonicalHostName;
+    }
+
+    /**
+     * Set whether SASL should use the canonical host name.
+     *
+     * @param	useCanonicalHostName	should SASL use the canonical host name?
+     *
+     * @since JavaMail 1.5.2
+     */
+    public synchronized void setUseCanonicalHostName(
+						boolean useCanonicalHostName) {
+	this.useCanonicalHostName = useCanonicalHostName;
     }
 
     /**
@@ -1010,6 +1038,11 @@ public class SMTPTransport extends Transport {
      */
     public boolean sasllogin(String[] allowed, String realm, String authzid,
 				String u, String p) throws MessagingException {
+	String serviceHost;
+	if (useCanonicalHostName)
+	    serviceHost = serverSocket.getInetAddress().getCanonicalHostName();
+	else
+	    serviceHost = host;
 	if (saslAuthenticator == null) {
 	    try {
 		Class sac = Class.forName(
@@ -1027,7 +1060,7 @@ public class SMTPTransport extends Transport {
 					name,
 					session.getProperties(),
 					logger,
-					host
+					serviceHost
 					});
 	    } catch (Exception ex) {
 		logger.log(Level.FINE, "Can't load SASL authenticator", ex);

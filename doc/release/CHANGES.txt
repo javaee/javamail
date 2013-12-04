@@ -20,6 +20,7 @@ The following bugs have been fixed in the 1.5.2 release.
 
 K  5820	allow IMAP search to throw SearchException when search is too complex
 K  6181	NullPointerException at IMAPFolder#getMessagesByUID if msg not found
+K  6201	add option to use canonical host name for SASL
 K  6203	IMAP astring parsing incorrect
 
 

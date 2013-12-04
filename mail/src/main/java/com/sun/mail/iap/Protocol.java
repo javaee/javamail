@@ -400,6 +400,16 @@ public class Protocol {
     }
 
     /**
+     * Return the address the socket connected to.
+     *
+     * @return	the InetAddress the socket is connected to
+     * @since	JavaMail 1.5.2
+     */
+    public InetAddress getInetAddress() {
+	return socket.getInetAddress();
+    }
+
+    /**
      * Disconnect.
      */
     protected synchronized void disconnect() {
