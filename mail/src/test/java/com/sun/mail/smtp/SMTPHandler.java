@@ -153,7 +153,8 @@ public class SMTPHandler implements Runnable, Cloneable {
         currentLine = reader.readLine();
 
         if (currentLine == null) {
-            LOGGER.severe("Current line is null!");
+	    // XXX - often happens when shutting down
+            //LOGGER.severe("Current line is null!");
             exit();
             return;
         }

@@ -45,6 +45,7 @@ import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.Transport;
+import javax.mail.AuthenticationFailedException;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -56,7 +57,7 @@ import static org.junit.Assert.fail;
 public class SMTPSaslLoginTest {
 
     @Test
-    public void test() {
+    public void testSuccess() {
         SMTPServer server = null;
         try {
             server = new SMTPServer(new SMTPSaslHandler(), 26423);
@@ -69,6 +70,7 @@ public class SMTPSaslLoginTest {
             properties.setProperty("mail.smtp.sasl.enable", "true");
             properties.setProperty("mail.smtp.sasl.mechanisms", "DIGEST-MD5");
             properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
+            //properties.setProperty("mail.debug.auth", "true");
             Session session = Session.getInstance(properties);
             //session.setDebug(true);
 
@@ -77,7 +79,47 @@ public class SMTPSaslLoginTest {
                 t.connect("test", "test");
 		// success!
 	    } catch (Exception ex) {
-		// expect an exception when connect times out
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    @Test
+    public void testFailure() {
+        SMTPServer server = null;
+        try {
+            server = new SMTPServer(new SMTPSaslHandler(), 26423);
+            server.start();
+            Thread.sleep(1000);
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "26423");
+            properties.setProperty("mail.smtp.sasl.enable", "true");
+            properties.setProperty("mail.smtp.sasl.mechanisms", "DIGEST-MD5");
+            properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect("test", "xtest");
+		// should have failed
+		fail("wrong password succeeded");
+	    } catch (AuthenticationFailedException ex) {
+		// success!
+	    } catch (Exception ex) {
 		fail(ex.toString());
             } finally {
                 t.close();

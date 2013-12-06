@@ -203,6 +203,8 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 		// XXX - ultimately return true???
 	    }
 	}
+	if (resp != 235)
+	    return false;
 
 	if (sc.isComplete() /*&& res.status == SUCCESS*/) {
 	    String qop = (String)sc.getNegotiatedProperty(Sasl.QOP);
