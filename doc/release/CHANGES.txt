@@ -23,6 +23,7 @@ K  6181	NullPointerException at IMAPFolder#getMessagesByUID if msg not found
 K  6201	add option to use canonical host name for SASL
 K  6203	IMAP astring parsing incorrect
 K  6207	SMTP SASL support doesn't handle authentication failure properly
+K  6208	SASL authentication failures should not try other methods
 
 
 		  CHANGES IN THE 1.5.1 RELEASE

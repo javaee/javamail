@@ -132,11 +132,11 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 					(Map)props, cbh);
 	} catch (SaslException sex) {
 	    logger.log(Level.FINE, "Failed to create SASL client", sex);
-	    return false;
+	    throw new UnsupportedOperationException(sex.getMessage(), sex);
 	}
 	if (sc == null) {
 	    logger.fine("No SASL support");
-	    return false;
+	    throw new UnsupportedOperationException("No SASL support");
 	}
 	if (logger.isLoggable(Level.FINE))
 	    logger.fine("SASL client " + sc.getMechanismName());

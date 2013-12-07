@@ -763,10 +763,18 @@ public class SMTPTransport extends Transport {
 	    authzid = user;
 	if (enableSASL) {
 	    logger.fine("Authenticate with SASL");
-	    if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
-			    user, passwd))
-		return true;	// success
-	    logger.fine("SASL authentication failed");
+	    try {
+		if (sasllogin(getSASLMechanisms(), getSASLRealm(), authzid,
+				user, passwd)) {
+		    return true;	// success
+		} else {
+		    logger.fine("SASL authentication failed");
+		    return false;
+		}
+	    } catch (UnsupportedOperationException ex) {
+		logger.log(Level.FINE, "SASL support failed", ex);
+		// if the SASL support fails, fall back to non-SASL
+	    }
 	}
 
 	if (logger.isLoggable(Level.FINE))

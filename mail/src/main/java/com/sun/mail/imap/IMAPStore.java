@@ -777,8 +777,16 @@ public class IMAPStore extends Store
 	else
 	    authzid = null;
 
-	if (enableSASL)
-	    p.sasllogin(saslMechanisms, saslRealm, authzid, u, pw);
+	if (enableSASL) {
+	    try {
+		p.sasllogin(saslMechanisms, saslRealm, authzid, u, pw);
+		if (!p.isAuthenticated())
+		    throw new CommandFailedException(
+						"SASL authentication failed");
+	    } catch (UnsupportedOperationException ex) {
+		// continue to try other authentication methods below
+	    }
+	}
 
 	if (p.isAuthenticated())
 	    ;	// SASL login succeeded, go to bottom

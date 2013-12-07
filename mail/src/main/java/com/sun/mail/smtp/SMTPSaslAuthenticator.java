@@ -126,12 +126,12 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 	    sc = Sasl.createSaslClient(mechs, authzid, name, host,
 					(Map)props, cbh);
 	} catch (SaslException sex) {
-	    logger.log(Level.FINE, "Failed to create SASL client: ", sex);
-	    return false;
+	    logger.log(Level.FINE, "Failed to create SASL client", sex);
+	    throw new UnsupportedOperationException(sex.getMessage(), sex);
 	}
 	if (sc == null) {
 	    logger.fine("No SASL support");
-	    return false;
+	    throw new UnsupportedOperationException("No SASL support");
 	}
 	if (logger.isLoggable(Level.FINE))
 	    logger.fine("SASL client " + sc.getMechanismName());
