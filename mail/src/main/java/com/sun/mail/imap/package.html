@@ -355,6 +355,24 @@ Default is false.</TD>
 </TR>
 
 <TR>
+<TD>mail.imap.auth.ntlm.domain</TD>
+<TD>String</TD>
+<TD>
+The NTLM authentication domain.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.auth.ntlm.flags</TD>
+<TD>int</TD>
+<TD>
+NTLM protocol-specific flags.
+See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
+http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.proxyauth.user</TD>
 <TD>String</TD>
 <TD>If the server supports the PROXYAUTH extension, this property
@@ -438,24 +456,6 @@ Defaults to false.
 If set to true, enables a workaround for a bug in the Novell Groupwise
 XGWTRUSTEDAPP SASL mechanism, when that mechanism is being used.
 Defaults to true.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.imap.auth.ntlm.domain</TD>
-<TD>String</TD>
-<TD>
-The NTLM authentication domain.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.imap.auth.ntlm.flags</TD>
-<TD>int</TD>
-<TD>
-NTLM protocol-specific flags.
-See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
-http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
 </TD>
 </TR>
 
