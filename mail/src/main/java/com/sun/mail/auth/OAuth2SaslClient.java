@@ -69,17 +69,17 @@ public class OAuth2SaslClient implements SaslClient {
 	this.cbh = cbh;
     }
 
-    @Override
+    //@Override
     public String getMechanismName() {
 	return "XOAUTH2";
     }
 
-    @Override
+    //@Override
     public boolean hasInitialResponse() {
 	return true;
     }
 
-    @Override
+    //@Override
     public byte[] evaluateChallenge(byte[] challenge) throws SaslException {
 	if (complete)
 	    return new byte[0];
@@ -114,31 +114,31 @@ public class OAuth2SaslClient implements SaslClient {
 	return response;
     }
 
-    @Override
+    //@Override
     public boolean isComplete() {
 	return complete;
     }
 
-    @Override
+    //@Override
     public byte[] unwrap(byte[] incoming, int offset, int len)
 				throws SaslException {
 	throw new IllegalStateException("OAUTH2 unwrap not supported");
     }
 
-    @Override
+    //@Override
     public byte[] wrap(byte[] outgoing, int offset, int len)
 				throws SaslException {
 	throw new IllegalStateException("OAUTH2 wrap not supported");
     }
 
-    @Override
+    //@Override
     public Object getNegotiatedProperty(String propName) {
 	if (!complete)
 	    throw new IllegalStateException("OAUTH2 getNegotiatedProperty");
 	return null;
     }
 
-    @Override
+    //@Override
     public void dispose() throws SaslException {
     }
 }

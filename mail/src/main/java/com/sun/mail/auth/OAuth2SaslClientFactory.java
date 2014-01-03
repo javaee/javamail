@@ -57,7 +57,7 @@ public class OAuth2SaslClientFactory implements SaslClientFactory {
     private static final String MECHANISM_NAME = "SaslClientFactory.XOAUTH2";
 
     static class OAuth2Provider extends Provider {
-	//private static final long serialVersionUID = 0;
+	private static final long serialVersionUID = -5371795551562287059L;
 
 	public OAuth2Provider() {
 	    super(PROVIDER_NAME, 1.0, "XOAUTH2 SASL Mechanism");
@@ -65,7 +65,7 @@ public class OAuth2SaslClientFactory implements SaslClientFactory {
 	}
     }
 
-    @Override
+    //@Override
     public SaslClient createSaslClient(String[] mechanisms,
 				String authorizationId, String protocol,
 				String serverName, Map<String,?> props,
@@ -77,7 +77,7 @@ public class OAuth2SaslClientFactory implements SaslClientFactory {
 	return null;
     }
 
-    @Override
+    //@Override
     public String[] getMechanismNames(Map<String,?> props) {
 	return new String[] { "XOAUTH2" };
     }
