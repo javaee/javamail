@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -63,6 +63,18 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
     private Properties props;
     private MailLogger logger;
     private String host;
+
+    /*
+     * This is a hack to initialize the OAUTH SASL provider just before,
+     * and only if, we might need it.  This avoids the need for the user 
+     * to initialize it explicitly, or manually configure the security
+     * providers file.
+     */
+    static {
+	try {
+	    com.sun.mail.auth.OAuth2SaslClientFactory.init();
+	} catch (Throwable t) { }
+    }
 
     public IMAPSaslAuthenticator(IMAPProtocol pr, String name, Properties props,
 				MailLogger logger, String host) {
@@ -142,8 +154,19 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	    logger.fine("SASL client " + sc.getMechanismName());
 
 	try {
-	    tag = pr.writeCommand("AUTHENTICATE " + sc.getMechanismName(),
-						null);
+	    Argument args = new Argument();
+	    args.writeAtom(sc.getMechanismName());
+	    if (pr.hasCapability("SASL-IR") && sc.hasInitialResponse()) {
+		String irs;
+		byte[] ba = sc.evaluateChallenge(new byte[0]);
+		if (ba.length > 0) {
+		    ba = BASE64EncoderStream.encode(ba);
+		    irs = ASCIIUtility.toString(ba, 0, ba.length);
+		} else
+		    irs = "=";
+		args.writeAtom(irs);
+	    }
+	    tag = pr.writeCommand("AUTHENTICATE", args);
 	} catch (Exception ex) {
 	    logger.log(Level.FINE, "SASL AUTHENTICATE Exception", ex);
 	    return false;

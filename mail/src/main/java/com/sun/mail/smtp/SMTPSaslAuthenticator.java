@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,6 +62,18 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
     private Properties props;
     private MailLogger logger;
     private String host;
+
+    /*
+     * This is a hack to initialize the OAUTH SASL provider just before,
+     * and only if, we might need it.  This avoids the need for the user 
+     * to initialize it explicitly, or manually configure the security
+     * providers file.
+     */
+    static {
+	try {
+	    com.sun.mail.auth.OAuth2SaslClientFactory.init();
+	} catch (Throwable t) { }
+    }
 
     public SMTPSaslAuthenticator(SMTPTransport pr, String name,
 		Properties props, MailLogger logger, String host) {
@@ -142,8 +154,11 @@ public class SMTPSaslAuthenticator implements SaslAuthenticator {
 	    String ir = null;
 	    if (sc.hasInitialResponse()) {
 		byte[] ba = sc.evaluateChallenge(new byte[0]);
-		ba = BASE64EncoderStream.encode(ba);
-		ir = ASCIIUtility.toString(ba, 0, ba.length);
+		if (ba.length > 0) {
+		    ba = BASE64EncoderStream.encode(ba);
+		    ir = ASCIIUtility.toString(ba, 0, ba.length);
+		} else
+		    ir = "=";
 	    }
 	    if (ir != null)
 		resp = pr.simpleCommand("AUTH " + mech + " " + ir);

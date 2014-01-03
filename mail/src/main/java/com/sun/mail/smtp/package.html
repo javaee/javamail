@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -132,6 +132,13 @@ schemes.  See the
 Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
+<P>
+The SASL support described above is used to provide support for the
+<A HREF="https://developers.google.com/gmail/xoauth2_protocol" TARGET="_top">
+XOAUTH2 mechanism</A>.
+The OAuth 2.0 Access Token should be passed as the password for this mechanism.
+See <A HREF="https://java.net/projects/javamail/pages/OAuth2" TARGET="_top">
+OAuth2 Support</A> for details.
 <P>
 SMTP can also optionally request Delivery Status Notifications
 (<A HREF="http://www.ietf.org/rfc/rfc1891.txt" TARGET="_top">RFC 1891</A>).

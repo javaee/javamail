@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -62,9 +62,12 @@ method using the capability name defined by the extension
 <H4>SASL Support</H4>
 <P>
 The IMAP protocol provider can use SASL
-(<A HREF="http://www.ietf.org/rfc/rfc2222.txt" TARGET="_top">RFC 2222</A>)
+(<A HREF="http://www.ietf.org/rfc/rfc4422.txt" TARGET="_top">RFC 4422</A>)
 authentication mechanisms on systems that support the
 <CODE>javax.security.sasl</CODE> APIs.
+The SASL-IR
+(<A HREF="http://www.ietf.org/rfc/rfc4959.txt" TARGET="_top">RFC 4959</A>)
+capability is also supported.
 In addition to the SASL mechanisms that are built into 
 the SASL implementation, users can also provide additional
 SASL mechanisms of their own design to support custom authentication
@@ -73,6 +76,13 @@ schemes.  See the
 Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
+<H4>OAuth 2.0 Support</H4>
+The SASL support described above is used to provide support for the
+<A HREF="https://developers.google.com/gmail/xoauth2_protocol" TARGET="_top">
+XOAUTH2 mechanism</A>.
+The OAuth 2.0 Access Token should be passed as the password for this mechanism.
+See <A HREF="https://java.net/projects/javamail/pages/OAuth2" TARGET="_top">
+OAuth2 Support</A> for details.
 <H4>Connection Pool</H4>
 <P>
 A connected IMAPStore maintains a pool of IMAP protocol objects for
@@ -95,7 +105,7 @@ implementations of the IMAP protocol provider.
 <H4>QUOTA Support</H4>
 <P>
 The IMAP QUOTA extension
-(<A HREF="http://www.ietf.org/rfc/rfc2087.txt">RFC 2087</A>)
+(<A HREF="http://www.ietf.org/rfc/rfc2087.txt" TARGET="_top">RFC 2087</A>)
 is supported via the
 {@link javax.mail.QuotaAwareStore QuotaAwareStore} interface implemented by
 {@link com.sun.mail.imap.IMAPStore IMAPStore}, and the
@@ -104,7 +114,7 @@ is supported via the
 <H4>ACL Support</H4>
 <P>
 The IMAP ACL extension
-(<A HREF="http://www.ietf.org/rfc/rfc2086.txt">RFC 2086</A>)
+(<A HREF="http://www.ietf.org/rfc/rfc2086.txt" TARGET="_top">RFC 2086</A>)
 is supported via the
 {@link com.sun.mail.imap.Rights Rights} class and the IMAPFolder methods
 {@link com.sun.mail.imap.IMAPFolder#getACL getACL},
@@ -117,7 +127,7 @@ is supported via the
 <H4>SORT Support</H4>
 <P>
 The IMAP SORT extension
-(<A HREF="http://www.ietf.org/rfc/rfc5256.txt">RFC 5256</A>)
+(<A HREF="http://www.ietf.org/rfc/rfc5256.txt" TARGET="_top">RFC 5256</A>)
 is supported via the
 {@link com.sun.mail.imap.SortTerm SortTerm} class and the IMAPFolder
 {@link com.sun.mail.imap.IMAPFolder#getSortedMessages getSortedMessages}
