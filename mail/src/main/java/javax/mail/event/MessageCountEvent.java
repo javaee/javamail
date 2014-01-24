@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,11 +49,12 @@ import javax.mail.*;
  * Note that some folder types may only deliver MessageCountEvents at
  * certain times or after certain operations.  IMAP in particular will
  * only notify the client of MessageCountEvents when a client issues a
- * new command.
- * Refer to RFC 2060 <A HREF="http://www.ietf.org/rfc/rfc2060.txt">
- * http://www.ietf.org/rfc/rfc2060.txt</A> for details.
- * A client may want "poll" the folder by occasionally calling the
- * <code>getMessageCount</code> or <code>isConnected</code> methods
+ * new command.  Refer to
+ * <A HREF="http://www.ietf.org/rfc/rfc3501.txt" TARGET="_top">RFC 3501</A>
+ * for details.
+ * A client may want to "poll" the folder by occasionally calling the
+ * {@link javax.mail.Folder#getMessageCount getMessageCount} or
+ * {@link javax.mail.Folder#isOpen isOpen} methods
  * to solicit any such notifications.
  *
  * @author John Mani
