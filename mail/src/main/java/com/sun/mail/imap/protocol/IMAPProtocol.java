@@ -2680,8 +2680,9 @@ public class IMAPProtocol extends Protocol {
 	try {
 	    os.write(DONE);
 	    os.flush();
-	} catch (IOException ex) {
+	} catch (Exception ex) {
 	    // nothing to do, hope to detect it again later
+	    logger.log(Level.FINEST, "Exception aborting IDLE", ex);
 	}
     }
 
