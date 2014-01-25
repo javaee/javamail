@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -219,6 +219,8 @@ public class IMAPStore extends Store
     private String[] saslMechanisms;
     private boolean forcePasswordRefresh = false;
     // enable notification of IMAP responses
+    private boolean enableResponseEvents = false;
+    // enable notification of IMAP responses during IDLE
     private boolean enableImapEvents = false;
     private String guid;			// for Yahoo! Mail IMAP
     private boolean throwSearchException = false;
@@ -569,10 +571,16 @@ public class IMAPStore extends Store
 	    logger.config("enable forcePasswordRefresh");
 
 	// check if enableimapevents is enabled
+	enableResponseEvents = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".enableresponseevents", false);
+	if (enableResponseEvents)
+	    logger.config("enable IMAP response events");
+
+	// check if enableresponseevents is enabled
 	enableImapEvents = PropUtil.getBooleanSessionProperty(session,
 	    "mail." + name + ".enableimapevents", false);
 	if (enableImapEvents)
-	    logger.config("enable IMAP events");
+	    logger.config("enable IMAP IDLE events");
 
 	// check if message cache debugging set
 	messageCacheDebug = PropUtil.getBooleanSessionProperty(session,
@@ -2079,6 +2087,8 @@ public class IMAPStore extends Store
      * Response must be an OK, NO, BAD, or BYE response.
      */
     void handleResponseCode(Response r) {
+	if (enableResponseEvents)
+	    notifyStoreListeners(IMAPStore.RESPONSE, r.toString());
 	String s = r.getRest();	// get the text after the response
 	boolean isAlert = false;
 	if (s.startsWith("[")) {	// a response code

@@ -653,6 +653,21 @@ set, the default is 10 milliseconds.
 </TR>
 
 <TR>
+<TD>mail.imap.enableresponseevents</TD>
+<TD>boolean</TD>
+<TD>
+Enable special IMAP-specific events to be delivered to the Store's
+<code>ConnectionListener</code>.  If true, IMAP OK, NO, BAD, or BYE responses
+will be sent as <code>ConnectionEvent</code>s with a type of
+<code>IMAPStore.RESPONSE</code>.  The event's message will be the
+raw IMAP response string.
+By default, these events are not sent.
+NOTE: This capability is highly experimental and likely will change
+in future releases.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.enableimapevents</TD>
 <TD>boolean</TD>
 <TD>
