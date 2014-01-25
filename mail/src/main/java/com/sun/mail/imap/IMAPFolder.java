@@ -1384,6 +1384,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (!opened)
 		return;
 
+	    boolean reuseProtocol = true;
 	    try {
 		waitIfIdle();
 		if (force) {
@@ -1412,15 +1413,30 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				    protocol.hasCapability("UNSELECT"))
 				protocol.unselect();
 			    else {
+				// Unselect isn't supported so we need to
+				// select a folder to cause this one to be
+				// deselected without expunging messages.
+				// We try to do that by reopening the current
+				// folder read-only.  If the current folder
+				// was renamed out from under us, the EXAMINE
+				// might fail, but that's ok because it still
+				// leaves us with the folder deselected.
 				if (protocol != null) {
-				    protocol.examine(fullName);
-				    if (protocol != null) // XXX - unnecessary?
+				    boolean selected = true;
+				    try {
+					protocol.examine(fullName);
+					// success, folder still selected
+				    } catch (CommandFailedException ex) {
+					// EXAMINE failed, folder is no
+					// longer selected
+					selected = false;
+				    }
+				    if (selected && protocol != null)
 					protocol.close();
 				}
 			    }
                         } catch (ProtocolException pex2) {
-                            if (protocol != null)
-				protocol.disconnect();
+			    reuseProtocol = false;	// something went wrong
                         }
                     } else {
 			if (protocol != null)
@@ -1432,7 +1448,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    } finally {
 		// cleanup if we haven't already
 		if (opened)
-		    cleanup(true);
+		    cleanup(reuseProtocol);
 	    }
 	}
     }

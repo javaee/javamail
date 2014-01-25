@@ -25,6 +25,7 @@ K  6203	IMAP astring parsing incorrect
 K  6207	SMTP SASL support doesn't handle authentication failure properly
 K  6208	SASL authentication failures should not try other methods
 K  6238	add OAuth2 support to JavaMail
+K  6260	IMAP failures during close can leave connection unusable
 
 
 		  CHANGES IN THE 1.5.1 RELEASE
