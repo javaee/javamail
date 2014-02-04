@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -134,5 +134,40 @@ public class MimeUtilityTest {
 	assertTrue(encodings.contains(MimeUtility.getEncoding(bads)));
 	assertTrue(encodings.contains(
 			MimeUtility.getEncoding(new DataHandler(bads))));
+    }
+
+    /**
+     * Test that encoding a Unicode string with surrogate pairs
+     * doesn't split the encoding between the pairs.
+     */
+    @Test
+    public void testSurrogatePairs() throws Exception {
+	// test a specific case
+	String sp = "a" +
+		    "\ud801\udc00\ud801\udc00\ud801\udc00\ud801\udc00" +
+		    "\ud801\udc00\ud801\udc00\ud801\udc00\ud801\udc00" +
+		    "\ud801\udc00\ud801\udc00\ud801\udc00\ud801\udc00" +
+		    "\ud801\udc00\ud801\udc00\ud801\udc00\ud801\udc00";
+	String en = MimeUtility.encodeText(sp, "utf-8", "B");
+	String dt = MimeUtility.decodeText(en);
+	// encoding it and decoding it shouldn't change it
+	assertEquals(dt, sp);
+	String[] w = en.split(" ");
+	// the first word should end with the second half of a pair
+	String dw = MimeUtility.decodeWord(w[0]);
+	assertTrue(dw.charAt(dw.length()-1) == '\udc00');
+	// and the second word should start with the first half of a pair
+	dw = MimeUtility.decodeWord(w[1]);
+	assertTrue(dw.charAt(0) == '\ud801');
+
+	// test various string lengths
+	int ch = 0xFE000;
+	String test = "";
+	for (int i = 0; i < 50; i++) {
+	    test += new String(Character.toChars(ch));
+	    String encoded = MimeUtility.encodeText(test, "UTF-8", "B");
+	    String decoded = MimeUtility.decodeText(encoded);
+	    assertEquals(decoded, test);
+	}
     }
 }

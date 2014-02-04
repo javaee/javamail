@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -783,9 +783,14 @@ public class MimeUtility {
 	if ((len > avail) && ((size = string.length()) > 1)) { 
 	    // If the length is greater than 'avail', split 'string'
 	    // into two and recurse.
-	    doEncode(string.substring(0, size/2), b64, jcharset, 
-		     avail, prefix, first, encodingWord, buf);
-	    doEncode(string.substring(size/2, size), b64, jcharset,
+	    // Have to make sure not to split a Unicode surrogate pair.
+	    int split = size / 2;
+	    if (Character.isHighSurrogate(string.charAt(split-1)))
+		split--;
+	    if (split > 0)
+		doEncode(string.substring(0, split), b64, jcharset, 
+			 avail, prefix, first, encodingWord, buf);
+	    doEncode(string.substring(split, size), b64, jcharset,
 		     avail, prefix, false, encodingWord, buf);
 	} else {
 	    // length <= than 'avail'. Encode the given string
