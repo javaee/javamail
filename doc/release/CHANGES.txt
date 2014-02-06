@@ -28,6 +28,7 @@ K  6238	add OAuth2 support to JavaMail
 K  6260	IMAP failures during close can leave connection unusable
 K  6261	need way to monitor IMAP responses
 K  6274	MimeUtility.encodeText() does not work with Unicode surrogate pairs
+K  6283	IMAP alerts and notifications are not sent during authentication
 
 
 		  CHANGES IN THE 1.5.1 RELEASE

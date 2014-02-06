@@ -685,8 +685,9 @@ public class IMAPStore extends Store
 				", host=" + host +
 				", user=" + traceUser(user) +
 				", password=" + tracePassword(password));
+		protocol.addResponseHandler(nonStoreResponseHandler);
 	        login(protocol, user, password);
-
+		protocol.removeResponseHandler(nonStoreResponseHandler);
 	        protocol.addResponseHandler(this);
 
 		usingSSL = protocol.isSSL();	// in case anyone asks
@@ -923,8 +924,10 @@ public class IMAPStore extends Store
 			refreshPassword();
                     // Use cached host, port and timeout values.
                     p = newIMAPProtocol(host, port);
+		    p.addResponseHandler(nonStoreResponseHandler);
                     // Use cached auth info
                     login(p, user, password);
+		    p.removeResponseHandler(nonStoreResponseHandler);
                 } catch(Exception ex1) {
                     if (p != null)
                         try {
