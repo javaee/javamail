@@ -47,6 +47,8 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Folder;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import static org.junit.Assert.fail;
 
@@ -56,7 +58,6 @@ import static org.junit.Assert.fail;
 public final class IMAPCloseFailureTest {
 
     private static final String HOST = "localhost";
-    private static final int PORT = 26422;
 
     static class NoIMAPHandler extends IMAPHandler {
 	static boolean first = true;
@@ -93,15 +94,15 @@ public final class IMAPCloseFailureTest {
     }
 
     public void testClose(IMAPHandler handler) {
-	IMAPServer server = null;
+	TestServer server = null;
 	try {
-	    server = new IMAPServer(handler, PORT);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    Properties properties = new Properties();
             properties.setProperty("mail.imap.host", HOST);
-            properties.setProperty("mail.imap.port", "" + PORT);
+            properties.setProperty("mail.imap.port", "" + server.getPort());
 	    Session session = Session.getInstance(properties);
 	    //session.setDebug(true);
 

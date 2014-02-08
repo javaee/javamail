@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,84 +40,22 @@
 
 package com.sun.mail.smtp;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import com.sun.mail.test.ProtocolHandler;
+
 /**
  * Handle connection.
  *
- * Inspired by, and derived from, POP3Handler by sbo.
- *
  * @author Bill Shannon
- * @author sbo
  */
-public class SMTPHandler implements Runnable, Cloneable {
-
-    /** Logger for this class. */
-    protected static final Logger LOGGER =
-	Logger.getLogger(SMTPHandler.class.getName());
-
-    /** Client socket. */
-    private Socket clientSocket;
-
-    /** Quit? */
-    private boolean quit;
-
-    /** Writer to socket. */
-    private PrintWriter writer;
-
-    /** Reader from socket. */
-    private BufferedReader reader;
+public class SMTPHandler extends ProtocolHandler {
 
     /** Current line. */
     private String currentLine;
-
-    /**
-     * Sets the client socket.
-     *
-     * @param clientSocket
-     *            client socket
-     */
-    public final void setClientSocket(final Socket clientSocket) {
-        this.clientSocket = clientSocket;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final void run() {
-        try {
-            writer = new PrintWriter(clientSocket.getOutputStream());
-            reader = new BufferedReader(
-		new InputStreamReader(clientSocket.getInputStream()));
-
-            sendGreetings();
-
-            while (!quit) {
-                handleCommand();
-            }
-
-            //clientSocket.close();
-        } catch (final SocketException sex) {
-            // ignore it, often get "connection reset" when client closes
-        } catch (final Exception e) {
-            LOGGER.log(Level.SEVERE, "Error", e);
-        } finally {
-            try {
-		if (clientSocket != null)
-		    clientSocket.close();
-            } catch (final IOException ioe) {
-                LOGGER.log(Level.SEVERE, "Error", ioe);
-            }
-        }
-    }
 
     /**
      * Send greetings.
@@ -305,32 +243,6 @@ public class SMTPHandler implements Runnable, Cloneable {
      */
     public void auth(String line) throws IOException {
         println("235 Authorized");
-    }
-
-    /**
-     * Quit.
-     */
-    public void exit() {
-        quit = true;
-        try {
-            if (clientSocket != null && !clientSocket.isClosed()) {
-                clientSocket.close();
-		clientSocket = null;
-            }
-        } catch (final IOException e) {
-            LOGGER.log(Level.SEVERE, "Error", e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (final CloneNotSupportedException e) {
-            throw new AssertionError(e);
-        }
     }
 
     protected void ok() throws IOException {

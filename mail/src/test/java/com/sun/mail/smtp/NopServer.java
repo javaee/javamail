@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -61,19 +61,21 @@ public final class NopServer extends Thread {
     /** Keep on? */
     private volatile boolean keepOn;
 
-    /** Port to listen. */
-    private final int port;
-
-    /** DId we get EOF on the client socket? */
+    /** Did we get EOF on the client socket? */
     private volatile boolean gotEOF = false;
 
     /**
      * Nop server.
-     *
-     * @param port	port to listen on
      */
-    public NopServer(final int port) {
-        this.port = port;
+    public NopServer() throws IOException {
+	serverSocket = new ServerSocket(0);
+    }
+
+    /**
+     * Return the port the server is listening on.
+     */
+    public int getPort() {
+	return serverSocket.getLocalPort();
     }
 
     /**
@@ -98,12 +100,6 @@ public final class NopServer extends Thread {
     public void run() {
         try {
             keepOn = true;
-
-            try {
-                serverSocket = new ServerSocket(port, 0, null);
-            } catch (final IOException e) {
-                throw new RuntimeException(e);
-            }
 
             while (keepOn) {
                 try {

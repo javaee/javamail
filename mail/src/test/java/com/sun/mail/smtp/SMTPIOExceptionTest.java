@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.event.ConnectionAdapter;
 import javax.mail.event.ConnectionEvent;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
@@ -72,7 +74,7 @@ public final class SMTPIOExceptionTest {
 
     @Test
     public void test() throws Exception {
-        SMTPServer server = null;
+        TestServer server = null;
         try {
 	    SMTPHandler handler = new SMTPHandler() {
 		public void rcpt() throws IOException {
@@ -83,13 +85,13 @@ public final class SMTPIOExceptionTest {
 		    super.rcpt();
 		}
 	    };
-            server = new SMTPServer(handler, 26423);
+            server = new TestServer(handler);
             server.start();
             Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
-            properties.setProperty("mail.smtp.port", "26423");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
             properties.setProperty("mail.smtp.timeout", "" + TIMEOUT);
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);

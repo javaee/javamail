@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,6 +49,8 @@ import javax.mail.Store;
 import javax.mail.Message;
 import javax.mail.FolderClosedException;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -68,16 +70,16 @@ public final class POP3FolderClosedExceptionTest {
      */
     @Test
     public void testFolderClosedExceptionBody() {
-	POP3Server server = null;
+	TestServer server = null;
 	try {
 	    final POP3Handler handler = new POP3HandlerTimeoutBody();
-	    server = new POP3Server(handler, 26421);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    final Properties properties = new Properties();
 	    properties.setProperty("mail.pop3.host", "localhost");
-	    properties.setProperty("mail.pop3.port", "26421");
+	    properties.setProperty("mail.pop3.port", "" + server.getPort());
 	    final Session session = Session.getInstance(properties);
 	    //session.setDebug(true);
 
@@ -140,16 +142,16 @@ public final class POP3FolderClosedExceptionTest {
      */
     @Test
     public void testFolderClosedExceptionHeaders() {
-	POP3Server server = null;
+	TestServer server = null;
 	try {
 	    final POP3Handler handler = new POP3HandlerTimeoutHeader();
-	    server = new POP3Server(handler, 26421);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    final Properties properties = new Properties();
 	    properties.setProperty("mail.pop3.host", "localhost");
-	    properties.setProperty("mail.pop3.port", "26421");
+	    properties.setProperty("mail.pop3.port", "" + server.getPort());
 	    final Session session = Session.getInstance(properties);
 	    //session.setDebug(true);
 

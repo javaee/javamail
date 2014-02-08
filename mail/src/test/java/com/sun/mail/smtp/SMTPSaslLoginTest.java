@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,6 +47,8 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.AuthenticationFailedException;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -58,15 +60,15 @@ public class SMTPSaslLoginTest {
 
     @Test
     public void testSuccess() {
-        SMTPServer server = null;
+        TestServer server = null;
         try {
-            server = new SMTPServer(new SMTPSaslHandler(), 26423);
+            server = new TestServer(new SMTPSaslHandler());
             server.start();
             Thread.sleep(1000);
 
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
-            properties.setProperty("mail.smtp.port", "26423");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
             properties.setProperty("mail.smtp.sasl.enable", "true");
             properties.setProperty("mail.smtp.sasl.mechanisms", "DIGEST-MD5");
             properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");
@@ -96,15 +98,15 @@ public class SMTPSaslLoginTest {
 
     @Test
     public void testFailure() {
-        SMTPServer server = null;
+        TestServer server = null;
         try {
-            server = new SMTPServer(new SMTPSaslHandler(), 26423);
+            server = new TestServer(new SMTPSaslHandler());
             server.start();
             Thread.sleep(1000);
 
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
-            properties.setProperty("mail.smtp.port", "26423");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
             properties.setProperty("mail.smtp.sasl.enable", "true");
             properties.setProperty("mail.smtp.sasl.mechanisms", "DIGEST-MD5");
             properties.setProperty("mail.smtp.auth.digest-md5.disable", "true");

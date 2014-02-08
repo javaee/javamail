@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,7 @@ import javax.mail.Store;
 import javax.mail.MessagingException;
 
 import com.sun.mail.test.SavedSocketFactory;
+import com.sun.mail.test.TestServer;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
@@ -65,7 +66,7 @@ public final class IMAPLoginFailureTest {
      */
     @Test
     public void testSocketClosed() {
-	IMAPServer server = null;
+	TestServer server = null;
 	try {
 	    final IMAPHandler handler = new IMAPHandler() {
 		public void sendGreetings() throws IOException {
@@ -73,14 +74,14 @@ public final class IMAPLoginFailureTest {
 		    super.sendGreetings();
 		}
 	    };
-	    server = new IMAPServer(handler, 26422);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    SavedSocketFactory ssf = new SavedSocketFactory();
 	    Properties properties = new Properties();
 	    properties.setProperty("mail.imap.host", "localhost");
-	    properties.setProperty("mail.imap.port", "26422");
+	    properties.setProperty("mail.imap.port", "" + server.getPort());
 	    properties.put("mail.imap.socketFactory", ssf);
 	    final Session session = Session.getInstance(properties);
 	    //session.setDebug(true);

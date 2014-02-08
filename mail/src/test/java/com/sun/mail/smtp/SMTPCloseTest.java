@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,13 +65,13 @@ public final class SMTPCloseTest {
     public void test() {
         NopServer server = null;
         try {
-            server = new NopServer(26423);
+            server = new NopServer();
             server.start();
             Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
-            properties.setProperty("mail.smtp.port", "26423");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
             properties.setProperty("mail.smtp.timeout", "100");
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);

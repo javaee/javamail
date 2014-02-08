@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,6 +47,8 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.MessagingException;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import static org.junit.Assert.fail;
 
@@ -60,16 +62,16 @@ public final class IMAPSaslLoginTest {
      */
     @Test
     public void testSaslLogin() {
-	IMAPServer server = null;
+	TestServer server = null;
 	try {
 	    IMAPHandler handler = new IMAPSaslHandler();
-	    server = new IMAPServer(handler, 26422);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    Properties properties = new Properties();
 	    properties.setProperty("mail.imap.host", "localhost");
-	    properties.setProperty("mail.imap.port", "26422");
+	    properties.setProperty("mail.imap.port", "" + server.getPort());
 	    properties.setProperty("mail.imap.sasl.enable", "true");
 	    properties.setProperty("mail.imap.sasl.mechanisms", "DIGEST-MD5");
 	    Session session = Session.getInstance(properties);

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -59,19 +59,18 @@ import static org.junit.Assert.fail;
 public class SMTPConnectFailureTest {
 
     private static final String HOST = "localhost";
-    private static final int PORT = 26423;
     private static final int CTO = 20;
 
     @Test
     public void testNoServer() {
-        SMTPServer server = null;
         try {
 	    // verify that port is not being used
-	    ServerSocket ss = new ServerSocket(PORT);
+	    ServerSocket ss = new ServerSocket(0);
+	    int port = ss.getLocalPort();
 	    ss.close();
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", HOST);
-            properties.setProperty("mail.smtp.port", "" + PORT);
+            properties.setProperty("mail.smtp.port", "" + port);
             properties.setProperty("mail.smtp.connectiontimeout", "" + CTO);
             Session session = Session.getInstance(properties);
             //session.setDebug(true);
@@ -84,7 +83,7 @@ public class SMTPConnectFailureTest {
 	    } catch (MailConnectException mcex) {
 		// success!
 		assertEquals(HOST, mcex.getHost());
-		assertEquals(PORT, mcex.getPort());
+		assertEquals(port, mcex.getPort());
 		assertEquals(CTO, mcex.getConnectionTimeout());
 	    } catch (Exception ex) {
 		// expect an exception when connect times out

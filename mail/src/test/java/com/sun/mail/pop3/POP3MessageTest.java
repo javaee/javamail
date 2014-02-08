@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,8 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.MessagingException;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
@@ -64,20 +66,20 @@ import static org.junit.Assert.fail;
  */
 public final class POP3MessageTest {
 
-    private static POP3Server server = null;
+    private static TestServer server = null;
     private static Store store;
     private static Folder folder;
 
     private static void startServer(boolean cached) {
         try {
             final POP3Handler handler = new POP3Handler();
-            server = new POP3Server(handler, 26421);
+            server = new TestServer(handler);
             server.start();
             Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.pop3.host", "localhost");
-            properties.setProperty("mail.pop3.port", "26421");
+            properties.setProperty("mail.pop3.port", "" + server.getPort());
 	    if (cached)
 		properties.setProperty("mail.pop3.filecache.enable", "true");
             final Session session = Session.getInstance(properties);

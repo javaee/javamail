@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -59,19 +59,19 @@ import static org.junit.Assert.fail;
 public final class IMAPConnectFailureTest {
 
     private static final String HOST = "localhost";
-    private static final int PORT = 26422;
     private static final int CTO = 20;
 
     @Test
     public void testNoServer() {
 	try {
 	    // verify that port is not being used
-	    ServerSocket ss = new ServerSocket(PORT);
+	    ServerSocket ss = new ServerSocket(0);
+	    int port = ss.getLocalPort();
 	    ss.close();
 
 	    Properties properties = new Properties();
             properties.setProperty("mail.imap.host", HOST);
-            properties.setProperty("mail.imap.port", "" + PORT);
+            properties.setProperty("mail.imap.port", "" + port);
             properties.setProperty("mail.imap.connectiontimeout", "" + CTO);
 	    Session session = Session.getInstance(properties);
 	    //session.setDebug(true);
@@ -84,7 +84,7 @@ public final class IMAPConnectFailureTest {
 	    } catch (MailConnectException mcex) {
 		// success!
 		assertEquals(HOST, mcex.getHost());
-		assertEquals(PORT, mcex.getPort());
+		assertEquals(port, mcex.getPort());
 		assertEquals(CTO, mcex.getConnectionTimeout());
 	    } catch (Exception ex) {
 		System.out.println(ex);

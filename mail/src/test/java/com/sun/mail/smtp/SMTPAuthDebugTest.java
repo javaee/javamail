@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,6 +45,8 @@ import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.Transport;
+
+import com.sun.mail.test.TestServer;
 
 import org.junit.Test;
 import org.junit.Rule;
@@ -98,15 +100,15 @@ public final class SMTPAuthDebugTest {
      * Scan the debug output looking for "expect", return true if found.
      */
     public boolean test(Properties properties, String expect) {
-	SMTPServer server = null;
+	TestServer server = null;
 	try {
 	    final SMTPHandler handler = new SMTPHandler();
-	    server = new SMTPServer(handler, 26425);
+	    server = new TestServer(handler);
 	    server.start();
 	    Thread.sleep(1000);
 
 	    properties.setProperty("mail.smtp.host", "localhost");
-	    properties.setProperty("mail.smtp.port", "26425");
+	    properties.setProperty("mail.smtp.port", "" + server.getPort());
 	    final Session session = Session.getInstance(properties);
 	    ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	    PrintStream ps = new PrintStream(bos);

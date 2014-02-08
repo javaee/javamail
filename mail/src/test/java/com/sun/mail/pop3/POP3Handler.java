@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,38 +40,20 @@
 
 package com.sun.mail.pop3;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+import com.sun.mail.test.ProtocolHandler;
+
 /**
  * Handle connection.
- * 
+ *
  * @author sbo
  */
-public class POP3Handler implements Runnable, Cloneable {
-    
-    /** Logger for this class. */
-    private static final Logger LOGGER =
-	Logger.getLogger(POP3Handler.class.getName());
-    
-    /** Client socket. */
-    private Socket clientSocket;
-    
-    /** Quit? */
-    private boolean quit;
-    
-    /** Writer to socket. */
-    private PrintWriter writer;
-    
-    /** Reader from socket. */
-    private BufferedReader reader;
-    
+public class POP3Handler extends ProtocolHandler {
+
     /** Current line. */
     private String currentLine;
 
@@ -107,56 +89,18 @@ public class POP3Handler implements Runnable, Cloneable {
 	    "--xxx--\r\n";
 
     /**
-     * Sets the client socket.
-     * 
-     * @param clientSocket
-     *            client socket
-     */
-    public final void setClientSocket(final Socket clientSocket) {
-        this.clientSocket = clientSocket;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public final void run() {
-        try {
-            this.writer = new PrintWriter(this.clientSocket.getOutputStream());
-            this.reader = new BufferedReader(
-		new InputStreamReader(this.clientSocket.getInputStream()));
-            
-            this.sendGreetings();
-            
-            while (!this.quit) {
-                this.handleCommand();
-            }
-            
-            //this.clientSocket.close();
-        } catch (final Exception e) {
-            LOGGER.log(Level.SEVERE, "Error", e);
-        } finally {
-            try {
-		if (this.clientSocket != null)
-		    this.clientSocket.close();
-            } catch (final IOException ioe) {
-                LOGGER.log(Level.SEVERE, "Error", ioe);
-            }
-        }
-    }
-
-    /**
      * Send greetings.
-     * 
+     *
      * @throws IOException
      *             unable to write to socket
      */
     public void sendGreetings() throws IOException {
         this.println("+OK POP3 CUSTOM");
     }
-    
+
     /**
      * Send String to socket.
-     * 
+     *
      * @param str
      *            String to send
      * @throws IOException
@@ -167,22 +111,22 @@ public class POP3Handler implements Runnable, Cloneable {
 	this.writer.print("\r\n");
         this.writer.flush();
     }
-    
+
     /**
      * Handle command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void handleCommand() throws IOException {
         this.currentLine = this.reader.readLine();
-        
+
         if (this.currentLine == null) {
             LOGGER.severe("Current line is null!");
             this.exit();
             return;
         }
-        
+
         final StringTokenizer st = new StringTokenizer(this.currentLine, " ");
         final String commandName = st.nextToken().toUpperCase();
         final String arg = st.hasMoreTokens() ? st.nextToken() : null;
@@ -191,7 +135,7 @@ public class POP3Handler implements Runnable, Cloneable {
             this.exit();
             return;
         }
-        
+
         if (commandName.equals("STAT")) {
             this.stat();
         } else if (commandName.equals("LIST")) {
@@ -221,20 +165,20 @@ public class POP3Handler implements Runnable, Cloneable {
             this.println("-ERR unknown command");
         }
     }
-    
+
     /**
      * STAT command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void stat() throws IOException {
         this.println("+OK 2 " + (msg1.length() + msg2.length()));
     }
-    
+
     /**
      * LIST command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
@@ -247,7 +191,7 @@ public class POP3Handler implements Runnable, Cloneable {
 
     /**
      * RETR command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
@@ -261,40 +205,40 @@ public class POP3Handler implements Runnable, Cloneable {
 	this.writer.write(msg);
 	this.println(".");
     }
-    
+
     /**
      * DELE command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void dele() throws IOException {
 	this.println("-ERR DELE not supported");
     }
-    
+
     /**
      * NOOP command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void noop() throws IOException {
         this.println("+OK");
     }
-    
+
     /**
      * RSET command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void rset() throws IOException {
         this.println("+OK");
     }
-    
+
     /**
      * QUIT command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
@@ -302,11 +246,11 @@ public class POP3Handler implements Runnable, Cloneable {
         this.println("+OK");
         this.exit();
     }
-    
+
     /**
      * TOP command.
      * XXX - ignores number of lines argument
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
@@ -320,10 +264,10 @@ public class POP3Handler implements Runnable, Cloneable {
 	this.writer.write(top);
 	this.println(".");
     }
-    
+
     /**
      * UIDL command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
@@ -333,50 +277,24 @@ public class POP3Handler implements Runnable, Cloneable {
         this.writer.println("2 2");
         this.println(".");
     }
-    
+
     /**
      * USER command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void user() throws IOException {
         this.println("+OK");
     }
-    
+
     /**
      * PASS command.
-     * 
+     *
      * @throws IOException
      *             unable to read/write to socket
      */
     public void pass() throws IOException {
         this.println("+OK");
-    }
-    
-    /**
-     * Quit.
-     */
-    public void exit() {
-        this.quit = true;
-        try {
-            if (this.clientSocket != null && !this.clientSocket.isClosed()) {
-                this.clientSocket.close();
-		this.clientSocket = null;
-            }
-        } catch (final IOException e) {
-            LOGGER.log(Level.SEVERE, "Error", e);
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (final CloneNotSupportedException e) {
-            throw new AssertionError(e);
-        }
     }
 }

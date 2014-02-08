@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,8 @@ import javax.mail.Store;
 import javax.mail.event.StoreListener;
 import javax.mail.event.StoreEvent;
 
+import com.sun.mail.test.TestServer;
+
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -61,19 +63,19 @@ public final class IMAPAlertTest {
 
     @Test
     public void test() {
-        IMAPServer server = null;
+        TestServer server = null;
         try {
             final IMAPHandler handler = new IMAPHandlerAlert();
-            server = new IMAPServer(handler, 26422);
+            server = new TestServer(handler);
             server.start();
             Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.imap.host", "localhost");
-            properties.setProperty("mail.imap.port", "26422");
-            properties.setProperty("mail.debug.auth", "true");
+            properties.setProperty("mail.imap.port", "" + server.getPort());
+            //properties.setProperty("mail.debug.auth", "true");
             final Session session = Session.getInstance(properties);
-            session.setDebug(true);
+            //session.setDebug(true);
 
             final Store store = session.getStore("imap");
 	    store.addStoreListener(new StoreListener() {
@@ -84,11 +86,12 @@ public final class IMAPAlertTest {
 			gotAlert = true;
 		    } else
 			s = "NOTICE: ";
-		    System.out.println(s + e.getMessage());
+		    //System.out.println(s + e.getMessage());
 		}
 	    });
             try {
                 store.connect("test", "test");
+		Thread.sleep(1000);	// time for event to be delivered
 		assertTrue(gotAlert);
 
 	    } catch (Exception ex) {
