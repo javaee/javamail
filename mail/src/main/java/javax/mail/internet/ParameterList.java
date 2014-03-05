@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -240,14 +240,16 @@ public class ParameterList {
 		    break;
 		// parameter name must be a MIME Atom
 		if (tk.getType() != HeaderTokenizer.Token.ATOM)
-		    throw new ParseException("Expected parameter name, " +
+		    throw new ParseException("In parameter list <" + s + ">" +
+					    ", expected parameter name, " +
 					    "got \"" + tk.getValue() + "\"");
 		name = tk.getValue().toLowerCase(Locale.ENGLISH);
 
 		// expect '='
 		tk = h.next();
 		if ((char)tk.getType() != '=')
-		    throw new ParseException("Expected '=', " +
+		    throw new ParseException("In parameter list <" + s + ">" +
+					    ", expected '=', " +
 					    "got \"" + tk.getValue() + "\"");
 
 		// expect parameter value
@@ -262,7 +264,8 @@ public class ParameterList {
 		// parameter value must be a MIME Atom or Quoted String
 		if (type != HeaderTokenizer.Token.ATOM &&
 		    type != HeaderTokenizer.Token.QUOTEDSTRING)
-		    throw new ParseException("Expected parameter value, " +
+		    throw new ParseException("In parameter list <" + s + ">" +
+					    ", expected parameter value, " +
 					    "got \"" + tk.getValue() + "\"");
 
 		value = tk.getValue();
@@ -289,8 +292,9 @@ public class ParameterList {
 		    value = lastValue + " " + tk.getValue();
 		    list.put(lastName, value);
                 } else {
-		    throw new ParseException("Expected ';', " +
-					    "got \"" + tk.getValue() + "\"");
+		    throw new ParseException("In parameter list <" + s + ">" +
+					    ", expected ';', got \"" +
+					    tk.getValue() + "\"");
 		}
 	    }
         }

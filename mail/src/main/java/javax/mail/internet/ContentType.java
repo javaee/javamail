@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -92,19 +92,22 @@ public class ContentType {
 	// First "type" ..
 	tk = h.next();
 	if (tk.getType() != HeaderTokenizer.Token.ATOM)
-	    throw new ParseException("Expected MIME type, got " +
+	    throw new ParseException("In Content-Type string <" + s + ">" +
+					", expected MIME type, got " +
 					tk.getValue());
 	primaryType = tk.getValue();
 
 	// The '/' separator ..
 	tk = h.next();
 	if ((char)tk.getType() != '/')
-	    throw new ParseException("Expected '/', got " + tk.getValue());
+	    throw new ParseException("In Content-Type string <" + s + ">" +
+				", expected '/', got " + tk.getValue());
 
 	// Then "subType" ..
 	tk = h.next();
 	if (tk.getType() != HeaderTokenizer.Token.ATOM)
-	    throw new ParseException("Expected MIME subtype, got " +
+	    throw new ParseException("In Content-Type string <" + s + ">" +
+					", expected MIME subtype, got " +
 					tk.getValue());
 	subType = tk.getValue();
 
