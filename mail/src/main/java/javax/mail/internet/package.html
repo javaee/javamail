@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -55,12 +55,13 @@ based on the MIME standard
 The IMAP, SMTP, and POP3 protocols use
 {@link javax.mail.internet.MimeMessage MimeMessages}.
 <P>
-The JavaMail API specification requires support for the following properties,
-which must be set in the <code>System</code> properties.
+The JavaMail API supports the following standard properties,
+which may be set in the <code>Session</code> object, or in the
+<code>Properties</code> object used to create the <code>Session</code> object.
 The properties are always set as strings; the Type column describes
 how the string is interpreted.  For example, use
 <PRE>
-	System.setProperty("mail.mime.address.strict", "false");
+	session.setProperty("mail.mime.address.strict", "false");
 </PRE>
 to set the <CODE>mail.mime.address.strict</CODE> property,
 which is of type boolean.
@@ -83,6 +84,24 @@ strict parsing is not done and many illegal addresses that sometimes
 occur in real messages are allowed.  See the <code>InternetAddress</code>
 class for details.
 </TD>
+</TR>
+</TABLE>
+<P>
+The JavaMail API specification requires support for the following properties,
+which must be set in the <code>System</code> properties.
+The properties are always set as strings; the Type column describes
+how the string is interpreted.  For example, use
+<PRE>
+	System.setProperty("mail.mime.decodetext.strict", "false");
+</PRE>
+to set the <CODE>mail.mime.decodetext.strict</CODE> property,
+which is of type boolean.
+<P>
+<TABLE BORDER>
+<TR>
+<TH>Name</TH>
+<TH>Type</TH>
+<TH>Description</TH>
 </TR>
 
 <TR>
@@ -248,11 +267,49 @@ The default value of this property is false.
 </TABLE>
 
 
+<P>
+The following properties are supported by the reference implementation (RI) of
+JavaMail, but are not currently a required part of the specification.
+These must be set as <CODE>Session</CODE> properties.
+The names, types, defaults, and semantics of these properties may
+change in future releases.
+<P>
+<TABLE BORDER>
+<TR>
+<TH>Name</TH>
+<TH>Type</TH>
+<TH>Description</TH>
+</TR>
+
+<TR>
+<TD>mail.alternates</TD>
+<TD>String</TD>
+<TD>
+A string containing other email addresses that the current user is known by.
+The <code>MimeMessage</code> <code>reply</code> method will eliminate any
+of these addresses from the recipient list in the message it constructs,
+to avoid sending the reply back to the sender.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.replyallcc</TD>
+<TD>boolean</TD>
+<TD>
+If set to <code>"true"</code>, the <code>MimeMessage</code>
+<code>reply</code> method will put all recipients except the original
+sender in the <code>Cc</code> list of the newly constructed message.
+Normally, recipients in the <code>To</code> header of the original
+message will also appear in the <code>To</code> list of the newly
+constructed message.
+</TD>
+</TR>
+</TABLE>
 
 <P>
 The following properties are supported by the reference implementation (RI) of
 JavaMail, but are not currently a required part of the specification.
-As above, these must be set as <CODE>System</CODE> properties.
+These must be set as <CODE>System</CODE> properties.
 The names, types, defaults, and semantics of these properties may
 change in future releases.
 <P>
@@ -451,30 +508,6 @@ Note that the Content-Type handler doesn't affect the
 Note also that the handler doesn't affect the IMAP provider; the IMAP
 server is responsible for returning pre-parsed, syntactically correct
 Content-Type information.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.alternates</TD>
-<TD>String</TD>
-<TD>
-A string containing other email addresses that the current user is known by.
-The <code>MimeMessage</code> <code>reply</code> method will eliminate any
-of these addresses from the recipient list in the message it constructs,
-to avoid sending the reply back to the sender.
-</TD>
-</TR>
-
-<TR>
-<TD>mail.replyallcc</TD>
-<TD>boolean</TD>
-<TD>
-If set to <code>"true"</code>, the <code>MimeMessage</code>
-<code>reply</code> method will put all recipients except the original
-sender in the <code>Cc</code> list of the newly constructed message.
-Normally, recipients in the <code>To</code> header of the original
-message will also appear in the <code>To</code> list of the newly
-constructed message.
 </TD>
 </TR>
 
