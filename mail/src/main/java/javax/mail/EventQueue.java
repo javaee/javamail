@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,8 +40,12 @@
 
 package javax.mail;
 
-import java.io.*;
 import java.util.Vector;
+import java.util.Queue;
+import java.util.WeakHashMap;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Executor;
 import javax.mail.event.MailEvent;
 
 /**
@@ -49,15 +53,35 @@ import javax.mail.event.MailEvent;
  * This class implements an event queue, and a dispatcher thread that
  * dequeues and dispatches events from the queue.
  *
- * Pieces stolen from sun.misc.Queue.
- *
  * @author	Bill Shannon
  */
 class EventQueue implements Runnable {
 
+    private volatile BlockingQueue<QueueElement> q;
+    private Executor executor;
+
+    private static WeakHashMap<ClassLoader,EventQueue> appq;
+
+    /**
+     * A special event that causes the queue processing task to terminate.
+     */
+    static class TerminatorEvent extends MailEvent {
+	//private static final long serialVersionUID = 5542172141759168416L;
+
+	TerminatorEvent() {
+	    super(new Object());
+	}
+
+	public void dispatch(Object listener) {
+	    // Kill the event dispatching thread.
+	    Thread.currentThread().interrupt();
+	}
+    }
+
+    /**
+     * A "struct" to put on the queue.
+     */
     static class QueueElement {
-	QueueElement next = null;
-	QueueElement prev = null;
 	MailEvent event = null;
 	Vector vector = null;
 
@@ -67,66 +91,73 @@ class EventQueue implements Runnable {
 	}
     }
 
-    private QueueElement head = null;
-    private QueueElement tail = null;
-    private Thread qThread;
-
-    public EventQueue() {
-	qThread = new Thread(this, "JavaMail-EventQueue");
-	qThread.setDaemon(true);  // not a user thread
-	qThread.start();
+    /**
+     * Construct an EventQueue using the specified Executor.
+     * If the Executor is null, threads will be created as needed.
+     */
+    EventQueue(Executor ex) {
+	this.executor = ex;
     }
 
     /**
      * Enqueue an event.
      */
-    public synchronized void enqueue(MailEvent event, Vector vector) {
-	QueueElement newElt = new QueueElement(event, vector);
-
-	if (head == null) {
-	    head = newElt;
-	    tail = newElt;
-	} else {
-	    newElt.next = head;
-	    head.prev = newElt;
-	    head = newElt;
+    synchronized void enqueue(MailEvent event, Vector vector) {
+	// if this is the first event, create the queue and start the event task
+	if (q == null) {
+	    q = new LinkedBlockingQueue<QueueElement>();
+	    if (executor != null) {
+		executor.execute(this);
+	    } else {
+		Thread qThread = new Thread(this, "JavaMail-EventQueue");
+		qThread.setDaemon(true);  // not a user thread
+		qThread.start();
+	    }
 	}
-	notifyAll();
+	q.add(new QueueElement(event, vector));
     }
 
     /**
-     * Dequeue the oldest object on the queue.
-     * Used only by the run() method.
-     *
-     * @return    the oldest object on the queue.
-     * @exception java.lang.InterruptedException if another thread has
-     *              interrupted this thread.
+     * Terminate the task running the queue, but only if there is a queue.
      */
-    private synchronized QueueElement dequeue()
-				throws InterruptedException {
-	while (tail == null)
-	    wait();
-	QueueElement elt = tail;
-	tail = elt.prev;
-	if (tail == null) {
-	    head = null;
-	} else {
-	    tail.next = null;
+    synchronized void terminateQueue() {
+	if (q != null) {
+	    Vector dummyListeners = new Vector();
+	    dummyListeners.setSize(1); // need atleast one listener
+	    q.add(new QueueElement(new TerminatorEvent(), dummyListeners));
+	    q = null;
 	}
-	elt.prev = elt.next = null;
-	return elt;
+    }
+
+    /**
+     * Create (if necessary) an application-scoped event queue.
+     * Application scoping is based on the thread's context class loader.
+     */
+    static synchronized EventQueue getApplicationEventQueue(Executor ex) {
+	ClassLoader cl = Session.getContextClassLoader();
+	if (appq == null)
+	    appq = new WeakHashMap<ClassLoader,EventQueue>();
+	EventQueue q = appq.get(cl);
+	if (q == null) {
+	    q = new EventQueue(ex);
+	    appq.put(cl, q);
+	}
+	return q;
     }
 
     /**
      * Pull events off the queue and dispatch them.
      */
     public void run() {
-	QueueElement qe;
 
+	BlockingQueue<QueueElement> bq = q;
+	if (bq == null)
+	    return;
 	try {
 	    loop:
 	    for (;;) {
-		qe = dequeue();	// blocks until an item is available
+		// block until an item is available
+		QueueElement qe = bq.take();
 		MailEvent e = qe.event;
 		Vector v = qe.vector;
 
@@ -143,16 +174,6 @@ class EventQueue implements Runnable {
 	    }
 	} catch (InterruptedException e) {
 	    // just die
-	}
-    }
-
-    /**
-     * Stop the dispatcher so we can be destroyed.
-     */
-    void stop() {
-	if (qThread != null) {
-	    qThread.interrupt();	// kill our thread
-	    qThread = null;
 	}
     }
 }

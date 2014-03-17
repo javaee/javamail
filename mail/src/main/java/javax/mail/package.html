@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -255,6 +255,34 @@ This property can be used to override the behavior of the
 {@link javax.mail.Transport Transport} class so that (for example) the "smtps"
 protocol is used instead of the "smtp" protocol by setting the property
 <code>mail.transport.protocol.rfc822</code> to <code>"smtps"</code>.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.event.scope</TD>
+<TD>String</TD>
+<TD>
+Controls the scope of events.  (See the javax.mail.event package.)
+By default, a separate event queue and thread is used for events for each
+Store, Transport, or Folder.
+If this property is set to "session", all such events are put in a single
+event queue processed by a single thread for the current session.
+If this property is set to "application", all such events are put in a single
+event queue processed by a single thread for the current application.
+(Applications are distinguished by their context class loader.)
+</TD>
+</TR>
+
+<TR>
+<TD>mail.event.executor</TD>
+<TD>java.util.concurrent.Executor</TD>
+<TD>
+By default, a new Thread is created for each event queue.
+This thread is used to call the listeners for these events.
+If this property is set to an instance of an Executor, the
+Executor.execute method is used to run the event dispatcher
+for an event queue.  The event dispatcher runs until the
+event queue is no longer in use.
 </TD>
 </TR>
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -50,6 +50,7 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Level;
+import java.util.concurrent.Executor;
 
 import javax.activation.*;
 
@@ -192,6 +193,9 @@ public final class Session {
     private final Hashtable providersByClassName = new Hashtable();
     private final Properties addressMap = new Properties();
 						// maps type to protocol
+    // the queue of events to be delivered, if mail.event.scope===session
+    private final EventQueue q;
+
     // The default session.
     private static Session defaultSession = null;
 
@@ -215,6 +219,7 @@ public final class Session {
 	// load the resources
 	loadProviders(cl);
 	loadAddressMap(cl);
+	q = new EventQueue((Executor)props.get("mail.event.executor"));
     }
 
     private final synchronized void initLogger() {
@@ -1197,7 +1202,7 @@ public final class Session {
      * Following are security related methods that work on JDK 1.2 or newer.
      */
 
-    private static ClassLoader getContextClassLoader() {
+    static ClassLoader getContextClassLoader() {
 	return (ClassLoader)
 		AccessController.doPrivileged(new PrivilegedAction() {
 	    public Object run() {
@@ -1283,6 +1288,10 @@ public final class Session {
 	} catch (PrivilegedActionException e) {
 	    throw (IOException)e.getException();
 	}
+    }
+
+    EventQueue getEventQueue() {
+	return q;
     }
 }
 

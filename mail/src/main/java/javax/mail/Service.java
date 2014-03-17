@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,6 +43,7 @@ package javax.mail;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.Executor;
 import javax.mail.event.*;
 
 /**
@@ -86,6 +87,11 @@ public abstract class Service {
      * deadlocks when notifying listeners.)
      */
     private final Vector connectionListeners = new Vector();
+
+    /**
+     * The queue of events to be delivered.
+     */
+    private final EventQueue q;
 
     /**
      * Constructor.
@@ -147,6 +153,19 @@ public abstract class Service {
 	}
 
 	url = new URLName(protocol, host, port, file, user, password);
+
+	// create or choose the appropriate event queue
+	String scope =
+	    session.getProperties().getProperty("mail.event.scope", "folder");
+	Executor executor =
+		(Executor)session.getProperties().get("mail.event.executor");
+	if (scope.equalsIgnoreCase("application"))
+	    q = EventQueue.getApplicationEventQueue(executor);
+	else if (scope.equalsIgnoreCase("session"))
+	    q = session.getEventQueue();
+	else // if (scope.equalsIgnoreCase("store") ||
+	     //     scope.equalsIgnoreCase("folder"))
+	    q = new EventQueue(executor);
     }
 
     /**
@@ -594,7 +613,7 @@ public abstract class Service {
          * self destruct.
          */
         if (type == ConnectionEvent.CLOSED)
-            terminateQueue();
+            q.terminateQueue();
     }
 
     /**
@@ -609,19 +628,6 @@ public abstract class Service {
 	    return super.toString();
     }
 
-    /*
-     * The queue of events to be delivered.
-     */
-    private EventQueue q;
-
-    /*
-     * A lock for creating the EventQueue object.  Only one thread should
-     * create an EventQueue for this service.  We can't synchronize on the
-     * service's lock because that might violate the locking hierarchy in
-     * some cases.
-     */
-    private Object qLock = new Object();
-
     /**
      * Add the event and vector of listeners to the queue to be delivered.
      *
@@ -629,12 +635,6 @@ public abstract class Service {
      * @param	vector	the vector of listeners
      */
     protected void queueEvent(MailEvent event, Vector vector) {
-	// synchronize creation of the event queue
-	synchronized (qLock) {
-	    if (q == null)
-		q = new EventQueue();
-	}
-
 	/*
          * Copy the vector in order to freeze the state of the set
          * of EventListeners the event should be delivered to prior
@@ -647,36 +647,25 @@ public abstract class Service {
 	q.enqueue(event, v);
     }
 
-    static class TerminatorEvent extends MailEvent {
-	private static final long serialVersionUID = 5542172141759168416L;
-
-	TerminatorEvent() {
-	    super(new Object());
-	}
-
-	public void dispatch(Object listener) {
-	    // Kill the event dispatching thread.
-	    Thread.currentThread().interrupt();
-	}
-    }
-
-    // Dispatch the terminator
-    private void terminateQueue() {
-	synchronized (qLock) {
-	    if (q != null) {
-		Vector dummyListeners = new Vector();
-		dummyListeners.setSize(1); // need atleast one listener
-		q.enqueue(new TerminatorEvent(), dummyListeners);
-		q = null;
-	    }
-	}
-    }
-
     /**
      * Stop the event dispatcher thread so the queue can be garbage collected.
      */
     protected void finalize() throws Throwable {
 	super.finalize();
-	terminateQueue();
+	q.terminateQueue();
+    }
+
+    /**
+     * Package private method to allow Folder to get the Session for a Store.
+     */
+    Session getSession() {
+	return session;
+    }
+
+    /**
+     * Package private method to allow Folder to get the EventQueue for a Store.
+     */
+    EventQueue getEventQueue() {
+	return q;
     }
 }

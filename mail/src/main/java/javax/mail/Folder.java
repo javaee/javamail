@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,7 @@ import java.io.*;
 import java.lang.*;
 import java.util.Vector;
 import java.util.StringTokenizer;
+import java.util.concurrent.Executor;
 import javax.mail.search.SearchTerm;
 import javax.mail.event.*;
 
@@ -129,6 +130,11 @@ public abstract class Folder {
      */
     protected int mode = -1;
 
+    /*
+     * The queue of events to be delivered.
+     */
+    private final EventQueue q;
+
     /**
      * Constructor that takes a Store object.
      *
@@ -136,6 +142,21 @@ public abstract class Folder {
      */
     protected Folder(Store store) {
 	this.store = store;
+
+	// create or choose the appropriate event queue
+	Session session = store.getSession();
+	String scope =
+	    session.getProperties().getProperty("mail.event.scope", "folder");
+	Executor executor =
+		(Executor)session.getProperties().get("mail.event.executor");
+	if (scope.equalsIgnoreCase("application"))
+	    q = EventQueue.getApplicationEventQueue(executor);
+	else if (scope.equalsIgnoreCase("session"))
+	    q = session.getEventQueue();
+	else if (scope.equalsIgnoreCase("store"))
+	    q = store.getEventQueue();
+	else // if (scope.equalsIgnoreCase("folder"))
+	    q = new EventQueue(executor);
     }
 
     /**
@@ -1366,7 +1387,7 @@ public abstract class Folder {
 	 * self destruct.
 	 */
 	if (type == ConnectionEvent.CLOSED)
-	    terminateQueue();
+	    q.terminateQueue();
     }
 
     // Vector of folder listeners
@@ -1594,28 +1615,9 @@ public abstract class Folder {
     }
 
     /*
-     * The queue of events to be delivered.
-     */
-    private EventQueue q;
-
-    /*
-     * A lock for creating the EventQueue object.  Only one thread should
-     * create an EventQueue for this folder.  We can't synchronize on the
-     * folder's lock because that would violate the locking hierarchy in
-     * some cases.  For details, see the IMAP provider.
-     */
-    private Object qLock = new Object();
-
-    /*
      * Add the event and vector of listeners to the queue to be delivered.
      */
     private void queueEvent(MailEvent event, Vector vector) {
-	// synchronize creation of the event queue
-	synchronized (qLock) {
-	    if (q == null)
-		q = new EventQueue();
-	}
-
 	/*
          * Copy the vector in order to freeze the state of the set
          * of EventListeners the event should be delivered to prior
@@ -1628,34 +1630,9 @@ public abstract class Folder {
 	q.enqueue(event, v);
     }
 
-    static class TerminatorEvent extends MailEvent {
-	private static final long serialVersionUID = 3765761925441296565L;
-
-	TerminatorEvent() {
-	    super(new Object());
-	}
-
-	public void dispatch(Object listener) {
-	    // Kill the event dispatching thread.
-	    Thread.currentThread().interrupt();
-	}
-    }
-
-    // Dispatch the terminator
-    private void terminateQueue() {
-	synchronized (qLock) {
-	    if (q != null) {
-		Vector dummyListeners = new Vector();
-		dummyListeners.setSize(1); // need atleast one listener
-		q.enqueue(new TerminatorEvent(), dummyListeners);
-		q = null;
-	    }
-	}
-    }
-
     protected void finalize() throws Throwable {
 	super.finalize();
-	terminateQueue();
+	q.terminateQueue();
     }
 
     /**
