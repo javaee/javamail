@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.io.*;
 
@@ -325,6 +326,30 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 */
 	public static final FetchProfileItem SIZE = 
 		new FetchProfileItem("SIZE");
+
+	/**
+	 * MESSAGE is a fetch profile item that can be included in a
+	 * <code>FetchProfile</code> during a fetch request to a Folder.
+	 * This item indicates that the entire messages (headers and body,
+	 * including all "attachments") in the specified 
+	 * range are desired to be prefetched.  Note that the entire message
+	 * content is cached in memory while the Folder is open.  The cached
+	 * message will be parsed locally to return header information and
+	 * message content. <p>
+	 * 
+	 * An example of how a client uses this is below:
+	 * <blockquote><pre>
+	 *
+	 * 	FetchProfile fp = new FetchProfile();
+	 *	fp.add(IMAPFolder.FetchProfileItem.MESSAGE);
+	 *	folder.fetch(msgs, fp);
+	 *
+	 * </pre></blockquote>
+	 *
+	 * @since	JavaMail 1.5.2
+	 */ 
+	public static final FetchProfileItem MESSAGE = 
+		new FetchProfileItem("MESSAGE");
     }
 
     /**
@@ -1129,6 +1154,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			    "BODY.PEEK[HEADER]" : " BODY.PEEK[HEADER]");
 	    else
 		command.append(first ? "RFC822.HEADER" : " RFC822.HEADER");
+	    first = false;
+	}
+	if (fp.contains(IMAPFolder.FetchProfileItem.MESSAGE)) {
+	    allHeaders = true;
+	    if (protocol.isREV1())
+		command.append(first ? "BODY.PEEK[]" : " BODY.PEEK[]");
+	    else
+		command.append(first ? "RFC822" : " RFC822");
 	    first = false;
 	}
 	if (fp.contains(FetchProfile.Item.SIZE) ||
@@ -2985,6 +3018,45 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    return p.id(clientParams);
 		}
 	    });
+    }
+
+    /**
+     * Use the IMAP STATUS command to get the indicated item.
+     * The STATUS item may be a standard item such as "RECENT" or "UNSEEN",
+     * or may be a server-specific item.
+     * The folder must be closed.  If the item is not found, or the
+     * folder is open, -1 is returned.
+     *
+     * @param	item	the STATUS item to fetch
+     * @return		the value of the STATUS item, or -1
+     * @exception MessagingException	for errors
+     * @since	JavaMail 1.5.2
+     */
+    public long getStatusItem(String item) throws MessagingException {
+	if (!opened) {
+	    checkExists();
+
+	    IMAPProtocol p = null;
+	    Status status = null;
+	    try {
+		p = getStoreProtocol();	// XXX
+		String[] items = { item };
+		status = p.status(fullName, items);
+		return status.getItem(item);
+	    } catch (BadCommandException bex) {
+		// doesn't support STATUS, probably vanilla IMAP4 ..
+		// Could EXAMINE, SEARCH for UNREAD messages and
+		// return the count .. bah, not worth it.
+		return -1;
+	    } catch (ConnectionException cex) {
+		throw new StoreClosedException(store, cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    } finally {
+		releaseStoreProtocol(p);
+	    }
+	}
+	return -1;
     }
 
     /**

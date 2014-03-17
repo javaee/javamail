@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,21 +45,32 @@ import com.sun.mail.iap.*;
 import com.sun.mail.util.ASCIIUtility;
 
 /**
- * This class 
+ * The RFC822 response data item.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class RFC822DATA implements Item {
    
     static final char[] name = {'R','F','C','8','2','2'};
-    public int msgno;
-    public ByteArray data;
+    private final int msgno;
+    private final ByteArray data;
+    private final boolean isHeader;
 
     /**
      * Constructor
      */
     public RFC822DATA(FetchResponse r) throws ParsingException {
+	this(r, false);
+    }
+
+    /**
+     * Constructor, specifying header flag.
+     */
+    public RFC822DATA(FetchResponse r, boolean isHeader)
+				throws ParsingException {
+	this.isHeader = isHeader;
 	msgno = r.getNumber();
 	r.skipSpaces();
 	data = r.readByteArray();
@@ -74,5 +85,9 @@ public class RFC822DATA implements Item {
 	    return data.toByteArrayInputStream();
 	else
 	    return null;
+    }
+
+    public boolean isHeader() {
+	return isHeader;
     }
 }

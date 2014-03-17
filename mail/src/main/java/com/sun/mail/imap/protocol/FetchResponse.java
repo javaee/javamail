@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -207,11 +207,12 @@ public class FetchResponse extends IMAPResponse {
 	    if (match(RFC822SIZE.name))
 		return new RFC822SIZE(this);
 	    else if (match(RFC822DATA.name)) {
+		boolean isHeader = false;
 		if (match(HEADER))
-		    ;	// skip ".HEADER"
+		    isHeader = true;	// skip ".HEADER"
 		else if (match(TEXT))
 		    ;	// skip ".TEXT"
-		return new RFC822DATA(this);
+		return new RFC822DATA(this, isHeader);
 	    }
 	    break;
 	case 'U': case 'u':

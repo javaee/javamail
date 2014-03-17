@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,12 +40,17 @@
 
 package com.sun.mail.imap.protocol;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Locale;
+
 import com.sun.mail.iap.*;
 
 /**
  * STATUS response.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class Status { 
@@ -56,6 +61,7 @@ public class Status {
     public long uidvalidity = -1;
     public int unseen = -1;
     public long highestmodseq = -1;
+    public Map<String,Long> items;	// any unknown items
 
     static final String[] standardItems =
 	{ "MESSAGES", "RECENT", "UNSEEN", "UIDNEXT", "UIDVALIDITY" };
@@ -99,7 +105,39 @@ public class Status {
 		unseen = r.readNumber();
 	    else if (attr.equalsIgnoreCase("HIGHESTMODSEQ"))
 		highestmodseq = r.readLong();
+	    else {
+		if (items == null)
+		    items = new HashMap<String,Long>();
+		items.put(attr.toUpperCase(Locale.ENGLISH),
+			    Long.valueOf(r.readLong()));
+	    }
 	} while (r.readByte() != ')');
+    }
+
+    /**
+     * Get the value for the STATUS item.
+     *
+     * @since	JavaMail 1.5.2
+     */
+    public long getItem(String item) {
+	item = item.toUpperCase(Locale.ENGLISH);
+	Long v;
+	long ret = -1;
+	if (items != null && (v = items.get(item)) != null)
+	    ret = v.longValue();
+	else if (item.equals("MESSAGES"))
+	    ret = total;
+	else if (item.equals("RECENT"))
+	    ret = recent;
+	else if (item.equals("UIDNEXT"))
+	    ret = uidnext;
+	else if (item.equals("UIDVALIDITY"))
+	    ret = uidvalidity;
+	else if (item.equals("UNSEEN"))
+	    ret = unseen;
+	else if (item.equals("HIGHESTMODSEQ"))
+	    ret = highestmodseq;
+	return ret;
     }
 
     public static void add(Status s1, Status s2) {
@@ -115,5 +153,9 @@ public class Status {
 	    s1.unseen = s2.unseen;
 	if (s2.highestmodseq != -1)
 	    s1.highestmodseq = s2.highestmodseq;
+	if (s1.items == null)
+	    s1.items = s2.items;
+	else if (s2.items != null)
+	    s1.items.putAll(s2.items);
     }
 }

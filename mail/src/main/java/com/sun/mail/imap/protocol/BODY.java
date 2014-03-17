@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,16 +48,18 @@ import com.sun.mail.util.ASCIIUtility;
  * The BODY fetch response item.
  *
  * @author  John Mani
+ * @author  Bill Shannon
  */
 
 public class BODY implements Item {
     
     static final char[] name = {'B','O','D','Y'};
 
-    public int msgno;
-    public ByteArray data;
-    public String section;
-    public int origin = 0;
+    private final int msgno;
+    private final ByteArray data;
+    private final String section;
+    private final int origin;
+    private final boolean isHeader;
 
     /**
      * Constructor
@@ -67,18 +69,20 @@ public class BODY implements Item {
 
 	r.skipSpaces();
 
-	int b;
-	while ((b = r.readByte()) != ']') { // skip section
-	    if (b == 0)
-		throw new ParsingException(
-			"BODY parse error: missing ``]'' at section end");
-	}
+	if (r.readByte() != '[')
+	    throw new ParsingException(
+		    "BODY parse error: missing ``['' at section start");
+	section = r.readString(']');
+	if (r.readByte() != ']')
+	    throw new ParsingException(
+		    "BODY parse error: missing ``]'' at section end");
+	isHeader = section.regionMatches(true, 0, "HEADER", 0, 6);
 
-	
 	if (r.readByte() == '<') { // origin
 	    origin = r.readNumber();
 	    r.skip(1); // skip '>';
-	}
+	} else
+	    origin = 0;
 
 	data = r.readByteArray();
     }
@@ -92,5 +96,13 @@ public class BODY implements Item {
 	    return data.toByteArrayInputStream();
 	else
 	    return null;
+    }
+
+    public boolean isHeader() {
+	return isHeader;
+    }
+
+    public String getSection() {
+	return section;
     }
 }

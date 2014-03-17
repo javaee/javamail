@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -93,7 +93,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     private Date receivedDate;		// INTERNALDATE
     private int size = -1;		// RFC822.SIZE
 
-    private boolean peek;		// use BODY.PEEK when fetching content?
+    private Boolean peek;		// use BODY.PEEK when fetching content?
 
     // this message's IMAP UID
     private volatile long uid = -1;
@@ -112,6 +112,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
     // Indicates that we've loaded *all* headers for this message
     private volatile boolean headersLoaded = false;
+
+    // Indicates that we've cached the body of this message
+    private volatile boolean bodyLoaded = false;
 
     /* Hashtable of names of headers we've loaded from the server.
      * Used in isHeaderLoaded() and getHeaderLoaded() to keep track
@@ -302,7 +305,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	return ((IMAPStore)folder.getStore()).getFetchBlockSize();
     }
 
-    // Return the block size for FETCH requests
+    // Should we ignore the size in the BODYSTRUCTURE?
     // MUST be overridden by IMAPNestedMessage
     protected boolean ignoreBodyStructureSize() {
 	return ((IMAPStore)folder.getStore()).ignoreBodyStructureSize();
@@ -313,6 +316,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public Address[] getFrom() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getFrom();
 	loadEnvelope();
 	InternetAddress[] a = envelope.from;
 	/*
@@ -341,6 +346,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public Address getSender() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getSender();
 	loadEnvelope();
 	if (envelope.sender != null && envelope.sender.length > 0)
 		return (envelope.sender)[0];	// there can be only one sender
@@ -359,6 +366,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     public Address[] getRecipients(Message.RecipientType type)
 				throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getRecipients(type);
 	loadEnvelope();
 
 	if (type == Message.RecipientType.TO)
@@ -386,6 +395,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public Address[] getReplyTo() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getReplyTo();
 	loadEnvelope();
 	/*
 	 * The IMAP spec requires that the Reply-To field never be
@@ -407,6 +418,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getSubject() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getSubject();
 
 	if (subject != null) // already cached ?
 	    return subject;
@@ -438,6 +451,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public Date getSentDate() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getSentDate();
 	loadEnvelope();
 	if (envelope.date == null)
 	    return null;
@@ -454,6 +469,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public Date getReceivedDate() throws MessagingException {
 	checkExpunged();
+	// XXX - have to go to the server for this
 	loadEnvelope();
 	if (receivedDate == null)
 	    return null;
@@ -469,6 +485,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public int getSize() throws MessagingException {
 	checkExpunged();
+	// if bodyLoaded, size is already set
 	if (size == -1)
 	    loadEnvelope();	// XXX - could just fetch the size
 	return size;
@@ -483,6 +500,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public int getLineCount() throws MessagingException {
 	checkExpunged();
+	// XXX - superclass doesn't implement this
 	loadBODYSTRUCTURE();
 	return bs.lines;
     }
@@ -492,6 +510,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String[] getContentLanguage() throws MessagingException {
     	checkExpunged();
+	if (bodyLoaded)
+	    return super.getContentLanguage();
     	loadBODYSTRUCTURE();
     	if (bs.language != null)
 	    return (String[])(bs.language).clone();
@@ -513,6 +533,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getInReplyTo() throws MessagingException {
     	checkExpunged();
+	if (bodyLoaded)
+	    return super.getHeader("In-Reply-To", " ");
     	loadEnvelope();
     	return envelope.inReplyTo;
     }
@@ -525,6 +547,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public synchronized String getContentType() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getContentType();
 
 	// If we haven't cached the type yet ..
 	if (type == null) {
@@ -541,6 +565,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getDisposition() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getDisposition();
 	loadBODYSTRUCTURE();
 	return bs.disposition;
     }
@@ -554,6 +580,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getEncoding() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getEncoding();
 	loadBODYSTRUCTURE();
 	return bs.encoding;
     }
@@ -563,6 +591,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getContentID() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getContentID();
 	loadBODYSTRUCTURE();
 	return bs.id;
     }
@@ -576,6 +606,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getContentMD5() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getContentMD5();
 	loadBODYSTRUCTURE();
 	return bs.md5;
     }
@@ -589,6 +621,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getDescription() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getDescription();
 
 	if (description != null) // cached value ?
 	    return description;
@@ -616,6 +650,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getMessageID() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getMessageID();
 	loadEnvelope();
 	return envelope.messageId;
     }
@@ -627,6 +663,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public String getFileName() throws MessagingException {
 	checkExpunged();
+	if (bodyLoaded)
+	    return super.getFileName();
 
 	String filename = null;
 	loadBODYSTRUCTURE();
@@ -650,6 +688,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * @see javax.mail.internet.MimeMessage#getContentStream
      */
     protected InputStream getContentStream() throws MessagingException {
+	if (bodyLoaded)
+	    return super.getContentStream();
 	InputStream is = null;
 	boolean pk = getPeek();	// get before acquiring message cache lock
 
@@ -701,7 +741,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		throws MessagingException {
 	checkExpunged();
 
-	if (dh == null) {
+	if (dh == null && !bodyLoaded) {
 	    loadBODYSTRUCTURE();
 	    if (type == null) { // type not yet computed
 		// generate content-type from BODYSTRUCTURE
@@ -747,6 +787,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * @since	JavaMail 1.4.5
      */
     public InputStream getMimeStream() throws MessagingException {
+	// XXX - need an "if (bodyLoaded)" version
 	InputStream is = null;
 	boolean pk = getPeek();	// get before acquiring message cache lock
 
@@ -795,6 +836,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      */
     public void writeTo(OutputStream os)
 				throws IOException, MessagingException {
+	if (bodyLoaded) {
+	    super.writeTo(os);
+	    return;
+	}
 	InputStream is = getMimeStream();
 	try {
 	    // write out the bytes
@@ -991,13 +1036,14 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
     /**
      * Set whether or not to use the PEEK variant of FETCH when
-     * fetching message content.
+     * fetching message content.  This overrides the default
+     * value from the "mail.imap.peek" property.
      *
      * @param	peek	the peek flag
      * @since	JavaMail 1.3.3
      */
     public synchronized void setPeek(boolean peek) {
-	this.peek = peek;
+	this.peek = Boolean.valueOf(peek);
     }
 
     /**
@@ -1008,7 +1054,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * @since	JavaMail 1.3.3
      */
     public synchronized boolean getPeek() {
-	return peek;
+	if (peek == null)
+	    return ((IMAPStore)folder.getStore()).getPeek();
+	else
+	    return peek.booleanValue();
     }
 
     /**
@@ -1030,6 +1079,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	subject = null;
 	description = null;
 	flags = null;
+	content = null;
+	contentStream = null;
+	bodyLoaded = false;
     }
 
     /**
@@ -1046,6 +1098,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	private boolean needUID = false;
 	private boolean needHeaders = false;
 	private boolean needSize = false;
+	private boolean needMessage = false;
 	private String[] hdrs = null;
 	private Set need = new HashSet();	// Set<FetchItem>
 
@@ -1071,6 +1124,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		needHeaders = true;
 	    if (fp.contains(IMAPFolder.FetchProfileItem.SIZE))
 		needSize = true;
+	    if (fp.contains(IMAPFolder.FetchProfileItem.MESSAGE))
+		needMessage = true;
 	    hdrs = fp.getHeaderNames();
 	    for (int i = 0; i < fitems.length; i++) {
 		if (fp.contains(fitems[i].getFetchProfileItem()))
@@ -1083,17 +1138,20 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	 * for the specified message.
 	 */
 	public boolean test(IMAPMessage m) {
-	    if (needEnvelope && m._getEnvelope() == null)
+	    if (needEnvelope && m._getEnvelope() == null && !m.bodyLoaded)
 		return true; // no envelope
 	    if (needFlags && m._getFlags() == null)
 		return true; // no flags
-	    if (needBodyStructure && m._getBodyStructure() == null)
+	    if (needBodyStructure && m._getBodyStructure() == null &&
+								!m.bodyLoaded)
 		return true; // no BODYSTRUCTURE
 	    if (needUID && m.getUID() == -1)	// no UID
 		return true;
 	    if (needHeaders && !m.areHeadersLoaded()) // no headers
 		return true;
-	    if (needSize && m.size == -1)		// no size
+	    if (needSize && m.size == -1 && !m.bodyLoaded) // no size
+		return true;
+	    if (needMessage && !m.bodyLoaded)		// no message body
 		return true;
 
 	    // Is the desired header present ?
@@ -1155,53 +1213,71 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	else if (item instanceof RFC822DATA ||
 		 item instanceof BODY) {
 	    InputStream headerStream;
-	    if (item instanceof RFC822DATA) // IMAP4
+	    boolean isHeader;
+	    if (item instanceof RFC822DATA) { // IMAP4
 		headerStream = 
 		    ((RFC822DATA)item).getByteArrayInputStream();
-	    else	// IMAP4rev1
+		isHeader = ((RFC822DATA)item).isHeader();
+	    } else {	// IMAP4rev1
 		headerStream = 
 		    ((BODY)item).getByteArrayInputStream();
-	    
-	    // Load the obtained headers.
-	    InternetHeaders h = new InternetHeaders();
-	    // Some IMAP servers (e.g., gmx.net) return NIL 
-	    // instead of a string just containing a CR/LF
-	    // when the header list is empty.
-	    if (headerStream != null)
-		h.load(headerStream);
-	    if (headers == null || allHeaders)
-		headers = h;
-	    else {
-		/*
-		 * This is really painful.  A second fetch
-		 * of the same headers (which might occur because
-		 * a new header was added to the set requested)
-		 * will return headers we already know about.
-		 * In this case, only load the headers we haven't
-		 * seen before to avoid adding duplicates of
-		 * headers we already have.
-		 *
-		 * XXX - There's a race condition here if another
-		 * thread is reading headers in the same message
-		 * object, because InternetHeaders is not thread
-		 * safe.
-		 */
-		Enumeration e = h.getAllHeaders();
-		while (e.hasMoreElements()) {
-		    Header he = (Header)e.nextElement();
-		    if (!isHeaderLoaded(he.getName()))
-			headers.addHeader(
-				    he.getName(), he.getValue());
-		}
+		isHeader = ((BODY)item).isHeader();
 	    }
 
-	    // if we asked for all headers, assume we got them
-	    if (allHeaders)
+	    if (!isHeader) {
+		// load the entire message by using the superclass
+		// MimeMessage.parse method
+		// first, save the size of the message
+		try {
+		    size = headerStream.available();
+		} catch (IOException ex) {
+		    // should never occur
+		}
+		parse(headerStream);
+		bodyLoaded = true;
 		setHeadersLoaded(true);
-	    else {
-		// Mark all headers we asked for as 'loaded'
-		for (int k = 0; k < hdrs.length; k++)
-		    setHeaderLoaded(hdrs[k]);
+	    } else {
+		// Load the obtained headers.
+		InternetHeaders h = new InternetHeaders();
+		// Some IMAP servers (e.g., gmx.net) return NIL 
+		// instead of a string just containing a CR/LF
+		// when the header list is empty.
+		if (headerStream != null)
+		    h.load(headerStream);
+		if (headers == null || allHeaders)
+		    headers = h;
+		else {
+		    /*
+		     * This is really painful.  A second fetch
+		     * of the same headers (which might occur because
+		     * a new header was added to the set requested)
+		     * will return headers we already know about.
+		     * In this case, only load the headers we haven't
+		     * seen before to avoid adding duplicates of
+		     * headers we already have.
+		     *
+		     * XXX - There's a race condition here if another
+		     * thread is reading headers in the same message
+		     * object, because InternetHeaders is not thread
+		     * safe.
+		     */
+		    Enumeration e = h.getAllHeaders();
+		    while (e.hasMoreElements()) {
+			Header he = (Header)e.nextElement();
+			if (!isHeaderLoaded(he.getName()))
+			    headers.addHeader(
+					he.getName(), he.getValue());
+		    }
+		}
+
+		// if we asked for all headers, assume we got them
+		if (allHeaders)
+		    setHeadersLoaded(true);
+		else {
+		    // Mark all headers we asked for as 'loaded'
+		    for (int k = 0; k < hdrs.length; k++)
+			setHeaderLoaded(hdrs[k]);
+		}
 	    }
 	} else
 	    return false;	// not handled

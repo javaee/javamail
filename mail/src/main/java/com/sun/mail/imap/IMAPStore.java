@@ -224,6 +224,7 @@ public class IMAPStore extends Store
     private boolean enableImapEvents = false;
     private String guid;			// for Yahoo! Mail IMAP
     private boolean throwSearchException = false;
+    private boolean peek = false;
 
     /*
      * This field is set in the Store's response handler if we see
@@ -595,6 +596,12 @@ public class IMAPStore extends Store
 	    "mail." + name + ".throwsearchexception", false);
 	if (throwSearchException)
 	    logger.config("throw SearchException");
+
+	// check if peek is set
+	peek = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".peek", false);
+	if (peek)
+	    logger.config("peek");
 
 	s = session.getProperty("mail." + name + ".folder.class");
 	if (s != null) {
@@ -1410,6 +1417,13 @@ public class IMAPStore extends Store
      */
     boolean throwSearchException() {
 	return throwSearchException;
+    }
+
+    /**
+     * Get the default "peek" value.
+     */
+    boolean getPeek() {
+	return peek;
     }
 
     /**

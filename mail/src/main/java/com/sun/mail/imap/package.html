@@ -245,6 +245,19 @@ Defaults to true.</TD>
 </TR>
 
 <TR>
+<TD>mail.imap.peek</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, use the IMAP PEEK option when fetching body parts,
+to avoid setting the SEEN flag on messages.
+Defaults to false.
+Can be overridden on a per-message basis by the
+{@link com.sun.mail.imap.IMAPMessage#setPeek setPeek}
+method on IMAPMessage.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.ignorebodystructuresize</TD>
 <TD>boolean</TD>
 <TD>The IMAP BODYSTRUCTURE response includes the exact size of each body part.
@@ -694,7 +707,7 @@ method is too complex for the IMAP protocol, throw a
 {@link javax.mail.search.SearchException SearchException}.
 For example, the IMAP protocol only supports less-than and greater-than
 comparisons for a {@link javax.mail.search.SizeTerm SizeTerm}.
-Otherwise, the search will be done locally by fetching the required
+If false, the search will be done locally by fetching the required
 message data and comparing it locally.
 Defaults to false.
 </TD>
