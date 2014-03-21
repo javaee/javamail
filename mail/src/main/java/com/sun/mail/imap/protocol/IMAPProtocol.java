@@ -151,6 +151,33 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * Constructor for debugging.
+     *
+     * @param debug     debug mode
+     * @param props     Properties object used by this protocol
+     */
+    public IMAPProtocol(InputStream in, PrintStream out,
+			Properties props, boolean debug)
+			throws IOException {
+	super(in, out, props, debug);
+
+	this.name = "imap";
+	noauthdebug =
+	    !PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
+
+	if (capabilities == null)
+	    capabilities = new HashMap();
+
+	searchCharsets = new String[2]; // 2, for now.
+	searchCharsets[0] = "UTF-8";
+	searchCharsets[1] = MimeUtility.mimeCharset(
+				MimeUtility.getDefaultJavaCharset()
+			    );
+
+	connected = true;	// must be last statement in constructor
+    }
+
+    /**
      * Return an array of FetchItem objects describing the
      * FETCH items supported by this protocol.  Subclasses may
      * override this method to combine their FetchItems with
@@ -1387,24 +1414,10 @@ public class IMAPProtocol extends Protocol {
 			throws ProtocolException {
 	Response[] r;
 
-	if (peek)
-	    r = fetch(msgno,
-		     "BODY.PEEK[" + (section == null ? "]" : section + "]"));
-	else
-	    r = fetch(msgno,
-		     "BODY[" + (section == null ? "]" : section + "]"));
-
-	notifyResponseHandlers(r);
-
-	Response response = r[r.length-1];
-	if (response.isOK())
-	    return FetchResponse.getItem(r, msgno, BODY.class);
-	else if (response.isNO())
-	    return null;
-	else {
-	    handleResult(response);
-	    return null;
-	}
+	if (section == null)
+	    section = "";
+	String body = (peek ? "BODY.PEEK[" : "BODY[") + section + "]";
+	return fetchSectionBody(msgno, section, body);
     }
 
     /**
@@ -1442,19 +1455,42 @@ public class IMAPProtocol extends Protocol {
     protected BODY fetchBody(int msgno, String section, int start, int size,
 			boolean peek, ByteArray ba) throws ProtocolException {
 	this.ba = ba;	// save for later use by getResponseBuffer
-	Response[] r = fetch(
-			msgno, (peek ? "BODY.PEEK[" : "BODY[" ) +
-			(section == null ? "]<" : (section +"]<")) +
+	if (section == null)
+	    section = "";
+	String body = (peek ? "BODY.PEEK[" : "BODY[") + section + "]<" +
 			String.valueOf(start) + "." +
-			String.valueOf(size) + ">"
-		       );
+			String.valueOf(size) + ">";
+	return fetchSectionBody(msgno, section, body);
+    }
 
+    /**
+     * Fetch the given body section of the given message, using the
+     * body string "body".
+     */
+    protected BODY fetchSectionBody(int msgno, String section, String body)
+			throws ProtocolException {
+	Response[] r;
+
+	r = fetch(msgno, body);
 	notifyResponseHandlers(r);
 
 	Response response = r[r.length-1];
-	if (response.isOK())
-	    return FetchResponse.getItem(r, msgno, BODY.class);
-	else if (response.isNO())
+	if (response.isOK()) {
+	    List<BODY> bl = FetchResponse.getItems(r, msgno, BODY.class);
+	    if (bl.size() == 1)
+		return bl.get(0);	// the common case
+	    if (logger.isLoggable(Level.FINEST))
+		logger.finest("got " + bl.size() +
+				" BODY responses for section " + section);
+	    // more then one BODY response, have to find the right one
+	    for (BODY br : bl) {
+		if (logger.isLoggable(Level.FINEST))
+		    logger.finest("got BODY section " + br.getSection());
+		if (br.getSection().equalsIgnoreCase(section))
+		    return br;	// that's the one!
+	    }
+	    return null;	// couldn't find it
+	} else if (response.isNO())
 	    return null;
 	else {
 	    handleResult(response);

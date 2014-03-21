@@ -34,6 +34,7 @@ K  6325	add ability to return server-specific STATUS responses
 K  6326	add ability to set "peek" flag for all IMAP messages
 K  6327	add ability to specify scope of event queue
 K  6328	add ability to specify an Executor to process events
+K  6336	handle multiple IMAP BODY elements in a single FETCH response
 
 
 		  CHANGES IN THE 1.5.1 RELEASE

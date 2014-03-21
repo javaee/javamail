@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -151,11 +151,12 @@ public class Protocol {
     /**
      * Constructor for debugging.
      */
-    public Protocol(InputStream in, PrintStream out, boolean debug)
-				throws IOException {
+    public Protocol(InputStream in, PrintStream out, Properties props,
+				boolean debug) throws IOException {
 	this.host = "localhost";
+	this.props = props;
 	this.quote = false;
-	logger = new MailLogger(this.getClass(), "DEBUG", debug, out);
+	logger = new MailLogger(this.getClass(), "DEBUG", debug, System.out);
 	traceLogger = logger.getSubLogger("protocol", null);
 
 	// XXX - inlined initStreams, won't allow later startTLS

@@ -109,6 +109,10 @@ public class FetchResponse extends IMAPResponse {
 	return null;
     }
 
+    /**
+     * Return the first fetch response item of the given class
+     * for the given message number.
+     */
     public static <T extends Item> T getItem(Response[] r, int msgno,
 				Class<T> c) {
 	if (r == null)
@@ -129,6 +133,36 @@ public class FetchResponse extends IMAPResponse {
 	}
 
 	return null;
+    }
+
+    /**
+     * Return all fetch response items of the given class
+     * for the given message number.
+     *
+     * @since JavaMail 1.5.2
+     */
+    public static <T extends Item> List<T> getItems(Response[] r, int msgno,
+				Class<T> c) {
+	List<T> items = new ArrayList<T>();
+
+	if (r == null)
+	    return items;
+
+	for (int i = 0; i < r.length; i++) {
+
+	    if (r[i] == null ||
+		!(r[i] instanceof FetchResponse) ||
+		((FetchResponse)r[i]).getNumber() != msgno)
+		continue;
+
+	    FetchResponse f = (FetchResponse)r[i];
+	    for (int j = 0; j < f.items.length; j++) {
+		if (c.isInstance(f.items[j]))
+		    items.add(c.cast(f.items[j]));
+	    }
+	}
+
+	return items;
     }
 
     /**
