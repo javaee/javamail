@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,6 +43,7 @@ package com.sun.mail.util;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.nio.channels.SocketChannel;
 
 /**
  * A special Socket that uses a ScheduledExecutorService to
@@ -114,6 +115,11 @@ public class WriteTimeoutSocket extends Socket {
     @Override
     public void bind(SocketAddress local) throws IOException {
 	socket.bind(local);
+    }
+
+    @Override
+    public SocketChannel getChannel() {
+	return socket.getChannel();
     }
 
     @Override

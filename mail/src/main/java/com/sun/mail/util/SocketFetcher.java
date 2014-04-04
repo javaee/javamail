@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,6 +43,7 @@ package com.sun.mail.util;
 import java.security.*;
 import java.net.*;
 import java.io.*;
+import java.nio.channels.SocketChannel;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
@@ -90,6 +91,7 @@ public class SocketFetcher {
      * <li> <i>prefix</i>.connectiontimeout
      * <li> <i>prefix</i>.localaddress
      * <li> <i>prefix</i>.localport
+     * <li> <i>prefix</i>.usesocketchannels
      * </ul> <p>
      * If we're making an SSL connection, the ssl.socketFactory
      * properties are used first, if set. <p>
@@ -125,7 +127,12 @@ public class SocketFetcher {
      *
      * If the localaddress property is set, it's used as the local address
      * to bind to.  If the localport property is also set, it's used as the
-     * local port number to bind to.
+     * local port number to bind to. <p>
+     *
+     * If the usesocketchannels property is set, and we create the Socket
+     * ourself, and the selection of other properties allows, create a
+     * SocketChannel and get the Socket from it.  This allows us to later
+     * retrieve the SocketChannel from the Socket and use it with Select.
      *
      * @param host The host to connect to
      * @param port The port to connect to at the host
@@ -279,11 +286,15 @@ public class SocketFetcher {
 	if (sf != null)
 	    socket = sf.createSocket();
 	if (socket == null) {
-	    if (socksHost != null)
+	    if (socksHost != null) {
 		socket = new Socket(
 				new java.net.Proxy(java.net.Proxy.Type.SOCKS,
 				new InetSocketAddress(socksHost, socksPort)));
-	    else
+	    } else if (PropUtil.getBooleanProperty(props,
+					prefix + ".usesocketchannels", false)) {
+		logger.finer("using SocketChannels");
+		socket = SocketChannel.open().socket();
+	    } else
 		socket = new Socket();
 	}
 	if (to >= 0)

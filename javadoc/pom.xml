@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -95,6 +95,7 @@
 			com/sun/mail/imap/YoungerTerm.java,
 			com/sun/mail/imap/MessageVanishedEvent.java,
 			com/sun/mail/imap/ModifiedSinceTerm.java,
+			com/sun/mail/imap/IdleManager.java,
 			com/sun/mail/pop3/POP3Store.java,
 			com/sun/mail/pop3/POP3SSLStore.java,
 			com/sun/mail/pop3/POP3Folder.java,

@@ -50,6 +50,7 @@ import java.util.NoSuchElementException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.io.*;
+import java.nio.channels.SocketChannel;
 
 import javax.mail.*;
 import javax.mail.event.*;
@@ -265,6 +266,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     private static final int IDLE = 1;		// IDLE command in effect
     private static final int ABORTING = 2;	// IDLE command aborting
     private int idleState = RUNNING;
+    private volatile IdleManager idleManager;
 
     private volatile int total = -1;	// total number of messages in the
 					// message cache
@@ -2888,9 +2890,69 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @since	JavaMail 1.4.3
      */
     public void idle(boolean once) throws MessagingException {
+	synchronized (this) {
+	    /*
+	     * We can't support the idle method if we're using SocketChannels
+	     * because SocketChannels don't allow simultaneous read and write.
+	     * If we're blocked in a read waiting for IDLE responses, we can't
+	     * send the DONE message to abort the IDLE.  Sigh.
+	     * XXX - We could do select here too, like IdleManager, instead
+	     * of blocking in read, but that's more complicated.
+	     */
+	    if (protocol != null && protocol.getChannel() != null)
+		throw new MessagingException(
+			    "idle method not supported with SocketChannels");
+	}
+	startIdle(null);
+
+	/*
+	 * We gave up the folder lock so that other threads
+	 * can get into the folder far enough to see that we're
+	 * in IDLE and abort the IDLE.
+	 *
+	 * Now we read responses from the IDLE command, especially
+	 * including unsolicited notifications from the server.
+	 * We don't hold the messageCacheLock while reading because
+	 * it protects the idleState and other threads need to be
+	 * able to examine the state.
+	 *
+	 * The messageCacheLock is held in handleIdle while processing
+	 * the responses so that we can update the number of messages
+	 * in the folder (for example).
+	 */
+	for (;;) {
+	    if (!handleIdle(once))
+		break;
+	}
+
+	/*
+	 * Enforce a minimum delay to give time to threads
+	 * processing the responses that came in while we
+	 * were idle.
+	 */
+	int minidle = ((IMAPStore)store).getMinIdleTime();
+	if (minidle > 0) {
+	    try {
+		Thread.sleep(minidle);
+	    } catch (InterruptedException ex) { }
+	}
+    }
+
+    /**
+     * Start the IDLE command and put this folder into the IDLE state.
+     * IDLE processing is done later in handleIdle(), e.g., called from
+     * the IdleManager.
+     *
+     * @exception MessagingException	if the server doesn't support the
+     *					IDLE extension
+     * @exception IllegalStateException	if the folder isn't open
+     * @since	JavaMail 1.5.2
+     */
+    void startIdle(IdleManager im) throws MessagingException {
 	// ASSERT: Must NOT be called with this folder's
 	// synchronization lock held.
 	assert !Thread.holdsLock(this);
+	idleManager = im;
 	synchronized(this) {
 	    checkOpened();
 	    Boolean started = (Boolean)doOptionalCommand("IDLE not supported",
@@ -2916,64 +2978,50 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (!started.booleanValue())
 		return;
 	}
+    }
 
-	/*
-	 * We gave up the folder lock so that other threads
-	 * can get into the folder far enough to see that we're
-	 * in IDLE and abort the IDLE.
-	 *
-	 * Now we read responses from the IDLE command, especially
-	 * including unsolicited notifications from the server.
-	 * We don't hold the messageCacheLock while reading because
-	 * it protects the idleState and other threads need to be
-	 * able to examine the state.
-	 *
-	 * We hold the messageCacheLock while processing the
-	 * responses so that we can update the number of messages
-	 * in the folder (for example).
-	 */
-	for (;;) {
-	    Response r = protocol.readIdleResponse();
-	    try {
-		synchronized (messageCacheLock) {
-		    try {
-			if (r == null || protocol == null ||
-				!protocol.processIdleResponse(r)) {
-			    idleState = RUNNING;
-			    messageCacheLock.notifyAll();
-			    break;
-			}
-		    } catch (ProtocolException pex) {
+    /**
+     * Read a response from the server while we're in the IDLE state.
+     * We hold the messageCacheLock while processing the
+     * responses so that we can update the number of messages
+     * in the folder (for example).
+     *
+     * @param	once	only do one notification?
+     * @return	true if we should look for more IDLE responses,
+     *		false if IDLE is done
+     * @exception MessagingException	for errors
+     * @since	JavaMail 1.5.2
+     */
+    boolean handleIdle(boolean once) throws MessagingException {
+	Response r = protocol.readIdleResponse();
+	try {
+	    synchronized (messageCacheLock) {
+		try {
+		    if (r == null || protocol == null ||
+			    !protocol.processIdleResponse(r)) {
 			idleState = RUNNING;
 			messageCacheLock.notifyAll();
-			throw pex;
+			return false;	// done
 		    }
-		    if (once) {
-			if (idleState == IDLE) {
-			    protocol.idleAbort();
-			    idleState = ABORTING;
-			}
+		} catch (ProtocolException pex) {
+		    idleState = RUNNING;
+		    messageCacheLock.notifyAll();
+		    throw pex;		// also done
+		}
+		if (once) {
+		    if (idleState == IDLE) {
+			protocol.idleAbort();
+			idleState = ABORTING;
 		    }
 		}
-	    } catch (ConnectionException cex) {
-		// Oops, the store or folder died on us.
-		throwClosedException(cex);
-	    } catch (ProtocolException pex) {
-		throw new MessagingException(pex.getMessage(), pex);
 	    }
+	} catch (ConnectionException cex) {
+	    // Oops, the store or folder died on us.
+	    throwClosedException(cex);
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
 	}
-
-	/*
-	 * Enforce a minimum delay to give time to threads
-	 * processing the responses that came in while we
-	 * were idle.
-	 */
-	int minidle = ((IMAPStore)store).getMinIdleTime();
-	if (minidle > 0) {
-	    try {
-		Thread.sleep(minidle);
-	    } catch (InterruptedException ex) { }
-	}
+	return true;
     }
 
     /*
@@ -2985,7 +3033,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	assert Thread.holdsLock(messageCacheLock);
 	while (idleState != RUNNING) {
 	    if (idleState == IDLE) {
-		protocol.idleAbort();
+		IdleManager im = idleManager;
+		if (im != null)
+		    im.requestAbort(this);
+		else
+		    protocol.idleAbort();
 		idleState = ABORTING;
 	    }
 	    try {
@@ -2993,6 +3045,23 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		messageCacheLock.wait();
 	    } catch (InterruptedException ex) { }
 	}
+    }
+
+    /*
+     * Send the DONE command that aborts the IDLE; used by IdleManager.
+     */
+    void idleAbort() {
+	idleManager = null;	// don't need it anymore
+	if (protocol != null)	// should always be true
+	    protocol.idleAbort();
+    }
+
+    /**
+     * Return the SocketChannel for this connection, if any, for use
+     * in IdleManager.
+     */
+    SocketChannel getChannel() {
+	return protocol != null ? protocol.getChannel() : null;
     }
 
     /**

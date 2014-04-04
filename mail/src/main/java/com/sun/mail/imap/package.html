@@ -526,6 +526,17 @@ If not set, the default port will be used.
 </TR>
 
 <TR>
+<TD>mail.imap.usesocketchannels</TD>
+<TD>boolean</TD>
+<TD>
+If set to true, use SocketChannels instead of Sockets for connecting
+to the server.  Required if using the IdleManager.
+Ignored if a socket factory is set.
+Defaults to false.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.ssl.enable</TD>
 <TD>boolean</TD>
 <TD>
