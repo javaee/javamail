@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -53,22 +53,22 @@ import javax.mail.Authenticator;
 
 /**
  * An adapter class to allow the Mail API to access the LogManager properties.
- * The LogManager properties are treated as the root of all properties.
- * First, the parent properties are searched. If no value is found, then,
- * the LogManager is searched with prefix value.  If not found, then, just the
- * key itself is searched in the LogManager. If a value is found in the
- * LogManager it is then copied to this properties object with no key prefix.
- * If no value is found in the LogManager or the parent properties, then this
- * properties object is searched only by passing the key value.
+ * The LogManager properties are treated as the root of all properties. First,
+ * the parent properties are searched. If no value is found, then, the
+ * LogManager is searched with prefix value. If not found, then, just the key
+ * itself is searched in the LogManager. If a value is found in the LogManager
+ * it is then copied to this properties object with no key prefix. If no value
+ * is found in the LogManager or the parent properties, then this properties
+ * object is searched only by passing the key value.
  *
  * <p>
  * This class also emulates the LogManager functions for creating new objects
- * from string class names.  This is to support initial setup of objects such as
+ * from string class names. This is to support initial setup of objects such as
  * log filters, formatters, error managers, etc.
  *
  * <p>
- * This class should never be exposed outside of this package.  Keep this
- * class package private (default access).
+ * This class should never be exposed outside of this package. Keep this class
+ * package private (default access).
  *
  * @author Jason Mehrens
  * @since JavaMail 1.4.3
@@ -82,10 +82,18 @@ final class LogManagerProperties extends Properties {
     /**
      * Caches the LogManager so we only read the config once.
      */
-    private final static LogManager LOG_MANAGER = LogManager.getLogManager();
+    private static final LogManager LOG_MANAGER = LogManager.getLogManager();
+    /**
+     * Caches the read only reflection class names string array.
+     * Declared volatile for safe publishing only. The
+     * VO_VOLATILE_REFERENCE_TO_ARRAY warning is a false positive.
+     */
+    @SuppressWarnings("VolatileArrayField")
+    private static volatile String[] REFLECT_NAMES;
 
     /**
      * Gets the LogManger for the running JVM.
+     *
      * @return the LogManager.
      * @since JavaMail 1.4.5
      */
@@ -95,6 +103,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Converts a locale to a language tag.
+     *
      * @param locale the locale to convert.
      * @return the language tag.
      * @throws NullPointerException if the given locale is null.
@@ -125,6 +134,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new filter from the given class name.
+     *
      * @param name the fully qualified class name.
      * @return a new filter.
      * @throws ClassCastException if class name does not match the type.
@@ -145,6 +155,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new formatter from the given class name.
+     *
      * @param name the fully qualified class name.
      * @return a new formatter.
      * @throws ClassCastException if class name does not match the type.
@@ -165,6 +176,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new log record comparator from the given class name.
+     *
      * @param name the fully qualified class name.
      * @return a new comparator.
      * @throws ClassCastException if class name does not match the type.
@@ -203,7 +215,7 @@ final class LogManagerProperties extends Properties {
     @SuppressWarnings("unchecked")
     static <T> Comparator<T> reverseOrder(final Comparator<T> c) {
         if (c == null) {
-           throw new NullPointerException();
+            throw new NullPointerException();
         }
 
         Comparator<T> reverse = null;
@@ -237,6 +249,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new error manager from the given class name.
+     *
      * @param name the fully qualified class name.
      * @return a new error manager.
      * @throws ClassCastException if class name does not match the type.
@@ -257,6 +270,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a new authenticator from the given class name.
+     *
      * @param name the fully qualified class name.
      * @return a new authenticator.
      * @throws ClassCastException if class name does not match the type.
@@ -276,7 +290,106 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
+     * Determines if the given class name identifies a utility class.
+     *
+     * @param name the fully qualified class name.
+     * @return true if the given class name
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws SecurityException if unable to inspect properties of class.
+     * @since JavaMail 1.5.2
+     */
+    static boolean isStaticUtilityClass(String name) throws Exception {
+        final Class<?> c = findClass(name);
+        final Class<?> obj = Object.class;
+        Method[] methods = c.getMethods();
+        boolean util;
+        if (c != obj && methods.length != 0) {
+            util = true;
+            for (Method m : methods) {
+                if (m.getDeclaringClass() != obj
+                        && !Modifier.isStatic(m.getModifiers())) {
+                    util = false;
+                    break;
+                }
+            }
+        } else {
+            util = false;
+        }
+        return util;
+    }
+
+    /**
+     * Determines if the given class name is a reflection class name responsible
+     * for invoking methods and or constructors.
+     *
+     * @param name the fully qualified class name.
+     * @return true if the given class name
+     * @throws ClassNotFoundException if the class name was not found.
+     * @throws IllegalAccessException if the constructor is inaccessible.
+     * @throws LinkageError if the linkage fails.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception to match the error method of the ErrorManager.
+     * @throws SecurityException if unable to inspect properties of class.
+     * @since JavaMail 1.5.2
+     */
+    static boolean isReflectionClass(String name) throws Exception {
+        String[] names = String[].class.cast(REFLECT_NAMES);
+        if (names == null) { //Benign data race.
+            names = reflectionClassNames();
+            REFLECT_NAMES = names;
+        }
+
+        for (String rf : names) { //The set of names is small.
+            if (name.equals(rf)) {
+               return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Determines all of the reflection class names used to invoke methods.
+     *
+     * This method performs indirect and direct calls on a throwable to
+     * capture the standard class names and the implementation class names.
+     * @return a string array containing the fully qualified class names.
+     * @throws Exception if there is a problem.
+     */
+    private static String[] reflectionClassNames() throws Exception {
+        final Class<?> thisClass = LogManagerProperties.class;
+        assert Modifier.isFinal(thisClass.getModifiers()) : thisClass;
+        try {
+            final HashSet<String> traces = new HashSet<String>();
+            Throwable t = Throwable.class.getConstructor().newInstance();
+            for (StackTraceElement ste : t.getStackTrace()) {
+                if (!thisClass.getName().equals(ste.getClassName())) {
+                    traces.add(ste.getClassName());
+                } else {
+                    break;
+                }
+            }
+
+            Throwable.class.getMethod("fillInStackTrace").invoke(t);
+            for (StackTraceElement ste : t.getStackTrace()) {
+                if (!thisClass.getName().equals(ste.getClassName())) {
+                    traces.add(ste.getClassName());
+                } else {
+                    break;
+                }
+            }
+            return traces.toArray(new String[traces.size()]);
+        } catch (final InvocationTargetException ITE) {
+            throw paramOrError(ITE);
+        }
+    }
+
+    /**
      * Creates a new object from the given class name.
+     *
      * @param <T> The generic class type.
      * @param name the fully qualified class name.
      * @param type the assignable type for the given name.
@@ -322,6 +435,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Returns the given exception or throws the escaping cause.
+     *
      * @param ite any invocation target.
      * @return the exception.
      * @throws VirtualMachineError if present as cause.
@@ -340,8 +454,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Throws the given error if the cause is an error otherwise
-     * the given error is wrapped.
+     * Throws the given error if the cause is an error otherwise the given error
+     * is wrapped.
+     *
      * @param eiie the error.
      * @return an InvocationTargetException.
      * @since JavaMail 1.5.0
@@ -364,6 +479,7 @@ final class LogManagerProperties extends Properties {
      * searching the system class loader first, then the context class loader.
      * There is resistance (compatibility) to change this behavior to simply
      * searching the context class loader.
+     *
      * @param name full class name
      * @return the class.
      * @throws LinkageError if the linkage fails.
@@ -388,6 +504,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Loads a class using the given loader or the class loader of this class.
+     *
      * @param name the class name.
      * @param l any class loader or null.
      * @return the raw class.
@@ -403,6 +520,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Gets the class loaders using elevated privileges.
+     *
      * @return any array of class loaders. Indexes may be null.
      */
     private static ClassLoader[] getClassLoaders() {
@@ -432,6 +550,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Creates a log manager properties object.
+     *
      * @param parent the parent properties.
      * @param prefix the namespace prefix.
      * @throws NullPointerException if <tt>prefix</tt> or <tt>parent</tt> is
@@ -451,19 +570,22 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Returns a properties object that contains a snapshot of the current
-     * state.  This method violates the clone contract so that no instances
-     * of LogManagerProperties is exported for public use.
+     * state. This method violates the clone contract so that no instances of
+     * LogManagerProperties is exported for public use.
+     *
      * @return the snapshot.
      * @since JavaMail 1.4.4
      */
     @Override
+    @SuppressWarnings("CloneDoesntCallSuperClone")
     public synchronized Object clone() {
         return exportCopy(defaults);
     }
 
     /**
-     * Searches defaults, then searches the log manager
-     * by the prefix property, and then by the key itself.
+     * Searches defaults, then searches the log manager by the prefix property,
+     * and then by the key itself.
+     *
      * @param key a non null key.
      * @return the value for that key.
      */
@@ -481,11 +603,10 @@ final class LogManagerProperties extends Properties {
             }
 
             /**
-             * Copy the log manager properties as we read them.  If a value is
-             * no longer present in the LogManager read it from here.
-             * The reason this works is because LogManager.reset() closes
-             * all attached handlers therefore, stale values only exist in
-             * closed handlers.
+             * Copy the log manager properties as we read them. If a value is no
+             * longer present in the LogManager read it from here. The reason
+             * this works is because LogManager.reset() closes all attached
+             * handlers therefore, stale values only exist in closed handlers.
              */
             if (value != null) {
                 super.put(key, value);
@@ -498,8 +619,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Calls getProperty directly.  If getProperty returns null the default
-     * value is returned.
+     * Calls getProperty directly. If getProperty returns null the default value
+     * is returned.
+     *
      * @param key a key to search for.
      * @param def the default value to use if not found.
      * @return the value for the key.
@@ -512,8 +634,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Required to work with PropUtil.  Calls getProperty directly if the
-     * given key is a string.  Otherwise, performs a normal get operation.
+     * Required to work with PropUtil. Calls getProperty directly if the given
+     * key is a string. Otherwise, performs a normal get operation.
+     *
      * @param key any key.
      * @return the value for the key or null.
      * @since JavaMail 1.4.5
@@ -528,8 +651,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * Required to work with PropUtil. An updated copy of the key is fetched
      * from the log manager if the key doesn't exist in this properties.
+     *
      * @param key any key.
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
@@ -543,6 +667,7 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Calls the put method directly.
+     *
      * @param key any key.
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
@@ -553,8 +678,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * Required to work with PropUtil. An updated copy of the key is fetched
      * from the log manager prior to returning.
+     *
      * @param key any key.
      * @return the value for the key or null.
      * @since JavaMail 1.4.5
@@ -569,8 +695,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Required to work with PropUtil.  An updated copy of the key is fetched
+     * Required to work with PropUtil. An updated copy of the key is fetched
      * from the log manager if the key doesn't exist in this properties.
+     *
      * @param key any key.
      * @return the value for the key or the default value for the key.
      * @since JavaMail 1.4.5
@@ -583,8 +710,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * It is assumed that this method will never be called.
-     * No way to get the property names from LogManager.
+     * It is assumed that this method will never be called. No way to get the
+     * property names from LogManager.
+     *
      * @return the property names
      */
     @Override
@@ -594,8 +722,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * It is assumed that this method will never be called.
-     * The prefix value is not used for the equals method.
+     * It is assumed that this method will never be called. The prefix value is
+     * not used for the equals method.
+     *
      * @param o any object or null.
      * @return true if equal, otherwise false.
      */
@@ -615,7 +744,8 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * It is assumed that this method will never be called.  See equals.
+     * It is assumed that this method will never be called. See equals.
+     *
      * @return the hash code.
      */
     @Override
@@ -625,10 +755,11 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Called before a write operation of a key.
-     * Caches a key read from the log manager in this properties object.
-     * The key is only cached if it is an instance of a String and
-     * this properties doesn't contain a copy of the key.
+     * Called before a write operation of a key. Caches a key read from the log
+     * manager in this properties object. The key is only cached if it is an
+     * instance of a String and this properties doesn't contain a copy of the
+     * key.
+     *
      * @param key the key to search.
      * @return the default value for the key.
      */
@@ -644,8 +775,9 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Creates a public snapshot of this properties object using
-     * the given parent properties.
+     * Creates a public snapshot of this properties object using the given
+     * parent properties.
+     *
      * @param parent the defaults to use with the snapshot.
      * @return the safe snapshot.
      */
@@ -657,9 +789,10 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * It is assumed that this method will never be called.
-     * We return a safe copy for export to avoid locking this properties
-     * object or the defaults during write.
+     * It is assumed that this method will never be called. We return a safe
+     * copy for export to avoid locking this properties object or the defaults
+     * during write.
+     *
      * @return the parent properties.
      * @throws ObjectStreamException if there is a problem.
      */

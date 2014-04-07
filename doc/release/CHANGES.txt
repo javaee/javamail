@@ -36,6 +36,7 @@ K  6327	add ability to specify scope of event queue
 K  6328	add ability to specify an Executor to process events
 K  6336	handle multiple IMAP BODY elements in a single FETCH response
 K  6352	add more efficient way to monitor multiple folders for new messages
+K  6353	Include a subject formatter for the logging package
 
 
 		  CHANGES IN THE 1.5.1 RELEASE

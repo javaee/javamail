@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,7 +44,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
@@ -96,6 +98,82 @@ public class LogManagerPropertiesTest {
         assertNotSame(clone, mp);
         assertEquals(mp.size(), clone.size());
         assertTrue(clone.equals(mp)); //don't call mp.equals.
+    }
+
+    @Test
+    public void testIsReflection() throws Exception {
+        assertTrue(LogManagerProperties.isReflectionClass(Constructor.class.getName()));
+        assertTrue(LogManagerProperties.isReflectionClass(Method.class.getName()));
+    }
+
+    @Test
+    public void testIsStaticUtilityClass() throws Exception {
+        boolean nullCheck;
+        try {
+            LogManagerProperties.isStaticUtilityClass((String) null);
+            nullCheck = false;
+        } catch (NullPointerException expect) {
+            nullCheck = true;
+        }
+
+        if (!nullCheck) {
+            fail("Null check");
+        }
+
+        String[] utils = {
+            "java.lang.System",
+            "java.nio.channels.Channels",
+            "java.util.Collections",
+            "javax.mail.internet.MimeUtility",
+            "org.junit.Assert"
+        };
+
+        testIsStaticUtilityClass(utils, true);
+
+
+        String[] obj = {
+            "java.lang.Exception",
+            "java.lang.Object",
+            "java.lang.Runtime",
+            "java.io.Serializable"
+        };
+        testIsStaticUtilityClass(obj, false);
+
+        String[] enumerations = {
+            "java.util.concurrent.TimeUnit"
+        };
+        testIsStaticUtilityClass(enumerations, false);
+
+        String[] fail = {
+            "badClassName"
+        };
+        for (String name : fail) {
+            boolean pass;
+            try {
+                LogManagerProperties.isStaticUtilityClass(name);
+                pass = false;
+            } catch(ClassNotFoundException expect) {
+                pass = true;
+            }
+
+            if (!pass) {
+                fail(name);
+            }
+        }
+    }
+
+    private void testIsStaticUtilityClass(String[] names, boolean complement) throws Exception {
+        assertFalse(names.length == 0);
+
+        if (complement) {
+            for (String name : names) {
+                assertTrue(name, LogManagerProperties.isStaticUtilityClass(name));
+            }
+        } else {
+            for (String name : names) {
+                assertFalse(name, LogManagerProperties.isStaticUtilityClass(name));
+            }
+        }
     }
 
     @Test

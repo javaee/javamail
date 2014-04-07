@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -460,7 +460,8 @@ public class MailHandler extends Handler {
     /**
      * Holds the filters for each attachment.  Filters are optional for
      * each attachment.  This is declared volatile because this is treated as
-     * copy-on-write. VO_VOLATILE_REFERENCE_TO_ARRAY is a false positive.
+     * copy-on-write. The VO_VOLATILE_REFERENCE_TO_ARRAY warning is a false
+     * positive.
      */
     @SuppressWarnings("VolatileArrayField")
     private volatile Filter[] attachmentFilters;
@@ -2981,8 +2982,10 @@ public class MailHandler extends Handler {
      * @param part to append to.
      * @param chunk non null string to append.
      */
-    private void appendFileName0(final Part part, final String chunk) {
+    private void appendFileName0(final Part part, String chunk) {
         try {
+            //Remove all control character groups.
+            chunk = chunk.replaceAll("[\\x00-\\x1F\\x7F]+", "");
             final String old = part.getFileName();
             part.setFileName(old != null ? old.concat(chunk) : chunk);
         } catch (final MessagingException ME) {
@@ -3011,8 +3014,10 @@ public class MailHandler extends Handler {
      * @param msg to append to.
      * @param chunk non null string to append.
      */
-    private void appendSubject0(final Message msg, final String chunk) {
+    private void appendSubject0(final Message msg, String chunk) {
         try {
+            //Remove all control character groups.
+            chunk = chunk.replaceAll("[\\x00-\\x1F\\x7F]+", "");
             final String encoding = getEncodingName();
             final String old = msg.getSubject();
             assert msg instanceof MimeMessage;
