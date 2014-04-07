@@ -57,7 +57,7 @@ import java.util.logging.LogRecord;
  * <ul>
  * <li>&lt;formatter-name&gt;.format - the {@link java.util.Formatter
  *     format} string used to transform the output. The format string can be used to
- * fix the output size. (defaults to "%7$#160s%n")</li>
+ * fix the output size. (defaults to "%7$#.160s%n")</li>
  * </ul>
  *
  * @author Jason Mehrens
@@ -114,15 +114,11 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * and a relevant stack trace element if available. Otherwise, an empty
      * string is used.</li>
      * <li>{@code message|thrown} The message and the thrown properties joined
-     * as one parameter. The
-     * {@link java.util.Formatter conversion-dependent alternate form} should
-     * always be specified with this parameter. If a width is defined then that
-     * is treated as the maximum width.</li>
+     * as one parameter. This parameter supports
+     * {@link #toAlternate(java.lang.String) alternate} form.</li>
      * <li>{@code thrown|message} The thrown and message properties joined as
-     * one parameter. The
-     * {@link java.util.Formatter conversion-dependent alternate form} should
-     * always be specified with this parameter. If a width is defined then that
-     * is treated as the maximum width.</li>
+     * one parameter. This parameter supports
+     * {@link #toAlternate(java.lang.String) alternate} form.</li>
      * </ol>
      *
      * @param record to format.
@@ -455,7 +451,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
         LogManager m = LogManagerProperties.getLogManager();
         String v = m.getProperty(p.concat(".format"));
         if (isNullOrSpaces(v)) {
-            v = "%7$#160s%n"; //160 chars split between message and thrown.
+            v = "%7$#.160s%n"; //160 chars split between message and thrown.
         }
         return v;
     }
@@ -546,9 +542,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
-     * Used to format two arguments as fixed width message. This class violates
-     * the width contract because it is treated as a maximum values instead of
-     * minimum value.
+     * Used to format two arguments as fixed length message.
      */
     private class Alternate implements java.util.Formattable {
 
@@ -589,12 +583,12 @@ public class CompactFormatter extends java.util.logging.Formatter {
                 r = toAlternate(r);
             }
 
-            if (width <= 0) {
-                width = Integer.MAX_VALUE;
+            if (precision <= 0) {
+                precision = Integer.MAX_VALUE;
             }
 
-            int fence = Math.min(l.length(), width);
-            if (fence > (width >> 1)) {
+            int fence = Math.min(l.length(), precision);
+            if (fence > (precision >> 1)) {
                 fence = Math.max(fence - r.length(), fence >> 1);
             }
 
@@ -605,7 +599,18 @@ public class CompactFormatter extends java.util.logging.Formatter {
                 }
                 l = l.substring(0, fence);
             }
-            r = r.substring(0, Math.min(width - fence, r.length()));
+            r = r.substring(0, Math.min(precision - fence, r.length()));
+
+            if (width > 0) {
+                final int half = width >> 1;
+                if (l.length() < half) {
+                    l = pad(flags, l, half);
+                }
+
+                if (r.length() < half) {
+                    r = pad(flags, r, half);
+                }
+            }
 
             Object[] empty = Collections.emptySet().toArray();
             formatter.format(l, empty);
@@ -613,6 +618,32 @@ public class CompactFormatter extends java.util.logging.Formatter {
                 formatter.format("|", empty);
             }
             formatter.format(r, empty);
+        }
+
+        /**
+         * Pad the given input string.
+         *
+         * @param flags the formatter flags.
+         * @param s the string to pad.
+         * @param length the final string length.
+         * @return the padded string.
+         */
+        private String pad(int flags, String s, int length) {
+            final int padding = length - s.length();
+            final StringBuilder b = new StringBuilder(length);
+            if ((flags & java.util.FormattableFlags.LEFT_JUSTIFY)
+                    == java.util.FormattableFlags.LEFT_JUSTIFY) {
+                for (int i = 0; i < padding; ++i) {
+                    b.append('\u0020');
+                }
+                b.append(s);
+            } else {
+                b.append(s);
+                for (int i = 0; i < padding; ++i) {
+                    b.append('\u0020');
+                }
+            }
+            return b.toString();
         }
     }
 }

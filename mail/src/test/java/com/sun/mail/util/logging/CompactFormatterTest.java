@@ -33,11 +33,11 @@ public class CompactFormatterTest {
     /**
      * The max width.
      */
-    private static final int MAX_WIDTH = 160;
+    private static final int MAX_PRE = 160;
     /**
      * The default left to right pattern.
      */
-    private static final String LEFT_TO_RIGHT = "%7$#" + MAX_WIDTH + "s%n";
+    private static final String LEFT_TO_RIGHT = "%7$#." + MAX_PRE + "s%n";
 
     /**
      * See LogManager.
@@ -98,6 +98,24 @@ public class CompactFormatterTest {
     }
 
     @Test
+    public void testFormatWithMessagePrecisionOverWidth() {
+        LogRecord record = new LogRecord(Level.SEVERE, "message");
+        record.setThrown(new Throwable("thrown"));
+        CompactFormatter cf = new CompactFormatter("%7$#6.12s");
+        String result = cf.format(record);
+        assertEquals("mes|Throwable", result);
+    }
+
+    @Test
+    public void testFormatWithMessageWidthOverPrecision() {
+        LogRecord record = new LogRecord(Level.SEVERE, "message");
+        record.setThrown(new Throwable("thrown"));
+        CompactFormatter cf = new CompactFormatter("%7$#12.6s");
+        String result = cf.format(record);
+        assertEquals("mes\u0020\u0020\u0020|Thr\u0020\u0020\u0020", result);
+    }
+
+    @Test
     public void testFormatWithMessageEmpty() {
         LogRecord record = new LogRecord(Level.SEVERE, "");
         CompactFormatter cf = new CompactFormatter();
@@ -110,7 +128,7 @@ public class CompactFormatterTest {
         LogRecord record = new LogRecord(Level.SEVERE,
                 "a\ud801\udc00\ud801\udc00\ud801\udc00\ud801\udc00");
         record.setThrown(new Throwable("thrown"));
-        CompactFormatter cf = new CompactFormatter("%7$#6s%n");
+        CompactFormatter cf = new CompactFormatter("%7$#.6s%n");
         String result = cf.format(record);
         assertTrue(result, result.startsWith("a\ud801\udc00"));
         assertTrue(result, result.endsWith("|Thr" + LINE_SEP));
@@ -218,7 +236,7 @@ public class CompactFormatterTest {
 
     @Test
     public void testFormatMaxMessageWidthLeftToRight() {
-        testFormatMaxMessageWidth(LEFT_TO_RIGHT, MAX_WIDTH);
+        testFormatMaxMessageWidth(LEFT_TO_RIGHT, MAX_PRE);
     }
 
     private void testFormatMaxMessageWidth(String fmt, int width) {
@@ -246,7 +264,7 @@ public class CompactFormatterTest {
     @Test
     public void testFormatMaxThrowableWidthLeftToRight() {
         String fmt = LEFT_TO_RIGHT;
-        int width = MAX_WIDTH;
+        int width = MAX_PRE;
         assertTrue(fmt, fmt.contains(Integer.toString(width)));
         assertTrue(String.valueOf(width), width < Integer.MAX_VALUE / 4);
 
