@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -439,7 +439,8 @@ public class URLName {
 	URLName u2 = (URLName)obj;
 
 	// compare protocols
-	if (u2.protocol == null || !u2.protocol.equals(protocol))
+	if (!(protocol == u2.protocol ||
+		(protocol != null && protocol.equals(u2.protocol))))
 	    return false;
 
 	// compare hosts
