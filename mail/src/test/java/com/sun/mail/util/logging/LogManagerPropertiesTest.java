@@ -59,6 +59,7 @@ import org.junit.Test;
 
 /**
  * Test case for the LogManagerProperties spec.
+ *
  * @author Jason Mehrens
  */
 public class LogManagerPropertiesTest {
@@ -106,20 +107,28 @@ public class LogManagerPropertiesTest {
         assertTrue(LogManagerProperties.isReflectionClass(Method.class.getName()));
     }
 
+    @Test(expected = NullPointerException.class)
+    public void testIsReflectionNull() throws Exception {
+        LogManagerProperties.isReflectionClass((String) null);
+    }
+
+    @Test(expected = ClassNotFoundException.class)
+    public void testIsReflectionInvaildName() throws Exception {
+        LogManagerProperties.isReflectionClass("badClassName");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testIsStaticUtilityClassNull() throws Exception {
+        LogManagerProperties.isStaticUtilityClass((String) null);
+    }
+
+    @Test(expected = ClassNotFoundException.class)
+    public void testIsStaticUtilityClassInvaildName() throws Exception {
+        LogManagerProperties.isStaticUtilityClass("badClassName");
+    }
+
     @Test
     public void testIsStaticUtilityClass() throws Exception {
-        boolean nullCheck;
-        try {
-            LogManagerProperties.isStaticUtilityClass((String) null);
-            nullCheck = false;
-        } catch (NullPointerException expect) {
-            nullCheck = true;
-        }
-
-        if (!nullCheck) {
-            fail("Null check");
-        }
-
         String[] utils = {
             "java.lang.System",
             "java.nio.channels.Channels",
@@ -129,7 +138,6 @@ public class LogManagerPropertiesTest {
         };
 
         testIsStaticUtilityClass(utils, true);
-
 
         String[] obj = {
             "java.lang.Exception",
@@ -143,23 +151,6 @@ public class LogManagerPropertiesTest {
             "java.util.concurrent.TimeUnit"
         };
         testIsStaticUtilityClass(enumerations, false);
-
-        String[] fail = {
-            "badClassName"
-        };
-        for (String name : fail) {
-            boolean pass;
-            try {
-                LogManagerProperties.isStaticUtilityClass(name);
-                pass = false;
-            } catch(ClassNotFoundException expect) {
-                pass = true;
-            }
-
-            if (!pass) {
-                fail(name);
-            }
-        }
     }
 
     private void testIsStaticUtilityClass(String[] names, boolean complement) throws Exception {
@@ -433,10 +424,9 @@ public class LogManagerPropertiesTest {
         }
 
         final Class<?> type = ErrorAuthenticator.class;
-        final javax.mail.Authenticator a =
-                LogManagerProperties.newAuthenticator(type.getName());
+        final javax.mail.Authenticator a
+                = LogManagerProperties.newAuthenticator(type.getName());
         assertEquals(type, a.getClass());
-
 
         setPending(new RuntimeException());
         try {
@@ -470,8 +460,8 @@ public class LogManagerPropertiesTest {
         }
 
         final Class<?> type = ErrorComparator.class;
-        final Comparator<? super LogRecord> c =
-                LogManagerProperties.newComparator(type.getName());
+        final Comparator<? super LogRecord> c
+                = LogManagerProperties.newComparator(type.getName());
         assertEquals(type, c.getClass());
 
         setPending(new RuntimeException());
@@ -508,7 +498,6 @@ public class LogManagerPropertiesTest {
         r = LogManagerProperties.reverseOrder(c);
         assertTrue(r instanceof DescComparator);
     }
-
 
     @Test
     public void testNewErrorManager() throws Exception {
@@ -808,7 +797,7 @@ public class LogManagerPropertiesTest {
     }
 
     public static class ErrorComparator implements Comparator<LogRecord>,
-                                                                Serializable {
+            Serializable {
 
         private static final long serialVersionUID = 1L;
 
@@ -822,7 +811,8 @@ public class LogManagerPropertiesTest {
     }
 
     public static class AscComparator implements Comparator<LogRecord>,
-                                                                Serializable {
+            Serializable {
+
         private static final long serialVersionUID = 1L;
 
         public int compare(LogRecord r1, LogRecord r2) {
@@ -835,7 +825,8 @@ public class LogManagerPropertiesTest {
     }
 
     public static class DescComparator implements Comparator<LogRecord>,
-                                                                Serializable {
+            Serializable {
+
         private static final long serialVersionUID = 1L;
 
         public int compare(LogRecord r1, LogRecord r2) {

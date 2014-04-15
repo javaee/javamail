@@ -86,10 +86,8 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * method.
      */
     public CompactFormatter(final String format) {
-        if (format == null) {
-            throw new NullPointerException();
-        }
-        this.fmt = format;
+        String p = getClass().getName();
+        this.fmt = format == null ? initFormat(p) : format;
     }
 
     /**
@@ -98,8 +96,8 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * <ol start='0'>
      * <li>{@code format} - the {@link java.util.Formatter
      *     java.util.Formatter} format string specified in the
-     * {@code &lt;formatter-name&gt;.format} property or the format that was
-     * given when this formatter was created.</li>
+     * &lt;formatter-name&gt;.format property or the format that was given when
+     * this formatter was created.</li>
      * <li>{@code date} - a {@link Date} object representing
      * {@linkplain LogRecord#getMillis event time} of the log record.</li>
      * <li>{@code source} - a string representing the caller, if available;
@@ -397,7 +395,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
         } catch (Exception ignore) {
         } catch (LinkageError ignore) {
         }
-        return false;
+        return (!s.getClassName().endsWith("es")
+                && s.getClassName().endsWith("s"))
+                || s.getClassName().contains("Util");
     }
 
     /**
@@ -437,7 +437,8 @@ public class CompactFormatter extends java.util.logging.Formatter {
         } catch (Exception ignore) {
         } catch (LinkageError ignore) {
         }
-        return false;
+        return s.getClassName().startsWith("java.lang.reflect.")
+                || s.getClassName().startsWith("sun.reflect.");
     }
 
     /**

@@ -84,9 +84,9 @@ final class LogManagerProperties extends Properties {
      */
     private static final LogManager LOG_MANAGER = LogManager.getLogManager();
     /**
-     * Caches the read only reflection class names string array.
-     * Declared volatile for safe publishing only. The
-     * VO_VOLATILE_REFERENCE_TO_ARRAY warning is a false positive.
+     * Caches the read only reflection class names string array. Declared
+     * volatile for safe publishing only. The VO_VOLATILE_REFERENCE_TO_ARRAY
+     * warning is a false positive.
      */
     @SuppressWarnings("VolatileArrayField")
     private static volatile String[] REFLECT_NAMES;
@@ -337,25 +337,27 @@ final class LogManagerProperties extends Properties {
      * @since JavaMail 1.5.2
      */
     static boolean isReflectionClass(String name) throws Exception {
-        String[] names = String[].class.cast(REFLECT_NAMES);
-        if (names == null) { //Benign data race.
-            names = reflectionClassNames();
-            REFLECT_NAMES = names;
+        String[] names;
+        if ((names = REFLECT_NAMES) == null) { //Benign data race.
+            REFLECT_NAMES = names = reflectionClassNames();
         }
 
         for (String rf : names) { //The set of names is small.
             if (name.equals(rf)) {
-               return true;
+                return true;
             }
         }
+
+        findClass(name); //Fail late instead of normal return.
         return false;
     }
 
     /**
      * Determines all of the reflection class names used to invoke methods.
      *
-     * This method performs indirect and direct calls on a throwable to
-     * capture the standard class names and the implementation class names.
+     * This method performs indirect and direct calls on a throwable to capture
+     * the standard class names and the implementation class names.
+     *
      * @return a string array containing the fully qualified class names.
      * @throws Exception if there is a problem.
      */

@@ -1,3 +1,43 @@
+/*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common Development
+ * and Distribution License("CDDL") (collectively, the "License").  You
+ * may not use this file except in compliance with the License.  You can
+ * obtain a copy of the License at
+ * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+ * or packager/legal/LICENSE.txt.  See the License for the specific
+ * language governing permissions and limitations under the License.
+ *
+ * When distributing the software, include this License Header Notice in each
+ * file and include the License file at packager/legal/LICENSE.txt.
+ *
+ * GPL Classpath Exception:
+ * Oracle designates this particular file as subject to the "Classpath"
+ * exception as provided by Oracle in the GPL Version 2 section of the License
+ * file that accompanied this code.
+ *
+ * Modifications:
+ * If applicable, add the following below the License Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyright [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ * If you wish your version of this file to be governed by only the CDDL or
+ * only the GPL Version 2, indicate your decision by adding "[Contributor]
+ * elects to include this software in this distribution under the [CDDL or GPL
+ * Version 2] license."  If you don't indicate a single choice of license, a
+ * recipient has the option to distribute your version of this file under
+ * either the CDDL, the GPL Version 2 or to extend the choice of license to
+ * its licensees as provided above.  However, if you add GPL Version 2 code
+ * and therefore, elected the GPL Version 2 license, then the option applies
+ * only if the new code is made subject to such option by the copyright
+ * holder.
+ */
 package com.sun.mail.util.logging;
 
 import java.lang.reflect.UndeclaredThrowableException;
@@ -101,7 +141,7 @@ public class CollectorFormatter extends Formatter {
     /**
      * Creates the formatter using the given format.
      *
-     * @param format the message format.
+     * @param format the message format or null to use the LogManager default.
      * @throws SecurityException if a security manager exists and the caller
      * does not have <tt>LoggingPermission("control")</tt>.
      * @throws UndeclaredThrowableException if there are problems when loading
@@ -119,9 +159,10 @@ public class CollectorFormatter extends Formatter {
      * Creates the formatter using the given values.
      *
      * @param format the format string.
-     * @param f the formatter used on the collected log record or null.
+     * @param f the formatter used on the collected log record or null to use
+     * the LogManager default.
      * @param c the comparator used to determine which log record to format or
-     * null.
+     * null to specify no comparator.
      * @throws SecurityException if a security manager exists and the caller
      * does not have <tt>LoggingPermission("control")</tt>.
      * @throws UndeclaredThrowableException if there are problems when loading
@@ -214,7 +255,8 @@ public class CollectorFormatter extends Formatter {
     }
 
     /**
-     * Peeks at the current LogRecord and formats it.
+     * Formats the collected LogRecord and summary statistics. The LogRecord and
+     * summary statistics are not changed by calling this method.
      *
      * @return the current record formatted or the default toString.
      * @see #getTail(java.util.logging.Handler)
@@ -405,6 +447,7 @@ public class CollectorFormatter extends Formatter {
      *
      * @param p the class name prefix.
      * @return the formatter.
+     * @throws UndeclaredThrowableException if the formatter can not be created.
      */
     private Formatter initFormatter(final String p) {
         final LogManager m = LogManagerProperties.getLogManager();
