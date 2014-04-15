@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -204,8 +204,28 @@ public class BODYSTRUCTURE implements Item {
 	    // Throw away any further extension data
 	    while (r.readByte() == ' ')
 		parseBodyExtension(r);
-	}
-	else { // Single part
+	} else if (r.peekByte() == ')') {	// (illegal) empty body
+	    /*
+	     * Domino will fail to return the body structure of nested messages.
+	     * Fake it by providing an empty message.  Could probably do better
+	     * with more work...
+	     */
+	    /*
+	     * XXX - this prevents the exception, but without the exception
+	     * the application has no way to know the data from the message
+	     * is missing.
+	     *
+	    if (parseDebug)
+		System.out.println("DEBUG IMAP: empty body, fake it");
+	    r.readByte();
+	    type = "text";
+	    subtype = "plain";
+	    lines = 0;
+	    size = 0;
+	     */
+	    throw new ParsingException(
+			    "BODYSTRUCTURE parse error: missing body content");
+	} else { // Single part
 	    if (parseDebug)
 		System.out.println("DEBUG IMAP: single part");
 	    type = r.readString();
