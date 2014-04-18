@@ -81,9 +81,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
     /**
      * Creates an instance with the given format pattern.
      *
-     * @param format the {@link java.util.Formatter pattern}. The arguments are
-     * described in the {@link #format(java.util.logging.LogRecord) format}
-     * method.
+     * @param format the {@link java.util.Formatter pattern} or null to use the
+     * LogManager default. The arguments are described in the
+     * {@link #format(java.util.logging.LogRecord) format} method.
      */
     public CompactFormatter(final String format) {
         String p = getClass().getName();
@@ -91,7 +91,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
-     * Format the given log record and returns the formatted string.
+     * Format the given log record and returns the formatted string. The
+     * {@link java.util.Formatter#format(java.lang.String, java.lang.Object...)
+     * java.util} argument indexes are assigned to the following properties:
      *
      * <ol start='0'>
      * <li>{@code format} - the {@link java.util.Formatter

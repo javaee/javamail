@@ -61,8 +61,9 @@ import java.util.logging.LogRecord;
  * <li>&lt;formatter-name&gt;.comparator name of a
  * {@linkplain java.util.Comparator} class used to choose the collected
  * <tt>LogRecord</tt>. If a comparator is specified then the max
- * <tt>LogRecord</tt> is chosen. If a comparator is not specified then, the last
- * record is chosen (defaults to <tt>null</tt>).
+ * <tt>LogRecord</tt> is chosen. If comparator is set to the string literal
+ * null, then the last record is chosen. (defaults to
+ * {@link SeverityComparator})
  *
  * <li>&lt;formatter-name&gt;.comparator.reverse a boolean
  * <tt>true</tt> to collect the min <tt>LogRecord</tt> or <tt>false</tt> to
@@ -72,7 +73,7 @@ import java.util.logging.LogRecord;
  * {@linkplain java.text.MessageFormat MessageFormat} string used to format the
  * collected summary statistics. The arguments are explained in detail in the
  * {@linkplain #getTail(java.util.logging.Handler) getTail} documentation.
- * (defaults to "{0}{1}{2}{4,choice,-1#|0&lt;... {4,number,integer} more}\n")
+ * (defaults to "{0}{1}{2}{4,choice,-1#|0#|0&lt;... {4,number,integer} more}\n")
  *
  * <li>&lt;formatter-name&gt;.formatter name of a <tt>Formatter</tt> class used
  * to format the collected LogRecord. (defaults to {@link CompactFormatter})
@@ -127,8 +128,8 @@ public class CollectorFormatter extends Formatter {
      *
      * @throws SecurityException if a security manager exists and the caller
      * does not have <tt>LoggingPermission("control")</tt>.
-     * @throws UndeclaredThrowableException if there are problems when loading
-     * from the LogManager.
+     * @throws UndeclaredThrowableException if there are problems loading from
+     * the LogManager.
      */
     public CollectorFormatter() {
         final String p = getClass().getName();
@@ -144,8 +145,8 @@ public class CollectorFormatter extends Formatter {
      * @param format the message format or null to use the LogManager default.
      * @throws SecurityException if a security manager exists and the caller
      * does not have <tt>LoggingPermission("control")</tt>.
-     * @throws UndeclaredThrowableException if there are problems when loading
-     * from the LogManager.
+     * @throws UndeclaredThrowableException if there are problems loading from
+     * the LogManager.
      */
     public CollectorFormatter(String format) {
         final String p = getClass().getName();
@@ -158,15 +159,15 @@ public class CollectorFormatter extends Formatter {
     /**
      * Creates the formatter using the given values.
      *
-     * @param format the format string.
-     * @param f the formatter used on the collected log record or null to use
-     * the LogManager default.
+     * @param format the format string or null to use the LogManager default.
+     * @param f the formatter used on the collected log record or null to
+     * specify no formatter.
      * @param c the comparator used to determine which log record to format or
      * null to specify no comparator.
      * @throws SecurityException if a security manager exists and the caller
      * does not have <tt>LoggingPermission("control")</tt>.
-     * @throws UndeclaredThrowableException if there are problems when loading
-     * from the LogManager.
+     * @throws UndeclaredThrowableException if there are problems loading from
+     * the LogManager.
      */
     public CollectorFormatter(String format, Formatter f,
             Comparator<? super LogRecord> c) {
@@ -179,7 +180,7 @@ public class CollectorFormatter extends Formatter {
 
     /**
      * Accumulates log records which will be used to produce the final output.
-     * The output is generated using the {@link getTail} method which also
+     * The output is generated using the {@link #getTail} method which also
      * resets this formatter back to its original state.
      *
      * @param record the record to store.
@@ -210,7 +211,9 @@ public class CollectorFormatter extends Formatter {
 
     /**
      * Formats the collected LogRecord and summary statistics. The collected
-     * results are reset after calling this method.
+     * results are reset after calling this method. The
+     * {@link java.text.MessageFormat java.text} argument indexes are assigned
+     * to the following properties:
      *
      * <ol start='0'>
      * <li>{@code head} the
@@ -371,9 +374,8 @@ public class CollectorFormatter extends Formatter {
             l = rb == null ? null : rb.getLocale();
         }
 
-        //NumberFormat used by the MessageFormat requires a non null locale.
         final MessageFormat mf;
-        if (l == null) {
+        if (l == null) { //BUG ID 8039165
             mf = new MessageFormat(fmt);
         } else {
             mf = new MessageFormat(fmt, l);
@@ -436,7 +438,7 @@ public class CollectorFormatter extends Formatter {
         final LogManager m = LogManagerProperties.getLogManager();
         String v = m.getProperty(p.concat(".format"));
         if (v == null || v.length() == 0) {
-            v = "{0}{1}{2}{4,choice,-1#|0<... {4,number,integer} more}\n";
+            v = "{0}{1}{2}{4,choice,-1#|0#|0<... {4,number,integer} more}\n";
         }
         return v;
     }
@@ -490,7 +492,7 @@ public class CollectorFormatter extends Formatter {
         final String name = m.getProperty(p.concat(".comparator"));
         final String reverse = m.getProperty(p.concat(".comparator.reverse"));
         try {
-            if (name != null) {
+            if (name != null && name.length() != 0) {
                 if (!"null".equalsIgnoreCase(name)) {
                     c = LogManagerProperties.newComparator(name);
                     if (Boolean.parseBoolean(reverse)) {
