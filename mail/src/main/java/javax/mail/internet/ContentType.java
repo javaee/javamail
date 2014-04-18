@@ -141,6 +141,8 @@ public class ContentType {
      * @return the type
      */
     public String getBaseType() {
+	if (primaryType == null || subType == null)
+	    return "";
 	return primaryType + '/' + subType;
     }
 
@@ -249,20 +251,21 @@ public class ContentType {
      */
     public boolean match(ContentType cType) {
 	// Match primaryType
-	if (!primaryType.equalsIgnoreCase(cType.getPrimaryType()))
+	if (!((primaryType == null && cType.getPrimaryType() == null) ||
+		(primaryType != null &&
+		    primaryType.equalsIgnoreCase(cType.getPrimaryType()))))
 	    return false;
 	
 	String sType = cType.getSubType();
 
 	// If either one of the subTypes is wildcarded, return true
-	if ((subType.charAt(0) == '*') || (sType.charAt(0) == '*'))
+	if ((subType != null && subType.startsWith("*")) ||
+	    (sType != null && sType.startsWith("*")))
 	    return true;
 	
 	// Match subType
-	if (!subType.equalsIgnoreCase(sType))
-	    return false;
-
-	return true;
+	return (subType == null && sType == null) ||
+	    (subType != null && subType.equalsIgnoreCase(sType));
     }
 
     /**
