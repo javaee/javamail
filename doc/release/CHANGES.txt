@@ -39,6 +39,8 @@ K  6352	add more efficient way to monitor multiple folders for new messages
 K  6353	Include a subject formatter for the logging package
 K  6365	Broken equals in URLName, NewsAddress
 K  6366	NullPointerException in ContentType.match
+K  6367	hashCode of two equals instances does not match for ModifiedSinceTerm,
+	YoungerTerm, OlderTerm
 
 
 		  CHANGES IN THE 1.5.1 RELEASE
