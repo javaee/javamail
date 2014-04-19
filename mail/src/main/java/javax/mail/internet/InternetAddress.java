@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -288,17 +288,18 @@ public class InternetAddress extends Address implements Cloneable {
      * @return		possibly encoded address string
      */
     public String toString() {
+	String a = address == null ? "" : address;
 	if (encodedPersonal == null && personal != null)
 	    try {
 		encodedPersonal = MimeUtility.encodeWord(personal);
 	    } catch (UnsupportedEncodingException ex) { }
 	
 	if (encodedPersonal != null)
-	    return quotePhrase(encodedPersonal) + " <" + address + ">";
+	    return quotePhrase(encodedPersonal) + " <" + a + ">";
 	else if (isGroup() || isSimple())
-	    return address;
+	    return a;
 	else
-	    return "<" + address + ">";
+	    return "<" + a + ">";
     }
 
     /**
@@ -1148,6 +1149,8 @@ public class InternetAddress extends Address implements Cloneable {
 				throws AddressException {
 	int i, start = 0;
 
+	if (addr == null)
+	    throw new AddressException("Address is null");
 	int len = addr.length();
 	if (len == 0)
 	    throw new AddressException("Empty address", addr);
@@ -1318,6 +1321,8 @@ public class InternetAddress extends Address implements Cloneable {
      */
     public InternetAddress[] getGroup(boolean strict) throws AddressException {
 	String addr = getAddress();
+	if (addr == null)
+	    return null;
 	// groups are of the form "name:addr,addr,...;"
 	if (!addr.endsWith(";"))
 	    return null;

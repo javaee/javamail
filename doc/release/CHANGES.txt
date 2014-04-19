@@ -41,6 +41,7 @@ K  6365	Broken equals in URLName, NewsAddress
 K  6366	NullPointerException in ContentType.match
 K  6367	hashCode of two equals instances does not match for ModifiedSinceTerm,
 	YoungerTerm, OlderTerm
+K  6368	NullPointerException in InternetAddress
 
 
 		  CHANGES IN THE 1.5.1 RELEASE
