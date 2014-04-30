@@ -55,7 +55,7 @@ public final class ModifiedSinceTerm extends SearchTerm {
 
     private long modseq;
 
-    //private static final long serialVersionUID = 3951078948727995682L;
+    private static final long serialVersionUID = 5151457469634727992L;
 
     /**
      * Constructor.
