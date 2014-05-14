@@ -110,7 +110,10 @@
 			com/sun/mail/util/MailConnectException.java,
 			com/sun/mail/util/MailSSLSocketFactory.java,
 			com/sun/mail/util/ReadableMime.java,
-			com/sun/mail/util/logging/MailHandler.java
+			com/sun/mail/util/logging/MailHandler.java,
+			com/sun/mail/util/logging/CollectorFormatter.java,
+			com/sun/mail/util/logging/CompactFormatter.java,
+			com/sun/mail/util/logging/SeverityComparator.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
 					includes="
