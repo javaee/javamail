@@ -266,7 +266,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     private static final int IDLE = 1;		// IDLE command in effect
     private static final int ABORTING = 2;	// IDLE command aborting
     private int idleState = RUNNING;
-    private volatile IdleManager idleManager;
+    private IdleManager idleManager;
 
     private volatile int total = -1;	// total number of messages in the
 					// message cache
@@ -2903,7 +2903,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		throw new MessagingException(
 			    "idle method not supported with SocketChannels");
 	}
-	startIdle(null);
+	if (!startIdle(null))
+	    return;
 
 	/*
 	 * We gave up the folder lock so that other threads
@@ -2948,20 +2949,28 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @exception IllegalStateException	if the folder isn't open
      * @since	JavaMail 1.5.2
      */
-    void startIdle(IdleManager im) throws MessagingException {
+    boolean startIdle(final IdleManager im) throws MessagingException {
 	// ASSERT: Must NOT be called with this folder's
 	// synchronization lock held.
 	assert !Thread.holdsLock(this);
-	idleManager = im;
 	synchronized(this) {
 	    checkOpened();
+	    if (im != null && idleManager != null && im != idleManager)
+		throw new MessagingException(
+		    "Folder already being watched by another IdleManager");
 	    Boolean started = (Boolean)doOptionalCommand("IDLE not supported",
 		new ProtocolCommand() {
 		    public Object doCommand(IMAPProtocol p)
 			    throws ProtocolException {
+			// if the IdleManager is already watching this folder,
+			// there's nothing to do here
+			if (idleState == IDLE &&
+				im != null && im == idleManager)
+			    return Boolean.TRUE;	// already watching it
 			if (idleState == RUNNING) {
 			    p.idleStart();
 			    idleState = IDLE;
+			    idleManager = im;
 			    return Boolean.TRUE;
 			} else {
 			    // some other thread must be running the IDLE
@@ -2975,8 +2984,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			}
 		    }
 		});
-	    if (!started.booleanValue())
-		return;
+	    return started.booleanValue();
 	}
     }
 
@@ -3000,11 +3008,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    if (r == null || protocol == null ||
 			    !protocol.processIdleResponse(r)) {
 			idleState = RUNNING;
+			idleManager = null;
 			messageCacheLock.notifyAll();
 			return false;	// done
 		    }
 		} catch (ProtocolException pex) {
 		    idleState = RUNNING;
+		    idleManager = null;
 		    messageCacheLock.notifyAll();
 		    throw pex;		// also done
 		}
@@ -3051,7 +3061,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Send the DONE command that aborts the IDLE; used by IdleManager.
      */
     void idleAbort() {
-	idleManager = null;	// don't need it anymore
 	if (protocol != null)	// should always be true
 	    protocol.idleAbort();
     }

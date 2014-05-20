@@ -173,7 +173,10 @@ public class IdleManager {
 	if (sc == null)
 	    throw new MessagingException("Folder is not using SocketChannels");
 	logger.log(Level.FINEST, "IdleManager watching {0}", ifolder);
-	ifolder.startIdle(this);
+	// keep trying to start the IDLE command until we're successful.
+	// may block if we're in the middle of aborting an IDLE command.
+	while (!ifolder.startIdle(this))
+	    ;
 	toWatch.add(ifolder);
 	selector.wakeup();
     }
