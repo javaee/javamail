@@ -1209,6 +1209,7 @@ public class SMTPTransport extends Transport {
 				lastServerResponse, exception,
 				validSentAddr, validUnsentAddr, invalidAddr);
 	    }
+	    logger.fine("message successfully delivered to mail server");
 	    notifyTransportListeners(TransportEvent.MESSAGE_DELIVERED,
 				     validSentAddr, validUnsentAddr,
 				     invalidAddr, this.message);
