@@ -82,7 +82,7 @@ public class BODYSTRUCTURE implements Item {
     private int processedType;	// MULTI | SINGLE | NESTED
 
     // special debugging output to debug parsing errors
-    private static boolean parseDebug =
+    private static final boolean parseDebug =
 	PropUtil.getBooleanSystemProperty("mail.imap.parse.debug", false);
 
 

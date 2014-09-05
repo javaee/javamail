@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -50,6 +50,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.MailDateFormat;
 import javax.mail.internet.MimeUtility;
 import com.sun.mail.iap.*;
+import com.sun.mail.util.PropUtil;
 
 /**
  * The ENEVELOPE item of an IMAP FETCH response.
@@ -77,8 +78,14 @@ public class ENVELOPE implements Item {
 
     // Used to parse dates
     private static MailDateFormat mailDateFormat = new MailDateFormat();
+
+    // special debugging output to debug parsing errors
+    private static final boolean parseDebug =
+	PropUtil.getBooleanSystemProperty("mail.imap.parse.debug", false);
     
     public ENVELOPE(FetchResponse r) throws ParsingException {
+	if (parseDebug)
+	    System.out.println("parse ENVELOPE");
 	msgno = r.getNumber();
 
 	r.skipSpaces();
@@ -98,16 +105,36 @@ public class ENVELOPE implements Item {
 		// date be null.
 	    }
 	}
+	if (parseDebug)
+	    System.out.println("  Date: " + date);
 
 	subject = r.readString();
+	if (parseDebug)
+	    System.out.println("  Subject: " + subject);
+	if (parseDebug)
+	    System.out.println("  From addresses:");
 	from = parseAddressList(r);
+	if (parseDebug)
+	    System.out.println("  Sender addresses:");
 	sender = parseAddressList(r);
+	if (parseDebug)
+	    System.out.println("  Reply-To addresses:");
 	replyTo = parseAddressList(r);
+	if (parseDebug)
+	    System.out.println("  To addresses:");
 	to = parseAddressList(r);
+	if (parseDebug)
+	    System.out.println("  Cc addresses:");
 	cc = parseAddressList(r);
+	if (parseDebug)
+	    System.out.println("  Bcc addresses:");
 	bcc = parseAddressList(r);
 	inReplyTo = r.readString();
+	if (parseDebug)
+	    System.out.println("  In-Reply-To: " + inReplyTo);
 	messageId = r.readString();
+	if (parseDebug)
+	    System.out.println("  Message-ID: " + messageId);
 
 	if (r.readByte() != ')')
 	    throw new ParsingException("ENVELOPE parse error");
@@ -133,6 +160,8 @@ public class ENVELOPE implements Item {
 
 	    do {
 		IMAPAddress a = new IMAPAddress(r);
+		if (parseDebug)
+		    System.out.println("    Address: " + a);
 		// if we see an end-of-group address at the top, ignore it
 		if (!a.isEndOfGroup())
 		    v.add(a);
