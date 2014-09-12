@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -367,6 +367,10 @@ public class SearchSequence {
 
     // Date SEARCH stuff ...
 
+    // NOTE: The built-in IMAP date comparisons are equivalent to
+    //       "<" (BEFORE), "=" (ON), and ">=" (SINCE)!!!
+    //       There is no built-in greater-than comparison!
+
     /**
      * Print an IMAP Date string, that is suitable for the Date
      * SEARCH commands.
@@ -403,7 +407,7 @@ public class SearchSequence {
 
 	switch (term.getComparison()) {
 	    case ComparisonTerm.GT:
-		result.writeAtom("SENTSINCE " + date);
+		result.writeAtom("NOT SENTON " + date + " SENTSINCE " + date);
 		break;
 	    case ComparisonTerm.EQ:
 		result.writeAtom("SENTON " + date);
@@ -412,7 +416,7 @@ public class SearchSequence {
 		result.writeAtom("SENTBEFORE " + date);
 		break;
 	    case ComparisonTerm.GE:
-		result.writeAtom("OR SENTSINCE " + date + " SENTON " + date);
+		result.writeAtom("SENTSINCE " + date);
 		break;
 	    case ComparisonTerm.LE:
 		result.writeAtom("OR SENTBEFORE " + date + " SENTON " + date);
@@ -434,7 +438,7 @@ public class SearchSequence {
 
 	switch (term.getComparison()) {
 	    case ComparisonTerm.GT:
-		result.writeAtom("SINCE " + date);
+		result.writeAtom("NOT ON " + date + " SINCE " + date);
 		break;
 	    case ComparisonTerm.EQ:
 		result.writeAtom("ON " + date);
@@ -443,7 +447,7 @@ public class SearchSequence {
 		result.writeAtom("BEFORE " + date);
 		break;
 	    case ComparisonTerm.GE:
-		result.writeAtom("OR SINCE " + date + " ON " + date);
+		result.writeAtom("SINCE " + date);
 		break;
 	    case ComparisonTerm.LE:
 		result.writeAtom("OR BEFORE " + date + " ON " + date);

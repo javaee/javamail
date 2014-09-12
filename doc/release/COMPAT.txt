@@ -14,6 +14,17 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.5.3 --
+
+- Date search terms result in wrong greater-than SEARCH commands for IMAP
+
+	The IMAP SentDateTerm and ReceivedDateTerm greater-than comparison
+	was actually doing a greater-than-or-equal-to comparison.  This
+	has been fixed in the 1.5.3 release, but programs that accidentally
+	relied on the old behavior may get different results.
+
+
+
 -- JavaMail 1.5 --
 
 - RFC 2231 parameter encoding/decoding enabled by default
