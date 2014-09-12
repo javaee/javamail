@@ -176,7 +176,7 @@ import com.sun.mail.imap.protocol.*;
 
 public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     
-    protected String fullName;		// full name
+    protected volatile String fullName;	// full name
     protected String name;		// name
     protected int type;			// folder type. 
     protected char separator;		// separator
@@ -528,7 +528,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the fullname of this folder.
      */
-    public synchronized String getFullName() {
+    public String getFullName() {
 	return fullName;	
     }
 
@@ -1502,6 +1502,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	attributes = null;
         opened = false;
 	idleState = RUNNING;	// just in case
+	messageCacheLock.notifyAll();	// wake up anyone waiting
 	notifyConnectionListeners(ConnectionEvent.CLOSED);
     }
 
@@ -2935,7 +2936,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	if (minidle > 0) {
 	    try {
 		Thread.sleep(minidle);
-	    } catch (InterruptedException ex) { }
+	    } catch (InterruptedException ex) {
+		// restore the interrupted state, which callers might depend on
+		Thread.currentThread().interrupt();
+	    }
 	}
     }
 
@@ -2944,6 +2948,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * IDLE processing is done later in handleIdle(), e.g., called from
      * the IdleManager.
      *
+     * @return	true if IDLE started, false otherwise
      * @exception MessagingException	if the server doesn't support the
      *					IDLE extension
      * @exception IllegalStateException	if the folder isn't open
@@ -2969,6 +2974,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			    return Boolean.TRUE;	// already watching it
 			if (idleState == RUNNING) {
 			    p.idleStart();
+			    logger.finest("startIdle: set to IDLE");
 			    idleState = IDLE;
 			    idleManager = im;
 			    return Boolean.TRUE;
@@ -2979,11 +2985,16 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			    try {
 				// give up lock and wait to be not idle
 				messageCacheLock.wait();
-			    } catch (InterruptedException ex) { }
+			    } catch (InterruptedException ex) {
+				// restore the interrupted state, which callers
+				// might depend on
+				Thread.currentThread().interrupt();
+			    }
 			    return Boolean.FALSE;
 			}
 		    }
 		});
+	    logger.log(Level.FINEST, "startIdle: return {0}", started);
 	    return started.booleanValue();
 	}
     }
@@ -3004,23 +3015,29 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	Response r = protocol.readIdleResponse();
 	try {
 	    synchronized (messageCacheLock) {
+		boolean done = true;
 		try {
 		    if (r == null || protocol == null ||
-			    !protocol.processIdleResponse(r)) {
+			    !protocol.processIdleResponse(r))
+			return false;	// done
+		    done = false;
+		} finally {
+		    if (done) {
+			logger.finest("handleIdle: set to RUNNING");
 			idleState = RUNNING;
 			idleManager = null;
 			messageCacheLock.notifyAll();
-			return false;	// done
 		    }
-		} catch (ProtocolException pex) {
-		    idleState = RUNNING;
-		    idleManager = null;
-		    messageCacheLock.notifyAll();
-		    throw pex;		// also done
 		}
 		if (once) {
 		    if (idleState == IDLE) {
-			protocol.idleAbort();
+			try {
+			    protocol.idleAbort();
+			} catch (Exception ex) {
+			    // ignore any failures, still have to abort.
+			    // connection failures will be detected above
+			    // in the call to readIdleResponse.
+			}
 			idleState = ABORTING;
 		    }
 		}
@@ -3044,16 +3061,35 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	while (idleState != RUNNING) {
 	    if (idleState == IDLE) {
 		IdleManager im = idleManager;
-		if (im != null)
+		if (im != null) {
+		    logger.finest("waitIfIdle: request IdleManager to abort");
 		    im.requestAbort(this);
-		else
+		} else {
+		    logger.finest("waitIfIdle: abort IDLE");
 		    protocol.idleAbort();
-		idleState = ABORTING;
-	    }
+		    idleState = ABORTING;
+		}
+	    } else
+		logger.log(Level.FINEST, "waitIfIdle: idleState {0}", idleState);
 	    try {
 		// give up lock and wait to be not idle
+		if (logger.isLoggable(Level.FINEST))
+		    logger.finest("waitIfIdle: wait to be not idle: " +
+				    Thread.currentThread());
 		messageCacheLock.wait();
-	    } catch (InterruptedException ex) { }
+		if (logger.isLoggable(Level.FINEST))
+		    logger.finest("waitIfIdle: wait done, idleState " +
+				    idleState + ": " + Thread.currentThread());
+	    } catch (InterruptedException ex) {
+		// restore the interrupted state, which callers might depend on
+		Thread.currentThread().interrupt();
+		// If someone is trying to interrupt us we can't keep going
+		// around the loop waiting for IDLE to complete, but we can't
+		// just return because callers expect the idleState to be
+		// RUNNING when we return.  Throwing this exception seems
+		// like the best choice.
+		throw new ProtocolException("Interrupted waitIfIdle", ex);
+	    }
 	}
     }
 
@@ -3061,8 +3097,35 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Send the DONE command that aborts the IDLE; used by IdleManager.
      */
     void idleAbort() {
-	if (protocol != null)	// should always be true
-	    protocol.idleAbort();
+	synchronized (messageCacheLock) {
+	    if (idleState == IDLE && protocol != null) {
+		protocol.idleAbort();
+		idleState = ABORTING;
+	    }
+	}
+    }
+
+    /*
+     * Send the DONE command that aborts the IDLE and wait for the response;
+     * used by IdleManager.
+     */
+    void idleAbortWait() {
+	synchronized (messageCacheLock) {
+	    if (idleState == IDLE && protocol != null) {
+		protocol.idleAbort();
+		idleState = ABORTING;
+
+		// read responses until OK or connection failure
+		try {
+		    for (;;) {
+			if (!handleIdle(false))
+			    break;
+		    }
+		} catch (Exception ex) {
+		    // assume it's a connection failure; nothing more to do
+		}
+	    }
+	}
     }
 
     /**

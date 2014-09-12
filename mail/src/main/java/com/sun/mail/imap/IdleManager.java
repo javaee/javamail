@@ -151,7 +151,12 @@ public class IdleManager {
 	selector = Selector.open();
 	es.execute(new Runnable() {
 	    public void run() {
-		select();
+		logger.fine("IdleManager select starting");
+		try {
+		    select();
+		} finally {
+		    logger.fine("IdleManager select terminating");
+		}
 	    }
 	});
     }
@@ -233,11 +238,13 @@ public class IdleManager {
 	} catch (IOException ex) {
 	    logger.log(Level.FINE, "IdleManager got exception", ex);
 	} finally {
+	    logger.fine("IdleManager unwatchAll");
 	    try {
 		unwatchAll();
 		selector.close();
 	    } catch (IOException ex2) {
 		// nothing to do...
+		logger.log(Level.FINE, "IdleManager unwatch exception", ex2);
 	    }
 	    logger.fine("IdleManager exiting");
 	}
@@ -256,10 +263,10 @@ public class IdleManager {
 	while ((folder = toWatch.poll()) != null) {
 	    logger.log(Level.FINEST,
 		    "IdleManager adding {0} to selector", folder);
-	    SocketChannel sc = folder.getChannel();
-	    if (sc == null)
-		continue;
 	    try {
+		SocketChannel sc = folder.getChannel();
+		if (sc == null)
+		    continue;
 		// has to be non-blocking to select
 		sc.configureBlocking(false);
 		sc.register(selector, SelectionKey.OP_READ, folder);
@@ -315,6 +322,8 @@ public class IdleManager {
 	    sc.configureBlocking(true);
 	    try {
 		if (folder.handleIdle(false)) {
+		    logger.log(Level.FINE,
+			"IdleManager continue watching folder {0}", folder);
 		    // more to do with this folder, select on it again
 		    // XXX - what if we also added it above?
 		    toWatch.add(folder);
@@ -337,21 +346,49 @@ public class IdleManager {
     /**
      * Stop watching all folders.  Cancel any selection keys and,
      * most importantly, switch the channel back to blocking mode.
+     * If there's any folders waiting to be watched, need to abort
+     * them too.
      */
     private void unwatchAll() {
+	IMAPFolder folder;
 	Set<SelectionKey> keys = selector.keys();
 	for (SelectionKey sk : keys) {
 	    // have to cancel so we can switch back to blocking I/O mode
 	    sk.cancel();
-	    IMAPFolder folder = (IMAPFolder)sk.attachment();
+	    folder = (IMAPFolder)sk.attachment();
 	    logger.log(Level.FINE,
 		"IdleManager no longer watching folder: {0}", folder);
 	    SelectableChannel sc = sk.channel();
 	    // switch back to blocking to allow normal I/O
 	    try {
 		sc.configureBlocking(true);
+		folder.idleAbortWait();	// send the DONE message and wait
 	    } catch (IOException ex) {
 		// ignore it, channel might be closed
+		logger.log(Level.FINE,
+		    "IdleManager exception while aborting idle for folder: " +
+		    folder, ex);
+	    }
+	}
+
+	/*
+	 * Finally, process any folders waiting to be watched.
+	 */
+	while ((folder = toWatch.poll()) != null) {
+	    logger.log(Level.FINE,
+		"IdleManager aborting IDLE for unwatched folder: {0}", folder);
+	    SocketChannel sc = folder.getChannel();
+	    if (sc == null)
+		continue;
+	    try {
+		// channel should still be in blocking mode, but make sure
+		sc.configureBlocking(true);
+		folder.idleAbortWait();	// send the DONE message and wait
+	    } catch (IOException ex) {
+		// ignore it, channel might be closed
+		logger.log(Level.FINE,
+		    "IdleManager exception while aborting idle for folder: " +
+		    folder, ex);
 	    }
 	}
     }

@@ -225,6 +225,7 @@ public class IMAPStore extends Store
     private String guid;			// for Yahoo! Mail IMAP
     private boolean throwSearchException = false;
     private boolean peek = false;
+    private boolean closeFoldersOnStoreFailure = true;
 
     /*
      * This field is set in the Store's response handler if we see
@@ -602,6 +603,12 @@ public class IMAPStore extends Store
 	    "mail." + name + ".peek", false);
 	if (peek)
 	    logger.config("peek");
+
+	// check if closeFoldersOnStoreFailure is set
+	closeFoldersOnStoreFailure = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".closefoldersonstorefailure", true);
+	if (closeFoldersOnStoreFailure)
+	    logger.config("closeFoldersOnStoreFailure");
 
 	s = session.getProperty("mail." + name + ".folder.class");
 	if (s != null) {
@@ -1103,7 +1110,15 @@ public class IMAPStore extends Store
 		    // and wait until they're done
 		    p = null;
 		    pool.wait();
-		} catch (InterruptedException ex) { }
+		} catch (InterruptedException ex) {
+		    // restore the interrupted state, which callers might
+		    // depend on
+		    Thread.currentThread().interrupt();
+		    // don't keep looking for a connection if we've been
+		    // interrupted
+		    throw new ProtocolException(
+				    "Interrupted getStoreProtocol", ex);
+		}
 	    } else {
 		pool.storeConnectionInUse = true;
 
@@ -1607,6 +1622,7 @@ public class IMAPStore extends Store
 	if (logger.isLoggable(Level.FINE))
 	    logger.fine("IMAPStore cleanup, force " + force);
 
+	if (!force || closeFoldersOnStoreFailure) {
         Vector foldersCopy = null;
         boolean done = true;
 
@@ -1654,6 +1670,7 @@ public class IMAPStore extends Store
 		}
 	    }
 
+	}
 	}
 
         synchronized (pool) {
@@ -1978,7 +1995,13 @@ public class IMAPStore extends Store
 		    try {
 			// give up lock and wait to be not idle
 			pool.wait();
-		    } catch (InterruptedException ex) { }
+		    } catch (InterruptedException ex) {
+			// restore the interrupted state, which callers might
+			// depend on
+			Thread.currentThread().interrupt();
+			// stop waiting and return to caller
+			throw new MessagingException("idle interrupted", ex);
+		    }
 		    return;
 		}
 		p.idleStart();
@@ -2025,7 +2048,11 @@ public class IMAPStore extends Store
 	    if (minidle > 0) {
 		try {
 		    Thread.sleep(minidle);
-		} catch (InterruptedException ex) { }
+		} catch (InterruptedException ex) {
+		    // restore the interrupted state, which callers might
+		    // depend on
+		    Thread.currentThread().interrupt();
+		}
 	    }
 
 	} catch (BadCommandException bex) {
@@ -2061,7 +2088,14 @@ public class IMAPStore extends Store
 	    try {
 		// give up lock and wait to be not idle
 		pool.wait();
-	    } catch (InterruptedException ex) { }
+	    } catch (InterruptedException ex) {
+		// If someone is trying to interrupt us we can't keep going
+		// around the loop waiting for IDLE to complete, but we can't
+		// just return because callers expect the idleState to be
+		// RUNNING when we return.  Throwing this exception seems
+		// like the best choice.
+		throw new ProtocolException("Interrupted waitIfIdle", ex);
+	    }
 	}
     }
 

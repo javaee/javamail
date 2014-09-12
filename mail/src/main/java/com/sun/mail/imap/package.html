@@ -737,6 +737,21 @@ Boolean isNamespace)</code> and
 </TD>
 </TR>
 
+<TR>
+<TD>mail.imap.closefoldersonstorefailure</TD>
+<TD>boolean</TD>
+<TD>
+In some cases, a failure of the Store connection indicates a failure of the
+server, and all Folders associated with that Store should also be closed.
+In other cases, a Store connection failure may be a transient failure, and
+Folders may continue to operate normally.
+If this property is true (the default), failures in the Store connection cause
+all associated Folders to be closed.
+Set this property to false to better handle transient failures in the Store
+connection.
+</TD>
+</TR>
+
 </TABLE>
 <P>
 In general, applications should not need to use the classes in this
