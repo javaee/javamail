@@ -19,6 +19,7 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 The following bugs have been fixed in the 1.5.3 release.
 
 K  6407	calling IdleManager.watch twice on same folder fails
+K  6496	Message-Id leaks current user/hostname of the Java process (security)
 K  6498	IMAP idle breaks interrupt flag
 
 
