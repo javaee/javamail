@@ -823,9 +823,11 @@ public class InternetAddress extends Address implements Cloneable {
 		}
 
 		if (!in_group) {
-		    start_personal = start;
-		    if (start_personal >= 0)
+		    if (start >= 0) {
+			// seen some characters?  use them as the personal name
+			start_personal = start;
 			end_personal = rindex;
+		    }
 		    start = rindex + 1;
 		}
 		route_addr = true;
