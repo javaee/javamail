@@ -1783,7 +1783,7 @@ public class IMAPProtocol extends Protocol {
 
     public CopyUID copyuid(String msgSequence, String mbox, boolean uid)
 				throws ProtocolException {
-	if (!hasCapability("UIDPLUS")) 
+	if (uid && !hasCapability("UIDPLUS")) 
 	    throw new BadCommandException("UIDPLUS not supported");
 	// encode the mbox as per RFC2060
 	mbox = BASE64MailboxEncoder.encode(mbox);
