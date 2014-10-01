@@ -144,6 +144,7 @@ public class IdleManager {
      *
      * @param	session	the Session containing configuration information
      * @param	es	the Executor used to create threads
+     * @exception	IOException	for Selector failures
      */
     public IdleManager(Session session, Executor es) throws IOException {
 	logger = new MailLogger(this.getClass(), "DEBUG IMAP", session);

@@ -112,7 +112,6 @@ public class IMAPProtocol extends Protocol {
      *
      * @param host	host to connect to
      * @param port	portnumber to connect to
-     * @param debug     debug mode
      * @param props     Properties object used by this protocol
      */
     public IMAPProtocol(String name, String host, int port, 
