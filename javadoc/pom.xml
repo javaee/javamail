@@ -156,7 +156,7 @@
 			    <goal>javadoc</goal>
 			</goals>
 			<configuration>
-			    <additionalJOption>-J-Xmx32m</additionalJOption>
+			    <additionalJOption>-J-Xmx256m</additionalJOption>
 			    <author>false</author>
 			    <description>
 				JavaMail API documentation
