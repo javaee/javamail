@@ -66,7 +66,7 @@ class EventQueue implements Runnable {
      * A special event that causes the queue processing task to terminate.
      */
     static class TerminatorEvent extends MailEvent {
-	//private static final long serialVersionUID = 5542172141759168416L;
+	private static final long serialVersionUID = -2481895000841664111L;
 
 	TerminatorEvent() {
 	    super(new Object());
