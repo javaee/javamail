@@ -130,7 +130,6 @@ import com.sun.mail.util.MailLogger;
  * @since JavaMail 1.5.2
  */
 public class IdleManager {
-    private Executor es;
     private Selector selector;
     private MailLogger logger;
     private volatile boolean die = false;
@@ -148,7 +147,6 @@ public class IdleManager {
      */
     public IdleManager(Session session, Executor es) throws IOException {
 	logger = new MailLogger(this.getClass(), "DEBUG IMAP", session);
-	this.es = es;
 	selector = Selector.open();
 	es.execute(new Runnable() {
 	    public void run() {
