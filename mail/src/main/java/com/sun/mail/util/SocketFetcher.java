@@ -237,8 +237,11 @@ public class SocketFetcher {
 		    host, port, cto, to, props, prefix, null, useSSL);
 
 	} else {
-	    if (to >= 0)
+	    if (to >= 0) {
+		if (logger.isLoggable(Level.FINEST))
+		    logger.finest("set socket read timeout " + to);
 		socket.setSoTimeout(to);
+	    }
 	}
 
 	return socket;
@@ -263,6 +266,13 @@ public class SocketFetcher {
 				throws IOException {
 	Socket socket = null;
 
+	if (logger.isLoggable(Level.FINEST))
+	    logger.finest("create socket: prefix " + prefix +
+		", localaddr " + localaddr + ", localport " + localport +
+		", host " + host + ", port " + port +
+		", connection timeout " + cto + ", timeout " + to +
+		", socket factory " + sf + ", useSSL " + useSSL);
+		
 	String socksHost = props.getProperty(prefix + ".socks.host", null);
 	int socksPort = 1080;
 	String err = null;
@@ -297,20 +307,29 @@ public class SocketFetcher {
 	    } else
 		socket = new Socket();
 	}
-	if (to >= 0)
+	if (to >= 0) {
+	    if (logger.isLoggable(Level.FINEST))
+		logger.finest("set socket read timeout " + to);
 	    socket.setSoTimeout(to);
+	}
 	int writeTimeout = PropUtil.getIntProperty(props,
 						prefix + ".writetimeout", -1);
-	if (writeTimeout != -1)	// wrap original
+	if (writeTimeout != -1) {	// wrap original
+	    if (logger.isLoggable(Level.FINEST))
+		logger.finest("set socket write timeout " + writeTimeout);
 	    socket = new WriteTimeoutSocket(socket, writeTimeout);
+	}
 	if (localaddr != null)
 	    socket.bind(new InetSocketAddress(localaddr, localport));
 	try {
+	    logger.finest("connecting...");
 	    if (cto >= 0)
 		socket.connect(new InetSocketAddress(host, port), cto);
 	    else
 		socket.connect(new InetSocketAddress(host, port));
+	    logger.finest("success!");
 	} catch (IOException ex) {
+	    logger.log(Level.FINEST, "connection failed", ex);
 	    throw new SocketConnectException(err, ex, host, port, cto);
 	}
 
@@ -518,20 +537,30 @@ public class SocketFetcher {
 	    sslsocket.setEnabledProtocols(stringArray(protocols));
 	else {
 	    /*
-	     * At least the UW IMAP server insists on only the TLSv1
+	     * The UW IMAP server insists on at least the TLSv1
 	     * protocol for STARTTLS, and won't accept the old SSLv2
-	     * or SSLv3 protocols.  Here we enable only the TLSv1
-	     * protocol.  XXX - this should probably be parameterized.
+	     * or SSLv3 protocols.  Here we enable only the non-SSL
+	     * protocols.  XXX - this should probably be parameterized.
 	     */
-	    sslsocket.setEnabledProtocols(new String[] {"TLSv1"});
+	    String[] prots = sslsocket.getEnabledProtocols();
+	    if (logger.isLoggable(Level.FINER))
+		logger.finer("SSL enabled protocols before " +
+		    Arrays.asList(prots));
+	    List<String> eprots = new ArrayList<String>();
+	    for (int i = 0; i < prots.length; i++) {
+		if (prots[i] != null && !prots[i].startsWith("SSL"))
+		    eprots.add(prots[i]);
+	    }
+	    sslsocket.setEnabledProtocols(
+				eprots.toArray(new String[eprots.size()]));
 	}
 	String ciphers = props.getProperty(prefix + ".ssl.ciphersuites", null);
 	if (ciphers != null)
 	    sslsocket.setEnabledCipherSuites(stringArray(ciphers));
 	if (logger.isLoggable(Level.FINER)) {
-	    logger.finer("SSL protocols after " +
+	    logger.finer("SSL enabled protocols after " +
 		Arrays.asList(sslsocket.getEnabledProtocols()));
-	    logger.finer("SSL ciphers after " +
+	    logger.finer("SSL enabled ciphers after " +
 		Arrays.asList(sslsocket.getEnabledCipherSuites()));
 	}
 
@@ -630,7 +659,7 @@ public class SocketFetcher {
 		match.invoke(hostnameChecker, new Object[] { server, cert });
 		return true;
 	    } catch (InvocationTargetException cex) {
-		logger.log(Level.FINER, "FAIL", cex);
+		logger.log(Level.FINER, "HostnameChecker FAIL", cex);
 		return false;
 	    }
 	} catch (Exception ex) {
