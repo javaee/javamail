@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,6 +31,7 @@
  */
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.logging.ErrorManager;
@@ -39,9 +40,8 @@ import java.util.logging.LogManager;
 
 /**
  * An error manager used to store mime messages from the <tt>MailHandler</tt>
- * to the file system when the email server is unavailable or unreachable.
- * The code to manually setup this error manager can be as simple as the
- * following:
+ * to the file system when the email server is unavailable or unreachable. The
+ * code to manually setup this error manager can be as simple as the following:
  * <pre>
  *      File dir = new File("path to dir");
  *      FileErrorManager em = new FileErrorManager(dir);
@@ -49,8 +49,8 @@ import java.util.logging.LogManager;
  *
  * <p>
  * <b>Configuration:</b>
- * The code to setup this error manager via the logging properties
- * can be as simple as the following:
+ * The code to setup this error manager via the logging properties can be as
+ * simple as the following:
  * <pre>
  *      #Default FileErrorManager settings.
  *      FileErrorManager.pattern = path to directory
@@ -82,11 +82,12 @@ public class FileErrorManager extends ErrorManager {
     private final File emailStore;
 
     /**
-     * Creates a new error manager.  Files are stored in the users temp
+     * Creates a new error manager. Files are stored in the users temp
      * directory.
-     * @exception SecurityException if unable to access system properties or
-     * if a security manager is present and unable to read or write to users
-     * temp directory.
+     *
+     * @exception SecurityException if unable to access system properties or if
+     * a security manager is present and unable to read or write to users temp
+     * directory.
      */
     public FileErrorManager() {
         this.emailStore = getEmailStore();
@@ -95,13 +96,14 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Creates a new error manager.
+     *
      * @param dir a directory to store the email files.
      * @throws NullPointerException if <tt>dir</tt> is <tt>null</tt>
      * @throws IllegalArgumentException if <tt>dir</tt> is a
      * <tt>java.io.File</tt> subclass, not a directory, or is not an absolute
      * path.
-     * @throws SecurityException if a security manager is present and unable
-     * to read or write to a given directory.
+     * @throws SecurityException if a security manager is present and unable to
+     * read or write to a given directory.
      */
     public FileErrorManager(File dir) {
         this.emailStore = dir;
@@ -110,25 +112,26 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * If the message parameter is a raw email, and passes the store term, then
-     * this method will store the email to the file system.  If the message
+     * this method will store the email to the file system. If the message
      * parameter is not a raw email then the message is forwarded to the super
      * class. If an email is written to the file system without error, then the
      * original reported error is ignored.
+     *
      * @param msg String raw email or plain error message.
      * @param ex Exception that occurred in the mail handler.
      * @param code int error manager code.
      */
     @Override
     public void error(String msg, Exception ex, int code) {
-        if (isRawEmail(msg, ex, code)) {
+        if (isRawEmail(msg)) {
             try {
                 storeEmail(msg);
             } catch (final IOException IOE) {
-                super.error(emailStore.toString(), IOE, ErrorManager.WRITE_FAILURE);
                 next.error(msg, ex, code);
+                super.error(emailStore.toString(), IOE, ErrorManager.GENERIC_FAILURE);
             } catch (final RuntimeException RE) {
-                super.error(emailStore.toString(), RE, ErrorManager.WRITE_FAILURE);
                 next.error(msg, ex, code);
+                super.error(emailStore.toString(), RE, ErrorManager.GENERIC_FAILURE);
             }
         } else {
             next.error(msg, ex, code);
@@ -144,12 +147,17 @@ public class FileErrorManager extends ErrorManager {
         }
 
         File dir = this.emailStore;
-        if (dir.getClass() != File.class) { //for security.
+        if (dir.getClass() != File.class) { //For security reasons.
             throw new IllegalArgumentException(dir.getClass().getName());
         }
 
         if (!dir.isDirectory()) {
             throw new IllegalArgumentException("File must be a directory.");
+        }
+
+        if (!dir.canWrite()) { //Can throw under a security manager.
+            super.error(dir.getAbsolutePath(),
+                    new SecurityException("write"), ErrorManager.OPEN_FAILURE);
         }
 
         //For now, only absolute paths are allowed.
@@ -161,15 +169,11 @@ public class FileErrorManager extends ErrorManager {
             super.error(dir.getAbsolutePath(),
                     new SecurityException("read"), ErrorManager.OPEN_FAILURE);
         }
-
-        if (!dir.canWrite()) { //Can throw under a security manager.
-            super.error(dir.getAbsolutePath(),
-                    new SecurityException("write"), ErrorManager.OPEN_FAILURE);
-        }
     }
 
     /**
      * Creates a common temp file prefix.
+     *
      * @return the file prefix.
      */
     private String prefixName() {
@@ -178,6 +182,7 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Creates a common temp file suffix.
+     *
      * @return the file suffix.
      */
     private String suffixName() {
@@ -186,12 +191,11 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Determines if the given message is a MIME message or just free text.
+     *
      * @param msg the message to examine.
-     * @param ex the exception that was reported.
-     * @param code the ErrorManager code.
      * @return true if MIME message otherwise false.
      */
-    private boolean isRawEmail(String msg, Exception ex, int code) {
+    private boolean isRawEmail(String msg) {
         if (msg != null && msg.length() > 0) {
             return !msg.startsWith(Level.SEVERE.getName());
         }
@@ -200,6 +204,7 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Stores the given string in a file.
+     *
      * @param email the message to store.
      * @throws IOException if there is a problem.
      */
@@ -219,8 +224,7 @@ public class FileErrorManager extends ErrorManager {
         }
 
         try { //Raw email is ASCII.
-            PrintStream ps = new PrintStream(
-                    new NewlineOutputStream(out), false, "US-ASCII");
+            PrintStream ps = new PrintStream(wrap(out), false, "US-ASCII");
             ps.print(email);
             ps.flush();
             tmp = null; //Don't delete 'tmp' if all bytes were written.
@@ -233,6 +237,7 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Null safe close method.
+     *
      * @param out closes the given stream.
      */
     private void close(OutputStream out) {
@@ -247,6 +252,7 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Null safe delete method.
+     *
      * @param tmp the file to delete.
      */
     private void delete(File tmp) {
@@ -274,6 +280,7 @@ public class FileErrorManager extends ErrorManager {
 
     /**
      * Gets the location of the email store.
+     *
      * @return the File location.
      */
     private File getEmailStore() {
@@ -283,10 +290,43 @@ public class FileErrorManager extends ErrorManager {
             dir = AccessController.doPrivileged(new PrivilegedAction<String>() {
 
                 public String run() {
-                    return System.getProperty("java.io.tmpdir", "");
+                    return System.getProperty("java.io.tmpdir", ".");
                 }
             });
         }
         return new File(dir);
+    }
+
+    /**
+     * Wraps the given stream as a NewLineOutputStream.
+     *
+     * @param out the stream to wrap.
+     * @return the original or wrapped output stream.
+     */
+    private OutputStream wrap(OutputStream out) {
+        assert out != null;
+        Class<?> k;
+        try {
+            k = Class.forName("NewlineOutputStream");
+            if (OutputStream.class.isAssignableFrom(k)) {
+                Constructor<?> c = k.getConstructor(OutputStream.class);
+                return (OutputStream) c.newInstance(out);
+            } else {
+                super.error("Unable to switch newlines",
+                        new ClassNotFoundException(k.getName()),
+                        ErrorManager.GENERIC_FAILURE);
+            }
+        } catch (RuntimeException re) {
+            super.error("Unable to switch newlines",
+                    re, ErrorManager.GENERIC_FAILURE);
+        } catch (Exception ex) {
+            super.error("Unable to switch newlines",
+                    ex, ErrorManager.GENERIC_FAILURE);
+        } catch (LinkageError le) {
+            super.error("Unable to switch newlines",
+                    new ClassNotFoundException("", le),
+                    ErrorManager.GENERIC_FAILURE);
+        }
+        return out;
     }
 }

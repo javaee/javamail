@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import java.text.DateFormat;
-import java.util.Date;
+import com.sun.mail.util.logging.CollectorFormatter;
+import com.sun.mail.util.logging.CompactFormatter;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
@@ -41,93 +41,61 @@ import java.util.logging.LogRecord;
  *
  * @author Jason Mehrens
  */
-public class SummaryFormatter extends Formatter {
+public final class SummaryFormatter extends Formatter {
 
     /**
-     * The oldest record.getMillis() recorded.
+     * The line formatter.
      */
-    private long oldest;
+    private final CompactFormatter format;
     /**
-     * The newest record.getMillis() recorded.
+     * The footer formatter.
      */
-    private long newest;
-    /**
-     * The number of log records formatted before the tail is written.
-     */
-    private long count;
+    private final CollectorFormatter footer;
 
     /**
      * Creates the formatter.
      */
     public SummaryFormatter() {
-        reset();
+        format = new CompactFormatter("[%4$s]\t%5$s %6$s%n");
+        footer = new CollectorFormatter("\nThese {3} messages occurred between "
+                + "{7,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy} and "
+                + "{8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n", format, null);
     }
 
+    /**
+     * Gets the header information.
+     *
+     * @param h the handler or null.
+     * @return the header.
+     */
+    @Override
+    public String getHead(Handler h) {
+        footer.getHead(h);
+        return format.getHead(h);
+    }
+
+    /**
+     * Formats the given record.
+     *
+     * @param record the log record.
+     * @return the formatted record.
+     * @throws NullPointerException if record is null.
+     */
     public String format(LogRecord record) {
-        final String data;
-        if (record.getThrown() != null) {
-            data = record.getLevel() + " with detail." + newLine();
-        } else {
-            data = record.getLevel() + " with no detail." + newLine();
-        }
-        track(record.getMillis());
+        String data = format.format(record);
+        footer.format(record); //Track record times for footer.
         return data;
     }
 
+    /**
+     * Gets and resets the footer information.
+     *
+     * @param h the handler or null.
+     * @return the footer.
+     */
     @Override
-    public synchronized String getTail(Handler h) {
-        try {
-            if (count > 0L) {
-                return formatNow();
-            }
-            return "";
-        } finally {
-            reset();
-        }
-    }
-
-    @Override
-    public synchronized String toString() {
-        return formatNow();
-    }
-
-    /**
-     * Creates the tail string using the current values.
-     * @return the formatted tail string.
-     */
-    private String formatNow() {
-        assert Thread.holdsLock(this);
-        DateFormat f = DateFormat.getDateTimeInstance();
-        return newLine() + "These " + count + " messages occurred between "
-                + f.format(new Date(oldest)) + " and "
-                + f.format(new Date(newest));
-
-    }
-
-    /**
-     * Record the log record time.
-     * @param time the log record time.
-     */
-    private synchronized void track(long time) {
-        count++;
-        this.oldest = Math.min(this.oldest, time);
-        this.newest = Math.max(this.newest, time);
-    }
-
-    /**
-     * Reset the collected log record statistics.
-     */
-    private synchronized void reset() {
-        this.count = 0L;
-        this.oldest = Long.MAX_VALUE;
-        this.newest = Long.MIN_VALUE;
-    }
-
-    /**
-     * Generate a new line char.
-     * @return a new line char.
-     */
-    private static String newLine() {
-        return "\n";
+    public String getTail(Handler h) {
+        format.getTail(h);
+        return footer.getTail(h);
     }
 }

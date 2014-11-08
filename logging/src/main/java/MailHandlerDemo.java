@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2014 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -30,23 +30,26 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+import com.sun.mail.util.logging.CollectorFormatter;
 import com.sun.mail.util.logging.MailHandler;
+import com.sun.mail.util.logging.SeverityComparator;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Properties;
+import java.lang.management.ManagementFactory;
+import java.util.*;
 import java.util.logging.*;
+import javax.activation.DataHandler;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 
 /**
- * Demo for the different configurations for the MailHandler.
- * If the logging properties file or class is not specified then this
- * demo will apply some default settings to store emails in the users temp dir.
+ * Demo for the different configurations for the MailHandler. If the logging
+ * properties file or class is not specified then this demo will apply some
+ * default settings to store emails in the users temp dir.
+ *
  * @author Jason Mehrens
  */
 public class MailHandlerDemo {
@@ -64,34 +67,72 @@ public class MailHandlerDemo {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        init(); //may create log messages.
-        try {
-            LOGGER.log(Level.FINEST, "This is the finest part of the demo.",
-                    new MessagingException("Fake"));
-            LOGGER.log(Level.FINER, "This is the finer part of the demo.",
-                    new NullPointerException("Fake"));
-            LOGGER.log(Level.FINE, "This is the fine part of the demo.");
-            LOGGER.log(Level.CONFIG, "Logging config file is {0}.", getConfigLocation());
-            LOGGER.log(Level.INFO, "Your temp directory is {0}, please wait...", getTempDir());
+        List<String> l = Arrays.asList(args);
+        if (l.contains("/?") || l.contains("-?") || l.contains("-help")) {
+            LOGGER.info("Usage: java MailHandlerDemo "
+                    + "[[-all] | [-body] | [-debug] | [-low] | [-simple] "
+                    + "| [-pushlevel] | [-pushfilter] | [-pushnormal]"
+                    + "| [-pushonly]] "
+                    + "\n\n"
+                    + "-all\t\t: Execute all demos.\n"
+                    + "-body\t\t: An email with all records and only a body.\n"
+                    + "-debug\t\t: Output basic debug information about the JVM "
+                    + "and log configuration.\n"
+                    + "-low\t\t: Generates multiple emails due to low capacity."
+                    + "\n"
+                    + "-simple\t\t: An email with all records with body and "
+                    + "an attachment.\n"
+                    + "-pushlevel\t: Generates high priority emails when the"
+                    + " push level is triggered and normal priority when "
+                    + "flushed.\n"
+                    + "-pushFilter\t: Generates high priority emails when the "
+                    + "push level and the push filter is triggered and normal "
+                    + "priority emails when flushed.\n"
+                    + "-pushnormal\t: Generates multiple emails when the "
+                    + "MemoryHandler push level is triggered.  All generated "
+                    + "email are sent as normal priority.\n"
+                    + "-pushonly\t: Generates multiple emails when the "
+                    + "MemoryHandler push level is triggered.  Generates high "
+                    + "priority emails when the push level is triggered and "
+                    + "normal priority when flushed.\n");
+        } else {
+            init(l); //may create log messages.
+            try {
+                LOGGER.log(Level.FINEST, "This is the finest part of the demo.",
+                        new MessagingException("Fake JavaMail issue."));
+                LOGGER.log(Level.FINER, "This is the finer part of the demo.",
+                        new NullPointerException("Fake bug."));
+                LOGGER.log(Level.FINE, "This is the fine part of the demo.");
+                LOGGER.log(Level.CONFIG, "Logging config file is {0}.",
+                        getConfigLocation());
+                LOGGER.log(Level.INFO, "Your temp directory is {0}, "
+                        + "please wait...", getTempDir());
 
-            try { //waste some time for the custom formatter.
-                Thread.sleep(3L * 1000L);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
+                try { //Waste some time for the custom formatter.
+                    Thread.sleep(3L * 1000L);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                }
+
+                LOGGER.log(Level.WARNING, "This is a warning.",
+                        new FileNotFoundException("Fake file chooser issue."));
+                LOGGER.log(Level.SEVERE, "The end of the demo.",
+                        new IOException("Fake access denied issue."));
+            } finally {
+                closeHandlers();
             }
-
-            LOGGER.log(Level.WARNING, "This is a warning.", new FileNotFoundException("Fake"));
-            LOGGER.log(Level.SEVERE, "The end of the demo.", new IOException("Fake"));
-        } finally {
-            closeHandlers();
         }
     }
 
     /**
-     * Used debug problems with the logging.properties.
+     * Used debug problems with the logging.properties. The system property
+     * java.security.debug=access,stack can be used to trace access to the
+     * LogManager reset.
+     *
      * @param prefix a string to prefix the output.
      * @param err any PrintStream or null for System.out.
      */
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private static void checkConfig(String prefix, PrintStream err) {
         if (prefix == null || prefix.trim().length() == 0) {
             prefix = "DEBUG";
@@ -102,6 +143,9 @@ public class MailHandlerDemo {
         }
 
         try {
+            err.println(prefix + ": LOGGER=" + LOGGER.getLevel());
+            err.println(prefix + ": JVM id " + ManagementFactory.getRuntimeMXBean().getName());
+            err.println(prefix + ": java.security.debug=" + System.getProperty("java.security.debug"));
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
                 err.println(prefix + ": SecurityManager.class=" + sm.getClass().getName());
@@ -109,6 +153,17 @@ public class MailHandlerDemo {
             } else {
                 err.println(prefix + ": SecurityManager.class=" + null);
                 err.println(prefix + ": SecurityManager.toString=" + null);
+            }
+            
+            String policy = System.getProperty("java.security.policy");
+            if (policy != null) {
+                File f = new File(policy);
+                err.println(prefix + ": AbsolutePath=" + f.getAbsolutePath());
+                err.println(prefix + ": CanonicalPath=" + f.getCanonicalPath());
+                err.println(prefix + ": length=" + f.length());
+                err.println(prefix + ": canRead=" + f.canRead());
+                err.println(prefix + ": lastModified="
+                        + new java.util.Date(f.lastModified()));
             }
 
             LogManager manager = LogManager.getLogManager();
@@ -123,22 +178,26 @@ public class MailHandlerDemo {
                 err.println(prefix + ": canRead=" + f.canRead());
                 err.println(prefix + ": lastModified="
                         + new java.util.Date(f.lastModified()));
-                //force any errors, only safe is key is present.
+                //Force any errors. This is only safe if key is present.
                 manager.readConfiguration();
             } else {
                 err.println(prefix + ": " + key + " is not set as a system property.");
             }
             err.println(prefix + ": LogManager.class=" + manager.getClass().getName());
             err.println(prefix + ": LogManager.toString=" + manager);
+            err.println(prefix + ": MailHandler classLoader=" + MailHandler.class.getClassLoader());
+            err.println(prefix + ": Context ClassLoader=" + Thread.currentThread().getContextClassLoader());
+            err.println(prefix + ": Session ClassLoader=" + Session.class.getClassLoader());
+            err.println(prefix + ": DataHandler ClassLoader=" + DataHandler.class.getClassLoader());
 
             final String p = MailHandler.class.getName();
             key = p.concat(".mail.to");
             String to = manager.getProperty(key);
             err.println(prefix + ": TO=" + to);
-            err.println(prefix + ": TO="
-                    + Arrays.toString(InternetAddress.parse(to, false)));
-            err.println(prefix + ": TO="
-                    + Arrays.toString(InternetAddress.parse(to, true)));
+            if (to != null) {
+                err.println(prefix + ": TO="
+                        + Arrays.toString(InternetAddress.parse(to, true)));
+            }
 
             key = p.concat(".mail.from");
             String from = manager.getProperty(key);
@@ -152,15 +211,99 @@ public class MailHandlerDemo {
                 err.println(prefix + ": FROM="
                         + Arrays.asList(InternetAddress.parse(from, true)));
             }
+
+            synchronized (manager) {
+                final Enumeration<String> e = manager.getLoggerNames();
+                while (e.hasMoreElements()) {
+                    final Logger l = manager.getLogger(e.nextElement());
+                    if (l != null) {
+                        final Handler[] handlers = l.getHandlers();
+                        if (handlers.length > 0) {
+                            err.println(prefix + ": " + l.getClass().getName()
+                                    + ", " + l.getName());
+                            for (Handler h : handlers) {
+                                err.println(prefix + ":\t" + toString(prefix, err, h));
+                            }
+                        }
+                    }
+                }
+            }
         } catch (Throwable error) {
             err.print(prefix + ": ");
             error.printStackTrace(err);
         }
+        err.flush();
     }
 
     /**
-     * Example for body only messages.
-     * On close the remaining messages are sent.
+     * Gets a formatting string describing the given handler.
+     *
+     * @param prefix the output prefix.
+     * @param err the error stream.
+     * @param h the handler.
+     * @return the formatted string.
+     */
+    private static String toString(String prefix, PrintStream err, Handler h) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(h.getClass().getName());
+        try {
+            if (h instanceof MailHandler) {
+                MailHandler mh = (MailHandler) h;
+                buf.append(", ").append(mh.getSubject());
+            }
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+
+        try {
+            buf.append(", ").append(h.getFormatter());
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+
+        try {
+            if (h instanceof MailHandler) {
+                MailHandler mh = (MailHandler) h;
+                buf.append(", ").append(Arrays.toString(
+                        mh.getAttachmentFormatters()));
+            }
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+
+        try {
+            buf.append(", ").append(h.getLevel());
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+
+        try {
+            buf.append(", ").append(h.getFilter());
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+
+        try {
+            buf.append(", ").append(h.getErrorManager());
+        } catch (SecurityException error) {
+            err.print(prefix + ": ");
+            error.printStackTrace(err);
+        }
+        return buf.toString();
+    }
+
+    /**
+     * Example for body only messages. On close the remaining messages are sent.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.subject=Body only demo
+     * ##
+     * </code>
      */
     private static void initBodyOnly() {
         MailHandler h = new MailHandler();
@@ -169,10 +312,16 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Example showing that when the mail handler reaches capacity it
-     * will format and send the current records.  Capacity is used to roughly
-     * limit the size of an outgoing message.
-     * On close any remaining messages are sent.
+     * Example showing that when the mail handler reaches capacity it will
+     * format and send the current records. Capacity is used to roughly limit
+     * the size of an outgoing message. On close any remaining messages are
+     * sent.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.subject=Low capacity demo
+     * com.sun.mail.util.logging.MailHandler.capacity=5
+     * ##
+     * </code>
      */
     private static void initLowCapacity() {
         MailHandler h = new MailHandler(5);
@@ -181,21 +330,33 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Example for body only messages.
-     * On close any remaining messages are sent.
+     * Example for body only messages. On close any remaining messages are sent.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.subject=Body and attachment demo
+     * com.sun.mail.util.logging.MailHandler.attachment.formatters=java.util.logging.XMLFormatter
+     * com.sun.mail.util.logging.MailHandler.attachment.names=data.xml
+     * ##
+     * </code>
      */
     private static void initSimpleAttachment() {
         MailHandler h = new MailHandler();
         h.setSubject("Body and attachment demo");
-        h.setAttachmentFormatters(new Formatter[]{new XMLFormatter()});
-        h.setAttachmentNames(new String[]{"data.xml"});
+        h.setAttachmentFormatters(new XMLFormatter());
+        h.setAttachmentNames("data.xml");
         LOGGER.addHandler(h);
     }
 
     /**
-     * Example setup for priority messages by level.
-     * If the push level is triggered the message is high priority.
-     * Otherwise, on close any remaining messages are sent.
+     * Example setup for priority messages by level. If the push level is
+     * triggered the message is high priority. Otherwise, on close any remaining
+     * messages are sent.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.subject=Push level demo
+     * com.sun.mail.util.logging.MailHandler.pushLevel=WARNING
+     * ##
+     * </code>
      */
     private static void initWithPushLevel() {
         MailHandler h = new MailHandler();
@@ -205,9 +366,16 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Example for priority messages by custom trigger.
-     * If the push filter is triggered the message is high priority.
-     * Otherwise, on close any remaining messages are sent.
+     * Example for priority messages by custom trigger. If the push filter is
+     * triggered the message is high priority. Otherwise, on close any remaining
+     * messages are sent.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.subject=Push on MessagingException demo
+     * com.sun.mail.util.logging.MailHandler.pushLevel=ALL
+     * com.sun.mail.util.logging.MailHandler.pushFilter=MailHandlerDemo$MessageErrorsFilter
+     * ##
+     * </code>
      */
     private static void initWithPushFilter() {
         MailHandler h = new MailHandler();
@@ -218,11 +386,21 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Example for circular buffer behavior.  The level, push level, and
-     * capacity are set the same so that the memory handler push results
-     * in a mail handler push.  All messages are high priority.
-     * On close any remaining records are discarded because they never reach
-     * the mail handler.
+     * Example for circular buffer behavior. The level, push level, and capacity
+     * are set the same so that the memory handler push results in a mail
+     * handler push. All messages are high priority. On close any remaining
+     * records are discarded because they never reach the mail handler.      <code>
+     * ##logging.properties
+     * MailHandlerDemo.handlers=java.util.logging.MemoryHandler
+     * java.util.logging.MemoryHandler.target=com.sun.mail.util.logging.MailHandler
+     * com.sun.mail.util.logging.MailHandler.level=ALL
+     * java.util.logging.MemoryHandler.level=ALL
+     * java.util.logging.MemoryHandler.push=WARNING
+     * com.sun.mail.util.logging.MailHandler.subject=Push on MessagingException demo
+     * com.sun.mail.util.logging.MailHandler.pushLevel=ALL
+     * com.sun.mail.util.logging.MailHandler.pushFilter=MailHandlerDemo$MessageErrorsFilter
+     * ##
+     * </code>
      */
     private static void initPushOnly() {
         final int capacity = 3;
@@ -237,17 +415,18 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Holds on to the push only handler.
-     * Only declared here to apply fallback settings.
+     * Holds on to the push only handler. Only declared here to apply fallback
+     * settings.
      */
     private static Handler pushOnlyHandler;
 
     /**
-     * Example for circular buffer behavior as normal priority.  The push level,
-     * and capacity are set the same so that the memory handler push results
-     * in a mail handler push.  All messages are normal priority.
-     * On close any remaining records are discarded because they never reach
-     * the mail handler.
+     * Example for circular buffer behavior as normal priority. The push level,
+     * and capacity are set the same so that the memory handler push results in
+     * a mail handler push. All messages are normal priority. On close any
+     * remaining records are discarded because they never reach the mail
+     * handler. Use the LogManager config option or extend the MemoryHandler to
+     * emulate this behavior via the logging.properties.
      */
     private static void initPushNormal() {
         final int capacity = 3;
@@ -266,68 +445,106 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Holds on to the push normal handler.
-     * Only declared here to apply fallback settings.
+     * Holds on to the push normal handler. Only declared here to apply fallback
+     * settings.
      */
     private static Handler pushNormalHandler;
 
     /**
-     *  Example for various kinds of custom sorting, formatting, and filtering
-     *  for multiple attachment messages.
-     *  On close any remaining messages are sent.
+     * Example for various kinds of custom sorting, formatting, and filtering
+     * for multiple attachment messages. The subject will contain the most
+     * severe record and a count of remaining records. The log records are
+     * ordered from most severe to least severe. The body uses a custom
+     * formatter that includes a summary by date and time. The attachment use
+     * XML and plain text formats. Each attachment has a different set of
+     * filtering. The attachment names are generated from either a fixed name or
+     * are built using the number and type of the records formatted. On close
+     * any remaining messages are sent. Use the LogManager config option or
+     * extend the MemoryHandler to emulate this behavior via the
+     * logging.properties.
      */
     private static void initCustomAttachments() {
         MailHandler h = new MailHandler();
 
         //Sort records by level keeping the severe messages at the top.
-        h.setComparator(new LevelAndSeqComparator(true));
+        h.setComparator(Collections.reverseOrder(new SeverityComparator()));
 
         //Use subject to provide a hint as to what is in the email.
-        h.setSubject(new SummaryNameFormatter("Log containing {0} records with {1} errors"));
+        h.setSubject(new CollectorFormatter());
 
         //Make the body give a simple summary of what happened.
         h.setFormatter(new SummaryFormatter());
 
         //Create 3 attachments.
-        h.setAttachmentFormatters(new Formatter[]{new XMLFormatter(), new XMLFormatter(), new SimpleFormatter()});
+        h.setAttachmentFormatters(new XMLFormatter(),
+                new XMLFormatter(), new SimpleFormatter());
 
-        //filter each attachment differently.
-        h.setAttachmentFilters(new Filter[]{null, new MessageErrorsFilter(false),
-                    new MessageErrorsFilter(true)});
+        //Filter each attachment differently.
+        h.setAttachmentFilters(null, new MessageErrorsFilter(false),
+                new MessageErrorsFilter(true));
 
-
-        //create simple names.
-        h.setAttachmentNames(new String[]{"all.xml", "errors.xml", "errors.txt"});
-
-        //extract simple name, replace the rest with formatters.
-        h.setAttachmentNames(new Formatter[]{h.getAttachmentNames()[0],
-                    new SummaryNameFormatter("{0} records and {1} errors"),
-                    new SummaryNameFormatter("{0,choice,0#no records|1#1 record|"
-                    + "1<{0,number,integer} records} and "
-                    + "{1,choice,0#no errors|1#1 error|1<"
-                    + "{1,number,integer} errors}")});
+        //Creating the attachment name formatters.
+        h.setAttachmentNames(new CollectorFormatter("all.xml"),
+                new CollectorFormatter("{3} records and {5} errors.xml"),
+                new CollectorFormatter("{5,choice,0#no errors|1#1 error|1<"
+                        + "{5,number,integer} errors}.txt"));
 
         LOGGER.addHandler(h);
     }
 
     /**
      * Sets up the demos that will run.
+     *
+     * @param l the list of arguments.
      */
-    private static void init() {
+    private static void init(List<String> l) {
+        l = new ArrayList<String>(l);
         Session session = Session.getInstance(System.getProperties());
-        if (session.getDebug()) {
+        boolean all = l.remove("-all") || l.isEmpty();
+        if (l.remove("-body") || all) {
+            initBodyOnly();
+        }
+
+        if (l.remove("-custom") || all) {
+            initCustomAttachments();
+        }
+
+        if (l.remove("-low") || all) {
+            initLowCapacity();
+        }
+
+        if (l.remove("-pushfilter") || all) {
+            initWithPushFilter();
+        }
+
+        if (l.remove("-pushlevel") || all) {
+            initWithPushLevel();
+        }
+
+        if (l.remove("-pushnormal") || all) {
+            initPushNormal();
+        }
+
+        if (l.remove("-pushonly") || all) {
+            initPushOnly();
+        }
+
+        if (l.remove("-simple") || all) {
+            initSimpleAttachment();
+        }
+
+        boolean fallback = applyFallbackSettings();
+        if (l.remove("-debug") || session.getDebug()) {
             checkConfig(CLASS_NAME, session.getDebugOut());
         }
 
-        initBodyOnly();
-        initLowCapacity();
-        initSimpleAttachment();
-        initWithPushLevel();
-        initWithPushFilter();
-        initCustomAttachments();
-        initPushOnly();
-        initPushNormal();
-        applyFallbackSettings();
+        if (!l.isEmpty()) {
+            LOGGER.log(Level.SEVERE, "Unknown commands: {0}", l);
+        }
+
+        if (fallback) {
+            LOGGER.info("Check your user temp dir for output.");
+        }
     }
 
     /**
@@ -335,8 +552,7 @@ public class MailHandlerDemo {
      */
     private static void closeHandlers() {
         Handler[] handlers = LOGGER.getHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            Handler h = handlers[i];
+        for (Handler h : handlers) {
             h.close();
             LOGGER.removeHandler(h);
         }
@@ -344,23 +560,26 @@ public class MailHandlerDemo {
 
     /**
      * Apply some fallback settings if no configuration file was specified.
+     *
+     * @return true if fallback settings were applied.
      */
-    private static void applyFallbackSettings() {
+    private static boolean applyFallbackSettings() {
         if (getConfigLocation() == null) {
             LOGGER.setLevel(Level.ALL);
-            LOGGER.info("Check your user temp dir for output.");
             Handler[] handlers = LOGGER.getHandlers();
-            for (int i = 0; i < handlers.length; i++) {
-                Handler h = handlers[i];
+            for (Handler h : handlers) {
                 fallbackSettings(h);
             }
             fallbackSettings(pushOnlyHandler);
             fallbackSettings(pushNormalHandler);
+            return true;
         }
+        return false;
     }
 
     /**
      * Common fallback settings for a single handler.
+     *
      * @param h the handler.
      */
     private static void fallbackSettings(Handler h) {
@@ -372,6 +591,7 @@ public class MailHandlerDemo {
 
     /**
      * Gets the system temp directory.
+     *
      * @return the system temp directory.
      */
     private static String getTempDir() {
@@ -380,6 +600,7 @@ public class MailHandlerDemo {
 
     /**
      * Gets the configuration file or class name.
+     *
      * @return the file name or class name.
      */
     private static String getConfigLocation() {
@@ -393,7 +614,7 @@ public class MailHandlerDemo {
     /**
      * A simple message filter example.
      */
-    private static final class MessageErrorsFilter implements Filter {
+    public static final class MessageErrorsFilter implements Filter {
 
         /**
          * Used to negate this filter.
@@ -403,88 +624,21 @@ public class MailHandlerDemo {
         /**
          * Default constructor.
          */
-        MessageErrorsFilter() {
+        public MessageErrorsFilter() {
             this(true);
         }
 
         /**
          * Creates the message filter.
+         *
          * @param complement used to allow or deny message exceptions.
          */
-        MessageErrorsFilter(final boolean complement) {
+        public MessageErrorsFilter(final boolean complement) {
             this.complement = complement;
         }
 
         public boolean isLoggable(LogRecord r) {
             return r.getThrown() instanceof MessagingException == complement;
-        }
-    }
-
-    /**
-     * Orders log records by level then sequence number.
-     */
-    private static final class LevelAndSeqComparator
-            implements Comparator<LogRecord>, java.io.Serializable {
-
-        /**
-         * Generated serial id.
-         */
-        private static final long serialVersionUID = 6269562326337300267L;
-
-        /**
-         * Used to reverse the ordering.
-         */
-        private final boolean reverse;
-
-        /**
-         * The default constructor.
-         */
-        LevelAndSeqComparator() {
-            this(false);
-        }
-
-        /**
-         * Creates the comparator.
-         * @param reverse to specify reverse ordering.
-         */
-        LevelAndSeqComparator(final boolean reverse) {
-            this.reverse = reverse;
-        }
-
-        /**
-         * Compare by level.
-         * @param r1 the first log record.
-         * @param r2 the second log record.
-         * @return -1 for less than, 0 for equal, or 1 for greater than.
-         */
-        public int compare(LogRecord r1, LogRecord r2) {
-            final int first = r1.getLevel().intValue();
-            final int second = r2.getLevel().intValue();
-            if (first < second) {
-                return reverse ? 1 : -1;
-            } else if (first > second) {
-                return reverse ? -1 : 1;
-            } else {
-                return compareSeq(r1, r2);
-            }
-        }
-
-        /**
-         * Compare by sequence.
-         * @param r1 the first log record.
-         * @param r2 the second log record.
-         * @return -1 for less than, 0 for equal, or 1 for greater than.
-         */
-        private int compareSeq(LogRecord r1, LogRecord r2) {
-            final long first = r1.getSequenceNumber();
-            final long second = r2.getSequenceNumber();
-            if (first < second) {
-                return reverse ? 1 : -1;
-            } else if (first > second) {
-                return reverse ? -1 : 1;
-            } else {
-                return 0;
-            }
         }
     }
 }
