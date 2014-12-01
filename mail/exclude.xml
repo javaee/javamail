@@ -231,6 +231,11 @@
 	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
     </Match>
+    <Match>
+	<Class name="com.sun.mail.imap.IMAPFolder"/>
+	<Method name="handleIdle"/>
+	<Bug pattern="DE_MIGHT_IGNORE"/>
+    </Match>
 
     <!--
 	FindBugs complains about a possible double check of headersLoaded,
@@ -540,6 +545,7 @@
 	    <Class name="com.sun.mail.imap.IMAPFolder$4"/>
 	    <Class name="com.sun.mail.imap.IMAPFolder$7"/>
 	    <Class name="com.sun.mail.imap.IMAPFolder$13"/>
+	    <Class name="com.sun.mail.imap.IMAPFolder$20"/>
 	</Or>
 	<Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
     </Match>

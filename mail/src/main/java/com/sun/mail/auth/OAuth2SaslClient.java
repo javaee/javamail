@@ -61,11 +61,11 @@ import com.sun.mail.util.ASCIIUtility;
  */
 public class OAuth2SaslClient implements SaslClient {
     private CallbackHandler cbh;
-    private Map<String,?> props;	// XXX - not currently used
+    //private Map<String,?> props;	// XXX - not currently used
     private boolean complete = false;
 
     public OAuth2SaslClient(Map<String,?> props, CallbackHandler cbh) {
-	this.props = props;
+	//this.props = props;
 	this.cbh = cbh;
     }
 
