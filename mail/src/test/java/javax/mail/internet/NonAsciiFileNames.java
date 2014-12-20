@@ -40,24 +40,63 @@
 
 package javax.mail.internet;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-import com.sun.mail.test.ClassLoaderSuite;
-import com.sun.mail.test.ClassLoaderSuite.TestClass;
+import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Suite of ParameterList tests that need to be run in a separate class loader.
+ * Test that non-ASCII file names are encoded by default.
  */
-@RunWith(ClassLoaderSuite.class)
-@TestClass(ParameterList.class)
-@SuiteClasses( {
-    ParameterListTests.class,
-    WindowsFileNames.class,
-    AppleFileNames.class,
-    NonAsciiFileNames.class,
-    DecodeParameters.class,
-    ParametersNoStrict.class
-})
-public class ParameterListTestSuite {
+public class NonAsciiFileNames {
+
+    private static String charset;
+
+    @BeforeClass
+    public static void before() {
+	System.out.println("NonAsciiFileNames");
+	charset = System.getProperty("mail.mime.charset");
+	System.setProperty("mail.mime.charset", "utf-8");
+    }
+
+    /**
+     * Test that non-ASCII filenames are encoded by default.
+     */
+    @Test
+    public void testNonAsciiFileName() throws Exception {
+	MimeBodyPart mbp = new MimeBodyPart();
+	mbp.setText("test\n");
+	mbp.setFileName("test\u00a1\u00a2\u00a3");
+	MimeBodyPart.updateHeaders(mbp);
+
+	String s = mbp.getHeader("Content-Disposition", null);
+	assertTrue("Content-Disposition filename", s.indexOf("filename*") >= 0);
+	s = mbp.getHeader("Content-Type", null);
+	assertTrue("Content-Type name", s.indexOf("name*") >= 0);
+    }
+
+    /**
+     * Test that non-ASCII filenames are encoded by default.
+     * Make sure an existing Content-Type header is updated.
+     */
+    @Test
+    public void testNonAsciiFileNameWithContentType() throws Exception {
+	MimeBodyPart mbp = new MimeBodyPart();
+	mbp.setText("test\n");
+	mbp.setHeader("Content-Type", "text/x-test");
+	mbp.setFileName("test\u00a1\u00a2\u00a3");
+	MimeBodyPart.updateHeaders(mbp);
+
+	String s = mbp.getHeader("Content-Disposition", null);
+	assertTrue("Content-Disposition filename", s.indexOf("filename*") >= 0);
+	s = mbp.getHeader("Content-Type", null);
+	assertTrue("Content-Type name", s.indexOf("name*") >= 0);
+    }
+
+    @AfterClass
+    public static void after() {
+	if (charset == null)
+	    System.clearProperty("mail.mime.charset");
+	else
+	    System.setProperty("mail.mime.charset", charset);
+    }
 }

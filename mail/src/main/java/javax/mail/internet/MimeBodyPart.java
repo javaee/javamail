@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1275,7 +1275,14 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	String s = part.getHeader("Content-Disposition", null);
 	ContentDisposition cd = 
 		new ContentDisposition(s == null ? Part.ATTACHMENT : s);
-	cd.setParameter("filename", name);
+	// ensure that the filename is encoded if necessary
+	String charset = MimeUtility.getDefaultMIMECharset();
+	ParameterList p = cd.getParameterList();
+	if (p == null) {
+	    p = new ParameterList();
+	    cd.setParameterList(p);
+	}
+	p.set("filename", name, charset);
 	part.setHeader("Content-Disposition", cd.toString());
 
 	/*
@@ -1288,7 +1295,13 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    if (s != null) {
 		try {
 		    ContentType cType = new ContentType(s);
-		    cType.setParameter("name", name);
+		    // ensure that the filename is encoded if necessary
+		    p = cType.getParameterList();
+		    if (p == null) {
+			p = new ParameterList();
+			cType.setParameterList(p);
+		    }
+		    p.set("name", name, charset);
 		    part.setHeader("Content-Type", cType.toString());
 		} catch (ParseException pex) { }	// ignore it
 	    }
@@ -1528,14 +1541,22 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		 * satisfy older MUAs (DtMail, Roam and probably
 		 * a bunch of others).
 		 */
-		String s = part.getHeader("Content-Disposition", null);
-		if (s != null) {
-		    // Parse the header ..
-		    ContentDisposition cd = new ContentDisposition(s);
-		    String filename = cd.getParameter("filename");
-		    if (filename != null) {
-			cType.setParameter("name", filename);
-			type = cType.toString();
+		if (setContentTypeFileName) {
+		    String s = part.getHeader("Content-Disposition", null);
+		    if (s != null) {
+			// Parse the header ..
+			ContentDisposition cd = new ContentDisposition(s);
+			String filename = cd.getParameter("filename");
+			if (filename != null) {
+			    ParameterList p = cType.getParameterList();
+			    if (p == null) {
+				p = new ParameterList();
+				cType.setParameterList(p);
+			    }
+			    p.set("name", filename,
+					MimeUtility.getDefaultMIMECharset());
+			    type = cType.toString();
+			}
 		    }
 		}
 		
