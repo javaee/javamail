@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1970,7 +1970,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		     * to fetch them from the server.
 		     *
 		     * Assume the common case is that the messages are
-		     * in in order by UID.  Map the returned source
+		     * in order by UID.  Map the returned source
 		     * UIDs to their corresponding Message objects.
 		     * Step through the msgs array looking for the
 		     * Message object in the returned source message
@@ -1990,19 +1990,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    // XXX - could inline/optimize this
 		    Message[] srcmsgs = getMessagesByUID(srcuids);
 		    AppendUID[] result = new AppendUID[msgs.length];
-		    for (int i = 0; i < srcmsgs.length; i++) {
-			int j = i;
-			do {
-			    if (msgs[j] == srcmsgs[i]) {
-				result[j] = new AppendUID(
-						cuid.uidvalidity, dstuids[i]);
-				break;
-			    }
-			    j++;
-			    if (j >= msgs.length)
-				j = 0;
-			} while (j != i);
-		    }
 		    for (int i = 0; i < msgs.length; i++) {
 			int j = i;
 			do {
@@ -2012,7 +1999,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				break;
 			    }
 			    j++;
-			    if (j >= msgs.length)
+			    if (j >= srcmsgs.length)
 				j = 0;
 			} while (j != i);
 		    }
