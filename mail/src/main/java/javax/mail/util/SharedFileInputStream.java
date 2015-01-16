@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -516,7 +516,7 @@ public class SharedFileInputStream extends BufferedInputStream
 	if (end == -1)
 	    end = datalen;
 	return new SharedFileInputStream(sf,
-			this.start + (int)start, (int)(end - start), bufsize);
+			this.start + start, end - start, bufsize);
     }
 
     // for testing...
