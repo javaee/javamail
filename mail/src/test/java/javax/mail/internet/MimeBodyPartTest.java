@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2011-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -108,7 +108,7 @@ public class MimeBodyPartTest {
 
     /**
      * Test that copying a DataHandler from one message to another
-     * by setting the "dh" filed in a subclass has the desired effect.
+     * by setting the "dh" field in a subclass has the desired effect.
      */
     @Test
     public void testSetDataHandler() throws Exception {
@@ -134,6 +134,37 @@ public class MimeBodyPartTest {
 	assertEquals("quoted-printable", mbp.getEncoding());
 	assertEquals("test part", getString(mbp.getInputStream()));
     }
+
+    /**
+     * Test that a MimeBodyPart created from a stream with unencoded data
+     * will have the data be encoded when the data is copied to another
+     * MimeBodyPart by copying the DataHandler.
+     */
+    @Test
+    public void testEncodingCopiedDataHandler() throws Exception {
+	String part = 
+	    "Content-Type: application/x-test\n" +
+	    "\n" +
+	    "\u0001\u0002\u0003" +
+	    "\n";
+	InputStream in = new ByteArrayInputStream(part.getBytes("iso-8859-1"));
+	MimeBodyPart mbp = new MimeBodyPart(in);
+	in.close();
+	MimeBodyPart mbp2 = new MimeBodyPart() {
+	    public void setDataHandler(DataHandler dh)
+						throws MessagingException {
+		super.setDataHandler(dh);
+		updateHeaders();
+	    }
+	};
+	mbp2.setDataHandler(mbp.getDataHandler());
+	assertEquals("base64", mbp2.getEncoding());
+	// ensure the data is correct by reading the first byte
+	in = mbp2.getInputStream();
+	assertEquals(1, in.read());
+	in.close();
+    }
+
 
     private static MimeMessage createMessage(Session s)
 				throws MessagingException {

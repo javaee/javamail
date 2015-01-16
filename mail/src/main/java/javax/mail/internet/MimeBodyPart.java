@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1491,14 +1491,19 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 		MimePartDataHandler mdh = (MimePartDataHandler)dh;
 		MimePart mpart = mdh.getPart();
 		if (mpart != part) {
-		    // XXX - can't change the encoding of the data from the
-		    // other part without decoding and reencoding it, so
-		    // we just force it to match the original
-		    setEncoding(part, mpart.getEncoding());
 		    if (needCTHeader)
 			part.setHeader("Content-Type", mpart.getContentType());
-		}
-		return;
+		    // XXX - can't change the encoding of the data from the
+		    // other part without decoding and reencoding it, so
+		    // we just force it to match the original, but if the
+		    // original has no encoding we'll consider reencoding it
+		    String enc = mpart.getEncoding();
+		    if (enc != null) {
+			setEncoding(part, enc);
+			return;
+		    }
+		} else
+		    return;
 	    }
 
 	    // Content-Transfer-Encoding, but only if we don't
@@ -1599,23 +1604,16 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	try {
 	    /*
 	     * If the data for this part comes from a stream,
+	     * and is already encoded,
 	     * just copy it to the output stream without decoding
 	     * and reencoding it.
 	     */
 	    DataHandler dh = part.getDataHandler();
 	    if (dh instanceof MimePartDataHandler) {
-		// call getContentStream to give subclass a chance to
-		// provide the data on demand
-		is = ((MimePartDataHandler)dh).getContentStream();
-		/*
-		if (part instanceof MimeBodyPart) {
-		    MimeBodyPart mbp = (MimeBodyPart)part;
-		    is = mbp.getContentStream();
-		} else if (part instanceof MimeMessage) {
-		    MimeMessage msg = (MimeMessage)part;
-		    is = msg.getContentStream();
-		}
-		*/
+		MimePartDataHandler mpdh = (MimePartDataHandler)dh;
+		MimePart mpart = mpdh.getPart();
+		if (mpart.getEncoding() != null)
+		    is = mpdh.getContentStream();
 	    }
 	    if (is != null) {
 		// now copy the data to the output stream

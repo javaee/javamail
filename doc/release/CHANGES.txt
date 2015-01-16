@@ -26,6 +26,7 @@ K  6526	Date search terms result in wrong greater-than SEARCH commands for IMAP
 K  6535	address similar to (x)<y>(z) will throw StringIndexOutOfBoundsException
 K  6551	Update logging demos to use the new 1.5.2 features
 K  6638	attachment filenames aren't being encoded by default
+K  6667	MimeBodyPart with copied DataHandler doesn't always set encoding
 
 
 		  CHANGES IN THE 1.5.2 RELEASE
