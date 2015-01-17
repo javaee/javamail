@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -587,12 +587,8 @@ public final class Session {
 	if (provider == null || provider.getType() != Provider.Type.STORE ) {
 	    throw new NoSuchProviderException("invalid provider");
 	}
-		
-	try {
-	    return (Store) getService(provider, url);
-	} catch (ClassCastException cce) {
-	    throw new NoSuchProviderException("incorrect class");
-	}
+
+	return getService(provider, url, Store.class);
     }
 
     /**
@@ -738,11 +734,7 @@ public final class Session {
 	    throw new NoSuchProviderException("invalid provider");
 	}
 
-	try {
-	    return (Transport) getService(provider, url);
-	} catch (ClassCastException cce) {
-	    throw new NoSuchProviderException("incorrect class");
-	}
+	return getService(provider, url, Transport.class);
     }
 
     /**
@@ -752,12 +744,14 @@ public final class Session {
      *
      * @param provider	which provider to use
      * @param url	which URLName to use (can be null)
+     * @param type	the service type (class)
      * @exception	NoSuchProviderException	thrown when the class cannot be
      *			found or when it does not have the correct constructor
      *			(Session, URLName), or if it is not derived from
      *			Service.
      */
-    private Object getService(Provider provider, URLName url)
+    private <T extends Service> T getService(Provider provider, URLName url,
+					Class<T> type)
 					throws NoSuchProviderException {
 	// need a provider and url
 	if (provider == null) {
@@ -791,15 +785,22 @@ public final class Session {
 		} catch (ClassNotFoundException ex) {
 		    // ignore it
 		}
-	    if (serviceClass == null)
+	    if (serviceClass == null || !type.isAssignableFrom(serviceClass))
 		serviceClass =
 		    Class.forName(provider.getClassName(), false, cl);
+            
+	    if (!type.isAssignableFrom(serviceClass))
+		throw new ClassCastException(
+				type.getName() + " " + serviceClass.getName());
 	} catch (Exception ex1) {
 	    // That didn't work, now try the "system" class loader.
 	    // (Need both of these because JDK 1.1 class loaders
 	    // may not delegate to their parent class loader.)
 	    try {
 		serviceClass = Class.forName(provider.getClassName());
+		if (!type.isAssignableFrom(serviceClass))
+		    throw new ClassCastException(
+				type.getName() + " " + serviceClass.getName());
 	    } catch (Exception ex) {
 		// Nothing worked, give up.
 		logger.log(Level.FINE, "Exception loading provider", ex);
@@ -820,7 +821,7 @@ public final class Session {
 	    throw new NoSuchProviderException(provider.getProtocol());
 	}
 
-	return service;
+	return type.cast(service);
     }
 
     /**
