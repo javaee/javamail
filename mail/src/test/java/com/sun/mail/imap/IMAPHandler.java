@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -61,6 +61,12 @@ public class IMAPHandler extends ProtocolHandler {
 
     /** IMAP capabilities supported */
     protected String capabilities = "IMAP4REV1 IDLE";
+
+    /** Number of messages */
+    protected int numberOfMessages = 0;
+
+    /** Number of recent messages */
+    protected int numberOfRecentMessages = 0;
 
     /**
      * Send greetings.
@@ -208,7 +214,7 @@ public class IMAPHandler extends ProtocolHandler {
         } else if (commandName.equals("IDLE")) {
             idle();
         } else if (commandName.equals("FETCH")) {
-            ok();	// XXX
+            fetch();
         } else if (commandName.equals("CLOSE")) {
             close();
         } else if (commandName.equals("LOGOUT")) {
@@ -243,8 +249,8 @@ public class IMAPHandler extends ProtocolHandler {
      * @throws IOException unable to read/write to socket
      */
     public void select() throws IOException {
-	untagged("0 EXISTS");
-	untagged("0 RECENT");
+	untagged(numberOfMessages + " EXISTS");
+	untagged(numberOfRecentMessages + " RECENT");
         ok();
     }
 
@@ -254,8 +260,8 @@ public class IMAPHandler extends ProtocolHandler {
      * @throws IOException unable to read/write to socket
      */
     public void examine() throws IOException {
-	untagged("0 EXISTS");
-	untagged("0 RECENT");
+	untagged(numberOfMessages + " EXISTS");
+	untagged(numberOfRecentMessages + " RECENT");
         ok();
     }
 
@@ -287,6 +293,15 @@ public class IMAPHandler extends ProtocolHandler {
             exit();
             return;
         }
+    }
+
+    /**
+     * FETCH command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void fetch() throws IOException {
+        ok();	// XXX
     }
 
     /**
