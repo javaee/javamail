@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -201,11 +201,22 @@ public class FetchResponse extends IMAPResponse {
 		v.add(i);
 	    else if (!parseExtensionItem())
 		throw new ParsingException(
-		"error in FETCH parsing, unrecognized item at index " + index);
+		    "error in FETCH parsing, unrecognized item at index " +
+		    index + ", starts with \"" + next20() + "\"");
 	} while (buffer[index] != ')');
 
 	index++; // skip ')'
 	items = v.toArray(new Item[v.size()]);
+    }
+
+    /**
+     * Return the next 20 characters in the buffer, for exception messages.
+     */
+    private String next20() {
+	if (index + 20 > size)
+	    return ASCIIUtility.toString(buffer, index, index + size);
+	else
+	    return ASCIIUtility.toString(buffer, index, index + 20) + "...";
     }
 
     /**
