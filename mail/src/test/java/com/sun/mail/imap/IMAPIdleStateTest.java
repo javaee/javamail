@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.imap;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import javax.mail.Session;
 import javax.mail.Store;
@@ -67,10 +68,9 @@ public final class IMAPIdleStateTest {
     public void test() {
         TestServer server = null;
         try {
-            final IMAPHandler handler = new IMAPHandlerIdleBye();
+            final IMAPHandlerIdleBye handler = new IMAPHandlerIdleBye();
             server = new TestServer(handler);
             server.start();
-            Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.imap.host", "localhost");
@@ -92,7 +92,7 @@ public final class IMAPIdleStateTest {
 		    }
 		};
 		t.start();
-		Thread.sleep(20);	// give it time to IDLE
+		handler.waitForIdle();
 
 		// Now break it out of idle.
 		// Need to use a method that doesn't check that the Store
@@ -122,11 +122,18 @@ public final class IMAPIdleStateTest {
      * to abort an IDLE.
      */
     private static final class IMAPHandlerIdleBye extends IMAPHandler {
+	CountDownLatch latch = new CountDownLatch(1);
+
 	@Override
         public void idle() throws IOException {
 	    cont();
+	    latch.countDown();
 	    // don't wait for DONE, just close the connection now
 	    bye("closing");
         }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
     }
 }

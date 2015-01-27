@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,11 +42,13 @@ package com.sun.mail.imap;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Message;
+import javax.mail.FetchProfile;
 
 import com.sun.mail.test.TestServer;
 
@@ -69,10 +71,9 @@ public final class IMAPIdleUntaggedResponseTest {
     public void test() {
         TestServer server = null;
         try {
-            final IMAPHandler handler = new IMAPHandlerIdleExists();
+            final IMAPHandlerIdleExists handler = new IMAPHandlerIdleExists();
             server = new TestServer(handler);
             server.start();
-            Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.imap.host", "localhost");
@@ -92,8 +93,11 @@ public final class IMAPIdleUntaggedResponseTest {
 		Thread t = new Thread() {
 		    public void run() {
 			try {
-			    Thread.sleep(1000);
-			    folder.getMessageCount();
+			    handler.waitForIdle();
+			    // now do something that is sure to touch the server
+			    FetchProfile fp = new FetchProfile();
+			    fp.add(FetchProfile.Item.ENVELOPE);
+			    folder.fetch(folder.getMessages(), fp);
 			} catch (Exception ex) {
 			}
 		    }
@@ -129,14 +133,27 @@ public final class IMAPIdleUntaggedResponseTest {
      * sure the notification of the new message is seen.
      */
     private static final class IMAPHandlerIdleExists extends IMAPHandler {
+	CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void examine() throws IOException {
+	    numberOfMessages = 1;
+	    super.examine();
+	}
+
 	@Override
         public void idle() throws IOException {
             untagged("1 EXISTS");
             untagged("1 RECENT");
 	    cont();
             untagged("1 FETCH (FLAGS (\\Recent \\Seen))");
+	    latch.countDown();
 	    idleWait();
 	    ok();
         }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
     }
 }

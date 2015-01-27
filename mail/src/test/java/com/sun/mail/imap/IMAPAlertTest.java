@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,8 @@ package com.sun.mail.imap;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.Session;
 import javax.mail.Store;
@@ -68,14 +70,13 @@ public final class IMAPAlertTest {
             final IMAPHandler handler = new IMAPHandlerAlert();
             server = new TestServer(handler);
             server.start();
-            Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.imap.host", "localhost");
             properties.setProperty("mail.imap.port", "" + server.getPort());
-            //properties.setProperty("mail.debug.auth", "true");
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);
+	    final CountDownLatch latch = new CountDownLatch(1);
 
             final Store store = session.getStore("imap");
 	    store.addStoreListener(new StoreListener() {
@@ -84,6 +85,7 @@ public final class IMAPAlertTest {
 		    if (e.getMessageType() == StoreEvent.ALERT) {
 			s = "ALERT: ";
 			gotAlert = true;
+			latch.countDown();
 		    } else
 			s = "NOTICE: ";
 		    //System.out.println(s + e.getMessage());
@@ -91,7 +93,8 @@ public final class IMAPAlertTest {
 	    });
             try {
                 store.connect("test", "test");
-		Thread.sleep(1000);	// time for event to be delivered
+		// time for event to be delivered
+		latch.await(5, TimeUnit.SECONDS);
 		assertTrue(gotAlert);
 
 	    } catch (Exception ex) {
