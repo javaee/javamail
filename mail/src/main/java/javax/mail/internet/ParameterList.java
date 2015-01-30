@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -151,6 +151,9 @@ public class ParameterList {
 	PropUtil.getBooleanSystemProperty("mail.mime.windowsfilenames", false);
     private static final boolean parametersStrict = 
 	PropUtil.getBooleanSystemProperty("mail.mime.parameters.strict", true);
+    private static final boolean splitLongParameters = 
+	PropUtil.getBooleanSystemProperty(
+	    "mail.mime.splitlongparameters", true);
 
 
     /**
@@ -622,22 +625,61 @@ public class ParameterList {
         Iterator e = list.keySet().iterator();
  
         while (e.hasNext()) {
-            String name = (String)e.next();
+	    String name = (String)e.next();
+	    String value;
 	    Object v = list.get(name);
 	    if (v instanceof MultiValue) {
 		MultiValue vv = (MultiValue)v;
-		String ns = name + "*";
+		name += "*";
 		for (int i = 0; i < vv.size(); i++) {
 		    Object va = vv.get(i);
-		    if (va instanceof Value)
-			sb.addNV(ns + i + "*", ((Value)va).encodedValue);
-		    else
-			sb.addNV(ns + i, (String)va);
+		    String ns;
+		    if (va instanceof Value) {
+			ns = name + i + "*";
+			value = ((Value)va).encodedValue;
+		    } else {
+			ns = name + i;
+			value = (String)va;
+		    }
+		    sb.addNV(ns, quote(value));
 		}
-	    } else if (v instanceof Value)
-		sb.addNV(name + "*", ((Value)v).encodedValue);
-	    else
-		sb.addNV(name, (String)v);
+	    } else if (v instanceof Value) {
+		/*
+		 * XXX - We could split the encoded value into multiple
+		 * segments if it's too long, but that's more difficult.
+		 */
+		name += "*";
+		value = ((Value)v).encodedValue;
+		sb.addNV(name, quote(value));
+	    } else {
+		value = (String)v;
+		/*
+		 * If this value is "long", split it into a multi-segment
+		 * parameter.  Only do this if we've enabled RFC2231 style
+		 * encoded parameters.
+		 *
+		 * Note that we check the length before quoting the value.
+		 * Quoting might make the string longer, although typically
+		 * not much, so we allow a little slop in the calculation.
+		 * In the worst case, a 60 character string will turn into
+		 * 122 characters when quoted, which is long but not
+		 * outrageous.
+		 */
+		if (value.length() > 60 &&
+				splitLongParameters && encodeParameters) {
+		    int seg = 0;
+		    name += "*";
+		    while (value.length() > 60) {
+			sb.addNV(name + seg, quote(value.substring(0, 60)));
+			value = value.substring(60);
+			seg++;
+		    }
+		    if (value.length() > 0)
+			sb.addNV(name + seg, quote(value));
+		} else {
+		    sb.addNV(name, quote(value));
+		}
+	    }
         }
         return sb.toString();
     }
@@ -656,7 +698,6 @@ public class ParameterList {
 	}
 
 	public void addNV(String name, String value) {
-	    value = quote(value);
 	    sb.append("; ");
 	    used += 2;
 	    int len = name.length() + value.length() + 1;
