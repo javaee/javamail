@@ -18,6 +18,7 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 		  ----------------------------
 The following bugs have been fixed in the 1.5.3 release.
 
+K  6379	Make constructor of POP3Folder protected to allow subclassing
 K  6407	calling IdleManager.watch twice on same folder fails
 K  6430	NPE in IMAPFolder.copyUIDMessages when COPYUID not returned
 K  6496	Message-Id leaks current user/hostname of the Java process (security)
