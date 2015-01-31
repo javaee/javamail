@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -68,7 +68,7 @@ class Protocol {
     private String host;		// host we're connected to
     private Properties props;		// session properties
     private String prefix;		// protocol name prefix, for props
-    private DataInputStream input;	// input buf
+    private BufferedReader input;	// input buf
     private PrintWriter output;		// output buf
     private TraceInputStream traceInput;
     private TraceOutputStream traceOutput;
@@ -168,11 +168,12 @@ class Protocol {
 	    new TraceOutputStream(socket.getOutputStream(), traceLogger);
 	traceOutput.setQuote(quote);
 
-	input = new DataInputStream(new BufferedInputStream(traceInput));
+	// should be US-ASCII, but not all JDK's support it so use iso-8859-1
+	input = new BufferedReader(new InputStreamReader(traceInput,
+							    "iso-8859-1"));
 	output = new PrintWriter(
 		    new BufferedWriter(
 			new OutputStreamWriter(traceOutput, "iso-8859-1")));
-			    // should be US-ASCII, but not all JDK's support
     }
 
     protected void finalize() throws Throwable {
@@ -714,7 +715,7 @@ class Protocol {
     private Response readResponse() throws IOException {
 	String line = null;
 	try {
-	    line = input.readLine();	// XXX - readLine is deprecated
+	    line = input.readLine();
 	} catch (InterruptedIOException iioex) {
 	    /*
 	     * If we get a timeout while using the socket, we have no idea

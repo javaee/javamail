@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -514,7 +514,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    return super.getContentLanguage();
     	loadBODYSTRUCTURE();
     	if (bs.language != null)
-	    return (String[])(bs.language).clone();
+	    return bs.language.clone();
     	else
 	    return null;
     }
@@ -1109,6 +1109,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	 * @param	fp	the FetchProfile
 	 * @param	fitems	the FETCH items
 	 */
+	@SuppressWarnings("deprecation")	// for FetchProfile.Item.SIZE
 	public FetchProfileCondition(FetchProfile fp, FetchItem[] fitems) {
 	    if (fp.contains(FetchProfile.Item.ENVELOPE))
 		needEnvelope = true;
@@ -1591,7 +1592,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	if (aa == null)
 	    return null;
 	else
-	    return (InternetAddress[])aa.clone();
+	    return aa.clone();
     }
 
     private Flags _getFlags() {

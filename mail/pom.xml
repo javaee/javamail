@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -96,6 +96,41 @@
 	    </resource>
 	</resources>
 	<plugins>
+	    <!--
+		Configure compiler plugin to print lint warnings.
+	    -->
+	    <plugin>
+		<artifactId>maven-compiler-plugin</artifactId>
+		<executions>
+		    <execution>
+			<id>default-compile</id>
+			<configuration>
+			    <source>1.5</source>
+			    <target>1.5</target>
+			    <fork>true</fork>
+			    <!--
+				ignore some of the errors that are
+				too hard to fix for now
+			    -->
+			    <compilerArguments>
+				<Xlint:all/>
+				<Xlint:-rawtypes/>
+				<Xlint:-unchecked/>
+				<Xlint:-finally/>
+			    </compilerArguments>
+			    <showWarnings>true</showWarnings>
+			</configuration>
+		    </execution>
+		    <execution>
+			<id>default-testCompile</id>
+			<configuration>
+			    <source>1.5</source>
+			    <target>1.5</target>
+			</configuration>
+		    </execution>
+		</executions>
+	    </plugin>
+
 	    <!--
 		Configure test plugin to find *TestSuite classes.
 	    -->

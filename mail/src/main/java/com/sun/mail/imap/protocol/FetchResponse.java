@@ -224,6 +224,7 @@ public class FetchResponse extends IMAPResponse {
      * skipping over the item if successful.  Otherwise, return null
      * and leave the buffer position unmodified.
      */
+    @SuppressWarnings("empty")
     private Item parseItem() throws ParsingException {
 	switch (buffer[index]) {
 	case 'E': case 'e':

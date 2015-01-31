@@ -326,6 +326,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 *
 	 * @deprecated
 	 */
+	@Deprecated
 	public static final FetchProfileItem SIZE = 
 		new FetchProfileItem("SIZE");
 
@@ -372,7 +373,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	this.separator = separator;
 	logger = new MailLogger(this.getClass(),
 				"DEBUG IMAP", store.getSession());
-	connectionPoolLogger = ((IMAPStore)store).getConnectionPoolLogger();
+	connectionPoolLogger = store.getConnectionPoolLogger();
 
 	/*
 	 * Work around apparent bug in Exchange.  Exchange
@@ -2834,8 +2835,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	checkExists();
 	if (attributes == null)
 	    exists();		// do a LIST to set the attributes
-	return attributes == null ? new String[0] :
-		(String[])(attributes.clone());
+	return attributes == null ? new String[0] : attributes.clone();
     }
 
     /**

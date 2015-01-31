@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -856,6 +856,7 @@ public class IMAPProtocol extends Protocol {
      *		{@link #id(Map<String,String>)}
      * @since JavaMail 1.4.4
      */
+    @Deprecated
     public void id(String guid) throws ProtocolException {
 	// support this for now, but remove it soon
 	Map<String,String> gmap = new HashMap<String,String>();
@@ -1944,7 +1945,7 @@ public class IMAPProtocol extends Protocol {
     private int[] search(String msgSequence, SearchTerm term)
 			throws ProtocolException, SearchException {
 	// Check if the search "text" terms contain only ASCII chars
-	if (getSearchSequence().isAscii(term)) {
+	if (SearchSequence.isAscii(term)) {
 	    try {
 		return issueSearch(msgSequence, term, null);
 	    } catch (IOException ioex) { /* will not happen */ }

@@ -180,6 +180,9 @@ public class ParameterList {
      * Until then the value field contains an empty string as a placeholder.
      */
     private static class MultiValue extends ArrayList {
+	// keep lint happy
+	private static final long serialVersionUID = 699561094618751023L;
+
 	String value;
     }
 
@@ -460,8 +463,12 @@ public class ParameterList {
 		    } catch (UnsupportedEncodingException uex) {
 			if (decodeParametersStrict)
 			    throw new ParseException(uex.toString());
-			// convert as if ASCII
-			mv.value = bos.toString(0);
+			// convert as if iso-8859-1
+			try {
+			    mv.value = bos.toString("iso-8859-1");
+			} catch (UnsupportedEncodingException ex) {
+			    // should never happen
+			}
 		    }
 		    list.put(name, mv);
 		}
