@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2013 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,8 +49,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.logging.Formatter;
-import javax.activation.FileTypeMap;
-import javax.activation.MimetypesFileTypeMap;
+import javax.activation.*;
 import javax.mail.*;
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
@@ -72,7 +71,11 @@ public class MailHandlerTest {
     /**
      * Holder used to inject Throwables into other APIs.
      */
-    private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+    private static final ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+    /**
+     * Holder used to inject ClassLoaders into other APIs.
+     */
+    private static final ThreadLocal<ClassLoader> LOADER = new ThreadLocal<ClassLoader>();
     /**
      * Stores the value of a port that is not used on the local machine.
      */
@@ -161,6 +164,14 @@ public class MailHandlerTest {
         }
     }
 
+    private static void set(ClassLoader expect) {
+        if (expect == null) {
+            LOADER.remove();
+        } else {
+            LOADER.set(expect);
+        }
+    }
+
     static void throwPending() {
         final Throwable t = PENDING.get();
         if (t instanceof Error) {
@@ -188,19 +199,245 @@ public class MailHandlerTest {
     }
 
     static void securityDebugPrint(Throwable se) {
+        @SuppressWarnings("UseOfSystemOutOrSystemErr")
         final PrintStream err = System.err;
         err.println("Suppressed security exception to allow access:");
         se.printStackTrace(err);
     }
 
+    static void checkContextClassLoader(ClassLoader expect) {
+        Object ccl = Thread.currentThread().getContextClassLoader();
+        if (expect != ccl) {
+            AssertionError ae = new AssertionError(expect + " != " + ccl
+                    + ", sm=" + System.getSecurityManager());
+            dump(ae);
+            throw ae;
+        }
+    }
+
+    @Test
+    public void testChildClassLoader() {
+        assertNull(System.getSecurityManager());
+        final Thread thread = Thread.currentThread();
+        final ClassLoader ccl = thread.getContextClassLoader();
+        try {
+            URLClassLoader child = new URLClassLoader(new URL[0], ccl);
+
+            thread.setContextClassLoader(child);
+            testCallingClassLoader((ClassLoaderSecurityManager) null, child);
+
+            thread.setContextClassLoader(child);
+            testCallingClassLoader(new ClassLoaderSecurityManager(), child);
+        } finally {
+            thread.setContextClassLoader(ccl);
+        }
+        assertNull(System.getSecurityManager());
+    }
+
+    private void testCallingClassLoader(
+            ClassLoaderSecurityManager sm, ClassLoader expect) {
+        InternalErrorManager em = new ClassLoaderErrorManager(expect);
+        try {
+            MailHandler instance = new MailHandler(createInitProperties(""));
+            try {
+                if (sm != null) {
+                    System.setSecurityManager(sm);
+                    sm.secure = true;
+                }
+                instance.setErrorManager(em);
+                instance.setLevel(Level.ALL);
+                instance.setPushLevel(Level.SEVERE);
+                instance.setComparator(new ClassLoaderComparator(expect));
+                instance.setFilter(new ClassLoaderFilterFormatter(expect));
+                instance.setPushFilter(new ClassLoaderFilterFormatter(expect));
+                instance.setSubject(new ClassLoaderFilterFormatter(expect));
+                instance.setFormatter(new ClassLoaderFilterFormatter(expect));
+                instance.setAttachmentFormatters(
+                        new ClassLoaderFilterFormatter(expect, "testCCL"));
+                instance.setAttachmentFilters(new ClassLoaderFilterFormatter(expect));
+                instance.setAttachmentNames(new ClassLoaderFilterFormatter(expect));
+                instance.publish(new LogRecord(Level.WARNING, ""));
+                instance.publish(new LogRecord(Level.SEVERE, ""));
+            } finally {
+                instance.close();
+            }
+        } finally {
+            if (sm != null) {
+                sm.secure = false;
+                System.setSecurityManager((SecurityManager) null);
+            }
+        }
+
+        assert em != null;
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
+            if (t instanceof MessagingException == false) {
+                dump(t);
+                fail(t.toString());
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testVerifyClassLoader() throws Exception {
+        assertNull(System.getSecurityManager());
+        final Thread thread = Thread.currentThread();
+        final ClassLoader ccl = thread.getContextClassLoader();
+        try {
+            URLClassLoader child = new URLClassLoader(new URL[0], ccl);
+
+            thread.setContextClassLoader(child);
+            testVerify((ClassLoaderSecurityManager) null, child);
+
+            thread.setContextClassLoader(child);
+            testVerify(new ClassLoaderSecurityManager(), child);
+        } finally {
+            thread.setContextClassLoader(ccl);
+        }
+        assertNull(System.getSecurityManager());
+    }
+
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(MailHandler.class);
+    }
+
+    private void testWebappClassLoaderFieldNames(Class<?> c) throws Exception {
+        /**
+         * WebappClassLoader.clearReferencesStaticFinal() method will ignore
+         * fields that have type names that start with 'java.' or 'javax.'.
+         */
+        for (Field f : c.getDeclaredFields()) {
+            Class<?> k = f.getType();
+            while (k.isArray()) {
+                k = k.getComponentType();
+            }
+
+            if (!k.isPrimitive() && !k.getName().startsWith("java.")
+                    && !k.getName().startsWith("javax.")) {
+                fail(f.toString());
+            }
+        }
+
+        for (Class<?> ic : c.getDeclaredClasses()) {
+            testWebappClassLoaderFieldNames(ic);
+        }
+    }
+
+    private void testVerify(ClassLoaderSecurityManager sm, ClassLoader expect) throws Exception {
+        final LogManager manager = LogManager.getLogManager();
+        InternalErrorManager em = null;
+        set(expect);
+        try {
+            String p = MailHandler.class.getName();
+            Properties props = createInitProperties(p);
+            props.put(p.concat(".verify"), "local");
+            props.put(p.concat(".comparator"), ClassLoaderComparator.class.getName());
+            props.put(p.concat(".pushFilter"), ClassLoaderFilterFormatter.class.getName());
+            props.put(p.concat(".subject"), ClassLoaderFilterFormatter.class.getName());
+            props.put(p.concat(".errorManager"), ClassLoaderErrorManager.class.getName());
+
+            read(manager, props);
+
+            if (sm != null) {
+                System.setSecurityManager(sm);
+                sm.secure = true;
+            }
+
+            MailHandler instance = new MailHandler();
+            try {
+                em = internalErrorManagerFrom(instance);
+            } finally {
+                instance.close();
+            }
+        } finally {
+            if (sm != null) {
+                sm.secure = false;
+                System.setSecurityManager((SecurityManager) null);
+            }
+            set((ClassLoader) null);
+            manager.reset();
+        }
+
+        assert em != null;
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
+            if (t instanceof MessagingException == false) {
+                dump(t);
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testSetMailPropertiesClassLoader() throws Exception {
+        assertNull(System.getSecurityManager());
+        final Thread thread = Thread.currentThread();
+        final ClassLoader ccl = thread.getContextClassLoader();
+        try {
+            URLClassLoader child = new URLClassLoader(new URL[0], ccl);
+
+            thread.setContextClassLoader(child);
+            testSetMailProperties((ClassLoaderSecurityManager) null, child);
+
+            thread.setContextClassLoader(child);
+            testSetMailProperties(new ClassLoaderSecurityManager(), child);
+        } finally {
+            thread.setContextClassLoader(ccl);
+        }
+        assertNull(System.getSecurityManager());
+    }
+
+    private void testSetMailProperties(ClassLoaderSecurityManager sm, ClassLoader expect) throws Exception {
+        InternalErrorManager em = new ClassLoaderErrorManager(expect);
+        try {
+            Properties props = createInitProperties("");
+            props.put("verify", "local");
+
+            if (sm != null) {
+                System.setSecurityManager(sm);
+                sm.secure = true;
+            }
+
+            MailHandler instance = new MailHandler();
+            try {
+                instance.setErrorManager(em);
+                instance.setComparator(new ClassLoaderComparator(expect));
+                instance.setFilter(new ClassLoaderFilterFormatter(expect));
+                instance.setPushFilter(new ClassLoaderFilterFormatter(expect));
+                instance.setSubject(new ClassLoaderFilterFormatter(expect));
+                instance.setFormatter(new ClassLoaderFilterFormatter(expect));
+
+                instance.setMailProperties(props);
+            } finally {
+                instance.close();
+            }
+        } finally {
+            if (sm != null) {
+                sm.secure = false;
+                System.setSecurityManager((SecurityManager) null);
+            }
+        }
+
+        assert em != null;
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
+            if (t instanceof MessagingException == false) {
+                dump(t);
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
     @Test
     public void testIsLoggable() {
-        Level[] lvls = getAllLevels();
+        final Level[] lvls = getAllLevels();
         if (lvls.length > 0) {
             LogRecord record = new LogRecord(Level.INFO, "");
-            for (int i = 0; i < lvls.length; i++) {
-                testLoggable(lvls[i], null);
-                testLoggable(lvls[i], record);
+            for (Level lvl : lvls) {
+                testLoggable(lvl, null);
+                testLoggable(lvl, record);
             }
         } else {
             fail("No predefined levels.");
@@ -256,6 +493,65 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testPostConstruct() {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+        instance.postConstruct();
+
+        assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
+    }
+
+    @Test
+    public void testPreDestroy() {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+        instance.preDestroy();
+
+        assertEquals(true, em.exceptions.isEmpty());
+        instance.close();
+
+        instance = createHandlerWithRecords();
+        em = internalErrorManagerFrom(instance);
+        instance.preDestroy();
+
+        assertEquals(1, em.exceptions.size());
+        assertEquals(true, em.exceptions.get(0) instanceof MessagingException);
+        instance.close();
+
+        //Test for valid message.
+        instance = createHandlerWithRecords();
+        instance.setErrorManager(new FlushErrorManager(instance));
+        instance.preDestroy();
+        instance.close();
+
+        //Test that preDestroy is normal priority.
+        instance = new MailHandler(2);
+        instance.setMailProperties(createInitProperties(""));
+        instance.setLevel(Level.ALL);
+        instance.setErrorManager(new FlushErrorManager(instance));
+        instance.setPushFilter((Filter) null);
+        instance.setPushLevel(Level.OFF);
+        LogRecord record = new LogRecord(Level.INFO, "");
+        instance.publish(record); //should flush.
+        instance.preDestroy();
+        instance.push(); //Trigger an error if data is present here.
+        instance.close();
+    }
+
+    @Test
+    public void testPreDestroyLinkageError() throws Exception {
+        testLinkageErrorWithStack("preDestroy");
+    }
+
+    @Test
+    public void testPreDestroyLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("preDestroy");
+    }
+
+    @Test
     public void testPublish() {
         MailHandler instance = createHandlerWithRecords();
         InternalErrorManager em = internalErrorManagerFrom(instance);
@@ -269,11 +565,11 @@ public class MailHandlerTest {
         instance = createHandlerWithRecords();
         instance.setErrorManager(new FlushErrorManager(instance));
 
-        Level[] lvls = this.getAllLevels();
+        final Level[] lvls = getAllLevels();
         String SOURCE_CLASS = MailHandlerTest.class.getName();
         String SOURCE_METHOD = "testPublish";
-        for (int i = 0; i < lvls.length; i++) {
-            LogRecord r = new LogRecord(lvls[i], "");
+        for (Level lvl : lvls) {
+            LogRecord r = new LogRecord(lvl, "");
             r.setSourceClassName(SOURCE_CLASS);
             r.setSourceMethodName(SOURCE_METHOD);
             instance.publish(r);
@@ -283,8 +579,18 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testPublishLinkageError() throws Exception {
+        testLinkageErrorWithStack("publish");
+    }
+
+    @Test
+    public void testPublishLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("publish");
+    }
+
+    @Test
     public void testPublishDuringClose() {
-        Level[] lvls = getAllLevels();
+        final Level[] lvls = getAllLevels();
         for (int levelIndex = 0; levelIndex < lvls.length; levelIndex++) {
             MailHandler instance = new MailHandler(lvls.length + 2);
             InternalErrorManager em = new InternalErrorManager();
@@ -342,8 +648,18 @@ public class MailHandlerTest {
         }
     }
 
+    @Test
+    public void testPublishDuringCloseLinkageError() throws Exception {
+        testLinkageErrorWithStack("publishDuringClose");
+    }
+
+    @Test
+    public void testPublishDuringCloseLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("publishDuringClose");
+    }
+
     private MailHandler createHandlerWithRecords() {
-        Level[] lvls = getAllLevels();
+        final Level[] lvls = getAllLevels();
 
         MailHandler instance = new MailHandler(lvls.length + 2);
         InternalErrorManager em = new InternalErrorManager();
@@ -356,8 +672,8 @@ public class MailHandlerTest {
         instance.setPushFilter((Filter) null);
 
         final String msg = instance.toString();
-        for (int i = 0; i < lvls.length; i++) {
-            LogRecord r = new LogRecord(lvls[i], msg);
+        for (Level lvl : lvls) {
+            LogRecord r = new LogRecord(lvl, msg);
             r.setSourceClassName(MailHandlerTest.class.getName());
             r.setLoggerName(r.getSourceClassName());
             r.setSourceMethodName("createHandlerWithRecords");
@@ -563,7 +879,6 @@ public class MailHandlerTest {
         assert instance != null;
         instance.setFilter((Filter) null);
 
-
         Properties props = new Properties();
         props.put("mail.smtp.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
@@ -667,7 +982,6 @@ public class MailHandlerTest {
         assert instance != null;
         instance.setFilter((Filter) null);
 
-
         Properties props = new Properties();
         props.put("mail.smtp.host", UNKNOWN_HOST);
         instance.setMailProperties(props);
@@ -690,32 +1004,31 @@ public class MailHandlerTest {
         MailHandler instance = createHandlerWithRecords();
         instance.setFormatter(new SimpleFormatter());
         instance.setAttachmentFormatters(new Formatter[]{
-                    new EmptyFormatter(), new SimpleFormatter(), new SimpleFormatter()});
+            new EmptyFormatter(), new SimpleFormatter(), new SimpleFormatter()});
         testEmpty(instance);
 
         instance = createHandlerWithRecords();
         instance.setFormatter(new SimpleFormatter());
         instance.setAttachmentFormatters(new Formatter[]{
-                    new SimpleFormatter(), new EmptyFormatter(), new SimpleFormatter()});
+            new SimpleFormatter(), new EmptyFormatter(), new SimpleFormatter()});
         testEmpty(instance);
 
         instance = createHandlerWithRecords();
         instance.setFormatter(new SimpleFormatter());
         instance.setAttachmentFormatters(new Formatter[]{
-                    new SimpleFormatter(), new SimpleFormatter(), new EmptyFormatter()});
+            new SimpleFormatter(), new SimpleFormatter(), new EmptyFormatter()});
         testEmpty(instance);
 
         instance = createHandlerWithRecords();
         instance.setFormatter(new EmptyFormatter());
         instance.setAttachmentFormatters(new Formatter[]{
-                    new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter()});
+            new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter()});
         testEmpty(instance);
-
 
         instance = createHandlerWithRecords();
         instance.setFormatter(new EmptyFormatter());
         instance.setAttachmentFormatters(new Formatter[]{
-                    new SimpleFormatter(), new EmptyFormatter(), new SimpleFormatter()});
+            new SimpleFormatter(), new EmptyFormatter(), new SimpleFormatter()});
         testEmpty(instance);
 
         instance = createHandlerWithRecords();
@@ -939,7 +1252,7 @@ public class MailHandlerTest {
 
     @Test
     public void testPushInsidePush() {
-        Level[] lvls = getAllLevels();
+        final Level[] lvls = getAllLevels();
 
         MailHandler instance = new MailHandler(lvls.length + 2);
         InternalErrorManager em = new InternalErrorManager();
@@ -987,7 +1300,6 @@ public class MailHandlerTest {
                     fail(T.toString());
                 }
 
-
                 try {
                     h.setFormatter(new SimpleFormatter());
                 } catch (Throwable T) {
@@ -1003,7 +1315,6 @@ public class MailHandlerTest {
                 return super.getTail(h);
             }
         });
-
 
         Formatter push = new SimpleFormatter() {
 
@@ -1225,16 +1536,16 @@ public class MailHandlerTest {
 
         String SOURCE_CLASS = MailHandlerTest.class.getName();
         String SOURCE_METHOD = "testPushInsidePush";
-        for (int i = 0; i < lvls.length; i++) {
-            LogRecord r = new LogRecord(lvls[i], "");
+        for (Level lvl : lvls) {
+            LogRecord r = new LogRecord(lvl, "");
             r.setSourceClassName(SOURCE_CLASS);
             r.setSourceMethodName(SOURCE_METHOD);
             instance.publish(r);
         }
         instance.flush();
 
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
             if ((t instanceof MessagingException == false)
                     && (t instanceof IllegalStateException == false)) {
                 dump(t);
@@ -1266,7 +1577,6 @@ public class MailHandlerTest {
         instance.setErrorManager(new PushErrorManager(instance));
         instance.push();
         instance.close();
-
 
         instance = new MailHandler(1);
         instance.setMailProperties(createInitProperties(""));
@@ -1316,6 +1626,16 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testFlushLinkageError() throws Exception {
+        testLinkageErrorWithStack("flush");
+    }
+
+    @Test
+    public void testFlushLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("flush");
+    }
+
+    @Test
     public void testClose() {
         LogRecord record = new LogRecord(Level.INFO, "");
         MailHandler instance = new MailHandler(createInitProperties(""));
@@ -1353,60 +1673,169 @@ public class MailHandlerTest {
     }
 
     @Test
+    public void testCloseLinkageError() throws Exception {
+        testLinkageErrorWithStack("close");
+    }
+
+    @Test
+    public void testCloseLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("close");
+    }
+
+    private void testLinkageErrorWithStack(String method) throws IOException {
+        PrintStream ls = new LinkageErrorStream();
+        @SuppressWarnings("UseOfSystemOutOrSystemErr")
+        final PrintStream err = System.err;
+        try {
+            System.setErr(new LinkageErrorStream());
+            boolean linkageErrorEscapes = false;
+            try {
+                ErrorManager em = new ErrorManager();
+                em.error(null, null, ErrorManager.GENERIC_FAILURE);
+            } catch (LinkageError expect) {
+                linkageErrorEscapes = expect.getStackTrace().length != 0;
+            }
+            Assume.assumeTrue(linkageErrorEscapes);
+
+            System.setErr(ls);
+            MailHandler instance = new MailHandler(createInitProperties(""));
+            try {
+                assertEquals(ErrorManager.class,
+                        instance.getErrorManager().getClass());
+                instance.publish(new LogRecord(Level.SEVERE, ""));
+                if ("preDestroy".equals(method)) {
+                    instance.preDestroy();
+                } else if ("publish".equals(method)) {
+                    instance.setPushLevel(Level.ALL);
+                    instance.publish(new LogRecord(Level.SEVERE, ""));
+                } else if ("publishDuringClose".equals(method)) {
+                    CloseLogRecord r
+                            = new CloseLogRecord(Level.SEVERE, "", instance);
+                    instance.publish(r);
+                } else if ("flush".equals(method)) {
+                    instance.flush();
+                } else if ("push".equals(method)) {
+                    instance.push();
+                } else if ("close".equals(method)) {
+                    instance.close();
+                } else {
+                    fail(method);
+                }
+                assertTrue(ls.checkError());
+            } finally {
+                instance.close();
+            }
+            assertTrue(ls.checkError());
+        } finally {
+            System.setErr(err);
+        }
+    }
+
+    private void testLinkageErrorEmptyStack(String method) throws IOException {
+        PrintStream ls = new LinkageErrorStream(new StackTraceElement[0]);
+        @SuppressWarnings("UseOfSystemOutOrSystemErr")
+        final PrintStream err = System.err;
+        try {
+            System.setErr(new LinkageErrorStream(new StackTraceElement[0]));
+            boolean linkageErrorEscapes = false;
+            try {
+                ErrorManager em = new ErrorManager();
+                em.error(null, null, ErrorManager.GENERIC_FAILURE);
+            } catch (LinkageError expect) {
+                linkageErrorEscapes = true;
+            }
+            Assume.assumeTrue(linkageErrorEscapes);
+
+            System.setErr(ls);
+            MailHandler instance = new MailHandler(createInitProperties(""));
+            try {
+                assertEquals(ErrorManager.class,
+                        instance.getErrorManager().getClass());
+                instance.publish(new LogRecord(Level.SEVERE, ""));
+                /**
+                 * LinkageError escapes push and flush because only user created
+                 * code calls those methods. Therefore, user created code can
+                 * trap those errors. In all other cases we assume the worst and
+                 * just swallow the linkage error.
+                 */
+                if ("preDestroy".equals(method)) {
+                    instance.preDestroy();
+                } else if ("publish".equals(method)) {
+                    instance.setPushLevel(Level.ALL);
+                    instance.publish(new LogRecord(Level.SEVERE, ""));
+                } else if ("publishDuringClose".equals(method)) {
+                    CloseLogRecord r
+                            = new CloseLogRecord(Level.SEVERE, "", instance);
+                    instance.publish(r);
+                } else if ("flush".equals(method)) {
+                    boolean escapes = false;
+                    try {
+                        instance.flush();
+                    } catch (LinkageError expect) {
+                        escapes = true;
+                    }
+                    assertTrue(escapes);
+                } else if ("push".equals(method)) {
+                    boolean escapes = false;
+                    try {
+                        instance.push();
+                    } catch (LinkageError expect) {
+                        escapes = true;
+                    }
+                    assertTrue(escapes);
+                } else if ("close".equals(method)) {
+                    instance.close();
+                } else {
+                    fail(method);
+                }
+                assertTrue(ls.checkError());
+            } finally {
+                instance.close();
+            }
+            assertTrue(ls.checkError());
+        } finally {
+            System.setErr(err);
+        }
+    }
+
+    @Test
     public void testCloseContextClassLoader() {
         assertNull(System.getSecurityManager());
         final Thread thread = Thread.currentThread();
         final ClassLoader ccl = thread.getContextClassLoader();
         try {
-            testCloseContextClassLoader((CloseClassLoaderSecurityManager) null);
-            thread.setContextClassLoader(ccl);
-            testCloseContextClassLoader(new CloseClassLoaderSecurityManager());
+            testCloseContextClassLoader0();
         } finally {
             thread.setContextClassLoader(ccl);
         }
+        assertNull(System.getSecurityManager());
     }
 
-    private void testCloseContextClassLoader(CloseClassLoaderSecurityManager sm) {
-        InternalErrorManager em = null;
-        try {
-            MailHandler instance = createHandlerWithRecords();
-            try {
-                em = internalErrorManagerFrom(instance);
-                ClassLoader expect = instance.getClass().getClassLoader();
-                assertNotNull("Unexpected class loader.", expect);
-                /**
-                 * java.util.logging.LogManager$Cleaner has a null CCL.
-                 */
-                Thread.currentThread().setContextClassLoader(null);
-                if (sm != null) {
-                    instance.setFormatter(new CloseClassLoaderFormatter(null));
-                    System.setSecurityManager(sm);
-                    sm.secure = true;
-                } else {
-                    instance.setFormatter(new CloseClassLoaderFormatter(expect));
-                }
-            } finally {
-                instance.close();
-            }
+    private void testCloseContextClassLoader0() {
 
-            assertEquals(CloseClassLoaderFormatter.class,
-                    instance.getFormatter().getClass());
+        InternalErrorManager em = new ActivationErrorManager();
+        MailHandler instance = createHandlerWithRecords();
+        try {
+            instance.setErrorManager(em);
+            ClassLoader expect = instance.getClass().getClassLoader();
+            assertNotNull(expect);
+            instance.setAuthenticator(new ClassLoaderAuthenticator(expect));
+
+            /**
+             * java.util.logging.LogManager$Cleaner has a null CCL.
+             */
+            Thread.currentThread().setContextClassLoader(null);
         } finally {
-            if (sm != null) {
-                sm.secure = false;
-                System.setSecurityManager((SecurityManager) null);
-            }
+            instance.close();
         }
 
-        assert em != null;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
-            if (t instanceof MessagingException == false) {
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
+            if (!isConnectOrTimeout(t)) {
                 dump(t);
                 fail(t.toString());
             }
         }
-        assertFalse(em.exceptions.isEmpty());
     }
 
     @Test
@@ -1425,17 +1854,17 @@ public class MailHandlerTest {
             fail(re.toString());
         }
 
-        Level[] lvls = getAllLevels();
-        for (int i = 0; i < lvls.length; i++) {
-            instance.setLevel(lvls[i]);
-            assertEquals(instance.getLevel(), lvls[i]);
+        final Level[] lvls = getAllLevels();
+        for (Level lvl : lvls) {
+            instance.setLevel(lvl);
+            assertEquals(instance.getLevel(), lvl);
         }
 
         instance.setLevel(Level.WARNING);
         instance.close();
         assertEquals(Level.OFF, instance.getLevel());
-        for (int i = 0; i < lvls.length; i++) {
-            instance.setLevel(lvls[i]);
+        for (Level lvl : lvls) {
+            instance.setLevel(lvl);
             assertEquals(Level.OFF, instance.getLevel());
         }
         assertEquals(true, em.exceptions.isEmpty());
@@ -1453,8 +1882,8 @@ public class MailHandlerTest {
         instance.setFormatter(new LevelCheckingFormatter(expect));
         instance.close();
 
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
             if (t instanceof MessagingException) {
                 if (!isConnectOrTimeout(t)) {
                     dump(t);
@@ -1480,8 +1909,8 @@ public class MailHandlerTest {
         assertEquals(Level.OFF, instance.getLevel());
 
         instance.close();
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            Throwable t = exception;
             if (t instanceof MessagingException) {
                 if (!isConnectOrTimeout(t)) {
                     dump(t);
@@ -1505,8 +1934,8 @@ public class MailHandlerTest {
 
             manager.reset();
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                Throwable t = exception;
                 if (t instanceof MessagingException) {
                     if (isNoRecipientAddress(t)) {
                         continue;
@@ -1524,8 +1953,8 @@ public class MailHandlerTest {
             instance = startLogManagerReset("local");
             em = internalErrorManagerFrom(instance);
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                Throwable t = exception;
                 if (t instanceof MessagingException) {
                     if (isNoRecipientAddress(t)) {
                         continue;
@@ -1542,8 +1971,8 @@ public class MailHandlerTest {
 
             manager.reset();
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                Throwable t = exception;
                 if (t instanceof MessagingException) {
                     if (isNoRecipientAddress(t)) {
                         continue;
@@ -1563,8 +1992,8 @@ public class MailHandlerTest {
                 instance = startLogManagerReset(noVerify[v]);
                 em = internalErrorManagerFrom(instance);
 
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    Throwable t = exception;
                     System.err.println("Verify index=" + v);
                     dump(t);
                     fail(t.toString());
@@ -1573,8 +2002,8 @@ public class MailHandlerTest {
                 manager.reset();
 
                 //No verify results in failed send.
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    Throwable t = exception;
                     if (t instanceof MessagingException) {
                         if (isNoRecipientAddress(t)) {
                             continue;
@@ -1599,8 +2028,8 @@ public class MailHandlerTest {
 
             //Allow the LogManagerProperties to copy on a bad enum type.
             boolean foundIllegalArg = false;
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                Throwable t = exception;
                 if (t instanceof IllegalArgumentException) {
                     foundIllegalArg = true;
                 } else if (t instanceof RuntimeException) {
@@ -1691,18 +2120,28 @@ public class MailHandlerTest {
             fail(re.toString());
         }
 
-        Level[] lvls = getAllLevels();
-        for (int i = 0; i < lvls.length; i++) {
-            instance.setPushLevel(lvls[i]);
-            assertEquals(instance.getPushLevel(), lvls[i]);
+        final Level[] lvls = getAllLevels();
+        for (Level lvl : lvls) {
+            instance.setPushLevel(lvl);
+            assertEquals(instance.getPushLevel(), lvl);
         }
 
         instance.close();
-        for (int i = 0; i < lvls.length; i++) {
-            instance.setPushLevel(lvls[i]);
-            assertEquals(instance.getPushLevel(), lvls[i]);
+        for (Level lvl : lvls) {
+            instance.setPushLevel(lvl);
+            assertEquals(instance.getPushLevel(), lvl);
         }
         assertEquals(true, em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testPushLinkageError() throws Exception {
+        testLinkageErrorWithStack("push");
+    }
+
+    @Test
+    public void testPushLinkageErrorEmpty() throws Exception {
+        testLinkageErrorEmptyStack("push");
     }
 
     @Test
@@ -1789,8 +2228,8 @@ public class MailHandlerTest {
         }
         instance.close();
 
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            fail(em.exceptions.get(i).toString());
+        for (Exception exception : em.exceptions) {
+            fail(exception.toString());
         }
     }
 
@@ -2026,8 +2465,7 @@ public class MailHandlerTest {
             target.close();
 
             InternalErrorManager em = internalErrorManagerFrom(target);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Exception t = em.exceptions.get(i);
+            for (Exception t : em.exceptions) {
                 if (isConnectOrTimeout(t)) {
                     continue;
                 }
@@ -2146,8 +2584,7 @@ public class MailHandlerTest {
         target.close();
 
         InternalErrorManager em = internalErrorManagerFrom(target);
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Exception t = em.exceptions.get(i);
+        for (Exception t : em.exceptions) {
             if (isConnectOrTimeout(t)) {
                 continue;
             }
@@ -2204,11 +2641,11 @@ public class MailHandlerTest {
         target.setFilter(new LocaleFilter(Locale.JAPANESE, true));
         target.setPushLevel(Level.OFF);
         target.setAttachmentFormatters(new Formatter[]{
-                    new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter()});
+            new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter()});
         target.setAttachmentFilters(new Filter[]{
-                    new LocaleFilter(Locale.ENGLISH, false),
-                    new LocaleFilter(Locale.GERMAN, false),
-                    new LocaleFilter(Locale.FRANCE, false)}); //just the language.
+            new LocaleFilter(Locale.ENGLISH, false),
+            new LocaleFilter(Locale.GERMAN, false),
+            new LocaleFilter(Locale.FRANCE, false)}); //just the language.
 
         assertEquals(3, target.getAttachmentFormatters().length);
         assertEquals(3, target.getAttachmentFilters().length);
@@ -2226,7 +2663,6 @@ public class MailHandlerTest {
             Locale.setDefault(Locale.ENGLISH);
             f = testContentLangExact(target, props, "_");
             files.add(f);
-
 
             props.put("motd", "Hallo MailHandler!");
             Locale.setDefault(Locale.GERMAN);
@@ -2276,8 +2712,7 @@ public class MailHandlerTest {
         target.close();
 
         InternalErrorManager em = internalErrorManagerFrom(target);
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            Exception t = em.exceptions.get(i);
+        for (Exception t : em.exceptions) {
             if (isConnectOrTimeout(t)) {
                 continue;
             }
@@ -2527,8 +2962,8 @@ public class MailHandlerTest {
     /**
      * Test all numbers between 1 and low capacity.
      *
-     * @param capacity
-     * @return
+     * @param capacity the current capacity.
+     * @return the next random capacity.
      */
     private int nextCapacity(int capacity) {
         if (capacity <= LOW_CAPACITY) {
@@ -2660,8 +3095,8 @@ public class MailHandlerTest {
         props.setProperty("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
         instance.flush();
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            final Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            final Throwable t = exception;
             if (isConnectOrTimeout(t)) {
                 continue;
             } else {
@@ -2681,8 +3116,8 @@ public class MailHandlerTest {
         instance.publish(new LogRecord(Level.SEVERE, "test"));
         instance.close();
         int failed = 0;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            final Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            final Throwable t = exception;
             if (t instanceof AddressException || isConnectOrTimeout(t)) {
                 continue;
             } else {
@@ -2717,7 +3152,6 @@ public class MailHandlerTest {
         assertNull(props.get("mail.to"));
         testDefaultRecipient(props);
 
-
         //User override of TO and FROM addresses.
         props.setProperty("mail.from", "");
         props.setProperty("mail.to", "");
@@ -2727,7 +3161,6 @@ public class MailHandlerTest {
         props.setProperty("mail.from", "localhost@localdomain");
         props.setProperty("mail.to", "otherhost@localdomain");
         testDefaultRecipient(props);
-
 
         //Compute TO and FROM with a fixed CC and BCC.
         props.remove("mail.from");
@@ -2774,7 +3207,6 @@ public class MailHandlerTest {
                     checkAddress(expectTo == null ? local : expectTo,
                             msg.getRecipients(Message.RecipientType.TO));
 
-
                     assertArrayEquals(expectCc,
                             msg.getRecipients(Message.RecipientType.CC));
                     assertArrayEquals(expectBcc,
@@ -2813,8 +3245,8 @@ public class MailHandlerTest {
 
         instance.setMailProperties(props);
         instance.close();
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            final Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            final Throwable t = exception;
             if (isConnectOrTimeout(t) || t instanceof SendFailedException) {
                 continue;
             } else {
@@ -2844,7 +3276,6 @@ public class MailHandlerTest {
         Filter[] result = instance.getAttachmentFilters();
         assertNotNull(result);
         assertEquals(result.length, instance.getAttachmentFormatters().length);
-
 
         assertEquals(false, instance.getAttachmentFilters() == result);
 
@@ -2946,8 +3377,8 @@ public class MailHandlerTest {
         final Formatter f = new SimpleFormatter();
         instance.setAttachmentFormatters(f, f, f, f);
 
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            dump(em.exceptions.get(i));
+        for (Exception exception : em.exceptions) {
+            dump(exception);
         }
         assertTrue(em.exceptions.isEmpty());
 
@@ -3009,7 +3440,6 @@ public class MailHandlerTest {
             fail(re.toString());
         }
 
-
         result = new Formatter[0];
         try {
             instance.setAttachmentFormatters(result);
@@ -3018,7 +3448,6 @@ public class MailHandlerTest {
         } catch (RuntimeException re) {
             fail(re.toString());
         }
-
 
         instance.setAttachmentFormatters(new ThrowFormatter[]{new ThrowFormatter()});
         assertEquals(Formatter[].class, instance.getAttachmentFormatters().getClass());
@@ -3244,7 +3673,6 @@ public class MailHandlerTest {
         instance.setSubject(format);
         assertEquals(format, instance.getSubject());
 
-
         assertEquals(true, em.exceptions.isEmpty());
         instance.close();
     }
@@ -3271,17 +3699,14 @@ public class MailHandlerTest {
         instance.close();
 
         int seenFormat = 0;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            if (em.exceptions.get(i) instanceof MessagingException) {
+        for (Exception exception : em.exceptions) {
+            if (exception instanceof MessagingException) {
                 continue;
-            } else if (em.exceptions.get(i) instanceof RuntimeException
-                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1
-                    && em.exceptions.get(i).getMessage().indexOf(
-                    Arrays.asList(instance.getAttachmentFilters()).toString()) > -1) {
+            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1 && exception.getMessage().indexOf(Arrays.asList(instance.getAttachmentFilters()).toString()) > -1) {
                 seenFormat++;
                 continue; //expected.
             } else {
-                fail(String.valueOf(em.exceptions.get(i)));
+                fail(String.valueOf(exception));
             }
         }
         assertTrue("No format error", seenFormat > 0);
@@ -3306,15 +3731,14 @@ public class MailHandlerTest {
         instance.close();
 
         int seenFormat = 0;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            if (em.exceptions.get(i) instanceof MessagingException) {
+        for (Exception exception : em.exceptions) {
+            if (exception instanceof MessagingException) {
                 continue;
-            } else if (em.exceptions.get(i) instanceof RuntimeException
-                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1) {
+            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1) {
                 seenFormat++;
                 continue; //expected.
             } else {
-                fail(String.valueOf(em.exceptions.get(i)));
+                fail(String.valueOf(exception));
             }
         }
         assertTrue("No format error", seenFormat > 0);
@@ -3349,15 +3773,14 @@ public class MailHandlerTest {
         assertSame(badFilter, instance.getFilter());
 
         int seenFormat = 0;
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            if (em.exceptions.get(i) instanceof MessagingException) {
+        for (Exception exception : em.exceptions) {
+            if (exception instanceof MessagingException) {
                 continue;
-            } else if (em.exceptions.get(i) instanceof RuntimeException
-                    && em.exceptions.get(i).getMessage().indexOf(instance.getFilter().toString()) > -1) {
+            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1) {
                 seenFormat++;
                 continue; //expected.
             } else {
-                fail(String.valueOf(em.exceptions.get(i)));
+                fail(String.valueOf(exception));
             }
         }
         assertTrue("No format error", seenFormat > 0);
@@ -3382,14 +3805,14 @@ public class MailHandlerTest {
             logger.logp(Level.SEVERE, MailHandlerTest.class.getName(), "testFilterReentrance", "test");
 
             int seenIse = 0;
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                if (em.exceptions.get(i) instanceof MessagingException) {
+            for (Exception exception : em.exceptions) {
+                if (exception instanceof MessagingException) {
                     continue;
-                } else if (em.exceptions.get(i) instanceof IllegalStateException) {
+                } else if (exception instanceof IllegalStateException) {
                     seenIse++;
                     continue; //expected.
                 } else {
-                    fail(String.valueOf(em.exceptions.get(i)));
+                    fail(String.valueOf(exception));
                 }
             }
 
@@ -3425,7 +3848,6 @@ public class MailHandlerTest {
         instance.setPushLevel(Level.ALL);
         instance.setPushFilter(new ReentranceFilter());
 
-
         logger.setUseParentHandlers(false);
         logger.setLevel(Level.ALL);
         logger.addHandler(instance);
@@ -3438,8 +3860,8 @@ public class MailHandlerTest {
             }
             instance.close();
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                Throwable t = exception;
                 if ((t instanceof MessagingException == false)
                         && (t instanceof IllegalStateException == false)) {
                     dump(t);
@@ -3553,6 +3975,7 @@ public class MailHandlerTest {
         }
     }
 
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private void testMailDebugQuietStreams(MailHandler instance, Properties props, int records) throws Exception {
         final PrintStream out = System.out;
         try {
@@ -3604,8 +4027,6 @@ public class MailHandlerTest {
 
         instance.reportError(null, null, ErrorManager.GENERIC_FAILURE);
 
-
-
         instance.setErrorManager(new ErrorManager() {
 
             @Override
@@ -3633,6 +4054,110 @@ public class MailHandlerTest {
             }
         });
         instance.close();
+    }
+
+    @Test
+    public void testReportErrorLinkageWithStack() throws Exception {
+        testReportErrorLinkageWithStack(new LinkageErrorStream());
+    }
+
+    @Test
+    public void testReportErrorRuntimeWithStack() throws Exception {
+        testReportErrorLinkageWithStack(new RuntimeErrorStream());
+    }
+
+    private void testReportErrorLinkageWithStack(PrintStream ps) throws Exception {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+
+        @SuppressWarnings("UseOfSystemOutOrSystemErr")
+        final PrintStream err = System.err;
+        System.setErr(ps);
+        try {
+            try {
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.CLOSE_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.FLUSH_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.GENERIC_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.OPEN_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.WRITE_FAILURE);
+            } finally {
+                System.setErr(err);
+            }
+        } catch (PrintThrowsRuntimeException unexpected) {
+            unexpected.dump();
+            fail(unexpected.getMessage());
+        }
+    }
+
+    @Test
+    public void testReportErrorLinkageEmptyStack() throws Throwable {
+        testReportErrorLinkageEmptyStack(
+                new LinkageErrorStream(new StackTraceElement[0]));
+    }
+
+    @Test
+    public void testReportErrorLinkageShortStack() throws Throwable {
+        testReportErrorLinkageEmptyStack(
+                new LinkageErrorStream(new StackTraceElement[]{
+                    new StackTraceElement("", "", "", -1)}));
+    }
+
+    @Test
+    public void testReportErrorRuntimeEmptyStack() throws Throwable {
+        testReportErrorLinkageEmptyStack(
+                new RuntimeErrorStream(new StackTraceElement[0]));
+    }
+
+    @Test
+    public void testReportErrorRuntimeShortStack() throws Throwable {
+        testReportErrorLinkageEmptyStack(
+                new RuntimeErrorStream(new StackTraceElement[]{
+                    new StackTraceElement("", "", "", -1)}));
+    }
+
+    private void testReportErrorLinkageEmptyStack(PrintStream ps) throws Throwable {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+
+        @SuppressWarnings("UseOfSystemOutOrSystemErr")
+        final PrintStream err = System.err;
+        System.setErr(ps);
+        try {
+            try {
+                instance.setErrorManager(new ErrorManager());
+                try {
+                    instance.reportError(null, null, ErrorManager.FLUSH_FAILURE);
+                    dump(new Throwable());
+                    fail("Expected runtime exception");
+                } catch (RuntimeException expect) {
+                } catch (LinkageError expect) {
+                }
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.CLOSE_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.GENERIC_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.OPEN_FAILURE);
+
+                instance.setErrorManager(new ErrorManager());
+                instance.reportError(null, null, ErrorManager.WRITE_FAILURE);
+            } finally {
+                System.setErr(err);
+            }
+        } catch (PrintThrowsRuntimeException unexpected) {
+            unexpected.dump();
+            fail(unexpected.getMessage());
+        }
     }
 
     /**
@@ -4078,7 +4603,6 @@ public class MailHandlerTest {
                 fail(fail.toString());
             }
 
-
             //check for internal exceptions caused by security manager.
             next:
             for (Exception e : em.exceptions) {
@@ -4169,8 +4693,8 @@ public class MailHandlerTest {
             //ensure VerifyErrorManager was installed.
             assertEquals(VerifyErrorManager.class, em.getClass());
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (!isConnectOrTimeout(t)) {
                     dump(t);
                     fail(t.toString());
@@ -4235,6 +4759,7 @@ public class MailHandlerTest {
 
     @Test
     public void testIntern() throws Exception {
+        assertNull(System.getSecurityManager());
         final String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".errorManager"),
@@ -4274,7 +4799,6 @@ public class MailHandlerTest {
                 + InternFilterFormatterComparator.class.getName());
         props.put(p.concat(".subject"), txt);
 
-
         MailHandler instance = testIntern(p, props);
         instance.close();
 
@@ -4307,8 +4831,8 @@ public class MailHandlerTest {
         assertSame(names[5], names[6]);
 
         InternalErrorManager em = internalErrorManagerFrom(instance);
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            final Throwable t = em.exceptions.get(i);
+        for (Exception exception : em.exceptions) {
+            final Throwable t = exception;
             if (t instanceof IllegalArgumentException
                     && String.valueOf(t.getMessage()).contains("equal")) {
                 continue;
@@ -4348,8 +4872,8 @@ public class MailHandlerTest {
             MailHandler instance = new MailHandler();
             instance.close();
             InternalErrorManager em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 dump(t);
                 fail(t.toString());
             }
@@ -4366,8 +4890,8 @@ public class MailHandlerTest {
             instance = new MailHandler();
             instance.close();
             em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 dump(t);
                 fail(t.toString());
             }
@@ -4384,8 +4908,8 @@ public class MailHandlerTest {
             instance = new MailHandler();
             instance.close();
             em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 dump(t);
                 fail(t.toString());
             }
@@ -4401,8 +4925,8 @@ public class MailHandlerTest {
             instance = new MailHandler();
             instance.close();
             em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof IllegalArgumentException) {
                     continue;
                 }
@@ -4418,8 +4942,8 @@ public class MailHandlerTest {
             instance = new MailHandler();
             instance.close();
             em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof IllegalArgumentException) {
                     continue;
                 }
@@ -4435,8 +4959,8 @@ public class MailHandlerTest {
             instance = new MailHandler();
             instance.close();
             em = internalErrorManagerFrom(instance);
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof IllegalArgumentException) {
                     continue;
                 }
@@ -4470,8 +4994,8 @@ public class MailHandlerTest {
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4490,8 +5014,8 @@ public class MailHandlerTest {
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4510,12 +5034,11 @@ public class MailHandlerTest {
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (isConnectOrTimeout(t)) {
                     continue;
                 }
-
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4533,8 +5056,8 @@ public class MailHandlerTest {
 
             assertEquals(InternalErrorManager.class, em.getClass());
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException) {
                     continue;
                 } else if (isConnectOrTimeout(t)) {
@@ -4562,8 +5085,8 @@ public class MailHandlerTest {
             instance.setErrorManager(em);
             instance.setMailProperties(props);
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4580,8 +5103,8 @@ public class MailHandlerTest {
             instance.setErrorManager(em);
             instance.setMailProperties(props);
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4598,12 +5121,11 @@ public class MailHandlerTest {
             instance.setErrorManager(em);
             instance.setMailProperties(props);
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (isConnectOrTimeout(t)) {
-                   continue;
+                    continue;
                 }
-
                 if (t instanceof AddressException == false) {
                     dump(t);
                     fail(t.toString());
@@ -4620,8 +5142,8 @@ public class MailHandlerTest {
             instance.setErrorManager(em);
             instance.setMailProperties(props);
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 if (t instanceof AddressException) {
                     continue;
                 } else if (isConnectOrTimeout(t)) {
@@ -4657,8 +5179,8 @@ public class MailHandlerTest {
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);
 
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    final Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    final Throwable t = exception;
                     if (t instanceof AddressException == false) {
                         dump(t);
                         fail(t.toString());
@@ -4680,8 +5202,8 @@ public class MailHandlerTest {
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);
 
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    final Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    final Throwable t = exception;
                     if (t instanceof AddressException == false) {
                         dump(t);
                         fail(t.toString());
@@ -4698,8 +5220,8 @@ public class MailHandlerTest {
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);
 
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    final Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    final Throwable t = exception;
                     if (isConnectOrTimeout(t)) {
                         continue;
                     }
@@ -4718,8 +5240,8 @@ public class MailHandlerTest {
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);
 
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    final Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    final Throwable t = exception;
                     if (t instanceof AddressException) {
                         continue;
                     } else if (isConnectOrTimeout(t)) {
@@ -4758,8 +5280,8 @@ public class MailHandlerTest {
             assertEquals(InternalErrorManager.class, em.getClass());
             instance.close();
 
-            for (int i = 0; i < em.exceptions.size(); i++) {
-                final Throwable t = em.exceptions.get(i);
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
                 dump(t);
                 fail(t.toString());
             }
@@ -4787,14 +5309,13 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
                 target.close();
             }
-
 
             //test linkage error.
             props.put(p.concat(".subject"), ThrowFormatter.class.getName().toUpperCase(Locale.US));
@@ -4803,14 +5324,13 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
                 target.close();
             }
-
 
             //test mixed linkage error.
             props.put(p.concat(".subject"), Properties.class.getName().toUpperCase(Locale.US));
@@ -4819,8 +5339,8 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
@@ -4849,8 +5369,8 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
@@ -4862,7 +5382,6 @@ public class MailHandlerTest {
 
         assertEquals(ErrorFilter.class, target.getFilter().getClass());
         assertEquals(target.getFilter(), target.getAttachmentFilters()[0]);
-
 
         props.put(p.concat(".attachment.formatters"),
                 SimpleFormatter.class.getName() + ", "
@@ -4878,8 +5397,8 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    final Throwable t = em.exceptions.get(i);
+                for (Exception exception : em.exceptions) {
+                    final Throwable t = exception;
                     if (t instanceof IndexOutOfBoundsException) {
                         continue;
                     }
@@ -4920,14 +5439,13 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
                 target.close();
             }
-
 
             //test linkage error.
             props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -4938,14 +5456,13 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
                 target.close();
             }
-
 
             //test mixed linkage error.
             props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -4955,8 +5472,8 @@ public class MailHandlerTest {
             target = new MailHandler();
             try {
                 em = internalErrorManagerFrom(target);
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    dump(em.exceptions.get(i));
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
                 }
                 assertTrue(em.exceptions.isEmpty());
             } finally {
@@ -4984,6 +5501,7 @@ public class MailHandlerTest {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
                 PrintStream newErr = new PrintStream(oldErrors, false, encoding);
+                @SuppressWarnings("UseOfSystemOutOrSystemErr")
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -4997,7 +5515,6 @@ public class MailHandlerTest {
                 } finally {
                     System.setErr(err);
                 }
-
 
                 //java.util.logging.ErrorManager: 4
                 //java.lang.reflect.InvocationTargetException
@@ -5034,6 +5551,7 @@ public class MailHandlerTest {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
                 PrintStream newErr = new PrintStream(oldErrors, false, encoding);
+                @SuppressWarnings("UseOfSystemOutOrSystemErr")
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -5047,7 +5565,6 @@ public class MailHandlerTest {
                 } finally {
                     System.setErr(err);
                 }
-
 
                 //java.util.logging.ErrorManager: 4
                 //java.lang.reflect.InvocationTargetException
@@ -5205,8 +5722,7 @@ public class MailHandlerTest {
             try {
                 InternalErrorManager em = internalErrorManagerFrom(target);
                 next:
-                for (int i = 0; i < em.exceptions.size(); i++) {
-                    Exception t = em.exceptions.get(i);
+                for (Exception t : em.exceptions) {
                     for (Throwable cause = t; cause != null; cause = cause.getCause()) {
                         if (cause == getPending()) {
                             continue next;
@@ -5242,6 +5758,7 @@ public class MailHandlerTest {
                 read(manager, props);
                 ByteArrayOutputStream oldErrors = new ByteArrayOutputStream();
                 PrintStream newErr = new PrintStream(oldErrors, false, encoding);
+                @SuppressWarnings("UseOfSystemOutOrSystemErr")
                 final PrintStream err = System.err;
                 System.setErr(newErr);
                 try {
@@ -5255,7 +5772,6 @@ public class MailHandlerTest {
                 } finally {
                     System.setErr(err);
                 }
-
 
                 //java.util.logging.ErrorManager: 4
                 //java.lang.reflect.InvocationTargetException
@@ -5487,7 +6003,6 @@ public class MailHandlerTest {
                         new Class<?>[]{Properties.class},
                         new Object[]{new Properties()});
 
-
                 //Test subclass properties.
                 initGoodTest(MailHandlerExt.class,
                         new Class<?>[0], new Object[0]);
@@ -5579,8 +6094,8 @@ public class MailHandlerTest {
         assertTrue(null != h.getAttachmentNames()[2]);
 
         InternalErrorManager em = internalErrorManagerFrom(h);
-        for (int i = 0; i < em.exceptions.size(); i++) {
-            fail(String.valueOf(em.exceptions.get(i)));
+        for (Exception exception : em.exceptions) {
+            fail(String.valueOf(exception));
         }
         assertTrue(em.exceptions.isEmpty());
 
@@ -5621,6 +6136,7 @@ public class MailHandlerTest {
         return s.requestPasswordAuthentication(null, 25, "SMTP", "", user);
     }
 
+    @SuppressWarnings("UseOfSystemOutOrSystemErr")
     private void initBadTest(Class<? extends MailHandler> type,
             Class<?>[] types, Object[] params) throws Exception {
         final String encoding = System.getProperty("file.encoding", "8859_1");
@@ -5728,13 +6244,12 @@ public class MailHandlerTest {
     }
 
     private Level[] getAllLevels() {
-        Field[] fields = Level.class.getFields();
+        final Field[] fields = Level.class.getFields();
         List<Level> a = new ArrayList<Level>(fields.length);
-        for (int i = 0; i < fields.length; i++) {
-            if (Modifier.isStatic(fields[i].getModifiers())
-                    && Level.class.isAssignableFrom(fields[i].getType())) {
+        for (Field field : fields) {
+            if (Modifier.isStatic(field.getModifiers()) && Level.class.isAssignableFrom(field.getType())) {
                 try {
-                    a.add((Level) fields[i].get((Object) null));
+                    a.add((Level) field.get((Object) null));
                 } catch (IllegalArgumentException ex) {
                     fail(ex.toString());
                 } catch (IllegalAccessException ex) {
@@ -5763,7 +6278,11 @@ public class MailHandlerTest {
     }
 
     private static InternalErrorManager internalErrorManagerFrom(Handler h) {
-        return InternalErrorManager.class.cast(h.getErrorManager());
+        final ErrorManager em = h.getErrorManager();
+        if (em instanceof InternalErrorManager) {
+            return (InternalErrorManager) em;
+        }
+        throw new ClassCastException(String.valueOf(em));
     }
 
     /**
@@ -6061,6 +6580,35 @@ public class MailHandlerTest {
             long s1 = LogRecord.class.cast(o1).getSequenceNumber();
             long s2 = LogRecord.class.cast(o2).getSequenceNumber();
             return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
+        }
+    }
+
+    public static final class ActivationErrorManager extends InternalErrorManager {
+
+        @Override
+        public void error(String msg, Exception ex, int code) {
+            if (isDataTypeError(msg)) {
+                Exception e = new UnsupportedDataTypeException(msg);
+                super.error(msg, e, code);
+            } else {
+                if (!isConnectOrTimeout(ex)) {
+                    super.error(msg, ex, code);
+                } else {
+                    for (Throwable t = ex; t != null; t = t.getCause()) {
+                        if (isDataTypeError(t.getMessage())
+                                || isDataTypeError(t.getClass().getName())) {
+                            super.error(msg, ex, code);
+                        }
+                    }
+                }
+            }
+        }
+
+        private boolean isDataTypeError(String m) {
+            if (m != null) {
+                return m.contains("javax.activation.UnsupportedDataTypeException");
+            }
+            return false;
         }
     }
 
@@ -6677,6 +7225,93 @@ public class MailHandlerTest {
         }
     }
 
+    private static class PrintThrowsRuntimeException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        PrintThrowsRuntimeException(Throwable t) {
+            super(t);
+        }
+
+        @Override
+        public void printStackTrace(PrintWriter s) {
+            throw this;
+        }
+
+        @Override
+        public void printStackTrace(PrintStream s) {
+            throw this;
+        }
+
+        @Override
+        public void printStackTrace() {
+            throw this;
+        }
+
+        public void dump() {
+            Throwable t = new Throwable(getClass().getName(), getCause());
+            t.setStackTrace(getStackTrace());
+            t.printStackTrace();
+        }
+    }
+
+    private static class LinkageErrorStream extends PrintStream {
+
+        private final StackTraceElement[] stack;
+
+        LinkageErrorStream() throws IOException {
+            this((StackTraceElement[]) null);
+        }
+
+        LinkageErrorStream(final StackTraceElement[] stack) throws IOException {
+            super(new ByteArrayOutputStream(), false, "UTF-8");
+            if (stack != null) {
+                this.stack = stack.clone();
+            } else {
+                this.stack = null;
+            }
+        }
+
+        @Override
+        public void println(String x) {
+            setError();
+            LinkageError le = new LinkageError(x);
+            if (stack != null) {
+                le.setStackTrace(stack);
+            }
+            throw le;
+        }
+    }
+
+    private static class RuntimeErrorStream extends PrintStream {
+
+        private final StackTraceElement[] stack;
+
+        RuntimeErrorStream() throws IOException {
+            this((StackTraceElement[]) null);
+        }
+
+        RuntimeErrorStream(final StackTraceElement[] stack) throws IOException {
+            super(new ByteArrayOutputStream(), false, "UTF-8");
+            if (stack != null) {
+                this.stack = stack.clone();
+            } else {
+                this.stack = null;
+            }
+        }
+
+        @Override
+        public void println(String x) {
+            setError();
+            PrintThrowsRuntimeException re
+                    = new PrintThrowsRuntimeException(new Throwable());
+            if (stack != null) {
+                re.setStackTrace(stack);
+            }
+            throw re;
+        }
+    }
+
     private final static class LocaleFilter implements Filter {
 
         private final Locale locale;
@@ -6729,12 +7364,12 @@ public class MailHandlerTest {
         }
     }
 
-    private final static class CloseClassLoaderSecurityManager extends SecurityManager {
+    private final static class ClassLoaderSecurityManager extends SecurityManager {
 
-        boolean secure = false;
+        volatile boolean secure = false;
         private final boolean debug;
 
-        public CloseClassLoaderSecurityManager() {
+        public ClassLoaderSecurityManager() {
             debug = isSecurityDebug();
         }
 
@@ -6758,9 +7393,18 @@ public class MailHandlerTest {
             }
         }
 
+        @Override
+        public void checkRead(String file, Object context) {
+        }
+
+        @Override
+        public void checkRead(String file) {
+        }
+
         private void checkPermission(java.security.Permission perm, SecurityException se) {
             //Check for set and get context class loader.
-            if (secure && perm.getName().contains("ContextClassLoader")) {
+            String name = perm.getName();
+            if (secure && name.contains("ContextClassLoader")) {
                 throw se;
             } else {
                 if (debug) {
@@ -6770,23 +7414,161 @@ public class MailHandlerTest {
         }
     }
 
-    private final static class CloseClassLoaderFormatter extends Formatter {
+    public final static class ClassLoaderErrorManager extends InternalErrorManager {
 
         private final ClassLoader expect;
 
-        CloseClassLoaderFormatter(final ClassLoader expect) {
+        public ClassLoaderErrorManager() {
+            this(LOADER.get());
+        }
+
+        public ClassLoaderErrorManager(final ClassLoader expect) {
             this.expect = expect;
         }
 
         @Override
-        public String format(final LogRecord lr) {
-            Object ccl = Thread.currentThread().getContextClassLoader();
-            if (expect != ccl) {
-                AssertionError ae = new AssertionError(expect + " != " + ccl);
-                dump(ae);
-                throw ae;
+        public void error(String msg, Exception ex, int code) {
+            checkContextClassLoader(expect);
+            super.error(msg, ex, code);
+        }
+
+        @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        public boolean equals(Object o) {
+            checkContextClassLoader(expect);
+            return super.equals(o);
+        }
+
+        public int hashCode() {
+            checkContextClassLoader(expect);
+            return super.hashCode();
+        }
+
+        public String toString() {
+            checkContextClassLoader(expect);
+            return super.toString();
+        }
+    }
+
+    public static final class ClassLoaderAuthenticator
+            extends javax.mail.Authenticator {
+
+        private final ClassLoader expect;
+
+        public ClassLoaderAuthenticator() {
+            this(LOADER.get());
+        }
+
+        ClassLoaderAuthenticator(ClassLoader loader) {
+            this.expect = loader;
+        }
+
+        protected PasswordAuthentication getPasswordAuthentication() {
+            checkContextClassLoader(expect);
+            for (StackTraceElement se : new Throwable().getStackTrace()) {
+                if ("javax.mail.Transport".equals(se.getClassName())
+                        && "send".equals(se.getMethodName())) {
+                    return null;
+                }
             }
+            throw new AssertionError("Not calling Transport.send");
+        }
+    }
+
+    public final static class ClassLoaderComparator
+            implements Comparator<LogRecord>, Serializable {
+
+        private static final long serialVersionUID = -1L;
+
+        private final ClassLoader expect;
+
+        public ClassLoaderComparator() {
+            this(LOADER.get());
+        }
+
+        ClassLoaderComparator(final ClassLoader expect) {
+            this.expect = expect;
+        }
+
+        @Override
+        public int compare(LogRecord o1, LogRecord o2) {
+            checkContextClassLoader(expect);
+            return new SequenceComparator().compare(o1, o2);
+        }
+
+        @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        public boolean equals(Object o) {
+            checkContextClassLoader(expect);
+            return super.equals(o);
+        }
+
+        public int hashCode() {
+            checkContextClassLoader(expect);
+            return super.hashCode();
+        }
+
+        public String toString() {
+            checkContextClassLoader(expect);
+            return super.toString();
+        }
+    }
+
+    public final static class ClassLoaderFilterFormatter
+            extends Formatter implements Filter {
+
+        private final ClassLoader expect;
+        private final String format;
+
+        public ClassLoaderFilterFormatter() {
+            this(LOADER.get());
+        }
+
+        ClassLoaderFilterFormatter(final ClassLoader expect) {
+            this.expect = expect;
+            this.format = "";
+        }
+
+        ClassLoaderFilterFormatter(final ClassLoader expect, String format) {
+            this.expect = expect;
+            this.format = format;
+        }
+
+        @Override
+        public String getHead(Handler h) {
+            checkContextClassLoader(expect);
             return "";
+        }
+
+        @Override
+        public String getTail(Handler h) {
+            checkContextClassLoader(expect);
+            return "";
+        }
+
+        @Override
+        public String format(final LogRecord lr) {
+            checkContextClassLoader(expect);
+            return format;
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            checkContextClassLoader(expect);
+            return true;
+        }
+
+        @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        public boolean equals(Object o) {
+            checkContextClassLoader(expect);
+            return super.equals(o);
+        }
+
+        public int hashCode() {
+            checkContextClassLoader(expect);
+            return super.hashCode();
+        }
+
+        public String toString() {
+            checkContextClassLoader(expect);
+            return super.toString();
         }
     }
 
