@@ -28,6 +28,7 @@ K  6535	address similar to (x)<y>(z) will throw StringIndexOutOfBoundsException
 K  6551	Update logging demos to use the new 1.5.2 features
 K  6552	Use classloader ergonomics in the MailHandler
 K  6638	attachment filenames aren't being encoded by default
+K  6644	Include javadoc example formats for logging.
 K  6657	SharedFileInputStream has problems with 2GB+ files
 K  6667	MimeBodyPart with copied DataHandler doesn't always set encoding
 K  6668	skip unusable Store and Transport classes
