@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -385,6 +385,52 @@ public class CollectorFormatterTest {
                 (Comparator<LogRecord>) null);
         assertTrue(f.getTail((Handler) null).length() != 0);
         assertTrue(f.getTail((Handler) null).length() != 0);
+    }
+
+    @Test
+    public void testGetTailExample1() {
+        String p = "{0}{1}{2}{4,choice,-1#|0#|0<... {4,number,integer} more}\n";
+        CollectorFormatter cf = new CollectorFormatter(p);
+        LogRecord r = new LogRecord(Level.WARNING, "warning message");
+        cf.format(r);
+
+        r = new LogRecord(Level.SEVERE, "Encoding failed.");
+        RuntimeException npe = new NullPointerException();
+        StackTraceElement frame = new StackTraceElement("java.lang.String",
+                "getBytes", "String.java", 913);
+        npe.setStackTrace(new StackTraceElement[]{frame});
+        r.setThrown(npe);
+        cf.format(r);
+
+        cf.format(new LogRecord(Level.INFO, "info"));
+        cf.format(new LogRecord(Level.INFO, "info"));
+        cf.getTail((Handler) null);
+    }
+
+    @Test
+    public void testGetTailExample2() {
+        String p = "These {3} messages occurred between\n{7,date,EEE, MMM dd HH:mm:ss:S ZZZ yyyy} and {8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n";
+        CollectorFormatter cf = new CollectorFormatter(p);
+        LogRecord min = new LogRecord(Level.SEVERE, "");
+        min.setMillis(1248203502449L);
+        cf.format(min);
+
+        int count = 290;
+        for (int i = 0; i < count; ++i) {
+            LogRecord mid = new LogRecord(Level.SEVERE, "");
+            mid.setMillis(min.getMillis());
+            cf.format(mid);
+        }
+
+        LogRecord max = new LogRecord(Level.SEVERE, "");
+        max.setMillis(1258723764000L);
+        cf.format(max);
+        Object[] args = new Object[9];
+        args[3] = count + 2L;
+        args[7] = min.getMillis();
+        args[8] = max.getMillis();
+        assertEquals(MessageFormat.format(p, args), cf.toString());
+        cf.getTail((Handler) null);
     }
 
     @Test

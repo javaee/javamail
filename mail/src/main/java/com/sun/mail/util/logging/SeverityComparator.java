@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -150,8 +150,7 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
 
     /**
      * {@link #apply(java.lang.Throwable) Reduces} each throwable chain argument
-     * then compare each throwable result. This is method can be overridden to
-     * change the behavior of {@linkplain #compare(LogRecord, LogRecord)}.
+     * then compare each throwable result.
      *
      * @param tc1 the first throwable chain or null.
      * @param tc2 the second throwable chain or null.
@@ -167,7 +166,8 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
     /**
      * Compares two throwable objects or null. This method does not
      * {@link #apply(java.lang.Throwable) reduce} each argument before
-     * comparing.
+     * comparing. This is method can be overridden to change the behavior of
+     * {@linkplain #compare(LogRecord, LogRecord)}.
      *
      * @param t1 the first throwable or null.
      * @param t2 the second throwable or null.
@@ -253,11 +253,23 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
         return cmp;
     }
 
+    /**
+     * Determines if the given object is also a comparator and it imposes the
+     * same ordering as this comparator.
+     *
+     * @param o the reference object with which to compare.
+     * @return true if this object equal to the argument; false otherwise.
+     */
     @Override
     public boolean equals(final Object o) {
         return o == null ? false : o.getClass() == getClass();
     }
 
+    /**
+     * Returns a hash code value for the object.
+     *
+     * @return Returns a hash code value for the object.
+     */
     @Override
     public int hashCode() {
         return 31 * getClass().hashCode();

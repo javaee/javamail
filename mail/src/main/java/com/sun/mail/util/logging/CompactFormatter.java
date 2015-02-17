@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,7 +57,7 @@ import java.util.logging.LogRecord;
  * <ul>
  * <li>&lt;formatter-name&gt;.format - the {@link java.util.Formatter
  *     format} string used to transform the output. The format string can be used to
- * fix the output size. (defaults to "%7$#.160s%n")</li>
+ * fix the output size. (defaults to <tt>%7$#.160s%n</tt>)</li>
  * </ul>
  *
  * @author Jason Mehrens
@@ -121,7 +121,30 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * {@link #toAlternate(java.lang.String) alternate} form.</li>
      * </ol>
      *
-     * @param record to format.
+     * <p>
+     * Some example formats:<br>
+     * <ul>
+     * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%7$#.160s%n}
+     * <p>
+     * This prints only 160 characters of the message|thrown ({@code 7$}) using
+     * the alternate form.
+     * <pre>
+     * Encoding failed.|NullPointerException: null String.getBytes(:913)
+     * </pre>
+     *
+     * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%1$tc %2$s%n%4$s: %5$s%6$s%n}
+     * <p>
+     * This prints the timestamp ({@code 1$}) and the source ({@code 2$}) on the
+     * first line. The second line is the log level ({@code 4$}), log message
+     * ({@code 5$}), and the throwable with a relevant stack trace element
+     * ({@code 6$}) if one is available.
+     * <pre>
+     * Fri Nov 20 07:29:24 CST 2009 MyClass fatal
+     * SEVERE: Encoding failed.NullPointerException: null String.getBytes(:913)
+     * </pre>
+     * </ul>
+     *
+     * @param record the log record to format.
      * @return the formatted record.
      * @throws NullPointerException if the given record is null.
      */

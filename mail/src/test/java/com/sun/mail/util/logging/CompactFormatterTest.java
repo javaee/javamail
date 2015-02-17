@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,10 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -460,6 +457,35 @@ public class CompactFormatterTest {
     }
 
     @Test
+    public void testFormatExample1() {
+        String p = "%7$#.160s%n";
+        LogRecord r = new LogRecord(Level.SEVERE, "Encoding failed.");
+        RuntimeException npe = new NullPointerException();
+        StackTraceElement frame = new StackTraceElement("java.lang.String",
+                "getBytes", "String.java", 913);
+        npe.setStackTrace(new StackTraceElement[]{frame});
+        r.setThrown(npe);
+        CompactFormatter cf = new CompactFormatter(p);
+        cf.format(r);
+    }
+
+    @Test
+    public void testFormatExample2() {
+        String p = "%1$tc %2$s%n%4$s: %5$s%6$s%n";
+        LogRecord r = new LogRecord(Level.SEVERE, "Encoding failed.");
+        r.setSourceClassName("MyClass");
+        r.setSourceMethodName("fatal");
+        r.setMillis(1258723764000L);
+        RuntimeException npe = new NullPointerException();
+        StackTraceElement frame = new StackTraceElement("java.lang.String",
+                "getBytes", "String.java", 913);
+        npe.setStackTrace(new StackTraceElement[]{frame});
+        r.setThrown(npe);
+        CompactFormatter cf = new CompactFormatter(p);
+        cf.format(r);
+    }
+
+    @Test
     public void testFormatBackTrace() {
         Exception e = new IOException("Fake I/O");
         e = new Exception(e.toString(), e);
@@ -508,7 +534,7 @@ public class CompactFormatterTest {
     @Test
     public void testApply() {
         CompactFormatter cf = new CompactFormatter();
-        cf.apply((Throwable) null);
+        assertNull(cf.apply((Throwable) null));
 
         final Throwable t = new Throwable();
         Throwable e = cf.apply(t);

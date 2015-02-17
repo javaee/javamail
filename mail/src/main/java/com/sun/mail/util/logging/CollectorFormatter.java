@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -73,7 +73,8 @@ import java.util.logging.LogRecord;
  * {@linkplain java.text.MessageFormat MessageFormat} string used to format the
  * collected summary statistics. The arguments are explained in detail in the
  * {@linkplain #getTail(java.util.logging.Handler) getTail} documentation.
- * (defaults to "{0}{1}{2}{4,choice,-1#|0#|0&lt;... {4,number,integer} more}\n")
+ * (defaults to <tt>{0}{1}{2}{4,choice,-1#|0#|0&lt;... {4,number,integer}
+ * more}\n</tt>)
  *
  * <li>&lt;formatter-name&gt;.formatter name of a <tt>Formatter</tt> class used
  * to format the collected LogRecord. (defaults to {@link CompactFormatter})
@@ -233,21 +234,46 @@ public class CollectorFormatter extends Formatter {
      * <li>{@code remaining} the count minus one.
      * <li>{@code thrown} the total number of log records
      * {@linkplain #format consumed} by this formatter with an assigned
-     * throwable.
+     * {@linkplain java.util.logging.LogRecord#getThrown throwable}.
      * <li>{@code normal messages} the count minus the thrown.
-     * <li>{@code minMillis} the eldest log record event time
-     * {@linkplain #format consumed} by this formatter. If no records were
-     * formatted then this is set to the approximate start time of the JVM. By
+     * <li>{@code minMillis} the eldest log record
+     * {@linkplain java.util.logging.LogRecord#getMillis event time}
+     * {@linkplain #format consumed} by this formatter. If the count is zero
+     * then this is set to the approximate start time of the JVM. By
      * default this parameter is defined as a number. The format type and format
      * style rules from the {@link java.text.MessageFormat} should be used to
-     * convert this to a date or time.
-     * <li>{@code maxMillis} the most recent log record event time
-     * {@linkplain #format consumed} by this formatter. If no records were
-     * formatted then this is set to the current time. By default this parameter
-     * is defined as a number. The format type and format style rules from the
-     * {@link java.text.MessageFormat} should be used to convert this to a date
-     * or time.
+     * convert this from milliseconds to a date or time.
+     * <li>{@code maxMillis} the most recent log record
+     * {@linkplain java.util.logging.LogRecord#getMillis event time}
+     * {@linkplain #format consumed} by this formatter. If the count is zero
+     * then this is set to the {@link System#currentTimeMillis() current time}.
+     * By default this parameter is defined as a number. The format type and
+     * format style rules from the {@link java.text.MessageFormat} should be
+     * used to convert this from milliseconds to a date or time.
      * </ol>
+     *
+     * <p>
+     * Some example formats:<br>
+     * <ul>
+     * <li>{@code com.sun.mail.util.logging.CollectorFormatter.format={0}{1}{2}{4,choice,-1#|0#|0<... {4,number,integer} more}\n}
+     * <p>
+     * This prints the head ({@code {0}}), format ({@code {1}}), and tail
+     * ({@code {2}}) from the target formatter followed by the number of
+     * remaining ({@code {4}}) log records consumed by this formatter if there
+     * are any remaining records.
+     * <pre>
+     * Encoding failed.|NullPointerException: null String.getBytes(:913)... 3 more
+     * </pre>
+     * <li>{@code com.sun.mail.util.logging.CollectorFormatter.format=These {3} messages occurred between\n{7,date,EEE, MMM dd HH:mm:ss:S ZZZ yyyy} and {8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n}
+     * <p>
+     * This prints the count ({@code {3}}) followed by the date and time of the
+     * eldest log record ({@code {7}}) and the date and time of the most recent
+     * log record ({@code {8}}).
+     * <pre>
+     * These 292 messages occurred between
+     * Tue, Jul 21 14:11:42:449 -0500 2009 and Fri, Nov 20 07:29:24:0 -0600 2009
+     * </pre>
+     * </ul>
      *
      * @param h the handler or null.
      * @return the output string.
