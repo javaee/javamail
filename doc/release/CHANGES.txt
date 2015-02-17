@@ -33,6 +33,7 @@ K  6657	SharedFileInputStream has problems with 2GB+ files
 K  6667	MimeBodyPart with copied DataHandler doesn't always set encoding
 K  6668	skip unusable Store and Transport classes
 K  6687	long parameter values should be split using RFC 2231
+K  6703	javax.mail.Authenticator thread safety
 
 
 		  CHANGES IN THE 1.5.2 RELEASE

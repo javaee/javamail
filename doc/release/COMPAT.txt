@@ -23,6 +23,15 @@ with this release of the JavaMail API.
 	has been fixed in the 1.5.3 release, but programs that accidentally
 	relied on the old behavior may get different results.
 
+- Authenticator is now synchronized
+
+	The call to the Authenticator's getPasswordAuthentication method
+	is now synchronized so that the state stored in the Authenticator
+	is safe if multiple threads try to use the Authenticator
+	simultaneously.  If the application's getPasswordAuthentication
+	method blocks, it will prevent other threads in the same
+	Session from using the Authenticator.
+
 
 
 -- JavaMail 1.5 --
