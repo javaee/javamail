@@ -166,7 +166,11 @@ public class CompactFormatter extends java.util.logging.Formatter {
             new Alternate(msg, thrown),
             new Alternate(thrown, msg)};
 
-        return String.format(l, fmt, params);
+        if (l == null) { //BUG ID 6282094
+            return String.format(fmt, params);
+        } else {
+            return String.format(l, fmt, params);
+        }
     }
 
     /**

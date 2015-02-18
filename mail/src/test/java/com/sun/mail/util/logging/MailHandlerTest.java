@@ -7489,7 +7489,6 @@ public class MailHandlerTest {
             this.expect = expect;
         }
 
-        @Override
         public int compare(LogRecord o1, LogRecord o2) {
             checkContextClassLoader(expect);
             return new SequenceComparator().compare(o1, o2);

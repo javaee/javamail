@@ -376,6 +376,55 @@ public class CompactFormatterTest {
     }
 
     @Test
+    public void testFormatMillis() {
+        String p = "%1$tc";
+        CompactFormatter cf = new CompactFormatter(p);
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        assertEquals(String.format(p, r.getMillis()),
+                cf.format(r));
+    }
+
+    @Test
+    public void testFormatMillisLocale() throws Exception {
+        String p = "%1$tc";
+        CompactFormatter cf = new CompactFormatter(p);
+        Properties props = new Properties();
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        r.setResourceBundle(new LocaleResource(props, Locale.ENGLISH));
+        assertEquals(String.format(Locale.ENGLISH, p, r.getMillis()),
+                cf.format(r));
+    }
+
+    @Test
+    public void testFormatMillisByParts() {
+        String p = "%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp";
+        CompactFormatter cf = new CompactFormatter(p);
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        assertEquals(String.format(p, r.getMillis()),
+                cf.format(r));
+    }
+
+    @Test
+    public void testFormatMillisByPartsLocale() throws Exception {
+        String p = "%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS %1$Tp";
+        CompactFormatter cf = new CompactFormatter(p);
+        Properties props = new Properties();
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        r.setResourceBundle(new LocaleResource(props, Locale.ENGLISH));
+        assertEquals(String.format(Locale.ENGLISH, p, r.getMillis()),
+                cf.format(r));
+    }
+
+    @Test
+    public void testFormatMillisAsLong() {
+        String p = "%1$tQ";
+        CompactFormatter cf = new CompactFormatter(p);
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        assertEquals(String.format(p, r.getMillis()),
+                cf.format(r));
+    }
+
+    @Test
     public void testFormatSourceByLogger() {
         CompactFormatter cf = new CompactFormatter();
         LogRecord record = new LogRecord(Level.SEVERE, "");
