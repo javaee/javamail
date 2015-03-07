@@ -215,6 +215,8 @@ public class IMAPHandler extends ProtocolHandler {
             idle();
         } else if (commandName.equals("FETCH")) {
             fetch();
+        } else if (commandName.equals("APPEND")) {
+            append(currentLine);
         } else if (commandName.equals("CLOSE")) {
             close();
         } else if (commandName.equals("LOGOUT")) {
@@ -302,6 +304,27 @@ public class IMAPHandler extends ProtocolHandler {
      */
     public void fetch() throws IOException {
         ok();	// XXX
+    }
+
+    /**
+     * APPEND command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void append(String line) throws IOException {
+	int left = line.lastIndexOf('{');
+	int right = line.indexOf('}', left);
+	int bytes = Integer.parseInt(line.substring(left + 1, right));
+	cont("waiting for message");
+	collectMessage(bytes);
+        ok();	// XXX
+    }
+
+    protected void collectMessage(int bytes) throws IOException {
+	// should be bytes, but simpler to assume chars == bytes with ASCII
+	char[] data = new char[bytes];
+	reader.read(data);	// read the data and throw it away
+	reader.readLine();	// data followed by a newline
     }
 
     /**
