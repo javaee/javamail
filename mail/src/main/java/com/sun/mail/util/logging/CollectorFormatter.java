@@ -40,6 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
+import static com.sun.mail.util.logging.LogManagerProperties.fromLogManager;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.text.MessageFormat;
 import java.util.Comparator;
@@ -47,7 +48,6 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
-import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 /**
@@ -459,10 +459,10 @@ public class CollectorFormatter extends Formatter {
      *
      * @param p the class name prefix.
      * @return the format string.
+     * @throws NullPointerException if the given argument is null.
      */
     private String initFormat(final String p) {
-        final LogManager m = LogManagerProperties.getLogManager();
-        String v = m.getProperty(p.concat(".format"));
+        String v = fromLogManager(p.concat(".format"));
         if (v == null || v.length() == 0) {
             v = "{0}{1}{2}{4,choice,-1#|0#|0<... {4,number,integer} more}\n";
         }
@@ -475,12 +475,12 @@ public class CollectorFormatter extends Formatter {
      *
      * @param p the class name prefix.
      * @return the formatter.
+     * @throws NullPointerException if the given argument is null.
      * @throws UndeclaredThrowableException if the formatter can not be created.
      */
     private Formatter initFormatter(final String p) {
-        final LogManager m = LogManagerProperties.getLogManager();
         Formatter f;
-        String v = m.getProperty(p.concat(".formatter"));
+        String v = fromLogManager(p.concat(".formatter"));
         if (v != null && v.length() != 0) {
             if (!"null".equalsIgnoreCase(v)) {
                 try {
@@ -508,15 +508,15 @@ public class CollectorFormatter extends Formatter {
      * @return the comparator or null.
      * @throws IllegalArgumentException if it was specified that the comparator
      * should be reversed but no initial comparator was specified.
+     * @throws NullPointerException if the given argument is null.
      * @throws UndeclaredThrowableException if the comparator can not be
      * created.
      */
     @SuppressWarnings("unchecked")
     private Comparator<? super LogRecord> initComparator(final String p) {
-        final LogManager m = LogManagerProperties.getLogManager();
         Comparator<? super LogRecord> c;
-        final String name = m.getProperty(p.concat(".comparator"));
-        final String reverse = m.getProperty(p.concat(".comparator.reverse"));
+        final String name = fromLogManager(p.concat(".comparator"));
+        final String reverse = fromLogManager(p.concat(".comparator.reverse"));
         try {
             if (name != null && name.length() != 0) {
                 if (!"null".equalsIgnoreCase(name)) {

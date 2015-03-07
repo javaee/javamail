@@ -46,10 +46,8 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import javax.mail.internet.MimeUtility;
-import org.junit.AfterClass;
+import org.junit.*;
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * Compact formatter tests.
@@ -88,6 +86,10 @@ public class CompactFormatterTest {
         assertNull(System.getProperty(LOG_CFG_KEY));
         assertEquals(LogManager.class, LogManager.getLogManager().getClass());
     }
+    
+    private static void fullFence() {
+        LogManager.getLogManager().getProperty("");
+    }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -103,6 +105,16 @@ public class CompactFormatterTest {
     @AfterClass
     public static void tearDownClass() throws Exception {
         checkJVMOptions();
+    }
+
+    @Before
+    public void setUp() {
+        fullFence();
+    }
+
+    @After
+    public void tearDown() {
+        fullFence();
     }
 
     @Test

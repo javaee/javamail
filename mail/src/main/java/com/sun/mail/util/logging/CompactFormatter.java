@@ -40,11 +40,7 @@
  */
 package com.sun.mail.util.logging;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.LogManager;
+import java.util.*;
 import java.util.logging.LogRecord;
 
 /**
@@ -478,8 +474,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @throws NullPointerException if the given class name is null.
      */
     private String initFormat(final String p) {
-        LogManager m = LogManagerProperties.getLogManager();
-        String v = m.getProperty(p.concat(".format"));
+        String v = LogManagerProperties.fromLogManager(p.concat(".format"));
         if (isNullOrSpaces(v)) {
             v = "%7$#.160s%n"; //160 chars split between message and thrown.
         }

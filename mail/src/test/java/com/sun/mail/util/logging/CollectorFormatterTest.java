@@ -48,10 +48,8 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.*;
 import java.util.logging.Formatter;
-import org.junit.AfterClass;
+import org.junit.*;
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * The collector formatter tests.
@@ -78,6 +76,10 @@ public class CollectorFormatterTest {
         assertNull(System.getProperty(LOG_CFG_KEY));
         assertEquals(LogManager.class, LogManager.getLogManager().getClass());
     }
+    
+    private static void fullFence() {
+        LogManager.getLogManager().getProperty("");
+    }
 
     @BeforeClass
     public static void setUpClass() throws Exception {
@@ -87,6 +89,16 @@ public class CollectorFormatterTest {
     @AfterClass
     public static void tearDownClass() throws Exception {
         checkJVMOptions();
+    }
+    
+    @Before
+    public void setUp() {
+        fullFence();
+    }
+
+    @After
+    public void tearDown() {
+        fullFence();
     }
 
     @Test

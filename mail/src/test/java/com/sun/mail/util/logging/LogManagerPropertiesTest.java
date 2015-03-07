@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,22 +40,19 @@
  */
 package com.sun.mail.util.logging;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.*;
+import java.lang.reflect.*;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import junit.framework.Assert;
+import org.junit.*;
 import static org.junit.Assert.*;
-import org.junit.Test;
 
 /**
  * Test case for the LogManagerProperties spec.
@@ -68,6 +65,197 @@ public class LogManagerPropertiesTest {
      * Holder used to inject Throwables into other APIs.
      */
     private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+        Assert.assertNull(System.getSecurityManager());
+    }
+
+    private static void fullFence() {
+        LogManager.getLogManager().getProperty("");
+    }
+
+    @Before
+    public void setUp() {
+        fullFence();
+    }
+
+    @After
+    public void tearDown() {
+        fullFence();
+    }
+
+    @Test
+    public void testCheckAccessPresent() {
+        LogManager m = LogManager.getLogManager();
+        m.checkAccess();
+        LogManagerProperties.checkLogManagerAccess();
+
+        LogPermSecurityManager sm = new LogPermSecurityManager();
+        sm.secure = false;
+        System.setSecurityManager(sm);
+        try {
+            sm.secure = true;
+            try {
+                m.checkAccess();
+                fail(m.toString());
+            } catch (SecurityException expect) {
+            }
+
+            try {
+                LogManagerProperties.checkLogManagerAccess();
+                fail(LogManagerProperties.class.getName());
+            } catch (SecurityException expect) {
+            }
+        } finally {
+            sm.secure = false;
+            System.setSecurityManager((SecurityManager) null);
+        }
+    }
+
+    @Test
+    public void testCheckAccessAbsent() throws Exception {
+        final Class<?> k = LogManagerProperties.class;
+        final Field f = k.getDeclaredField("LOG_MANAGER");
+        f.setAccessible(true);
+        assertTrue(Modifier.isFinal(f.getModifiers()));
+        Field mod = Field.class.getDeclaredField("modifiers");
+        mod.setAccessible(true);
+        mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+        try {
+            final Object lm = f.get(null);
+            f.set(null, null);
+            try {
+                LogManagerProperties.checkLogManagerAccess();
+
+                LogPermSecurityManager sm = new LogPermSecurityManager();
+                sm.secure = false;
+                System.setSecurityManager(sm);
+                try {
+                    sm.secure = true;
+                    try {
+                        LogManagerProperties.checkLogManagerAccess();
+                        fail(LogManagerProperties.class.getName());
+                    } catch (SecurityException expect) {
+                    }
+                } finally {
+                    sm.secure = false;
+                    System.setSecurityManager((SecurityManager) null);
+                }
+            } finally {
+                f.set(null, lm);
+            }
+        } finally {
+            mod.setInt(f, f.getModifiers() | Modifier.FINAL);
+        }
+    }
+
+    @Test
+    public void testFromLogManagerPresent() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        LogManager manager = LogManager.getLogManager();
+        try {
+            String key = prefix.concat(".dummy");
+            String value = "value";
+            String emptyValue = "empty";
+            Properties parent = new Properties();
+            parent.put(key, value);
+            parent.put("", emptyValue);
+
+            read(manager, parent);
+            assertEquals(value, LogManagerProperties.fromLogManager(key));
+            assertEquals(emptyValue, LogManagerProperties.fromLogManager(""));
+        } finally {
+            manager.reset();
+        }
+
+        try {
+            LogManagerProperties.fromLogManager((String) null);
+            fail("");
+        } catch (NullPointerException expect) {
+        }
+    }
+
+    @Test
+    public void testFromLogManagerNull() throws Exception {
+        testFromLogManager((Properties) null);
+    }
+
+    @Test
+    public void testFromLogManagerAbsent() throws Exception {
+        final String cfgKey = "java.util.logging.config.file";
+        final Class<?> k = LogManagerProperties.class;
+        String old = System.getProperty(cfgKey);
+        try {
+            Properties props = new Properties();
+            props.put("", "empty");
+            props.put(k.getName().concat(".dummy"), "value");
+            final File f = File.createTempFile(k.getName(), ".properties");
+            try {
+                final FileOutputStream out = new FileOutputStream(f);
+                try {
+                    props.store(out, "testFromLogManagerAbsent");
+                } finally {
+                    out.close();
+                }
+                System.setProperty(cfgKey, f.getAbsolutePath());
+                final Method m = k.getDeclaredMethod("readConfiguration");
+                assertTrue(Modifier.isPrivate(m.getModifiers()));
+                m.setAccessible(true);
+                props = (Properties) m.invoke(null);
+                testFromLogManager(props);
+            } finally {
+                assertTrue(f.toString(), f.delete() || !f.exists());
+            }
+        } finally {
+            if (old != null) {
+                System.setProperty(cfgKey, old);
+            } else {
+                System.clearProperty(cfgKey);
+            }
+        }
+    }
+
+    private void testFromLogManager(Properties parent) throws Exception {
+        final Class<?> k = LogManagerProperties.class;
+        final Field f = k.getDeclaredField("LOG_MANAGER");
+        f.setAccessible(true);
+        assertTrue(Modifier.isFinal(f.getModifiers()));
+        Field mod = Field.class.getDeclaredField("modifiers");
+        mod.setAccessible(true);
+        mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+        try {
+            fullFence();
+            final Object lm = f.get(null);
+            f.set(null, parent);
+            try {
+                fullFence();
+                if (parent != null) {
+                    assertFalse(parent.isEmpty());
+                    for (Map.Entry<Object, Object> e : parent.entrySet()) {
+                        String key = e.getKey().toString();
+                        String val = LogManagerProperties.fromLogManager(key);
+                        assertEquals(e.getValue(), val);
+                    }
+                } else {
+                    assertNull(LogManagerProperties.fromLogManager(""));
+                    assertNull(LogManagerProperties.fromLogManager("val"));
+                }
+
+                try {
+                    LogManagerProperties.fromLogManager((String) null);
+                    fail("");
+                } catch (NullPointerException expect) {
+                }
+            } finally {
+                f.set(null, lm);
+                fullFence();
+            }
+        } finally {
+            mod.setInt(f, f.getModifiers() | Modifier.FINAL);
+            fullFence();
+        }
+    }
 
     @Test
     public void testClone() throws Exception {
@@ -107,28 +295,20 @@ public class LogManagerPropertiesTest {
         assertTrue(LogManagerProperties.isReflectionClass(Method.class.getName()));
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testIsReflectionNull() throws Exception {
-        LogManagerProperties.isReflectionClass((String) null);
-    }
-
-    @Test(expected = ClassNotFoundException.class)
-    public void testIsReflectionInvaildName() throws Exception {
-        LogManagerProperties.isReflectionClass("badClassName");
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void testIsStaticUtilityClassNull() throws Exception {
-        LogManagerProperties.isStaticUtilityClass((String) null);
-    }
-
-    @Test(expected = ClassNotFoundException.class)
-    public void testIsStaticUtilityClassInvaildName() throws Exception {
-        LogManagerProperties.isStaticUtilityClass("badClassName");
-    }
-
     @Test
     public void testIsStaticUtilityClass() throws Exception {
+        boolean nullCheck;
+        try {
+            LogManagerProperties.isStaticUtilityClass((String) null);
+            nullCheck = false;
+        } catch (NullPointerException expect) {
+            nullCheck = true;
+        }
+
+        if (!nullCheck) {
+            fail("Null check");
+        }
+
         String[] utils = {
             "java.lang.System",
             "java.nio.channels.Channels",
@@ -151,6 +331,23 @@ public class LogManagerPropertiesTest {
             "java.util.concurrent.TimeUnit"
         };
         testIsStaticUtilityClass(enumerations, false);
+
+        String[] fail = {
+            "badClassName"
+        };
+        for (String name : fail) {
+            boolean pass;
+            try {
+                LogManagerProperties.isStaticUtilityClass(name);
+                pass = false;
+            } catch (ClassNotFoundException expect) {
+                pass = true;
+            }
+
+            if (!pass) {
+                fail(name);
+            }
+        }
     }
 
     private void testIsStaticUtilityClass(String[] names, boolean complement) throws Exception {
@@ -165,6 +362,51 @@ public class LogManagerPropertiesTest {
                 assertFalse(name, LogManagerProperties.isStaticUtilityClass(name));
             }
         }
+    }
+
+    @Test
+    public void testGetLocalHost() throws Exception {
+        String host = LogManagerPropertiesTest.class.getName();
+        Properties p = new Properties();
+        p.setProperty("mail.smtp.localhost", host);
+        Session s = Session.getInstance(p);
+        Transport t = s.getTransport(InternetAddress.getLocalAddress(s));
+        String h = LogManagerProperties.getLocalHost(t);
+        Assert.assertEquals(host, h);
+    }
+
+    @Test
+    public void testGetLocalHostMissing() throws Exception {
+        Session session = Session.getInstance(new Properties());
+        Service svc = new NoHostService(session);
+        try {
+            LogManagerProperties.getLocalHost(svc);
+            fail("");
+        } catch (NoSuchMethodException expect) {
+        }
+    }
+
+    @Test
+    public void testGetLocalHostSecure() throws Exception {
+        Session session = Session.getInstance(new Properties());
+        Service svc = new NotAllowedService(session);
+        try {
+            LogManagerProperties.getLocalHost(svc);
+        } catch (SecurityException allowed) {
+        } catch (InvocationTargetException expect) {
+            Assert.assertTrue(expect.getCause() instanceof SecurityException);
+        }
+    }
+
+    @Test
+    public void testGetLocalHostNull() throws Exception {
+        boolean fail = true;
+        try {
+            LogManagerProperties.getLocalHost((Service) null);
+        } catch (NullPointerException expected) {
+            fail = false;
+        }
+        Assert.assertFalse(fail);
     }
 
     @Test
@@ -247,6 +489,18 @@ public class LogManagerPropertiesTest {
     }
 
     @Test
+    public void testGetObject() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        Properties parent = new Properties();
+        LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+        String key = "key";
+        Object value = new Object();
+        parent.put(key, value);
+
+        assertEquals(parent.get(key), mp.get(key));
+    }
+
+    @Test
     public void testContainsKey() throws Exception {
         String prefix = LogManagerPropertiesTest.class.getName();
         LogManager manager = LogManager.getLogManager();
@@ -270,6 +524,17 @@ public class LogManagerPropertiesTest {
         } finally {
             manager.reset();
         }
+    }
+
+    @Test
+    public void testContainsKeyObject() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        Properties parent = new Properties();
+        LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+        String key = "key";
+        Object value = new Object();
+        parent.put(key, value);
+        assertEquals(parent.containsKey(key), mp.containsKey(key));
     }
 
     @Test
@@ -299,6 +564,19 @@ public class LogManagerPropertiesTest {
     }
 
     @Test
+    public void testRemoveObject() {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        Properties parent = new Properties();
+        LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+        String key = "key";
+        Object value = new Object();
+        parent.put(key, value);
+        assertEquals(value, parent.remove(key));
+        assertEquals(parent.containsKey(key), mp.containsKey(key));
+        assertNull(parent.remove(key));
+    }
+
+    @Test
     public void testPut() throws Exception {
         String prefix = LogManagerPropertiesTest.class.getName();
         LogManager manager = LogManager.getLogManager();
@@ -324,6 +602,19 @@ public class LogManagerPropertiesTest {
         } finally {
             manager.reset();
         }
+    }
+
+    @Test
+    public void testPutObject() throws Exception {
+        String prefix = LogManagerPropertiesTest.class.getName();
+        Properties parent = new Properties();
+        LogManagerProperties mp = new LogManagerProperties(parent, prefix);
+        String key = "key";
+        Object value = TimeUnit.MILLISECONDS;
+        assertNull(mp.put(key, value));
+        Object newValue = TimeUnit.NANOSECONDS;
+        assertEquals(value, mp.put(key, newValue));
+        assertEquals(newValue, mp.get(key));
     }
 
     @Test
@@ -378,12 +669,6 @@ public class LogManagerPropertiesTest {
         } finally {
             manager.reset();
         }
-    }
-
-    @Test
-    public void testGetLogManager() throws Exception {
-        LogManager manager = LogManagerProperties.getLogManager();
-        assertNotNull(manager);
     }
 
     @Test
@@ -750,13 +1035,15 @@ public class LogManagerPropertiesTest {
     }
 
     static void throwPendingIfSet() {
-        final Throwable t = PENDING.get();
+        Throwable t = PENDING.get();
         if (t != null) {
             if (t instanceof Error) {
-                t.fillInStackTrace();
+                t = t.fillInStackTrace();
+                assert t instanceof Error : t;
                 throw (Error) t;
             } else if (t instanceof RuntimeException) {
-                t.fillInStackTrace();
+                t = t.fillInStackTrace();
+                assert t instanceof RuntimeException : t;
                 throw (RuntimeException) t;
             } else {
                 throw new AssertionError(t);
@@ -869,6 +1156,58 @@ public class LogManagerPropertiesTest {
         @Override
         public void error(String msg, Exception ex, int code) {
             throw new Error("");
+        }
+    }
+
+    private static final class NoHostService extends Service {
+
+        public NoHostService(Session session) {
+            super(session, new URLName("test://somehost"));
+        }
+    }
+
+    private static final class NotAllowedService extends Service {
+
+        public NotAllowedService(Session session) {
+            super(session, new URLName("test://somehost"));
+        }
+
+        public String getLocalHost() {
+            throw new SecurityException();
+        }
+    }
+
+    private static final class LogPermSecurityManager extends SecurityManager {
+
+        volatile boolean secure = false;
+
+        LogPermSecurityManager() {
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm) {
+            try { //Call super class always for java.security.debug tracing.
+                super.checkPermission(perm);
+                checkPermission(perm, new SecurityException(perm.toString()));
+            } catch (SecurityException se) {
+                checkPermission(perm, se);
+            }
+        }
+
+        @Override
+        public void checkPermission(java.security.Permission perm, Object context) {
+            try { //Call super class always for java.security.debug tracing.
+                super.checkPermission(perm, context);
+                checkPermission(perm, new SecurityException(perm.toString()));
+            } catch (SecurityException se) {
+                checkPermission(perm, se);
+            }
+        }
+
+        private void checkPermission(java.security.Permission perm, SecurityException se) {
+            if (secure && perm instanceof LoggingPermission) {
+                throw se;
+            }
         }
     }
 }

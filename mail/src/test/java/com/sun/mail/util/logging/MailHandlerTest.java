@@ -111,13 +111,19 @@ public class MailHandlerTest {
         anyClassPathDir = null;
     }
 
+    private static void fullFence() {
+        LogManager.getLogManager().getProperty("");
+    }
+
     @Before
     public void setUp() {
+        fullFence();
         assertNull(hardRef);
     }
 
     @After
     public void tearDown() {
+        fullFence();
         hardRef = null;
     }
 
@@ -147,7 +153,7 @@ public class MailHandlerTest {
         }
     }
 
-    @SuppressWarnings("CallToThreadDumpStack")
+    @SuppressWarnings({"CallToThreadDumpStack", "CallToPrintStackTrace"})
     private static void dump(Throwable t) {
         t.printStackTrace();
     }
@@ -173,12 +179,14 @@ public class MailHandlerTest {
     }
 
     static void throwPending() {
-        final Throwable t = PENDING.get();
+        Throwable t = PENDING.get();
         if (t instanceof Error) {
-            t.fillInStackTrace();
+            t = t.fillInStackTrace();
+            assert t instanceof Error : t;
             throw (Error) t;
         } else if (t instanceof RuntimeException) {
-            t.fillInStackTrace();
+            t = t.fillInStackTrace();
+            assert t instanceof RuntimeException : t;
             throw (RuntimeException) t;
         } else {
             throw new AssertionError(t);
@@ -189,9 +197,9 @@ public class MailHandlerTest {
         boolean debug;
         final String value = System.getProperty("java.security.debug");
         if (value != null) {
-            debug = value.indexOf("all") > -1
-                    || value.indexOf("access") > -1
-                    || value.indexOf("stack") > -1;
+            debug = value.contains("all")
+                    || value.contains("access")
+                    || value.contains("stack");
         } else {
             debug = false;
         }
@@ -1240,14 +1248,63 @@ public class MailHandlerTest {
             fail("Missing encoding check.");
         } catch (UnsupportedEncodingException expect) {
         }
+        assertEquals(manager.getProperty(p.concat(".encoding")), instance.getEncoding());
 
         assertTrue(em.exceptions.isEmpty());
 
         instance.setEncoding(enc);
+        assertEquals(enc, instance.getEncoding());
         instance.setSubject("ORA-17043=Ung\u00FCltige maximale Stream-Gr\u00F6\u00DFe");
         LogRecord record = new LogRecord(Level.SEVERE, "Zeit\u00FCberschreitung bei Anweisung");
         instance.publish(record);
         instance.close();
+    }
+
+    @Test
+    public void testErrorManager() {
+        MailHandler h = new MailHandler();
+        assertNotNull(h.getErrorManager());
+        try {
+            h.setErrorManager((ErrorManager) null);
+        } catch (NullPointerException expect) {
+            assertNotNull(h);
+        }
+        assertNotNull(h.getErrorManager());
+
+        ErrorManager em = new ErrorManager();
+        h.setErrorManager(em);
+        assertSame(em, h.getErrorManager());
+    }
+
+    @Test
+    public void testFormatter() {
+        MailHandler h = new MailHandler();
+        assertNotNull(h.getFormatter());
+        try {
+            h.setFormatter((Formatter) null);
+        } catch (NullPointerException expect) {
+            assertNotNull(h);
+        }
+        assertNotNull(h.getFormatter());
+
+        SimpleFormatter f = new SimpleFormatter();
+        h.setFormatter(f);
+        assertSame(f, h.getFormatter());
+    }
+
+    @Test
+    public void testFilter() {
+        MailHandler h = new MailHandler();
+        assertNull(h.getFilter());
+        h.setFilter((Filter) null);
+        assertNull(h.getFilter());
+
+        BooleanFilter f = new BooleanFilter();
+        h.setFilter(f);
+        assertSame(f, h.getFilter());
+
+        h.setFilter((Filter) null);
+        assertNull(h.getFilter());
     }
 
     @Test
@@ -1845,14 +1902,15 @@ public class MailHandlerTest {
         instance.setErrorManager(em);
 
         assertNotNull(instance.getLevel());
-
         try {
             instance.setLevel((Level) null);
             fail("Null level was allowed");
         } catch (NullPointerException pass) {
+            assertNotNull(instance);
         } catch (RuntimeException re) {
             fail(re.toString());
         }
+        assertNotNull(instance.getLevel());
 
         final Level[] lvls = getAllLevels();
         for (Level lvl : lvls) {
@@ -2541,7 +2599,7 @@ public class MailHandlerTest {
             }
 
             String bundleName = f.getName().substring(0, f.getName().lastIndexOf('_'));
-            assertTrue(bundleName.indexOf(Locale.ENGLISH.getLanguage()) < 0);
+            assertTrue(!bundleName.contains(Locale.ENGLISH.getLanguage()));
 
             cl = Locale.US;
             target = new MailHandler(createInitProperties(""));
@@ -2793,6 +2851,7 @@ public class MailHandlerTest {
      * @throws IOException if there is a problem.
      * @throws FileNotFoundException if there are no directories in class path.
      */
+    @SuppressWarnings("ThrowableInitCause")
     private static File findClassPathDir() throws IOException {
         File f = anyClassPathDir;
         if (f != null) {
@@ -3734,7 +3793,7 @@ public class MailHandlerTest {
         for (Exception exception : em.exceptions) {
             if (exception instanceof MessagingException) {
                 continue;
-            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1) {
+            } else if (exception instanceof RuntimeException && exception.getMessage().contains(instance.getFilter().toString())) {
                 seenFormat++;
                 continue; //expected.
             } else {
@@ -5521,7 +5580,7 @@ public class MailHandlerTest {
                 // at...
                 //Caused by: java.lang.RuntimeException
                 final String data = oldErrors.toString(encoding);
-                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                assertTrue(data, data.contains(ErrorManager.class.getName()));
                 int ite, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
                 re = data.indexOf(RuntimeException.class.getName(), ite);
@@ -5571,7 +5630,7 @@ public class MailHandlerTest {
                 // at...
                 //Caused by: java.lang.Error
                 final String data = oldErrors.toString(encoding);
-                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                assertTrue(data, data.contains(ErrorManager.class.getName()));
                 int ite, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
                 re = data.indexOf(Error.class.getName(), ite);
@@ -5780,7 +5839,7 @@ public class MailHandlerTest {
                 // at...
                 //Caused by: java.lang.RuntimeException
                 final String data = oldErrors.toString(encoding);
-                assertTrue(data, data.indexOf(ErrorManager.class.getName()) > -1);
+                assertTrue(data, data.contains(ErrorManager.class.getName()));
                 int ite, eiie, re;
                 ite = data.indexOf(InvocationTargetException.class.getName());
                 eiie = data.indexOf(ExceptionInInitializerError.class.getName(), ite);
@@ -5938,6 +5997,7 @@ public class MailHandlerTest {
         }
     }
 
+    @SuppressWarnings("ThrowableInitCause")
     private void testStaticInitError(Properties props) throws Exception {
         final LogManager manager = LogManager.getLogManager();
         try {
@@ -7248,6 +7308,7 @@ public class MailHandlerTest {
             throw this;
         }
 
+        @SuppressWarnings("CallToPrintStackTrace")
         public void dump() {
             Throwable t = new Throwable(getClass().getName(), getCause());
             t.setStackTrace(getStackTrace());
@@ -7433,16 +7494,19 @@ public class MailHandlerTest {
         }
 
         @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        @Override
         public boolean equals(Object o) {
             checkContextClassLoader(expect);
             return super.equals(o);
         }
 
+        @Override
         public int hashCode() {
             checkContextClassLoader(expect);
             return super.hashCode();
         }
 
+        @Override
         public String toString() {
             checkContextClassLoader(expect);
             return super.toString();
@@ -7555,16 +7619,19 @@ public class MailHandlerTest {
         }
 
         @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        @Override
         public boolean equals(Object o) {
             checkContextClassLoader(expect);
             return super.equals(o);
         }
 
+        @Override
         public int hashCode() {
             checkContextClassLoader(expect);
             return super.hashCode();
         }
 
+        @Override
         public String toString() {
             checkContextClassLoader(expect);
             return super.toString();
