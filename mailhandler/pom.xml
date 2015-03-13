@@ -47,72 +47,21 @@
 			    http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
 	<groupId>com.sun.mail</groupId>
-	<artifactId>all</artifactId>
+	<artifactId>parent-distrib</artifactId>
 	<version>1.5.3-SNAPSHOT</version>
+	<relativePath>../parent-distrib/pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.mail</groupId>
-    <artifactId>parent-distrib</artifactId>
-    <packaging>pom</packaging>
-    <name>JavaMail API ${project.artifactId} provider</name>
+    <artifactId>logging-mailhandler</artifactId>
+    <packaging>jar</packaging>
+    <name>JavaMail API logging handler</name>
 
     <properties>
-	<mail.classes>com/sun/mail/${project.artifactId}/**</mail.classes>
+	<mail.packages.export>
+	    com.sun.mail.util.logging; version=${mail.version}
+	</mail.packages.export>
+	<mail.classes>com/sun/mail/util/logging/**</mail.classes>
     </properties>
 
-    <build>
-        <plugins>
-	    <plugin>
-		<artifactId>maven-dependency-plugin</artifactId>
-		<executions>
-		    <execution>
-			<!-- download the binaries -->
-			<id>get-binaries</id>
-			<phase>process-sources</phase>
-			<goals>
-			    <goal>unpack</goal>
-			</goals>
-		    </execution>
-		    <execution>
-			<!-- download the sources -->
-			<id>get-sources</id>
-			<phase>process-sources</phase>
-			<goals>
-			    <goal>unpack</goal>
-			</goals>
-			<configuration>
-			    <artifactItems>
-				<artifactItem>
-				    <groupId>com.sun.mail</groupId>
-				    <artifactId>javax.mail</artifactId>
-				    <version>${mail.version}</version>
-				    <classifier>sources</classifier>
-				    <outputDirectory>
-					${project.build.directory}/sources
-				    </outputDirectory>
-				</artifactItem>
-			    </artifactItems>
-			</configuration>
-		    </execution>
-		</executions>
-		<configuration>
-		    <artifactItems>
-			<artifactItem>
-			    <groupId>com.sun.mail</groupId>
-			    <artifactId>javax.mail</artifactId>
-			    <version>${mail.version}</version>
-			</artifactItem>
-		    </artifactItems>
-		    <outputDirectory>
-			${project.build.outputDirectory}
-		    </outputDirectory>
-		    <includes>
-			META-INF/LICENSE.txt,
-			${mail.classes},
-			${mail.extraClasses}
-		    </includes>
-		</configuration>
-	    </plugin>
-        </plugins>
-    </build>
 </project>
