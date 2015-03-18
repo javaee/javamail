@@ -853,7 +853,7 @@ public class IMAPProtocol extends Protocol {
      * ID Command, for Yahoo! Mail IMAP server.
      *
      * @deprecated As of JavaMail 1.5.1, replaced by
-     *		{@link #id(Map) id(Map<String,String>)}
+     *		{@link #id(Map) id(Map&lt;String,String&gt;)}
      * @since JavaMail 1.4.4
      */
     @Deprecated
