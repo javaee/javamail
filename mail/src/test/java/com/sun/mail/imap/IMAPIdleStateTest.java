@@ -122,7 +122,8 @@ public final class IMAPIdleStateTest {
      * to abort an IDLE.
      */
     private static final class IMAPHandlerIdleBye extends IMAPHandler {
-	CountDownLatch latch = new CountDownLatch(1);
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
 
 	@Override
         public void idle() throws IOException {

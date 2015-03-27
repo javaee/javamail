@@ -133,7 +133,8 @@ public final class IMAPIdleUntaggedResponseTest {
      * sure the notification of the new message is seen.
      */
     private static final class IMAPHandlerIdleExists extends IMAPHandler {
-	CountDownLatch latch = new CountDownLatch(1);
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
 
 	@Override
         public void examine() throws IOException {
