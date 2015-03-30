@@ -41,6 +41,8 @@
 package com.sun.mail.util.logging;
 
 import java.io.*;
+import java.lang.management.CompilationMXBean;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.*;
 import java.util.Comparator;
 import java.util.Locale;
@@ -73,6 +75,14 @@ public class LogManagerPropertiesTest {
 
     private static void fullFence() {
         LogManager.getLogManager().getProperty("");
+    }
+
+    private static void assumeNoJit() {
+        CompilationMXBean c = ManagementFactory.getCompilationMXBean();
+        if (c != null) { //-Xint
+            Assume.assumeNoException(new IllegalArgumentException(
+                    c.getName() + " must be disabled."));
+        }
     }
 
     @Before
@@ -113,19 +123,17 @@ public class LogManagerPropertiesTest {
         }
     }
 
-    @Test
+    @Ignore
     public void testCheckAccessAbsent() throws Exception {
+        assumeNoJit();
         final Class<?> k = LogManagerProperties.class;
         final Field f = k.getDeclaredField("LOG_MANAGER");
-        f.setAccessible(true);
-        assertTrue(Modifier.isFinal(f.getModifiers()));
-        Field mod = Field.class.getDeclaredField("modifiers");
-        mod.setAccessible(true);
-        mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+        Field mod = setAccessible(f);
         try {
             final Object lm = f.get(null);
             f.set(null, null);
             try {
+                fullFence();
                 LogManagerProperties.checkLogManagerAccess();
 
                 LogPermSecurityManager sm = new LogPermSecurityManager();
@@ -144,6 +152,7 @@ public class LogManagerPropertiesTest {
                 }
             } finally {
                 f.set(null, lm);
+                fullFence();
             }
         } finally {
             mod.setInt(f, f.getModifiers() | Modifier.FINAL);
@@ -163,6 +172,7 @@ public class LogManagerPropertiesTest {
             parent.put("", emptyValue);
 
             read(manager, parent);
+            assertTrue(LogManagerProperties.hasLogManager());
             assertEquals(value, LogManagerProperties.fromLogManager(key));
             assertEquals(emptyValue, LogManagerProperties.fromLogManager(""));
         } finally {
@@ -176,13 +186,15 @@ public class LogManagerPropertiesTest {
         }
     }
 
-    @Test
+    @Ignore
     public void testFromLogManagerNull() throws Exception {
+        assumeNoJit();
         testFromLogManager((Properties) null);
     }
 
-    @Test
+    @Ignore
     public void testFromLogManagerAbsent() throws Exception {
+        assumeNoJit();
         final String cfgKey = "java.util.logging.config.file";
         final Class<?> k = LogManagerProperties.class;
         String old = System.getProperty(cfgKey);
@@ -217,19 +229,17 @@ public class LogManagerPropertiesTest {
     }
 
     private void testFromLogManager(Properties parent) throws Exception {
+        assertTrue(LogManagerProperties.hasLogManager());
         final Class<?> k = LogManagerProperties.class;
         final Field f = k.getDeclaredField("LOG_MANAGER");
-        f.setAccessible(true);
-        assertTrue(Modifier.isFinal(f.getModifiers()));
-        Field mod = Field.class.getDeclaredField("modifiers");
-        mod.setAccessible(true);
-        mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+        Field mod = setAccessible(f);
         try {
             fullFence();
             final Object lm = f.get(null);
             f.set(null, parent);
             try {
                 fullFence();
+                assertFalse(LogManagerProperties.hasLogManager());
                 if (parent != null) {
                     assertFalse(parent.isEmpty());
                     for (Map.Entry<Object, Object> e : parent.entrySet()) {
@@ -255,6 +265,51 @@ public class LogManagerPropertiesTest {
             mod.setInt(f, f.getModifiers() | Modifier.FINAL);
             fullFence();
         }
+    }
+
+    @Test
+    public void testJavaMailLinkage() throws Exception {
+        for (Method m : LogManagerProperties.class.getDeclaredMethods()) {
+            assertFalse(m.getReturnType().getName(),
+                    isFromJavaMail(m.getReturnType()));
+            for (Class<?> p : m.getParameterTypes()) {
+                assertFalse(p.getName(), isFromJavaMail(p));
+            }
+
+            for (Class<?> e : m.getExceptionTypes()) {
+                assertFalse(e.getName(), isFromJavaMail(e));
+            }
+        }
+
+        for (Constructor<?> c : LogManagerProperties.class.getDeclaredConstructors()) {
+            for (Class<?> p : c.getParameterTypes()) {
+                assertFalse(p.getName(), isFromJavaMail(p));
+            }
+
+            for (Class<?> e : c.getExceptionTypes()) {
+                assertFalse(e.getName(), isFromJavaMail(e));
+            }
+        }
+
+        for (Field f : LogManagerProperties.class.getDeclaredFields()) {
+            assertFalse(f.getName(), isFromJavaMail(f.getType()));
+        }
+    }
+
+    private boolean isFromJavaMail(Class<?> k) throws Exception {
+        for (Class<?> t = k; t != null; t = t.getSuperclass()) {
+            final String n = t.getName();
+            if (n.startsWith("javax.mail.")) {
+                return true;
+            }
+
+            //Not included with logging-mailhandler.jar.
+            if (n.startsWith("com.sun.mail.")
+                    && !n.startsWith("com.sun.mail.util.logging.")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Test
@@ -689,33 +744,65 @@ public class LogManagerPropertiesTest {
     }
 
     @Test
-    public void testNewAuthenticator() throws Exception {
+    public void testNewObjectFrom() throws Exception {
         try {
-            LogManagerProperties.newAuthenticator(null);
+            LogManagerProperties.newObjectFrom((String) null, Object.class);
+            fail("Null name was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newObjectFrom(Object.class.getName(),
+                    (Class<Object>) null);
+            fail("Null class was allowed.");
+        } catch (NullPointerException expect) {
+        }
+
+        try {
+            LogManagerProperties.newObjectFrom((String) null,
+                    (Class<Object>) null);
             fail("Null was allowed.");
         } catch (NullPointerException expect) {
         }
 
         try {
-            LogManagerProperties.newAuthenticator("");
+            LogManagerProperties.newObjectFrom("", Object.class);
             fail("Empty class was allowed.");
         } catch (ClassNotFoundException expect) {
         }
 
         try {
-            LogManagerProperties.newAuthenticator(Object.class.getName());
+            LogManagerProperties.newObjectFrom(Object.class.getName(),
+                    String.class);
             fail("Wrong type was allowed.");
         } catch (ClassCastException expect) {
         }
 
+        Object o = LogManagerProperties.
+                newObjectFrom(String.class.getName(), Object.class);
+        assertEquals(String.class, o.getClass());
+
+        String n = LogManagerProperties.
+                newObjectFrom(String.class.getName(), String.class);
+        assertEquals(String.class, n.getClass());
+    }
+
+    @Test
+    public void testNewAuthenticator() throws Exception {
+        Authenticator a = LogManagerProperties.newObjectFrom(
+                EmptyAuthenticator.class.getName(),
+                Authenticator.class);
+        assertEquals(EmptyAuthenticator.class, a.getClass());
+
         final Class<?> type = ErrorAuthenticator.class;
-        final javax.mail.Authenticator a
-                = LogManagerProperties.newAuthenticator(type.getName());
+        a = LogManagerProperties.newObjectFrom(
+                type.getName(), Authenticator.class);
         assertEquals(type, a.getClass());
 
         setPending(new RuntimeException());
         try {
-            LogManagerProperties.newAuthenticator(type.getName());
+            LogManagerProperties.newObjectFrom(type.getName(),
+                    Authenticator.class);
             fail("Exception was not thrown.");
         } catch (InvocationTargetException expect) {
             assertEquals(RuntimeException.class, expect.getCause().getClass());
@@ -897,19 +984,19 @@ public class LogManagerPropertiesTest {
             Class<?> k = ErrorAuthenticator.class;
             javax.mail.Authenticator a;
 
-            a = LogManagerProperties.newAuthenticator(k.getName());
+            a = LogManagerProperties.newObjectFrom(k.getName(), Authenticator.class);
             assertEquals(k, a.getClass());
 
             setPending(new ThreadDeath());
             try {
-                a = LogManagerProperties.newAuthenticator(k.getName());
+                a = LogManagerProperties.newObjectFrom(k.getName(), Authenticator.class);
                 fail(String.valueOf(a));
             } catch (ThreadDeath expect) {
             }
 
             setPending(new OutOfMemoryError());
             try {
-                a = LogManagerProperties.newAuthenticator(k.getName());
+                a = LogManagerProperties.newObjectFrom(k.getName(), Authenticator.class);
                 fail(String.valueOf(a));
             } catch (OutOfMemoryError expect) {
             }
@@ -1051,6 +1138,24 @@ public class LogManagerPropertiesTest {
         }
     }
 
+    private static Field setAccessible(Field f) {
+        f.setAccessible(true);
+        try {
+            assumeNoJit();
+            if (Modifier.isFinal(f.getModifiers())) {
+                Field mod = Field.class.getDeclaredField("modifiers");
+                mod.setAccessible(true);
+                mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
+                return mod;
+            }
+        } catch (RuntimeException re) {
+            Assume.assumeNoException(re);
+        } catch (Exception e) {
+            Assume.assumeNoException(e);
+        }
+        throw new AssertionError();
+    }
+
     private void read(LogManager manager, Properties props) throws IOException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream(512);
         props.store(out, "No comment");
@@ -1069,6 +1174,14 @@ public class LogManagerPropertiesTest {
             }
         }
         return false;
+    }
+
+    public static final class EmptyAuthenticator extends javax.mail.Authenticator {
+
+        @Override
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return null;
+        }
     }
 
     public static final class ErrorAuthenticator extends javax.mail.Authenticator {

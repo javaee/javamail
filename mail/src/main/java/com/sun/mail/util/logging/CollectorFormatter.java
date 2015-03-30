@@ -56,7 +56,12 @@ import java.util.logging.LogRecord;
  * delegated to the wrapped formatter.
  *
  * <p>
- * The LogManager properties are:
+ * By default each <tt>CollectorFormatter</tt> is initialized using the
+ * following LogManager configuration properties where
+ * <tt>&lt;formatter-name&gt;</tt> refers to the fully qualified class name or
+ * the fully qualified derived class name of the formatter.  If properties are
+ * not defined, or contain invalid values, then the specified default values are
+ * used.
  * <ul>
  * <li>&lt;formatter-name&gt;.comparator name of a
  * {@linkplain java.util.Comparator} class used to choose the collected

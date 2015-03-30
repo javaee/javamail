@@ -86,7 +86,7 @@ public class CompactFormatterTest {
         assertNull(System.getProperty(LOG_CFG_KEY));
         assertEquals(LogManager.class, LogManager.getLogManager().getClass());
     }
-    
+
     private static void fullFence() {
         LogManager.getLogManager().getProperty("");
     }
@@ -677,7 +677,7 @@ public class CompactFormatterTest {
     }
 
     @Test
-    public void testIgnoreStaticUtilityClassUtilError() {
+    public void testIgnoreStaticUtilityClass_Util() {
         CompactFormatter cf = new CompactFormatter();
         String n = getClass().getName().concat("MimeUtility");
         String f = n.concat(".java");
@@ -686,7 +686,7 @@ public class CompactFormatterTest {
     }
 
     @Test
-    public void testIgnoreStaticUtilityClassWithSError() {
+    public void testIgnoreStaticUtilityClass_s() {
         CompactFormatter cf = new CompactFormatter();
         String n = getClass().getName().concat("Collections");
         String f = n.concat(".java");
@@ -695,12 +695,21 @@ public class CompactFormatterTest {
     }
 
     @Test
-    public void testIgnoreStaticUtilityClassWithSeError() {
+    public void testIgnoreStaticUtilityClass_es() {
         CompactFormatter cf = new CompactFormatter();
         String n = getClass().getName().concat("Properties");
         String f = n.concat(".java");
         StackTraceElement s = new StackTraceElement(n, "get", f, 400);
         assertFalse(s.toString(), cf.ignore(s));
+    }
+
+    @Test
+    public void testIgnoreStaticUtilityClass_Throwables() {
+        CompactFormatter cf = new CompactFormatter();
+        String n = getClass().getName().concat("Throwables");
+        String f = n.concat(".java");
+        StackTraceElement s = new StackTraceElement(n, "propagate", f, 400);
+        assertTrue(s.toString(), cf.ignore(s));
     }
 
     @Test

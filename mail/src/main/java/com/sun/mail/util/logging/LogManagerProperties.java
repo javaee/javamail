@@ -49,8 +49,6 @@ import java.security.PrivilegedAction;
 import java.util.*;
 import java.util.logging.*;
 import java.util.logging.Formatter;
-import javax.mail.Authenticator;
-import javax.mail.Service;
 
 /**
  * An adapter class to allow the Mail API to access the LogManager properties.
@@ -94,8 +92,9 @@ final class LogManagerProperties extends Properties {
     private static final Object LOG_MANAGER = loadLogManager();
 
     /**
-     * Installs the LogManager or Properties.
+     * Get the LogManager or loads a Properties object to use as the LogManager.
      *
+     * @return the LogManager or a loaded Properties object.
      * @since JavaMail 1.5.3
      */
     private static Object loadLogManager() {
@@ -138,9 +137,9 @@ final class LogManagerProperties extends Properties {
                     in.close();
                 }
             }
-        } catch (RuntimeException permissions) {
-        } catch (Exception ioe) {
-        } catch (LinkageError unexpected) {
+        } catch (final RuntimeException permissionsOrMalformed) {
+        } catch (final Exception ioe) {
+        } catch (final LinkageError unexpected) {
         }
         return props;
     }
@@ -270,7 +269,7 @@ final class LogManagerProperties extends Properties {
      * @throws SecurityException if unable to inspect properties of object.
      * @since JavaMail 1.5.3
      */
-    static String getLocalHost(final Service s) throws Exception {
+    static String getLocalHost(final Object s) throws Exception {
         try {
             final Method m = s.getClass().getMethod("getLocalHost");
             if (!Modifier.isStatic(m.getModifiers())
@@ -454,27 +453,6 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
-     * Creates a new authenticator from the given class name.
-     *
-     * @param name the fully qualified class name.
-     * @return a new authenticator.
-     * @throws ClassCastException if class name does not match the type.
-     * @throws ClassNotFoundException if the class name was not found.
-     * @throws IllegalAccessException if the constructor is inaccessible.
-     * @throws InstantiationException if the given class name is abstract.
-     * @throws InvocationTargetException if the constructor throws an exception.
-     * @throws LinkageError if the linkage fails.
-     * @throws ExceptionInInitializerError if the static initializer fails.
-     * @throws Exception to match the error method of the ErrorManager.
-     * @throws NoSuchMethodException if the class name does not have a no
-     * argument constructor.
-     * @since JavaMail 1.4.5
-     */
-    static Authenticator newAuthenticator(String name) throws Exception {
-        return newObjectFrom(name, Authenticator.class);
-    }
-
-    /**
      * Determines if the given class name identifies a utility class.
      *
      * @param name the fully qualified class name.
@@ -593,7 +571,7 @@ final class LogManagerProperties extends Properties {
      * argument constructor.
      * @since JavaMail 1.4.5
      */
-    private static <T> T newObjectFrom(String name, Class<T> type) throws Exception {
+    static <T> T newObjectFrom(String name, Class<T> type) throws Exception {
         try {
             final Class<?> clazz = LogManagerProperties.findClass(name);
             //This check avoids additional side effects when the name parameter

@@ -109,7 +109,7 @@ import javax.mail.util.ByteArrayDataSource;
  * property.  If the prefixed property is not found, then the mail property
  * itself is searched in the LogManager. By default each <tt>MailHandler</tt> is
  * initialized using the following LogManager configuration properties where
- * <tt>&lt;handler-name&gt;</tt> refers to the fully-qualified class name of the
+ * <tt>&lt;handler-name&gt;</tt> refers to the fully qualified class name of the
  * handler.  If properties are not defined, or contain invalid values, then the
  * specified default values are used.
  *
@@ -2229,7 +2229,8 @@ public class MailHandler extends Handler {
         String name = fromLogManager(p.concat(".authenticator"));
         if (hasValue(name)) {
             try {
-                this.auth = LogManagerProperties.newAuthenticator(name);
+                this.auth = LogManagerProperties
+                        .newObjectFrom(name, Authenticator.class);
             } catch (final SecurityException SE) {
                 throw SE;
             } catch (final ClassNotFoundException literalAuth) {

@@ -49,7 +49,12 @@ import java.util.logging.LogRecord;
  * specified fields support an {@link #toAlternate(java.lang.String) alternate}
  * fixed width format.
  * <p>
- * The LogManager properties are:
+ * By default each <tt>CompactFormatter</tt> is initialized using the
+ * following LogManager configuration properties where
+ * <tt>&lt;formatter-name&gt;</tt> refers to the fully qualified class name or
+ * the fully qualified derived class name of the formatter.  If properties are
+ * not defined, or contain invalid values, then the specified default values are
+ * used.
  * <ul>
  * <li>&lt;formatter-name&gt;.format - the {@link java.util.Formatter
  *     format} string used to transform the output. The format string can be used to
@@ -420,9 +425,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
         } catch (Exception ignore) {
         } catch (LinkageError ignore) {
         }
-        return (!s.getClassName().endsWith("es")
-                && s.getClassName().endsWith("s"))
-                || s.getClassName().contains("Util");
+        final String cn = s.getClassName();
+        return (cn.endsWith("s") && !cn.endsWith("es"))
+                || cn.contains("Util") || cn.endsWith("Throwables");
     }
 
     /**
