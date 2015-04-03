@@ -217,6 +217,8 @@ public class IMAPHandler extends ProtocolHandler {
             fetch(currentLine);
         } else if (commandName.equals("STORE")) {
             store(currentLine);
+        } else if (commandName.equals("SEARCH")) {
+            search(currentLine);
         } else if (commandName.equals("APPEND")) {
             append(currentLine);
         } else if (commandName.equals("CLOSE")) {
@@ -325,6 +327,16 @@ public class IMAPHandler extends ProtocolHandler {
      * @throws IOException unable to read/write to socket
      */
     public void store(String line) throws IOException {
+        ok();	// XXX
+    }
+
+    /**
+     * SEARCH command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void search(String line) throws IOException {
+	untagged("SEARCH");
         ok();	// XXX
     }
 

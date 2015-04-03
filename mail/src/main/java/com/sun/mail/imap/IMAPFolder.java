@@ -2125,23 +2125,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    synchronized(messageCacheLock) {
 		int[] matches = getProtocol().search(term);
-		if (matches != null) {
-		    matchMsgs = new IMAPMessage[matches.length];
-		    int size = messageCache.size();
-		    // Map seq-numbers into actual Messages.
-		    for (int i = 0; i < matches.length; i++) {
-			// Microsoft Exchange will sometimes return message
-			// numbers that it has not yet notified the client
-			// about via EXISTS; ignore those messages here.
-			if (matches[i] > size) {
-			    if (logger.isLoggable(Level.FINE))
-				logger.fine("ignoring message number " +
-				    matches[i] + " in search results, " +
-				    "outside range " + size);
-			} else
-			    matchMsgs[i] = getMessageBySeqNumber(matches[i]);
-		    }
-		}
+		if (matches != null)
+		    matchMsgs = getMessagesBySeqNumbers(matches);
 	    }
 	    return matchMsgs;
 
@@ -2184,11 +2169,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    throw new MessageRemovedException(
 					"Messages have been removed");
 		int[] matches = p.search(ms, term);
-		if (matches != null) {
-		    matchMsgs = new IMAPMessage[matches.length];
-		    for (int i = 0; i < matches.length; i++)	
-			matchMsgs[i] = getMessageBySeqNumber(matches[i]);
-		}
+		if (matches != null)
+		    matchMsgs = getMessagesBySeqNumbers(matches);
 	    }
 	    return matchMsgs;
 
@@ -2248,12 +2230,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    synchronized(messageCacheLock) {
 		int[] matches = getProtocol().sort(term, sterm);
-		if (matches != null) {
-		    matchMsgs = new IMAPMessage[matches.length];
-		    // Map seq-numbers into actual Messages.
-		    for (int i = 0; i < matches.length; i++)	
-			matchMsgs[i] = getMessageBySeqNumber(matches[i]);
-		}
+		if (matches != null)
+		    matchMsgs = getMessagesBySeqNumbers(matches);
 	    }
 	    return matchMsgs;
 
@@ -2607,7 +2585,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				throws MessagingException {
 	checkOpened(); // insure that folder is open
 
-	Message[] msgs; // array of messages to be returned
+	Message[] msgs = null; // array of messages to be returned
 
 	try {
 	    synchronized (messageCacheLock) {
@@ -2618,9 +2596,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		// Issue FETCH for given range
 		int[] nums = p.uidfetchChangedSince(start, end, modseq);
 
-		msgs = new Message[nums.length];
-		for (int i = 0; i < nums.length; i++)
-		    msgs[i] = getMessageBySeqNumber(nums[i]);
+		if (nums != null)
+		    msgs = getMessagesBySeqNumbers(nums);
 	    }
 	} catch(ConnectionException cex) {
 	    throw new FolderClosedException(this, cex.getMessage());
@@ -2628,6 +2605,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    throw new MessagingException(pex.getMessage(), pex);
 	}
 
+	if (msgs == null)
+	    msgs = new Message[0];
 	return msgs;
     }
 
@@ -3260,6 +3239,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		// save the Message object first; can't look it
 		// up after it's expunged
 		msgs = new Message[] { getMessageBySeqNumber(seqnum) };
+		if (msgs[0] == null)	// XXX - should never happen
+		    msgs = null;
 	    }
 
 	    messageCache.expungeMessage(seqnum);
@@ -3684,7 +3665,47 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @return	the IMAPMessage object
      */
     protected IMAPMessage getMessageBySeqNumber(int seqnum) {
+	if (seqnum > messageCache.size()) {
+	    // Microsoft Exchange will sometimes return message
+	    // numbers that it has not yet notified the client
+	    // about via EXISTS; ignore those messages here.
+	    // GoDaddy IMAP does this too.
+	    if (logger.isLoggable(Level.FINE))
+		logger.fine("ignoring message number " +
+		    seqnum + " outside range " + messageCache.size());
+	    return null;
+	}
 	return messageCache.getMessageBySeqnum(seqnum);
+    }
+
+    /**
+     * Get the message objects for the given sequence numbers.
+     *
+     * ASSERT: This method must be called only when holding the
+     *  messageCacheLock
+     *
+     * @param	seqnums	the array of message sequence numbers
+     * @return	the IMAPMessage objects
+     * @since	JavaMail 1.5.3
+     */
+    protected IMAPMessage[] getMessagesBySeqNumbers(int[] seqnums) {
+	IMAPMessage[] msgs = new IMAPMessage[seqnums.length];
+	int nulls = 0;
+	// Map seq-numbers into actual Messages.
+	for (int i = 0; i < seqnums.length; i++) {
+	    msgs[i] = getMessageBySeqNumber(seqnums[i]);
+	    if (msgs[i] == null)
+		nulls++;
+	}
+	if (nulls > 0) {	// compress the array to remove the nulls
+	    IMAPMessage[] nmsgs = new IMAPMessage[seqnums.length - nulls];
+	    for (int i = 0, j = 0; i < msgs.length; i++) {
+		if (msgs[i] != null)
+		    nmsgs[j++] = msgs[i];
+	    }
+	    msgs = nmsgs;
+	}
+	return msgs;
     }
 
     private boolean isDirectory() {
