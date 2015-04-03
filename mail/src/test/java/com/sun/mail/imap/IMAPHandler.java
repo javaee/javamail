@@ -214,13 +214,26 @@ public class IMAPHandler extends ProtocolHandler {
         } else if (commandName.equals("IDLE")) {
             idle();
         } else if (commandName.equals("FETCH")) {
-            fetch();
+            fetch(currentLine);
+        } else if (commandName.equals("STORE")) {
+            store(currentLine);
         } else if (commandName.equals("APPEND")) {
             append(currentLine);
         } else if (commandName.equals("CLOSE")) {
             close();
         } else if (commandName.equals("LOGOUT")) {
             logout();
+        } else if (commandName.equals("UID")) {
+	    String subcommandName = ct.nextToken().toUpperCase();
+	    if (subcommandName.equals("FETCH")) {
+		uidfetch(currentLine);
+	    } else if (subcommandName.equals("STORE")) {
+		uidstore(currentLine);
+	    } else {
+		LOGGER.log(Level.SEVERE, "ERROR UID command unknown: {0}",
+								subcommandName);
+		bad("unknown UID command");
+	    }
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}", commandName);
             bad("unknown command");
@@ -302,7 +315,34 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to read/write to socket
      */
-    public void fetch() throws IOException {
+    public void fetch(String line) throws IOException {
+        ok();	// XXX
+    }
+
+    /**
+     * STORE command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void store(String line) throws IOException {
+        ok();	// XXX
+    }
+
+    /**
+     * UID FETCH command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void uidfetch(String line) throws IOException {
+        ok();	// XXX
+    }
+
+    /**
+     * UID STORE command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void uidstore(String line) throws IOException {
         ok();	// XXX
     }
 

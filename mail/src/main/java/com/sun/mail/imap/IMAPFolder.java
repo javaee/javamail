@@ -2385,15 +2385,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		// Check with the server
 		// Issue UID FETCH command
-		UID u = getProtocol().fetchSequenceNumber(uid);
+		getProtocol().fetchSequenceNumber(uid);
 
-		if (u != null && u.seqnum <= total) { // Valid UID 
-		    m = getMessageBySeqNumber(u.seqnum);
-		    if (m != null) {
-			m.setUID(u.uid); // set this message's UID ..
-			// .. and put this into the hashtable
-			uidTable.put(l, m);
-		    }
+		if (uidTable != null) {
+		    // Check in uidTable
+		    m = (IMAPMessage)uidTable.get(l);
+		    if (m != null) // found it
+			return m;
 		}
 	    }
 	} catch(ConnectionException cex) {
@@ -2422,19 +2420,16 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    uidTable = new Hashtable();
 
 		// Issue UID FETCH for given range
-		UID[] ua = getProtocol().fetchSequenceNumbers(start, end);
+		long[] ua = getProtocol().fetchSequenceNumbers(start, end);
 
-		msgs = new Message[ua.length];
-		IMAPMessage m;
+		List<Message> ma = new ArrayList<Message>();
 		// NOTE: Below must be within messageCacheLock region
 		for (int i = 0; i < ua.length; i++) {
-		    m = getMessageBySeqNumber(ua[i].seqnum);
-		    if (m != null) {
-			m.setUID(ua[i].uid);
-			msgs[i] = m;
-			uidTable.put(Long.valueOf(ua[i].uid), m);
-		    }
+		    Message m = (Message)uidTable.get(Long.valueOf(ua[i]));
+		    if (m != null) // found it
+			ma.add(m);
 		}
+		msgs = ma.toArray(new Message[ma.size()]);
 	    }
 	} catch(ConnectionException cex) {
 	    throw new FolderClosedException(this, cex.getMessage());
@@ -2477,15 +2472,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		if (unavailUids.length > 0) {
 		    // Issue UID FETCH request for given uids
-		    UID[] ua = getProtocol().fetchSequenceNumbers(unavailUids);
-		    IMAPMessage m;
-		    for (int i = 0; i < ua.length; i++) {
-			m = getMessageBySeqNumber(ua[i].seqnum);
-			if (m != null) {
-			    m.setUID(ua[i].uid);
-			    uidTable.put(Long.valueOf(ua[i].uid), m);
-			}
-		    }
+		    getProtocol().fetchSequenceNumbers(unavailUids);
 		}
 
 		// Return array of size = uids.length

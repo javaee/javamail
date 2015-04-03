@@ -35,6 +35,7 @@ K  6668	skip unusable Store and Transport classes
 K  6687	long parameter values should be split using RFC 2231
 K  6703	javax.mail.Authenticator thread safety
 K  6718	Modify MailHandler to support Google App Engine.
+K  6755	EXPUNGE response during UID FETCH breaks UID->seqnum mapping
 
 
 		  CHANGES IN THE 1.5.2 RELEASE

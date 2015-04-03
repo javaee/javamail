@@ -1604,38 +1604,31 @@ public class IMAPProtocol extends Protocol {
     }
 		
     /**
-     * Get the sequence number for the given UID. A UID object
-     * containing the sequence number is returned. If the given UID
-     * is invalid, <code>null</code> is returned.
+     * Get the sequence number for the given UID.  Nothing is returned;
+     * the FETCH UID response must be handled by the reponse handler,
+     * along with any possible EXPUNGE responses, to ensure that the
+     * UID is matched with the correct sequence number.
+     *
+     * @since	JavaMail 1.5.3
      */
-    public UID fetchSequenceNumber(long uid) throws ProtocolException {
-	UID u = null;
+    public void fetchSequenceNumber(long uid) throws ProtocolException {
 	Response[] r = fetch(String.valueOf(uid), "UID", true);	
 
-	for (int i = 0, len = r.length; i < len; i++) {
-	    if (r[i] == null || !(r[i] instanceof FetchResponse))
-		continue;
-	    
-	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((u = fr.getItem(UID.class)) != null) {
-		if (u.uid == uid) // this is the one we want
-		    break;
-		else
-		    u = null;
-	    }
-	}
-		
 	notifyResponseHandlers(r);
 	handleResult(r[r.length-1]);
-	return u;
     }
 
     /**
      * Get the sequence numbers for UIDs ranging from start till end.
-     * UID objects that contain the sequence numbers are returned.
-     * If no UIDs in the given range are found, an empty array is returned.
+     * Since the range may be large and sparse, an array of the UIDs actually
+     * found is returned.  The caller must map these to messages after
+     * the FETCH UID responses have been handled by the reponse handler,
+     * along with any possible EXPUNGE responses, to ensure that the
+     * UIDs are matched with the correct sequence numbers.
+     *
+     * @since	JavaMail 1.5.3
      */
-    public UID[] fetchSequenceNumbers(long start, long end)
+    public long[] fetchSequenceNumbers(long start, long end)
 			throws ProtocolException {
 	Response[] r = fetch(String.valueOf(start) + ":" + 
 				(end == UIDFolder.LASTUID ? "*" : 
@@ -1656,15 +1649,22 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 	handleResult(r[r.length-1]);
 
-	return v.toArray(new UID[v.size()]);
+	long[] lv = new long[v.size()];
+	for (int i = 0; i < v.size(); i++)
+	    lv[i] = v.get(i).uid;
+	return lv;
     }
-
+ 
     /**
      * Get the sequence numbers for UIDs specified in the array.
-     * UID objects that contain the sequence numbers are returned.
-     * If no UIDs in the given range are found, an empty array is returned.
+     * Nothing is returned.  The caller must map the UIDs to messages after
+     * the FETCH UID responses have been handled by the reponse handler,
+     * along with any possible EXPUNGE responses, to ensure that the
+     * UIDs are matched with the correct sequence numbers.
+     *
+     * @since	JavaMail 1.5.3
      */
-    public UID[] fetchSequenceNumbers(long[] uids) throws ProtocolException {
+    public void fetchSequenceNumbers(long[] uids) throws ProtocolException {
 	StringBuffer sb = new StringBuffer();
 	for (int i = 0; i < uids.length; i++) {
 	    if (i > 0)
@@ -1674,21 +1674,8 @@ public class IMAPProtocol extends Protocol {
 
 	Response[] r = fetch(sb.toString(), "UID", true);	
 
-	UID u;
-	List<UID> v = new ArrayList<UID>();
-	for (int i = 0, len = r.length; i < len; i++) {
-	    if (r[i] == null || !(r[i] instanceof FetchResponse))
-		continue;
-	    
-	    FetchResponse fr = (FetchResponse)r[i];
-	    if ((u = fr.getItem(UID.class)) != null)
-		v.add(u);
-	}
-		
 	notifyResponseHandlers(r);
 	handleResult(r[r.length-1]);
-
-	return v.toArray(new UID[v.size()]);
     }
 
     /**
