@@ -293,7 +293,7 @@ public class SocketFetcher {
 		logger.finer("socks host " + socksHost + ", port " + socksPort);
 	}
 
-	if (sf != null)
+	if (sf != null && !(sf instanceof SSLSocketFactory))
 	    socket = sf.createSocket();
 	if (socket == null) {
 	    if (socksHost != null) {
@@ -354,7 +354,9 @@ public class SocketFetcher {
 		    ioex.initCause(gex);
 		    throw ioex;
 		}
-	    } else
+	    } else if (sf instanceof SSLSocketFactory)
+		ssf = (SSLSocketFactory)sf;
+	    else
 		ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
 	    socket = ssf.createSocket(socket, host, port, true);
 	    sf = ssf;

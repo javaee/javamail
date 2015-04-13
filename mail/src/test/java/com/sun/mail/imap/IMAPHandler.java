@@ -41,6 +41,7 @@
 package com.sun.mail.imap;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
@@ -193,7 +194,19 @@ public class IMAPHandler extends ProtocolHandler {
         }
 
         StringTokenizer ct = new StringTokenizer(currentLine, " ");
+	if (!ct.hasMoreTokens()) {
+            LOGGER.log(Level.SEVERE, "ERROR no command tag: {0}",
+							escape(currentLine));
+            bad("no command tag");
+	    return;
+	}
 	tag = ct.nextToken();
+	if (!ct.hasMoreTokens()) {
+            LOGGER.log(Level.SEVERE, "ERROR no command: {0}",
+							escape(currentLine));
+            bad("no command");
+	    return;
+	}
         final String commandName = ct.nextToken().toUpperCase();
         if (commandName == null) {
             LOGGER.severe("Command name is empty!");
@@ -211,6 +224,8 @@ public class IMAPHandler extends ProtocolHandler {
             select();
         } else if (commandName.equals("EXAMINE")) {
             examine();
+        } else if (commandName.equals("LIST")) {
+            list(currentLine);
         } else if (commandName.equals("IDLE")) {
             idle();
         } else if (commandName.equals("FETCH")) {
@@ -237,7 +252,8 @@ public class IMAPHandler extends ProtocolHandler {
 		bad("unknown UID command");
 	    }
         } else {
-            LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}", commandName);
+            LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}",
+							escape(currentLine));
             bad("unknown command");
         }
     }
@@ -279,6 +295,15 @@ public class IMAPHandler extends ProtocolHandler {
     public void examine() throws IOException {
 	untagged(numberOfMessages + " EXISTS");
 	untagged(numberOfRecentMessages + " RECENT");
+        ok();
+    }
+
+    /**
+     * LIST command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void list(String line) throws IOException {
         ok();
     }
 
@@ -372,11 +397,28 @@ public class IMAPHandler extends ProtocolHandler {
         ok();	// XXX
     }
 
+    /**
+     * Collect "bytes" worth of data for the message being appended.
+     */
     protected void collectMessage(int bytes) throws IOException {
 	// should be bytes, but simpler to assume chars == bytes with ASCII
 	char[] data = new char[bytes];
-	reader.read(data);	// read the data and throw it away
+	readFully(reader, data);	// read the data and throw it away
 	reader.readLine();	// data followed by a newline
+    }
+
+    /**
+     * Read data from "r" into "data" until it's full.
+     */
+    protected int readFully(Reader r, char[] data) throws IOException {
+	int len = data.length;
+	int off = 0;
+	int n;
+	while ((n = r.read(data, off, len)) > 0) {
+	    off += n;
+	    len -= n;
+	}
+	return off;
     }
 
     /**
@@ -405,5 +447,34 @@ public class IMAPHandler extends ProtocolHandler {
     public void logout() throws IOException {
         ok();
         exit();
+    }
+
+    /**
+     * Escape any non-printable characters in "s",
+     * limiting total length to about 100 characters.
+     */
+    private String escape(String s) {
+	StringBuilder sb = new StringBuilder();
+	for (int i = 0; i < s.length(); i++) {
+	    if (sb.length() >= 100) {
+		sb.append("...");
+		break;
+	    }
+	    char c = s.charAt(i);
+	    if (c < '_' || c == '\177') {
+		if (c == '\r')
+		    sb.append("\\r");
+		else if (c == '\n')
+		    sb.append("\\n");
+		else if (c == '\t')
+		    sb.append("\\t");
+		else
+		    sb.append('\\').append(String.format("%03o", (int)c));
+	    } else if (c >= '\200') {
+		    sb.append("\\u").append(String.format("%04x", (int)c));
+	    } else
+		sb.append(c);
+	}
+	return sb.toString();
     }
 }

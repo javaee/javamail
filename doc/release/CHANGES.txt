@@ -37,6 +37,7 @@ K  6703	javax.mail.Authenticator thread safety
 K  6718	Modify MailHandler to support Google App Engine.
 K  6755	EXPUNGE response during UID FETCH breaks UID->seqnum mapping
 K  6762	ArrayIndexOutOfBoundsException caused by out-of-range IMAP responses
+K  6772	write timeouts don't work with a custom SSL socket factory
 
 
 		  CHANGES IN THE 1.5.2 RELEASE

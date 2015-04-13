@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,9 +40,13 @@
 
 package com.sun.mail.test;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+//import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.*;
 
 /**
  * A simple server for testing.
@@ -69,8 +73,35 @@ public final class TestServer extends Thread {
      * @param handler	the protocol handler
      */
     public TestServer(final ProtocolHandler handler) throws IOException {
+	this(handler, false);
+    }
+
+    /**
+     * Test server.
+     *
+     * @param handler	the protocol handler
+     * @param isSSL	create SSL sockets?
+     */
+    public TestServer(final ProtocolHandler handler, final boolean isSSL)
+				throws IOException {
         this.handler = handler;
-	serverSocket = new ServerSocket(0);
+	if (isSSL) {
+	    SSLServerSocketFactory sf =
+		(SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
+	    serverSocket = sf.createServerSocket(0);
+	    // enable only the anonymous cipher suites so we don't have to
+	    // create a server certificate
+	    List<String> anon = new ArrayList<String>();
+	    String[] suites = sf.getSupportedCipherSuites();
+	    for (int i = 0; i < suites.length; i++) {
+		if (suites[i].indexOf("_anon_") >= 0) {
+		    anon.add(suites[i]);
+		}
+	    }
+	    ((SSLServerSocket)serverSocket).setEnabledCipherSuites(
+					anon.toArray(new String[anon.size()]));
+	} else
+	    serverSocket = new ServerSocket(0);
     }
 
     /**
