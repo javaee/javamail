@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -598,7 +598,7 @@ public class SocketFetcher {
      * 
      * @param	server		name of the server expected
      * @param   sslSocket	SSLSocket connected to the server
-     * @return  true if the RFC 2595 check passes
+     * @exception	IOException	if we can't verify identity of server
      */
     private static void checkServerIdentity(String server, SSLSocket sslSocket)
 				throws IOException {
