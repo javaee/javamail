@@ -263,7 +263,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
             if (root != null) {
                 msg = formatMessage(t);
                 String site = formatBackTrace(record);
-                msg = root.getClass().getSimpleName() + ": " + msg
+                msg = simpleClassName(root.getClass()) + ": " + msg
                         + (isNullOrSpaces(site) ? "" : ' ' + site);
             } else {
                 msg = "";
@@ -500,7 +500,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
             int limit = 0;
             for (Throwable c = t; c != null; c = c.getCause()) {
                 final Class<?> k = c.getClass();
-                msg = msg.replace(k.getName(), k.getSimpleName());
+                msg = msg.replace(k.getName(), simpleClassName(k));
 
                 //Deal with excessive cause chains and cyclic throwables.
                 if (++limit == (1 << 16)) {
@@ -525,11 +525,27 @@ public class CompactFormatter extends java.util.logging.Formatter {
             for (Object o : p) {
                 if (o != null) {
                     final Class<?> k = o.getClass();
-                    msg = msg.replace(k.getName(), k.getSimpleName());
+                    msg = msg.replace(k.getName(), simpleClassName(k));
                 }
             }
         }
         return msg;
+    }
+
+    /**
+     * Gets the simple class name from the given class. This is a workaround for
+     * BUG ID JDK-8057919.
+     *
+     * @param name the fully qualified class name or null.
+     * @return the simple class name or null.
+     * @since JavaMail 1.5.3
+     */
+    private static String simpleClassName(final Class<?> k) {
+        try {
+            return k.getSimpleName();
+        } catch (final InternalError JDK8057919) {
+        }
+        return simpleClassName(k.getName());
     }
 
     /**
