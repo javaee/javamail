@@ -38,6 +38,7 @@ K  6718	Modify MailHandler to support Google App Engine.
 K  6755	EXPUNGE response during UID FETCH breaks UID->seqnum mapping
 K  6762	ArrayIndexOutOfBoundsException caused by out-of-range IMAP responses
 K  6772	write timeouts don't work with a custom SSL socket factory
+K  6778	SMTP SASL DIGEST-MD5 fails on postfix since the last reply sent is "*"
 
 
 		  CHANGES IN THE 1.5.2 RELEASE

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -153,24 +153,24 @@ public class SMTPSaslHandler extends SMTPHandler {
 	while (!ss.isComplete()) {
 	    try {
 		byte[] chal = ss.evaluateResponse(response);
-		if (ss.isComplete()) {
-		    break;
-		} else {
-		    // send challenge
-		    if (LOGGER.isLoggable(Level.FINE))
-			LOGGER.fine("SASL challenge: " +
-			    ASCIIUtility.toString(chal, 0, chal.length));
-		    byte[] ba = BASE64EncoderStream.encode(chal);
-		    if (ba.length > 0)
-			println("334 " +
-				ASCIIUtility.toString(ba, 0, ba.length));
-		    else
-			println("334");
-		    // read response
-		    String resp = readLine();
-		    response = resp.getBytes();
-		    response = BASE64DecoderStream.decode(response);
+		// send challenge
+		if (LOGGER.isLoggable(Level.FINE))
+		    LOGGER.fine("SASL challenge: " +
+			ASCIIUtility.toString(chal, 0, chal.length));
+		byte[] ba = BASE64EncoderStream.encode(chal);
+		if (ba.length > 0)
+		    println("334 " +
+			    ASCIIUtility.toString(ba, 0, ba.length));
+		else
+		    println("334");
+		// read response
+		String resp = readLine();
+		if (!isBase64(resp)) {
+		    println("501 response not base64");
+		break;
 		}
+		response = resp.getBytes();
+		response = BASE64DecoderStream.decode(response);
 	    } catch (SaslException ex) {
 		println("501 " + ex.toString());
 		break;
@@ -191,5 +191,23 @@ public class SMTPSaslHandler extends SMTPHandler {
 	}
 
 	println("235 Authenticated");
+    }
+
+    /**
+     * Is every character in the string a base64 character?
+     */
+    private boolean isBase64(String s) {
+	int len = s.length();
+	if (s.endsWith("=="))
+	    len -= 2;
+	else if (s.endsWith("="))
+	    len--;
+	for (int i = 0; i < len; i++) {
+	    char c = s.charAt(i);
+	    if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+		    (c >= '0' && c <= '9') || c == '+' || c == '/'))
+		return false;
+	}
+	return true;
     }
 }

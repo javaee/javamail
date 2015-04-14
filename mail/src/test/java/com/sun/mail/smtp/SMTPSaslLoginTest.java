@@ -58,13 +58,92 @@ import static org.junit.Assert.fail;
  */
 public class SMTPSaslLoginTest {
 
+    /**
+     * Test using non-SASL DIGEST-MD5.
+     */
     @Test
     public void testSuccess() {
         TestServer server = null;
         try {
             server = new TestServer(new SMTPSaslHandler());
             server.start();
-            Thread.sleep(1000);
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect("test", "test");
+		// success!
+	    } catch (Exception ex) {
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    /**
+     * Test using non-SASL DIGEST-MD5 with incorrect password.
+     */
+    @Test
+    public void testFailure() {
+        TestServer server = null;
+        try {
+            server = new TestServer(new SMTPSaslHandler());
+            server.start();
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect("test", "xtest");
+		// should have failed
+		fail("wrong password succeeded");
+	    } catch (AuthenticationFailedException ex) {
+		// success!
+	    } catch (Exception ex) {
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    /**
+     * Test using SASL DIGEST-MD5.
+     */
+    @Test
+    public void testSaslSuccess() {
+        TestServer server = null;
+        try {
+            server = new TestServer(new SMTPSaslHandler());
+            server.start();
 
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
@@ -96,13 +175,15 @@ public class SMTPSaslLoginTest {
         }
     }
 
+    /**
+     * Test using SASL DIGEST-MD5 with incorrect password.
+     */
     @Test
-    public void testFailure() {
+    public void testSaslFailure() {
         TestServer server = null;
         try {
             server = new TestServer(new SMTPSaslHandler());
             server.start();
-            Thread.sleep(1000);
 
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
