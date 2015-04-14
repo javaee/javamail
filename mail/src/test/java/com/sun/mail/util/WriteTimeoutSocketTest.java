@@ -72,6 +72,7 @@ public final class WriteTimeoutSocketTest {
     @Rule
     public Timeout deadlockTimeout = new Timeout(20000);
 
+    private static final int TIMEOUT = 200;	// ms
     private static final String data =
 	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
@@ -82,7 +83,7 @@ public final class WriteTimeoutSocketTest {
     public void test() {
 	final Properties properties = new Properties();
 	properties.setProperty("mail.imap.host", "localhost");
-	properties.setProperty("mail.imap.writetimeout", "" + 1000);
+	properties.setProperty("mail.imap.writetimeout", "" + TIMEOUT);
 	test(properties, false);
     }
 
@@ -93,7 +94,7 @@ public final class WriteTimeoutSocketTest {
     public void testSocketFactory() {
 	final Properties properties = new Properties();
 	properties.setProperty("mail.imap.host", "localhost");
-	properties.setProperty("mail.imap.writetimeout", "" + 1000);
+	properties.setProperty("mail.imap.writetimeout", "" + TIMEOUT);
 	TestSocketFactory sf = new TestSocketFactory();
 	properties.put("mail.imap.socketFactory", sf);
 	properties.setProperty("mail.imap.socketFactory.fallback", "false");
@@ -109,7 +110,7 @@ public final class WriteTimeoutSocketTest {
     public void testSSL() {
 	final Properties properties = new Properties();
 	properties.setProperty("mail.imap.host", "localhost");
-	properties.setProperty("mail.imap.writetimeout", "" + 1000);
+	properties.setProperty("mail.imap.writetimeout", "" + TIMEOUT);
 	properties.setProperty("mail.imap.ssl.enable", "true");
 	// enable only the anonymous cipher suites since there's no
 	// server certificate
@@ -125,7 +126,7 @@ public final class WriteTimeoutSocketTest {
     public void testSSLSocketFactory() throws Exception {
 	final Properties properties = new Properties();
 	properties.setProperty("mail.imap.host", "localhost");
-	properties.setProperty("mail.imap.writetimeout", "" + 1000);
+	properties.setProperty("mail.imap.writetimeout", "" + TIMEOUT);
 	properties.setProperty("mail.imap.ssl.enable", "true");
 	TestSSLSocketFactory sf = new TestSSLSocketFactory();
 	sf.setDefaultCipherSuites(getAnonCipherSuitesArray());
@@ -228,7 +229,7 @@ public final class WriteTimeoutSocketTest {
 	@Override
         protected void collectMessage(int bytes) throws IOException {
 	    try {
-		Thread.currentThread().sleep(2000);
+		Thread.currentThread().sleep(TIMEOUT*2);
 	    } catch (InterruptedException ex) { }
 	    super.collectMessage(bytes);
         }
