@@ -2965,42 +2965,45 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @since	JavaMail 1.5.2
      */
     boolean handleIdle(boolean once) throws MessagingException {
-	Response r = protocol.readIdleResponse();
-	try {
-	    synchronized (messageCacheLock) {
-		boolean done = true;
-		try {
-		    if (r == null || protocol == null ||
-			    !protocol.processIdleResponse(r))
-			return false;	// done
-		    done = false;
-		} finally {
-		    if (done) {
-			logger.finest("handleIdle: set to RUNNING");
-			idleState = RUNNING;
-			idleManager = null;
-			messageCacheLock.notifyAll();
-		    }
-		}
-		if (once) {
-		    if (idleState == IDLE) {
-			try {
-			    protocol.idleAbort();
-			} catch (Exception ex) {
-			    // ignore any failures, still have to abort.
-			    // connection failures will be detected above
-			    // in the call to readIdleResponse.
+	do {
+	    Response r = protocol.readIdleResponse();
+	    try {
+		synchronized (messageCacheLock) {
+		    boolean done = true;
+		    try {
+			if (r == null || protocol == null ||
+				!protocol.processIdleResponse(r))
+			    return false;	// done
+			done = false;
+		    } finally {
+			if (done) {
+			    logger.finest("handleIdle: set to RUNNING");
+			    idleState = RUNNING;
+			    idleManager = null;
+			    messageCacheLock.notifyAll();
 			}
-			idleState = ABORTING;
+		    }
+		    if (once) {
+			if (idleState == IDLE) {
+			    try {
+				protocol.idleAbort();
+			    } catch (Exception ex) {
+				// ignore any failures, still have to abort.
+				// connection failures will be detected above
+				// in the call to readIdleResponse.
+			    }
+			    idleState = ABORTING;
+			}
 		    }
 		}
+	    } catch (ConnectionException cex) {
+		// Oops, the store or folder died on us.
+		throwClosedException(cex);
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
 	    }
-	} catch (ConnectionException cex) {
-	    // Oops, the store or folder died on us.
-	    throwClosedException(cex);
-	} catch (ProtocolException pex) {
-	    throw new MessagingException(pex.getMessage(), pex);
-	}
+	// keep processing responses already in our buffer
+	} while (protocol.hasResponse());
 	return true;
     }
 

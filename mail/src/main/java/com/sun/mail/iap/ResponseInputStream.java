@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -158,5 +158,16 @@ public class ResponseInputStream {
 	}
 	ba.setCount(idx);
 	return ba;
+    }
+
+    /**
+     * How much buffered data do we have?
+     *
+     * @return	number of bytes available
+     * @exception	IOException	if the stream has been closed
+     * @since	JavaMail 1.5.4
+     */
+    public int available() throws IOException {
+	return bin.available();
     }
 }

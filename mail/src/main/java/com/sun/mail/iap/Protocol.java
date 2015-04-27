@@ -253,6 +253,26 @@ public class Protocol {
     }
 
     /**
+     * Is another response available in our buffer?
+     *
+     * @return	true if another response is in the buffer
+     * @since	JavaMail 1.5.4
+     */
+    public boolean hasResponse() {
+	/*
+	 * XXX - Really should peek ahead in the buffer to see
+	 * if there's a *complete* response available, but if there
+	 * isn't who's going to read more data into the buffer 
+	 * until there is?
+	 */
+	try {
+	    return input.available() > 0;
+	} catch (IOException ex) {
+	}
+	return false;
+    }
+
+    /**
      * Return a buffer to be used to read a response.
      * The default implementation returns null, which causes
      * a new buffer to be allocated for every response.
