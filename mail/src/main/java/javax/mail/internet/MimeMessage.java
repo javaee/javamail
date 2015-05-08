@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1016,7 +1016,7 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     /**
-     * Returns the value of the "Content-Disposition" header field.
+     * Returns the disposition from the "Content-Disposition" header field.
      * This represents the disposition of this part. The disposition
      * describes how the part should be presented to the user. <p>
      *
@@ -1034,9 +1034,9 @@ public class MimeMessage extends Message implements MimePart {
     }
 
     /**
-     * Set the "Content-Disposition" header field of this Message.
-     * If <code>disposition</code> is null, any existing "Content-Disposition"
-     * header field is removed.
+     * Set the disposition in the "Content-Disposition" header field
+     * of this body part.  If the disposition is null, any existing
+     * "Content-Disposition" header field is removed.
      *
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification

@@ -298,7 +298,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     }
 
     /**
-     * Returns the value of the "Content-Disposition" header field.
+     * Returns the disposition from the "Content-Disposition" header field.
      * This represents the disposition of this part. The disposition
      * describes how the part should be presented to the user. <p>
      *
@@ -316,9 +316,9 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     }
 
     /**
-     * Set the "Content-Disposition" header field of this body part.
-     * If the disposition is null, any existing "Content-Disposition"
-     * header field is removed.
+     * Set the disposition in the "Content-Disposition" header field
+     * of this body part.  If the disposition is null, any existing
+     * "Content-Disposition" header field is removed.
      *
      * @exception	IllegalWriteException if the underlying
      *			implementation does not support modification
