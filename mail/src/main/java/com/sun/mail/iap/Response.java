@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -58,6 +58,8 @@ public class Response {
     protected byte[] buffer = null;
     protected int type = 0;
     protected String tag = null;
+    /** @since JavaMail 1.5.4 */
+    protected Exception ex;
 
     private static final int increment = 100;
 
@@ -133,6 +135,7 @@ public class Response {
 	err = err.replace('\r', ' ').replace('\n', ' ');
 	Response r = new Response(err);
 	r.type |= SYNTHETIC;
+	r.ex = ex;
 	return r;
     }
 
@@ -522,6 +525,15 @@ public class Response {
     public String getRest() {
 	skipSpaces();
 	return ASCIIUtility.toString(buffer, index, size);
+    }
+
+    /**
+     * Return the exception for a synthetic BYE response.
+     *
+     * @since	JavaMail 1.5.4
+     */
+    public Exception getException() {
+	return ex;
     }
 
     /**

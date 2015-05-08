@@ -45,11 +45,15 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Folder;
 import javax.mail.FetchProfile;
+import javax.mail.MessagingException;
+import javax.mail.event.ConnectionAdapter;
+import javax.mail.event.ConnectionEvent;
 
 import com.sun.mail.test.TestServer;
 
@@ -58,29 +62,35 @@ import org.junit.Rule;
 import org.junit.rules.Timeout;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Test that IdleManager handles multiple responses in a single
- * network packet correctly.
+ * Test IdleManager.
  */
 public final class IMAPIdleManagerTest {
 
+    private static final int TIMEOUT = 1000;	// 1 second
+
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(5000);
+    public Timeout deadlockTimeout = new Timeout(5 * TIMEOUT);
 
+    /**
+     * Test that IdleManager handles multiple responses in a single packet.
+     */
     @Test
     public void testDone() {
-	test(new IMAPHandlerIdleDone());
+	testSuccess(new IMAPHandlerIdleDone());
     }
 
     @Test
     public void testExists() {
-	test(new IMAPHandlerIdleExists());
+	testSuccess(new IMAPHandlerIdleExists());
     }
 
-    private void test(IMAPHandlerIdle handler) {
+    private void testSuccess(IMAPHandlerIdle handler) {
         TestServer server = null;
+	IdleManager idleManager = null;
         try {
             server = new TestServer(handler);
             server.start();
@@ -93,7 +103,7 @@ public final class IMAPIdleManagerTest {
             //session.setDebug(true);
 
 	    ExecutorService executor = Executors.newCachedThreadPool();
-	    IdleManager idleManager = new IdleManager(session, executor);
+	    idleManager = new IdleManager(session, executor);
 
             final IMAPStore store = (IMAPStore)session.getStore("imap");
             try {
@@ -124,6 +134,8 @@ public final class IMAPIdleManagerTest {
             e.printStackTrace();
             fail(e.getMessage());
         } finally {
+	    if (idleManager != null)
+		idleManager.stop();
             if (server != null) {
                 server.quit();
             }
@@ -131,19 +143,164 @@ public final class IMAPIdleManagerTest {
     }
 
     /**
-     * Custom handler.
+     * Test that IdleManager handles timeouts.
      */
-    private static class IMAPHandlerIdle extends IMAPHandler {
-	// must be static because handler is cloned for each connection
-	protected static CountDownLatch latch = new CountDownLatch(1);
+    @Test
+    public void testBeforeIdleTimeout() {
+	testFailure(new IMAPHandlerBeforeIdleTimeout(), true);
+    }
 
+    @Test
+    public void testIdleTimeout() {
+	testFailure(new IMAPHandlerIdleTimeout(), true);
+    }
+
+    @Test
+    public void testDoneTimeout() {
+	testFailure(new IMAPHandlerDoneTimeout(), true);
+    }
+
+    /**
+     * Test that IdleManager handles connection failures.
+     */
+    @Test
+    public void testBeforeIdleDrop() {
+	testFailure(new IMAPHandlerBeforeIdleDrop(), false);
+    }
+
+    @Test
+    public void testIdleDrop() {
+	testFailure(new IMAPHandlerIdleDrop(), false);
+    }
+
+    @Test
+    public void testDoneDrop() {
+	testFailure(new IMAPHandlerDoneDrop(), false);
+    }
+
+    private void testFailure(IMAPHandlerIdle handler, boolean setTimeout) {
+        TestServer server = null;
+	IdleManager idleManager = null;
+	final CountDownLatch closedLatch = new CountDownLatch(1);
+        try {
+            server = new TestServer(handler);
+            server.start();
+
+            final Properties properties = new Properties();
+            properties.setProperty("mail.imap.host", "localhost");
+            properties.setProperty("mail.imap.port", "" + server.getPort());
+	    if (setTimeout)
+		properties.setProperty("mail.imap.timeout", "" + TIMEOUT);
+            properties.setProperty("mail.imap.usesocketchannels", "true");
+            final Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+	    ExecutorService executor = Executors.newCachedThreadPool();
+	    idleManager = new IdleManager(session, executor);
+
+            final IMAPStore store = (IMAPStore)session.getStore("imap");
+            try {
+                store.connect("test", "test");
+		Folder folder = store.getFolder("INBOX");
+		folder.open(Folder.READ_WRITE);
+		idleManager.watch(folder);
+		handler.waitForIdle();
+
+		// now do something that is sure to touch the server
+		FetchProfile fp = new FetchProfile();
+		fp.add(FetchProfile.Item.ENVELOPE);
+		folder.fetch(folder.getMessages(), fp);
+
+		fail("No exception");
+	    } catch (MessagingException mex) {
+		// success!
+	    } catch (Exception ex) {
+		System.out.println(ex);
+		//ex.printStackTrace();
+		fail(ex.toString());
+            } finally {
+                store.close();
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+	    if (idleManager != null)
+		idleManager.stop();
+            if (server != null) {
+                server.quit();
+            }
+        }
+    }
+
+    /**
+     * Base class for custom handler.
+     */
+    private static abstract class IMAPHandlerIdle extends IMAPHandler {
 	@Override
         public void select() throws IOException {
 	    numberOfMessages = 1;
 	    super.select();
 	}
 
+	public abstract void waitForIdle() throws InterruptedException;
+    }
+
+    /**
+     * Custom handler.  Respond to DONE with a single packet containing
+     * EXISTS and OK.
+     */
+    private static final class IMAPHandlerIdleDone extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
         public void idle() throws IOException {
+	    cont();
+	    latch.countDown();
+	    idleWait();
+	    println("* 3 EXISTS\r\n" + tag + " OK");
+        }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
+    }
+
+    /**
+     * Custom handler.  Send two EXISTS responses in a single packet.
+     */
+    private static final class IMAPHandlerIdleExists extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void idle() throws IOException {
+	    cont();
+	    latch.countDown();
+	    idleWait();
+	    println("* 2 EXISTS\r\n* 3 EXISTS");
+	    ok();
+        }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
+    }
+
+    /**
+     * Custom handler.  Delay long enough before IDLE starts to force a timeout.
+     */
+    private static final class IMAPHandlerBeforeIdleTimeout
+						    extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void idle() throws IOException {
+	    try {
+		Thread.sleep(2 * TIMEOUT);
+	    } catch (InterruptedException ex) { }
 	    cont();
 	    latch.countDown();
 	    idleWait();
@@ -156,30 +313,107 @@ public final class IMAPIdleManagerTest {
     }
 
     /**
-     * Custom handler.  Respond to DONE with a single packet containing
-     * EXISTS and OK.
+     * Custom handler.  Delay long enough after IDLE starts to force a timeout.
      */
-    private static final class IMAPHandlerIdleDone extends IMAPHandlerIdle {
+    private static final class IMAPHandlerIdleTimeout extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
 	@Override
         public void idle() throws IOException {
 	    cont();
 	    latch.countDown();
+	    try {
+		Thread.sleep(2 * TIMEOUT);
+	    } catch (InterruptedException ex) { }
 	    idleWait();
-	    println("* 3 EXISTS\r\n" + tag + " OK");
+	    ok();
         }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
     }
 
     /**
-     * Custom handler.  Send two EXISTS responses in a single packet.
+     * Custom handler.  Delay long enough after DONE received to force a
+     * timeout.
      */
-    private static final class IMAPHandlerIdleExists extends IMAPHandlerIdle {
+    private static final class IMAPHandlerDoneTimeout extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
 	@Override
         public void idle() throws IOException {
 	    cont();
 	    latch.countDown();
 	    idleWait();
-	    println("* 2 EXISTS\r\n* 3 EXISTS");
+	    try {
+		Thread.sleep(2 * TIMEOUT);
+	    } catch (InterruptedException ex) { }
 	    ok();
         }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
+    }
+
+    /**
+     * Custom handler.  Drop the connection before IDLE started.
+     */
+    private static final class IMAPHandlerBeforeIdleDrop extends
+							    IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void idle() throws IOException {
+	    latch.countDown();
+	    exit();
+        }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
+    }
+
+    /**
+     * Custom handler.  Drop the connection after IDLE started.
+     */
+    private static final class IMAPHandlerIdleDrop extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void idle() throws IOException {
+	    cont();
+	    latch.countDown();
+	    exit();
+        }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
+    }
+
+    /**
+     * Custom handler.  Drop the connection after DONE received.
+     */
+    private static final class IMAPHandlerDoneDrop extends IMAPHandlerIdle {
+	// must be static because handler is cloned for each connection
+	private static CountDownLatch latch = new CountDownLatch(1);
+
+	@Override
+        public void idle() throws IOException {
+	    cont();
+	    latch.countDown();
+	    idleWait();
+	    exit();
+        }
+
+	public void waitForIdle() throws InterruptedException {
+	    latch.await();
+	}
     }
 }

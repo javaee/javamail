@@ -284,8 +284,10 @@ public class IMAPProtocol extends Protocol {
 	if (ir.keyEquals("PREAUTH")) {
 	    authenticated = true;
 	    setCapabilities(r);
-	} else
+	} else {
+	    disconnect();
 	    throw new ConnectionException(this, r);
+	}
     }
 
     /**
@@ -2634,28 +2636,14 @@ public class IMAPProtocol extends Protocol {
 	if (idleTag == null)
 	    return null;	// IDLE not in progress
 	Response r = null;
-	while (r == null) {
-	    try {
-		r = readResponse();
-	    } catch (InterruptedIOException iioex) {
-		/*
-		 * If a socket timeout was set, the read will timeout
-		 * before the IDLE times out.  In that case, just go
-		 * back and read some more.  After all, the point of
-		 * IDLE is to sit here and wait until something happens.
-		 */
-		if (iioex.bytesTransferred == 0)
-		    r = null;	// keep trying
-		else
-		    // convert this into a BYE response
-		    r = Response.byeResponse(iioex);
-	    } catch (IOException ioex) {
-		// convert this into a BYE response
-		r = Response.byeResponse(ioex);
-	    } catch (ProtocolException pex) {
-		// convert this into a BYE response
-		r = Response.byeResponse(pex);
-	    }
+	try {
+	    r = readResponse();
+	} catch (IOException ioex) {
+	    // convert this into a BYE response
+	    r = Response.byeResponse(ioex);
+	} catch (ProtocolException pex) {
+	    // convert this into a BYE response
+	    r = Response.byeResponse(pex);
 	}
 	return r;
     }

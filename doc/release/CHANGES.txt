@@ -19,6 +19,7 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 The following bugs have been fixed in the 1.5.4 release.
 
 K  6804	IdleManager can deadlock with frequent notifications
+K  6817	IdleManager can deadlock when connection fails
 
 
 		  CHANGES IN THE 1.5.3 RELEASE

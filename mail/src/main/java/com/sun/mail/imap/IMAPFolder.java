@@ -50,6 +50,7 @@ import java.util.NoSuchElementException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.io.*;
+import java.net.SocketTimeoutException;
 import java.nio.channels.SocketChannel;
 
 import javax.mail.*;
@@ -2965,10 +2966,44 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @since	JavaMail 1.5.2
      */
     boolean handleIdle(boolean once) throws MessagingException {
+	Response r = null;
 	do {
-	    Response r = protocol.readIdleResponse();
+	    r = protocol.readIdleResponse();
 	    try {
 		synchronized (messageCacheLock) {
+		    if (r.isBYE() && r.isSynthetic() && idleState == IDLE) {
+			/*
+			 * If it was a timeout and no bytes were transferred
+			 * we ignore it and go back and read again.
+			 * If the I/O was otherwise interrupted, and no
+			 * bytes were transferred, we take it as a request
+			 * to abort the IDLE.
+			 */
+			Exception ex = r.getException();
+			if (ex instanceof InterruptedIOException &&
+			    ((InterruptedIOException)ex).
+				    bytesTransferred == 0) {
+			    if (ex instanceof SocketTimeoutException) {
+				logger.finest(
+				    "handleIdle: ignoring socket timeout");
+				r = null;	// repeat do/while loop
+			    } else {
+				logger.finest("handleIdle: interrupting IDLE");
+				IdleManager im = idleManager;
+				if (im != null) {
+				    logger.finest(
+				    "handleIdle: request IdleManager to abort");
+				    im.requestAbort(this);
+				} else {
+				    logger.finest("handleIdle: abort IDLE");
+				    protocol.idleAbort();
+				    idleState = ABORTING;
+				}
+				// normally will exit the do/while loop
+			    }
+			    continue;
+			}
+		    }
 		    boolean done = true;
 		    try {
 			if (r == null || protocol == null ||
@@ -2997,13 +3032,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    }
 		}
 	    } catch (ConnectionException cex) {
-		// Oops, the store or folder died on us.
-		throwClosedException(cex);
+		// Oops, the folder died on us.
+		throw new FolderClosedException(this, cex.getMessage());
 	    } catch (ProtocolException pex) {
 		throw new MessagingException(pex.getMessage(), pex);
 	    }
 	// keep processing responses already in our buffer
-	} while (protocol.hasResponse());
+	} while (r == null || protocol.hasResponse());
 	return true;
     }
 
@@ -3079,7 +3114,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    }
 		} catch (Exception ex) {
 		    // assume it's a connection failure; nothing more to do
+		    logger.log(Level.FINEST, "Exception in idleAbortWait", ex);
 		}
+		logger.finest("IDLE aborted");
 	    }
 	}
     }
@@ -3410,6 +3447,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     protected IMAPProtocol getProtocol() throws ProtocolException {
 	assert Thread.holdsLock(messageCacheLock);
 	waitIfIdle();
+	// if we no longer have a protocol object after waiting, it probably
+	// means the connection has been closed due to a communnication error,
+	// or possibly because the folder has been closed
+	if (protocol == null)
+	    throw new ConnectionException("Connection closed");
         return protocol;
     }
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.imap;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.net.Socket;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
@@ -130,6 +131,7 @@ import com.sun.mail.util.MailLogger;
  * @since JavaMail 1.5.2
  */
 public class IdleManager {
+    private Executor es;
     private Selector selector;
     private MailLogger logger;
     private volatile boolean die = false;
@@ -146,6 +148,7 @@ public class IdleManager {
      * @exception	IOException	for Selector failures
      */
     public IdleManager(Session session, Executor es) throws IOException {
+	this.es = es;
 	logger = new MailLogger(this.getClass(), "DEBUG IMAP", session);
 	selector = Selector.open();
 	es.execute(new Runnable() {
@@ -193,7 +196,7 @@ public class IdleManager {
      * blocking I/O mode when not selecting, so wake up the selector,
      * which will process this request when it wakes up.
      */
-    synchronized void requestAbort(IMAPFolder folder) {
+    void requestAbort(IMAPFolder folder) {
 	toAbort.add(folder);
 	selector.wakeup();
     }
@@ -283,34 +286,25 @@ public class IdleManager {
      */
     private boolean processKeys() throws IOException {
 	boolean more = false;
-	/*
-	 * First, process any folders that we need to abort.
-	 */
 	IMAPFolder folder;
-	while ((folder = toAbort.poll()) != null) {
-	    logger.log(Level.FINE,
-		"IdleManager aborting IDLE for folder: {0}", folder);
-	    SocketChannel sc = folder.getChannel();
-	    if (sc == null)
-		continue;
-	    SelectionKey sk = sc.keyFor(selector);
-	    // have to cancel so we can switch back to blocking I/O mode
-	    if (sk != null)
-		sk.cancel();
-	    // switch back to blocking to allow normal I/O
-	    sc.configureBlocking(true);
-	    folder.idleAbort();	// send the DONE message
-	    // watch for OK response to DONE
-	    toWatch.add(folder);
-	    more = true;
-	}
 
 	/*
-	 * Now, process any channels with data to read.
+	 * First, process any channels with data to read.
 	 */
 	Set<SelectionKey> selectedKeys = selector.selectedKeys();
+	/*
+	 * XXX - this is simpler, but it can fail with
+	 *	 ConncurentModificationException
+	 *
 	for (SelectionKey sk : selectedKeys) {
 	    selectedKeys.remove(sk);	// only process each key once
+	    ...
+	}
+	*/
+	Iterator<SelectionKey> it = selectedKeys.iterator();
+	while (it.hasNext()) {
+	    SelectionKey sk = it.next();
+	    it.remove();	// only process each key once
 	    // have to cancel so we can switch back to blocking I/O mode
 	    sk.cancel();
 	    folder = (IMAPFolder)sk.attachment();
@@ -339,6 +333,44 @@ public class IdleManager {
 		    ex);
 	    }
 	}
+
+	/*
+	 * Now, process any folders that we need to abort.
+	 */
+	while ((folder = toAbort.poll()) != null) {
+	    logger.log(Level.FINE,
+		"IdleManager aborting IDLE for folder: {0}", folder);
+	    SocketChannel sc = folder.getChannel();
+	    if (sc == null)
+		continue;
+	    SelectionKey sk = sc.keyFor(selector);
+	    // have to cancel so we can switch back to blocking I/O mode
+	    if (sk != null)
+		sk.cancel();
+	    // switch back to blocking to allow normal I/O
+	    sc.configureBlocking(true);
+
+	    // if there's a read timeout, have to do the abort in a new thread
+	    Socket sock = sc.socket();
+	    if (sock != null && sock.getSoTimeout() > 0) {
+		logger.fine("IdleManager requesting DONE with timeout");
+		toWatch.remove(folder);
+		final IMAPFolder folder0 = folder;
+		es.execute(new Runnable() {
+		    @Override
+		    public void run() {
+			// send the DONE and wait for the response
+			folder0.idleAbortWait();
+		    }
+		});
+	    } else {
+		folder.idleAbort();	// send the DONE message
+		// watch for OK response to DONE
+		toWatch.add(folder);
+		more = true;
+	    }
+	}
+
 	return more;
     }
 
