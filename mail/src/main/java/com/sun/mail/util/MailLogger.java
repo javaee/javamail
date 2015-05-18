@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -275,15 +275,19 @@ public final class MailLogger {
 	}
     }
 
-    /*
-     * Maybe for JavaMail 1.5...
+    /**
+     * Log the message at the specified level using a format string.
+     * @param level the log level.
+     * @param msg the message format string.
+     * @param params the message parameters.
      *
+     * @since	JavaMail 1.5.4
+     */
     public void logf(Level level, String msg, Object... params) {
 	msg = String.format(msg, params);
 	ifDebugOut(msg);
 	logger.log(level, msg);
     }
-     */
 
     /**
      * Log the message at the specified level.
