@@ -1368,7 +1368,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * UID EXPUNGE Command.
      *
-     * @see "RFC2359, section 4.1"
+     * @see "RFC4315, section 2"
      */
     public void uidexpunge(UIDSet[] set) throws ProtocolException {
 	if (!hasCapability("UIDPLUS")) 
@@ -1757,7 +1757,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * COPY Command, return uid from COPYUID response code.
      *
-     * @see "RFC2359, section 4.3"
+     * @see "RFC 4315, section 3"
      */
     public CopyUID copyuid(MessageSet[] msgsets, String mbox)
 			throws ProtocolException {
@@ -1790,7 +1790,89 @@ public class IMAPProtocol extends Protocol {
 	handleResult(r[r.length-1]);
 
 	if (uid)
-	    return getCopyUID(r[r.length-1]);
+	    return getCopyUID(r);
+	else
+	    return null;
+    }
+
+    /**
+     * MOVE command.
+     *
+     * @see "RFC 6851"
+     * @since	JavaMail 1.5.4
+     */
+    public void move(MessageSet[] msgsets, String mbox)
+			throws ProtocolException {
+	moveuid(MessageSet.toString(msgsets), mbox, false);
+    }
+
+    /**
+     * MOVE command.
+     *
+     * @see "RFC 6851"
+     * @since	JavaMail 1.5.4
+     */
+    public void move(int start, int end, String mbox)
+			throws ProtocolException {
+	moveuid(String.valueOf(start) + ":" + String.valueOf(end),
+		    mbox, false);
+    }
+
+    /**
+     * MOVE Command, return uid from COPYUID response code.
+     *
+     * @see "RFC 6851"
+     * @see "RFC 4315, section 3"
+     * @since	JavaMail 1.5.4
+     */
+    public CopyUID moveuid(MessageSet[] msgsets, String mbox)
+			throws ProtocolException {
+	return moveuid(MessageSet.toString(msgsets), mbox, true);
+    }
+
+    /**
+     * MOVE Command, return uid from COPYUID response code.
+     *
+     * @see "RFC 6851"
+     * @see "RFC 4315, section 3"
+     * @since	JavaMail 1.5.4
+     */
+    public CopyUID moveuid(int start, int end, String mbox)
+			throws ProtocolException {
+	return moveuid(String.valueOf(start) + ":" + String.valueOf(end),
+		    mbox, true);
+    }
+
+    /**
+     * MOVE Command, return uid from COPYUID response code.
+     *
+     * @see "RFC 6851"
+     * @see "RFC 4315, section 3"
+     * @since	JavaMail 1.5.4
+     */
+    public CopyUID moveuid(String msgSequence, String mbox, boolean uid)
+				throws ProtocolException {
+	if (!hasCapability("MOVE")) 
+	    throw new BadCommandException("MOVE not supported");
+	if (uid && !hasCapability("UIDPLUS")) 
+	    throw new BadCommandException("UIDPLUS not supported");
+	// encode the mbox as per RFC2060
+	mbox = BASE64MailboxEncoder.encode(mbox);
+
+	Argument args = new Argument();	
+	args.writeAtom(msgSequence);
+	args.writeString(mbox);
+
+	Response[] r = command("MOVE", args);
+
+	// dispatch untagged responses
+	notifyResponseHandlers(r);
+
+	// Handle result of this command
+	handleResult(r[r.length-1]);
+
+	if (uid)
+	    return getCopyUID(r);
 	else
 	    return null;
     }
@@ -1798,27 +1880,32 @@ public class IMAPProtocol extends Protocol {
     /**
      * If the response contains a COPYUID response code, extract
      * it and return a CopyUID object with the information.
+     * XXX - need to merge more than one response for MOVE?
      */
-    private CopyUID getCopyUID(Response r) {
-	if (!r.isOK())
-	    return null;
-	byte b;
-	while ((b = r.readByte()) > 0 && b != (byte)'[')
-	    ;
-	if (b == 0)
-	    return null;
-	String s;
-	s = r.readAtom();
-	if (!s.equalsIgnoreCase("COPYUID"))
-	    return null;
+    private CopyUID getCopyUID(Response[] rr) {
+	for (int i = rr.length - 1; i >= 0; i--) {
+	    Response r = rr[i];
+	    if (r == null || !r.isOK())
+		continue;
+	    byte b;
+	    while ((b = r.readByte()) > 0 && b != (byte)'[')
+		;
+	    if (b == 0)
+		continue;
+	    String s;
+	    s = r.readAtom();
+	    if (!s.equalsIgnoreCase("COPYUID"))
+		continue;
 
-	long uidvalidity = r.readLong();
-	String src = r.readAtom();
-	String dst = r.readAtom();
-	return new CopyUID(uidvalidity,
+	    long uidvalidity = r.readLong();
+	    String src = r.readAtom();
+	    String dst = r.readAtom();
+	    return new CopyUID(uidvalidity,
 			    UIDSet.parseUIDSets(src), UIDSet.parseUIDSets(dst));
+	}
+	return null;
     }
-		    
+
     public void storeFlags(MessageSet[] msgsets, Flags flags, boolean set)
 			throws ProtocolException {
 	storeFlags(MessageSet.toString(msgsets), flags, set);

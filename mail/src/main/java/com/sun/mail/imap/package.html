@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -59,6 +59,21 @@ You can query the server for support of these extensions using the
 {@link com.sun.mail.imap.IMAPStore#hasCapability IMAPStore hasCapability}
 method using the capability name defined by the extension
 (see the appropriate RFC) after connecting to the server.
+<H4>UIDPLUS Support</H4>
+<P>
+The IMAP UIDPLUS extension
+(<A HREF="http://www.ietf.org/rfc/rfc4315.txt" TARGET="_top">RFC 4315</A>)
+is supported via the IMAPFolder methods
+{@link com.sun.mail.imap.IMAPFolder#addMessages addMessages},
+{@link com.sun.mail.imap.IMAPFolder#appendUIDMessages appendUIDMessages}, and
+{@link com.sun.mail.imap.IMAPFolder#copyUIDMessages copyUIDMessages}.
+<H4>MOVE Support</H4>
+<P>
+The IMAP MOVE extension
+(<A HREF="http://www.ietf.org/rfc/rfc6851.txt" TARGET="_top">RFC 6851</A>)
+is supported via the IMAPFolder methods
+{@link com.sun.mail.imap.IMAPFolder#moveMessages moveMessages} and
+{@link com.sun.mail.imap.IMAPFolder#moveUIDMessages moveUIDMessages}.
 <H4>SASL Support</H4>
 <P>
 The IMAP protocol provider can use SASL

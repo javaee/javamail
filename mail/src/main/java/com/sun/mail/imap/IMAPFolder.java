@@ -1794,7 +1794,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * Depends on the APPENDUID response code defined by the
      * UIDPLUS extension -
-     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     * <A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>.
      *
      * @param	msgs	the messages to append
      * @return		array of AppendUID objects
@@ -1856,7 +1856,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * Depends on the APPENDUID response code defined by the
      * UIDPLUS extension -
-     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     * <A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>.
      *
      * @param	msgs	the messages to add
      * @return		the messages in this folder
@@ -1889,37 +1889,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     public synchronized void copyMessages(Message[] msgs, Folder folder)
 			throws MessagingException {
-	checkOpened();
-
-	if (msgs.length == 0) // boundary condition
-	    return;
-
-	// If the destination belongs to our same store, optimize
-	if (folder.getStore() == store) {
-	    synchronized(messageCacheLock) {
-		try {
-		    IMAPProtocol p = getProtocol();
-		    MessageSet[] ms = Utility.toMessageSet(msgs, null);
-		    if (ms == null)
-			throw new MessageRemovedException(
-					"Messages have been removed");
-		    p.copy(ms, folder.getFullName());
-		} catch (CommandFailedException cfx) {
-		    if (cfx.getMessage().indexOf("TRYCREATE") != -1)
-			throw new FolderNotFoundException(
-                            folder,
-			    folder.getFullName() + " does not exist"
-			   );
-		    else 
-			throw new MessagingException(cfx.getMessage(), cfx);
-		} catch (ConnectionException cex) {
-		    throw new FolderClosedException(this, cex.getMessage());
-		} catch (ProtocolException pex) {
-		    throw new MessagingException(pex.getMessage(), pex);
-	    	}
-	    }
-	} else // destination is a different store.
-	    super.copyMessages(msgs, folder);
+	copymoveMessages(msgs, folder, false);
     }
 
     /**
@@ -1934,7 +1904,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *
      * Depends on the COPYUID response code defined by the
      * UIDPLUS extension -
-     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     * <A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>.
      *
      * @param	msgs	the messages to copy
      * @param	folder	the folder to copy the messages to
@@ -1944,68 +1914,80 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     public synchronized AppendUID[] copyUIDMessages(Message[] msgs,
 			Folder folder) throws MessagingException {
+	return copymoveUIDMessages(msgs, folder, false);
+    }
+
+    /**
+     * Copy the specified messages from this folder, to the
+     * specified destination.
+     *
+     * Depends on the MOVE extension
+     * (<A HREF="http://www.ietf.org/rfc/rfc6851.txt">RFC 6851</A>).
+     *
+     * @param	msgs	the messages to move
+     * @param	folder	the folder to move the messages to
+     * @exception	MessagingException for failures
+     *
+     * @since	JavaMail 1.5.4
+     */
+    public synchronized void moveMessages(Message[] msgs, Folder folder)
+			throws MessagingException {
+	copymoveMessages(msgs, folder, true);
+    }
+
+    /**
+     * Copy the specified messages from this folder, to the
+     * specified destination.
+     * Return array of AppendUID objects containing
+     * UIDs of these messages in the destination folder.
+     * Each element of the returned array corresponds to
+     * an element of the <code>msgs</code> array.  A null
+     * element means the server didn't return UID information
+     * for the copied message.  <p>
+     *
+     * Depends on the MOVE extension
+     * (<A HREF="http://www.ietf.org/rfc/rfc6851.txt">RFC 6851</A>)
+     * and the COPYUID response code defined by the
+     * UIDPLUS extension
+     * (<A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>).
+     *
+     * @param	msgs	the messages to copy
+     * @param	folder	the folder to copy the messages to
+     * @return		array of AppendUID objects
+     * @exception	MessagingException for failures
+     * @since	JavaMail 1.5.4
+     */
+    public synchronized AppendUID[] moveUIDMessages(Message[] msgs,
+			Folder folder) throws MessagingException {
+	return copymoveUIDMessages(msgs, folder, true);
+    }
+
+    /**
+     * Copy or move the specified messages from this folder, to the
+     * specified destination.
+     *
+     * @since	JavaMail 1.5.4
+     */
+    private synchronized void copymoveMessages(Message[] msgs, Folder folder,
+			boolean move) throws MessagingException {
 	checkOpened();
 
 	if (msgs.length == 0) // boundary condition
-	    return null;
+	    return;
 
-	// the destination must belong to our same store
+	// If the destination belongs to our same store, optimize
 	if (folder.getStore() == store) {
-	    synchronized (messageCacheLock) {
+	    synchronized(messageCacheLock) {
 		try {
 		    IMAPProtocol p = getProtocol();
-		    // XXX - messages have to be from this Folder, who checks?
 		    MessageSet[] ms = Utility.toMessageSet(msgs, null);
 		    if (ms == null)
 			throw new MessageRemovedException(
 					"Messages have been removed");
-		    CopyUID cuid = p.copyuid(ms, folder.getFullName());
-
-		    /*
-		     * Correlate source UIDs with destination UIDs.
-		     * This won't be time or space efficient if there's
-		     * a lot of messages.
-		     *
-		     * In order to make sense of the returned UIDs, we need
-		     * the UIDs for every one of the original messages.
-		     * If we already have them, great, otherwise we need
-		     * to fetch them from the server.
-		     *
-		     * Assume the common case is that the messages are
-		     * in order by UID.  Map the returned source
-		     * UIDs to their corresponding Message objects.
-		     * Step through the msgs array looking for the
-		     * Message object in the returned source message
-		     * list.  Most commonly the source message (UID)
-		     * for the Nth original message will be in the Nth
-		     * position in the returned source message (UID)
-		     * list.  Thus, the destination UID is in the Nth
-		     * position in the returned destination UID list.
-		     * But if the source message isn't where expected,
-		     * we have to search the entire source message
-		     * list, starting from where we expect it and
-		     * wrapping around until we've searched it all.
-		     */
-		    long[] srcuids = UIDSet.toArray(cuid.src);
-		    long[] dstuids = UIDSet.toArray(cuid.dst);
-		    // map source UIDs to Message objects
-		    // XXX - could inline/optimize this
-		    Message[] srcmsgs = getMessagesByUID(srcuids);
-		    AppendUID[] result = new AppendUID[msgs.length];
-		    for (int i = 0; i < msgs.length; i++) {
-			int j = i;
-			do {
-			    if (msgs[i] == srcmsgs[j]) {
-				result[i] = new AppendUID(
-						cuid.uidvalidity, dstuids[j]);
-				break;
-			    }
-			    j++;
-			    if (j >= srcmsgs.length)
-				j = 0;
-			} while (j != i);
-		    }
-		    return result;
+		    if (move)
+			p.move(ms, folder.getFullName());
+		    else
+			p.copy(ms, folder.getFullName());
 		} catch (CommandFailedException cfx) {
 		    if (cfx.getMessage().indexOf("TRYCREATE") != -1)
 			throw new FolderNotFoundException(
@@ -2021,8 +2003,145 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    	}
 	    }
 	} else // destination is a different store.
+	    if (move)
+		throw new MessagingException(
+					"Move between stores not supported");
+	    else
+		super.copyMessages(msgs, folder);
+    }
+
+    /**
+     * Copy or move the specified messages from this folder, to the
+     * specified destination.
+     * Return array of AppendUID objects containing
+     * UIDs of these messages in the destination folder.
+     * Each element of the returned array corresponds to
+     * an element of the <code>msgs</code> array.  A null
+     * element means the server didn't return UID information
+     * for the copied message.  <p>
+     *
+     * Depends on the COPYUID response code defined by the
+     * UIDPLUS extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>.
+     * Move depends on the MOVE extension -
+     * <A HREF="http://www.ietf.org/rfc/rfc6851.txt">RFC 6851</A>.
+     *
+     * @param	msgs	the messages to copy
+     * @param	folder	the folder to copy the messages to
+     * @param	move	move instead of copy?
+     * @return		array of AppendUID objects
+     * @exception	MessagingException for failures
+     * @since	JavaMail 1.5.4
+     */
+    private synchronized AppendUID[] copymoveUIDMessages(Message[] msgs,
+			Folder folder, boolean move) throws MessagingException {
+	checkOpened();
+
+	if (msgs.length == 0) // boundary condition
+	    return null;
+
+	// the destination must belong to our same store
+	if (folder.getStore() != store) // destination is a different store.
 	    throw new MessagingException(
+			move ?
+			"can't moveUIDMessages to a different store" :
 			"can't copyUIDMessages to a different store");
+
+	// call fetch to make sure we have all the UIDs
+	// necessary to interpret the COPYUID response
+	FetchProfile fp = new FetchProfile();
+	fp.add(UIDFolder.FetchProfileItem.UID);
+	fetch(msgs, fp);
+	// XXX - could pipeline the FETCH with the COPY/MOVE below
+
+	synchronized (messageCacheLock) {
+	    try {
+		IMAPProtocol p = getProtocol();
+		// XXX - messages have to be from this Folder, who checks?
+		MessageSet[] ms = Utility.toMessageSet(msgs, null);
+		if (ms == null)
+		    throw new MessageRemovedException(
+				    "Messages have been removed");
+		CopyUID cuid;
+		if (move)
+		    cuid = p.moveuid(ms, folder.getFullName());
+		else
+		    cuid = p.copyuid(ms, folder.getFullName());
+
+		/*
+		 * Correlate source UIDs with destination UIDs.
+		 * This won't be time or space efficient if there's
+		 * a lot of messages.
+		 *
+		 * In order to make sense of the returned UIDs, we need
+		 * the UIDs for every one of the original messages.
+		 * We fetch them above, to make sure we have them.
+		 * This is critical for MOVE since after the MOVE the
+		 * messages are gone/expunged.
+		 *
+		 * Assume the common case is that the messages are
+		 * in order by UID.  Map the returned source
+		 * UIDs to their corresponding Message objects.
+		 * Step through the msgs array looking for the
+		 * Message object in the returned source message
+		 * list.  Most commonly the source message (UID)
+		 * for the Nth original message will be in the Nth
+		 * position in the returned source message (UID)
+		 * list.  Thus, the destination UID is in the Nth
+		 * position in the returned destination UID list.
+		 * But if the source message isn't where expected,
+		 * we have to search the entire source message
+		 * list, starting from where we expect it and
+		 * wrapping around until we've searched it all.
+		 * (Gmail will often return the lists in an unexpected order.)
+		 *
+		 * A possible optimization:
+		 * If the number of UIDs returned is the same as the
+		 * number of messages being copied/moved, we could
+		 * sort the source messages by message number, sort
+		 * the source and destination parallel arrays by source
+		 * UID, and the resulting message and destination UID
+		 * arrays will correspond.
+		 *
+		 * If the returned UID array size is different, some
+		 * message was expunged while we were trying to copy/move it.
+		 * This should be rare but would mean falling back to the
+		 * general algorithm.
+		 */
+		long[] srcuids = UIDSet.toArray(cuid.src);
+		long[] dstuids = UIDSet.toArray(cuid.dst);
+		// map source UIDs to Message objects
+		// XXX - could inline/optimize this
+		Message[] srcmsgs = getMessagesByUID(srcuids);
+		AppendUID[] result = new AppendUID[msgs.length];
+		for (int i = 0; i < msgs.length; i++) {
+		    int j = i;
+		    do {
+			if (msgs[i] == srcmsgs[j]) {
+			    result[i] = new AppendUID(
+					    cuid.uidvalidity, dstuids[j]);
+			    break;
+			}
+			j++;
+			if (j >= srcmsgs.length)
+			    j = 0;
+		    } while (j != i);
+		}
+		return result;
+	    } catch (CommandFailedException cfx) {
+		if (cfx.getMessage().indexOf("TRYCREATE") != -1)
+		    throw new FolderNotFoundException(
+			folder,
+			folder.getFullName() + " does not exist"
+		       );
+		else 
+		    throw new MessagingException(cfx.getMessage(), cfx);
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(this, cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+	}
     }
 
     /**
@@ -2036,7 +2155,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Expunge the indicated messages, which must have been marked as DELETED.
      *
      * Depends on the UIDPLUS extension -
-     * <A HREF="http://www.ietf.org/rfc/rfc2359.txt">RFC 2359</A>.
+     * <A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>.
      *
      * @param	msgs	the messages to expunge
      * @return		the expunged messages
