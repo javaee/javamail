@@ -1196,6 +1196,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    receivedDate = ((INTERNALDATE)item).getDate();
 	else if (item instanceof RFC822SIZE)
 	    size = ((RFC822SIZE)item).size;
+	else if (item instanceof MODSEQ)
+	    modseq = ((MODSEQ)item).modseq;
 
 	// Check for the BODYSTRUCTURE item
 	else if (item instanceof BODYSTRUCTURE)
