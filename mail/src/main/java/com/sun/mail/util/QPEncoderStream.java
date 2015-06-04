@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -149,18 +149,21 @@ public class QPEncoderStream extends FilterOutputStream {
      * @exception  IOException  if an I/O error occurs.
      */
     public void flush() throws IOException {
+	if (gotSpace) {
+	    output(' ', true);
+	    gotSpace = false;
+	}
 	out.flush();
     }
 
     /**
      * Forces any buffered output bytes to be encoded out to the stream
-     * and closes this output stream
+     * and closes this output stream.
+     *
+     * @exception	IOException	for I/O errors
      */
     public void close() throws IOException {
-	if (gotSpace) {
-	    output(' ', true);
-	    gotSpace = false;
-	}
+	flush();
 	out.close();
     }
 
