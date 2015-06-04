@@ -1302,9 +1302,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     protected void handleExtensionFetchItems(Map extensionItems)
 				throws MessagingException {
 	if (items == null)
-	    items = extensionItems;
-	else
-	    items.putAll(extensionItems);
+	    items = new HashMap();
+	items.putAll(extensionItems);
     }
 
     /**
@@ -1342,9 +1341,12 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 			continue;
 
 		    FetchResponse f = (FetchResponse)r[i];
-		    Object o = f.getExtensionItems().get(fitem.getName());
-		    if (o != null)
-			robj = o;
+		    handleExtensionFetchItems(f.getExtensionItems());
+		    if (items != null) {
+			Object o = items.get(fitem.getName());
+			if (o != null)
+			    robj = o;
+		    }
 		}
 
 		// ((IMAPFolder)folder).handleResponses(r);
