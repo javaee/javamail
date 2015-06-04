@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * This class holds the 'start' and 'end' for a range of messages
+ * This class holds the 'start' and 'end' for a range of messages.
  */
 public class MessageSet {
 
@@ -60,13 +60,18 @@ public class MessageSet {
 
     /**
      * Count the total number of elements in a MessageSet
-     **/
+     *
+     * @return	how many messages in this MessageSet
+     */
     public int size() {
 	return end - start + 1;
     }
 
-    /*
+    /**
      * Convert an array of integers into an array of MessageSets
+     *
+     * @param	msgs	the messages
+     * @return		array of MessageSet objects
      */
     public static MessageSet[] createMessageSets(int[] msgs) {
 	List<MessageSet> v = new ArrayList<MessageSet>();
@@ -90,6 +95,9 @@ public class MessageSet {
 
     /**
      * Convert an array of MessageSets into an IMAP sequence range
+     *
+     * @param	msgsets	the MessageSets
+     * @return		IMAP sequence string
      */
     public static String toString(MessageSet[] msgsets) {
 	if (msgsets == null || msgsets.length == 0) // Empty msgset

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2005-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -117,6 +117,12 @@ public class Ntlm {
      * Username may be specified as domain\\username in the Authenticator.
      * If this notation is not used, then the domain will be taken
      * from the ntdomain parameter.
+     *
+     * @param	ntdomain	the NT domain
+     * @param	hostname	the host name
+     * @param	username	the user name
+     * @param	password	the password
+     * @param	logger		the MailLogger
      */
     public Ntlm(String ntdomain, String hostname, String username,
 				String password, MailLogger logger) {

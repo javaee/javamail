@@ -101,10 +101,13 @@ public class Response {
 	parse();
     }
 
-   /**
-    * Read a new Response from the given Protocol
-    * @param	p	the Protocol object
-    */
+    /**
+     * Read a new Response from the given Protocol
+     *
+     * @param	p	the Protocol object
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
+     */
     public Response(Protocol p) throws IOException, ProtocolException {
 	// read one response into 'buffer'
 	ByteArray ba = p.getResponseBuffer();
@@ -117,6 +120,8 @@ public class Response {
 
     /**
      * Copy constructor.
+     *
+     * @param	r	the Response to copy
      */
     public Response(Response r) {
 	index = r.index;
@@ -129,6 +134,9 @@ public class Response {
     /**
      * Return a Response object that looks like a BYE protocol response.
      * Include the details of the exception in the response string.
+     *
+     * @param	ex	the exception
+     * @return		the synthetic Response object
      */
     public static Response byeResponse(Exception ex) {
 	String err = "* BYE JavaMail Exception: " + ex.toString();
@@ -203,7 +211,8 @@ public class Response {
 
     /**
      * Return the next byte from this Statement.
-     * @return the next byte.
+     *
+     * @return the next byte
      */
     public byte readByte() {
 	if (index < size)
@@ -215,6 +224,7 @@ public class Response {
     /**
      * Extract an ATOM, starting at the current position. Updates
      * the internal index to beyond the Atom.
+     *
      * @return an Atom
      */
     public String readAtom() {
@@ -244,6 +254,9 @@ public class Response {
      * Read a string as an arbitrary sequence of characters,
      * stopping at the delimiter  Used to read part of a
      * response code inside [].
+     *
+     * @param	delim	the delimiter character
+     * @return		the string
      */
     public String readString(char delim) {
 	skipSpaces();
@@ -512,6 +525,7 @@ public class Response {
 
     /**
      * Return the tag, if this is a tagged statement.
+     *
      * @return tag of this tagged statement
      */
     public String getTag() {
@@ -521,6 +535,8 @@ public class Response {
     /**
      * Return the rest of the response as a string, usually used to
      * return the arbitrary message text after a NO response.
+     *
+     * @return	the rest of the response
      */
     public String getRest() {
 	skipSpaces();
@@ -530,6 +546,7 @@ public class Response {
     /**
      * Return the exception for a synthetic BYE response.
      *
+     * @return	the exception
      * @since	JavaMail 1.5.4
      */
     public Exception getException() {

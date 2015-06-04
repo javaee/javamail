@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,7 +43,7 @@ package com.sun.mail.imap.protocol;
 import com.sun.mail.iap.*; 
 
 /**
- * This class represents the UID data item
+ * This class represents the UID data item.
  *
  * @author  John Mani
  */
@@ -56,7 +56,10 @@ public class UID implements Item {
     public long uid;
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param	r	the FetchResponse
+     * @exception	ParsingException	for parsing failures
      */
     public UID(FetchResponse r) throws ParsingException {
 	seqnum = r.getNumber();

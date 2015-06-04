@@ -69,7 +69,13 @@ public class DigestMD5 {
     /**
      * Return client's authentication response to server's challenge.
      *
+     * @param	host	the host name
+     * @param	user	the user name
+     * @param	passwd	the user's password
+     * @param	realm	the security realm
+     * @param	serverChallenge	the challenge from the server
      * @return byte array with client's response
+     * @exception	IOException	for I/O errors
      */
     public byte[] authClient(String host, String user, String passwd,
 				String realm, String serverChallenge)
@@ -147,7 +153,9 @@ public class DigestMD5 {
      * Allow the client to authenticate the server based on its
      * response.
      *
+     * @param	serverResponse	the response that was received from the server
      * @return	true if server is authenticated
+     * @exception	IOException	for character conversion failures
      */
     public boolean authServer(String serverResponse) throws IOException {
 	Hashtable map = tokenize(serverResponse);

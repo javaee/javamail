@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,6 +57,11 @@ public class PropUtil {
 
     /**
      * Get an integer valued property.
+     *
+     * @param	props	the properties
+     * @param	name	the property name
+     * @param	def	default value if property not found
+     * @return		the property value
      */
     public static int getIntProperty(Properties props, String name, int def) {
 	return getInt(getProp(props, name), def);
@@ -64,6 +69,11 @@ public class PropUtil {
 
     /**
      * Get a boolean valued property.
+     *
+     * @param	props	the properties
+     * @param	name	the property name
+     * @param	def	default value if property not found
+     * @return		the property value
      */
     public static boolean getBooleanProperty(Properties props,
 				String name, boolean def) {
@@ -72,6 +82,11 @@ public class PropUtil {
 
     /**
      * Get an integer valued property.
+     *
+     * @param	session	the Session
+     * @param	name	the property name
+     * @param	def	default value if property not found
+     * @return		the property value
      */
     public static int getIntSessionProperty(Session session,
 				String name, int def) {
@@ -80,6 +95,11 @@ public class PropUtil {
 
     /**
      * Get a boolean valued property.
+     *
+     * @param	session	the Session
+     * @param	name	the property name
+     * @param	def	default value if property not found
+     * @return		the property value
      */
     public static boolean getBooleanSessionProperty(Session session,
 				String name, boolean def) {
@@ -88,6 +108,10 @@ public class PropUtil {
 
     /**
      * Get a boolean valued System property.
+     *
+     * @param	name	the property name
+     * @param	def	default value if property not found
+     * @return		the property value
      */
     public static boolean getBooleanSystemProperty(String name, boolean def) {
 	try {

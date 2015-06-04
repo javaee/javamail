@@ -63,6 +63,8 @@ public class ResponseInputStream {
 
     /**
      * Constructor.
+     *
+     * @param	in	the InputStream to wrap
      */
     public ResponseInputStream(InputStream in) {
 	bin = new BufferedInputStream(in, 2 * 1024);
@@ -70,7 +72,9 @@ public class ResponseInputStream {
 
     /**
      * Read a Response from the InputStream.
-     * @return ByteArray that contains the Response
+     *
+     * @return		ByteArray that contains the Response
+     * @exception	IOException	for I/O errors
      */
     public ByteArray readResponse() throws IOException {
 	return readResponse(null);
@@ -78,7 +82,10 @@ public class ResponseInputStream {
 
     /**
      * Read a Response from the InputStream.
-     * @return ByteArray that contains the Response
+     *
+     * @param	ba	the ByteArray in which to store the response, or null
+     * @return		ByteArray that contains the Response
+     * @exception	IOException	for I/O errors
      */
     public ByteArray readResponse(ByteArray ba) throws IOException {
 	if (ba == null)

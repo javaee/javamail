@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -69,9 +69,12 @@ public final class Utility {
      * ASSERT: Since this method uses and returns message sequence
      * numbers, you should use this method only when holding the
      * messageCacheLock.
+     *
+     * @param	msgs	the messages
+     * @param	cond	the condition to check
+     * @return		the MessageSet array
      */
-    public static 
-    MessageSet[] toMessageSet(Message[] msgs, Condition cond) {
+    public static MessageSet[] toMessageSet(Message[] msgs, Condition cond) {
 	Vector v = new Vector(1);
 	int current, next;
 
@@ -128,6 +131,9 @@ public final class Utility {
     /**
      * Return UIDSets for the messages.  Note that the UIDs
      * must have already been fetched for the messages.
+     *
+     * @param	msgs	the messages
+     * @return		the UIDSet array
      */
     public static UIDSet[] toUIDSet(Message[] msgs) {
 	Vector v = new Vector(1);
@@ -182,6 +188,8 @@ public final class Utility {
      * is not included in the public javadocs, thus "hiding"
      * this method.
      *
+     * @param	rd	the ResyncData
+     * @return		the UIDSet array
      * @since	JavaMail 1.5.1
      */
     public static UIDSet[] getResyncUIDSet(ResyncData rd) {

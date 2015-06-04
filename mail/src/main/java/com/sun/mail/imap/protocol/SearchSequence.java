@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,6 +64,12 @@ public class SearchSequence {
 
     /**
      * Generate the IMAP search sequence for the given search expression. 
+     *
+     * @param	term	the search term
+     * @param	charset	charset for the search
+     * @return		the SEARCH Argument
+     * @exception	SearchException	for failures
+     * @exception	IOException	for I/O errors
      */
     public Argument generateSequence(SearchTerm term, String charset) 
 		throws SearchException, IOException {
@@ -126,6 +132,9 @@ public class SearchSequence {
     /**
      * Check if the "text" terms in the given SearchTerm contain
      * non US-ASCII characters.
+     *
+     * @param	term	the search term
+     * @return		true if only ASCII
      */
     public static boolean isAscii(SearchTerm term) {
 	if (term instanceof AndTerm)
@@ -146,6 +155,9 @@ public class SearchSequence {
     /**
      * Check if any of the "text" terms in the given SearchTerms contain
      * non US-ASCII characters.
+     *
+     * @param	terms	the search terms
+     * @return		true if only ASCII
      */
     public static boolean isAscii(SearchTerm[] terms) {
 	for (int i = 0; i < terms.length; i++)
@@ -156,6 +168,9 @@ public class SearchSequence {
 
     /**
      * Does this string contain only ASCII characters?
+     *
+     * @param	s	the string
+     * @return		true if only ASCII
      */
     public static boolean isAscii(String s) {
 	int l = s.length();
@@ -465,6 +480,9 @@ public class SearchSequence {
     /**
      * Generate argument for OlderTerm.
      *
+     * @param	term	the search term
+     * @return		the SEARCH Argument
+     * @exception	SearchException	for failures
      * @since	JavaMail 1.5.1
      */
     protected Argument older(OlderTerm term) throws SearchException {
@@ -477,6 +495,9 @@ public class SearchSequence {
     /**
      * Generate argument for YoungerTerm.
      *
+     * @param	term	the search term
+     * @return		the SEARCH Argument
+     * @exception	SearchException	for failures
      * @since	JavaMail 1.5.1
      */
     protected Argument younger(YoungerTerm term) throws SearchException {
@@ -489,6 +510,9 @@ public class SearchSequence {
     /**
      * Generate argument for ModifiedSinceTerm.
      *
+     * @param	term	the search term
+     * @return		the SEARCH Argument
+     * @exception	SearchException	for failures
      * @since	JavaMail 1.5.1
      */
     protected Argument modifiedSince(ModifiedSinceTerm term)

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -58,7 +58,10 @@ public class FLAGS extends Flags implements Item {
     private static final long serialVersionUID = 439049847053756670L;
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param	r	the IMAPResponse
+     * @exception	ParsingException	for parsing failures
      */
     public FLAGS(IMAPResponse r) throws ParsingException {
 	msgno = r.getNumber();

@@ -101,6 +101,8 @@ public class Protocol {
      * @param prefix 	Prefix to prepend to property keys
      * @param isSSL 	use SSL?
      * @param logger 	log messages here
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public Protocol(String host, int port, 
 		    Properties props, String prefix,
@@ -151,6 +153,12 @@ public class Protocol {
 
     /**
      * Constructor for debugging.
+     *
+     * @param in	the InputStream to read from
+     * @param out	the PrintStream to write to
+     * @param props     Properties object used by this protocol
+     * @param debug	true to enable debugging output
+     * @exception	IOException	for I/O errors
      */
     public Protocol(InputStream in, PrintStream out, Properties props,
 				boolean debug) throws IOException {
@@ -174,14 +182,17 @@ public class Protocol {
 
     /**
      * Returns the timestamp.
+     *
+     * @return	the timestamp
      */
- 
     public long getTimestamp() {
         return timestamp;
     }
  
     /**
      * Adds a response handler.
+     *
+     * @param	h	the response handler
      */
     public void addResponseHandler(ResponseHandler h) {
 	handlers.addElement(h);
@@ -189,6 +200,8 @@ public class Protocol {
 
     /**
      * Removed the specified response handler.
+     *
+     * @param	h	the response handler
      */
     public void removeResponseHandler(ResponseHandler h) {
 	handlers.removeElement(h);
@@ -196,6 +209,8 @@ public class Protocol {
 
     /**
      * Notify response handlers
+     *
+     * @param	responses	the responses
      */
     public void notifyResponseHandlers(Response[] responses) {
 	if (handlers.size() == 0)
@@ -227,6 +242,8 @@ public class Protocol {
 
     /**
      * Return the Protocol's InputStream.
+     *
+     * @return	the input stream
      */
     protected ResponseInputStream getInputStream() {
 	return input;
@@ -234,6 +251,8 @@ public class Protocol {
 
     /**
      * Return the Protocol's OutputStream
+     *
+     * @return	the output stream
      */
     protected OutputStream getOutputStream() {
 	return output;
@@ -242,6 +261,8 @@ public class Protocol {
     /**
      * Returns whether this Protocol supports non-synchronizing literals
      * Default is false. Subclasses should override this if required
+     *
+     * @return	true if the server supports non-synchronizing literals
      */
     protected synchronized boolean supportsNonSyncLiterals() {
 	return false;
@@ -277,6 +298,7 @@ public class Protocol {
      * The default implementation returns null, which causes
      * a new buffer to be allocated for every response.
      *
+     * @return	the buffer to use
      * @since	JavaMail 1.4.1
      */
     protected ByteArray getResponseBuffer() {
@@ -366,6 +388,9 @@ public class Protocol {
 
     /**
      * Convenience routine to handle OK, NO, BAD and BYE responses.
+     *
+     * @param	response	the response
+     * @exception	ProtocolException	for protocol failures
      */
     public void handleResult(Response response) throws ProtocolException {
 	if (response.isOK())
@@ -383,6 +408,10 @@ public class Protocol {
     /**
      * Convenience routine to handle simple IAP commands
      * that do not have responses specific to that command.
+     *
+     * @param	cmd	the command
+     * @param	args	the arguments
+     * @exception	ProtocolException	for protocol failures
      */
     public void simpleCommand(String cmd, Argument args)
 			throws ProtocolException {
@@ -402,6 +431,10 @@ public class Protocol {
      * If the command succeeds, we begin TLS negotiation.
      * If the socket is already an SSLSocket this is a nop and the command
      * is not issued.
+     *
+     * @param	cmd	the command to issue
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public synchronized void startTLS(String cmd)
 				throws IOException, ProtocolException {
@@ -435,6 +468,7 @@ public class Protocol {
     /**
      * Return the SocketChannel associated with this connection, if any.
      *
+     * @return	the SocketChannel
      * @since	JavaMail 1.5.2
      */
     public SocketChannel getChannel() {
@@ -460,6 +494,8 @@ public class Protocol {
      * The property &lt;prefix&gt;.localhost overrides
      * &lt;prefix&gt;.localaddress,
      * which overrides what InetAddress would tell us.
+     *
+     * @return	the name of the local host
      */
     protected synchronized String getLocalHost() {
 	// get our hostname and cache it for future use
@@ -497,6 +533,8 @@ public class Protocol {
 
     /**
      * Is protocol tracing enabled?
+     *
+     * @return	true if protocol tracing is enabled
      */
     protected boolean isTracing() {
 	return traceLogger.isLoggable(Level.FINEST);

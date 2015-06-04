@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -91,11 +91,14 @@ public class GmailProtocol extends IMAPProtocol {
     /**
      * Connect to Gmail.
      *
+     * @param name	the protocol name
      * @param host	host to connect to
      * @param port	portnumber to connect to
      * @param props	Properties object used by this protocol
      * @param isSSL	use SSL?
      * @param logger	for log messages
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public GmailProtocol(String name, String host, int port, 
 			Properties props, boolean isSSL, MailLogger logger)

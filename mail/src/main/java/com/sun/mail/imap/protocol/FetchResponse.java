@@ -83,6 +83,10 @@ public class FetchResponse extends IMAPResponse {
     /**
      * Construct a FetchResponse that handles the additional FetchItems.
      *
+     * @param	r	the IMAPResponse
+     * @param	fitems	the fetch items
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      * @since JavaMail 1.4.6
      */
     public FetchResponse(IMAPResponse r, FetchItem[] fitems)
@@ -112,6 +116,12 @@ public class FetchResponse extends IMAPResponse {
     /**
      * Return the first fetch response item of the given class
      * for the given message number.
+     *
+     * @param	r	the responses
+     * @param	msgno	the message number
+     * @param	c	the class
+     * @param	<T>	the type of fetch item
+     * @return		the fetch item
      */
     public static <T extends Item> T getItem(Response[] r, int msgno,
 				Class<T> c) {
@@ -139,6 +149,11 @@ public class FetchResponse extends IMAPResponse {
      * Return all fetch response items of the given class
      * for the given message number.
      *
+     * @param	r	the responses
+     * @param	msgno	the message number
+     * @param	c	the class
+     * @param	<T>	the type of fetch items
+     * @return		the list of fetch items
      * @since JavaMail 1.5.2
      */
     public static <T extends Item> List<T> getItems(Response[] r, int msgno,
@@ -170,6 +185,7 @@ public class FetchResponse extends IMAPResponse {
      * The map is indexed by extension item name.  Callers should not
      * modify the map.
      *
+     * @return	MAP of extension items
      * @since JavaMail 1.4.6
      */
     public Map getExtensionItems() {

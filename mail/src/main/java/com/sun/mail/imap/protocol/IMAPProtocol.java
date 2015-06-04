@@ -110,9 +110,14 @@ public class IMAPProtocol extends Protocol {
      * Constructor.
      * Opens a connection to the given host at given port.
      *
-     * @param host	host to connect to
-     * @param port	portnumber to connect to
-     * @param props     Properties object used by this protocol
+     * @param	name	the protocol name
+     * @param	host	host to connect to
+     * @param	port	port number to connect to
+     * @param	props	Properties object used by this protocol
+     * @param	isSSL	true if SSL should be used
+     * @param	logger	the MailLogger to use for debug output
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public IMAPProtocol(String name, String host, int port, 
 			Properties props, boolean isSSL, MailLogger logger)
@@ -152,8 +157,11 @@ public class IMAPProtocol extends Protocol {
     /**
      * Constructor for debugging.
      *
-     * @param debug     debug mode
-     * @param props     Properties object used by this protocol
+     * @param	in	the InputStream from which to read
+     * @param	out	the PrintStream to which to write
+     * @param	props	Properties object used by this protocol
+     * @param	debug	true to enable debugging output
+     * @exception	IOException	for I/O errors
      */
     public IMAPProtocol(InputStream in, PrintStream out,
 			Properties props, boolean debug)
@@ -182,6 +190,7 @@ public class IMAPProtocol extends Protocol {
      * override this method to combine their FetchItems with
      * the FetchItems returned by the superclass.
      *
+     * @return	an array of FetchItem objects
      * @since JavaMail 1.4.6
      */
     public FetchItem[] getFetchItems() {
@@ -191,6 +200,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * CAPABILITY command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.1.1"
      */
     public void capability() throws ProtocolException {
@@ -220,6 +230,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * If the response contains a CAPABILITY response code, extract
      * it and save the capabilities.
+     *
+     * @param	r	the response
      */
     protected void setCapabilities(Response r) {
 	byte b;
@@ -239,6 +251,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * Parse the capabilities from a CAPABILITY response or from
      * a CAPABILITY response code attached to (e.g.) an OK response.
+     *
+     * @param	r	the CAPABILITY response
      */
     protected void parseCapabilities(Response r) {
 	String s;
@@ -271,6 +285,9 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Check the greeting when first connecting; look for PREAUTH response.
+     *
+     * @param	r	the greeting response
+     * @exception	ProtocolException	for protocol failures
      */
     protected void processGreeting(Response r) throws ProtocolException {
 	super.processGreeting(r);	// check if it's BAD
@@ -293,13 +310,17 @@ public class IMAPProtocol extends Protocol {
     /**
      * Returns <code>true</code> if the connection has been authenticated,
      * either due to a successful login, or due to a PREAUTH greeting response.
+     *
+     * @return	true if the connection has been authenticated
      */
     public boolean isAuthenticated() {
 	return authenticated;
     }
 
     /**
-     * Returns <code>true</code> if this is a IMAP4rev1 server
+     * Returns <code>true</code> if this is an IMAP4rev1 server
+     *
+     * @return	true if this is an IMAP4rev1 server
      */
     public boolean isREV1() {
 	return rev1;
@@ -307,6 +328,8 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Returns whether this Protocol supports non-synchronizing literals.
+     *
+     * @return	true if non-synchronizing literals are supported
      */
     protected boolean supportsNonSyncLiterals() {
 	return hasCapability("LITERAL+");
@@ -314,6 +337,10 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Read a response from the server.
+     *
+     * @return	the response
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public Response readResponse() throws IOException, ProtocolException {
 	// assert Thread.holdsLock(this);
@@ -328,6 +355,9 @@ public class IMAPProtocol extends Protocol {
      * Check whether the given capability is supported by
      * this server. Returns <code>true</code> if so, otherwise
      * returns false.
+     *
+     * @param	c	the capability name
+     * @return		true if the server has the capability
      */
     public boolean hasCapability(String c) {
 	if (c.endsWith("*")) {
@@ -345,7 +375,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * Return the map of capabilities returned by the server.
      *
-      * @since	JavaMail 1.4.1
+     * @return	the Map of capabilities
+     * @since	JavaMail 1.4.1
      */
     public Map getCapabilities() {
 	return capabilities;
@@ -365,6 +396,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * The NOOP command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.1.2"
      */
     public void noop() throws ProtocolException {
@@ -375,6 +407,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * LOGOUT Command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.1.3"
      */
     public void logout() throws ProtocolException {
@@ -393,6 +426,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * LOGIN Command.
      * 
+     * @param  u		the username
+     * @param  p		the password
+     * @throws ProtocolException as thrown by {@link Protocol#handleResult}.
      * @see "RFC2060, section 6.2.2"
      */
     public void login(String u, String p) throws ProtocolException {
@@ -427,6 +463,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * The AUTHENTICATE command with AUTH=LOGIN authenticate scheme
      *
+     * @param  u		the username
+     * @param  p		the password
+     * @throws ProtocolException as thrown by {@link Protocol#handleResult}.
      * @see "RFC2060, section 6.2.1"
      */
     public synchronized void authlogin(String u, String p)
@@ -740,6 +779,13 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * SASL-based login.
+     *
+     * @param	allowed	the SASL mechanisms we're allowed to use
+     * @param	realm	the SASL realm
+     * @param	authzid	the authorization id
+     * @param	u	the username
+     * @param	p	the password
+     * @exception	ProtocolException	for protocol failures
      */
     public void sasllogin(String[] allowed, String realm, String authzid,
 				String u, String p) throws ProtocolException {
@@ -818,6 +864,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * PROXYAUTH Command.
      * 
+     * @param	u	the PROXYAUTH user name
+     * @exception	ProtocolException	for protocol failures
      * @see "Netscape/iPlanet/SunONE Messaging Server extension"
      */
     public void proxyauth(String u) throws ProtocolException {
@@ -832,6 +880,7 @@ public class IMAPProtocol extends Protocol {
      * Get the user name used with the PROXYAUTH command.
      * Returns null if PROXYAUTH was not used.
      *
+     * @return	the PROXYAUTH user name
      * @since	JavaMail 1.5.1
      */
     public String getProxyAuthUser() {
@@ -841,6 +890,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * UNAUTHENTICATE Command.
      * 
+     * @exception	ProtocolException	for protocol failures
      * @see "Netscape/iPlanet/SunONE Messaging Server extension"
      * @since	JavaMail 1.5.1
      */
@@ -854,6 +904,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * ID Command, for Yahoo! Mail IMAP server.
      *
+     * @param	guid	the GUID
+     * @exception	ProtocolException	for protocol failures
      * @deprecated As of JavaMail 1.5.1, replaced by
      *		{@link #id(Map) id(Map&lt;String,String&gt;)}
      * @since JavaMail 1.4.4
@@ -869,6 +921,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * STARTTLS Command.
      * 
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC3501, section 6.2.1"
      */
     public void startTLS() throws ProtocolException {
@@ -894,6 +947,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * SELECT Command.
      *
+     * @param	mbox	the mailbox name
+     * @return		MailboxInfo if successful
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.1"
      */
     public MailboxInfo select(String mbox) throws ProtocolException {
@@ -903,6 +959,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * SELECT Command with QRESYNC data.
      *
+     * @param	mbox	the mailbox name
+     * @param	rd	the ResyncData
+     * @return		MailboxInfo if successful
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.1"
      * @see "RFC5162, section 3.1"
      * @since	JavaMail 1.5.1
@@ -952,6 +1012,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * EXAMINE Command.
      *
+     * @param	mbox	the mailbox name
+     * @return		MailboxInfo if successful
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.2"
      */
     public MailboxInfo examine(String mbox) throws ProtocolException {
@@ -961,6 +1024,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * EXAMINE Command with QRESYNC data.
      *
+     * @param	mbox	the mailbox name
+     * @param	rd	the ResyncData
+     * @return		MailboxInfo if successful
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.2"
      * @see "RFC5162, section 3.1"
      * @since	JavaMail 1.5.1
@@ -1018,6 +1085,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * ENABLE Command.
      *
+     * @param	cap	the name of the capability to enable
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 5161"
      * @since	JavaMail 1.5.1
      */
@@ -1035,6 +1104,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * Is the capability/extension enabled?
      *
+     * @param	cap	the capability name
+     * @return		true if enabled
      * @see "RFC 5161"
      * @since	JavaMail 1.5.1
      */
@@ -1048,6 +1119,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * UNSELECT Command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 3691"
      * @since	JavaMail 1.4.4
      */
@@ -1060,6 +1132,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * STATUS Command.
      *
+     * @param	mbox	the mailbox
+     * @param	items	the STATUS items to request
+     * @return		STATUS results
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.10"
      */
     public Status status(String mbox, String[] items) 
@@ -1114,6 +1190,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * CREATE Command.
      *
+     * @param	mbox	the mailbox to create
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.3"
      */
     public void create(String mbox) throws ProtocolException {
@@ -1129,6 +1207,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * DELETE Command.
      *
+     * @param	mbox	the mailbox to delete
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.4"
      */
     public void delete(String mbox) throws ProtocolException {
@@ -1144,6 +1224,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * RENAME Command.
      *
+     * @param	o	old mailbox name
+     * @param	n	new mailbox name
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.5"
      */
     public void rename(String o, String n) throws ProtocolException {
@@ -1161,6 +1244,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * SUBSCRIBE Command.
      *
+     * @param	mbox	the mailbox
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.6"
      */
     public void subscribe(String mbox) throws ProtocolException {
@@ -1175,6 +1260,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * UNSUBSCRIBE Command.
      *
+     * @param	mbox	the mailbox
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.7"
      */
     public void unsubscribe(String mbox) throws ProtocolException {
@@ -1189,6 +1276,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * LIST Command.
      *
+     * @param	ref	reference string
+     * @param	pattern	pattern to list
+     * @return		LIST results
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.8"
      */
     public ListInfo[] list(String ref, String pattern) 
@@ -1199,6 +1290,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * LSUB Command.
      *
+     * @param	ref	reference string
+     * @param	pattern	pattern to list
+     * @return		LSUB results
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.9"
      */
     public ListInfo[] lsub(String ref, String pattern) 
@@ -1210,6 +1305,11 @@ public class IMAPProtocol extends Protocol {
      * Execute the specified LIST-like command (e.g., "LIST" or "LSUB"),
      * using the reference and pattern.
      *
+     * @param	cmd	the list command
+     * @param	ref	the reference string
+     * @param	pat	the pattern
+     * @return		array of ListInfo results
+     * @exception	ProtocolException	for protocol failures
      * @since JavaMail 1.4.6
      */
     protected ListInfo[] doList(String cmd, String ref, String pat)
@@ -1253,6 +1353,11 @@ public class IMAPProtocol extends Protocol {
     /**
      * APPEND Command.
      *
+     * @param	mbox	the mailbox
+     * @param	f	the message Flags
+     * @param	d	the message date
+     * @param	data	the message data
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.11"
      */
     public void append(String mbox, Flags f, Date d,
@@ -1263,6 +1368,12 @@ public class IMAPProtocol extends Protocol {
     /**
      * APPEND Command, return uid from APPENDUID response code.
      *
+     * @param	mbox	the mailbox
+     * @param	f	the message Flags
+     * @param	d	the message date
+     * @param	data	the message data
+     * @return		APPENDUID data
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.3.11"
      */
     public AppendUID appenduid(String mbox, Flags f, Date d,
@@ -1341,6 +1452,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * CHECK Command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.4.1"
      */
     public void check() throws ProtocolException {
@@ -1350,6 +1462,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * CLOSE Command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.4.2"
      */
     public void close() throws ProtocolException {
@@ -1359,6 +1472,7 @@ public class IMAPProtocol extends Protocol {
     /**
      * EXPUNGE Command.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2060, section 6.4.3"
      */
     public void expunge() throws ProtocolException {
@@ -1368,6 +1482,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * UID EXPUNGE Command.
      *
+     * @param	set	UIDs to expunge
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC4315, section 2"
      */
     public void uidexpunge(UIDSet[] set) throws ProtocolException {
@@ -1378,6 +1494,10 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Fetch the BODYSTRUCTURE of the specified message.
+     *
+     * @param	msgno	the message number
+     * @return		the BODYSTRUCTURE item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODYSTRUCTURE fetchBodyStructure(int msgno) 
 			throws ProtocolException {
@@ -1398,6 +1518,11 @@ public class IMAPProtocol extends Protocol {
     /**
      * Fetch given BODY section, without marking the message
      * as SEEN.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY peekBody(int msgno, String section)
 			throws ProtocolException {
@@ -1406,6 +1531,11 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Fetch given BODY section.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY fetchBody(int msgno, String section)
 			throws ProtocolException {
@@ -1424,6 +1554,13 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Partial FETCH of given BODY section, without setting SEEN flag.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @param	start	starting byte count
+     * @param	size	number of bytes to fetch
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY peekBody(int msgno, String section, int start, int size)
 			throws ProtocolException {
@@ -1432,6 +1569,13 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Partial FETCH of given BODY section.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @param	start	starting byte count
+     * @param	size	number of bytes to fetch
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY fetchBody(int msgno, String section, int start, int size)
 			throws ProtocolException {
@@ -1440,6 +1584,14 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Partial FETCH of given BODY section, without setting SEEN flag.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @param	start	starting byte count
+     * @param	size	number of bytes to fetch
+     * @param	ba	the buffer into which to read the response
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY peekBody(int msgno, String section, int start, int size,
 				ByteArray ba) throws ProtocolException {
@@ -1448,6 +1600,14 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Partial FETCH of given BODY section.
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @param	start	starting byte count
+     * @param	size	number of bytes to fetch
+     * @param	ba	the buffer into which to read the response
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     public BODY fetchBody(int msgno, String section, int start, int size,
 				ByteArray ba) throws ProtocolException {
@@ -1468,6 +1628,12 @@ public class IMAPProtocol extends Protocol {
     /**
      * Fetch the given body section of the given message, using the
      * body string "body".
+     *
+     * @param	msgno	the message number
+     * @param	section	the body section
+     * @param	body	the body string
+     * @return		the BODY item
+     * @exception	ProtocolException	for protocol failures
      */
     protected BODY fetchSectionBody(int msgno, String section, String body)
 			throws ProtocolException {
@@ -1504,6 +1670,8 @@ public class IMAPProtocol extends Protocol {
      * Return a buffer to read a response into.
      * The buffer is provided by fetchBody and is
      * used only once.
+     *
+     * @return	the buffer to use
      */
     protected ByteArray getResponseBuffer() {
 	ByteArray ret = ba;
@@ -1515,6 +1683,11 @@ public class IMAPProtocol extends Protocol {
      * Fetch the specified RFC822 Data item. 'what' names
      * the item to be fetched. 'what' can be <code>null</code>
      * to fetch the whole message.
+     *
+     * @param	msgno	the message number
+     * @param	what	the item to fetch
+     * @return		the RFC822DATA item
+     * @exception	ProtocolException	for protocol failures
      */
     public RFC822DATA fetchRFC822(int msgno, String what)
 			throws ProtocolException {
@@ -1538,6 +1711,10 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Fetch the FLAGS for the given message.
+     *
+     * @param	msgno	the message number
+     * @return		the Flags
+     * @exception	ProtocolException	for protocol failures
      */
     public Flags fetchFlags(int msgno) throws ProtocolException {
 	Flags flags = null;
@@ -1565,6 +1742,10 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Fetch the IMAP UID for the given message.
+     *
+     * @param	msgno	the message number
+     * @return		the UID
+     * @exception	ProtocolException	for protocol failures
      */
     public UID fetchUID(int msgno) throws ProtocolException {
 	Response[] r = fetch(msgno, "UID");
@@ -1586,6 +1767,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * Fetch the IMAP MODSEQ for the given message.
      *
+     * @param	msgno	the message number
+     * @return		the MODSEQ
+     * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.5.1
      */
     public MODSEQ fetchMODSEQ(int msgno) throws ProtocolException {
@@ -1611,6 +1795,8 @@ public class IMAPProtocol extends Protocol {
      * along with any possible EXPUNGE responses, to ensure that the
      * UID is matched with the correct sequence number.
      *
+     * @param	uid	the UID
+     * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.5.3
      */
     public void fetchSequenceNumber(long uid) throws ProtocolException {
@@ -1628,6 +1814,10 @@ public class IMAPProtocol extends Protocol {
      * along with any possible EXPUNGE responses, to ensure that the
      * UIDs are matched with the correct sequence numbers.
      *
+     * @param	start	first UID
+     * @param	end	last UID
+     * @return		array of sequence numbers
+     * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.5.3
      */
     public long[] fetchSequenceNumbers(long start, long end)
@@ -1664,6 +1854,8 @@ public class IMAPProtocol extends Protocol {
      * along with any possible EXPUNGE responses, to ensure that the
      * UIDs are matched with the correct sequence numbers.
      *
+     * @param	uids	the UIDs
+     * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.5.3
      */
     public void fetchSequenceNumbers(long[] uids) throws ProtocolException {
@@ -1685,6 +1877,11 @@ public class IMAPProtocol extends Protocol {
      * modseq and with UIDs ranging from start till end.
      * Also, prefetch the flags for the returned messages.
      *
+     * @param	start	first UID
+     * @param	end	last UID
+     * @param	modseq	the MODSEQ
+     * @return		array of sequence numbers
+     * @exception	ProtocolException	for protocol failures
      * @see	"RFC 4551"
      * @since	JavaMail 1.5.1
      */
@@ -1742,12 +1939,24 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * COPY command.
+     *
+     * @param	msgsets	the messages to copy
+     * @param	mbox	the mailbox to copy them to
+     * @exception	ProtocolException	for protocol failures
      */
     public void copy(MessageSet[] msgsets, String mbox)
 			throws ProtocolException {
 	copyuid(MessageSet.toString(msgsets), mbox, false);
     }
 
+    /**
+     * COPY command.
+     *
+     * @param	start	start message number
+     * @param	end	end message number
+     * @param	mbox	the mailbox to copy them to
+     * @exception	ProtocolException	for protocol failures
+     */
     public void copy(int start, int end, String mbox)
 			throws ProtocolException {
 	copyuid(String.valueOf(start) + ":" + String.valueOf(end),
@@ -1755,8 +1964,12 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
-     * COPY Command, return uid from COPYUID response code.
+     * COPY command, return uid from COPYUID response code.
      *
+     * @param	msgsets	the messages to copy
+     * @param	mbox	the mailbox to copy them to
+     * @return		COPYUID response data
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 4315, section 3"
      */
     public CopyUID copyuid(MessageSet[] msgsets, String mbox)
@@ -1764,13 +1977,23 @@ public class IMAPProtocol extends Protocol {
 	return copyuid(MessageSet.toString(msgsets), mbox, true);
     }
 
+    /**
+     * COPY command, return uid from COPYUID response code.
+     *
+     * @param	start	start message number
+     * @param	end	end message number
+     * @param	mbox	the mailbox to copy them to
+     * @return		COPYUID response data
+     * @exception	ProtocolException	for protocol failures
+     * @see "RFC 4315, section 3"
+     */
     public CopyUID copyuid(int start, int end, String mbox)
 			throws ProtocolException {
 	return copyuid(String.valueOf(start) + ":" + String.valueOf(end),
 		    mbox, true);
     }
 
-    public CopyUID copyuid(String msgSequence, String mbox, boolean uid)
+    private CopyUID copyuid(String msgSequence, String mbox, boolean uid)
 				throws ProtocolException {
 	if (uid && !hasCapability("UIDPLUS")) 
 	    throw new BadCommandException("UIDPLUS not supported");
@@ -1798,6 +2021,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * MOVE command.
      *
+     * @param	msgsets	the messages to move
+     * @param	mbox	the mailbox to move them to
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 6851"
      * @since	JavaMail 1.5.4
      */
@@ -1809,6 +2035,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * MOVE command.
      *
+     * @param	start	start message number
+     * @param	end	end message number
+     * @param	mbox	the mailbox to move them to
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 6851"
      * @since	JavaMail 1.5.4
      */
@@ -1821,6 +2051,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * MOVE Command, return uid from COPYUID response code.
      *
+     * @param	msgsets	the messages to move
+     * @param	mbox	the mailbox to move them to
+     * @return		COPYUID response data
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 6851"
      * @see "RFC 4315, section 3"
      * @since	JavaMail 1.5.4
@@ -1833,6 +2067,11 @@ public class IMAPProtocol extends Protocol {
     /**
      * MOVE Command, return uid from COPYUID response code.
      *
+     * @param	start	start message number
+     * @param	end	end message number
+     * @param	mbox	the mailbox to move them to
+     * @return		COPYUID response data
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 6851"
      * @see "RFC 4315, section 3"
      * @since	JavaMail 1.5.4
@@ -1850,7 +2089,7 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC 4315, section 3"
      * @since	JavaMail 1.5.4
      */
-    public CopyUID moveuid(String msgSequence, String mbox, boolean uid)
+    private CopyUID moveuid(String msgSequence, String mbox, boolean uid)
 				throws ProtocolException {
 	if (!hasCapability("MOVE")) 
 	    throw new BadCommandException("MOVE not supported");
@@ -1918,7 +2157,12 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
-     * Set the specified flags on this message. <p>
+     * Set the specified flags on this message.
+     *
+     * @param	msg	the message number
+     * @param	flags	the flags
+     * @param	set	true to set, false to clear
+     * @exception	ProtocolException	for protocol failures
      */
     public void storeFlags(int msg, Flags flags, boolean set)
 			throws ProtocolException { 
@@ -1993,7 +2237,9 @@ public class IMAPProtocol extends Protocol {
      *
      * @param	msgsets	array of MessageSets
      * @param	term	SearchTerm
-     * @return	array of matching sequence numbers.
+     * @return		array of matching sequence numbers.
+     * @exception	ProtocolException	for protocol failures
+     * @exception	SearchException	for search failures
      */
     public int[] search(MessageSet[] msgsets, SearchTerm term)
 			throws ProtocolException, SearchException {
@@ -2006,7 +2252,9 @@ public class IMAPProtocol extends Protocol {
      * is returned if no matches are found.
      *
      * @param	term	SearchTerm
-     * @return	array of matching sequence numbers.
+     * @return		array of matching sequence numbers.
+     * @exception	ProtocolException	for protocol failures
+     * @exception	SearchException	for search failures
      */
     public int[] search(SearchTerm term) 
 			throws ProtocolException, SearchException {
@@ -2128,6 +2376,7 @@ public class IMAPProtocol extends Protocol {
      * return a subclass of SearchSequence, in order to add support for
      * product-specific search terms.
      *
+     * @return	the SearchSequence
      * @since JavaMail 1.4.6
      */
     protected SearchSequence getSearchSequence() {
@@ -2145,7 +2394,9 @@ public class IMAPProtocol extends Protocol {
      *
      * @param	term	sort criteria
      * @param	sterm	SearchTerm
-     * @return	array of matching sequence numbers.
+     * @return		array of matching sequence numbers.
+     * @exception	ProtocolException	for protocol failures
+     * @exception	SearchException	for search failures
      *
      * @see	"RFC 5256"
      * @since	JavaMail 1.4.4
@@ -2212,6 +2463,8 @@ public class IMAPProtocol extends Protocol {
     /**
      * NAMESPACE Command.
      *
+     * @return	the namespaces
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2342"
      */
     public Namespaces namespace() throws ProtocolException {
@@ -2251,6 +2504,9 @@ public class IMAPProtocol extends Protocol {
      * for this mailbox and, indirectly, the quotaroots for this
      * mailbox.
      *
+     * @param	mbox	the mailbox
+     * @return		array of Quota objects
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2087"
      */
     public Quota[] getQuotaRoot(String mbox) throws ProtocolException {
@@ -2324,6 +2580,9 @@ public class IMAPProtocol extends Protocol {
      * Returns an array of Quota objects, representing the quotas
      * for this quotaroot.
      *
+     * @param	root	the quotaroot
+     * @return		the quotas
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2087"
      */
     public Quota[] getQuota(String root) throws ProtocolException {
@@ -2365,6 +2624,8 @@ public class IMAPProtocol extends Protocol {
      *
      * Set the indicated quota on the corresponding quotaroot.
      *
+     * @param	quota	the quota to set
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2087"
      */
     public void setQuota(Quota quota) throws ProtocolException {
@@ -2449,6 +2710,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * SETACL Command.
      *
+     * @param	mbox	the mailbox
+     * @param	modifier	the ACL modifier
+     * @param	acl	the ACL
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2086"
      */
     public void setACL(String mbox, char modifier, ACL acl)
@@ -2478,6 +2743,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * DELETEACL Command.
      *
+     * @param	mbox	the mailbox
+     * @param	user	the user
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2086"
      */
     public void deleteACL(String mbox, String user) throws ProtocolException {
@@ -2502,6 +2770,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * GETACL Command.
      *
+     * @param	mbox	the mailbox
+     * @return		the ACL array
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2086"
      */
     public ACL[] getACL(String mbox) throws ProtocolException {
@@ -2552,6 +2823,10 @@ public class IMAPProtocol extends Protocol {
     /**
      * LISTRIGHTS Command.
      *
+     * @param	mbox	the mailbox
+     * @param	user	the user rights to return
+     * @return		the rights array
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2086"
      */
     public Rights[] listRights(String mbox, String user)
@@ -2601,6 +2876,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * MYRIGHTS Command.
      *
+     * @param	mbox	the mailbox
+     * @return		the rights
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2086"
      */
     public Rights myRights(String mbox) throws ProtocolException {
@@ -2662,6 +2940,7 @@ public class IMAPProtocol extends Protocol {
      * no other threads may issue any commands to the server that would
      * use this same connection.
      *
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC2177"
      * @since	JavaMail 1.4.1
      */
@@ -2717,6 +2996,7 @@ public class IMAPProtocol extends Protocol {
      * from the server it's not holding locks that would prevent
      * other threads from interrupting the IDLE command.
      *
+     * @return	the response
      * @since	JavaMail 1.4.1
      */
     public synchronized Response readIdleResponse() {
@@ -2740,6 +3020,9 @@ public class IMAPProtocol extends Protocol {
      * This method will be called with appropriate locks
      * held so that the processing of the response is safe.
      *
+     * @param	r	the response
+     * @return		true if IDLE is done
+     * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.4.1
      */
     public boolean processIdleResponse(Response r) throws ProtocolException {
@@ -2789,6 +3072,9 @@ public class IMAPProtocol extends Protocol {
     /**
      * ID Command.
      *
+     * @param	clientParams	map of names and values
+     * @return			map of names and values from server
+     * @exception	ProtocolException	for protocol failures
      * @see "RFC 2971"
      * @since	JavaMail 1.5.1
      */

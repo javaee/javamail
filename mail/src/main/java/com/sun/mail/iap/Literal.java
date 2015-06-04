@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -52,11 +52,16 @@ import java.io.*;
 public interface Literal {
     /**
      * Return the size of the data.
+     *
+     * @return	the size of the data
      */
     public int size();
 
     /**
      * Write the data to the OutputStream.
+     *
+     * @param	os	the output stream
+     * @exception	IOException	for I/O errors
      */
     public void writeTo(OutputStream os) throws IOException;
 }

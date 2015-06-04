@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2010-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2010-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -90,6 +90,10 @@ public class MimeUtil {
     /**
      * If a Content-Type handler has been specified,
      * call it to clean up the Content-Type value.
+     *
+     * @param	mp	the MimePart
+     * @param	contentType	the Content-Type value
+     * @return		the cleaned Content-Type value
      */
     public static String cleanContentType(MimePart mp, String contentType) {
 	if (cleanContentType != null) {

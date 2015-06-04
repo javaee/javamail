@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,6 +56,10 @@ public class ByteArray {
 
     /**
      * Constructor
+     *
+     * @param	b	the byte array to wrap
+     * @param	start	start position in byte array
+     * @param	count	number of bytes in byte array
      */
     public ByteArray(byte[] b, int start, int count) {
 	bytes = b;
@@ -66,6 +70,7 @@ public class ByteArray {
     /**
      * Constructor that creates a byte array of the specified size.
      *
+     * @param	size	the size of the ByteArray
      * @since	JavaMail 1.4.1
      */
     public ByteArray(int size) {
@@ -75,6 +80,8 @@ public class ByteArray {
     /**
      * Returns the internal byte array. Note that this is a live
      * reference to the actual data, not a copy.
+     *
+     * @return	the wrapped byte array
      */
     public byte[] getBytes() {
 	return bytes;
@@ -82,6 +89,8 @@ public class ByteArray {
 
     /**
      * Returns a new byte array that is a copy of the data.
+     *
+     * @return	a new byte array with the bytes from start for count
      */
     public byte[] getNewBytes() {
 	byte[] b = new byte[count];
@@ -91,6 +100,8 @@ public class ByteArray {
 
     /**
      * Returns the start position
+     *
+     * @return	the start position
      */
     public int getStart() {
 	return start;
@@ -98,6 +109,8 @@ public class ByteArray {
 
     /**
      * Returns the count of bytes
+     *
+     * @return	the number of bytes
      */
     public int getCount() {
 	return count;
@@ -106,6 +119,7 @@ public class ByteArray {
     /**
      * Set the count of bytes.
      *
+     * @param	count	the number of bytes
      * @since	JavaMail 1.4.1
      */
     public void setCount(int count) {
@@ -114,6 +128,8 @@ public class ByteArray {
 
     /**
      * Returns a ByteArrayInputStream.
+     *
+     * @return	the ByteArrayInputStream
      */
     public ByteArrayInputStream toByteArrayInputStream() {
 	return new ByteArrayInputStream(bytes, start, count);
@@ -122,6 +138,7 @@ public class ByteArray {
     /**
      * Grow the byte array by incr bytes.
      *
+     * @param	incr	how much to grow
      * @since	JavaMail 1.4.1
      */
     public void grow(int incr) {

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -58,6 +58,7 @@ public class ProtocolException extends Exception {
 
     /**
      * Constructs a ProtocolException with the specified detail message.
+     *
      * @param message		the detail message
      */
     public ProtocolException(String message) {
@@ -67,6 +68,7 @@ public class ProtocolException extends Exception {
     /**
      * Constructs a ProtocolException with the specified detail message
      * and cause.
+     *
      * @param message		the detail message
      * @param cause		the cause
      */
@@ -76,6 +78,8 @@ public class ProtocolException extends Exception {
 
     /**
      * Constructs a ProtocolException with the specified Response object.
+     *
+     * @param	r	the Response
      */
     public ProtocolException(Response r) {
 	super(r.toString());
@@ -84,6 +88,8 @@ public class ProtocolException extends Exception {
 
     /**
      * Return the offending Response object.
+     *
+     * @return	the Response object
      */
     public Response getResponse() {
 	return response;

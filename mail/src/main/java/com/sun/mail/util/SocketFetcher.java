@@ -78,7 +78,7 @@ public class SocketFetcher {
     /**
      * This method returns a Socket.  Properties control the use of
      * socket factories and other socket characteristics.  The properties
-     * used are: <p>
+     * used are:
      * <ul>
      * <li> <i>prefix</i>.socketFactory
      * <li> <i>prefix</i>.socketFactory.class
@@ -139,6 +139,8 @@ public class SocketFetcher {
      * @param props Properties object containing socket properties
      * @param prefix Property name prefix, e.g., "mail.imap"
      * @param useSSL use the SSL socket factory as the default
+     * @return		the Socket
+     * @exception	IOException	for I/O errors
      */
     public static Socket getSocket(String host, int port, Properties props,
 				String prefix, boolean useSSL)
@@ -406,6 +408,11 @@ public class SocketFetcher {
      * Supports the "STARTTLS" command in many protocols.
      * This version for compatibility with possible third party code
      * that might've used this API even though it shouldn't.
+     *
+     * @param	socket	the existing socket
+     * @return		the wrapped Socket
+     * @exception	IOException	for I/O errors
+     * @deprecated
      */
     public static Socket startTLS(Socket socket) throws IOException {
 	return startTLS(socket, new Properties(), "socket");
@@ -416,6 +423,13 @@ public class SocketFetcher {
      * Supports the "STARTTLS" command in many protocols.
      * This version for compatibility with possible third party code
      * that might've used this API even though it shouldn't.
+     *
+     * @param	socket	the existing socket
+     * @param	props	the properties
+     * @param	prefix	the property prefix
+     * @return		the wrapped Socket
+     * @exception	IOException	for I/O errors
+     * @deprecated
      */
     public static Socket startTLS(Socket socket, Properties props,
 				String prefix) throws IOException {
@@ -427,6 +441,13 @@ public class SocketFetcher {
     /**
      * Start TLS on an existing socket.
      * Supports the "STARTTLS" command in many protocols.
+     *
+     * @param	socket	the existing socket
+     * @param	host	the host the socket is connected to
+     * @param	props	the properties
+     * @param	prefix	the property prefix
+     * @return		the wrapped Socket
+     * @exception	IOException	for I/O errors
      */
     public static Socket startTLS(Socket socket, String host, Properties props,
 				String prefix) throws IOException {

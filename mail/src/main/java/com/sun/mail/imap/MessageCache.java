@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -120,6 +120,8 @@ public class MessageCache {
 
     /**
      * Size of cache.
+     *
+     * @return	the size of the cache
      */
     public int size() {
 	return size;
@@ -128,6 +130,9 @@ public class MessageCache {
     /**
      * Get the message object for the indicated message number.
      * If the message object hasn't been created, create it.
+     *
+     * @param	msgnum	the message number
+     * @return		the message
      */
     public IMAPMessage getMessage(int msgnum) {
 	// check range
@@ -153,6 +158,9 @@ public class MessageCache {
      * Get the message object for the indicated sequence number.
      * If the message object hasn't been created, create it.
      * Return null if there's no message with that sequence number.
+     *
+     * @param	seqnum	the sequence number of the message
+     * @return		the message
      */
     public IMAPMessage getMessageBySeqnum(int seqnum) {
 	int msgnum = msgnumOf(seqnum);
@@ -166,6 +174,8 @@ public class MessageCache {
 
     /**
      * Expunge the message with the given sequence number.
+     *
+     * @param	seqnum	the sequence number of the message to expunge
      */
     public void expungeMessage(int seqnum) {
 	int msgnum = msgnumOf(seqnum);
@@ -201,6 +211,8 @@ public class MessageCache {
     /**
      * Remove all the expunged messages from the array,
      * returning a list of removed message objects.
+     *
+     * @return	the removed messages
      */
     public IMAPMessage[] removeExpungedMessages() {
 	logger.fine("remove expunged messages");
@@ -248,6 +260,9 @@ public class MessageCache {
      * returning a list of removed message objects.
      * All messages in msgs must be IMAPMessage objects
      * from this folder.
+     *
+     * @param	msgs	the messages
+     * @return		the removed messages
      */
     public IMAPMessage[] removeExpungedMessages(Message[] msgs) {
 	logger.fine("remove expunged messages");
@@ -364,6 +379,9 @@ public class MessageCache {
     /**
      * Add count messages to the cache.
      * newSeqNum is the sequence number of the first message added.
+     *
+     * @param	count	the number of messges
+     * @param	newSeqNum	sequence number of first message
      */
     public void addMessages(int count, int newSeqNum) {
 	if (logger.isLoggable(Level.FINE))
@@ -410,6 +428,9 @@ public class MessageCache {
 
     /**
      * Return the sequence number for the given message number.
+     *
+     * @param	msgnum	the message number
+     * @return		the sequence number
      */
     public int seqnumOf(int msgnum) {
 	if (seqnums == null)

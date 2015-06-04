@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -62,6 +62,8 @@ public class UIDSet {
 
     /**
      * Count the total number of elements in a UIDSet
+     *
+     * @return	the number of elements
      */
     public long size() {
 	return end - start + 1;
@@ -69,6 +71,9 @@ public class UIDSet {
 
     /**
      * Convert an array of longs into an array of UIDSets
+     *
+     * @param	uids	the UIDs
+     * @return		array of UIDSet objects
      */
     public static UIDSet[] createUIDSets(long[] uids) {
 	if (uids == null)
@@ -96,6 +101,8 @@ public class UIDSet {
     /**
      * Parse a string in IMAP UID range format.
      *
+     * @param	uids	UID string
+     * @return		array of UIDSet objects
      * @since	JavaMail 1.5.1
      */
     public static UIDSet[] parseUIDSets(String uids) {
@@ -133,6 +140,9 @@ public class UIDSet {
 
     /**
      * Convert an array of UIDSets into an IMAP sequence range.
+     *
+     * @param	uidset	the UIDSets
+     * @return		the IMAP sequence string
      */
     public static String toString(UIDSet[] uidset) {
 	if (uidset == null)
@@ -166,6 +176,8 @@ public class UIDSet {
     /**
      * Convert an array of UIDSets into a array of long UIDs.
      *
+     * @param	uidset	the UIDSets
+     * @return		arrray of UIDs
      * @since	JavaMail 1.5.1
      */
     public static long[] toArray(UIDSet[] uidset) {
@@ -185,6 +197,9 @@ public class UIDSet {
      * Convert an array of UIDSets into a array of long UIDs.
      * Don't include any UIDs larger than uidmax.
      *
+     * @param	uidset	the UIDSets
+     * @param	uidmax	maximum UID
+     * @return		arrray of UIDs
      * @since	JavaMail 1.5.1
      */
     public static long[] toArray(UIDSet[] uidset, long uidmax) {
@@ -204,6 +219,9 @@ public class UIDSet {
 
     /**
      * Count the total number of elements in an array of UIDSets.
+     *
+     * @param	uidset	the UIDSets
+     * @return		the number of elements
      */
     public static long size(UIDSet[] uidset) {
 	long count = 0;

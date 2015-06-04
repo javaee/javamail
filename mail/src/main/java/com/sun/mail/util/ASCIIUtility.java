@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,6 +56,13 @@ public class ASCIIUtility {
      * from <code>start</code> till, but not including <code>end</code>. <p>
      *
      * Based on java.lang.Integer.parseInt()
+     *
+     * @param	b	the bytes
+     * @param	start	the first byte offset
+     * @param	end	the last byte offset
+     * @param	radix	the radix
+     * @return		the integer value
+     * @exception	NumberFormatException	for conversion errors
      */
     public static int parseInt(byte[] b, int start, int end, int radix)
 		throws NumberFormatException {
@@ -120,7 +127,13 @@ public class ASCIIUtility {
     /**
      * Convert the bytes within the specified range of the given byte 
      * array into a signed integer . The range extends from 
-     * <code>start</code> till, but not including <code>end</code>. <p>
+     * <code>start</code> till, but not including <code>end</code>.
+     *
+     * @param	b	the bytes
+     * @param	start	the first byte offset
+     * @param	end	the last byte offset
+     * @return		the integer value
+     * @exception	NumberFormatException	for conversion errors
      */
     public static int parseInt(byte[] b, int start, int end)
 		throws NumberFormatException {
@@ -133,6 +146,13 @@ public class ASCIIUtility {
      * from <code>start</code> till, but not including <code>end</code>. <p>
      *
      * Based on java.lang.Long.parseLong()
+     *
+     * @param	b	the bytes
+     * @param	start	the first byte offset
+     * @param	end	the last byte offset
+     * @param	radix	the radix
+     * @return		the long value
+     * @exception	NumberFormatException	for conversion errors
      */
     public static long parseLong(byte[] b, int start, int end, int radix)
 		throws NumberFormatException {
@@ -198,6 +218,12 @@ public class ASCIIUtility {
      * Convert the bytes within the specified range of the given byte 
      * array into a signed long . The range extends from 
      * <code>start</code> till, but not including <code>end</code>. <p>
+     *
+     * @param	b	the bytes
+     * @param	start	the first byte offset
+     * @param	end	the last byte offset
+     * @return		the long value
+     * @exception	NumberFormatException	for conversion errors
      */
     public static long parseLong(byte[] b, int start, int end)
 		throws NumberFormatException {
@@ -207,7 +233,12 @@ public class ASCIIUtility {
     /**
      * Convert the bytes within the specified range of the given byte 
      * array into a String. The range extends from <code>start</code>
-     * till, but not including <code>end</code>. <p>
+     * till, but not including <code>end</code>.
+     *
+     * @param	b	the bytes
+     * @param	start	the first byte offset
+     * @param	end	the last byte offset
+     * @return		the String
      */
     public static String toString(byte[] b, int start, int end) {
 	int size = end - start;
@@ -222,6 +253,8 @@ public class ASCIIUtility {
     /**
      * Convert the bytes into a String.
      *
+     * @param	b	the bytes
+     * @return		the String
      * @since	JavaMail 1.4.4
      */
     public static String toString(byte[] b) {

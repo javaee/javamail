@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -59,7 +59,10 @@ public class RFC822DATA implements Item {
     private final boolean isHeader;
 
     /**
-     * Constructor
+     * Constructor, header flag is false.
+     *
+     * @param	r	the FetchResponse
+     * @exception	ParsingException	for parsing failures
      */
     public RFC822DATA(FetchResponse r) throws ParsingException {
 	this(r, false);
@@ -67,6 +70,10 @@ public class RFC822DATA implements Item {
 
     /**
      * Constructor, specifying header flag.
+     *
+     * @param	r	the FetchResponse
+     * @param	isHeader	just header information?
+     * @exception	ParsingException	for parsing failures
      */
     public RFC822DATA(FetchResponse r, boolean isHeader)
 				throws ParsingException {

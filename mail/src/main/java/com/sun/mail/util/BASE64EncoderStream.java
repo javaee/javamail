@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -244,6 +244,9 @@ public class BASE64EncoderStream extends FilterOutputStream {
      * This method is suitable for short strings, such as those
      * in the IMAP AUTHENTICATE protocol, but not to encode the
      * entire content of a MIME part.
+     *
+     * @param	inbuf	the byte array
+     * @return		the encoded byte array
      */
     public static byte[] encode(byte[] inbuf) {
 	if (inbuf.length == 0)

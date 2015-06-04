@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,6 +64,9 @@ public class Argument {
      * Append the given Argument to this Argument. All items
      * from the source argument are copied into this destination
      * argument.
+     *
+     * @param	arg	the Argument to append
+     * @return		this
      */
     public Argument append(Argument arg) {
 	items.addAll(arg.items);
@@ -77,7 +80,8 @@ public class Argument {
      *
      * XXX: Hmm .. this should really be called writeASCII()
      *
-     * @param s  String to write out
+     * @param	s	String to write out
+     * @return		this
      */
     public Argument writeString(String s) {
 	items.add(new AString(ASCIIUtility.getBytes(s)));
@@ -87,6 +91,11 @@ public class Argument {
     /**
      * Convert the given string into bytes in the specified
      * charset, and write the bytes out as an ASTRING
+     *
+     * @param	s	String to write out
+     * @param	charset	the charset
+     * @return		this
+     * @exception	UnsupportedEncodingException	for bad charset
      */
     public Argument writeString(String s, String charset)
 		throws UnsupportedEncodingException {
@@ -102,7 +111,8 @@ public class Argument {
      * of the characters inside the string. The string should
      * contain only ASCII characters. <p>
      *
-     * @param s  String to write out
+     * @param	s	String to write out
+     * @return		this
      * @since	JavaMail 1.5.1
      */
     public Argument writeNString(String s) {
@@ -117,6 +127,10 @@ public class Argument {
      * Convert the given string into bytes in the specified
      * charset, and write the bytes out as an NSTRING
      *
+     * @param	s	String to write out
+     * @param	charset	the charset
+     * @return		this
+     * @exception	UnsupportedEncodingException	for bad charset
      * @since	JavaMail 1.5.1
      */
     public Argument writeNString(String s, String charset)
@@ -133,6 +147,7 @@ public class Argument {
     /**
      * Write out given byte[] as a Literal.
      * @param b  byte[] to write out
+     * @return	this
      */
     public Argument writeBytes(byte[] b)  {
 	items.add(b);
@@ -142,6 +157,7 @@ public class Argument {
     /**
      * Write out given ByteArrayOutputStream as a Literal.
      * @param b  ByteArrayOutputStream to be written out.
+     * @return	this
      */
     public Argument writeBytes(ByteArrayOutputStream b)  {
 	items.add(b);
@@ -151,6 +167,7 @@ public class Argument {
     /**
      * Write out given data as a literal.
      * @param b  Literal representing data to be written out.
+     * @return	this
      */
     public Argument writeBytes(Literal b)  {
 	items.add(b);
@@ -162,6 +179,7 @@ public class Argument {
      * certain US-ASCII characters.  No validation is done on the characters 
      * in the string.
      * @param s  String
+     * @return	this
      */
     public Argument writeAtom(String s) {
 	items.add(new Atom(s));
@@ -171,6 +189,7 @@ public class Argument {
     /**
      * Write out number.
      * @param i number
+     * @return	this
      */
     public Argument writeNumber(int i) {
 	items.add(Integer.valueOf(i));
@@ -180,6 +199,7 @@ public class Argument {
     /**
      * Write out number.
      * @param i number
+     * @return	this
      */
     public Argument writeNumber(long i) {
 	items.add(Long.valueOf(i));
@@ -188,6 +208,9 @@ public class Argument {
 
     /**
      * Write out as parenthesised list.
+     *
+     * @param	c	the Argument
+     * @return	this
      */
     public Argument writeArgument(Argument c) {
 	items.add(c);

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2008-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2008-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,6 +57,8 @@ public class LogOutputStream extends OutputStream {
 
     /**
      * Log to the specified logger.
+     *
+     * @param	logger	the MailLogger
      */
     public LogOutputStream(MailLogger logger) {
 	this.logger = logger;
@@ -117,6 +119,8 @@ public class LogOutputStream extends OutputStream {
     /**
      * Log the specified message.
      * Can be overridden by subclass to do different logging.
+     *
+     * @param	msg	the message to log
      */
     protected void log(String msg) {
 	logger.log(level, msg);

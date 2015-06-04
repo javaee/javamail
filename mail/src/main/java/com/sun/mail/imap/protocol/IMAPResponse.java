@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -76,6 +76,8 @@ public class IMAPResponse extends Response {
 
     /**
      * Copy constructor.
+     *
+     * @param	r	the IMAPResponse to copy
      */
     public IMAPResponse(IMAPResponse r) {
 	super((Response)r);
@@ -85,6 +87,10 @@ public class IMAPResponse extends Response {
 
     /**
      * For testing.
+     *
+     * @param	r	the response string
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
      */
     public IMAPResponse(String r) throws IOException, ProtocolException {
 	super(r);
@@ -96,6 +102,8 @@ public class IMAPResponse extends Response {
      * return the list as a array of Strings. An empty list is returned
      * as null.  This is an IMAP-ism, and perhaps this method should 
      * moved into the IMAP layer.
+     *
+     * @return	the list items as a String array
      */
     public String[] readSimpleList() {
 	skipSpaces();

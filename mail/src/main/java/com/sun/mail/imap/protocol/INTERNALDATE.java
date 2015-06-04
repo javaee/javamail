@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -53,7 +53,7 @@ import com.sun.mail.iap.*;
 
 
 /**
- * This class 
+ * An INTERNALDATE FETCH item.
  *
  * @author  John Mani
  */
@@ -75,7 +75,10 @@ public class INTERNALDATE implements Item {
     private static MailDateFormat mailDateFormat = new MailDateFormat();
 
     /**
-     * Constructor
+     * Constructor.
+     *
+     * @param	r	the FetchResponse
+     * @exception	ParsingException	for parsing failures
      */
     public INTERNALDATE(FetchResponse r) throws ParsingException {
 	msgno = r.getNumber();
@@ -103,6 +106,9 @@ public class INTERNALDATE implements Item {
 
     /**
      * Format given Date object into INTERNALDATE string
+     *
+     * @param	d	the Date
+     * @return		INTERNALDATE string
      */
     public static String format(Date d) {
 	/*
