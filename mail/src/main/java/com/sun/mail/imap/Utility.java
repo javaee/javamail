@@ -41,6 +41,8 @@
 package com.sun.mail.imap;
 
 import java.util.Vector;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.mail.*;
 
@@ -126,6 +128,40 @@ public final class Utility {
 	    v.copyInto(sets);
 	    return sets;
 	}
+    }
+    /**
+     * Sort (a copy of) the given array of messages and then
+     * run thru the sorted array of messages, apply the given
+     * Condition on each message and generate sets of contiguous 
+     * sequence-numbers for the successful messages. If a message 
+     * in the given array is found to be expunged, it is ignored.
+     *
+     * ASSERT: Since this method uses and returns message sequence
+     * numbers, you should use this method only when holding the
+     * messageCacheLock.
+     *
+     * @param	msgs	the messages
+     * @param	cond	the condition to check
+     * @return		the MessageSet array
+     * @since JavaMail 1.5.4
+     */
+    public static MessageSet[] toMessageSetSorted(Message[] msgs,
+							    Condition cond) {
+	/*
+	 * XXX - This is quick and dirty.  A more efficient strategy would be
+	 * to generate an array of message numbers by applying the condition
+	 * (with zero indicating the message doesn't satisfy the condition),
+	 * sort it, and then convert it to a MessageSet skipping all the zeroes.
+	 */
+	msgs = msgs.clone();
+	Arrays.sort(msgs,
+	    new Comparator<Message>() {
+		@Override
+		public int compare(Message msg1, Message msg2) {
+		    return msg1.getMessageNumber() - msg2.getMessageNumber();
+		}
+	    });
+	return toMessageSet(msgs, cond);
     }
 
     /**

@@ -1205,7 +1205,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    // Apply the test, and get the sequence-number set for
 	    // the messages that need to be prefetched.
-	    MessageSet[] msgsets = Utility.toMessageSet(msgs, condition);
+	    MessageSet[] msgsets = Utility.toMessageSetSorted(msgs, condition);
 
 	    if (msgsets == null)
 		// We already have what we need.
@@ -1340,7 +1340,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	synchronized(messageCacheLock) {
 	    try {
 		IMAPProtocol p = getProtocol();
-		MessageSet[] ms = Utility.toMessageSet(msgs, null);
+		MessageSet[] ms = Utility.toMessageSetSorted(msgs, null);
 		if (ms == null)
 		    throw new MessageRemovedException(
 					"Messages have been removed");
@@ -2284,7 +2284,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    synchronized(messageCacheLock) {
 		IMAPProtocol p = getProtocol();
-		MessageSet[] ms = Utility.toMessageSet(msgs, null);
+		MessageSet[] ms = Utility.toMessageSetSorted(msgs, null);
 		if (ms == null)
 		    throw new MessageRemovedException(
 					"Messages have been removed");
