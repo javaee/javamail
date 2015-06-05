@@ -414,6 +414,7 @@ public class SocketFetcher {
      * @exception	IOException	for I/O errors
      * @deprecated
      */
+    @Deprecated
     public static Socket startTLS(Socket socket) throws IOException {
 	return startTLS(socket, new Properties(), "socket");
     }
@@ -431,6 +432,7 @@ public class SocketFetcher {
      * @exception	IOException	for I/O errors
      * @deprecated
      */
+    @Deprecated
     public static Socket startTLS(Socket socket, Properties props,
 				String prefix) throws IOException {
 	InetAddress a = socket.getInetAddress();
