@@ -61,7 +61,7 @@ public class IMAPHandler extends ProtocolHandler {
     protected String tag;
 
     /** IMAP capabilities supported */
-    protected String capabilities = "IMAP4REV1 IDLE";
+    protected String capabilities = "IMAP4REV1 IDLE ID";
 
     /** Number of messages */
     protected int numberOfMessages = 0;
@@ -251,6 +251,8 @@ public class IMAPHandler extends ProtocolHandler {
 								subcommandName);
 		bad("unknown UID command");
 	    }
+        } else if (commandName.equals("ID")) {
+	    id(currentLine);
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}",
 							escape(currentLine));
@@ -395,6 +397,16 @@ public class IMAPHandler extends ProtocolHandler {
 	cont("waiting for message");
 	collectMessage(bytes);
         ok();	// XXX
+    }
+
+    /**
+     * ID command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void id(String line) throws IOException {
+	untagged("ID NIL");
+        ok();
     }
 
     /**

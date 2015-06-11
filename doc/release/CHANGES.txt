@@ -25,6 +25,7 @@ K  6840	MODSEQ should be stored in IMAPMessage if CONDSTORE is enabled
 K  6844	Space character lost from end of quoted-printable body parts
 K  6850	GmailMessage extensions are not cached after implicit FETCH
 K  6852	IMAP message sets should be sorted in cases where order doesn't matter
+K  6860	ID command shouldn't escape NIL value
 
 
 		  CHANGES IN THE 1.5.3 RELEASE

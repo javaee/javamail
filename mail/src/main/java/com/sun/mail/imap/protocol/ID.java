@@ -106,7 +106,7 @@ public class ID {
     static Argument getArgumentList(Map<String,String> clientParams) {
 	Argument arg = new Argument();
 	if (clientParams == null) {
-	    arg.writeString("NIL");
+	    arg.writeAtom("NIL");
 	    return arg;
 	}
 	Argument list = new Argument();
