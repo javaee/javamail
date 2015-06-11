@@ -14,6 +14,17 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.5.4 --
+
+- Idlemanager.watch no longer throws IOException
+
+	The IdleManager.watch method was declared to throw IOException,
+	but never actually threw it.  The declaraction has been changed,
+	which will cause a source incompatibility for code expecting to
+	catch IOException when calling the watch method.
+
+
+
 -- JavaMail 1.5.3 --
 
 - Date search terms result in wrong greater-than SEARCH commands for IMAP

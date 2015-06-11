@@ -83,8 +83,12 @@ import com.sun.mail.util.MailLogger;
  *		Message[] msgs = ev.getMessages();
  *		System.out.println("Folder: " + folder +
  *		    " got " + msgs.length + " new messages");
- *		// process new messages
- *		idleManager.watch(folder); // keep watching for new messages
+ *		try {
+ *		    // process new messages
+ *		    idleManager.watch(folder); // keep watching for new messages
+ *		} catch (MessagingException mex) {
+ *		    // handle exception related to the Folder
+ *		}
  *	    }
  *	});
  *	idleManager.watch(folder);
@@ -169,10 +173,9 @@ public class IdleManager {
      *
      * @param	folder	the folder to watch
      * @exception	MessagingException	for errors related to the folder
-     * @exception	IOException	for SocketChannel errors
      */
     public synchronized void watch(Folder folder)
-				throws IOException, MessagingException {
+				throws MessagingException {
 	if (!(folder instanceof IMAPFolder))
 	    throw new MessagingException("Can only watch IMAP folders");
 	IMAPFolder ifolder = (IMAPFolder)folder;
