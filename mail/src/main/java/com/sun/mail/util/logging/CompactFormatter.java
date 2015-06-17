@@ -45,9 +45,9 @@ import java.util.logging.LogRecord;
 
 /**
  * A plain text formatter that can produce fixed width output. By default this
- * formatter will produce output no greater than 160 characters wide. Only
- * specified fields support an {@link #toAlternate(java.lang.String) alternate}
- * fixed width format.
+ * formatter will produce output no greater than 160 characters wide plus the
+ * separator and newline characters. Only specified fields support an
+ * {@linkplain #toAlternate(java.lang.String) alternate} fixed width format.
  * <p>
  * By default each <tt>CompactFormatter</tt> is initialized using the
  * following LogManager configuration properties where
@@ -56,9 +56,9 @@ import java.util.logging.LogRecord;
  * not defined, or contain invalid values, then the specified default values are
  * used.
  * <ul>
- * <li>&lt;formatter-name&gt;.format - the {@link java.util.Formatter
- *     format} string used to transform the output. The format string can be used to
- * fix the output size. (defaults to <tt>%7$#.160s%n</tt>)</li>
+ * <li>&lt;formatter-name&gt;.format - the {@linkplain java.util.Formatter
+ *     format} string used to transform the output. The format string can be
+ * used to fix the output size. (defaults to <tt>%7$#.160s%n</tt>)</li>
  * </ul>
  *
  * @author Jason Mehrens
@@ -82,9 +82,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
     /**
      * Creates an instance with the given format pattern.
      *
-     * @param format the {@link java.util.Formatter pattern} or null to use the
-     * LogManager default. The arguments are described in the
-     * {@link #format(java.util.logging.LogRecord) format} method.
+     * @param format the {@linkplain java.util.Formatter pattern} or null to use
+     * the LogManager default. The arguments are described in the
+     * {@linkplain #format(java.util.logging.LogRecord) format} method.
      */
     public CompactFormatter(final String format) {
         String p = getClass().getName();
@@ -93,33 +93,57 @@ public class CompactFormatter extends java.util.logging.Formatter {
 
     /**
      * Format the given log record and returns the formatted string. The
-     * {@link java.util.Formatter#format(java.lang.String, java.lang.Object...)
+     * {@linkplain java.util.Formatter#format(java.lang.String, java.lang.Object...)
      * java.util} argument indexes are assigned to the following properties:
      *
      * <ol start='0'>
-     * <li>{@code format} - the {@link java.util.Formatter
+     * <li>{@code format} - the {@linkplain java.util.Formatter
      *     java.util.Formatter} format string specified in the
      * &lt;formatter-name&gt;.format property or the format that was given when
      * this formatter was created.</li>
-     * <li>{@code date} - a {@link Date} object representing
+     * <li>{@code date} - a {@linkplain Date} object representing
      * {@linkplain LogRecord#getMillis event time} of the log record.</li>
      * <li>{@code source} - a string representing the caller, if available;
      * otherwise, the logger's name.</li>
-     * <li>{@code logger} - the logger's name.</li>
+     * <li>{@code logger} - the logger's
+     * {@linkplain LogRecord#getLoggerName() name}.</li>
      * <li>{@code level} - the
      * {@linkplain java.util.logging.Level#getLocalizedName log level}.</li>
      * <li>{@code message} - the formatted log message returned from the
-     * {@link #formatMessage(LogRecord)} method.</li>
+     * {@linkplain #formatMessage(LogRecord)} method.</li>
      * <li>{@code thrown} - a string representing the
      * {@linkplain LogRecord#getThrown throwable} associated with the log record
-     * and a relevant stack trace element if available. Otherwise, an empty
+     * and a relevant stack trace element if available; otherwise, an empty
      * string is used.</li>
      * <li>{@code message|thrown} The message and the thrown properties joined
      * as one parameter. This parameter supports
-     * {@link #toAlternate(java.lang.String) alternate} form.</li>
+     * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
      * <li>{@code thrown|message} The thrown and message properties joined as
      * one parameter. This parameter supports
-     * {@link #toAlternate(java.lang.String) alternate} form.</li>
+     * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
+     * <li>{@code sequence} the
+     * {@linkplain LogRecord#getSequenceNumber() sequence number} if the given
+     * log record.</li>
+     * <li>{@code thread id} the {@linkplain LogRecord#getThreadID() thread id}
+     * of the given log record.  By default this is formatted as a {@code long}
+     * by an unsigned conversion.</li>
+     * <li>{@code error} the throwable simple class name and
+     * {@linkplain #formatError(LogRecord) error message} without any
+     * stack trace.</li>
+     * <li>{@code message|error} The message and error properties joined as
+     * one parameter. This parameter supports
+     * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
+     * <li>{@code error|message} The error and message properties joined as
+     * one parameter. This parameter supports
+     * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
+     * <li>{@code backtrace} only the
+     * {@linkplain #formatBackTrace(LogRecord) stack trace} of the given
+     * throwable.</li>
+     * <li>{@code bundlename} the resource bundle
+     * {@linkplain LogRecord#getResourceBundleName() name} of the given log
+     * record.</li>
+     * <li>{@code key} the {@linkplain LogRecord#getMessage() raw message}
+     * before localization or formatting.</li>
      * </ol>
      *
      * <p>
@@ -128,9 +152,21 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%7$#.160s%n}
      * <p>
      * This prints only 160 characters of the message|thrown ({@code 7$}) using
-     * the alternate form.
+     * the {@linkplain #toAlternate(java.lang.String) alternate} form. The
+     * separator is not included as part of the total width.
      * <pre>
      * Encoding failed.|NullPointerException: null String.getBytes(:913)
+     * </pre>
+     *
+     * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%7$#.20s%n}
+     * <p>
+     * This prints only 20 characters of the message|thrown ({@code 7$}) using
+     * the {@linkplain #toAlternate(java.lang.String) alternate} form.  This
+     * will perform a weighted truncation of both the message and thrown
+     * properties of the log record.  The separator is not included as part of
+     * the total width.
+     * <pre>
+     * Encoding|NullPointerE
      * </pre>
      *
      * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%1$tc %2$s%n%4$s: %5$s%6$s%n}
@@ -143,6 +179,25 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * Fri Nov 20 07:29:24 CST 2009 MyClass fatal
      * SEVERE: Encoding failed.NullPointerException: null String.getBytes(:913)
      * </pre>
+     *
+     * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%4$s: %12$#.160s%n}
+     * <p>
+     * This prints the log level ({@code 4$}) and only 160 characters of the
+     * message|error ({@code 12$}) using the alternate form.
+     * <pre>
+     * SEVERE: Unable to send notification.|SocketException: Permission denied: connect
+     * </pre>
+     *
+     * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=[%9$d][%1$tT][%10$d][%2$s] %5$s%n%6$s%n}
+     * <p>
+     * This prints the sequence ({@code 9$}), event time ({@code 1$}) as
+     * 24 hour time, thread id ({@code 10$}), source ({@code 2$}), log message
+     * ({@code 5$}), and the throwable with back trace ({@code 6$}).
+     * <pre>
+     * [125][14:11:42][38][MyClass fatal] Unable to send notification.
+     * SocketException: Permission denied: connect SMTPTransport.openServer(:1949)
+     * </pre>
+     *
      * </ul>
      *
      * @param record the log record to format.
@@ -157,6 +212,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
 
         String msg = formatMessage(record);
         String thrown = formatThrown(record);
+        String err = formatError(record);
         Object[] params = {
             new Date(record.getMillis()),
             formatSource(record),
@@ -165,7 +221,15 @@ public class CompactFormatter extends java.util.logging.Formatter {
             msg,
             thrown,
             new Alternate(msg, thrown),
-            new Alternate(thrown, msg)};
+            new Alternate(thrown, msg),
+            record.getSequenceNumber(),
+            formatThreadID(record),
+            err,
+            new Alternate(msg, err),
+            new Alternate(err, msg),
+            formatBackTrace(record),
+            record.getResourceBundleName(),
+            record.getMessage()};
 
         if (l == null) { //BUG ID 6282094
             return String.format(fmt, params);
@@ -194,8 +258,9 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * method removes any fully qualified throwable class names from the message
      * cause chain.
      *
-     * @param t the throwable to format.
-     * @return the formatted message string from the throwable.
+     * @param t the throwable to format or null.
+     * @return the empty string if null was given or the formatted message
+     * string from the throwable which may be null.
      */
     public String formatMessage(final Throwable t) {
         return t != null ? replaceClassName(apply(t).getMessage(), t) : "";
@@ -246,6 +311,24 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
+     * Formats the thread id property of the given log record.  By default this
+     * is formatted as a {@code long} by an unsigned conversion.
+     *
+     * @param record the record.
+     * @return the formatted thread id as a number.
+     * @throws NullPointerException if the given record is null.
+     * @since JavaMail 1.5.4
+     */
+    public Number formatThreadID(final LogRecord record) {
+        /**
+         * Thread.getID is defined as long and LogRecord.getThreadID is defined
+         * as int.  Convert to unsigned as a means to better map the two types
+         * of thread identifiers.
+         */
+        return (((long) record.getThreadID()) & 0xffffffffL);
+    }
+
+    /**
      * Formats the thrown property of a LogRecord. The returned string will
      * contain a throwable message with a back trace.
      *
@@ -259,19 +342,46 @@ public class CompactFormatter extends java.util.logging.Formatter {
         String msg;
         final Throwable t = record.getThrown();
         if (t != null) {
-            final Throwable root = apply(t);
-            if (root != null) {
-                msg = formatMessage(t);
-                String site = formatBackTrace(record);
-                msg = simpleClassName(root.getClass()) + ": " + msg
-                        + (isNullOrSpaces(site) ? "" : ' ' + site);
-            } else {
-                msg = "";
-            }
+            String site = formatBackTrace(record);
+            msg = formatToString(t) + (isNullOrSpaces(site) ? "" : ' ' + site);
         } else {
             msg = "";
         }
         return msg;
+    }
+
+    /**
+     * Formats the thrown property of a LogRecord as an error message. The
+     * returned string will not contain a back trace.
+     *
+     * @param record the record.
+     * @return empty string if nothing was thrown or formatted string.
+     * @throws NullPointerException if the given record is null.
+     * @see Throwable#toString()
+     * @see #apply(java.lang.Throwable)
+     * @see #formatMessage(java.lang.Throwable)
+     * @since JavaMail 1.5.4
+     */
+    public String formatError(final LogRecord record) {
+        Throwable t = record.getThrown();
+        if (t != null) {
+            return formatToString(t);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Gets the simple class name of the reduced throwable and message of
+     * the reduced throwable.
+     *
+     * @param t the given throwable.
+     * @return the formatted throwable.
+     * @since JavaMail 1.5.4
+     * @throws NullPointerException if given throwable is null.
+     */
+    private String formatToString(Throwable t) {
+        return simpleClassName(apply(t).getClass()) + ": " + formatMessage(t);
     }
 
     /**
@@ -289,21 +399,19 @@ public class CompactFormatter extends java.util.logging.Formatter {
         final Throwable t = record.getThrown();
         if (t != null) {
             final Throwable root = apply(t);
-            if (root != null) {
-                site = findAndFormat(root.getStackTrace());
-                if (isNullOrSpaces(site)) {
-                    int limit = 0;
-                    for (Throwable c = t; c != null; c = c.getCause()) {
-                        site = findAndFormat(c.getStackTrace());
-                        if (!isNullOrSpaces(site)) {
-                            break;
-                        }
+            site = findAndFormat(root.getStackTrace());
+            if (isNullOrSpaces(site)) {
+                int limit = 0;
+                for (Throwable c = t; c != null; c = c.getCause()) {
+                    site = findAndFormat(c.getStackTrace());
+                    if (!isNullOrSpaces(site)) {
+                        break;
+                    }
 
-                        //Deal with excessive cause chains
-                        //and cyclic throwables.
-                        if (++limit == (1 << 16)) {
-                            break; //Give up.
-                        }
+                    //Deal with excessive cause chains
+                    //and cyclic throwables.
+                    if (++limit == (1 << 16)) {
+                        break; //Give up.
                     }
                 }
             }
@@ -371,7 +479,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * formatting.
      *
      * @param t the throwable from the log record.
-     * @return the throwable or null.
+     * @return the chosen throwable or null only if the given argument is null.
      * @see #formatThrown(java.util.logging.LogRecord)
      */
     protected Throwable apply(final Throwable t) {
@@ -390,7 +498,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
-     * Defines the alternate format. This implementation removes all control
+     * Defines the alternate format.  This implementation removes all control
      * characters from the given string.
      *
      * @param s any string or null.
@@ -536,7 +644,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * Gets the simple class name from the given class. This is a workaround for
      * BUG ID JDK-8057919.
      *
-     * @param name the fully qualified class name or null.
+     * @param k the class object.
      * @return the simple class name or null.
      * @since JavaMail 1.5.3
      */

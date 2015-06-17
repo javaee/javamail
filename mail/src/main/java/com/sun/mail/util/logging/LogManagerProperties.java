@@ -148,6 +148,7 @@ final class LogManagerProperties extends Properties {
      * Gets LogManger property for the running JVM. If the LogManager doesn't
      * exist then the default LogManger properties are used.
      *
+     * @param name the property name.
      * @return the LogManager.
      * @throws NullPointerException if the given name is null.
      * @since JavaMail 1.5.3
@@ -723,14 +724,10 @@ final class LogManagerProperties extends Properties {
      */
     LogManagerProperties(final Properties parent, final String prefix) {
         super(parent);
-        parent.isEmpty(); //null check, happens-before
-        if (prefix == null) {
+        if (parent == null || prefix == null) {
             throw new NullPointerException();
         }
         this.prefix = prefix;
-
-        //'defaults' is not decalared final.
-        super.isEmpty(); //happens-before.
     }
 
     /**

@@ -2085,7 +2085,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2123,7 +2122,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2171,7 +2169,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2219,7 +2216,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2245,7 +2241,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2269,7 +2264,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2290,7 +2284,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if argument is null.
      * @throws SecurityException if not allowed.
@@ -2320,7 +2313,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2363,7 +2355,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2384,7 +2375,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2415,7 +2405,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2446,7 +2435,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2469,7 +2457,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2490,7 +2477,6 @@ public class MailHandler extends Handler {
 
     /**
      * Parses LogManager string values into objects used by this handler.
-     * @param manager the manager.
      * @param p the handler class name used as the prefix.
      * @throws NullPointerException if the given argument is null.
      * @throws SecurityException if not allowed.
@@ -2614,7 +2600,10 @@ public class MailHandler extends Handler {
                 if (size != 1) {
                     Arrays.sort(data, 0, size, comparator);
                 } else {
-                    comparator.compare(data[0], data[0]);
+                    if (comparator.compare(data[0], data[0]) != 0) {
+                        throw new IllegalArgumentException(
+                                comparator.getClass().getName());
+                    }
                 }
             } catch (final RuntimeException RE) {
                 reportError(RE.getMessage(), RE, ErrorManager.FORMAT_FAILURE);
@@ -3964,7 +3953,7 @@ public class MailHandler extends Handler {
      */
     private boolean allowRestrictedHeaders() {
         //GAE will prevent delivery of email with forbidden headers.
-        //Assume the envrionment is GAE if access to the LogManager is
+        //Assume the environment is GAE if access to the LogManager is
         //forbidden.
         return LogManagerProperties.hasLogManager();
     }

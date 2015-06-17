@@ -44,7 +44,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
 import java.util.logging.Formatter;
@@ -63,6 +66,10 @@ public class CollectorFormatterTest {
      * See LogManager.
      */
     private static final String LOG_CFG_KEY = "java.util.logging.config.file";
+    /**
+     * Date and time simple format pattern.
+     */
+    private static final String DATE_TIME_FMT = "EEE, MMM dd HH:mm:ss:S ZZZ yyyy";
 
     /**
      * The line separator.
@@ -76,9 +83,24 @@ public class CollectorFormatterTest {
         assertNull(System.getProperty(LOG_CFG_KEY));
         assertEquals(LogManager.class, LogManager.getLogManager().getClass());
     }
-    
+
     private static void fullFence() {
         LogManager.getLogManager().getProperty("");
+    }
+
+    @SuppressWarnings("SleepWhileInLoop")
+    private static void tick() throws InterruptedException {
+        final long delay = 1L;
+        long then = System.currentTimeMillis();
+        for (int i = 0; i < Short.MAX_VALUE; i++) {
+            long now = System.currentTimeMillis();
+            long delta = (now - then);
+            if (delta >= delay) {
+                return;
+            }
+            Thread.sleep(delay - delta);
+        }
+        throw new AssertionError(then + " " + System.currentTimeMillis());
     }
 
     @BeforeClass
@@ -90,7 +112,7 @@ public class CollectorFormatterTest {
     public static void tearDownClass() throws Exception {
         checkJVMOptions();
     }
-    
+
     @Before
     public void setUp() {
         fullFence();
@@ -114,6 +136,15 @@ public class CollectorFormatterTest {
         String expect = f.finish(xml.getHead((Handler) null));
         assertEquals(result, expect);
         assertEquals("", f.getHead((Handler) null));
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testFormatApplyReturnsNull() {
+        CollectorFormatter f = new ApplyReturnsNull();
+        for (int i = 0; i < 10; i++) {
+            String o = f.format(new LogRecord(Level.INFO, ""));
+            assertNotNull(o);
+        }
     }
 
     @Test(expected = NullPointerException.class)
@@ -323,7 +354,32 @@ public class CollectorFormatterTest {
     }
 
     @Test
-    public void testFormatMinMillis() {
+    public void testFormatNextMin() throws Exception {
+        CollectorFormatter minF = new CollectorFormatter("{7}",
+                (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        tick(); //Make sure the max not equal to the start time.
+
+        final String min = minF.getTail((Handler) null);
+        NumberFormat.getIntegerInstance().parse(min);
+        tick();
+
+        //Next min is not old min.
+        String next = minF.getTail((Handler) null);
+        assertFalse(min + ' ' + next, min.equals(next));
+
+        //All mins start at the init time.
+        CollectorFormatter initF = new CollectorFormatter("{10}",
+                (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        next = initF.getTail((Handler) null);
+        assertEquals(min, next);
+    }
+
+    @Test
+    public void testFormatMinDateTime() {
         String msg = "message";
         CollectorFormatter f = new CollectorFormatter("{7,date,short} {7,time}",
                 (Formatter) null,
@@ -356,7 +412,22 @@ public class CollectorFormatterTest {
     }
 
     @Test
-    public void testFormatMaxMillis() {
+    public void testFormatNextMax() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{8}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String now = f.getTail((Handler) null);
+        Number num = NumberFormat.getIntegerInstance().parse(now);
+        assertFalse(Long.MIN_VALUE == num.longValue());
+        tick();
+        String next = f.getTail((Handler) null);
+        assertFalse(NumberFormat.getIntegerInstance().parse(now).longValue()
+                == Long.MIN_VALUE);
+        assertFalse(now.equals(next));
+    }
+
+    @Test
+    public void testFormatMaxDateTime() {
         String msg = "message";
         CollectorFormatter f = new CollectorFormatter("{8,date,short} {8,time}",
                 (Formatter) null,
@@ -390,9 +461,41 @@ public class CollectorFormatterTest {
     }
 
     @Test
+    public void testFormatWindowToInstant() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{7}_{8}",
+                (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        r.setMillis(100);
+        f.format(r);
+
+        r = new LogRecord(Level.SEVERE, "");
+        r.setMillis(200);
+        f.format(r);
+
+        //Check that the min and max are different.
+        String output = f.getTail((Handler) null);
+        int fence = output.indexOf('_');
+        assertFalse(output.regionMatches(0, output, fence + 1,
+                (output.length() - fence) - 1));
+
+        r = new LogRecord(Level.SEVERE, "");
+        r.setMillis(400);
+        f.format(r);
+
+        //Previous max is 200 so at this point the min and max better be 400.
+        output = f.getTail((Handler) null);
+        fence = output.indexOf('_');
+        assertTrue(output.regionMatches(0, output, fence + 1,
+                (output.length() - fence) - 1));
+        assertEquals("400_400", output);
+    }
+
+    @Test
     public void testGetTail() {
         CollectorFormatter f = new CollectorFormatter(
-                "{0}{1}{2}{3}{4}{5}{6}{7}{8}",
+                "{0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}",
                 (Formatter) null,
                 (Comparator<LogRecord>) null);
         assertTrue(f.getTail((Handler) null).length() != 0);
@@ -416,12 +519,15 @@ public class CollectorFormatterTest {
 
         cf.format(new LogRecord(Level.INFO, "info"));
         cf.format(new LogRecord(Level.INFO, "info"));
-        cf.getTail((Handler) null);
+        String output = cf.getTail((Handler) null);
+        assertNotNull(output);
     }
 
     @Test
     public void testGetTailExample2() {
-        String p = "These {3} messages occurred between\n{7,date,EEE, MMM dd HH:mm:ss:S ZZZ yyyy} and {8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n";
+        String p = "These {3} messages occurred between\n"
+                + "{7,date,EEE, MMM dd HH:mm:ss:S ZZZ yyyy} and "
+                + "{8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n";
         CollectorFormatter cf = new CollectorFormatter(p);
         LogRecord min = new LogRecord(Level.SEVERE, "");
         min.setMillis(1248203502449L);
@@ -442,7 +548,88 @@ public class CollectorFormatterTest {
         args[7] = min.getMillis();
         args[8] = max.getMillis();
         assertEquals(MessageFormat.format(p, args), cf.toString());
-        cf.getTail((Handler) null);
+        String output = cf.getTail((Handler) null);
+        assertNotNull(output);
+    }
+
+    @Test
+    public void testGetTailExample3a() {
+        String p = "These {3} messages occurred between "
+                + "{9,choice,86400000#{7,date} {7,time} and {8,time}"
+                + "|86400000<{7,date} and {8,date}}\n";
+        CollectorFormatter cf = new CollectorFormatter(p);
+        LogRecord min = new LogRecord(Level.SEVERE, "");
+        min.setMillis(1248203502449L);
+        cf.format(min);
+
+        for (int i = 0; i < 71; ++i) {
+            LogRecord mid = new LogRecord(Level.SEVERE, "");
+            mid.setMillis(min.getMillis());
+            cf.format(mid);
+        }
+
+        LogRecord max = new LogRecord(Level.SEVERE, "");
+        max.setMillis(min.getMillis() + 110500);
+        cf.format(max);
+
+        String output = cf.getTail((Handler) null);
+        assertNotNull(output);
+
+
+        cf.format(min);
+        for (int i = 0; i < 114; ++i) {
+            LogRecord mid = new LogRecord(Level.SEVERE, "");
+            mid.setMillis(min.getMillis());
+            cf.format(mid);
+        }
+
+
+        max.setMillis(min.getMillis() + 2591000000L);
+        cf.format(max);
+
+        output = cf.getTail((Handler) null);
+        assertNotNull(output);
+    }
+
+    public void testGetTailExample3b() {
+        String p = "These {3} messages occurred between "
+                + "{9,choice,86400000#{7,date} {7,time} and {8,time}"
+                + "|86400000<{7,date} and {8,date}}\n";
+        CollectorFormatter cf = new CollectorFormatter(p);
+        LogRecord min = new LogRecord(Level.SEVERE, "");
+        min.setMillis(1248203502449L);
+
+        cf.format(min);
+        for (int i = 0; i < 114; ++i) {
+            LogRecord mid = new LogRecord(Level.SEVERE, "");
+            mid.setMillis(min.getMillis());
+            cf.format(mid);
+        }
+
+        LogRecord max = new LogRecord(Level.SEVERE, "");
+        max.setMillis(min.getMillis() + 2591000000L);
+        cf.format(max);
+
+        String output = cf.getTail((Handler) null);
+        assertNotNull(output);
+    }
+
+    @Test
+    public void testGetTailExample4() throws Exception {
+        String p = "{13} alert reports since {10,date}.\n";
+        CollectorFormatter cf = new CollectorFormatter(p);
+
+        int count = 4320;
+        for (int i = 1; i < count; ++i) {
+            LogRecord mid = new LogRecord(Level.SEVERE, "");
+            cf.format(mid);
+            cf.getTail((Handler) null);
+        }
+
+        String output = cf.getTail((Handler) null);
+        assertNotNull(output);
+        String jd73 = NumberFormat.getIntegerInstance().format(count);
+        assertTrue(output.startsWith(jd73));
     }
 
     @Test
@@ -612,10 +799,188 @@ public class CollectorFormatterTest {
         }
     }
 
+    @Test
+    public void testFormatElapsedTime() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{9}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        r.setMillis(25L);
+        f.format(r);
+
+        r = new LogRecord(Level.SEVERE, "");
+        r.setMillis(100L);
+        f.format(r);
+
+        String init = f.getTail((Handler) null);
+        Number n = NumberFormat.getIntegerInstance().parse(init);
+        assertEquals(75, n.longValue());
+    }
+
+
+    @Test
+    public void testFormatInitTimeMillis() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{10}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String init = f.getTail((Handler) null);
+        NumberFormat.getIntegerInstance().parse(init);
+        tick();
+
+        assertTrue(init.equals(f.getTail((Handler) null)));
+    }
+
+    @Test
+    public void testFormatInitTimeDateTime() throws Exception {
+        CollectorFormatter f = new CollectorFormatter(
+                "{10,date,"+DATE_TIME_FMT+"}",
+                (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String init = f.getTail((Handler) null);
+        DateFormat df = new SimpleDateFormat(DATE_TIME_FMT);
+        Date dt = df.parse(init);
+        tick();
+
+        assertTrue(init.equals(f.getTail((Handler) null)));
+        assertTrue(dt.equals(df.parse(f.getTail((Handler) null))));
+    }
+
+    @Test
+    public void testFormatCurrentTimeMillis() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{11}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String now = f.getTail((Handler) null);
+        NumberFormat.getIntegerInstance().parse(now);
+        tick();
+
+        assertFalse(now.equals(f.getTail((Handler) null)));
+    }
+
+    @Test
+    public void testFormatCurrentTimeDateTime() throws Exception {
+        CollectorFormatter f = new CollectorFormatter(
+                "{11,date,"+DATE_TIME_FMT+"}",
+                (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String init = f.getTail((Handler) null);
+        DateFormat df = new SimpleDateFormat(DATE_TIME_FMT);
+        Date dt = df.parse(init);
+        tick();
+
+        assertFalse(init.equals(f.getTail((Handler) null)));
+        assertFalse(dt.equals(df.parse(f.getTail((Handler) null))));
+    }
+
+    @Test
+    public void testFormatUpTime() throws Exception {
+        CollectorFormatter f = new CollectorFormatter("{12}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        String up = f.getTail((Handler) null);
+        NumberFormat.getIntegerInstance().parse(up);
+        tick();
+
+        assertFalse(up.equals(f.getTail((Handler) null)));
+    }
+
+    @Test
+    public void testFormatGeneration() {
+        String msg = "message";
+        CollectorFormatter f = new CollectorFormatter("{13}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+
+        assertEquals("1", f.getTail((Handler) null));
+        assertEquals("1", f.toString());
+        assertEquals("1", f.getTail((Handler) null));
+        assertEquals("1", f.toString());
+
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+
+        assertEquals("1", f.getTail((Handler) null)); //reset
+
+        assertEquals("2", f.getTail((Handler) null));
+        assertEquals("2", f.toString());
+        assertEquals("2", f.getTail((Handler) null));
+        assertEquals("2", f.toString());
+
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+        f.format(new LogRecord(Level.SEVERE, msg));
+
+        assertEquals("2", f.getTail((Handler) null)); //reset
+        assertEquals("3", f.getTail((Handler) null));
+        assertEquals("3", f.toString());
+        assertEquals("3", f.toString());
+        assertEquals("3", f.getTail((Handler) null));
+    }
+
+    @Test
+    public void testFormatNullFormatter() {
+        CollectorFormatter f = new CollectorFormatter("{1}", (Formatter) null,
+                (Comparator<LogRecord>) null);
+        LogRecord r = new LogRecord(Level.SEVERE, "message {0}");
+        r.setParameters(new Object[]{1});
+        f.format(r);
+        String output = f.getTail((Handler) null);
+        assertEquals(f.formatMessage(r), output);
+    }
+
+    @Test
+    public void testFormatIllegalPattern() {
+        CollectorFormatter f = new CollectorFormatter("{9");
+        f.format(new LogRecord(Level.SEVERE, ""));
+        try {
+            f.getTail((Handler) null);
+            fail("Expected format exception.");
+        } catch (IllegalArgumentException expect) {
+        }
+    }
+
+    @Test
+    public void testFormatIllegalTargetPattern() {
+        CollectorFormatter f = new CollectorFormatter("{1}",
+                new CompactFormatter("%1$#tc"), (Comparator<LogRecord>) null);
+        f.format(new LogRecord(Level.SEVERE, ""));
+        try {
+            f.getTail((Handler) null);
+            fail("Expected format exception.");
+        } catch (java.util.IllegalFormatException expect) {
+        }
+    }
+
     private void read(LogManager manager, Properties props) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream(512);
         props.store(out, CollectorFormatterTest.class.getName());
         manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+    }
+
+    /**
+     * An example of a broken implementation of apply.
+     */
+    private static class ApplyReturnsNull extends CollectorFormatter {
+        /**
+         * The number of records.
+         */
+        private int count;
+
+        /**
+         * Promote access level.
+         */
+        ApplyReturnsNull() {
+        }
+
+        @Override
+        protected LogRecord apply(LogRecord t, LogRecord u) {
+            assertNotNull(t);
+            assertNotNull(u);
+            return (++count & 1) == 1 ? u : null;
+        }
     }
 
     /**

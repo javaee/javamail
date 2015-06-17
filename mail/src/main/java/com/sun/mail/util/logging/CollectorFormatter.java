@@ -68,7 +68,7 @@ import java.util.logging.LogRecord;
  * <tt>LogRecord</tt>. If a comparator is specified then the max
  * <tt>LogRecord</tt> is chosen. If comparator is set to the string literal
  * null, then the last record is chosen. (defaults to
- * {@link SeverityComparator})
+ * {@linkplain SeverityComparator})
  *
  * <li>&lt;formatter-name&gt;.comparator.reverse a boolean
  * <tt>true</tt> to collect the min <tt>LogRecord</tt> or <tt>false</tt> to
@@ -82,7 +82,7 @@ import java.util.logging.LogRecord;
  * more}\n</tt>)
  *
  * <li>&lt;formatter-name&gt;.formatter name of a <tt>Formatter</tt> class used
- * to format the collected LogRecord. (defaults to {@link CompactFormatter})
+ * to format the collected LogRecord. (defaults to {@linkplain CompactFormatter})
  *
  * </ul>
  *
@@ -90,7 +90,6 @@ import java.util.logging.LogRecord;
  * @since JavaMail 1.5.2
  */
 public class CollectorFormatter extends Formatter {
-
     /**
      * Avoid depending on JMX runtime bean to get the start time.
      */
@@ -117,17 +116,22 @@ public class CollectorFormatter extends Formatter {
      */
     private long count;
     /**
+     * The number of log produced containing at least one log record.
+     * Only incremented when this formatter is reset.
+     */
+    private long generation = 1L;
+    /**
      * The number of log records that have been formatted with a thrown object.
      */
     private long thrown;
     /**
-     * The eldest log record time.
+     * The eldest log record time or eldest time possible for this instance.
      */
-    private long minMillis;
+    private long minMillis = INIT_TIME;
     /**
      * The newest log record time.
      */
-    private long maxMillis;
+    private long maxMillis = Long.MIN_VALUE;
 
     /**
      * Creates the formatter using the LogManager defaults.
@@ -142,7 +146,6 @@ public class CollectorFormatter extends Formatter {
         this.fmt = initFormat(p);
         this.formatter = initFormatter(p);
         this.comparator = initComparator(p);
-        reset();
     }
 
     /**
@@ -159,7 +162,6 @@ public class CollectorFormatter extends Formatter {
         this.fmt = format == null ? initFormat(p) : format;
         this.formatter = initFormatter(p);
         this.comparator = initComparator(p);
-        reset();
     }
 
     /**
@@ -181,7 +183,6 @@ public class CollectorFormatter extends Formatter {
         this.fmt = format == null ? initFormat(p) : format;
         this.formatter = f;
         this.comparator = c;
-        reset();
     }
 
     /**
@@ -205,7 +206,7 @@ public class CollectorFormatter extends Formatter {
             //The self compare of the first record acts like a type check.
             LogRecord update = apply(peek != null ? peek : record, record);
             if (peek != update) { //Not identical.
-                update.getSourceMethodName(); //Infer caller.
+                update.getSourceMethodName(); //Infer caller, null check.
                 accepted = acceptAndUpdate(peek, update);
             } else {
                 accepted = true;
@@ -218,7 +219,7 @@ public class CollectorFormatter extends Formatter {
     /**
      * Formats the collected LogRecord and summary statistics. The collected
      * results are reset after calling this method. The
-     * {@link java.text.MessageFormat java.text} argument indexes are assigned
+     * {@linkplain java.text.MessageFormat java.text} argument indexes are assigned
      * to the following properties:
      *
      * <ol start='0'>
@@ -229,7 +230,8 @@ public class CollectorFormatter extends Formatter {
      * <li>{@code formatted} the current log record
      * {@linkplain Formatter#format(java.util.logging.LogRecord) formatted} by
      * the target formatter and {@linkplain #finish(java.lang.String) finished}
-     * by this formatter.
+     * by this formatter.  If the formatter is null then record is formatted by
+     * this {@linkplain #formatMessage(java.util.logging.LogRecord) formatter}.
      * <li>{@code tail} the
      * {@linkplain Formatter#getTail(java.util.logging.Handler) tail} string
      * returned from the target formatter and
@@ -244,17 +246,34 @@ public class CollectorFormatter extends Formatter {
      * <li>{@code minMillis} the eldest log record
      * {@linkplain java.util.logging.LogRecord#getMillis event time}
      * {@linkplain #format consumed} by this formatter. If the count is zero
-     * then this is set to the approximate start time of the JVM. By
-     * default this parameter is defined as a number. The format type and format
-     * style rules from the {@link java.text.MessageFormat} should be used to
-     * convert this from milliseconds to a date or time.
+     * then this is set to the previous max or approximate start time if there
+     * was no previous max. By default this parameter is defined as a number.
+     * The format type and format style rules from the
+     * {@linkplain java.text.MessageFormat} should be used to convert this from
+     * milliseconds to a date or time.
      * <li>{@code maxMillis} the most recent log record
      * {@linkplain java.util.logging.LogRecord#getMillis event time}
      * {@linkplain #format consumed} by this formatter. If the count is zero
-     * then this is set to the {@link System#currentTimeMillis() current time}.
+     * then this is set to the {@linkplain System#currentTimeMillis() current time}.
      * By default this parameter is defined as a number. The format type and
-     * format style rules from the {@link java.text.MessageFormat} should be
+     * format style rules from the {@linkplain java.text.MessageFormat} should be
      * used to convert this from milliseconds to a date or time.
+     * <li>{@code elapsed} the elapsed time in milliseconds between the
+     * {@code maxMillis} and {@code minMillis}.
+     * <li>{@code startTime} the approximate start time in milliseconds.  By
+     * default this parameter is defined as a number. The format type and format
+     * style rules from the {@linkplain java.text.MessageFormat} should be used to
+     * convert this from milliseconds to a date or time.
+     * <li>{@code currentTime} the
+     * {@linkplain System#currentTimeMillis() current time} in milliseconds.  By
+     * default this parameter is defined as a number. The format type and format
+     * style rules from the {@linkplain java.text.MessageFormat} should be used to
+     * convert this from milliseconds to a date or time.
+     * <li>{@code uptime} the elapsed time in milliseconds between the
+     * {@code currentTime} and {@code startTime}.
+     * <li>{@code generation} the number times this method produced output with
+     * at least one {@linkplain #format consumed} log record.  This can be used
+     * to track the number of complete reports this formatter has produced.
      * </ol>
      *
      * <p>
@@ -277,6 +296,26 @@ public class CollectorFormatter extends Formatter {
      * <pre>
      * These 292 messages occurred between
      * Tue, Jul 21 14:11:42:449 -0500 2009 and Fri, Nov 20 07:29:24:0 -0600 2009
+     * </pre>
+     * <li>{@code com.sun.mail.util.logging.CollectorFormatter.format=These {3} messages occurred between {9,choice,86400000#{7,date} {7,time} and {8,time}|86400000<{7,date} and {8,date}}\n}
+     * <p>
+     * This prints the count ({@code {3}}) and then chooses the format based on
+     * the elapsed time ({@code {9}}). If the elapsed time is less than one day
+     * then the eldest log record ({@code {7}}) date and time is formatted
+     * followed by just the time of the most recent log record ({@code {8}}.
+     * Otherwise, the just the date of the eldest log record ({@code {7}}) and
+     * just the date of most recent log record ({@code {8}} is formatted.
+     * <pre>
+     * These 73 messages occurred between Jul 21, 2009 2:11:42 PM and 2:13:32 PM
+     *
+     * These 116 messages occurred between Jul 21, 2009 and Aug 20, 2009
+     * </pre>
+     * <li>{@code com.sun.mail.util.logging.CollectorFormatter.format={13} alert reports since {10,date}.\n}
+     * <p>
+     * This prints the generation ({@code {13}}) followed by the start time
+     * ({@code {10}}) formatted as a date.
+     * <pre>
+     * 4,320 alert reports since Jul 21, 2012.
      * </pre>
      * </ul>
      *
@@ -334,9 +373,13 @@ public class CollectorFormatter extends Formatter {
      */
     private synchronized void accept(final LogRecord record) {
         final long millis = record.getMillis();
-        minMillis = Math.min(minMillis, millis);
+        if (++count != 1L) {
+            minMillis = Math.min(minMillis, millis);
+        } else { //Show single records as instant and not a time period.
+            minMillis = millis;
+        }
         maxMillis = Math.max(maxMillis, millis);
-        ++count;
+
         if (record.getThrown() != null) {
             ++thrown;
         }
@@ -344,12 +387,17 @@ public class CollectorFormatter extends Formatter {
 
     /**
      * Resets all of the collected summary statistics including the LogRecord.
+     * @param min the current min milliseconds.
      */
-    private synchronized void reset() {
-        last = null;
+    private synchronized void reset(final long min) {
+        if (last != null) {
+            last = null;
+            ++generation;
+        }
+
         count = 0L;
         thrown = 0L;
-        minMillis = Long.MAX_VALUE;
+        minMillis = min;
         maxMillis = Long.MIN_VALUE;
     }
 
@@ -366,23 +414,25 @@ public class CollectorFormatter extends Formatter {
         final LogRecord record;
         final long c;
         final long t;
+        final long g;
         long msl;
         long msh;
+        long now;
         synchronized (this) {
             record = last;
             c = count;
+            g = generation;
             t = thrown;
             msl = minMillis;
             msh = maxMillis;
+            now = System.currentTimeMillis();
+            if (c == 0L) {
+                msh = now;
+            }
 
             if (reset) { //BUG ID 6351685
-                reset();
+                reset(msh);
             }
-        }
-
-        if (c == 0L) {  //Use the estimated lifespan of this class.
-            msl = INIT_TIME;
-            msh = System.currentTimeMillis();
         }
 
         final String head;
@@ -396,7 +446,9 @@ public class CollectorFormatter extends Formatter {
                 tail = f.getTail(h);
             }
         } else {
-            head = msg = tail = "";
+            head = "";
+            msg = record != null ? formatMessage(record) : "";
+            tail = "";
         }
 
         Locale l = null;
@@ -416,7 +468,8 @@ public class CollectorFormatter extends Formatter {
          * These arguments are described in the getTail documentation.
          */
         return mf.format(new Object[]{finish(head), finish(msg), finish(tail),
-            c, (c - 1), t, (c - t), msl, msh});
+            c, (c - 1), t, (c - t), msl, msh, (msh - msl), INIT_TIME, now,
+            (now - INIT_TIME), g});
     }
 
     /**

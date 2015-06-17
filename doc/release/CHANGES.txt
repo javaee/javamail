@@ -18,6 +18,7 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 		  ----------------------------
 The following bugs have been fixed in the 1.5.4 release.
 
+K  6719	Include elapsed time, thread id, and sequence for logging formatters.
 K  6804	IdleManager can deadlock with frequent notifications
 K  6817	IdleManager can deadlock when connection fails
 K  6824	IMAP provider should support the MOVE extension (RFC 6851)
