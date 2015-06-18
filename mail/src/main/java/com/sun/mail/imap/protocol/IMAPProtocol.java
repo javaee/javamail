@@ -2119,9 +2119,13 @@ public class IMAPProtocol extends Protocol {
     /**
      * If the response contains a COPYUID response code, extract
      * it and return a CopyUID object with the information.
-     * XXX - need to merge more than one response for MOVE?
+     *
+     * @param	rr	the responses to examine
+     * @return		the COPYUID response code data, or null if not found
+     * @since	JavaMail 1.5.4
      */
-    private CopyUID getCopyUID(Response[] rr) {
+    protected CopyUID getCopyUID(Response[] rr) {
+	// most likely in the last response, so start there and work backward
 	for (int i = rr.length - 1; i >= 0; i--) {
 	    Response r = rr[i];
 	    if (r == null || !r.isOK())
@@ -2136,6 +2140,7 @@ public class IMAPProtocol extends Protocol {
 	    if (!s.equalsIgnoreCase("COPYUID"))
 		continue;
 
+	    // XXX - need to merge more than one response for MOVE?
 	    long uidvalidity = r.readLong();
 	    String src = r.readAtom();
 	    String dst = r.readAtom();
@@ -2186,8 +2191,12 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Creates an IMAP flag_list from the given Flags object.
+     *
+     * @param	flags	the flags
+     * @return		the IMAP flag_list
+     * @since	JavaMail 1.5.4
      */
-    private String createFlagList(Flags flags) {
+    protected String createFlagList(Flags flags) {
 	StringBuffer sb = new StringBuffer();
 	sb.append("("); // start of flag_list
 
