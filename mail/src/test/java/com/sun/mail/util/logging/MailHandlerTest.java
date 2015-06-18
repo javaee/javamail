@@ -336,6 +336,10 @@ public class MailHandlerTest {
 
     @Test
     public void testWebappClassLoaderFieldNames() throws Exception {
+        /**
+         * Test that the MailHandler is using field types from the
+         * java.* or javax.* packages only.
+         */
         testWebappClassLoaderFieldNames(MailHandler.class);
     }
 
@@ -343,6 +347,8 @@ public class MailHandlerTest {
         /**
          * WebappClassLoader.clearReferencesStaticFinal() method will ignore
          * fields that have type names that start with 'java.' or 'javax.'.
+         * The MailHandler conforms to this rule so it doesn't become a target
+         * for the WebappClassLoader.
          */
         for (Field f : c.getDeclaredFields()) {
             Class<?> k = f.getType();
@@ -350,6 +356,15 @@ public class MailHandlerTest {
                 k = k.getComponentType();
             }
 
+            /**
+             * The WebappClassLoader ignores primitives, non-static, and
+             * synthetic fields.  For the MailHandler, the test is stricter than
+             * what the WebappClassLoader actually clears.  This restricts the
+             * MailHandler to standard field types for both static and
+             * non-static fields and named static inner class to avoid synthetic
+             * fields.  The idea is to try to stay forward compatible with
+             * WebappClassLoader.
+             */
             if (!k.isPrimitive() && !k.getName().startsWith("java.")
                     && !k.getName().startsWith("javax.")) {
                 fail(f.toString());
