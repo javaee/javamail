@@ -205,14 +205,20 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
      * @return	the trusted hosts
      */
     public synchronized String[] getTrustedHosts() {
-	return trustedHosts.clone();
+	if (trustedHosts == null)
+	    return null;
+	else
+	    return trustedHosts.clone();
     }
 
     /**
      * @param	trustedHosts the hosts to trust
      */
     public synchronized void setTrustedHosts(String[] trustedHosts) {
-	this.trustedHosts = trustedHosts.clone();
+	if (trustedHosts == null)
+	    this.trustedHosts = null;
+	else
+	    this.trustedHosts = trustedHosts.clone();
     }
 
     /**

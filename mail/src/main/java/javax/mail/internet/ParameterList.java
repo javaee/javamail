@@ -629,12 +629,13 @@ public class ParameterList {
      */  
     public String toString(int used) {
         ToStringBuffer sb = new ToStringBuffer(used);
-        Iterator e = list.keySet().iterator();
+        Iterator e = list.entrySet().iterator();
  
         while (e.hasNext()) {
-	    String name = (String)e.next();
+	    Map.Entry ent = (Map.Entry)e.next();
+	    String name = (String)ent.getKey();
 	    String value;
-	    Object v = list.get(name);
+	    Object v = ent.getValue();
 	    if (v instanceof MultiValue) {
 		MultiValue vv = (MultiValue)v;
 		name += "*";

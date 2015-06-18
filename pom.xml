@@ -126,7 +126,7 @@
 	    High
 	</findbugs.threshold>
 	<findbugs.version>
-	    2.5.2
+	    3.0.1
 	</findbugs.version>
 	<findbugs.skip>
 	    true

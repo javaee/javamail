@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -546,6 +546,7 @@
 	    <Class name="com.sun.mail.imap.IMAPFolder$7"/>
 	    <Class name="com.sun.mail.imap.IMAPFolder$13"/>
 	    <Class name="com.sun.mail.imap.IMAPFolder$20"/>
+	    <Class name="com.sun.mail.imap.IdleManager$2"/>
 	</Or>
 	<Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
     </Match>
@@ -691,6 +692,17 @@
 	<Class name="com.sun.mail.util.logging.MailHandler"/>
 	<Field name="attachmentFilters"/>
 	<Bug pattern="VO_VOLATILE_REFERENCE_TO_ARRAY"/>
+    </Match>
+
+    <!--
+	The Authenticator fields are only accessible by subclasses,
+	which are only called through the one synchronized public
+	method, assuming the subclass doesn't do something crazy and
+	expose them itself.
+    -->
+    <Match>
+	<Class name="javax.mail.Authenticator"/>
+	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
     </Match>
 
 </FindBugsFilter>

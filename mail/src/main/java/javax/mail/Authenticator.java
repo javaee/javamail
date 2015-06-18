@@ -80,14 +80,6 @@ public abstract class Authenticator {
     private String requestingPrompt;
     private String requestingUserName;
 
-    private void reset() {
-	requestingSite = null;
-	requestingPort = -1;
-	requestingProtocol = null;
-	requestingPrompt = null;
-	requestingUserName = null;
-    }
-
     /**
      * Ask the authenticator for a password.
      * <p>
@@ -104,8 +96,6 @@ public abstract class Authenticator {
     final synchronized PasswordAuthentication requestPasswordAuthentication(
 				InetAddress addr, int port, String protocol,
 				String prompt, String defaultUserName) {
-
-	reset();
 	requestingSite = addr;
 	requestingPort = port;
 	requestingProtocol = protocol;

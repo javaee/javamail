@@ -2705,8 +2705,6 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				throws MessagingException {
 	checkOpened(); // insure that folder is open
 
-	Message[] msgs = null; // array of messages to be returned
-
 	try {
 	    synchronized (messageCacheLock) {
 		IMAPProtocol p = getProtocol();
@@ -2715,19 +2713,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		// Issue FETCH for given range
 		int[] nums = p.uidfetchChangedSince(start, end, modseq);
-
-		if (nums != null)
-		    msgs = getMessagesBySeqNumbers(nums);
+		return getMessagesBySeqNumbers(nums);
 	    }
 	} catch(ConnectionException cex) {
 	    throw new FolderClosedException(this, cex.getMessage());
 	} catch (ProtocolException pex) {
 	    throw new MessagingException(pex.getMessage(), pex);
 	}
-
-	if (msgs == null)
-	    msgs = new Message[0];
-	return msgs;
     }
 
     /**
@@ -3125,7 +3117,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    }
 		    boolean done = true;
 		    try {
-			if (r == null || protocol == null ||
+			if (protocol == null ||
 				!protocol.processIdleResponse(r))
 			    return false;	// done
 			done = false;
