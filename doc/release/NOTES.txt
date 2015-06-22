@@ -162,11 +162,11 @@ A list of the known limitations, bugs, issues:
    this covers only certain special cases not covered by the MIME
    specification.  MIME specifies encoding of text in the Subject
    and address headers, and JavaMail fully supports such encoding.
-   Most mailers don't support RFC2231.
+   Some mailers don't support RFC2231.
 
-   To enable RFC2231 support in parameter lists, set the System
+   To disable RFC2231 support in parameter lists, set the System
    properties mail.mime.encodeparameters and mail.mime.decodeparameters
-   to "true".
+   to "false".
 
 3. We've received reports of IMAP authentication failures on the
    Microsoft Exchange Server 5.5, enterprise edition. This is due to
@@ -240,12 +240,11 @@ Please send your feedback to this email-address:
 
 	javamail_ww@oracle.com
 
-Check out our website at:
-http://www.oracle.com/technetwork/java/javamail/
+Check out our website at https://javamail.java.net.
 
 You can also find help in the JavaMail forum:
 
-	http://forums.oracle.com/forums/forum.jspa?forumID=975
+	https://community.oracle.com/community/java/java_enterprise_%26_remote_computing/javamail
 
 
 ------------------------------------------------------------------

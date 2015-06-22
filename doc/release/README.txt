@@ -15,7 +15,7 @@ JDK Version notes
 -----------------
 
 The JavaMail API supports JDK 1.5 or higher.  Note that we have
-currently tested this implementation with JDK 1.5, 1.6, and 1.7.
+currently tested this implementation with JDK 1.5, 1.6, 1.7, and 1.8.
 
 While JavaMail will work with JAF 1.0.2, we recommend the use of JAF 1.1
 or newer.  JAF 1.1.1 is currently the newest version.  Note that JAF 1.1
@@ -55,7 +55,7 @@ Download
 
 See the JavaMail project page to download this release.
 
-	http://javamail.java.net
+	https://javamail.java.net
 
 
 Requirements

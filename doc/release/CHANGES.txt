@@ -6,7 +6,7 @@ Bug Database and looking up each bug you're interested in.
 Bug IDs that start with "G" can be found in the GlassFish Issue Tracker
 (after removing the "G"):
 
-	https://glassfish.dev.java.net/issues
+	https://java.net/jira/browse/GLASSFISH
 
 Bug IDs that start with "K" can be found in the Kenai Bugzilla
 (after removing the "K"):
