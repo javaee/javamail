@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -60,23 +60,45 @@
     <url>http://java.sun.com/projects/javamail</url>
 
     <properties>
+	<m64>
+	</m64>
 	<compiler.name>
 	    c89
 	</compiler.name>
 	<compiler.start.options>
-	    -Xa -xO2 -v -D_REENTRANT
+	    ${m64} -Xa -xO2 -v -D_REENTRANT -KPIC
 	    -I${env.JAVA_HOME}/include -I${env.JAVA_HOME}/include/solaris
 	</compiler.start.options>
 	<linker.name>
 	    c89
 	</linker.name>
 	<linker.start.options>
-	    -G
+	    -G ${m64} -KPIC -z text
 	</linker.start.options>
+	<linker.arch>
+	    ${env.MACH}
+	</linker.arch>
 	<linker.end.options>
-	    -L${env.JAVA_HOME}/jre/lib/${env.MACH} -lmail -ljava -lc
+	    -L${env.JAVA_HOME}/jre/lib/${linker.arch} -lmail -ljava -lc
 	</linker.end.options>
     </properties>
+
+    <profiles>
+	<profile>
+	    <!--
+		Override the settings necessary to build with JDK 1.8.
+	    -->
+	    <id>1.8</id>
+	    <properties>
+		<m64>
+		    -m64
+		</m64>
+		<linker.arch>
+		    amd64
+		</linker.arch>
+	    </properties>
+	</profile>
+    </profiles>
 
     <build>
         <plugins>
