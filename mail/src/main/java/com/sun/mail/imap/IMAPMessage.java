@@ -1299,8 +1299,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
-    protected void handleExtensionFetchItems(Map extensionItems)
-				throws MessagingException {
+    protected void handleExtensionFetchItems(Map extensionItems) {
+	if (extensionItems == null || extensionItems.isEmpty())
+	    return;
 	if (items == null)
 	    items = new HashMap();
 	items.putAll(extensionItems);

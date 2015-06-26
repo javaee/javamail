@@ -185,12 +185,10 @@ public class FetchResponse extends IMAPResponse {
      * The map is indexed by extension item name.  Callers should not
      * modify the map.
      *
-     * @return	MAP of extension items
+     * @return	Map of extension items, or null if none
      * @since JavaMail 1.4.6
      */
     public Map getExtensionItems() {
-	if (extensionItems == null)
-	    extensionItems = new HashMap();
 	return extensionItems;
     }
 
@@ -299,7 +297,9 @@ public class FetchResponse extends IMAPResponse {
 	    return false;
 	for (int i = 0; i < fitems.length; i++) {
 	    if (match(fitems[i].getName())) {
-		getExtensionItems().put(fitems[i].getName(),
+		if (extensionItems == null)
+		    extensionItems = new HashMap();
+		extensionItems.put(fitems[i].getName(),
 				    fitems[i].parseItem(this));
 		return true;
 	    }

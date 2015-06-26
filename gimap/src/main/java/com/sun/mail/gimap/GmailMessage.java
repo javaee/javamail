@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -120,4 +120,27 @@ public class GmailMessage extends IMAPMessage {
 	    return new String[0];
     }
 
+    /**
+     * Set/Unset the given labels on this message.
+     *
+     * @param	labels	the labels to add or remove
+     * @param	set	true to add labels, false to remove
+     * @exception	MessagingException for failures
+     * @since JavaMail 1.5.5
+     */
+    public synchronized void setLabels(String[] labels, boolean set)
+			throws MessagingException {
+        // Acquire MessageCacheLock, to freeze seqnum.
+        synchronized(getMessageCacheLock()) {
+	    try {
+		GmailProtocol p = (GmailProtocol)getProtocol();
+		checkExpunged(); // Insure that this message is not expunged
+		p.storeLabels(getSequenceNumber(), labels, set);
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(folder, cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+	}
+    }
 }

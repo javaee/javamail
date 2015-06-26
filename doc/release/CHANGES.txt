@@ -14,6 +14,13 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 	https://kenai.com/bugzilla/
 
 
+		  CHANGES IN THE 1.5.5 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.5 release.
+
+K  6886	add support for setting GMail labels on messages
+
+
 		  CHANGES IN THE 1.5.4 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.4 release.

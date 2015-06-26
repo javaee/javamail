@@ -3477,6 +3477,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		notify = true;
 	    }
 
+	    // handle any extension items that might've changed
+	    // XXX - no notifications associated with extension items
+	    msg.handleExtensionFetchItems(fr.getExtensionItems());
+
 	    if (!notify)
 		msg = null;
 	}

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,7 @@ import javax.mail.internet.*;
 import com.sun.mail.iap.*;
 import com.sun.mail.imap.*;
 import com.sun.mail.imap.protocol.*;
+import com.sun.mail.gimap.protocol.*;
 
 /**
  * A Gmail folder.  Defines new FetchProfile items and
@@ -123,6 +124,79 @@ public class GmailFolder extends IMAPFolder {
 	 */ 
 	public static final FetchProfileItem LABELS = 
 		new FetchProfileItem("X-GM-LABELS");
+    }
+
+    /**
+     * Set the specified labels for the given array of messages.
+     *
+     * @param	msgs	the messages
+     * @param	labels	the labels to add or remove
+     * @param	set	true to add, false to remove
+     * @exception	MessagingException	for failures
+     * @since	JavaMail 1.5.5
+     */
+    public synchronized void setLabels(Message[] msgs,
+				String[] labels, boolean set)
+				throws MessagingException {
+	checkOpened();
+
+	if (msgs.length == 0) // boundary condition
+	    return;
+
+	synchronized(messageCacheLock) {
+	    try {
+		GmailProtocol p = (GmailProtocol)getProtocol();
+		MessageSet[] ms = Utility.toMessageSetSorted(msgs, null);
+		if (ms == null)
+		    throw new MessageRemovedException(
+					"Messages have been removed");
+		p.storeLabels(ms, labels, set);
+	    } catch (ConnectionException cex) {
+		throw new FolderClosedException(this, cex.getMessage());
+	    } catch (ProtocolException pex) {
+		throw new MessagingException(pex.getMessage(), pex);
+	    }
+	}
+    }
+
+    /**
+     * Set the specified labels for the given range of message numbers.
+     *
+     * @param	start	first message number
+     * @param	end	last message number
+     * @param	labels	the labels to add or remove
+     * @param	set	true to add, false to remove
+     * @exception	MessagingException	for failures
+     * @since	JavaMail 1.5.5
+     */
+    public synchronized void setLabels(int start, int end,
+				String[] labels, boolean set)
+				throws MessagingException {
+	checkOpened();
+	Message[] msgs = new Message[end - start + 1];
+	int i = 0;
+	for (int n = start; n <= end; n++)
+	    msgs[i++] = getMessage(n);
+	setLabels(msgs, labels, set);
+    }
+
+    /**
+     * Set the specified labels for the given array of message numbers.
+     *
+     * @param	msgnums	the message numbers
+     * @param	labels	the labels to add or remove
+     * @param	set	true to add, false to remove
+     * @exception	MessagingException	for failures
+     * @since	JavaMail 1.5.5
+     */
+    public synchronized void setLabels(int[] msgnums,
+				String[] labels, boolean set)
+				throws MessagingException {
+	checkOpened();
+	Message[] msgs = new Message[msgnums.length];
+	for (int i = 0; i < msgnums.length; i++)
+	    msgs[i] = getMessage(msgnums[i]);
+	setLabels(msgs, labels, set);
     }
 
     /**

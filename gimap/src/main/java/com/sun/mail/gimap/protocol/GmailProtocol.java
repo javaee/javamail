@@ -134,6 +134,74 @@ public class GmailProtocol extends IMAPProtocol {
     }
 
     /**
+     * Set the specified labels on this message.
+     *
+     * @param	msgsets	the message sets
+     * @param	labels	the labels
+     * @param	set	true to set, false to clear
+     * @exception	ProtocolException	for protocol failures
+     * @since	JavaMail 1.5.5
+     */
+    public void storeLabels(MessageSet[] msgsets, String[] labels, boolean set)
+			throws ProtocolException {
+	storeLabels(MessageSet.toString(msgsets), labels, set);
+    }
+
+    /**
+     * Set the specified labels on this message.
+     *
+     * @param	start	the first message number
+     * @param	end	the last message number
+     * @param	labels	the labels
+     * @param	set	true to set, false to clear
+     * @exception	ProtocolException	for protocol failures
+     * @since	JavaMail 1.5.5
+     */
+    public void storeLabels(int start, int end, String[] labels, boolean set)
+			throws ProtocolException {
+	storeLabels(String.valueOf(start) + ":" + String.valueOf(end),
+		   labels, set);
+    }
+
+    /**
+     * Set the specified labels on this message.
+     *
+     * @param	msg	the message number
+     * @param	labels	the labels
+     * @param	set	true to set, false to clear
+     * @exception	ProtocolException	for protocol failures
+     * @since	JavaMail 1.5.5
+     */
+    public void storeLabels(int msg, String[] labels, boolean set)
+			throws ProtocolException { 
+	storeLabels(String.valueOf(msg), labels, set);
+    }
+
+    private void storeLabels(String msgset, String[] labels, boolean set)
+			throws ProtocolException {
+	Response[] r;
+	if (set)
+	    r = command("STORE " + msgset + " +X-GM-LABELS",
+			 createLabelList(labels));
+	else
+	    r = command("STORE " + msgset + " -X-GM-LABELS",
+			createLabelList(labels));
+	
+	// Dispatch untagged responses
+	notifyResponseHandlers(r);
+	handleResult(r[r.length-1]);
+    }
+
+    private Argument createLabelList(String[] labels) {
+	Argument args = new Argument();	
+	Argument itemArgs = new Argument();
+	for (int i = 0, len = labels.length; i < len; i++)
+	    itemArgs.writeAtom(labels[i]);
+	args.writeArgument(itemArgs);
+	return args;
+    }
+
+    /**
      * Return a GmailSearchSequence.
      */
     protected SearchSequence getSearchSequence() {
