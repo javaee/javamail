@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.smtp;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -75,6 +76,7 @@ public final class SMTPIOExceptionTest {
     @Test
     public void test() throws Exception {
         TestServer server = null;
+	final CountDownLatch closedLatch = new CountDownLatch(1);
         try {
 	    SMTPHandler handler = new SMTPHandler() {
 		public void rcpt() throws IOException {
@@ -87,7 +89,6 @@ public final class SMTPIOExceptionTest {
 	    };
             server = new TestServer(handler);
             server.start();
-            Thread.sleep(1000);
 
             final Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
@@ -107,7 +108,7 @@ public final class SMTPIOExceptionTest {
 	    t.addConnectionListener(new ConnectionAdapter() {
 		@Override
 		public void closed(ConnectionEvent e) {
-		    setClosed(true);
+		    closedLatch.countDown();
 		}
 	    });
             try {
@@ -119,8 +120,8 @@ public final class SMTPIOExceptionTest {
 		t.sendMessage(msg, msg.getAllRecipients());
 	    } catch (MessagingException ex) {
 		// expect an exception from sendMessage
-		Thread.sleep(100);	// give event thread time to run
-		assertTrue(getClosed());
+		closedLatch.await();	// wait for the listener to run
+		// if we get here, the listener was called - SUCCESS
             } finally {
                 t.close();
             }
@@ -131,17 +132,9 @@ public final class SMTPIOExceptionTest {
             if (server != null) {
                 server.quit();
 		server.interrupt();
-		// wait long enough for handler to exit
-		Thread.sleep(2 * TIMEOUT);
+		// wait for handler to exit
+		server.join();
             }
         }
-    }
-
-    private synchronized void setClosed(boolean v) {
-	closed = v;
-    }
-
-    private synchronized boolean getClosed() {
-	return closed;
     }
 }
