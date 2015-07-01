@@ -181,7 +181,6 @@ public final class IMAPIdleManagerTest {
     private void testFailure(IMAPHandlerIdle handler, boolean setTimeout) {
         TestServer server = null;
 	IdleManager idleManager = null;
-	final CountDownLatch closedLatch = new CountDownLatch(1);
         try {
             server = new TestServer(handler);
             server.start();
