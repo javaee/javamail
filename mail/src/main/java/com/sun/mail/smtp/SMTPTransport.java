@@ -1523,11 +1523,12 @@ public class SMTPTransport extends Transport {
     }
 
     protected void finalize() throws Throwable {
-	super.finalize();
 	try {
 	    closeConnection();
 	} catch (MessagingException mex) {
 	    // ignore it
+	} finally {
+	    super.finalize();
 	}
     }
 

@@ -565,8 +565,11 @@ public class Protocol {
      * Finalizer.
      */
     protected void finalize() throws Throwable {
-	super.finalize();
-	disconnect();
+	try {
+	    disconnect();
+	} finally {
+	    super.finalize();
+	}
     }
 
     /*

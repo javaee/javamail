@@ -177,9 +177,11 @@ class Protocol {
     }
 
     protected void finalize() throws Throwable {
-	super.finalize();
-	if (socket != null) { // Forgot to logout ?!
-	    quit();
+	try {
+	    if (socket != null)	// Forgot to logout ?!
+		quit();
+	} finally {
+	    super.finalize();
 	}
     }
 

@@ -548,8 +548,12 @@ public class POP3Folder extends Folder {
      * Close the folder when we're finalized.
      */
     protected void finalize() throws Throwable {
-	super.finalize();
-	close(false);
+	try {
+	    if (opened)
+		close(false);
+	} finally {
+	    super.finalize();
+	}
     }
 
     /* Ensure the folder is open */

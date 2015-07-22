@@ -144,8 +144,11 @@ public class SharedFileInputStream extends BufferedInputStream
 	}
 
 	protected void finalize() throws Throwable {
-	    super.finalize();
-	    in.close();
+	    try {
+		in.close();
+	    } finally {
+		super.finalize();
+	    }
 	}
     }
 

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -408,10 +408,12 @@ public class POP3Store extends Store {
     }
 
     protected void finalize() throws Throwable {
-	super.finalize();
-
-	if (port != null)	// don't force a connection attempt
-	    close();
+	try {
+	    if (port != null)	// don't force a connection attempt
+		close();
+	} finally {
+	    super.finalize();
+	}
     }
 
     private void checkConnected() throws MessagingException {
