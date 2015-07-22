@@ -176,6 +176,8 @@ public class IdleManager {
      */
     public synchronized void watch(Folder folder)
 				throws MessagingException {
+	if (die)	// XXX - should be IllegalStateException?
+	    throw new MessagingException("IdleManager is not running");
 	if (!(folder instanceof IMAPFolder))
 	    throw new MessagingException("Can only watch IMAP folders");
 	IMAPFolder ifolder = (IMAPFolder)folder;
