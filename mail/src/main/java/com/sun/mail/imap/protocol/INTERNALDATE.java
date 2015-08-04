@@ -72,7 +72,7 @@ public class INTERNALDATE implements Item {
      * class will parse dates in INTERNALDATE format as well as
      * dates in RFC 822 format.
      */
-    private static MailDateFormat mailDateFormat = new MailDateFormat();
+    private static final MailDateFormat mailDateFormat = new MailDateFormat();
 
     /**
      * Constructor.
@@ -87,7 +87,9 @@ public class INTERNALDATE implements Item {
 	if (s == null)
 	    throw new ParsingException("INTERNALDATE is NIL");
 	try {
-	    date = mailDateFormat.parse(s);
+        synchronized (mailDateFormat) {
+            date = mailDateFormat.parse(s);
+        }
 	} catch (ParseException pex) {
 	    throw new ParsingException("INTERNALDATE parse error");
 	}

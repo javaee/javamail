@@ -77,7 +77,7 @@ public class ENVELOPE implements Item {
     public String messageId;
 
     // Used to parse dates
-    private static MailDateFormat mailDateFormat = new MailDateFormat();
+    private static final MailDateFormat mailDateFormat = new MailDateFormat();
 
     // special debugging output to debug parsing errors
     private static final boolean parseDebug =
@@ -96,13 +96,10 @@ public class ENVELOPE implements Item {
 	String s = r.readString();
 	if (s != null) {
 	    try {
-		date = mailDateFormat.parse(s);
+            synchronized (mailDateFormat) {
+                date = mailDateFormat.parse(s);
+            }
 	    } catch (ParseException pex) {
-	    } catch (RuntimeException pex) {
-		// We need to be *very* tolerant about bogus dates (and
-		// there's lots of 'em around), so we ignore any 
-		// exception (including RuntimeExceptions) and just let 
-		// date be null.
 	    }
 	}
 	if (parseDebug)

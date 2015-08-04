@@ -72,8 +72,6 @@ import org.junit.Test;
  */
 public class MailDateFormatTest {
 
-    private static final boolean USE_NEW_IMPLEMENTATION = true;
-
     /*
      * Serialization
      */
@@ -503,9 +501,7 @@ public class MailDateFormatTest {
      * Helper methods
      */
     private static SimpleDateFormat getDefault() {
-        return USE_NEW_IMPLEMENTATION
-                ? new NewMailDateFormat()
-                : new MailDateFormat();
+        return new MailDateFormat();
     }
 
     private static SimpleDateFormat getLenient() {

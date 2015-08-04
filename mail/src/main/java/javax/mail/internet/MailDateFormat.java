@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,13 +40,14 @@
 
 package javax.mail.internet;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
 import java.util.Date;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Level;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
@@ -59,8 +60,8 @@ import com.sun.mail.util.MailLogger;
  * Formats and parses date specification based on
  * <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a>. <p>
  *
- * This class does not take pattern strings. It always formats the
- * date based on the specification below.<p>
+ * This class does not support methods that influence the format. It always
+ * formats the date based on the specification below.<p>
  *
  * 3.3. Date and Time Specification
  * <p>
@@ -132,17 +133,75 @@ import com.sun.mail.util.MailLogger;
  * allowing for a leap second; see [STD12]), and the zone MUST be within
  * the range -9959 through +9959.
  *
+ * <h3><a name="synchronization">Synchronization</a></h3>
+ * 
+ * <p>
+ * Date formats are not synchronized.
+ * It is recommended to create separate format instances for each thread.
+ * If multiple threads access a format concurrently, it must be synchronized
+ * externally.
+ *
+ * @author	Anthony Vanelverdinghe
  * @author	Max Spivak
  * @since	JavaMail 1.2
  */
-
 public class MailDateFormat extends SimpleDateFormat {
 
     private static final long serialVersionUID = -8148227605210628779L;
+    private static final String PATTERN = "EEE, d MMM yyyy HH:mm:ss Z (z)";
 
+    private static final MailLogger LOGGER = new MailLogger(
+            MailDateFormat.class, "DEBUG", false, System.out);
+
+    private static final int UNKNOWN_DAY_NAME = -1;
+    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
+    private static final int LEAP_SECOND = 60;
+
+    /**
+     * Create a new date format for the RFC2822 specification with lenient
+     * parsing.
+     */
     public MailDateFormat() {
-	super("EEE, d MMM yyyy HH:mm:ss 'XXXXX' (z)", Locale.US);
+        super(PATTERN, Locale.US);
     }
+
+    /**
+     * Allows to serialize instances such that they are deserializable with the
+     * previous implementation.
+     *
+     * @return the object to be serialized
+     * @throws ObjectStreamException
+     */
+    private Object writeReplace() throws ObjectStreamException {
+        MailDateFormat fmt = new MailDateFormat();
+        fmt.superApplyPattern("EEE, d MMM yyyy HH:mm:ss 'XXXXX' (z)");
+        fmt.setTimeZone(getTimeZone());
+        return fmt;
+    }
+
+    /**
+     * Allows to deserialize instances that were serialized with the previous
+     * implementation.
+     *
+     * @param in the stream containing the serialized object
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    private void readObject(ObjectInputStream in)
+            throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        super.applyPattern(PATTERN);
+    }
+
+    /**
+     * Overrides Cloneable.
+     *
+     * @return a clone of this instance
+     */
+//    @Override
+//    public MailDateFormat clone() {
+//        return (MailDateFormat) super.clone();
+//    }
 
     /**
      * Formats the given date in the format specified by 
@@ -154,760 +213,849 @@ public class MailDateFormat extends SimpleDateFormat {
      * @return	StringBuffer    the formatted String
      * @since			JavaMail 1.2
      */
+    @Override
     public StringBuffer format(Date date, StringBuffer dateStrBuf,
-			       FieldPosition fieldPosition) {
-
-	/* How this method works: First format the date with the
-	 * format specified in the constructor inserting string 'XXXXX' 
-	 * where the timezone offset goes. Find where in the string the
-	 * string 'XXXXX' appears and remember that in var "pos". 
-	 * Calculate the offset, taking the DST into account and insert
-	 * it into the stringbuffer at position pos.
-	 */
-
-	int start = dateStrBuf.length();
-	super.format(date, dateStrBuf, fieldPosition);
-	int pos = 0;
-	// find the beginning of the 'XXXXX' string in the formatted date
-	// 25 is the first position that we expect to find XXXXX at
-	for (pos = start + 25; dateStrBuf.charAt(pos) != 'X'; pos++)
-	    ;
-
-	// set the timezone to +HHMM or -HHMM
-	calendar.clear();
-	calendar.setTime(date);
-	int offset = calendar.get(Calendar.ZONE_OFFSET) +
-			calendar.get(Calendar.DST_OFFSET);
-	// take care of the sign
-	if (offset < 0) {
-	    dateStrBuf.setCharAt(pos++, '-');
-	    offset = (-offset);
-	} else
-	    dateStrBuf.setCharAt(pos++, '+');
-
-	int rawOffsetInMins = offset / 60 / 1000; // offset from GMT in mins
- 	int offsetInHrs = rawOffsetInMins / 60;
-	int offsetInMins = rawOffsetInMins % 60;
-
-	dateStrBuf.setCharAt(pos++, Character.forDigit((offsetInHrs/10), 10));
-	dateStrBuf.setCharAt(pos++, Character.forDigit((offsetInHrs%10), 10));
-	dateStrBuf.setCharAt(pos++, Character.forDigit((offsetInMins/10), 10));
-	dateStrBuf.setCharAt(pos++, Character.forDigit((offsetInMins%10), 10));
-	// done with timezone
-	
-	return dateStrBuf;
+            FieldPosition fieldPosition) {
+        return super.format(date, dateStrBuf, fieldPosition);
     }
-
-    ////////////////////////////////////////////////////////////
 
     /**
      * Parses the given date in the format specified by
-     * RFC 2822 in the current TimeZone.
+     * RFC 2822.
+     * <p>
+     * <ul>
+     * <li>With strict parsing, obs-* tokens are unsupported. Lenient parsing
+     * supports obs-year and obs-zone, with the exception of the 1-character
+     * military time zones.
+     * <li>The optional CFWS token at the end is not parsed.
+     * <li>RFC 2822 specifies that a zone of "-0000" indicates that the
+     * date-time contains no information about the local time zone. This class
+     * uses the UTC time zone in this case.
+     * </ul>
      *
      * @param   text    the formatted date to be parsed
      * @param   pos     the current parse position
-     * @return	Date    the parsed date in a Date object
+     * @return	Date    the parsed date. In case of error, returns null.
      * @since		JavaMail 1.2
      */
+    @Override
     public Date parse(String text, ParsePosition pos) {
-	return parseDate(text.toCharArray(), pos, isLenient());
+        if (text == null || pos == null) {
+            throw new NullPointerException();
+        } else if (0 > pos.getIndex() || pos.getIndex() >= text.length()) {
+            return null;
+        }
+
+        return isLenient()
+                ? new Rfc2822LenientParser(text, pos).parse()
+                : new Rfc2822StrictParser(text, pos).parse();
     }
 
-    /*
-      Valid Examples:
-      
-      Date: Sun, 21 Mar 1993 23:56:48 -0800 (PST)
-      Date: 
-      Date: Mon, 22 Mar 1993 09:41:09 -0800 (PST)
-      Date:     26 Aug 76 14:29 EDT
-
-      */
-    
     /**
-     * method of what to look for:
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates a specific calendar.
      *
-     *
-     *	skip WS
-     *	skip day ","  	(this is "Mon", "Tue")
-     *	skip WS
-     *
-     *	parse number (until WS) ==> 1*2DIGIT (day of month)
-     *
-     *	skip WS
-     *
-     *	parse alpha chars (until WS) ==> find month
-     *
-     *	skip WS
-     *
-     *	parse number (until WS) ==> 2*4DIGIT (year)
-     *
-     *	skip WS
-     *
-     *	// now looking for time
-     *	parse number (until ':') ==> hours
-     *	parse number (until ':') ==> minutes
-     *	parse number (until WS) ==> seconds
-     *
-     *	// now look for Time Zone
-     *	skip WS
-     *	if ('+' or '-') then numerical time zone offset
-     *  if (alpha) then alpha time zone offset
+     * @throws UnsupportedOperationException if this method is invoked
      */
-
-    static boolean debug = false;
-    private static MailLogger logger = new MailLogger(
-	MailDateFormat.class,
-	"DEBUG",
-	debug,
-	System.out);
-
-    /**
-     * create a Date by parsing the char array
-     */
-    static private Date parseDate(char[] orig, ParsePosition pos,
-				boolean lenient) {
-	try {
-	    int day = -1;
-	    int month = -1;
-	    int year = -1;
-	    int hours = 0;
-	    int minutes = 0;
-	    int seconds = 0;
-	    int offset = 0;
-
-	    MailDateParser p = new MailDateParser(orig, pos.getIndex());
-
-	    // get the day
-	    p.skipUntilNumber();
-	    day = p.parseNumber();
-
-	    if (!p.skipIfChar('-')) {  // for IMAP internal Date
-		p.skipWhiteSpace();
-	    }
-
-	    // get the month		
-	    month = p.parseMonth();
-	    if (!p.skipIfChar('-')) {  // for IMAP internal Date
-		p.skipWhiteSpace();
-	    }
-	    
-	    // get the year
-	    year = p.parseNumber();	// should not return a negative number
-	    if (year < 50) {
-		year += 2000;
-	    } else if (year < 100) {
-		year += 1900;
-	    } // otherwise the year is correct (and should be 4 digits)
-			
-			
-	    // get the time
-	    // first get hours
-	    p.skipWhiteSpace();
-	    hours = p.parseNumber();
-			
-	    // get minutes
-	    p.skipChar(':');
-	    minutes = p.parseNumber();
-	    
-	    // get seconds  (may be no seconds)
-	    if (p.skipIfChar(':')) {
-		seconds = p.parseNumber();
-	    }
-	    
-			
-	    // try to get a Time Zone
-	    try {
-		p.skipWhiteSpace();
-		offset = p.parseTimeZone();
-	    } catch (ParseException pe) {
-		if (logger.isLoggable(Level.FINE)) {
-		    logger.log(Level.FINE,
-			"No timezone? : '" + new String(orig) + "'", pe);
-		}
-	    }
-			
-	    pos.setIndex(p.getIndex());
-	    Date d = ourUTC(year, month, day, hours, minutes, seconds, offset,
-							lenient);
-	    return d;
-
-	} catch (Exception e) {
-	    // Catch *all* exceptions, including RuntimeExceptions like
-	    // ArrayIndexOutofBoundsException ... we need to be
-	    // extra tolerant of all those bogus dates that might screw
-	    // up our parser. Sigh.
-
-	    if (logger.isLoggable(Level.FINE)) {
-		logger.log(Level.FINE,
-		    "Bad date: '" + new String(orig) + "'", e);
-	    }
-	    pos.setIndex(1); // to prevent DateFormat.parse() from throwing ex
-	    return null;
-	}
-    }
-	
-    private static final Calendar cal =
-	    new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-    private synchronized static Date ourUTC(int year, int mon, int mday,
-					   int hour, int min, int sec,
-					   int tzoffset, boolean lenient) {
-	// clear the time and then set all the values
-	cal.clear();
-	cal.setLenient(lenient);
-	cal.set(Calendar.YEAR, year);
-	cal.set(Calendar.MONTH, mon);
-	cal.set(Calendar.DATE, mday);
-	cal.set(Calendar.HOUR_OF_DAY, hour);
-	cal.set(Calendar.MINUTE, min);
-	cal.add(Calendar.MINUTE, tzoffset);	// adjust for the timezone
-	cal.set(Calendar.SECOND, sec);
-
-	return cal.getTime();
-    }	
-
-
-    ////////////////////////////////////////////////////////////
-    
-    /** Don't allow setting the calendar */
+    @Override
     public void setCalendar(Calendar newCalendar) {
-	throw new RuntimeException("Method setCalendar() shouldn't be called");
-    }
-
-    /** Don't allow setting the NumberFormat */
-    public void setNumberFormat(NumberFormat newNumberFormat) {
-	throw new RuntimeException("Method setNumberFormat() shouldn't be called");
-    }
-
-    /* test code for MailDateFormat */
-    /*
-    public static void main(String[] args) {
-	DateFormat df = new MailDateFormat();
-	Date d = new Date();
-
-	// test output in all the timezones
-	System.out.println("------- test all timezones  ---------------");
-	System.out.println("Current date: " + d);
-	String[] allIDs = TimeZone.getAvailableIDs();
-	for (int i = 0; i < allIDs.length; i++) {
-	    TimeZone tz = TimeZone.getTimeZone(allIDs[i]);
-	    df.setTimeZone(tz);
-	    System.out.println("Date in " + tz.getID() + ":    " +
-			       df.format(new Date()));
-	}
-	try {
-        System.out.println(df.parse("Sun, 21 Mar 1993 23:56:48 -0800 (PST)"));
-	System.out.println(df.parse("Mon, 22 Mar 1994 13:34:51 +0000"));
-	System.out.println(df.parse("26 Aug 76 14:29 EDT"));
-	System.out.println(df.parse("15 Apr 11 23:49 EST"));
-	System.out.println(df.parse("15 Apr 11 23:49 ABC"));
-	} catch (ParseException pex) {
-	    pex.printStackTrace();
-	}
-
-	// reset DateFormat TZ
-	df.setTimeZone(TimeZone.getDefault());
-
-	// test all days in a month
-	System.out.println();
-	System.out.println("------- test all days in a month ---------------");
-	Calendar cal = Calendar.getInstance();
-	cal.set(Calendar.YEAR, 1972);
-	cal.set(Calendar.MONTH, Calendar.OCTOBER);
-	cal.set(Calendar.DATE, 1);
-	cal.set(Calendar.HOUR, 10);
-	cal.set(Calendar.MINUTE, 50);
-	cal.set(Calendar.AM_PM, Calendar.PM);
-	System.out.println("Initial Date: " + cal.getTime());
-	System.out.println("Current Date: " + df.format(cal.getTime()));
-	for (int i = 0; i < 30; i++) {
-	    cal.roll(Calendar.DATE, true);
-	    System.out.println("Current Date: " + df.format(cal.getTime()));
-	}
-
-	// test all months
-	System.out.println();
-	System.out.println("------- test all months in a year -----------");
-	cal.set(Calendar.MONTH, Calendar.JANUARY);
-	cal.set(Calendar.DATE, 7);
-	System.out.println("Initial Date: " + cal.getTime());
-	System.out.println("Current Date: " + df.format(cal.getTime()));
-	for (int i = 1; i < 12; i++) {
-	    cal.roll(Calendar.MONTH, true);
-	    System.out.println("Current Date: " + df.format(cal.getTime()));
-	}
-
-	// test leap years
-	System.out.println();
-	System.out.println("------- test leap years -----------");
-	cal.set(Calendar.YEAR, 1999);
-	cal.set(Calendar.MONTH, Calendar.JANUARY);
-	cal.set(Calendar.DATE, 31);
-	cal.roll(Calendar.MONTH, true);
-	System.out.println("Initial Date: " + cal.getTime());
-	System.out.println("Current Date: " + df.format(cal.getTime()));
-	for (int i = 1; i < 12; i++) {
-	    cal.set(Calendar.MONTH, Calendar.JANUARY);
-	    cal.set(Calendar.DATE, 31);
-	    cal.roll(Calendar.YEAR, true);
-	    cal.roll(Calendar.MONTH, true);
-	    System.out.println("Current Date: " + df.format(cal.getTime()));
-	}
-    }
-    */
-
-}
-
-/**
- * Helper class to deal with parsing the characters
- */
-class MailDateParser {
-    
-    int index = 0;
-    char[] orig = null;
-
-    public MailDateParser(char[] orig, int index) {
-	this.orig = orig;
-	this.index = index;
+        throw new UnsupportedOperationException("Method "
+                + "setCalendar() shouldn't be called");
     }
 
     /**
-     * skips chars until it finds a number (0-9)
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates a specific number format.
      *
-     * if it does not find a number, it will throw
-     * an ArrayIndexOutOfBoundsException
-     */	
-    public void skipUntilNumber() throws ParseException {
-	try {
-	    while (true) {
-		switch ( orig[index] ) {
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		    return;
-				
-		default:
-		    index++;
-		    break;	
-		}
-	    }
-	} catch (ArrayIndexOutOfBoundsException e) {
-	    throw new ParseException("No Number Found", index);
-	}
+     * @throws UnsupportedOperationException if this method is invoked
+     */
+    @Override
+    public void setNumberFormat(NumberFormat newNumberFormat) {
+        throw new UnsupportedOperationException("Method "
+                + "setNumberFormat() shouldn't be called");
     }
 
     /**
-     * skips any number of tabs, spaces, CR, and LF - folding whitespace
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates a specific pattern.
+     *
+     * @throws UnsupportedOperationException if this method is invoked
      */
-    public void skipWhiteSpace() {
-	int len = orig.length;
-	while (index < len) {
-	    switch (orig[index]) {
-	    case ' ': // space
-	    case '\t': // tab
-	    case '\r': // CR
-	    case '\n': // LF
-		index++;
-		break;
-					
-	    default:
-		return;
-	    }	
-	}
-    }
-
+//    @Override
+//    public void applyLocalizedPattern(String pattern) {
+//        throw new UnsupportedOperationException("Method "
+//                + "applyLocalizedPattern() shouldn't be called");
+//    }
 
     /**
-     * used to look at the next character without "parsing" that
-     * character.
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates a specific pattern.
+     *
+     * @throws UnsupportedOperationException if this method is invoked
      */
-    public int peekChar() throws ParseException {
-	if (index < orig.length)
-	    return orig[index];
-	else
-	    throw new ParseException("No more characters", index);
-    }
-	
+//    @Override
+//    public void applyPattern(String pattern) {
+//        throw new UnsupportedOperationException("Method "
+//                + "applyPattern() shouldn't be called");
+//    }
+
     /**
-     * skips the given character.  if the current char does not
-     * match a ParseException will be thrown
+     * This method allows serialization to change the pattern.
      */
-    public void skipChar(char c) throws ParseException {
-	if (index < orig.length) {
-	    if (orig[index] == c) {
-		index++;
-	    } else {
-		throw new ParseException("Wrong char", index);
-	    }
-	} else {
-	    throw new ParseException("No more characters", index);
-	}
+    private void superApplyPattern(String pattern) {
+        super.applyPattern(pattern);
     }
 
     /**
-     * will only skip the current char if it matches the given
-     * char
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates another strategy for interpreting
+     * 2-digits years.
+     *
+     * @return the start of the 100-year period into which two digit years are
+     * parsed
+     * @throws UnsupportedOperationException if this method is invoked
      */
-    public boolean skipIfChar(char c) throws ParseException {
-	if (index < orig.length) {
-	    if (orig[index] == c) {
-		index++;
-		return true;
-	    } else {
-		return false;
-	    }
-	} else {
-	    throw new ParseException("No more characters", index);
-	}
-    }
-   	
+//    @Override
+//    public Date get2DigitYearStart() {
+//        throw new UnsupportedOperationException("Method "
+//                + "get2DigitYearStart() shouldn't be called");
+//    }
 
     /**
-     * current char must point to a number.  the number will be
-     * parsed and the resulting number will be returned.  if a
-     * number is not found, a ParseException will be thrown
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates another strategy for interpreting
+     * 2-digits years.
+     *
+     * @throws UnsupportedOperationException if this method is invoked
      */
-    public int parseNumber() throws ParseException {
-	int length = orig.length;
-	boolean gotNum = false;
-	int result = 0;
-				
-	while (index < length) {
-	    switch( orig[index] ) {
-		case '0':
-		    result *= 10;
-		    gotNum = true;
-		    break;
-		    
-		case '1':
-		    result = result * 10 + 1;
-		    gotNum = true;
-		    break;
-		    
-		case '2':
-		    result = result * 10 + 2;
-		    gotNum = true;
-		    break;
-		    
-		case '3':
-		    result = result * 10 + 3;
-		    gotNum = true;
-		    break;
-		    
-		case '4':
-		    result = result * 10 + 4;
-		    gotNum = true;
-		    break;
-		    
-		case '5':
-		    result = result * 10 + 5;
-		    gotNum = true;
-		    break;
-		    
-		case '6':
-		    result = result * 10 + 6;
-		    gotNum = true;
-		    break;
-		    
-		case '7':
-		    result = result * 10 + 7;
-		    gotNum = true;
-		    break;
-		    
-		case '8':
-		    result = result * 10 + 8;
-		    gotNum = true;
-		    break;
-		    
-		case '9':
-		    result = result * 10 + 9;
-		    gotNum = true;
-		    break;
-	
-		default:
-		    if (gotNum)
-			return result;
-		    else
-			throw new ParseException("No Number found", index);
-	    }
-	    
-	    index++;
-	}
-		
-	// check the result
-	if (gotNum)
-	    return result;
-			
-	// else, throw a parse error
-	throw new ParseException("No Number found", index);
-    }
-	
+//    @Override
+//    public void set2DigitYearStart(Date startDate) {
+//        throw new UnsupportedOperationException("Method "
+//                + "set2DigitYearStart() shouldn't be called");
+//    }
 
     /**
-     * will look for one of "Jan/Feb/Mar/Apr/May/Jun/Jul/Aug/Sep/Oct/Nov/Dev"
-     * and return the numerical version of the month. (0-11).  a ParseException
-     * error is thrown if a month cannot be found.
+     * This method always throws an UnsupportedOperationException and should not
+     * be used because RFC 2822 mandates specific date format symbols.
+     *
+     * @throws UnsupportedOperationException if this method is invoked
      */
-    public int parseMonth() throws ParseException {
-	char curr;
-		
-	try {
-	    switch(orig[index++]) {
-	    case 'J':
-	    case 'j': // "Jan" (0) /  "Jun" (5) /  "Jul" (6)
-		// check next char
-		switch(orig[index++]) {
-		case 'A':
-		case 'a':
-		    curr = orig[index++];
-		    if (curr == 'N' || curr == 'n') {
-			return 0;
-		    }
-		    break;
-							
-		case 'U':
-		case 'u':
-		    curr = orig[index++];
-		    if (curr == 'N' || curr == 'n') {
-			return 5;
-		    } else if (curr == 'L' || curr == 'l') {
-			return 6;
-		    }
-		    break;
-		}
-		break;
-				
-	    case 'F':
-	    case 'f': // "Feb"
-		curr = orig[index++];
-		if (curr == 'E' || curr == 'e') {
-		    curr = orig[index++];
-		    if (curr == 'B' || curr == 'b') {
-			return 1;
-		    }
-		}
-		break;
-				
-	    case 'M':
-	    case 'm': // "Mar" (2) /  "May" (4)
-		curr = orig[index++];
-		if (curr == 'A' || curr == 'a') {
-		    curr = orig[index++];
-		    if (curr == 'R' || curr == 'r') {
-			return 2;
-		    } else if (curr == 'Y' || curr == 'y') {
-			return 4;
-		    }
-		}
-		break;			
-				
-	    case 'A':
-	    case 'a': // "Apr" (3) /  "Aug" (7)
-		curr = orig[index++];
-		if (curr == 'P' || curr == 'p') {
-		    curr = orig[index++];
-		    if (curr == 'R' || curr == 'r') {
-			return 3;
-		    }
-		} else if (curr == 'U' || curr == 'u') {
-		    curr = orig[index++];
-		    if (curr == 'G' || curr == 'g') {
-			return 7;
-		    }
-		}
-		break;			
-				
-	    case 'S':
-	    case 's': // "Sep" (8)
-		curr = orig[index++];
-		if (curr == 'E' || curr == 'e') {
-		    curr = orig[index++];
-		    if (curr == 'P' || curr == 'p') {
-			return 8;
-		    }
-		}
-		break;			
-				
-	    case 'O':
-	    case 'o': // "Oct"
-		curr = orig[index++];
-		if (curr == 'C' || curr == 'c') {
-		    curr = orig[index++];
-		    if (curr == 'T' || curr == 't') {
-			return 9;
-		    }
-		}
-		break;			
-				
-	    case 'N':
-	    case 'n': // "Nov"
-		curr = orig[index++];
-		if (curr == 'O' || curr == 'o') {
-		    curr = orig[index++];
-		    if (curr == 'V' || curr == 'v') {
-			return 10;
-		    }
-		}
-		break;			
+//    @Override
+//    public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
+//        throw new UnsupportedOperationException("Method "
+//                + "setDateFormatSymbols() shouldn't be called");
+//    }
 
-	    case 'D':
-	    case 'd': // "Dec"
-		curr = orig[index++];
-		if (curr == 'E' || curr == 'e') {
-		    curr = orig[index++];
-		    if (curr == 'C' || curr == 'c') {
-			return 11;
-		    }
-		}
-		break;	
-	    }
-	} catch (ArrayIndexOutOfBoundsException e) {
-	}
-		
-	throw new ParseException("Bad Month", index);
-    }
-	
     /**
-     * will parse the timezone - either Numerical version (e.g. +0800, -0500)
-     * or the alpha version (e.g. PDT, PST).  the result will be returned in
-     * minutes needed to be added to the date to bring it to GMT.
+     * Returns the date, as specified by the parameters.
+     *
+     * @param dayName
+     * @param day
+     * @param month
+     * @param year
+     * @param hour
+     * @param minute
+     * @param second
+     * @param zone
+     * @return the date, as specified by the parameters
+     * @throws IllegalArgumentException if this instance's Calendar is
+     * non-lenient and any of the parameters have invalid values, or if dayName
+     * is not consistent with day-month-year
      */
-    public int parseTimeZone() throws ParseException {
-	if (index >= orig.length) 
-	    throw new ParseException("No more characters", index);
-		
-	char test = orig[index];
-	if ( test == '+' || test == '-' ) {
-	    return parseNumericTimeZone();
-	} else {
-	    return parseAlphaTimeZone();
-	}
-    }
+    private Date toDate(int dayName, int day, int month, int year,
+            int hour, int minute, int second, int zone) {
+        if (second == LEAP_SECOND) {
+            second = 59;
+        }
 
-    
-    /**
-     * will parse the Numerical time zone version (e.g. +0800, -0500)
-     * the result will be returned in minutes needed to be added
-     * to the date to bring it to GMT.
-     */
-    public int parseNumericTimeZone() throws ParseException {
-	// we switch the sign if it is a '+'
-	// since the time in the string we are
-	// parsing is off from GMT by that amount.
-	// and we want to get the time back into
-	// GMT, so we substract it.
-	boolean switchSign = false;
-	char first = orig[index++];
-	if (first == '+') {
-	    switchSign = true;
-	} else if (first != '-') {
-	    throw new ParseException("Bad Numeric TimeZone", index);	
-	}
+        TimeZone tz = calendar.getTimeZone();
+        try {
+            calendar.setTimeZone(UTC);
+            calendar.clear();
+            calendar.set(year, month, day, hour, minute, second);
 
-	int oindex = index;
-	int tz = parseNumber();
-	if (tz >= 2400)
-	    throw new ParseException("Numeric TimeZone out of range", oindex);	
-	int offset = (tz / 100) * 60  + (tz % 100);
-	if (switchSign) {
-	    return -offset;
-	} else {
-	    return offset;
-	}
+            if (dayName == UNKNOWN_DAY_NAME
+                    || dayName == calendar.get(Calendar.DAY_OF_WEEK)) {
+                calendar.add(Calendar.MINUTE, zone);
+                return calendar.getTime();
+            } else {
+                throw new IllegalArgumentException("Inconsistent day-name");
+            }
+        } finally {
+            calendar.setTimeZone(tz);
+        }
     }
 
     /**
-     * will parse the alpha time zone version (e.g. PDT, PST).
-     * the result will be returned in minutes needed to be added
-     * to the date to bring it to GMT.
+     * This class provides the building blocks for date parsing.
+     * <p>
+     * It has the following invariants:
+     * <ul>
+     * <li>no exceptions are thrown, except for java.text.ParseException from
+     * parse* methods
+     * <li>when parse* throws ParseException OR get* returns INVALID_CHAR OR
+     * skip* returns false OR peek* is invoked, then pos.getIndex() on method
+     * exit is the same as it was on method entry
+     * </ul>
      */
-    public int parseAlphaTimeZone() throws ParseException {
-	int result = 0;
-	boolean foundCommon = false;
-	char curr;
-		
-	try {
-	    switch(orig[index++]) {
-	    case 'U':
-	    case 'u': // "UT"	/	Universal Time
-		curr = orig[index++];
-		if (curr == 'T' || curr == 't') {
-		    result = 0;
-		    break;
-		}
-		throw new ParseException("Bad Alpha TimeZone", index);
-					
-	    case 'G':
-	    case 'g': // "GMT" ; Universal Time
-		curr = orig[index++];
-		if (curr == 'M' || curr == 'm') {
-		    curr = orig[index++];
-		    if (curr == 'T' || curr == 't') {
-			result = 0;
-			break;
-		    }		
-		}
-		throw new ParseException("Bad Alpha TimeZone", index);	
-					
-	    case 'E':
-	    case 'e': // "EST" / "EDT" ;  Eastern:  - 5/ - 4
-		result = 300;
-		foundCommon = true;
-		break;
-					
-	    case 'C':
-	    case 'c': // "CST" / "CDT" ;  Central:  - 6/ - 5
-		result = 360;
-		foundCommon = true;
-		break;
-					
-	    case 'M':
-	    case 'm': // "MST" / "MDT" ;  Mountain: - 7/ - 6
-		result = 420;
-		foundCommon = true;
-		break;
-					
-	    case 'P':
-	    case 'p': // "PST" / "PDT" ;  Pacific:  - 8/ - 7 
-		result = 480;
-		foundCommon = true;
-		break;
+    private static abstract class AbstractDateParser {
 
-	    default:
-		throw new ParseException("Bad Alpha TimeZone", index);
-	    }
-	} catch (ArrayIndexOutOfBoundsException e) {
-	    throw new ParseException("Bad Alpha TimeZone", index);
-	}
-		
-	if (foundCommon) {
-	    curr = orig[index++];
-	    if (curr == 'S' || curr == 's') {
-		curr = orig[index++];
-		if (curr != 'T' && curr != 't') {
-		    throw new ParseException("Bad Alpha TimeZone", index);
-		}
-	    } else if (curr == 'D' || curr == 'd') {
-		curr = orig[index++];
-		if (curr == 'T' || curr != 't') {
-		    // for daylight time
-		    result -= 60;
-		} else {
-		    throw new ParseException("Bad Alpha TimeZone", index);
-		}
-	    }
-	}
+        static final int INVALID_CHAR = -1;
+        static final int MAX_YEAR_DIGITS = 8; // guarantees that:
+        // year < new GregorianCalendar().getMaximum(Calendar.YEAR)
 
-	return result;
+        final String text;
+        final ParsePosition pos;
+
+        AbstractDateParser(String text, ParsePosition pos) {
+            this.text = text;
+            this.pos = pos;
+        }
+
+        final Date parse() {
+            int startPosition = pos.getIndex();
+            try {
+                return tryParse();
+            } catch (Exception e) { // == ParseException | RuntimeException e
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.log(Level.FINE, "Bad date: '" + text + "'", e);
+                }
+                pos.setErrorIndex(pos.getIndex());
+                // to prevent DateFormat::parse from throwing ParseException:
+                pos.setIndex(startPosition + 1);
+                return null;
+            }
+        }
+
+        abstract Date tryParse() throws ParseException;
+
+        /**
+         * @return the java.util.Calendar constant for the parsed day name
+         */
+        final int parseDayName() throws ParseException {
+            switch (getChar()) {
+                case 'S':
+                    if (skipPair('u', 'n')) {
+                        return Calendar.SUNDAY;
+                    } else if (skipPair('a', 't')) {
+                        return Calendar.SATURDAY;
+                    }
+                    break;
+                case 'T':
+                    if (skipPair('u', 'e')) {
+                        return Calendar.TUESDAY;
+                    } else if (skipPair('h', 'u')) {
+                        return Calendar.THURSDAY;
+                    }
+                    break;
+                case 'M':
+                    if (skipPair('o', 'n')) {
+                        return Calendar.MONDAY;
+                    }
+                    break;
+                case 'W':
+                    if (skipPair('e', 'd')) {
+                        return Calendar.WEDNESDAY;
+                    }
+                    break;
+                case 'F':
+                    if (skipPair('r', 'i')) {
+                        return Calendar.FRIDAY;
+                    }
+                    break;
+                case INVALID_CHAR:
+                    throw new ParseException("Invalid day-name",
+                            pos.getIndex());
+            }
+            pos.setIndex(pos.getIndex() - 1);
+            throw new ParseException("Invalid day-name", pos.getIndex());
+        }
+
+        /**
+         * @return the java.util.Calendar constant for the parsed month name
+         */
+        @SuppressWarnings("fallthrough")
+        final int parseMonthName(boolean caseSensitive) throws ParseException {
+            switch (getChar()) {
+                case 'j':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'J':
+                    if (skipChar('u') || (!caseSensitive && skipChar('U'))) {
+                        if (skipChar('l') || (!caseSensitive
+                                && skipChar('L'))) {
+                            return Calendar.JULY;
+                        } else if (skipChar('n') || (!caseSensitive
+                                && skipChar('N'))) {
+                            return Calendar.JUNE;
+                        } else {
+                            pos.setIndex(pos.getIndex() - 1);
+                        }
+                    } else if (skipPair('a', 'n') || (!caseSensitive
+                            && skipAlternativePair('a', 'A', 'n', 'N'))) {
+                        return Calendar.JANUARY;
+                    }
+                    break;
+                case 'm':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'M':
+                    if (skipChar('a') || (!caseSensitive && skipChar('A'))) {
+                        if (skipChar('r') || (!caseSensitive
+                                && skipChar('R'))) {
+                            return Calendar.MARCH;
+                        } else if (skipChar('y') || (!caseSensitive
+                                && skipChar('Y'))) {
+                            return Calendar.MAY;
+                        } else {
+                            pos.setIndex(pos.getIndex() - 1);
+                        }
+                    }
+                    break;
+                case 'a':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'A':
+                    if (skipPair('u', 'g') || (!caseSensitive
+                            && skipAlternativePair('u', 'U', 'g', 'G'))) {
+                        return Calendar.AUGUST;
+                    } else if (skipPair('p', 'r') || (!caseSensitive
+                            && skipAlternativePair('p', 'P', 'r', 'R'))) {
+                        return Calendar.APRIL;
+                    }
+                    break;
+                case 'd':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'D':
+                    if (skipPair('e', 'c') || (!caseSensitive
+                            && skipAlternativePair('e', 'E', 'c', 'C'))) {
+                        return Calendar.DECEMBER;
+                    }
+                    break;
+                case 'o':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'O':
+                    if (skipPair('c', 't') || (!caseSensitive
+                            && skipAlternativePair('c', 'C', 't', 'T'))) {
+                        return Calendar.OCTOBER;
+                    }
+                    break;
+                case 's':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'S':
+                    if (skipPair('e', 'p') || (!caseSensitive
+                            && skipAlternativePair('e', 'E', 'p', 'P'))) {
+                        return Calendar.SEPTEMBER;
+                    }
+                    break;
+                case 'n':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'N':
+                    if (skipPair('o', 'v') || (!caseSensitive
+                            && skipAlternativePair('o', 'O', 'v', 'V'))) {
+                        return Calendar.NOVEMBER;
+                    }
+                    break;
+                case 'f':
+                    if (caseSensitive) {
+                        break;
+                    }
+                case 'F':
+                    if (skipPair('e', 'b') || (!caseSensitive
+                            && skipAlternativePair('e', 'E', 'b', 'B'))) {
+                        return Calendar.FEBRUARY;
+                    }
+                    break;
+                case INVALID_CHAR:
+                    throw new ParseException("Invalid month", pos.getIndex());
+            }
+            pos.setIndex(pos.getIndex() - 1);
+            throw new ParseException("Invalid month", pos.getIndex());
+        }
+
+        /**
+         * @return the number of minutes to be added to the time in the local
+         * time zone, in order to obtain the equivalent time in the UTC time
+         * zone. Returns 0 if the date-time contains no information about the
+         * local time zone.
+         */
+        final int parseZoneOffset() throws ParseException {
+            int sign = getChar();
+            if (sign == '+' || sign == '-') {
+                int offset = parseAsciiDigits(4, 4, true);
+                if (!isValidZoneOffset(offset)) {
+                    pos.setIndex(pos.getIndex() - 5);
+                    throw new ParseException("Invalid zone", pos.getIndex());
+                }
+
+                return ((sign == '+') ? -1 : 1)
+                        * (offset / 100 * 60 + offset % 100);
+            } else if (sign != INVALID_CHAR) {
+                pos.setIndex(pos.getIndex() - 1);
+            }
+            throw new ParseException("Invalid zone", pos.getIndex());
+        }
+
+        boolean isValidZoneOffset(int offset) {
+            return (offset % 100) < 60;
+        }
+
+        final int parseAsciiDigits(int count) throws ParseException {
+            return parseAsciiDigits(count, count);
+        }
+
+        final int parseAsciiDigits(int min, int max) throws ParseException {
+            return parseAsciiDigits(min, max, false);
+        }
+
+        final int parseAsciiDigits(int min, int max, boolean isEOF)
+                throws ParseException {
+            int result = 0;
+            int nbDigitsParsed = 0;
+            while (nbDigitsParsed < max && peekAsciiDigit()) {
+                result = result * 10 + getAsciiDigit();
+                nbDigitsParsed++;
+            }
+
+            if ((nbDigitsParsed < min)
+                    || (nbDigitsParsed == max && !isEOF && peekAsciiDigit())) {
+                pos.setIndex(pos.getIndex() - nbDigitsParsed);
+            } else {
+                return result;
+            }
+
+            String range = (min == max)
+                    ? Integer.toString(min)
+                    : "between " + min + " and " + max;
+            throw new ParseException("Invalid input: expected "
+                    + range + " ASCII digits", pos.getIndex());
+        }
+
+        final void parseFoldingWhiteSpace() throws ParseException {
+            if (!skipFoldingWhiteSpace()) {
+                throw new ParseException("Invalid input: expected FWS",
+                        pos.getIndex());
+            }
+        }
+
+        final void parseChar(char ch) throws ParseException {
+            if (!skipChar(ch)) {
+                throw new ParseException("Invalid input: expected '" + ch + "'",
+                        pos.getIndex());
+            }
+        }
+
+        final int getAsciiDigit() {
+            int ch = getChar();
+            if ('0' <= ch && ch <= '9') {
+                return Character.digit((char) ch, 10);
+            } else {
+                if (ch != INVALID_CHAR) {
+                    pos.setIndex(pos.getIndex() - 1);
+                }
+                return INVALID_CHAR;
+            }
+        }
+
+        final int getChar() {
+            if (pos.getIndex() < text.length()) {
+                char ch = text.charAt(pos.getIndex());
+                pos.setIndex(pos.getIndex() + 1);
+                return ch;
+            } else {
+                return INVALID_CHAR;
+            }
+        }
+
+        boolean skipFoldingWhiteSpace() {
+            // fast paths: a single ASCII space or no FWS
+            if (skipChar(' ')) {
+                if (!peekFoldingWhiteSpace()) {
+                    return true;
+                } else {
+                    pos.setIndex(pos.getIndex() - 1);
+                }
+            } else if (!peekFoldingWhiteSpace()) {
+                return false;
+            }
+
+            // normal path
+            int startIndex = pos.getIndex();
+            if (skipWhiteSpace()) {
+                while (skipNewline()) {
+                    if (!skipWhiteSpace()) {
+                        pos.setIndex(startIndex);
+                        return false;
+                    }
+                }
+                return true;
+            } else if (skipNewline() && skipWhiteSpace()) {
+                return true;
+            } else {
+                pos.setIndex(startIndex);
+                return false;
+            }
+        }
+
+        final boolean skipWhiteSpace() {
+            int startIndex = pos.getIndex();
+            while (skipAlternative(' ', '\t')) { /* empty */ }
+            return pos.getIndex() > startIndex;
+        }
+
+        final boolean skipNewline() {
+            return skipPair('\r', '\n');
+        }
+
+        final boolean skipAlternativeTriple(
+                char firstStandard, char firstAlternative,
+                char secondStandard, char secondAlternative,
+                char thirdStandard, char thirdAlternative
+        ) {
+            if (skipAlternativePair(firstStandard, firstAlternative,
+                    secondStandard, secondAlternative)) {
+                if (skipAlternative(thirdStandard, thirdAlternative)) {
+                    return true;
+                } else {
+                    pos.setIndex(pos.getIndex() - 2);
+                }
+            }
+            return false;
+        }
+
+        final boolean skipAlternativePair(
+                char firstStandard, char firstAlternative,
+                char secondStandard, char secondAlternative
+        ) {
+            if (skipAlternative(firstStandard, firstAlternative)) {
+                if (skipAlternative(secondStandard, secondAlternative)) {
+                    return true;
+                } else {
+                    pos.setIndex(pos.getIndex() - 1);
+                }
+            }
+            return false;
+        }
+
+        final boolean skipAlternative(char standard, char alternative) {
+            return skipChar(standard) || skipChar(alternative);
+        }
+
+        final boolean skipPair(char first, char second) {
+            if (skipChar(first)) {
+                if (skipChar(second)) {
+                    return true;
+                } else {
+                    pos.setIndex(pos.getIndex() - 1);
+                }
+            }
+            return false;
+        }
+
+        final boolean skipChar(char ch) {
+            if (pos.getIndex() < text.length()
+                    && text.charAt(pos.getIndex()) == ch) {
+                pos.setIndex(pos.getIndex() + 1);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        final boolean peekAsciiDigit() {
+            return (pos.getIndex() < text.length()
+                    && '0' <= text.charAt(pos.getIndex())
+                    && text.charAt(pos.getIndex()) <= '9');
+        }
+
+        boolean peekFoldingWhiteSpace() {
+            return (pos.getIndex() < text.length()
+                    && (text.charAt(pos.getIndex()) == ' '
+                    || text.charAt(pos.getIndex()) == '\t'
+                    || text.charAt(pos.getIndex()) == '\r'));
+        }
+
+        final boolean peekChar(char ch) {
+            return (pos.getIndex() < text.length()
+                    && text.charAt(pos.getIndex()) == ch);
+        }
+
     }
 
-    int getIndex() {
-	return index;
+    private class Rfc2822StrictParser extends AbstractDateParser {
+
+        Rfc2822StrictParser(String text, ParsePosition pos) {
+            super(text, pos);
+        }
+
+        @Override
+        Date tryParse() throws ParseException {
+            int dayName = parseOptionalBegin();
+
+            int day = parseDay();
+            int month = parseMonth();
+            int year = parseYear();
+
+            parseFoldingWhiteSpace();
+
+            int hour = parseHour();
+            parseChar(':');
+            int minute = parseMinute();
+            int second = (skipChar(':')) ? parseSecond() : 0;
+
+            parseFwsBetweenTimeOfDayAndZone();
+
+            int zone = parseZone();
+
+            try {
+                return MailDateFormat.this.toDate(dayName, day, month, year,
+                        hour, minute, second, zone);
+            } catch (IllegalArgumentException e) {
+                throw new ParseException("Invalid input: some of the calendar "
+                        + "fields have invalid values, or day-name is "
+                        + "inconsistent with date", pos.getIndex());
+            }
+        }
+
+        /**
+         * @return the java.util.Calendar constant for the parsed day name, or
+         * UNKNOWN_DAY_NAME iff the begin is missing
+         */
+        int parseOptionalBegin() throws ParseException {
+            int dayName;
+            if (!peekAsciiDigit()) {
+                skipFoldingWhiteSpace();
+                dayName = parseDayName();
+                parseChar(',');
+            } else {
+                dayName = UNKNOWN_DAY_NAME;
+            }
+            return dayName;
+        }
+
+        int parseDay() throws ParseException {
+            skipFoldingWhiteSpace();
+            return parseAsciiDigits(1, 2);
+        }
+
+        /**
+         * @return the java.util.Calendar constant for the parsed month name
+         */
+        int parseMonth() throws ParseException {
+            parseFwsInMonth();
+            int month = parseMonthName(isMonthNameCaseSensitive());
+            parseFwsInMonth();
+            return month;
+        }
+
+        void parseFwsInMonth() throws ParseException {
+            parseFoldingWhiteSpace();
+        }
+
+        boolean isMonthNameCaseSensitive() {
+            return true;
+        }
+
+        int parseYear() throws ParseException {
+            int year = parseAsciiDigits(4, MAX_YEAR_DIGITS);
+            if (year >= 1900) {
+                return year;
+            } else {
+                pos.setIndex(pos.getIndex() - 4);
+                while (text.charAt(pos.getIndex() - 1) == '0') {
+                    pos.setIndex(pos.getIndex() - 1);
+                }
+                throw new ParseException("Invalid year", pos.getIndex());
+            }
+        }
+
+        int parseHour() throws ParseException {
+            return parseAsciiDigits(2);
+        }
+
+        int parseMinute() throws ParseException {
+            return parseAsciiDigits(2);
+        }
+
+        int parseSecond() throws ParseException {
+            return parseAsciiDigits(2);
+        }
+
+        void parseFwsBetweenTimeOfDayAndZone() throws ParseException {
+            parseFoldingWhiteSpace();
+        }
+
+        int parseZone() throws ParseException {
+            return parseZoneOffset();
+        }
+
     }
+
+    private class Rfc2822LenientParser extends Rfc2822StrictParser {
+
+        private Boolean hasDefaultFws;
+
+        Rfc2822LenientParser(String text, ParsePosition pos) {
+            super(text, pos);
+        }
+
+        @Override
+        int parseOptionalBegin() {
+            while (pos.getIndex() < text.length() && !peekAsciiDigit()) {
+                pos.setIndex(pos.getIndex() + 1);
+            }
+
+            return UNKNOWN_DAY_NAME;
+        }
+
+        @Override
+        int parseDay() throws ParseException {
+            skipFoldingWhiteSpace();
+            return parseAsciiDigits(1, 3);
+        }
+
+        @Override
+        void parseFwsInMonth() throws ParseException {
+            // '-' is allowed to accomodate for the date format as specified in
+            // <a href="http://www.ietf.org/rfc/rfc3501.txt">RFC 3501</a>
+            if (hasDefaultFws == null) {
+                hasDefaultFws = !skipChar('-');
+                skipFoldingWhiteSpace();
+            } else if (hasDefaultFws) {
+                skipFoldingWhiteSpace();
+            } else {
+                parseChar('-');
+            }
+        }
+
+        @Override
+        boolean isMonthNameCaseSensitive() {
+            return false;
+        }
+
+        @Override
+        int parseYear() throws ParseException {
+            int year = parseAsciiDigits(1, MAX_YEAR_DIGITS);
+            if (year >= 1000) {
+                return year;
+            } else if (year >= 50 && year <= 999) {
+                return year + 1900;
+            } else {
+                return year + 2000;
+            }
+        }
+
+        @Override
+        int parseHour() throws ParseException {
+            return parseAsciiDigits(1, 2);
+        }
+
+        @Override
+        int parseMinute() throws ParseException {
+            return parseAsciiDigits(1, 2);
+        }
+
+        @Override
+        int parseSecond() throws ParseException {
+            return parseAsciiDigits(1, 2);
+        }
+
+        @Override
+        void parseFwsBetweenTimeOfDayAndZone() throws ParseException {
+            skipFoldingWhiteSpace();
+        }
+
+        @Override
+        int parseZone() throws ParseException {
+            try {
+                if (pos.getIndex() >= text.length()) {
+                    throw new ParseException("Missing zone", pos.getIndex());
+                }
+
+                if (peekChar('+') || peekChar('-')) {
+                    return parseZoneOffset();
+                } else if (skipAlternativePair('U', 'u', 'T', 't')) {
+                    return 0;
+                } else if (skipAlternativeTriple('G', 'g', 'M', 'm',
+                        'T', 't')) {
+                    return 0;
+                } else {
+                    int hoursOffset;
+                    if (skipAlternative('E', 'e')) {
+                        hoursOffset = 4;
+                    } else if (skipAlternative('C', 'c')) {
+                        hoursOffset = 5;
+                    } else if (skipAlternative('M', 'm')) {
+                        hoursOffset = 6;
+                    } else if (skipAlternative('P', 'p')) {
+                        hoursOffset = 7;
+                    } else {
+                        throw new ParseException("Invalid zone",
+                                pos.getIndex());
+                    }
+                    if (skipAlternativePair('S', 's', 'T', 't')) {
+                        hoursOffset += 1;
+                    } else if (skipAlternativePair('D', 'd', 'T', 't')) {
+                    } else {
+                        pos.setIndex(pos.getIndex() - 1);
+                        throw new ParseException("Invalid zone",
+                                pos.getIndex());
+                    }
+                    return hoursOffset * 60;
+                }
+            } catch (ParseException e) {
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.log(Level.FINE, "No timezone? : '" + text + "'", e);
+                }
+
+                return 0;
+            }
+        }
+
+        @Override
+        boolean isValidZoneOffset(int offset) {
+            return true;
+        }
+
+        @Override
+        boolean skipFoldingWhiteSpace() {
+            boolean result = peekFoldingWhiteSpace();
+
+            skipLoop:
+            while (pos.getIndex() < text.length()) {
+                switch (text.charAt(pos.getIndex())) {
+                    case ' ':
+                    case '\t':
+                    case '\r':
+                    case '\n':
+                        pos.setIndex(pos.getIndex() + 1);
+                        break;
+                    default:
+                        break skipLoop;
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        boolean peekFoldingWhiteSpace() {
+            return super.peekFoldingWhiteSpace()
+                    || (pos.getIndex() < text.length()
+                    && text.charAt(pos.getIndex()) == '\n');
+        }
+
+    }
+
 }
