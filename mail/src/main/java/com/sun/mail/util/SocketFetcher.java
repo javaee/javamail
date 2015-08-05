@@ -339,7 +339,8 @@ public class SocketFetcher {
 	 * If we want an SSL connection and we didn't get an SSLSocket,
 	 * wrap our plain Socket with an SSLSocket.
 	 */
-	if (useSSL && !(socket instanceof SSLSocket)) {
+	if ((useSSL || sf instanceof SSLSocketFactory) &&
+		!(socket instanceof SSLSocket)) {
 	    String trusted;
 	    SSLSocketFactory ssf;
 	    if ((trusted = props.getProperty(prefix + ".ssl.trust")) != null) {
