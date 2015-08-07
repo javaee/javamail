@@ -50,7 +50,7 @@ import com.sun.mail.util.ASCIIUtility;
  * The <code>mail.mime.encodeparameters</code> and
  * <code>mail.mime.decodeparameters</code> System properties
  * control whether encoded parameters, as specified by 
- * <a href="http://www.ietf.org/rfc/rfc2231.txt">RFC 2231</a>,
+ * <a href="http://www.ietf.org/rfc/rfc2231.txt" target="_top">RFC 2231</a>,
  * are supported.  By default, such encoded parameters <b>are</b>
  * supported. <p>
  *

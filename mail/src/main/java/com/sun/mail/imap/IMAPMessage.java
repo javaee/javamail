@@ -1296,7 +1296,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * ASSERT: Must hold the messageCacheLock.
      *
      * @param	extensionItems	the Map to add fetch items to
-     * @exception	MessagingException for failures
      * @since JavaMail 1.4.6
      */
     protected void handleExtensionFetchItems(Map extensionItems) {

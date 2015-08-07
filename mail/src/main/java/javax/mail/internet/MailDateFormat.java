@@ -58,7 +58,7 @@ import com.sun.mail.util.MailLogger;
 
 /**
  * Formats and parses date specification based on
- * <a href="http://www.ietf.org/rfc/rfc2822.txt">RFC 2822</a>. <p>
+ * <a href="http://www.ietf.org/rfc/rfc2822.txt" target="_top">RFC 2822</a>. <p>
  *
  * This class does not support methods that influence the format. It always
  * formats the date based on the specification below.<p>
@@ -170,7 +170,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * previous implementation.
      *
      * @return the object to be serialized
-     * @throws ObjectStreamException
+     * @throws ObjectStreamException	never
      */
     private Object writeReplace() throws ObjectStreamException {
         MailDateFormat fmt = new MailDateFormat();
@@ -184,8 +184,8 @@ public class MailDateFormat extends SimpleDateFormat {
      * implementation.
      *
      * @param in the stream containing the serialized object
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * @throws IOException	on read failures
+     * @throws ClassNotFoundException	never
      */
     private void readObject(ObjectInputStream in)
             throws IOException, ClassNotFoundException {
@@ -222,7 +222,6 @@ public class MailDateFormat extends SimpleDateFormat {
     /**
      * Parses the given date in the format specified by
      * RFC 2822.
-     * <p>
      * <ul>
      * <li>With strict parsing, obs-* tokens are unsupported. Lenient parsing
      * supports obs-year and obs-zone, with the exception of the 1-character

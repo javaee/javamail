@@ -626,6 +626,11 @@
 				<artifactId>javax.mail</artifactId>
 				<version>${mail.version}</version>
 			    </additionalDependency>
+			    <additionalDependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>gimap</artifactId>
+				<version>${mail.version}</version>
+			    </additionalDependency>
 			</additionalDependencies>
 		    </configuration>
 		 </plugin>
