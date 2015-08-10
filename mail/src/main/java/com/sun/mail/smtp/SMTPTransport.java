@@ -1118,13 +1118,13 @@ public class SMTPTransport extends Transport {
      * successful submission of a message to the SMTP host.<p>
      *
      * If some of the <code>addresses</code> fail the SMTP check,
-     * and the <code>mail.stmp.sendpartial</code> property is not set,
+     * and the <code>mail.smtp.sendpartial</code> property is not set,
      * sending is aborted. The TransportEvent of type MESSAGE_NOT_DELIVERED
      * is fired containing the valid and invalid addresses. The
      * SendFailedException is also thrown. <p>
      *
      * If some of the <code>addresses</code> fail the SMTP check,
-     * and the <code>mail.stmp.sendpartial</code> property is set to true,
+     * and the <code>mail.smtp.sendpartial</code> property is set to true,
      * the message is sent. The TransportEvent of type
      * MESSAGE_PARTIALLY_DELIVERED
      * is fired containing the valid and invalid addresses. The

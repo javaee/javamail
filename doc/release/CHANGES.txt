@@ -19,6 +19,8 @@ Bug IDs that start with "K" can be found in the Kenai Bugzilla
 The following bugs have been fixed in the 1.5.5 release.
 
 K  6886	add support for setting GMail labels on messages
+K  6907	Address MailDateFormat issues
+K  6938	Typo in "mail.stmp.sendpartial"
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
@@ -36,7 +38,6 @@ K  6850	GmailMessage extensions are not cached after implicit FETCH
 K  6852	IMAP message sets should be sorted in cases where order doesn't matter
 K  6860	ID command shouldn't escape NIL value
 K  6863	Make IMAPProtocol class extendable
-K  6907	Address MailDateFormat issues
 
 
 		  CHANGES IN THE 1.5.3 RELEASE
