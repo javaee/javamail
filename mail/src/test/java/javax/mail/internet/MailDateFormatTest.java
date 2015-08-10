@@ -72,6 +72,10 @@ import org.junit.Test;
  */
 public class MailDateFormatTest {
 
+    private static final String HUGE_NUMBER = getHugeNumber();
+    private static final String DATE_WITH_HUGE_DAY = HUGE_NUMBER;
+    private static final String DATE_WITH_HUGE_YEAR = "1 Jan " + HUGE_NUMBER;
+
     /*
      * Serialization
      */
@@ -269,14 +273,14 @@ public class MailDateFormatTest {
     /*
      * Parsing - overflow
      */
-    @Test(timeout = 20)
+    @Test(timeout = 50)
     public void mustFailFastIfDayContainsTooManyDigits() {
-        mustFail(getLenient(), getHugeNumber(), 0);
+        mustFail(getLenient(), DATE_WITH_HUGE_DAY, 0);
     }
 
-    @Test(timeout = 20)
+    @Test(timeout = 50)
     public void mustFailFastIfYearContainsTooManyDigits() {
-        mustFail(getLenient(), "1 Jan " + getHugeNumber() + " 00:00 +0000", 6);
+        mustFail(getLenient(), DATE_WITH_HUGE_YEAR, 6);
     }
 
     @Test
@@ -548,9 +552,9 @@ public class MailDateFormatTest {
         }
     }
 
-    private String getHugeNumber() {
+    private static String getHugeNumber() {
         StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000000; i++) {
             builder.append(Long.MAX_VALUE);
         }
         return builder.toString();
