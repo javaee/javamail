@@ -1282,7 +1282,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    p = new ParameterList();
 	    cd.setParameterList(p);
 	}
-	p.set("filename", name, charset);
+	if (encodeFileName)
+	    p.setLiteral("filename", name);
+	else
+	    p.set("filename", name, charset);
 	part.setHeader("Content-Disposition", cd.toString());
 
 	/*
@@ -1301,7 +1304,10 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 			p = new ParameterList();
 			cType.setParameterList(p);
 		    }
-		    p.set("name", name, charset);
+		    if (encodeFileName)
+			p.setLiteral("name", name);
+		    else
+			p.set("name", name, charset);
 		    part.setHeader("Content-Type", cType.toString());
 		} catch (ParseException pex) { }	// ignore it
 	    }
@@ -1558,7 +1564,11 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 				p = new ParameterList();
 				cType.setParameterList(p);
 			    }
-			    p.set("name", filename,
+			    if (encodeFileName)
+				p.setLiteral("name",
+					MimeUtility.encodeText(filename));
+			    else
+				p.set("name", filename,
 					MimeUtility.getDefaultMIMECharset());
 			    type = cType.toString();
 			}

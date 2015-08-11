@@ -79,7 +79,8 @@ public class ParameterList {
      * The map of name, value pairs.
      * The value object is either a String, for unencoded
      * values, or a Value object, for encoded values,
-     * or a MultiValue object, for multi-segment parameters.
+     * or a MultiValue object, for multi-segment parameters,
+     * or a LiteralValue object for strings that should not be encoded.
      *
      * We use a LinkedHashMap so that parameters are (as much as
      * possible) kept in the original order.  Note however that
@@ -170,6 +171,13 @@ public class ParameterList {
 	String value;
 	String charset;
 	String encodedValue;
+    }
+
+    /**
+     * A struct to hold a literal value that shouldn't be further encoded.
+     */
+    private static class LiteralValue {
+	String value;
     }
 
     /**
@@ -532,6 +540,8 @@ public class ParameterList {
 	Object v = list.get(name.trim().toLowerCase(Locale.ENGLISH));
 	if (v instanceof MultiValue)
 	    value = ((MultiValue)v).value;
+	else if (v instanceof LiteralValue)
+	    value = ((LiteralValue)v).value;
 	else if (v instanceof Value)
 	    value = ((Value)v).value;
 	else
@@ -581,6 +591,20 @@ public class ParameterList {
 		set(name, value);
 	} else
 	    set(name, value);
+    }
+
+    /**
+     * Package-private method to set a literal value that won't be
+     * further encoded.  Used to set the filename parameter when
+     * "mail.mime.encodefilename" is true.
+     *
+     * @param	name 	name of the parameter.
+     * @param	value	value of the parameter.
+     */
+    void setLiteral(String name, String value) {
+	LiteralValue lv = new LiteralValue();
+	lv.value = value;
+	list.put(name, lv);
     }
 
     /**
@@ -651,6 +675,9 @@ public class ParameterList {
 		    }
 		    sb.addNV(ns, quote(value));
 		}
+	    } else if (v instanceof LiteralValue) {
+		value = ((LiteralValue)v).value;
+		sb.addNV(name, quote(value));
 	    } else if (v instanceof Value) {
 		/*
 		 * XXX - We could split the encoded value into multiple
