@@ -1,0 +1,28 @@
+	Notes for use of NTLM authentication support with JavaMail
+	----------------------------------------------------------
+
+Thanks to the efforts of Luis Serralheiro, JavaMail now suports the use
+of Microsoft's proprietary NTLM authentication mechanism.  This support
+within JavaMail is now derived from the NTLM support in the JDK and
+included directly in JavaMail, with no external dependencies.
+
+This release of JavaMail was tested with Microsoft Exchange 5.5 and 2007.
+
+The SMTP and IMAP providers support the use of NTLM authentication.
+The following properties can be used to configure the NTLM support:
+
+mail.<protocol>.auth.ntlm.domain
+	The NTLM authentication domain.
+
+mail.<protocol>.auth.ntlm.flags
+	NTLM protocol-specific flags.  (not currently used)
+	See http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags for details.
+
+
+NOTE:	This capability is very new and has NOT been thoroughly tested.
+	Please send any feedback or bug reports to us at javamail_ww@oracle.com.
+
+WARNING: This support, and the APIs and properties used to control it,
+should be considered EXPERIMENTAL.  They may be changed in the future
+in ways that are incompatible with applications using the current APIs
+and properties.
