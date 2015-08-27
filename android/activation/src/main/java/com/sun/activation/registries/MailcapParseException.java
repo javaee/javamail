@@ -38,20 +38,18 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
-
-import javax.activation.ActivationDataFlavor;
+package	com.sun.activation.registries;
 
 /**
- * DataContentHandler for text/html.
- *
+ *	A class to encapsulate Mailcap parsing related exceptions
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public class MailcapParseException extends Exception {
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    public MailcapParseException() {
+	super();
+    }
+
+    public MailcapParseException(String inInfo) {
+	super(inInfo);
     }
 }

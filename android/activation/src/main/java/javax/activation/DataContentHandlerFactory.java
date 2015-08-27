@@ -38,20 +38,24 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
-
-import javax.activation.ActivationDataFlavor;
+package javax.activation;
 
 /**
- * DataContentHandler for text/html.
- *
+ * This interface defines a factory for <code>DataContentHandlers</code>. An
+ * implementation of this interface should map a MIME type into an
+ * instance of DataContentHandler. The design pattern for classes implementing
+ * this interface is the same as for the ContentHandler mechanism used in
+ * <code>java.net.URL</code>.
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
-    }
+public interface DataContentHandlerFactory {
+
+    /**
+     * Creates a new DataContentHandler object for the MIME type.
+     *
+     * @param mimeType the MIME type to create the DataContentHandler for.
+     * @return The new <code>DataContentHandler</code>, or <i>null</i>
+     * if none are found.
+     */
+    public DataContentHandler createDataContentHandler(String mimeType);
 }

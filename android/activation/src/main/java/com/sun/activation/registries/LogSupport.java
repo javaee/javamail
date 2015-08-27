@@ -38,20 +38,48 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
+package com.sun.activation.registries;
 
-import javax.activation.ActivationDataFlavor;
+import java.io.*;
+import java.util.logging.*;
 
 /**
- * DataContentHandler for text/html.
- *
+ * Logging related methods.
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public class LogSupport {
+    private static boolean debug = false;
+    private static Logger logger;
+    private static final Level level = Level.FINE;
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    static {
+	try {
+	    debug = Boolean.getBoolean("javax.activation.debug");
+	} catch (Throwable t) {
+	    // ignore any errors
+	}
+	logger = Logger.getLogger("javax.activation");
+    }
+
+    /**
+     * Constructor.
+     */
+    private LogSupport() {
+	// private constructor, can't create instances
+    }
+
+    public static void log(String msg) {
+	if (debug)
+	    System.out.println(msg);
+	logger.log(level, msg);
+    }
+
+    public static void log(String msg, Throwable t) {
+	if (debug)
+	    System.out.println(msg + "; Exception: " + t);
+	logger.log(level, msg, t);
+    }
+
+    public static boolean isLoggable() {
+	return debug || logger.isLoggable(level);
     }
 }

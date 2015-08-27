@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,19 +41,18 @@
 package com.sun.mail.handlers;
 
 import java.io.*;
-import java.awt.datatransfer.DataFlavor;
 import javax.activation.*;
-import javax.mail.internet.*;
+import javax.mail.internet.ContentType;
+import javax.mail.internet.MimeUtility;
 
 /**
  * DataContentHandler for text/plain.
  *
  */
-public class text_plain implements DataContentHandler {
-    private static ActivationDataFlavor myDF = new ActivationDataFlavor(
-	java.lang.String.class,
-	"text/plain",
-	"Text String");
+public class text_plain extends handler_base {
+    private static ActivationDataFlavor[] myDF = {
+	new ActivationDataFlavor(String.class, "text/plain", "Text String")
+    };
 
     /**
      * An OuputStream wrapper that doesn't close the underlying stream.
@@ -68,34 +67,8 @@ public class text_plain implements DataContentHandler {
 	}
     }
 
-    protected ActivationDataFlavor getDF() {
+    protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
-    }
-
-    /**
-     * Return the DataFlavors for this <code>DataContentHandler</code>.
-     *
-     * @return The DataFlavors
-     */
-    public DataFlavor[] getTransferDataFlavors() {
-	return new DataFlavor[] { getDF() };
-    }
-
-    /**
-     * Return the Transfer Data of type DataFlavor from InputStream.
-     *
-     * @param df The DataFlavor
-     * @param ds The DataSource corresponding to the data
-     * @return String object
-     */
-    public Object getTransferData(DataFlavor df, DataSource ds) 
-			throws IOException {
-	// use myDF.equals to be sure to get ActivationDataFlavor.equals,
-	// which properly ignores Content-Type parameters in comparison
-	if (getDF().equals(df))
-	    return getContent(ds);
-	else
-	    return null;
     }
 
     public Object getContent(DataSource ds) throws IOException {
@@ -151,7 +124,7 @@ public class text_plain implements DataContentHandler {
     public void writeTo(Object obj, String type, OutputStream os) 
 			throws IOException {
 	if (!(obj instanceof String))
-	    throw new IOException("\"" + getDF().getMimeType() +
+	    throw new IOException("\"" + getDataFlavors()[0].getMimeType() +
 		"\" DataContentHandler requires String object, " +
 		"was given object of type " + obj.getClass().toString());
 

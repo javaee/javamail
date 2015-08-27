@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,19 +40,18 @@
 
 package com.sun.mail.handlers;
 
-import java.awt.datatransfer.DataFlavor;
-import javax.activation.*;
+import java.awt.Image;
+import javax.activation.ActivationDataFlavor;
 
 /**
  * DataContentHandler for image/jpeg.
  */
 public class image_jpeg extends image_gif {
-    private static ActivationDataFlavor myDF = new ActivationDataFlavor(
-	java.awt.Image.class,
-	"image/jpeg",
-	"JPEG Image");
+    private static ActivationDataFlavor[] myDF = {
+	new ActivationDataFlavor(Image.class, "image/jpeg", "JPEG Image")
+    };
 
-    protected ActivationDataFlavor getDF() {
+    protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
     }
 }

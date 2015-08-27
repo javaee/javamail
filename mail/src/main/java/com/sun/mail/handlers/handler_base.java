@@ -40,18 +40,60 @@
 
 package com.sun.mail.handlers;
 
-import javax.activation.ActivationDataFlavor;
+import java.io.IOException;
+import java.awt.datatransfer.DataFlavor;
+import javax.activation.*;
 
 /**
- * DataContentHandler for text/html.
- *
+ * Base class for other DataContentHandlers.
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public abstract class handler_base implements DataContentHandler {
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    /**
+     * Return an array of ActivationDataFlavors that we support.
+     * Usually there will be only one.
+     */
+    protected abstract ActivationDataFlavor[] getDataFlavors();
+
+    /**
+     * Given the flavor that matched, return the appropriate type of object.
+     * Usually there's only one flavor so just call getContent.
+     */
+    protected Object getData(ActivationDataFlavor aFlavor, DataSource ds)
+				throws IOException {
+	return getContent(ds);
+    }
+
+    /**
+     * Return the DataFlavors for this <code>DataContentHandler</code>.
+     *
+     * @return The DataFlavors
+     */
+    public DataFlavor[] getTransferDataFlavors() {
+	ActivationDataFlavor[] adf = getDataFlavors();
+	if (adf.length == 1)	// the common case
+	    return new DataFlavor[] { adf[0] };
+	DataFlavor[] df = new DataFlavor[adf.length];
+	System.arraycopy(adf, 0, df, 0, adf.length);
+	return df;
+    }
+
+    /**
+     * Return the Transfer Data of type DataFlavor from InputStream.
+     *
+     * @param df The DataFlavor
+     * @param ds The DataSource corresponding to the data
+     * @return String object
+     */
+    public Object getTransferData(DataFlavor df, DataSource ds) 
+			throws IOException {
+	ActivationDataFlavor[] adf = getDataFlavors();
+	for (int i = 0; i < adf.length; i++) {
+	    // use ActivationDataFlavor.equals, which properly
+	    // ignores Content-Type parameters in comparison
+	    if (adf[i].equals(df))
+		return getData(adf[i], ds);
+	}
+	return null;
     }
 }

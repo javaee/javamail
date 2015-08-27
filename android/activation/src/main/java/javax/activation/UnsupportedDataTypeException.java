@@ -38,20 +38,33 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
+package javax.activation;
 
-import javax.activation.ActivationDataFlavor;
+import java.io.IOException;
 
 /**
- * DataContentHandler for text/html.
+ * Signals that the requested operation does not support the
+ * requested data type.
  *
+ * @see javax.activation.DataHandler
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+public class UnsupportedDataTypeException extends IOException {
+    /**
+     * Constructs an UnsupportedDataTypeException with no detail
+     * message.
+     */
+    public UnsupportedDataTypeException() {
+	super();
+    }
+
+    /**
+     * Constructs an UnsupportedDataTypeException with the specified 
+     * message.
+     * 
+     * @param s The detail message.
+     */
+    public UnsupportedDataTypeException(String s) {
+	super(s);
     }
 }

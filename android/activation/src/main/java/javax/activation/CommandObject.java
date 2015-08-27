@@ -38,20 +38,30 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
+package javax.activation;
 
-import javax.activation.ActivationDataFlavor;
+import java.io.IOException;
 
 /**
- * DataContentHandler for text/html.
- *
+ * JavaBeans components that are Activation Framework aware implement
+ * this interface to find out which command verb they're being asked
+ * to perform, and to obtain the DataHandler representing the
+ * data they should operate on.  JavaBeans that don't implement
+ * this interface may be used as well.  Such commands may obtain
+ * the data using the Externalizable interface, or using an
+ * application-specific method.<p>
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public interface CommandObject {
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
-    }
+    /**
+     * Initialize the Command with the verb it is requested to handle
+     * and the DataHandler that describes the data it will
+     * operate on. <b>NOTE:</b> it is acceptable for the caller
+     * to pass <i>null</i> as the value for <code>DataHandler</code>.
+     *
+     * @param verb The Command Verb this object refers to.
+     * @param dh The DataHandler.
+     */
+    public void setCommandContext(String verb, DataHandler dh)
+						throws IOException;
 }

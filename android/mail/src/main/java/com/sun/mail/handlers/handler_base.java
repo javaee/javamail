@@ -40,18 +40,54 @@
 
 package com.sun.mail.handlers;
 
-import javax.activation.ActivationDataFlavor;
+import java.io.IOException;
+import javax.activation.*;
 
 /**
- * DataContentHandler for text/html.
- *
+ * Base class for other DataContentHandlers.
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public abstract class handler_base implements DataContentHandler {
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    /**
+     * Return an array of ActivationDataFlavors that we support.
+     * Usually there will be only one.
+     */
+    protected abstract ActivationDataFlavor[] getDataFlavors();
+
+    /**
+     * Given the flavor that matched, return the appropriate type of object.
+     * Usually there's only one flavor so just call getContent.
+     */
+    protected Object getData(ActivationDataFlavor aFlavor, DataSource ds)
+				throws IOException {
+	return getContent(ds);
+    }
+
+    /**
+     * Return the DataFlavors for this <code>DataContentHandler</code>.
+     *
+     * @return The DataFlavors
+     */
+    public ActivationDataFlavor[] getTransferDataFlavors() {
+	return getDataFlavors().clone();
+    }
+
+    /**
+     * Return the Transfer Data of type DataFlavor from InputStream.
+     *
+     * @param df The DataFlavor
+     * @param ds The DataSource corresponding to the data
+     * @return String object
+     */
+    public Object getTransferData(ActivationDataFlavor df, DataSource ds) 
+			throws IOException {
+	ActivationDataFlavor[] adf = getDataFlavors();
+	for (int i = 0; i < adf.length; i++) {
+	    // use ActivationDataFlavor.equals, which properly
+	    // ignores Content-Type parameters in comparison
+	    if (adf[i].equals(df))
+		return getData(adf[i], ds);
+	}
+	return null;
     }
 }

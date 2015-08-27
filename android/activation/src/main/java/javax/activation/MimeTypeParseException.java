@@ -38,20 +38,26 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
-
-import javax.activation.ActivationDataFlavor;
+package javax.activation;
 
 /**
- * DataContentHandler for text/html.
- *
+ * A class to encapsulate MimeType parsing related exceptions.
  */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public class MimeTypeParseException extends Exception {
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    /**
+     * Constructs a MimeTypeParseException with no specified detail message. 
+     */
+    public MimeTypeParseException() {
+	super();
+    }
+
+    /**
+     * Constructs a MimeTypeParseException with the specified detail message. 
+     *
+     * @param   s   the detail message.
+     */
+    public MimeTypeParseException(String s) {
+	super(s);
     }
 }

@@ -38,20 +38,28 @@
  * holder.
  */
 
-package com.sun.mail.handlers;
+package com.sun.activation.registries;
 
-import javax.activation.ActivationDataFlavor;
+import java.lang.*;
 
-/**
- * DataContentHandler for text/html.
- *
- */
-public class text_html extends text_plain {
-    private static ActivationDataFlavor[] myDF = {
-	new ActivationDataFlavor(String.class, "text/html", "HTML String")
-    };
+public class MimeTypeEntry {
+    private String type;
+    private String extension;
 
-    protected ActivationDataFlavor[] getDataFlavors() {
-	return myDF;
+    public MimeTypeEntry(String mime_type, String file_ext) {
+	type = mime_type;
+	extension = file_ext;
+    }
+
+    public String getMIMEType() {
+	return type;
+    }
+
+    public String getFileExtension() {
+	return extension;
+    }
+
+    public String toString() {
+	return "MIMETypeEntry: " + type + ", " + extension;
     }
 }

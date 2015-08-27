@@ -40,12 +40,10 @@
 
 package com.sun.mail.handlers;
 
-import java.awt.datatransfer.DataFlavor;
 import java.io.IOException;
 import java.io.OutputStream;
 
 import javax.activation.ActivationDataFlavor;
-import javax.activation.DataContentHandler;
 import javax.activation.DataSource;
 import javax.mail.internet.ContentType;
 import javax.mail.internet.ParseException;
@@ -64,50 +62,25 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class text_xml extends text_plain {
 
-    private final DataFlavor[] flavors;
+    private static final ActivationDataFlavor[] flavors = {
+	new ActivationDataFlavor(String.class, "text/xml", "XML String"),
+	new ActivationDataFlavor(String.class, "application/xml", "XML String"),
+	new ActivationDataFlavor(StreamSource.class, "text/xml", "XML"),
+	new ActivationDataFlavor(StreamSource.class, "application/xml", "XML")
+    };
 
-    public text_xml() {
-	flavors = new DataFlavor[] {
-	    new ActivationDataFlavor(String.class, "text/xml", "XML String"),
-	    new ActivationDataFlavor(String.class, "application/xml",
-					"XML String"),
-	    new ActivationDataFlavor(StreamSource.class, "text/xml", "XML"),
-	    new ActivationDataFlavor(StreamSource.class, "application/xml",
-					"XML")
-	};
+    protected ActivationDataFlavor[] getDataFlavors() {
+	return flavors;
     }
 
-    /**
-     * Return the DataFlavors for this <code>DataContentHandler</code>.
-     *
-     * @return the DataFlavors
-     */
-    public DataFlavor[] getTransferDataFlavors() { // throws Exception;
-	return flavors.clone();
-    }
-
-    /**
-     * Return the Transfer Data of type DataFlavor from InputStream.
-     *
-     * @param df the DataFlavor
-     * @param ds the InputStream corresponding to the data
-     * @return the constructed Object
-     */
-    public Object getTransferData(DataFlavor df, DataSource ds)
+    protected Object getData(ActivationDataFlavor aFlavor, DataSource ds)
 				throws IOException {
-
-	for (int i = 0; i < flavors.length; i++) {
-	    DataFlavor aFlavor = flavors[i];
-	    if (aFlavor.equals(df)) {
-		if (aFlavor.getRepresentationClass() == String.class)
-		    return super.getContent(ds);
-		else if (aFlavor.getRepresentationClass() == StreamSource.class)
-		    return new StreamSource(ds.getInputStream());
-		else
-		    return null;        // XXX - should never happen
-	    }
-	}
-	return null;
+	if (aFlavor.getRepresentationClass() == String.class)
+	    return super.getContent(ds);
+	else if (aFlavor.getRepresentationClass() == StreamSource.class)
+	    return new StreamSource(ds.getInputStream());
+	else
+	    return null;        // XXX - should never happen
     }
 
     /**

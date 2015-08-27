@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,7 +42,6 @@ package com.sun.mail.handlers;
 
 import java.io.*;
 import java.util.Properties;
-import java.awt.datatransfer.DataFlavor;
 import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -53,36 +52,16 @@ import javax.mail.internet.*;
  */
 
 
-public class message_rfc822 implements DataContentHandler {
+public class message_rfc822 extends handler_base {
 
-    ActivationDataFlavor ourDataFlavor = new ActivationDataFlavor(
-	javax.mail.Message.class,
-	"message/rfc822", 
-	"Message");
+    private static ActivationDataFlavor[] ourDataFlavor = {
+	new ActivationDataFlavor(Message.class, "message/rfc822", "Message")
+    };
 
-    /**
-     * return the DataFlavors for this <code>DataContentHandler</code>
-     * @return The DataFlavors.
-     */
-    public DataFlavor[] getTransferDataFlavors() {
-	return new DataFlavor[] { ourDataFlavor };
+    protected ActivationDataFlavor[] getDataFlavors() {
+	return ourDataFlavor;
     }
 
-    /**
-     * return the Transfer Data of type DataFlavor from InputStream
-     * @param df The DataFlavor.
-     * @param ds The DataSource corresponding to the data
-     * @return a Message object
-     */
-    public Object getTransferData(DataFlavor df, DataSource ds)
-				throws IOException {
-	// make sure we can handle this DataFlavor
-	if (ourDataFlavor.equals(df))
-	    return getContent(ds);
-	else
-	    return null;
-    }
-    
     /**
      * Return the content.
      */
@@ -102,15 +81,16 @@ public class message_rfc822 implements DataContentHandler {
 	    }
 	    return new MimeMessage(session, ds.getInputStream());
 	} catch (MessagingException me) {
-	    throw new IOException("Exception creating MimeMessage in " +
-		    "message/rfc822 DataContentHandler: " + me.toString());
+	    IOException ioex =
+		new IOException("Exception creating MimeMessage in " +
+		    "message/rfc822 DataContentHandler");
+	    ioex.initCause(me);
+	    throw ioex;
 	}
     }
     
     /**
-     * construct an object from a byte stream
-     * (similar semantically to previous method, we are deciding
-     *  which one to support)
+     * Write the object as a byte stream.
      */
     public void writeTo(Object obj, String mimeType, OutputStream os) 
 			throws IOException {
@@ -120,9 +100,10 @@ public class message_rfc822 implements DataContentHandler {
 	    try {
 		m.writeTo(os);
 	    } catch (MessagingException me) {
-		throw new IOException(me.toString());
+		IOException ioex = new IOException("Exception writing message");
+		ioex.initCause(me);
+		throw ioex;
 	    }
-	    
 	} else {
 	    throw new IOException("unsupported object");
 	}

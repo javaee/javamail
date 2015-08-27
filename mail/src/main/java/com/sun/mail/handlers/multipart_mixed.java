@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,44 +41,22 @@
 package com.sun.mail.handlers;
 
 import java.io.*;
-import java.awt.datatransfer.DataFlavor;
 import javax.activation.*;
 import javax.mail.MessagingException;
-import javax.mail.internet.*;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeMultipart;
 
 
-public class multipart_mixed implements DataContentHandler {
-    private ActivationDataFlavor myDF = new ActivationDataFlavor(
-	    javax.mail.internet.MimeMultipart.class,
-	    "multipart/mixed", 
-	    "Multipart");
+public class multipart_mixed extends handler_base {
+    private static ActivationDataFlavor[] myDF = {
+	new ActivationDataFlavor(Multipart.class,
+				    "multipart/mixed", "Multipart")
+    };
 
-    /**
-     * Return the DataFlavors for this <code>DataContentHandler</code>.
-     *
-     * @return The DataFlavors
-     */
-    public DataFlavor[] getTransferDataFlavors() { // throws Exception;
-	return new DataFlavor[] { myDF };
+    protected ActivationDataFlavor[] getDataFlavors() {
+	return myDF;
     }
 
-    /**
-     * Return the Transfer Data of type DataFlavor from InputStream.
-     *
-     * @param df The DataFlavor
-     * @param ds The DataSource corresponding to the data
-     * @return String object
-     */
-    public Object getTransferData(DataFlavor df, DataSource ds)
-				throws IOException {
-	// use myDF.equals to be sure to get ActivationDataFlavor.equals,
-	// which properly ignores Content-Type parameters in comparison
-	if (myDF.equals(df))
-	    return getContent(ds);
-	else
-	    return null;
-    }
-    
     /**
      * Return the content.
      */
@@ -98,11 +76,14 @@ public class multipart_mixed implements DataContentHandler {
      */
     public void writeTo(Object obj, String mimeType, OutputStream os) 
 			throws IOException {
-	if (obj instanceof MimeMultipart) {
+	if (obj instanceof Multipart) {
 	    try {
-		((MimeMultipart)obj).writeTo(os);
+		((Multipart)obj).writeTo(os);
 	    } catch (MessagingException e) {
-		throw new IOException(e.toString());
+		IOException ioex =
+		    new IOException("Exception writing Multipart");
+		ioex.initCause(e);
+		throw ioex;
 	    }
 	}
     }
