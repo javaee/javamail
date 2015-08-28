@@ -22,6 +22,10 @@ K  6886	add support for setting GMail labels on messages
 K  6907	Address MailDateFormat issues
 K  6938	Typo in "mail.stmp.sendpartial"
 K  6943	mail.mime.encodefilename property should override RFC 2231 encoding
+K  6964	IMAP should support a mail.imap.auth.mechanisms property like SMTP
+K  6965	setting mail.<protocol>.auth.mechanisms should override
+	mail.<protocol>.auth.<mechanism>.disable
+K  6966	add support for OAuth 2.0 without SASL
 
 
 		  CHANGES IN THE 1.5.4 RELEASE

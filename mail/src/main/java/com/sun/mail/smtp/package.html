@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -133,9 +133,11 @@ Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
 <P>
-The SASL support described above is used to provide support for the
+Support for OAuth 2.0 authentication via the
 <A HREF="https://developers.google.com/gmail/xoauth2_protocol" TARGET="_top">
-XOAUTH2 mechanism</A>.
+XOAUTH2 authentication mechanism</A> is provided either through the SASL
+support described above or as a built-in authentication mechanism in the
+SMTP provider.
 The OAuth 2.0 Access Token should be passed as the password for this mechanism.
 See <A HREF="https://java.net/projects/javamail/pages/OAuth2" TARGET="_top">
 OAuth2 Support</A> for details.
@@ -294,7 +296,8 @@ If set, lists the authentication mechanisms to consider, and the order
 in which to consider them.  Only mechanisms supported by the server and
 supported by the current implementation will be used.
 The default is <code>"LOGIN PLAIN DIGEST-MD5 NTLM"</code>, which includes all
-the authentication mechanisms supported by the current implementation.
+the authentication mechanisms supported by the current implementation
+except XOAUTH2.
 </TD>
 </TR>
 
@@ -366,6 +369,16 @@ Defaults to "3".  Currently not used.
 </TD>
 </TR>
 -->
+
+<TR>
+<TD>mail.smtp.auth.xoauth2.disable</TD>
+<TD>boolean</TD>
+<TD>If true, prevents use of the <code>AUTHENTICATE XOAUTH2</code> command.
+Because the OAuth 2.0 protocol requires a special access token instead of
+a password, this mechanism is disabled by default.  Enable it by explicitly
+setting this property to "false" or by setting the "mail.smtp.auth.mechanisms"
+property to "XOAUTH2".</TD>
+</TR>
 
 <TR>
 <TD>mail.smtp.submitter</TD>

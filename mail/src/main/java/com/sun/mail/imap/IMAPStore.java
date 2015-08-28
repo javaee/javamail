@@ -209,9 +209,6 @@ public class IMAPStore extends Store
 
     private Namespaces namespaces;
 
-    private boolean disableAuthLogin = false;	// disable AUTH=LOGIN
-    private boolean disableAuthPlain = false;	// disable AUTH=PLAIN
-    private boolean disableAuthNtlm = false;	// disable AUTH=NTLM
     private boolean enableStartTLS = false;	// enable STARTTLS
     private boolean requireStartTLS = false;	// require STARTTLS
     private boolean usingSSL = false;		// using SSL?
@@ -496,24 +493,6 @@ public class IMAPStore extends Store
 	    if (logger.isLoggable(Level.CONFIG))
 		logger.config("mail.imap.proxyauth.user: " + proxyAuthUser);
 	}
-
-	// check if AUTH=LOGIN is disabled
-	disableAuthLogin = PropUtil.getBooleanSessionProperty(session,
-	    "mail." + name + ".auth.login.disable", false);
-	if (disableAuthLogin)
-	    logger.config("disable AUTH=LOGIN");
-
-	// check if AUTH=PLAIN is disabled
-	disableAuthPlain = PropUtil.getBooleanSessionProperty(session,
-	    "mail." + name + ".auth.plain.disable", false);
-	if (disableAuthPlain)
-	    logger.config("disable AUTH=PLAIN");
-
-	// check if AUTH=NTLM is disabled
-	disableAuthNtlm = PropUtil.getBooleanSessionProperty(session,
-	    "mail." + name + ".auth.ntlm.disable", false);
-	if (disableAuthNtlm)
-	    logger.config("disable AUTH=NTLM");
 
 	// check if STARTTLS is enabled
 	enableStartTLS = PropUtil.getBooleanSessionProperty(session,
@@ -811,19 +790,8 @@ public class IMAPStore extends Store
 	    }
 	}
 
-	if (p.isAuthenticated())
-	    ;	// SASL login succeeded, go to bottom
-	else if (p.hasCapability("AUTH=PLAIN") && !disableAuthPlain)
-	    p.authplain(authzid, u, pw);
-	else if ((p.hasCapability("AUTH-LOGIN") ||
-		p.hasCapability("AUTH=LOGIN")) && !disableAuthLogin)
-	    p.authlogin(u, pw);
-	else if (p.hasCapability("AUTH=NTLM") && !disableAuthNtlm)
-	    p.authntlm(authzid, u, pw);
-	else if (!p.hasCapability("LOGINDISABLED"))
-	    p.login(u, pw);
-	else
-	    throw new ProtocolException("No login methods supported!");
+	if (!p.isAuthenticated())
+	    authenticate(p, authzid, u, pw);
 
 	if (proxyAuthUser != null)
 	    p.proxyauth(proxyAuthUser);
@@ -842,6 +810,86 @@ public class IMAPStore extends Store
 		// ignore other exceptions that "should never happen"
 	    }
 	}
+    }
+
+    /**
+     * Authenticate using one of the non-SASL mechanisms.
+     *
+     * @param	p	the IMAPProtocol object
+     * @param	authzid	the authorization ID
+     * @param	user	the user name
+     * @param	password the password
+     * @exception	ProtocolException	on failures
+     */
+    private void authenticate(IMAPProtocol p, String authzid,
+				String user, String password)
+				throws ProtocolException {
+	// this list must match the "if" statements below
+	String defaultAuthenticationMechanisms = "PLAIN LOGIN NTLM XOAUTH2";
+
+	// setting mail.imap.auth.mechanisms controls which mechanisms will
+	// be used, and in what order they'll be considered.  only the first
+	// match is used.
+	String mechs = session.getProperty("mail." + name + ".auth.mechanisms");
+
+	if (mechs == null)
+	    mechs = defaultAuthenticationMechanisms;
+
+	/*
+	 * Loop through the list of mechanisms supplied by the user
+	 * (or defaulted) and try each in turn.  If the server supports
+	 * the mechanism and we have an authenticator for the mechanism,
+	 * and it hasn't been disabled, use it.
+	 */
+	StringTokenizer st = new StringTokenizer(mechs);
+	while (st.hasMoreTokens()) {
+	    String m = st.nextToken();
+	    m = m.toUpperCase(Locale.ENGLISH);
+
+	    /*
+	     * If using the default mechanisms, check if this one is disabled.
+	     */
+	    if (mechs == defaultAuthenticationMechanisms) {
+		String dprop = "mail." + name + ".auth." +
+				    m.toLowerCase(Locale.ENGLISH) + ".disable";
+		boolean disabled = PropUtil.getBooleanSessionProperty(
+					session, dprop, m.equals("XOAUTH2"));
+		if (disabled) {
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("mechanism " + m +
+					" disabled by property: " + dprop);
+		    continue;
+		}
+	    }
+
+	    if (!(p.hasCapability("AUTH=" + m) ||
+		    (m.equals("LOGIN") && p.hasCapability("AUTH-LOGIN")))) {
+		logger.log(Level.FINE, "mechanism {0} not supported by server",
+					m);
+		continue;
+	    }
+
+	    if (m.equals("PLAIN"))
+		p.authplain(authzid, user, password);
+	    else if (m.equals("LOGIN"))
+		p.authlogin(user, password);
+	    else if (m.equals("NTLM"))
+		p.authntlm(authzid, user, password);
+	    else if (m.equals("XOAUTH2"))
+		p.authoauth2(user, password);
+	    else {
+		logger.log(Level.FINE, "no authenticator for mechanism {0}", m);
+		continue;
+	    }
+	    return;
+	}
+
+	if (!p.hasCapability("LOGINDISABLED")) {
+	    p.login(user, password);
+	    return;
+	}
+
+	throw new ProtocolException("No login methods supported!");
     }
 
     /**

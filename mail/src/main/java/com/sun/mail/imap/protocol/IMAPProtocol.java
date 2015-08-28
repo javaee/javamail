@@ -778,6 +778,99 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * The AUTHENTICATE command with AUTH=XOAUTH2 authentication scheme.
+     * This is based heavly on the {@link #authlogin} method.
+     *
+     * @param  u		the username
+     * @param  p		the password
+     * @throws ProtocolException as thrown by {@link Protocol#handleResult}.
+     * @see "RFC3501, section 6.2.2"
+     * @see "RFC2595, section 6"
+     * @since  JavaMail 1.5.5
+     */
+    public synchronized void authoauth2(String u, String p)
+				throws ProtocolException {
+	List<Response> v = new ArrayList<Response>();
+	String tag = null;
+	Response r = null;
+	boolean done = false;
+
+	try {
+
+	if (noauthdebug && isTracing()) {
+	    logger.fine("AUTHENTICATE XOAUTH2 command trace suppressed");
+	    suspendTracing();
+	}
+
+	try {
+	    Argument args = new Argument();
+	    args.writeAtom("XOAUTH2");
+	    if (hasCapability("SASL-IR")) {
+		String resp = "user=" + u + "\001auth=Bearer " + p + "\001\001";
+		byte[] ba = BASE64EncoderStream.encode(
+						ASCIIUtility.getBytes(resp));
+		String irs = ASCIIUtility.toString(ba, 0, ba.length);
+		args.writeAtom(irs);
+	    }
+	    tag = writeCommand("AUTHENTICATE", args);
+	} catch (Exception ex) {
+	    // Convert this into a BYE response
+	    r = Response.byeResponse(ex);
+	    done = true;
+	}
+
+	OutputStream os = getOutputStream(); // stream to IMAP server
+
+	while (!done) { // loop till we are done
+	    try {
+		r = readResponse();
+		if (r.isContinuation()) {
+		    // Server challenge ..
+		    String resp = "user=" + u + "\001auth=Bearer " +
+				    p + "\001\001";
+		    byte[] b = BASE64EncoderStream.encode(
+						ASCIIUtility.getBytes(resp));
+		    os.write(b);	// write out response
+		    os.write(CRLF); 	// CRLF termination
+		    os.flush(); 	// flush the stream
+		} else if (r.isTagged() && r.getTag().equals(tag))
+		    // Ah, our tagged response
+		    done = true;
+		else if (r.isBYE()) // outta here
+		    done = true;
+		else // hmm .. unsolicited response here ?!
+		    v.add(r);
+	    } catch (Exception ioex) {
+		// convert this into a BYE response
+		r = Response.byeResponse(ioex);
+		done = true;
+	    }
+	}
+
+	} finally {
+	    resumeTracing();
+	}
+
+	/* Dispatch untagged responses.
+	 * NOTE: in our current upper level IMAP classes, we add the
+	 * responseHandler to the Protocol object only *after* the
+	 * connection has been authenticated. So, for now, the below
+	 * code really ends up being just a no-op.
+	 */
+	Response[] responses = v.toArray(new Response[v.size()]);
+	notifyResponseHandlers(responses);
+
+	// Handle the final OK, NO, BAD or BYE response
+	if (noauthdebug && isTracing())
+	    logger.fine("AUTHENTICATE XOAUTH2 command result: " + r);
+	handleResult(r);
+	// If the response includes a CAPABILITY response code, process it
+	setCapabilities(r);
+	// if we get this far without an exception, we're authenticated
+	authenticated = true;
+    }
+
+    /**
      * SASL-based login.
      *
      * @param	allowed	the SASL mechanisms we're allowed to use

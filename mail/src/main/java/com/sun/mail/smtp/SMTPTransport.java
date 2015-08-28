@@ -223,7 +223,8 @@ public class SMTPTransport extends Transport {
 	    new LoginAuthenticator(),
 	    new PlainAuthenticator(),
 	    new DigestMD5Authenticator(),
-	    new NtlmAuthenticator()
+	    new NtlmAuthenticator(),
+	    new OAuth2Authenticator()
 	};
 	StringBuffer sb = new StringBuffer();
 	for (int i = 0; i < a.length; i++) {
@@ -789,28 +790,37 @@ public class SMTPTransport extends Transport {
 	StringTokenizer st = new StringTokenizer(mechs);
 	while (st.hasMoreTokens()) {
 	    String m = st.nextToken();
-	    String dprop = "mail." + name + ".auth." +
-				m.toLowerCase(Locale.ENGLISH) + ".disable";
-	    boolean disabled =
-		PropUtil.getBooleanSessionProperty(session, dprop, false);
-	    if (disabled) {
-		if (logger.isLoggable(Level.FINE))
-		    logger.fine(
-			"mechanism " + m + " disabled by property: " + dprop);
-		continue;
-	    }
 	    m = m.toUpperCase(Locale.ENGLISH);
-	    if (!supportsAuthentication(m)) {
-		logger.log(Level.FINE, "mechanism {0} not supported by server",
-					m);
-		continue;
-	    }
 	    Authenticator a = (Authenticator)authenticators.get(m);
 	    if (a == null) {
 		logger.log(Level.FINE, "no authenticator for mechanism {0}", m);
 		continue;
 	    }
-	    // only first supported mechanism is used
+
+	    if (!supportsAuthentication(m)) {
+		logger.log(Level.FINE, "mechanism {0} not supported by server",
+					m);
+		continue;
+	    }
+
+	    /*
+	     * If using the default mechanisms, check if this one is disabled.
+	     */
+	    if (mechs == defaultAuthenticationMechanisms) {
+		String dprop = "mail." + name + ".auth." +
+				    m.toLowerCase(Locale.ENGLISH) + ".disable";
+		boolean disabled = PropUtil.getBooleanSessionProperty(
+						session, dprop, !a.enabled());
+		if (disabled) {
+		    if (logger.isLoggable(Level.FINE))
+			logger.fine("mechanism " + m +
+					" disabled by property: " + dprop);
+		    continue;
+		}
+	    }
+
+	    // only the first supported and enabled mechanism is used
+	    logger.log(Level.FINE, "Using mechanism {0}", m);
 	    return a.authenticate(host, authzid, user, passwd);
 	}
 
@@ -824,14 +834,24 @@ public class SMTPTransport extends Transport {
      */
     private abstract class Authenticator {
 	protected int resp;	// the response code, used by subclasses
-	private String mech;	// the mechanism name, set in the constructor
+	private final String mech; // the mechanism name, set in the constructor
+	private final boolean enabled; // is this mechanism enabled by default?
 
 	Authenticator(String mech) {
+	    this(mech, true);
+	}
+
+	Authenticator(String mech, boolean enabled) {
 	    this.mech = mech.toUpperCase(Locale.ENGLISH);
+	    this.enabled = enabled;
 	}
 
 	String getMechanism() {
 	    return mech;
+	}
+
+	boolean enabled() {
+	    return enabled;
 	}
 
 	/**
@@ -1030,6 +1050,30 @@ public class SMTPTransport extends Transport {
 		    getLastServerResponse().substring(4).trim());
 
 	    resp = simpleCommand(type3);
+	}
+    }
+
+    /**
+     * Perform the authentication handshake for XOAUTH2 authentication.
+     */
+    private class OAuth2Authenticator extends Authenticator {
+
+	OAuth2Authenticator() {
+	    super("XOAUTH2", false);	// disabled by default
+	}
+
+	String getInitialResponse(String host, String authzid, String user,
+		String passwd) throws MessagingException, IOException {
+	    String resp = "user=" + user + "\001auth=Bearer " +
+			    passwd + "\001\001";
+	    byte[] b = BASE64EncoderStream.encode(ASCIIUtility.getBytes(resp));
+	    return ASCIIUtility.toString(b);
+	}
+
+	void doAuth(String host, String authzid, String user, String passwd)
+		throws MessagingException, IOException {
+	    // should never get here
+	    throw new AuthenticationFailedException("OAUTH2 asked for more");
 	}
     }
 

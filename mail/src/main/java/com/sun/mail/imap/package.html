@@ -92,9 +92,11 @@ Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
 <H4>OAuth 2.0 Support</H4>
-The SASL support described above is used to provide support for the
+Support for OAuth 2.0 authentication via the
 <A HREF="https://developers.google.com/gmail/xoauth2_protocol" TARGET="_top">
-XOAUTH2 mechanism</A>.
+XOAUTH2 authentication mechanism</A> is provided either through the SASL
+support described above or as a built-in authentication mechanism in the
+IMAP provider.
 The OAuth 2.0 Access Token should be passed as the password for this mechanism.
 See <A HREF="https://java.net/projects/javamail/pages/OAuth2" TARGET="_top">
 OAuth2 Support</A> for details.
@@ -371,6 +373,19 @@ in this case even though the <code>open</code> method specified
 </TR>
 
 <TR>
+<TD>mail.imap.auth.mechanisms</TD>
+<TD>String</TD>
+<TD>
+If set, lists the authentication mechanisms to consider, and the order
+in which to consider them.  Only mechanisms supported by the server and
+supported by the current implementation will be used.
+The default is <code>"PLAIN LOGIN NTLM"</code>, which includes all
+the authentication mechanisms supported by the current implementation
+except XOAUTH2.
+</TD>
+</TR>
+
+<TR>
 <TD>mail.imap.auth.login.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the non-standard <code>AUTHENTICATE LOGIN</code>
@@ -408,6 +423,16 @@ NTLM protocol-specific flags.
 See <A HREF="http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags" TARGET="_top">
 http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
 </TD>
+</TR>
+
+<TR>
+<TD>mail.imap.auth.xoauth2.disable</TD>
+<TD>boolean</TD>
+<TD>If true, prevents use of the <code>AUTHENTICATE XOAUTH2</code> command.
+Because the OAuth 2.0 protocol requires a special access token instead of
+a password, this mechanism is disabled by default.  Enable it by explicitly
+setting this property to "false" or by setting the "mail.imap.auth.mechanisms"
+property to "XOAUTH2".</TD>
 </TR>
 
 <TR>
