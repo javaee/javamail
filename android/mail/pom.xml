@@ -137,7 +137,11 @@
 			${project.build.outputDirectory}
 		    </outputDirectory>
 		    <excludes>
-			com/sun/mail/handlers/handler_base.*
+			com/sun/mail/handlers/handler_base.*,
+			com/sun/mail/handlers/image_*,
+			com/sun/mail/auth/OAuth2Sasl*,
+			com/sun/mail/imap/protocol/IMAPSaslAuthenticator*,
+			com/sun/mail/smtp/SMTPSaslAuthenticator*
 		    </excludes>
 		</configuration>
 	    </plugin>
