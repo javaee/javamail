@@ -164,6 +164,7 @@
 	<module>pop3</module>
 	<module>dsn</module>
 	<module>mailhandler</module>
+	<module>android</module>
     </modules>
 
     <profiles>

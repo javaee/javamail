@@ -58,6 +58,7 @@
 
     <modules>
 	<module>activation</module>
+	<module>mail</module>
     </modules>
 
 </project>
