@@ -69,7 +69,7 @@ import com.sun.activation.registries.LogSupport;
  *
  * <code>
  * # comments begin with a '#'<br>
- * # the format is &lt;mime type> &lt;space separated file extensions><br>
+ * # the format is &lt;mime type&gt; &lt;space separated file extensions&gt;<br>
  * # for example:<br>
  * text/plain    txt text TXT<br>
  * # this would map file.txt, file.text, and file.TXT to<br>

@@ -437,8 +437,6 @@ public class DataHandler /*implements Transferable*/ {
      *
      * @param flavor	the requested flavor for the data
      * @return		the object
-     * @exception UnsupportedFlavorException	if the data could not be
-     *			converted to the requested flavor
      * @exception IOException	if an I/O error occurs
      * @see javax.activation.ActivationDataFlavor
      */

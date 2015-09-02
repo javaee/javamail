@@ -81,8 +81,6 @@ public interface DataContentHandler {
      * @param df The DataFlavor representing the requested type.
      * @param ds The DataSource representing the data to be converted.
      * @return The constructed Object.
-     * @exception UnsupportedFlavorException	if the handler doesn't
-     *						support the requested flavor
      * @exception IOException	if the data can't be accessed
      */
     public Object getTransferData(ActivationDataFlavor df, DataSource ds)

@@ -87,7 +87,7 @@ import com.sun.activation.registries.LogSupport;
  * specifically those parameter names that begin with <code>x-java-</code>.
  * The MailcapCommandMap uses this signature to find
  * command entries for inclusion into its registries.
- * Parameter names with the form <code>x-java-&lt;name></code>
+ * Parameter names with the form <code>x-java-&lt;name&gt;</code>
  * are read by the MailcapCommandMap as identifying a command
  * with the name <i>name</i>. When the <i>name</i> is <code>
  * content-handler</code> the MailcapCommandMap recognizes the class
@@ -112,7 +112,7 @@ import com.sun.activation.registries.LogSupport;
  * following general form:<p>
  * <code>
  * # Comments begin with a '#' and continue to the end of the line.<br>
- * &lt;mime type>; ; &lt;parameter list><br>
+ * &lt;mime type&gt;; ; &lt;parameter list&gt;<br>
  * # Where a parameter list consists of one or more parameters,<br>
  * # where parameters look like: x-java-view=com.sun.TextViewer<br>
  * # and a parameter list looks like: <br>

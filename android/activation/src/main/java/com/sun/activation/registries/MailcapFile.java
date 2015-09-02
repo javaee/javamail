@@ -119,7 +119,7 @@ public class MailcapFile {
      *
      * <p>
      * <strong>Semantics:</strong> First check for the literal mime type,
-     * if that fails looks for wildcard <type>/\* and return that. Return the
+     * if that fails looks for wildcard <i>type</i>/* and return that. Return the
      * list of all that hit.
      */
     public Map getMailcapList(String mime_type) {
@@ -152,7 +152,7 @@ public class MailcapFile {
      *
      * <p>
      * <strong>Semantics:</strong> First check for the literal mime type,
-     * if that fails looks for wildcard <type>/\* and return that. Return the
+     * if that fails looks for wildcard <i>type</i>/* and return that. Return the
      * list of all that hit.
      */
     public Map getMailcapFallbackList(String mime_type) {
@@ -237,7 +237,7 @@ public class MailcapFile {
      * appendToMailcap: Append to this Mailcap DB, use the mailcap
      * format:
      * Comment == "# <i>comment string</i>
-     * Entry == "mimetype;        javabeanclass<nl>
+     * Entry == "mimetype;        javabeanclass<br>
      *
      * Example:
      * # this is a comment
