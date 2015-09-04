@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,11 +46,16 @@ import java.net.ServerSocket;
 
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.MessagingException;
 
+import com.sun.mail.iap.ConnectionException;
+
+import com.sun.mail.test.TestServer;
 import com.sun.mail.util.MailConnectException;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -98,6 +103,60 @@ public final class IMAPConnectFailureTest {
 	} catch (Exception e) {
 	    e.printStackTrace();
 	    fail(e.getMessage());
+	}
+    }
+
+    /**
+     * Test that a disconnect after issuing the CAPABILITY command
+     * results in a ConnectionException.
+     */
+    @Test
+    public void testCapabilityDisconnect() {
+	TestServer server = null;
+	try {
+	    final IMAPHandler handler = new IMAPHandler() {
+		@Override
+		public void sendGreetings() throws IOException {
+		    untagged("OK IMAPHandler");
+		}
+
+		@Override
+		public void capability() throws IOException {
+		    exit();
+		}
+	    };
+	    server = new TestServer(handler);
+	    server.start();
+
+	    Properties properties = new Properties();
+	    properties.setProperty("mail.imap.host", "localhost");
+	    properties.setProperty("mail.imap.port", "" + server.getPort());
+	    final Session session = Session.getInstance(properties);
+	    //session.setDebug(true);
+
+	    final Store store = session.getStore("imap");
+	    try {
+		store.connect("test", "test");
+		fail("connect did not fail");
+	    } catch (MessagingException mex) {
+		// this is what we expect, now check that it was caused by
+		// the right exception
+		assertTrue(mex.getCause() instanceof ConnectionException);
+	    } catch (Exception ex) {
+		System.out.println(ex);
+		//ex.printStackTrace();
+		fail(ex.toString());
+	    } finally {
+		store.close();
+	    }
+
+	} catch (final Exception e) {
+	    e.printStackTrace();
+	    fail(e.getMessage());
+	} finally {
+	    if (server != null) {
+		server.quit();
+	    }
 	}
     }
 }

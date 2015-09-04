@@ -206,25 +206,26 @@ public class IMAPProtocol extends Protocol {
     public void capability() throws ProtocolException {
 	// Check CAPABILITY
 	Response[] r = command("CAPABILITY", null);
+	Response response = r[r.length-1];
 
-	if (!r[r.length-1].isOK())
-	    throw new ProtocolException(r[r.length-1].toString());
+	if (response.isOK()) {
+	    capabilities = new HashMap(10);
+	    authmechs = new ArrayList(5);
+	    for (int i = 0, len = r.length; i < len; i++) {
+		if (!(r[i] instanceof IMAPResponse))
+		    continue;
 
-	capabilities = new HashMap(10);
-	authmechs = new ArrayList(5);
-	for (int i = 0, len = r.length; i < len; i++) {
-	    if (!(r[i] instanceof IMAPResponse))
-		continue;
+		IMAPResponse ir = (IMAPResponse)r[i];
 
-	    IMAPResponse ir = (IMAPResponse)r[i];
-
-	    // Handle *all* untagged CAPABILITY responses.
-	    //   Though the spec seemingly states that only
-	    // one CAPABILITY response string is allowed (6.1.1),
-	    // some server vendors claim otherwise.
-	    if (ir.keyEquals("CAPABILITY"))
-		parseCapabilities(ir);
+		// Handle *all* untagged CAPABILITY responses.
+		//   Though the spec seemingly states that only
+		// one CAPABILITY response string is allowed (6.1.1),
+		// some server vendors claim otherwise.
+		if (ir.keyEquals("CAPABILITY"))
+		    parseCapabilities(ir);
+	    }
 	}
+	handleResult(response);
     }
 
     /**

@@ -218,6 +218,8 @@ public class IMAPHandler extends ProtocolHandler {
             login();
         } else if (commandName.equals("AUTHENTICATE")) {
             authenticate(currentLine);
+        } else if (commandName.equals("CAPABILITY")) {
+            capability();
         } else if (commandName.equals("NOOP")) {
             noop();
         } else if (commandName.equals("SELECT")) {
@@ -276,6 +278,16 @@ public class IMAPHandler extends ProtocolHandler {
      */
     public void authenticate(String line) throws IOException {
         bad("AUTHENTICATE not supported");
+    }
+
+    /**
+     * CAPABILITY command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void capability() throws IOException {
+	untagged("CAPABILITY " + capabilities);
+        ok();
     }
 
     /**
@@ -473,7 +485,7 @@ public class IMAPHandler extends ProtocolHandler {
 		break;
 	    }
 	    char c = s.charAt(i);
-	    if (c < '_' || c == '\177') {
+	    if (c < ' ' || c == '\177') {
 		if (c == '\r')
 		    sb.append("\\r");
 		else if (c == '\n')
