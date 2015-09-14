@@ -432,7 +432,6 @@
 
 	    <plugin>
 		<artifactId>maven-jar-plugin</artifactId>
-		<!-- need at least this version to make excludes work -->
 		<configuration>
 		    <finalName>${project.artifactId}</finalName>
 		    <archive>
@@ -569,6 +568,7 @@
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-jar-plugin</artifactId>
+		    <!-- need at least this version to make excludes work -->
 		    <version>2.4</version>
 		</plugin>
 		<plugin>
