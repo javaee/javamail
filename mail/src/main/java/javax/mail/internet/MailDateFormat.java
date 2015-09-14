@@ -948,7 +948,7 @@ public class MailDateFormat extends SimpleDateFormat {
             int year = parseAsciiDigits(1, MAX_YEAR_DIGITS);
             if (year >= 1000) {
                 return year;
-            } else if (year >= 50 && year <= 999) {
+            } else if (year >= 50) {
                 return year + 1900;
             } else {
                 return year + 2000;
