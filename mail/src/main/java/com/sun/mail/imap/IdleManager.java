@@ -184,7 +184,9 @@ public class IdleManager {
 	SocketChannel sc = ifolder.getChannel();
 	if (sc == null)
 	    throw new MessagingException("Folder is not using SocketChannels");
-	logger.log(Level.FINEST, "IdleManager watching {0}", ifolder);
+	if (logger.isLoggable(Level.FINEST))
+	    logger.log(Level.FINEST, "IdleManager watching {0}",
+							folderName(ifolder));
 	// keep trying to start the IDLE command until we're successful.
 	// may block if we're in the middle of aborting an IDLE command.
 	while (!ifolder.startIdle(this))
@@ -268,8 +270,9 @@ public class IdleManager {
 	 */
 	IMAPFolder folder;
 	while ((folder = toWatch.poll()) != null) {
-	    logger.log(Level.FINEST,
-		    "IdleManager adding {0} to selector", folder);
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINEST,
+		    "IdleManager adding {0} to selector", folderName(folder));
 	    try {
 		SocketChannel sc = folder.getChannel();
 		if (sc == null)
@@ -313,29 +316,34 @@ public class IdleManager {
 	    // have to cancel so we can switch back to blocking I/O mode
 	    sk.cancel();
 	    folder = (IMAPFolder)sk.attachment();
-	    logger.log(Level.FINE,
-		"IdleManager selected folder: {0}", folder);
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINE,
+		    "IdleManager selected folder: {0}", folderName(folder));
 	    SelectableChannel sc = sk.channel();
 	    // switch back to blocking to allow normal I/O
 	    sc.configureBlocking(true);
 	    try {
 		if (folder.handleIdle(false)) {
-		    logger.log(Level.FINE,
-			"IdleManager continue watching folder {0}", folder);
+		    if (logger.isLoggable(Level.FINEST))
+			logger.log(Level.FINE,
+			    "IdleManager continue watching folder {0}",
+							folderName(folder));
 		    // more to do with this folder, select on it again
 		    // XXX - what if we also added it above?
 		    toWatch.add(folder);
 		    more = true;
 		} else {
 		    // done watching this folder,
-		    logger.log(Level.FINE,
-			"IdleManager done watching folder {0}", folder);
+		    if (logger.isLoggable(Level.FINEST))
+			logger.log(Level.FINE,
+			    "IdleManager done watching folder {0}",
+							folderName(folder));
 		}
 	    } catch (MessagingException ex) {
 		// something went wrong, stop watching this folder
 		logger.log(Level.FINE,
-		    "IdleManager got exception for folder: " + folder,
-		    ex);
+		    "IdleManager got exception for folder: " +
+						    folderName(folder), ex);
 	    }
 	}
 
@@ -343,8 +351,10 @@ public class IdleManager {
 	 * Now, process any folders that we need to abort.
 	 */
 	while ((folder = toAbort.poll()) != null) {
-	    logger.log(Level.FINE,
-		"IdleManager aborting IDLE for folder: {0}", folder);
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINE,
+		    "IdleManager aborting IDLE for folder: {0}",
+							folderName(folder));
 	    SocketChannel sc = folder.getChannel();
 	    if (sc == null)
 		continue;
@@ -392,8 +402,10 @@ public class IdleManager {
 	    // have to cancel so we can switch back to blocking I/O mode
 	    sk.cancel();
 	    folder = (IMAPFolder)sk.attachment();
-	    logger.log(Level.FINE,
-		"IdleManager no longer watching folder: {0}", folder);
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINE,
+		    "IdleManager no longer watching folder: {0}",
+							folderName(folder));
 	    SelectableChannel sc = sk.channel();
 	    // switch back to blocking to allow normal I/O
 	    try {
@@ -403,7 +415,7 @@ public class IdleManager {
 		// ignore it, channel might be closed
 		logger.log(Level.FINE,
 		    "IdleManager exception while aborting idle for folder: " +
-		    folder, ex);
+						    folderName(folder), ex);
 	    }
 	}
 
@@ -411,8 +423,10 @@ public class IdleManager {
 	 * Finally, process any folders waiting to be watched.
 	 */
 	while ((folder = toWatch.poll()) != null) {
-	    logger.log(Level.FINE,
-		"IdleManager aborting IDLE for unwatched folder: {0}", folder);
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINE,
+		    "IdleManager aborting IDLE for unwatched folder: {0}",
+							folderName(folder));
 	    SocketChannel sc = folder.getChannel();
 	    if (sc == null)
 		continue;
@@ -424,7 +438,7 @@ public class IdleManager {
 		// ignore it, channel might be closed
 		logger.log(Level.FINE,
 		    "IdleManager exception while aborting idle for folder: " +
-		    folder, ex);
+						    folderName(folder), ex);
 	    }
 	}
     }
@@ -436,5 +450,19 @@ public class IdleManager {
 	die = true;
 	logger.finest("IdleManager stopping");
 	selector.wakeup();
+    }
+
+    /**
+     * Return the fully qualified name of the folder, for use in log messages.
+     * Essentially just the getURLName method, but ignoring the
+     * MessagingException that can never happen.
+     */
+    private static String folderName(Folder folder) {
+	try {
+	    return folder.getURLName().toString();
+	} catch (MessagingException mex) {
+	    // can't happen
+	    return folder.getStore().toString() + "/" + folder.toString();
+	}
     }
 }
