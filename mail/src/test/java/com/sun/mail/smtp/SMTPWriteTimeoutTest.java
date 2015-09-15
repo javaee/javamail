@@ -99,7 +99,7 @@ public final class SMTPWriteTimeoutTest {
 		MimeMessage msg = new MimeMessage(session);
 		msg.setRecipients(Message.RecipientType.TO, "joe@example.com");
 		msg.setSubject("test");
-		byte[] bytes = new byte[1024*1024];
+		byte[] bytes = new byte[16*1024*1024];
 		msg.setDataHandler(
 		    new DataHandler(new ByteArrayDataSource(bytes,
 				    "application/octet-stream")));

@@ -182,7 +182,7 @@ public final class WriteTimeoutSocketTest {
 	    MimeMessage msg = new MimeMessage(session);
 	    msg.setFrom("test@example.com");
 	    msg.setSubject("test");
-	    final int size = 819200;	// enough data to fill network buffers
+	    final int size = 8192000;	// enough data to fill network buffers
 	    byte[] part = new byte[size];
 	    for (int i = 0; i < size; i++) {
 		int j = i % 64;
