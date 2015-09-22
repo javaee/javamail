@@ -139,6 +139,7 @@ public class IdleManager {
     private Selector selector;
     private MailLogger logger;
     private volatile boolean die = false;
+    private volatile boolean running;
     private Queue<IMAPFolder> toWatch = new ConcurrentLinkedQueue<IMAPFolder>();
     private Queue<IMAPFolder> toAbort = new ConcurrentLinkedQueue<IMAPFolder>();
 
@@ -159,12 +160,28 @@ public class IdleManager {
 	    public void run() {
 		logger.fine("IdleManager select starting");
 		try {
+		    running = true;
 		    select();
 		} finally {
+		    running = false;
 		    logger.fine("IdleManager select terminating");
 		}
 	    }
 	});
+    }
+
+    /**
+     * Is the IdleManager currently running?  The IdleManager starts
+     * running when the Executor schedules its task.  The IdleManager
+     * stops running after its task detects the stop request from the
+     * {@link #stop stop} method, or if it terminates abnormally due
+     * to an unexpected error.
+     *
+     * @return	true if the IdleMaanger is running
+     * @since JavaMail 1.5.5
+     */
+    public boolean isRunning() {
+	return running;
     }
 
     /**
@@ -174,7 +191,7 @@ public class IdleManager {
      * @param	folder	the folder to watch
      * @exception	MessagingException	for errors related to the folder
      */
-    public synchronized void watch(Folder folder)
+    public void watch(Folder folder)
 				throws MessagingException {
 	if (die)	// XXX - should be IllegalStateException?
 	    throw new MessagingException("IdleManager is not running");
@@ -189,10 +206,29 @@ public class IdleManager {
 							folderName(ifolder));
 	// keep trying to start the IDLE command until we're successful.
 	// may block if we're in the middle of aborting an IDLE command.
-	while (!ifolder.startIdle(this))
-	    ;
-	toWatch.add(ifolder);
-	selector.wakeup();
+	int tries = 0;
+	while (!ifolder.startIdle(this)) {
+	    if (logger.isLoggable(Level.FINEST))
+		logger.log(Level.FINEST,
+			    "IdleManager.watch startIdle failed for {0}",
+			    folderName(ifolder));
+	    tries++;
+	}
+	if (logger.isLoggable(Level.FINEST)) {
+	    if (tries > 0)
+		logger.log(Level.FINEST,
+			"IdleManager.watch startIdle succeeded for {0}" +
+			" after " + tries + " tries",
+			folderName(ifolder));
+	    else
+		logger.log(Level.FINEST,
+			"IdleManager.watch startIdle succeeded for {0}",
+			folderName(ifolder));
+	}
+	synchronized (this) {
+	    toWatch.add(ifolder);
+	    selector.wakeup();
+	}
     }
 
     /**
