@@ -1,17 +1,18 @@
-You can find more information about each bug number by visiting the Sun
+You can find more information about each bug number by visiting the
 Bug Database and looking up each bug you're interested in.
 
-	http://bugs.sun.com
+Bug IDs that start with "K" can be found in the Kenai Bugzilla
+(after removing the "K"):
+
+	https://kenai.com/bugzilla/
 
 Bug IDs that start with "G" can be found in the GlassFish Issue Tracker
 (after removing the "G"):
 
 	https://java.net/jira/browse/GLASSFISH
 
-Bug IDs that start with "K" can be found in the Kenai Bugzilla
-(after removing the "K"):
-
-	https://kenai.com/bugzilla/
+Seven digit bug numbers are from the old Sun bug database, which is no
+longer available.
 
 
 		  CHANGES IN THE 1.5.5 RELEASE
