@@ -27,6 +27,7 @@ K  6965	setting mail.<protocol>.auth.mechanisms should override
 	mail.<protocol>.auth.<mechanism>.disable
 K  6966	add support for OAuth 2.0 without SASL
 K  6973	capability() command doesn't properly transform errors
+K  6989	MailHandler needs better support for stateful filters.
 
 
 		  CHANGES IN THE 1.5.4 RELEASE

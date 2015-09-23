@@ -337,8 +337,8 @@ public class MailHandlerTest {
     @Test
     public void testWebappClassLoaderFieldNames() throws Exception {
         /**
-         * Test that the MailHandler is using field types from the
-         * java.* or javax.* packages only.
+         * Test that the MailHandler is using field types from the java.* or
+         * javax.* packages only.
          */
         testWebappClassLoaderFieldNames(MailHandler.class);
     }
@@ -346,9 +346,9 @@ public class MailHandlerTest {
     private void testWebappClassLoaderFieldNames(Class<?> c) throws Exception {
         /**
          * WebappClassLoader.clearReferencesStaticFinal() method will ignore
-         * fields that have type names that start with 'java.' or 'javax.'.
-         * The MailHandler conforms to this rule so it doesn't become a target
-         * for the WebappClassLoader.
+         * fields that have type names that start with 'java.' or 'javax.'. The
+         * MailHandler conforms to this rule so it doesn't become a target for
+         * the WebappClassLoader.
          */
         for (Field f : c.getDeclaredFields()) {
             Class<?> k = f.getType();
@@ -358,11 +358,11 @@ public class MailHandlerTest {
 
             /**
              * The WebappClassLoader ignores primitives, non-static, and
-             * synthetic fields.  For the MailHandler, the test is stricter than
-             * what the WebappClassLoader actually clears.  This restricts the
+             * synthetic fields. For the MailHandler, the test is stricter than
+             * what the WebappClassLoader actually clears. This restricts the
              * MailHandler to standard field types for both static and
              * non-static fields and named static inner class to avoid synthetic
-             * fields.  The idea is to try to stay forward compatible with
+             * fields. The idea is to try to stay forward compatible with
              * WebappClassLoader.
              */
             if (!k.isPrimitive() && !k.getName().startsWith("java.")
@@ -1155,7 +1155,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpEmptyFilter() throws Exception {
+    public void testAlignEmptyFilter() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -1170,7 +1170,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpEmptyNames() throws Exception {
+    public void testAlignEmptyNames() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -1185,7 +1185,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpEmptyFilterAndNames() throws Exception {
+    public void testAlignEmptyFilterAndNames() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -1199,7 +1199,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpErrorFilter() throws Exception {
+    public void testAlignErrorFilter() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"),
@@ -1215,7 +1215,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpErrorNames() throws Exception {
+    public void testAlignErrorNames() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"), SimpleFormatter.class.getName());
@@ -1230,7 +1230,7 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testFixUpErrorFilterAndNames() throws Exception {
+    public void testAlignErrorFilterAndNames() throws Exception {
         String p = MailHandler.class.getName();
         Properties props = createInitProperties(p);
         props.put(p.concat(".attachment.formatters"),
@@ -1348,6 +1348,194 @@ public class MailHandlerTest {
 
         h.setFilter((Filter) null);
         assertNull(h.getFilter());
+    }
+
+    @Test
+    public void testStatefulFilter() {
+        MailHandler h = new MailHandler();
+        h.setMailProperties(createInitProperties(""));
+        InternalErrorManager em = new FlushErrorManager(h);
+        h.setErrorManager(em);
+        CountingFilter cf = new CountingFilter();
+        h.setFilter(cf);
+        int MAX_RECORDS = 100;
+        for (int i = 0; i < MAX_RECORDS; i++) {
+            LogRecord r = new LogRecord(Level.SEVERE, "");
+            h.publish(r);
+        }
+        h.close();
+        assertEquals(MAX_RECORDS, cf.count);
+        for (Exception exception : em.exceptions) {
+            if (!isConnectOrTimeout(exception)) {
+                dump(exception);
+                fail(String.valueOf(exception));
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testStatefulAttachmentFilter() {
+        MailHandler h = new MailHandler();
+        h.setMailProperties(createInitProperties(""));
+        InternalErrorManager em = new FlushErrorManager(h);
+        h.setErrorManager(em);
+        CountingFilter negativeOne = new CountingFilter(BooleanFilter.FALSE);
+        h.setFilter(negativeOne);
+        h.setAttachmentFormatters(new SimpleFormatter(), new SimpleFormatter(),
+                new SimpleFormatter());
+        CountingFilter one = new CountingFilter(BooleanFilter.FALSE);
+        CountingFilter two = new CountingFilter();
+        h.setAttachmentFilters(BooleanFilter.FALSE, one, two);
+        int MAX_RECORDS = 100;
+        for (int i = 0; i < MAX_RECORDS; i++) {
+            LogRecord r = new LogRecord(Level.SEVERE, "");
+            h.publish(r);
+        }
+        h.close();
+
+        assertEquals(MAX_RECORDS, negativeOne.count);
+        assertEquals(MAX_RECORDS, one.count);
+        assertEquals(MAX_RECORDS, two.count);
+        for (Exception exception : em.exceptions) {
+            if (!isConnectOrTimeout(exception)) {
+                dump(exception);
+                fail(String.valueOf(exception));
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testStatefulInternAttachmentFilter() {
+        testStatefulAttachmentFilter(false);
+    }
+
+    private void testStatefulAttachmentFilter(boolean clear) {
+        MailHandler h = new MailHandler();
+        h.setMailProperties(createInitProperties(""));
+        InternalErrorManager em = new FlushErrorManager(h);
+        h.setErrorManager(em);
+        CountingFilter cf = new CountingFilter(BooleanFilter.TRUE);
+        h.setFilter(cf);
+        h.setAttachmentFormatters(new SimpleFormatter(), new SimpleFormatter());
+        CountingFilter one = new CountingFilter();
+        h.setAttachmentFilters(cf, one);
+        int MAX_RECORDS = 100;
+        for (int i = 0; i < MAX_RECORDS; i++) {
+            LogRecord r = new LogRecord(Level.SEVERE, "");
+            h.publish(r);
+        }
+
+        if (clear) {
+            Filter[] af = h.getAttachmentFilters();
+            h.setAttachmentFormatters();
+            h.setAttachmentFormatters(new SimpleFormatter(),
+                    new SimpleFormatter());
+            h.setAttachmentFilters(af);
+        }
+        h.close();
+
+        assertEquals(MAX_RECORDS, cf.count);
+        assertEquals(MAX_RECORDS, one.count);
+        for (Exception exception : em.exceptions) {
+            if (!isConnectOrTimeout(exception)) {
+                dump(exception);
+                fail(String.valueOf(exception));
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testStatefulAttachmentFilterClearMatches() {
+        testStatefulAttachmentFilter(true);
+    }
+
+    @Test
+    public void testStatefulPushFilter() {
+        MailHandler h = new MailHandler();
+        h.setMailProperties(createInitProperties(""));
+        InternalErrorManager em = new PushErrorManager(h);
+        h.setErrorManager(em);
+        CountingFilter cf = new CountingFilter();
+        h.setFilter(cf);
+        h.setPushLevel(Level.ALL);
+        h.setPushFilter(cf);
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        h.publish(r);
+        h.close();
+        assertEquals(1, cf.count);
+        for (Exception exception : em.exceptions) {
+            if (!isConnectOrTimeout(exception)) {
+                dump(exception);
+                fail(String.valueOf(exception));
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    private void testStatefulPushAttachmentFilter(boolean clear) {
+        final MailHandler h = new MailHandler();
+        h.setMailProperties(createInitProperties(""));
+        final InternalErrorManager em = new PushErrorManager(h);
+        h.setErrorManager(em);
+        final CountingFilter cf = new CountingFilter(BooleanFilter.FALSE);
+        h.setFilter(cf);
+        h.setPushLevel(Level.ALL);
+        final CountingFilter push = new CountingFilter();
+        h.setPushFilter(push);
+        h.setAttachmentFormatters(new SimpleFormatter(), new SimpleFormatter(), new SimpleFormatter());
+        final CountingFilter one = new CountingFilter(BooleanFilter.FALSE);
+        final CountingFilter two = new CountingFilter(BooleanFilter.FALSE);
+
+        if (clear) {
+            h.setAttachmentFilters(one, two,
+                    new Filter() {
+                        public boolean isLoggable(LogRecord record) {
+                            h.setAttachmentFormatters(new SimpleFormatter(),
+                            new SimpleFormatter());
+                            h.setAttachmentFilters(one, push);
+                            return push.isLoggable(record);
+                        }
+
+                    });
+        } else {
+            h.setAttachmentFilters(one, two, push);
+        }
+
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        h.publish(r);
+        h.close();
+
+        if (clear) {
+            assertEquals(2, cf.count);
+            assertEquals(2, one.count);
+            assertEquals(1, two.count);
+            assertEquals(3, push.count);
+        } else {
+            assertEquals(1, cf.count);
+            assertEquals(1, one.count);
+            assertEquals(1, two.count);
+            assertEquals(1, push.count);
+        }
+        for (Exception exception : em.exceptions) {
+            if (!isConnectOrTimeout(exception)) {
+                dump(exception);
+                fail(String.valueOf(exception));
+            }
+        }
+        assertFalse(em.exceptions.isEmpty());
+    }
+
+    @Test
+    public void testStatefulPushAttachmentFilter() {
+        testStatefulPushAttachmentFilter(false);
+    }
+
+    @Test
+    public void testStatefulPushFilterClearMatches() {
+        testStatefulPushAttachmentFilter(true);
     }
 
     @Test
@@ -3821,6 +4009,8 @@ public class MailHandlerTest {
         instance.setLevel(Level.ALL);
         instance.setPushLevel(Level.OFF);
         instance.setPushFilter((Filter) null);
+        instance.setAttachmentFormatters(new SimpleFormatter());
+        instance.setAttachmentFilters(BooleanFilter.FALSE);
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
 
@@ -3848,13 +4038,14 @@ public class MailHandlerTest {
 
     @Test
     public void testFilterFlipFlop() {
-        MailHandler instance = new MailHandler(10);
+        MailHandler instance = new MailHandlerOverride(10);
         instance.setMailProperties(createInitProperties(""));
         instance.setLevel(Level.ALL);
         instance.setPushLevel(Level.OFF);
         instance.setPushFilter((Filter) null);
         FlipFlopFilter badFilter = new FlipFlopFilter();
         instance.setFilter(badFilter);
+        instance.setAttachmentFormatters(new SimpleFormatter());
 
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
@@ -4321,7 +4512,6 @@ public class MailHandlerTest {
 
             assertEquals(1, h.getAttachmentFormatters().length);
             h.setAttachmentNames(new String[]{"error.txt"});
-
 
             assertEquals(1, h.getAttachmentFormatters().length);
             h.setAttachmentNames(new Formatter[]{new ThrowFormatter()});
@@ -6855,6 +7045,25 @@ public class MailHandlerTest {
         }
     }
 
+    public static final class CountingFilter implements Filter {
+
+        private final Filter result;
+        int count;
+
+        public CountingFilter() {
+            this.result = BooleanFilter.TRUE;
+        }
+
+        public CountingFilter(Filter f) {
+            this.result = f;
+        }
+
+        public boolean isLoggable(LogRecord r) {
+            ++count;
+            return result.isLoggable(r);
+        }
+    }
+
     public static final class CountingFormatter extends Formatter {
 
         int head;
@@ -7037,7 +7246,7 @@ public class MailHandlerTest {
                 }
                 for (StackTraceElement e : stack) {
                     if (Handler.class.getName().equals(e.getClassName())) {
-                       throw se;
+                        throw se;
                     }
                 }
             }
@@ -7656,6 +7865,43 @@ public class MailHandlerTest {
 
         public MailHandlerExt(int capacity) {
             super(capacity);
+        }
+    }
+
+    public final static class MailHandlerOverride extends MailHandler {
+
+        public MailHandlerOverride() {
+            super();
+        }
+
+        public MailHandlerOverride(Properties props) {
+            super(props);
+        }
+
+        public MailHandlerOverride(int capacity) {
+            super(capacity);
+        }
+
+        public boolean isLoggable(LogRecord record) {
+            int levelValue = getLevel().intValue();
+            if (record.getLevel().intValue() < levelValue
+                    || levelValue == Level.OFF.intValue()) {
+                return false;
+            }
+
+            Filter body = getFilter();
+            if (body == null || body.isLoggable(record)) {
+                return true;
+            }
+
+            final Filter[] filters = this.getAttachmentFilters();
+            for (int i = 0; i < filters.length; ++i) {
+                final Filter f = filters[i];
+                if (f == null || f.isLoggable(record)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

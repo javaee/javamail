@@ -381,20 +381,21 @@ public class MailHandler extends Handler {
             = new GetAndSetContext(MailHandler.class);
     /**
      * A thread local mutex used to prevent logging loops.
-     * The MUTEX has 3 states:
-     * 1. MUTEX_RESET which is the null state.
+     * The MUTEX has 4 states:
+     * 1. A null value meaning default state of not publishing.
      * 2. MUTEX_PUBLISH on first entry of a push or publish.
-     * 3. MUTEX_REPORT when cycle of records is detected.
+     * 3. The index of the first filter to accept a log record.
+     * 4. MUTEX_REPORT when cycle of records is detected.
      */
-    private static final ThreadLocal<Level> MUTEX = new ThreadLocal<Level>();
+    private static final ThreadLocal<Integer> MUTEX = new ThreadLocal<Integer>();
     /**
      * The marker object used to report a publishing state.
      */
-    private static final Level MUTEX_PUBLISH = Level.ALL;
+    private static final Integer MUTEX_PUBLISH = -2;
     /**
-     * The marker object used to report a error reporting state.
+     * The used for the error reporting state.
      */
-    private static final Level MUTEX_REPORT = Level.OFF;
+    private static final Integer MUTEX_REPORT = -4;
     /**
      * Used to turn off security checks.
      */
@@ -418,6 +419,13 @@ public class MailHandler extends Handler {
      * See BUGID 6228391 and K 6278.
      */
     private Session session;
+    /**
+     * A mapping of log record to matching filter index.  Negative one is used
+     * to track the body filter.  Zero and greater is used to track the
+     * attachment parts.  All indexes less than or equal to the matched value
+     * have already seen the given log record.
+     */
+    private int[] matched;
     /**
      * Holds all of the log records that will be used to create the email.
      */
@@ -578,6 +586,7 @@ public class MailHandler extends Handler {
 
         Filter body = getFilter();
         if (body == null || body.isLoggable(record)) {
+            setMatchedPart(-1);
             return true;
         }
 
@@ -634,6 +643,8 @@ public class MailHandler extends Handler {
             }
 
             if (size < data.length) {
+                //assert data.length == matched.length;
+                matched[size] = getMatchedPart();
                 data[size] = record;
                 ++size; //Be nice to client compiler.
                 priority = isPushable(record);
@@ -662,7 +673,8 @@ public class MailHandler extends Handler {
      * @since JavaMail 1.4.6
      */
     private void reportUnPublishedError(LogRecord record) {
-        if (MUTEX_PUBLISH.equals(MUTEX.get())) {
+        final Integer idx = MUTEX.get();
+        if (!MUTEX_REPORT.equals(idx)) {
             MUTEX.set(MUTEX_REPORT);
             try {
                 final String msg;
@@ -679,7 +691,7 @@ public class MailHandler extends Handler {
                         + Thread.currentThread());
                 reportError(msg, e, ErrorManager.WRITE_FAILURE);
             } finally {
-                MUTEX.set(MUTEX_PUBLISH);
+                MUTEX.set(idx);
             }
         }
     }
@@ -707,6 +719,51 @@ public class MailHandler extends Handler {
      */
     private void releaseMutex() {
         MUTEX.remove();
+    }
+
+    /**
+     * This is used to get the filter index from when {@code isLoggable} and
+     * {@code isAttachmentLoggable} was invoked by {@code publish} method.
+     *
+     * @return the filter index or MUTEX_PUBLISH if unknown.
+     * @since JavaMail 1.5.5
+     * @throws NullPointerException if tryMutex was not called.
+     */
+    private int getMatchedPart() {
+        //assert Thread.holdsLock(this);
+        int idx = MUTEX.get();
+        if (idx >= readOnlyAttachmentFilters().length) {
+           idx = MUTEX_PUBLISH;
+        }
+        return idx;
+    }
+
+    /**
+     * This is used to record the filter index when {@code isLoggable} and
+     * {@code isAttachmentLoggable} was invoked by {@code publish} method.
+     *
+     * @param index the filter index.
+     * @since JavaMail 1.5.5
+     */
+    private void setMatchedPart(int index) {
+        if (MUTEX_PUBLISH.equals(MUTEX.get())) {
+           MUTEX.set(index);
+        }
+    }
+
+    /**
+     * Clear previous matches when the filters are modified and there are
+     * existing log records that were matched.
+     * @param index the lowest filter index to clear.
+     * @since JavaMail 1.5.5
+     */
+    private void clearMatches(int index) {
+        assert Thread.holdsLock(this);
+        for (int r = 0; r < size; ++r) {
+            if (matched[r] >= index) {
+                matched[r] = MUTEX_PUBLISH;
+            }
+        }
     }
 
     /**
@@ -793,6 +850,7 @@ public class MailHandler extends Handler {
                 //Ensure not inside a push.
                 if (size == 0 && data.length != 1) {
                     this.data = new LogRecord[1];
+                    this.matched = new int[this.data.length];
                 }
             }
         }
@@ -898,6 +956,9 @@ public class MailHandler extends Handler {
     public void setFilter(final Filter newFilter) {
         checkAccess();
         synchronized (this) {  //Wait for writeLogRecords.
+            if (newFilter != filter) {
+                clearMatches(-1);
+            }
             this.filter = newFilter;
         }
     }
@@ -1133,7 +1194,7 @@ public class MailHandler extends Handler {
                 throw new IllegalStateException();
             }
             this.auth = auth;
-            settings = fixUpSession();
+            settings = updateSession();
         }
         verifySettings(settings);
     }
@@ -1167,7 +1228,7 @@ public class MailHandler extends Handler {
                 throw new IllegalStateException();
             }
             this.mailProps = props;
-            settings = fixUpSession();
+            settings = updateSession();
         }
         verifySettings(settings);
     }
@@ -1220,6 +1281,15 @@ public class MailHandler extends Handler {
             if (isWriting) {
                 throw new IllegalStateException();
             }
+
+            if (size != 0) {
+                for (int i = 0; i < filters.length; ++i) {
+                    if (filters[i] != attachmentFilters[i]) {
+                        clearMatches(i);
+                        break;
+                    }
+                }
+            }
             this.attachmentFilters = filters;
         }
     }
@@ -1269,8 +1339,8 @@ public class MailHandler extends Handler {
             }
 
             this.attachmentFormatters = formatters;
-            this.fixUpAttachmentFilters();
-            this.fixUpAttachmentNames();
+            this.alignAttachmentFilters();
+            this.alignAttachmentNames();
         }
     }
 
@@ -1751,16 +1821,18 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Expand or shrink the attachment name formatters.
-     * @return true if fixed.
+     * Expand or shrink the attachment name formatters with the attachment
+     * formatters.
+     * @return true if size was changed.
      */
-    private boolean fixUpAttachmentNames() {
+    private boolean alignAttachmentNames() {
         assert Thread.holdsLock(this);
         boolean fixed = false;
         final int expect = this.attachmentFormatters.length;
         final int current = this.attachmentNames.length;
         if (current != expect) {
-            this.attachmentNames = copyOf(attachmentNames, expect);
+            this.attachmentNames = copyOf(attachmentNames, expect,
+                    Formatter[].class);
             fixed = current != 0;
         }
 
@@ -1780,17 +1852,19 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Expand or shrink the attachment filters.
-     * @return true if fixed.
+     * Expand or shrink the attachment filters with the attachment formatters.
+     * @return true if the size was changed.
      */
-    private boolean fixUpAttachmentFilters() {
+    private boolean alignAttachmentFilters() {
         assert Thread.holdsLock(this);
 
         boolean fixed = false;
         final int expect = this.attachmentFormatters.length;
         final int current = this.attachmentFilters.length;
         if (current != expect) {
-            this.attachmentFilters = copyOf(attachmentFilters, expect);
+            this.attachmentFilters = copyOf(attachmentFilters, expect,
+                    Filter[].class);
+            clearMatches(current);
             fixed = current != 0;
 
             //Array elements default to null so skip filling if body filter
@@ -1813,14 +1887,15 @@ public class MailHandler extends Handler {
 
     /**
      * Copies the given array. Can be removed when Java Mail requires Java 1.6.
-     * @param <T> the class of the objects in the array.
      * @param a the original array.
      * @param len the new size.
      * @return new copy
+     * @since JavaMail 1.5.5
      */
-    @SuppressWarnings("unchecked")
-    private static <T> T[] copyOf(final T[] a, final int len) {
-        return (T[]) copyOf(a, len, a.getClass());
+    private static int[] copyOf(final int[] a, final int len) {
+        final int[] copy = new int[len];
+        System.arraycopy(a, 0, copy, 0, Math.min(len, a.length));
+        return copy;
     }
 
     /**
@@ -1864,7 +1939,8 @@ public class MailHandler extends Handler {
             newCapacity = capacity;
         }
         assert len != capacity : len;
-        this.data = copyOf(data, newCapacity);
+        this.data = copyOf(data, newCapacity, LogRecord[].class);
+        this.matched = copyOf(matched, newCapacity);
     }
 
     /**
@@ -2110,13 +2186,13 @@ public class MailHandler extends Handler {
             }
 
             this.attachmentFilters = a;
-            if (fixUpAttachmentFilters()) {
+            if (alignAttachmentFilters()) {
                 reportError("Attachment filters.",
                         attachmentMismatch("Length mismatch."), ErrorManager.OPEN_FAILURE);
             }
         } else {
             this.attachmentFilters = emptyFilterArray();
-            fixUpAttachmentFilters();
+            alignAttachmentFilters();
         }
     }
 
@@ -2204,13 +2280,13 @@ public class MailHandler extends Handler {
             }
 
             this.attachmentNames = a;
-            if (fixUpAttachmentNames()) { //Any null indexes are repaired.
+            if (alignAttachmentNames()) { //Any null indexes are repaired.
                 reportError("Attachment names.",
                         attachmentMismatch("Length mismatch."), ErrorManager.OPEN_FAILURE);
             }
         } else {
             this.attachmentNames = emptyFormatterArray();
-            fixUpAttachmentNames();
+            alignAttachmentNames();
         }
     }
 
@@ -2309,6 +2385,7 @@ public class MailHandler extends Handler {
         }
 
         this.data = new LogRecord[1];
+        this.matched = new int[this.data.length];
     }
 
     /**
@@ -2520,6 +2597,7 @@ public class MailHandler extends Handler {
         for (int i = 0; i < filters.length; ++i) {
             final Filter f = filters[i];
             if (f == null || f.isLoggable(record)) {
+                setMatchedPart(i);
                 return true;
             }
         }
@@ -2531,6 +2609,7 @@ public class MailHandler extends Handler {
      * <tt>LogRecord</tt> into its internal buffer.
      * @param record  a <tt>LogRecord</tt>
      * @return true if the <tt>LogRecord</tt> triggers an email push.
+     * @throws NullPointerException if tryMutex was not called.
      */
     private boolean isPushable(final LogRecord record) {
         assert Thread.holdsLock(this);
@@ -2540,7 +2619,17 @@ public class MailHandler extends Handler {
         }
 
         final Filter push = getPushFilter();
-        return push == null || push.isLoggable(record);
+        if (push == null) {
+            return true;
+        }
+
+        final int match = getMatchedPart();
+        if ((match == -1 && getFilter() == push)
+                || (match >= 0 && attachmentFilters[match] == push)) {
+            return true;
+        } else {
+            return push.isLoggable(record);
+        }
     }
 
     /**
@@ -2688,13 +2777,16 @@ public class MailHandler extends Handler {
         Locale lastLocale = null;
         for (int ix = 0; ix < size; ++ix) {
             boolean formatted = false;
+            final int match = matched[ix];
             final LogRecord r = data[ix];
             data[ix] = null; //Clear while formatting.
 
             final Locale locale = localeFor(r);
             appendSubject(msg, format(subjectFormatter, r));
-
-            if (bodyFilter == null || bodyFilter.isLoggable(r)) {
+            Filter lmf = null; //Identity of last matched filter.
+            if (bodyFilter == null || match == -1 || parts.length == 0
+                    || (match < -1 && bodyFilter.isLoggable(r))) {
+                lmf = bodyFilter;
                 if (buf == null) {
                     buf = new StringBuilder();
                     final String head = head(bodyFormat);
@@ -2709,8 +2801,14 @@ public class MailHandler extends Handler {
             }
 
             for (int i = 0; i < parts.length; ++i) {
+                //A match index less than the attachment index means that
+                //the filter has not seen this record.
                 final Filter af = attachmentFilters[i];
-                if (af == null || af.isLoggable(r)) {
+                if (af == null || lmf == af || match == i
+                        || (match < i && af.isLoggable(r))) {
+                    if (lmf == null && af != null) {
+                        lmf = af;
+                    }
                     if (parts[i] == null) {
                         parts[i] = createBodyPart(i);
                         buffers[i] = new StringBuilder();
@@ -2917,7 +3015,7 @@ public class MailHandler extends Handler {
                 } catch (final SendFailedException sfe) {
                     Address[] recip = sfe.getInvalidAddresses();
                     if (recip != null && recip.length != 0) {
-                        fixUpContent(abort, verify, sfe);
+                        setErrorContent(abort, verify, sfe);
                         reportError(abort, sfe, ErrorManager.OPEN_FAILURE);
                     }
 
@@ -2927,13 +3025,13 @@ public class MailHandler extends Handler {
                     }
                 } catch (final MessagingException ME) {
                     if (!isMissingContent(abort, ME)) {
-                        fixUpContent(abort, verify, ME);
+                        setErrorContent(abort, verify, ME);
                         reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                     }
                 }
 
                 if (closed != null) {
-                    fixUpContent(abort, verify, closed);
+                    setErrorContent(abort, verify, closed);
                     reportError(abort, closed, ErrorManager.CLOSE_FAILURE);
                 }
             } else {
@@ -2956,12 +3054,12 @@ public class MailHandler extends Handler {
                     } catch (final IOException IOE) {
                         MessagingException ME =
                                 new MessagingException(msg, IOE);
-                        fixUpContent(abort, verify, ME);
+                        setErrorContent(abort, verify, ME);
                         reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                     } catch (final RuntimeException RE) {
                         MessagingException ME =
                                 new MessagingException(msg, RE);
-                        fixUpContent(abort, verify, RE);
+                        setErrorContent(abort, verify, RE);
                         reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                     }
                 }
@@ -2975,11 +3073,11 @@ public class MailHandler extends Handler {
                     verifyHost(local);
                 } catch (final IOException IOE) {
                     MessagingException ME = new MessagingException(msg, IOE);
-                    fixUpContent(abort, verify, ME);
+                    setErrorContent(abort, verify, ME);
                     reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                 } catch (final RuntimeException RE) {
                     MessagingException ME = new MessagingException(msg, RE);
-                    fixUpContent(abort, verify, ME);
+                    setErrorContent(abort, verify, ME);
                     reportError(abort, ME, ErrorManager.OPEN_FAILURE);
                 }
 
@@ -3002,7 +3100,7 @@ public class MailHandler extends Handler {
                     }
                 } catch (final IOException IOE) {
                     MessagingException ME = new MessagingException(msg, IOE);
-                    fixUpContent(abort, verify, ME);
+                    setErrorContent(abort, verify, ME);
                     reportError(abort, ME, ErrorManager.FORMAT_FAILURE);
                 }
             }
@@ -3043,10 +3141,10 @@ public class MailHandler extends Handler {
             //Verify reply-to addresses.
             verifyAddresses(abort.getReplyTo());
         } catch (final RuntimeException RE) {
-            fixUpContent(abort, verify, RE);
+            setErrorContent(abort, verify, RE);
             reportError(abort, RE, ErrorManager.OPEN_FAILURE);
         } catch (final Exception ME) {
-            fixUpContent(abort, verify, ME);
+            setErrorContent(abort, verify, ME);
             reportError(abort, ME, ErrorManager.OPEN_FAILURE);
         }
     }
@@ -3100,7 +3198,7 @@ public class MailHandler extends Handler {
     private void reportUnexpectedSend(MimeMessage msg, String verify, Exception cause) {
         final MessagingException write = new MessagingException(
                 "An empty message was sent.", cause);
-        fixUpContent(msg, verify, write);
+        setErrorContent(msg, verify, write);
         reportError(msg, write, ErrorManager.OPEN_FAILURE);
     }
 
@@ -3113,7 +3211,7 @@ public class MailHandler extends Handler {
      * @param t the throwable or null.
      * @since JavaMail 1.4.5
      */
-    private void fixUpContent(MimeMessage msg, String verify, Throwable t) {
+    private void setErrorContent(MimeMessage msg, String verify, Throwable t) {
         try { //Add content so toRawString doesn't fail.
             final MimeBodyPart body;
             final String subjectType;
@@ -3148,7 +3246,7 @@ public class MailHandler extends Handler {
      * mail properties or authenticator.
      * @return the current session or null if no verify is required.
      */
-    private Session fixUpSession() {
+    private Session updateSession() {
         assert Thread.holdsLock(this);
         final Session settings;
         if (mailProps.getProperty("verify") != null) {
