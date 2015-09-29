@@ -29,6 +29,7 @@ K  6965	setting mail.<protocol>.auth.mechanisms should override
 K  6966	add support for OAuth 2.0 without SASL
 K  6973	capability() command doesn't properly transform errors
 K  6989	MailHandler needs better support for stateful filters.
+K  6997	add support for IMAP login referrals (RFC 2221)
 
 
 		  CHANGES IN THE 1.5.4 RELEASE

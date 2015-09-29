@@ -693,6 +693,12 @@ public class IMAPStore extends Store
                     pool.authenticatedConnections.addElement(protocol);
                 }
             }
+	} catch (IMAPReferralException ex) {
+	    // login failure due to IMAP REFERRAL, close connection to server
+	    if (protocol != null)
+		protocol.disconnect();
+	    protocol = null;
+	    throw new ReferralException(ex.getUrl(), ex.getMessage());
 	} catch (CommandFailedException cex) {
 	    // login failure, close connection to server
 	    if (protocol != null)

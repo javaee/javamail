@@ -79,6 +79,7 @@ public class IMAPProtocol extends Protocol {
     
     private boolean connected = false;	// did constructor succeed?
     private boolean rev1 = false;	// REV1 server ?
+    private boolean referralException;	// throw exception for IMAP REFERRAL?
     private boolean noauthdebug = true;	// hide auth info in debug output
     private boolean authenticated;	// authenticated?
     // WARNING: authenticated may be set to true in superclass
@@ -128,6 +129,8 @@ public class IMAPProtocol extends Protocol {
 	    this.name = name;
 	    noauthdebug =
 		!PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
+	    referralException = PropUtil.getBooleanProperty(props,
+				"mail." + name + ".referralexception", false);
 
 	    if (capabilities == null)
 		capability();
@@ -291,8 +294,14 @@ public class IMAPProtocol extends Protocol {
      * @exception	ProtocolException	for protocol failures
      */
     protected void processGreeting(Response r) throws ProtocolException {
-	super.processGreeting(r);	// check if it's BAD
+	if (r.isBYE()) {
+	    checkReferral(r);	// may throw exception
+	    throw new ConnectionException(this, r);
+	}
 	if (r.isOK()) {			// check if it's OK
+	    // XXX - is a REFERRAL response code really allowed here?
+	    if (referralException)
+		checkReferral(r);
 	    setCapabilities(r);
 	    return;
 	}
@@ -305,6 +314,33 @@ public class IMAPProtocol extends Protocol {
 	} else {
 	    disconnect();
 	    throw new ConnectionException(this, r);
+	}
+    }
+
+    /**
+     * Check for an IMAP login REFERRAL response code.
+     *
+     * @exception	IMAPReferralException	if REFERRAL response code found
+     * @see "RFC 2221"
+     */
+    private void checkReferral(Response r) throws IMAPReferralException {
+	String s = r.getRest();	// get the text after the response
+	if (s.startsWith("[")) {	// a response code
+	    int i = s.indexOf(' ');
+	    if (i > 0 && s.substring(1, i).equalsIgnoreCase("REFERRAL")) {
+		String url, msg;
+		int j = s.indexOf(']');
+		if (j > 0) {	// should always be true;
+		    url = s.substring(i + 1, j);
+		    msg = s.substring(j + 1).trim();
+		} else {
+		    url = s.substring(i + 1);
+		    msg = "";
+		}
+		if (r.isBYE())
+		    disconnect();
+		throw new IMAPReferralException(msg, url);
+	    }
 	}
     }
 
@@ -454,7 +490,7 @@ public class IMAPProtocol extends Protocol {
 	// Handle result of this command
 	if (noauthdebug && isTracing())
 	    logger.fine("LOGIN command result: " + r[r.length-1]);
-	handleResult(r[r.length-1]);
+	handleLoginResult(r[r.length-1]);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r[r.length-1]);
 	// if we get this far without an exception, we're authenticated
@@ -563,7 +599,7 @@ public class IMAPProtocol extends Protocol {
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
 	    logger.fine("AUTHENTICATE LOGIN command result: " + r);
-	handleResult(r);
+	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
 	// if we get this far without an exception, we're authenticated
@@ -673,7 +709,7 @@ public class IMAPProtocol extends Protocol {
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
 	    logger.fine("AUTHENTICATE PLAIN command result: " + r);
-	handleResult(r);
+	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
 	// if we get this far without an exception, we're authenticated
@@ -771,7 +807,7 @@ public class IMAPProtocol extends Protocol {
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
 	    logger.fine("AUTHENTICATE NTLM command result: " + r);
-	handleResult(r);
+	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
 	// if we get this far without an exception, we're authenticated
@@ -864,7 +900,7 @@ public class IMAPProtocol extends Protocol {
 	// Handle the final OK, NO, BAD or BYE response
 	if (noauthdebug && isTracing())
 	    logger.fine("AUTHENTICATE XOAUTH2 command result: " + r);
-	handleResult(r);
+	handleLoginResult(r);
 	// If the response includes a CAPABILITY response code, process it
 	setCapabilities(r);
 	// if we get this far without an exception, we're authenticated
@@ -953,6 +989,21 @@ public class IMAPProtocol extends Protocol {
     // XXX - for IMAPSaslAuthenticator access to protected method
     OutputStream getIMAPOutputStream() {
 	return getOutputStream();
+    }
+
+    /**
+     * Handle the result response for a LOGIN or AUTHENTICATE command.
+     * Look for IMAP login REFERRAL.
+     *
+     * @param	r	the response
+     * @exception	ProtocolException	for protocol failures
+     * @since	JavaMail 1.5.5
+     */
+    void handleLoginResult(Response r) throws ProtocolException {
+	if (hasCapability("LOGIN-REFERRALS") &&
+		(!r.isOK() || referralException))
+	    checkReferral(r);
+	super.handleResult(r);
     }
 
     /**

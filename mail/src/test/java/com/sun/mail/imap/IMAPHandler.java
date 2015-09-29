@@ -45,6 +45,8 @@ import java.io.Reader;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 
+import com.sun.mail.util.BASE64EncoderStream;
+
 import com.sun.mail.test.ProtocolHandler;
 
 /**
@@ -217,7 +219,11 @@ public class IMAPHandler extends ProtocolHandler {
         if (commandName.equals("LOGIN")) {
             login();
         } else if (commandName.equals("AUTHENTICATE")) {
-            authenticate(currentLine);
+	    String mech = ct.nextToken().toUpperCase();
+	    String ir = null;
+	    if (ct.hasMoreTokens())
+	    	ir = ct.nextToken();
+            authenticate(mech, ir);
         } else if (commandName.equals("CAPABILITY")) {
             capability();
         } else if (commandName.equals("NOOP")) {
@@ -276,8 +282,41 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to read/write to socket
      */
-    public void authenticate(String line) throws IOException {
-        bad("AUTHENTICATE not supported");
+    public void authenticate(String mech, String ir) throws IOException {
+	if (mech.equals("LOGIN"))
+	    authlogin(ir);
+	else if (mech.equals("PLAIN"))
+	    authplain(ir);
+	else
+	    bad("AUTHENTICATE not supported");
+    }
+
+    /**
+     * AUTHENTICATE LOGIN command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void authlogin(String ir) throws IOException {
+	if (ir != null)
+	    bad("AUTHENTICATE LOGIN does not support initial response");
+	cont(base64encode("Username"));
+	String username = readLine();
+	cont(base64encode("Password"));
+	String password = readLine();
+        ok("[CAPABILITY " + capabilities + "]");
+    }
+
+    /**
+     * AUTHENTICATE PLAIN command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void authplain(String ir) throws IOException {
+	if (ir == null) {
+	    cont("");
+	    String resp = readLine();
+	}
+        ok("[CAPABILITY " + capabilities + "]");
     }
 
     /**
@@ -471,6 +510,14 @@ public class IMAPHandler extends ProtocolHandler {
     public void logout() throws IOException {
         ok();
         exit();
+    }
+
+    /**
+     * Base64 encode the string.
+     */
+    protected String base64encode(String s) throws IOException {
+	return new String(BASE64EncoderStream.encode(s.getBytes("US-ASCII")),
+			"US-ASCII");
     }
 
     /**

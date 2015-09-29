@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -68,12 +68,8 @@ public class IMAPSaslHandler extends IMAPHandler {
      *
      * @throws IOException unable to read/write to socket
      */
-    public void authenticate(String line) throws IOException {
-        StringTokenizer ct = new StringTokenizer(line, " ");
-	String tag = ct.nextToken();
-        String commandName = ct.nextToken().toUpperCase();
-	String mech = ct.nextToken().toUpperCase();
-
+    @Override
+    public void authenticate(String mech, String ir) throws IOException {
 	final String u = "test";
 	final String p = "test";
 	final String realm = "test";

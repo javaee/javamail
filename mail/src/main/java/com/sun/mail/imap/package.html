@@ -208,6 +208,16 @@ is supported via the
 	// search for messages delivered in the last day
 	Message[] msgs = folder.search(new YoungerTerm(24 * 60 * 60));
 </PRE>
+<H4>LOGIN-REFERRAL Support</H4>
+<P>
+The IMAP LOGIN-REFERRAL extension
+(<A HREF="http://www.ietf.org/rfc/rfc2221.txt" TARGET="_top">RFC 2221</A>)
+is supported.
+If a login referral is received when connecting or when authentication fails, a
+{@link com.sun.mail.imap.ReferralException ReferralException} is thrown.
+A referral can also occur when login succeeds.  By default, no exception is
+thrown in this case.  To force an exception to be thrown and the authentication
+to fail, set the <code>mail.imap.referralexception</code> property to "true".
 <H4>Properties</H4>
 <P>
 The IMAP protocol provider supports the following properties,
@@ -789,6 +799,17 @@ If this property is true (the default), failures in the Store connection cause
 all associated Folders to be closed.
 Set this property to false to better handle transient failures in the Store
 connection.
+</TD>
+</TR>
+
+<TR>
+<TD>mail.imap.referralexception</TD>
+<TD>boolean</TD>
+<TD>
+If set to true and an IMAP login referral is returned when the autnetication
+succeeds, fail the connect request and throw a
+{@link com.sun.mail.imap.ReferralException ReferralException}.
+Defaults to false.
 </TD>
 </TR>
 
