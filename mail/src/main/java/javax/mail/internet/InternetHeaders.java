@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -354,7 +354,10 @@ public class InternetHeaders {
 	StringBuffer lineBuffer = new StringBuffer();
 
 	try {
-	    //while ((line = lis.readLine()) != null) {
+	    // if the first line being read is a continuation line,
+	    // we ignore it if it's otherwise empty or we treat it as
+	    // a non-continuation line if it has non-whitespace content
+	    boolean first = true;
 	    do {
 		line = lis.readLine();
 		if (line != null &&
@@ -364,8 +367,15 @@ public class InternetHeaders {
 			lineBuffer.append(prevline);
 			prevline = null;
 		    }
-		    lineBuffer.append("\r\n");
-		    lineBuffer.append(line);
+		    if (first) {
+			String lt = line.trim();
+			if (lt.length() > 0)
+			    lineBuffer.append(lt);
+		    } else {
+			if (lineBuffer.length() > 0)
+			    lineBuffer.append("\r\n");
+			lineBuffer.append(line);
+		    }
 		} else {
 		    // new header
 		    if (prevline != null)
@@ -377,6 +387,7 @@ public class InternetHeaders {
 		    }
 		    prevline = line;
 		}
+		first = false;
 	    } while (line != null && !isEmpty(line));
 	} catch (IOException ioex) {
 	    throw new MessagingException("Error in input stream", ioex);
