@@ -20,6 +20,7 @@ longer available.
 The following bugs have been fixed in the 1.5.5 release.
 
 K  6886	add support for setting GMail labels on messages
+K  6905	Add spam filter for use with MailHandler.
 K  6907	Address MailDateFormat issues
 K  6938	Typo in "mail.stmp.sendpartial"
 K  6943	mail.mime.encodefilename property should override RFC 2231 encoding

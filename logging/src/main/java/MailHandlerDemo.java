@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2014 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2015 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,6 +31,7 @@
  */
 
 import com.sun.mail.util.logging.CollectorFormatter;
+import com.sun.mail.util.logging.DurationFilter;
 import com.sun.mail.util.logging.MailHandler;
 import com.sun.mail.util.logging.SeverityComparator;
 import java.io.File;
@@ -151,10 +152,10 @@ public class MailHandlerDemo {
                 err.println(prefix + ": SecurityManager.class=" + sm.getClass().getName());
                 err.println(prefix + ": SecurityManager.toString=" + sm);
             } else {
-                err.println(prefix + ": SecurityManager.class=" + null);
-                err.println(prefix + ": SecurityManager.toString=" + null);
+                err.println(prefix + ": SecurityManager.class=null");
+                err.println(prefix + ": SecurityManager.toString=null");
             }
-            
+
             String policy = System.getProperty("java.security.policy");
             if (policy != null) {
                 File f = new File(policy);
@@ -366,22 +367,24 @@ public class MailHandlerDemo {
     }
 
     /**
-     * Example for priority messages by custom trigger. If the push filter is
+     * Example for priority messages by generation rate. If the push filter is
      * triggered the message is high priority. Otherwise, on close any remaining
-     * messages are sent.      <code>
+     * messages are sent. If the capacity is set to the      <code>
      * ##logging.properties
      * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
-     * com.sun.mail.util.logging.MailHandler.subject=Push on MessagingException demo
+     * com.sun.mail.util.logging.MailHandler.subject=Push if under two records per minute.
      * com.sun.mail.util.logging.MailHandler.pushLevel=ALL
-     * com.sun.mail.util.logging.MailHandler.pushFilter=MailHandlerDemo$MessageErrorsFilter
+     * com.sun.mail.util.logging.MailHandler.pushFilter=com.sun.mail.util.logging.DurationFilter
+     * com.sun.mail.util.logging.DurationFilter.records=2
+     * com.sun.mail.util.logging.DurationFilter.duration=1 * 60 * 1000
      * ##
      * </code>
      */
     private static void initWithPushFilter() {
         MailHandler h = new MailHandler();
-        h.setSubject("Push on MessagingException demo");
+        h.setSubject("Push filter demo");
         h.setPushLevel(Level.ALL);
-        h.setPushFilter(new MessageErrorsFilter(true));
+        h.setPushFilter(new DurationFilter(2, 1L * 60L * 1000L));
         LOGGER.addHandler(h);
     }
 
@@ -466,7 +469,7 @@ public class MailHandlerDemo {
     private static void initCustomAttachments() {
         MailHandler h = new MailHandler();
 
-        //Sort records by level keeping the severe messages at the top.
+        //Sort records by severity keeping the severe messages at the top.
         h.setComparator(Collections.reverseOrder(new SeverityComparator()));
 
         //Use subject to provide a hint as to what is in the email.
@@ -480,8 +483,9 @@ public class MailHandlerDemo {
                 new XMLFormatter(), new SimpleFormatter());
 
         //Filter each attachment differently.
-        h.setAttachmentFilters(null, new MessageErrorsFilter(false),
-                new MessageErrorsFilter(true));
+        h.setAttachmentFilters(null,
+                new DurationFilter(3L, 1000L),
+                new DurationFilter(1L, 15L * 60L * 1000L));
 
         //Creating the attachment name formatters.
         h.setAttachmentNames(new CollectorFormatter("all.xml"),
@@ -609,36 +613,5 @@ public class MailHandlerDemo {
             return System.getProperty("java.util.logging.config.class");
         }
         return file;
-    }
-
-    /**
-     * A simple message filter example.
-     */
-    public static final class MessageErrorsFilter implements Filter {
-
-        /**
-         * Used to negate this filter.
-         */
-        private final boolean complement;
-
-        /**
-         * Default constructor.
-         */
-        public MessageErrorsFilter() {
-            this(true);
-        }
-
-        /**
-         * Creates the message filter.
-         *
-         * @param complement used to allow or deny message exceptions.
-         */
-        public MessageErrorsFilter(final boolean complement) {
-            this.complement = complement;
-        }
-
-        public boolean isLoggable(LogRecord r) {
-            return r.getThrown() instanceof MessagingException == complement;
-        }
     }
 }
