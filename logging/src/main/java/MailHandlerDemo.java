@@ -372,7 +372,7 @@ public class MailHandlerDemo {
      * messages are sent. If the capacity is set to the      <code>
      * ##logging.properties
      * MailHandlerDemo.handlers=com.sun.mail.util.logging.MailHandler
-     * com.sun.mail.util.logging.MailHandler.subject=Push if under two records per minute.
+     * com.sun.mail.util.logging.MailHandler.subject=Push filter demo
      * com.sun.mail.util.logging.MailHandler.pushLevel=ALL
      * com.sun.mail.util.logging.MailHandler.pushFilter=com.sun.mail.util.logging.DurationFilter
      * com.sun.mail.util.logging.DurationFilter.records=2

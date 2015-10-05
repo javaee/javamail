@@ -344,8 +344,7 @@ public class DurationFilter implements Filter {
         value = value.trim();
         String[] e;
         final int i = value.indexOf('*');
-        if (i > -1 && (e = value.split(
-                "[\\s]*[\\x2A]{1}[\\s]*")).length != 0) {
+        if (i > -1 && (e = value.split("\\s*\\*\\s*")).length != 0) {
             if (i == 0 || value.charAt(value.length() - 1) == '*') {
                 throw new NumberFormatException(value);
             }
