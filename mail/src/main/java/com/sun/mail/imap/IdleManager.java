@@ -279,17 +279,17 @@ public class IdleManager {
 		    ;
 	    }
 	} catch (InterruptedIOException ex) {
-	    logger.log(Level.FINE, "IdleManager interrupted", ex);
+	    logger.log(Level.FINEST, "IdleManager interrupted", ex);
 	} catch (IOException ex) {
-	    logger.log(Level.FINE, "IdleManager got exception", ex);
+	    logger.log(Level.FINEST, "IdleManager got exception", ex);
 	} finally {
-	    logger.fine("IdleManager unwatchAll");
+	    logger.finest("IdleManager unwatchAll");
 	    try {
 		unwatchAll();
 		selector.close();
 	    } catch (IOException ex2) {
 		// nothing to do...
-		logger.log(Level.FINE, "IdleManager unwatch exception", ex2);
+		logger.log(Level.FINEST, "IdleManager unwatch exception", ex2);
 	    }
 	    logger.fine("IdleManager exiting");
 	}
@@ -353,7 +353,7 @@ public class IdleManager {
 	    sk.cancel();
 	    folder = (IMAPFolder)sk.attachment();
 	    if (logger.isLoggable(Level.FINEST))
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager selected folder: {0}", folderName(folder));
 	    SelectableChannel sc = sk.channel();
 	    // switch back to blocking to allow normal I/O
@@ -361,7 +361,7 @@ public class IdleManager {
 	    try {
 		if (folder.handleIdle(false)) {
 		    if (logger.isLoggable(Level.FINEST))
-			logger.log(Level.FINE,
+			logger.log(Level.FINEST,
 			    "IdleManager continue watching folder {0}",
 							folderName(folder));
 		    // more to do with this folder, select on it again
@@ -371,13 +371,13 @@ public class IdleManager {
 		} else {
 		    // done watching this folder,
 		    if (logger.isLoggable(Level.FINEST))
-			logger.log(Level.FINE,
+			logger.log(Level.FINEST,
 			    "IdleManager done watching folder {0}",
 							folderName(folder));
 		}
 	    } catch (MessagingException ex) {
 		// something went wrong, stop watching this folder
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager got exception for folder: " +
 						    folderName(folder), ex);
 	    }
@@ -388,7 +388,7 @@ public class IdleManager {
 	 */
 	while ((folder = toAbort.poll()) != null) {
 	    if (logger.isLoggable(Level.FINEST))
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager aborting IDLE for folder: {0}",
 							folderName(folder));
 	    SocketChannel sc = folder.getChannel();
@@ -404,7 +404,7 @@ public class IdleManager {
 	    // if there's a read timeout, have to do the abort in a new thread
 	    Socket sock = sc.socket();
 	    if (sock != null && sock.getSoTimeout() > 0) {
-		logger.fine("IdleManager requesting DONE with timeout");
+		logger.finest("IdleManager requesting DONE with timeout");
 		toWatch.remove(folder);
 		final IMAPFolder folder0 = folder;
 		es.execute(new Runnable() {
@@ -439,7 +439,7 @@ public class IdleManager {
 	    sk.cancel();
 	    folder = (IMAPFolder)sk.attachment();
 	    if (logger.isLoggable(Level.FINEST))
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager no longer watching folder: {0}",
 							folderName(folder));
 	    SelectableChannel sc = sk.channel();
@@ -449,7 +449,7 @@ public class IdleManager {
 		folder.idleAbortWait();	// send the DONE message and wait
 	    } catch (IOException ex) {
 		// ignore it, channel might be closed
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager exception while aborting idle for folder: " +
 						    folderName(folder), ex);
 	    }
@@ -460,7 +460,7 @@ public class IdleManager {
 	 */
 	while ((folder = toWatch.poll()) != null) {
 	    if (logger.isLoggable(Level.FINEST))
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager aborting IDLE for unwatched folder: {0}",
 							folderName(folder));
 	    SocketChannel sc = folder.getChannel();
@@ -472,7 +472,7 @@ public class IdleManager {
 		folder.idleAbortWait();	// send the DONE message and wait
 	    } catch (IOException ex) {
 		// ignore it, channel might be closed
-		logger.log(Level.FINE,
+		logger.log(Level.FINEST,
 		    "IdleManager exception while aborting idle for folder: " +
 						    folderName(folder), ex);
 	    }
@@ -484,7 +484,7 @@ public class IdleManager {
      */
     public synchronized void stop() {
 	die = true;
-	logger.finest("IdleManager stopping");
+	logger.fine("IdleManager stopping");
 	selector.wakeup();
     }
 
