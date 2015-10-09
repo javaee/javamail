@@ -69,7 +69,7 @@ public abstract class Service {
     /**
      * The <code>URLName</code> of this service.
      */
-    protected URLName	url = null;
+    protected volatile URLName	url = null;
 
     /**
      * Debug flag for this service.  Set from the session's debug
@@ -522,7 +522,8 @@ public abstract class Service {
      * @return	the URLName representing this service
      * @see	URLName
      */
-    public synchronized URLName getURLName() {
+    public URLName getURLName() {
+	URLName url = this.url;	// snapshot
 	if (url != null && (url.getPassword() != null || url.getFile() != null))
 	    return new URLName(url.getProtocol(), url.getHost(),
 			url.getPort(), null /* no file */,
@@ -549,7 +550,7 @@ public abstract class Service {
      * @param	url	the URLName
      * @see URLName
      */
-    protected synchronized void setURLName(URLName url) {
+    protected void setURLName(URLName url) {
 	this.url = url;
     }
 
