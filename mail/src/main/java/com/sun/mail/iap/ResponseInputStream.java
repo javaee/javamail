@@ -157,6 +157,8 @@ public class ResponseInputStream {
 		int actual;
 		while (count > 0) {
 		    actual = bin.read(buffer, idx, count);
+		    if (actual == -1)
+			throw new IOException("Connection dropped by server?");
 		    count -= actual;
 		    idx += actual;
 		}
