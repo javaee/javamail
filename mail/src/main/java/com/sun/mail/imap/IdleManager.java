@@ -267,22 +267,28 @@ public class IdleManager {
 		 * need to continue watching that folder it's added
 		 * to the toWatch list again.  We can't actually
 		 * register that folder again until the previous
-		 * selectionkey is cancelled, so we call selectNow()
+		 * selection key is cancelled, so we call selectNow()
 		 * just for the side effect of cancelling the selection
 		 * keys.  But if selectNow() selects something, we
 		 * process it before adding folders from the toWatch
 		 * queue.  And so on until there is nothing to do, at
 		 * which point it's safe to register folders from the
-		 * toWatch queue.
+		 * toWatch queue.  This should be "fair" since each
+		 * selection key is used only once before being added
+		 * to the toWatch list.
 		 */
-		while (processKeys() && selector.selectNow() > 0)
-		    ;
+		do {
+		    processKeys();
+		} while (selector.selectNow() > 0);
 	    }
 	} catch (InterruptedIOException ex) {
 	    logger.log(Level.FINEST, "IdleManager interrupted", ex);
 	} catch (IOException ex) {
+	    logger.log(Level.FINEST, "IdleManager got I/O exception", ex);
+	} catch (Exception ex) {
 	    logger.log(Level.FINEST, "IdleManager got exception", ex);
 	} finally {
+	    die = true;	// prevent new watches in case of exception
 	    logger.finest("IdleManager unwatchAll");
 	    try {
 		unwatchAll();
@@ -320,16 +326,18 @@ public class IdleManager {
 		// oh well, nothing to do
 		logger.log(Level.FINEST,
 		    "IdleManager can't register folder", ex);
+	    } catch (CancelledKeyException ex) {
+		// this should never happen
+		logger.log(Level.FINEST,
+		    "IdleManager can't register folder", ex);
 	    }
 	}
     }
 
     /**
-     * Process the selected keys, returning true if any folders have
-     * been added to the watch list.
+     * Process the selected keys.
      */
-    private boolean processKeys() throws IOException {
-	boolean more = false;
+    private void processKeys() throws IOException {
 	IMAPFolder folder;
 
 	/*
@@ -365,9 +373,7 @@ public class IdleManager {
 			    "IdleManager continue watching folder {0}",
 							folderName(folder));
 		    // more to do with this folder, select on it again
-		    // XXX - what if we also added it above?
 		    toWatch.add(folder);
-		    more = true;
 		} else {
 		    // done watching this folder,
 		    if (logger.isLoggable(Level.FINEST))
@@ -417,12 +423,10 @@ public class IdleManager {
 	    } else {
 		folder.idleAbort();	// send the DONE message
 		// watch for OK response to DONE
+		// XXX - what if we also added it above?  should be a nop
 		toWatch.add(folder);
-		more = true;
 	    }
 	}
-
-	return more;
     }
 
     /**

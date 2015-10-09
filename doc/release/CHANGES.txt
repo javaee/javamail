@@ -32,6 +32,7 @@ K  6973	capability() command doesn't properly transform errors
 K  6989	MailHandler needs better support for stateful filters.
 K  6997	add support for IMAP login referrals (RFC 2221)
 K  7009	whitespace line at beginning confuses InternetHeaders
+K  7019	IdleManager dies with CancelledKeyException
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
