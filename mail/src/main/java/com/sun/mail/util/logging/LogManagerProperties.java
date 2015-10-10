@@ -287,6 +287,45 @@ final class LogManagerProperties extends Properties {
     }
 
     /**
+     * Used to parse an ISO-8601 duration format of {@code PnDTnHnMn.nS}.
+     * 
+     * @param value ISO-8601 duration string.
+     * @return the number of milliseconds parsed from the duration.
+     * @throws ClassNotFoundException if the java.time classes are not present.
+     * @throws IllegalAccessException if the method is inaccessible.
+     * @throws InvocationTargetException if the method throws an exception.
+     * @throws LinkageError if the linkage fails.
+     * @throws NullPointerException if the given duration is null.
+     * @throws ExceptionInInitializerError if the static initializer fails.
+     * @throws Exception if there is a problem.
+     * @throws NoSuchMethodException if the correct time methods are missing.
+     * @throws SecurityException if reflective access to the java.time classes
+     * are not allowed.
+     * @since JavaMail 1.5.5
+     */
+    static long parseDurationToMillis(final String value) throws Exception {
+        try {
+            final Class<?> k = findClass("java.time.Duration");
+            final Method parse = k.getMethod("parse", CharSequence.class);
+            if (!k.isAssignableFrom(parse.getReturnType())
+                    || !Modifier.isStatic(parse.getModifiers())) {
+               throw new NoSuchMethodException(parse.toString());
+            }
+
+            final Method toMillis = k.getMethod("toMillis");
+            if (!Long.TYPE.isAssignableFrom(toMillis.getReturnType())
+                    || Modifier.isStatic(toMillis.getModifiers())) {
+                throw new NoSuchMethodException(toMillis.toString());
+            }
+            return (Long) toMillis.invoke(parse.invoke(null, value));
+        } catch (final ExceptionInInitializerError EIIE) {
+            throw wrapOrThrow(EIIE);
+        } catch (final InvocationTargetException ite) {
+            throw paramOrError(ite);
+        }
+    }
+
+    /**
      * Converts a locale to a language tag.
      *
      * @param locale the locale to convert.

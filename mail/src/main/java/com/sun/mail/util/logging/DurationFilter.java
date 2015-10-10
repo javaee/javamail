@@ -64,7 +64,11 @@ import java.util.logging.*;
  * <li>{@literal <filter-name>}.duration the number of milliseconds to suppress
  * log records from being published. This is also used as duration to determine
  * the log record rate. A numeric long integer or a multiplication expression
- * can be used as the value. (defaults to {@code 15L * 60L * 1000L})
+ * can be used as the value. If the {@code java.time} package is avaliable then
+ * an ISO-8601 duration format of {@code PnDTnHnMn.nS} can be used as the value.
+ * The suffixes of "D", "H", "M" and "S" are for days, hours, minutes and
+ * seconds. The suffixes must occur in order. The seconds can be specified with
+ * a fractional component to declare milliseconds. (defaults to {@code PT15M})
  * </ul>
  *
  * <p>
@@ -76,7 +80,7 @@ import java.util.logging.*;
  *  com.sun.mail.util.logging.MailHandler.filter = com.sun.mail.util.logging.DurationFilter
  *  com.sun.mail.util.logging.MailHandler.capacity = 1000
  *  com.sun.mail.util.logging.DurationFilter.records = 2L * 1000L
- *  com.sun.mail.util.logging.DurationFilter.duration = 6L * 60L * 1000L
+ *  com.sun.mail.util.logging.DurationFilter.duration = PT6M
  * }
  * </pre>
  *
@@ -311,25 +315,51 @@ public class DurationFilter implements Filter {
      * @throws NullPointerException if suffix is null.
      */
     private long initLong(final String suffix) {
-        long result;
+        long result = 0L;
         final String p = getClass().getName();
         String value = fromLogManager(p.concat(suffix));
         if (value != null && value.length() != 0) {
-            try {
-                result = 1L;
-                for (String s : tokenizeLongs(value)) {
-                    if (s.endsWith("L") || s.endsWith("l")) {
-                        s = s.substring(0, s.length() - 1);
-                    }
-                    result = multiplyExact(result, Long.parseLong(s));
+            if (isTimeEntry(suffix, value)) {
+                try {
+                    result = LogManagerProperties.parseDurationToMillis(value);
+                } catch (final RuntimeException ignore) {
+                } catch (final Exception ignore) {
+                } catch (final LinkageError ignore) {
                 }
-            } catch (final RuntimeException ignore) {
-                result = Long.MIN_VALUE;
+            }
+
+            if (result == 0L) { //Zero is invalid.
+                try {
+                    result = 1L;
+                    for (String s : tokenizeLongs(value)) {
+                        if (s.endsWith("L") || s.endsWith("l")) {
+                            s = s.substring(0, s.length() - 1);
+                        }
+                        result = multiplyExact(result, Long.parseLong(s));
+                    }
+                } catch (final RuntimeException ignore) {
+                    result = Long.MIN_VALUE;
+                }
             }
         } else {
             result = Long.MIN_VALUE;
         }
         return result;
+    }
+
+    /**
+     * Determines if the given suffix can be a time unit and the value is
+     * encoded as an ISO ISO-8601 duration format.
+     *
+     * @param suffix the suffix property.
+     * @param value the value of the property.
+     * @return true if the entry is a time entry.
+     * @throws IndexOutOfBoundsException if value is empty.
+     * @throws NullPointerException if either argument is null.
+     */
+    private boolean isTimeEntry(final String suffix, final String value) {
+        return (value.charAt(0) == 'P' || value.charAt(0) == 'p')
+                && suffix.equals(".duration");
     }
 
     /**

@@ -78,7 +78,6 @@ public class DurationFilterTest {
     @Test
     public void testClone() throws Exception {
         DurationFilterExt source = new DurationFilterExt();
-        assertTrue(source instanceof Cloneable);
         final Filter clone = source.clone();
         assertNotNull(clone);
         assertFalse(source == clone);
@@ -544,6 +543,13 @@ public class DurationFilterTest {
     }
 
     @Test
+    public void testInitRecordIso8601() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitRecords("PT30M", 1000);
+        }
+    }
+
+    @Test
     public void testInitDuration() throws Exception {
         testInitDuration("1024", 1024);
     }
@@ -623,6 +629,50 @@ public class DurationFilterTest {
         testInitDuration("-1024", 15L * 60L * 1000L);
     }
 
+    @Test
+    public void testInitDurationIso8601Ms() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("PT0.345S", 345);
+        }
+    }
+
+    @Test
+    public void testInitDurationIso8601Sec() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("PT20.345S", (20L * 1000L) + 345);
+        }
+    }
+
+    @Test
+    public void testInitDurationIso8601Min() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("PT30M", 30L * 60L * 1000L);
+        }
+    }
+
+    @Test
+    public void testInitDurationIso8601Hour() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("PT10H", 10L * 60L * 60L * 1000L);
+        }
+    }
+
+    @Test
+    public void testInitDurationIso8601Day() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("P2D", 2L * 24L * 60L * 60L * 1000L);
+        }
+    }
+
+    @Test
+    public void testInitDurationIso8601All() throws Exception {
+        if (isoDurationAllowed()) {
+            testInitDuration("P2DT3H4M20.345S", (2L * 24L * 60L * 60L * 1000L)
+                    + (3L * 60L * 60L * 1000L) + (4L * 60L * 1000L)
+                    + ((20L * 1000L) + 345));
+        }
+    }
+
     private void testInitDuration(String d, long expect) throws Exception {
         testInit("duration", d, expect);
     }
@@ -647,13 +697,23 @@ public class DurationFilterTest {
         }
     }
 
+    private boolean isoDurationAllowed() {
+        try {
+            Class.forName("java.time.Duration");
+            return true;
+        } catch (final ClassNotFoundException notSupported) {
+        } catch (final NoClassDefFoundError notSupported) {
+        }
+        return false;
+    }
+
     private void read(LogManager manager, Properties props) throws IOException {
         final ByteArrayOutputStream out = new ByteArrayOutputStream(512);
         props.store(out, "No comment");
         manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
     }
 
-    public final class DurationFilterExt extends DurationFilter
+    public static final class DurationFilterExt extends DurationFilter
             implements Cloneable {
 
         public DurationFilterExt() {

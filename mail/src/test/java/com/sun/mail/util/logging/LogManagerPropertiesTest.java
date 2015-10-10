@@ -463,6 +463,69 @@ public class LogManagerPropertiesTest {
         }
         Assert.assertFalse(fail);
     }
+    
+    @Test
+    public void testParseDurationMs() throws Exception {
+        try {
+            long ms = LogManagerProperties.parseDurationToMillis("PT0.345S");
+            assertEquals(345L, ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
+
+    @Test
+    public void testParseDurationSec() throws Exception {
+        try {
+            long ms = LogManagerProperties.parseDurationToMillis("PT20.345S");
+            assertEquals((20L * 1000L) + 345L, ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
+
+    @Test
+    public void testParseDurationMin() throws Exception {
+        try {
+            long ms = LogManagerProperties.parseDurationToMillis("PT15M");
+            assertEquals(15L * 60L * 1000L, ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
+
+    @Test
+    public void testParseDurationHour() throws Exception {
+        try {
+            long ms = LogManagerProperties.parseDurationToMillis("PT10H");
+            assertEquals(10L * 60L * 60L * 1000L, ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
+
+    @Test
+    public void testParseDurationDay() throws Exception {
+        try {
+            long ms = LogManagerProperties.parseDurationToMillis("P2D");
+            assertEquals(2L * 24L * 60L * 60L * 1000L, ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
+
+    @Test
+    public void testParseDurationAll() throws Exception {
+        try {
+            long ms = LogManagerProperties
+                    .parseDurationToMillis("P2DT3H4M20.345S");
+            assertEquals((2L * 24L * 60L * 60L * 1000L)
+                    + (3L * 60L * 60L * 1000L) + (4L * 60L * 1000L)
+                    + ((20L * 1000L) + 345), ms);
+        } catch (ClassNotFoundException ignore) {
+        } catch (NoClassDefFoundError ignore) {
+        }
+    }
 
     @Test
     public void testGetProperty_String() throws Exception {
