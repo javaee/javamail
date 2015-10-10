@@ -73,7 +73,7 @@ public final class IMAPIdleManagerTest {
 
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(5 * TIMEOUT);
+    public Timeout deadlockTimeout = new Timeout(10 * TIMEOUT);
 
     /**
      * Test that IdleManager handles multiple responses in a single packet.
