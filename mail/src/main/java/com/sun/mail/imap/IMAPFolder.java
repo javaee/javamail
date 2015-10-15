@@ -811,9 +811,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Check whether this folder has new messages.
      */
     public synchronized boolean hasNewMessages() throws MessagingException {
-	if (opened) {	// If we are open, we already have this information
-	    // Folder is open, make sure information is up to date
-	    synchronized(messageCacheLock) {
+	synchronized (messageCacheLock) {
+	    if (opened) { // If we are open, we already have this information
+		// Folder is open, make sure information is up to date
 		// tickle the folder and store connections.
 		try {
 		    keepConnectionAlive(true);
@@ -1129,7 +1129,15 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      */
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 			throws MessagingException {
-	checkOpened();
+	// cache this information in case connection is closed and
+	// protocol is set to null
+	boolean isRev1;
+	FetchItem[] fitems;
+        synchronized (messageCacheLock) {
+	    checkOpened();
+	    isRev1 = protocol.isREV1();
+	    fitems = protocol.getFetchItems();
+	}
 
 	StringBuffer command = new StringBuffer();
 	boolean first = true;
@@ -1153,7 +1161,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	}
 	if (fp.contains(IMAPFolder.FetchProfileItem.HEADERS)) {
 	    allHeaders = true;
-	    if (protocol.isREV1())
+	    if (isRev1)
 		command.append(first ?
 			    "BODY.PEEK[HEADER]" : " BODY.PEEK[HEADER]");
 	    else
@@ -1162,7 +1170,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	}
 	if (fp.contains(IMAPFolder.FetchProfileItem.MESSAGE)) {
 	    allHeaders = true;
-	    if (protocol.isREV1())
+	    if (isRev1)
 		command.append(first ? "BODY.PEEK[]" : " BODY.PEEK[]");
 	    else
 		command.append(first ? "RFC822" : " RFC822");
@@ -1181,14 +1189,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (hdrs.length > 0) {
 		if (!first)
 		    command.append(" ");
-		command.append(createHeaderCommand(hdrs));
+		command.append(createHeaderCommand(hdrs, isRev1));
 	    }
 	}
 
 	/*
 	 * Add any additional extension fetch items.
 	 */
-	FetchItem[] fitems = protocol.getFetchItems();
 	for (int i = 0; i < fitems.length; i++) {
 	    if (fp.contains(fitems[i].getFetchProfileItem())) {
 		if (command.length() != 0)
@@ -1201,7 +1208,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    new IMAPMessage.FetchProfileCondition(fp, fitems);
 
         // Acquire the Folder's MessageCacheLock.
-        synchronized(messageCacheLock) {
+        synchronized (messageCacheLock) {
+
+	    // check again to make sure folder is still open
+	    checkOpened();
 
 	    // Apply the test, and get the sequence-number set for
 	    // the messages that need to be prefetched.
@@ -1304,10 +1314,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Create the appropriate IMAP FETCH command items to fetch the
      * requested headers.
      */
-    private String createHeaderCommand(String[] hdrs) {
+    private String createHeaderCommand(String[] hdrs, boolean isRev1) {
 	StringBuffer sb;
 
-	if (protocol.isREV1())
+	if (isRev1)
 	    sb = new StringBuffer("BODY.PEEK[HEADER.FIELDS (");
 	else
 	    sb = new StringBuffer("RFC822.HEADER.LINES (");
@@ -1318,7 +1328,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    sb.append(hdrs[i]);
 	}
 
-	if (protocol.isREV1())
+	if (isRev1)
 	    sb.append(")]");
 	else
 	    sb.append(")");
@@ -1537,96 +1547,95 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Get the total message count.
      */
     public synchronized int getMessageCount() throws MessagingException {
-	if (!opened) {
-	    checkExists();
-	    // If this folder is not yet open, we use STATUS to
-	    // get the total message count
-	    try {
-		Status status = getStatus();
-		return status.total;
-	    } catch (BadCommandException bex) {
-		// doesn't support STATUS, probably vanilla IMAP4 ..
-		// lets try EXAMINE
-                IMAPProtocol p = null;
-
-	        try {
-	            p = getStoreProtocol();	// XXX
-		    MailboxInfo minfo = p.examine(fullName);
-		    p.close();
-		    return minfo.total;
+	synchronized (messageCacheLock) {
+	    if (opened) {
+		// Folder is open, we know what the total message count is ..
+		// tickle the folder and store connections.
+		try {
+		    keepConnectionAlive(true);
+		    return total;
+		} catch (ConnectionException cex) {
+		    throw new FolderClosedException(this, cex.getMessage());
 		} catch (ProtocolException pex) {
-		    // Give up.
 		    throw new MessagingException(pex.getMessage(), pex);
-		} finally {
-                    releaseStoreProtocol(p);
-                }
-	    } catch (ConnectionException cex) {
-                throw new StoreClosedException(store, cex.getMessage());
-	    } catch (ProtocolException pex) {
-		throw new MessagingException(pex.getMessage(), pex);
+		}
 	    }
 	}
 
-	// Folder is open, we know what the total message count is ..
-	synchronized(messageCacheLock) {
-	    // tickle the folder and store connections.
+	// If this folder is not yet open, we use STATUS to
+	// get the total message count
+	checkExists();
+	try {
+	    Status status = getStatus();
+	    return status.total;
+	} catch (BadCommandException bex) {
+	    // doesn't support STATUS, probably vanilla IMAP4 ..
+	    // lets try EXAMINE
+	    IMAPProtocol p = null;
+
 	    try {
-		keepConnectionAlive(true);
-		return total;
-	    } catch (ConnectionException cex) {
-		throw new FolderClosedException(this, cex.getMessage());
+		p = getStoreProtocol();	// XXX
+		MailboxInfo minfo = p.examine(fullName);
+		p.close();
+		return minfo.total;
 	    } catch (ProtocolException pex) {
+		// Give up.
 		throw new MessagingException(pex.getMessage(), pex);
+	    } finally {
+		releaseStoreProtocol(p);
 	    }
+	} catch (ConnectionException cex) {
+	    throw new StoreClosedException(store, cex.getMessage());
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
 	}
     }
 
     /**
      * Get the new message count.
      */
-    public synchronized int getNewMessageCount()
-			throws MessagingException {
-	if (!opened) {
-	    checkExists();
-	    // If this folder is not yet open, we use STATUS to
-	    // get the new message count
-	    try {
-		Status status = getStatus();
-		return status.recent;
-	    } catch (BadCommandException bex) {
-		// doesn't support STATUS, probably vanilla IMAP4 ..
-		// lets try EXAMINE
-                IMAPProtocol p = null;
-
-	        try {
-	            p = getStoreProtocol();	// XXX
-		    MailboxInfo minfo = p.examine(fullName);
-		    p.close();
-		    return minfo.recent;
+    public synchronized int getNewMessageCount() throws MessagingException {
+	synchronized (messageCacheLock) {
+	    if (opened) {
+		// Folder is open, we know what the new message count is ..
+		// tickle the folder and store connections.
+		try {
+		    keepConnectionAlive(true);
+		    return recent;
+		} catch (ConnectionException cex) {
+		    throw new FolderClosedException(this, cex.getMessage());
 		} catch (ProtocolException pex) {
-		    // Give up.
 		    throw new MessagingException(pex.getMessage(), pex);
-		} finally {
-                    releaseStoreProtocol(p);
-                }
-	    } catch (ConnectionException cex) {
-		throw new StoreClosedException(store, cex.getMessage());
-	    } catch (ProtocolException pex) {
-		throw new MessagingException(pex.getMessage(), pex);
+		}
 	    }
 	}
 
-	// Folder is open, we know what the new message count is ..
-	synchronized(messageCacheLock) {
-	    // tickle the folder and store connections.
+	// If this folder is not yet open, we use STATUS to
+	// get the new message count
+	checkExists();
+	try {
+	    Status status = getStatus();
+	    return status.recent;
+	} catch (BadCommandException bex) {
+	    // doesn't support STATUS, probably vanilla IMAP4 ..
+	    // lets try EXAMINE
+	    IMAPProtocol p = null;
+
 	    try {
-		keepConnectionAlive(true);
-		return recent;
-	    } catch (ConnectionException cex) {
-		throw new FolderClosedException(this, cex.getMessage());
+		p = getStoreProtocol();	// XXX
+		MailboxInfo minfo = p.examine(fullName);
+		p.close();
+		return minfo.recent;
 	    } catch (ProtocolException pex) {
+		// Give up.
 		throw new MessagingException(pex.getMessage(), pex);
+	    } finally {
+		releaseStoreProtocol(p);
 	    }
+	} catch (ConnectionException cex) {
+	    throw new StoreClosedException(store, cex.getMessage());
+	} catch (ProtocolException pex) {
+	    throw new MessagingException(pex.getMessage(), pex);
 	}
     }
 
@@ -1737,6 +1746,23 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	checkRange(msgnum);
 
 	return messageCache.getMessage(msgnum);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public synchronized Message[] getMessages() throws MessagingException {
+	/*
+	 * Need to override Folder method to throw FolderClosedException
+	 * instead of IllegalStateException if not really closed.
+	 */
+	checkOpened();
+	int total = getMessageCount();
+	Message[] msgs = new Message[total];
+	for (int i = 1; i <= total; i++)
+	    msgs[i - 1] = messageCache.getMessage(i);
+	return msgs;
     }
 
     /**
@@ -3796,6 +3822,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     protected void keepConnectionAlive(boolean keepStoreAlive) 
                     throws ProtocolException {
 
+	assert Thread.holdsLock(messageCacheLock);
+	if (protocol == null)	// in case connection was closed
+	    return;
         if (System.currentTimeMillis() - protocol.getTimestamp() > 1000) {
 	    waitIfIdle();
 	    if (protocol != null)
