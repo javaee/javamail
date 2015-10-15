@@ -279,7 +279,7 @@ public class IdleManager {
 		 */
 		do {
 		    processKeys();
-		} while (selector.selectNow() > 0);
+		} while (selector.selectNow() > 0 || !toAbort.isEmpty());
 	    }
 	} catch (InterruptedIOException ex) {
 	    logger.log(Level.FINEST, "IdleManager interrupted", ex);

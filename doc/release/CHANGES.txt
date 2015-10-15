@@ -34,6 +34,7 @@ K  6997	add support for IMAP login referrals (RFC 2221)
 K  7009	whitespace line at beginning confuses InternetHeaders
 K  7014	IndexOutOfBoundsException reading IMAP literal when connection fails
 K  7019	IdleManager dies with CancelledKeyException
+K  7026	IdleManager can deadlock when not busy
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
