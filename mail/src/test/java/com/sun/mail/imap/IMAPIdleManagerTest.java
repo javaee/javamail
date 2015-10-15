@@ -106,9 +106,10 @@ public final class IMAPIdleManagerTest {
 	    idleManager = new IdleManager(session, executor);
 
             final IMAPStore store = (IMAPStore)session.getStore("imap");
+	    Folder folder = null;
             try {
                 store.connect("test", "test");
-		Folder folder = store.getFolder("INBOX");
+		folder = store.getFolder("INBOX");
 		folder.open(Folder.READ_WRITE);
 		idleManager.watch(folder);
 		handler.waitForIdle();
@@ -125,9 +126,12 @@ public final class IMAPIdleManagerTest {
 		assertEquals(3, count);
 	    } catch (Exception ex) {
 		System.out.println(ex);
-		//ex.printStackTrace();
+		ex.printStackTrace();
 		fail(ex.toString());
             } finally {
+		try {
+		    folder.close(false);
+		} catch (Exception ex2) { }
                 store.close();
             }
         } catch (final Exception e) {
@@ -198,9 +202,10 @@ public final class IMAPIdleManagerTest {
 	    idleManager = new IdleManager(session, executor);
 
             final IMAPStore store = (IMAPStore)session.getStore("imap");
+	    Folder folder = null;
             try {
                 store.connect("test", "test");
-		Folder folder = store.getFolder("INBOX");
+		folder = store.getFolder("INBOX");
 		folder.open(Folder.READ_WRITE);
 		idleManager.watch(folder);
 		handler.waitForIdle();
@@ -214,10 +219,13 @@ public final class IMAPIdleManagerTest {
 	    } catch (MessagingException mex) {
 		// success!
 	    } catch (Exception ex) {
-		System.out.println(ex);
-		//ex.printStackTrace();
+		System.out.println("Failed with exception: " + ex);
+		ex.printStackTrace();
 		fail(ex.toString());
             } finally {
+		try {
+		    folder.close(false);
+		} catch (Exception ex2) { }
                 store.close();
             }
         } catch (final Exception e) {
