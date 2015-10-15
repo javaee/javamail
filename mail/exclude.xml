@@ -171,6 +171,7 @@
 	    <Method name="authlogin"/>
 	    <Method name="authntlm"/>
 	    <Method name="authplain"/>
+	    <Method name="authoauth2"/>
 	    <Method name="sasllogin"/>
 	</Or>
 	<Bug pattern="REC_CATCH_EXCEPTION"/>
@@ -366,6 +367,16 @@
     <Match>
 	<Class name="javax.mail.internet.MimeUtility"/>
 	<Method name="decodeText"/>
+	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
+    </Match>
+
+    <!--
+	This string comparison using == is to determine whether the
+	String object is the original default String object.
+    -->
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport"/>
+	<Method name="authenticate"/>
 	<Bug pattern="ES_COMPARING_STRINGS_WITH_EQ"/>
     </Match>
 

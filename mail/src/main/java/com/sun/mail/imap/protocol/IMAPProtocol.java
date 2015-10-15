@@ -129,8 +129,10 @@ public class IMAPProtocol extends Protocol {
 	    this.name = name;
 	    noauthdebug =
 		!PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
+
+	    // in case it was not initialized in processGreeting
 	    referralException = PropUtil.getBooleanProperty(props,
-				"mail." + name + ".referralexception", false);
+				prefix + ".referralexception", false);
 
 	    if (capabilities == null)
 		capability();
@@ -300,6 +302,9 @@ public class IMAPProtocol extends Protocol {
 	}
 	if (r.isOK()) {			// check if it's OK
 	    // XXX - is a REFERRAL response code really allowed here?
+	    // XXX - referralException hasn't been initialized in c'tor yet
+	    referralException = PropUtil.getBooleanProperty(props,
+				prefix + ".referralexception", false);
 	    if (referralException)
 		checkReferral(r);
 	    setCapabilities(r);
