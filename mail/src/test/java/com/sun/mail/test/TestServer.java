@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-//import javax.net.ssl.SSLServerSocketFactory;
+import java.net.InetSocketAddress;
 import javax.net.ssl.*;
 
 /**
@@ -85,10 +85,41 @@ public final class TestServer extends Thread {
     public TestServer(final ProtocolHandler handler, final boolean isSSL)
 				throws IOException {
         this.handler = handler;
+
+	/*
+	 * Allowing the JDK to pick a port number sometimes results in it
+	 * picking a number that's already in use by another process, but
+	 * no error is returned.  Picking it ourself allows us to make sure
+	 * that it's not used before we pick it.  Hopefully the socket
+	 * creation will fail if the port is already in use.
+	 *
+	 * XXX - perhaps we should use Random to choose a port number in
+	 * the emphemeral range, in case a lot of low port numbers are
+	 * already in use.
+	 */
+	for (int port = 49152; port < 50000 /*65535*/; port++) {
+	    /*
+	    if (isListening(port))
+		continue;
+	    */
+	    try {
+		serverSocket = createServerSocket(port, isSSL);
+		return;
+	    } catch (IOException ex) {
+		// ignore
+	    }
+	    return;
+	}
+	throw new RuntimeException("Can't find unused port");
+    }
+
+    private static ServerSocket createServerSocket(int port, boolean isSSL)
+				throws IOException {
+	ServerSocket ss;
 	if (isSSL) {
 	    SSLServerSocketFactory sf =
 		(SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
-	    serverSocket = sf.createServerSocket(0);
+	    ss = sf.createServerSocket(port);
 	    // enable only the anonymous cipher suites so we don't have to
 	    // create a server certificate
 	    List<String> anon = new ArrayList<String>();
@@ -98,10 +129,11 @@ public final class TestServer extends Thread {
 		    anon.add(suites[i]);
 		}
 	    }
-	    ((SSLServerSocket)serverSocket).setEnabledCipherSuites(
-					anon.toArray(new String[anon.size()]));
+	    ((SSLServerSocket)ss).setEnabledCipherSuites(
+				    anon.toArray(new String[anon.size()]));
 	} else
-	    serverSocket = new ServerSocket(0);
+	    ss = new ServerSocket(port);
+	return ss;
     }
 
     /**
@@ -129,6 +161,23 @@ public final class TestServer extends Thread {
     /**
      * {@inheritDoc}
      */
+    public void start() {
+	super.start();
+	// don't return until server is really listening
+	// XXX - this might not be necessary
+	for (int tries = 0; tries < 10; tries++) {
+	    if (isListening(getPort()))
+		return;
+	    try {
+		Thread.sleep(100);
+	    } catch (InterruptedException ex) { }
+	}
+	throw new RuntimeException("Server isn't listening");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public void run() {
         try {
             keepOn = true;
@@ -147,5 +196,18 @@ public final class TestServer extends Thread {
         } finally {
             quit();
         }
+    }
+
+    private static boolean isListening(int port) {
+	try {
+	    Socket s = new Socket();
+	    s.connect(new InetSocketAddress("localhost", port), 100);
+	    // it's listening!
+	    s.close();
+	    return true;
+	} catch (Exception ex) {
+	    //System.out.println(ex);
+	}
+	return false;
     }
 }
