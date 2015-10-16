@@ -37,6 +37,7 @@ K  7019	IdleManager dies with CancelledKeyException
 K  7026	IdleManager can deadlock when not busy
 K  7027	IMAP Folder methods throw runtime exceptions when connection drops
 K  7028	InternetAddress doesn't detect some illegal newlines
+K  7030	Status class doesn't decode mailbox name
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
