@@ -223,6 +223,7 @@ public class IMAPStore extends Store
     private boolean throwSearchException = false;
     private boolean peek = false;
     private boolean closeFoldersOnStoreFailure = true;
+    private boolean enableCompress = false;	// enable COMPRESS=DEFLATE
 
     /*
      * This field is set in the Store's response handler if we see
@@ -589,6 +590,12 @@ public class IMAPStore extends Store
 	if (closeFoldersOnStoreFailure)
 	    logger.config("closeFoldersOnStoreFailure");
 
+	// check if COMPRESS is enabled
+	enableCompress = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".compress.enable", false);
+	if (enableCompress)
+	    logger.config("enable COMPRESS");
+
 	s = session.getProperty("mail." + name + ".folder.class");
 	if (s != null) {
 	    logger.log(Level.CONFIG, "IMAP: folder class: {0}", s);
@@ -814,6 +821,12 @@ public class IMAPStore extends Store
 		// XXX - assume connection has been closed
 	    } catch (ProtocolException pex) {
 		// ignore other exceptions that "should never happen"
+	    }
+	}
+
+	if (enableCompress) {
+	    if (p.hasCapability("COMPRESS=DEFLATE")) {
+		p.compress();
 	    }
 	}
     }

@@ -47,6 +47,11 @@ import java.nio.channels.SocketChannel;
 import java.net.*;
 import java.util.logging.Level;
 import javax.net.ssl.SSLSocket;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
+
 import com.sun.mail.util.*;
 
 /**
@@ -443,6 +448,53 @@ public class Protocol {
 	simpleCommand(cmd, null);
 	socket = SocketFetcher.startTLS(socket, host, props, prefix);
 	initStreams();
+    }
+
+    /**
+     * Start compression on the current connection.
+     * <code>cmd</code> is the command to issue to start compression.
+     * If the command succeeds, we begin compression.
+     *
+     * @param	cmd	the command to issue
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
+     */
+    public synchronized void startCompression(String cmd)
+				throws IOException, ProtocolException {
+	// XXX - check whether compression is already enabled?
+	simpleCommand(cmd, null);
+	// need to create our own Inflater and Deflater in order to set nowrap
+	Inflater inf = new Inflater(true);
+	traceInput = new TraceInputStream(new InflaterInputStream(
+			    socket.getInputStream(), inf), traceLogger);
+	traceInput.setQuote(quote);
+	input = new ResponseInputStream(traceInput);
+
+	// configure the Deflater
+	int level = PropUtil.getIntProperty(props, prefix + ".compress.level",
+						Deflater.DEFAULT_COMPRESSION);
+	int strategy = PropUtil.getIntProperty(props,
+						prefix + ".compress.strategy",
+						Deflater.DEFAULT_STRATEGY);
+	if (logger.isLoggable(Level.FINE))
+	    logger.log(Level.FINE,
+		"Creating Deflater with compression level {0} and strategy {1}",
+		new Object[] { level, strategy });
+	Deflater def = new Deflater(Deflater.DEFAULT_COMPRESSION, true);
+	try {
+	    def.setLevel(level);
+	} catch (IllegalArgumentException ex) {
+	    logger.log(Level.FINE, "Ignoring bad compression level", ex);
+	}
+	try {
+	    def.setStrategy(strategy);
+	} catch (IllegalArgumentException ex) {
+	    logger.log(Level.FINE, "Ignoring bad compression strategy", ex);
+	}
+	traceOutput = new TraceOutputStream(new DeflaterOutputStream(
+			    socket.getOutputStream(), def, true), traceLogger);
+	traceOutput.setQuote(quote);
+	output = new DataOutputStream(new BufferedOutputStream(traceOutput));
     }
 
     /**

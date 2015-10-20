@@ -1095,6 +1095,32 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * COMPRESS Command.  Only supports DEFLATE.
+     * 
+     * @exception	ProtocolException	for protocol failures
+     * @see "RFC 4978"
+     */
+    public void compress() throws ProtocolException {
+	try {
+	    super.startCompression("COMPRESS DEFLATE");
+	} catch (ProtocolException pex) {
+	    logger.log(Level.FINE, "COMPRESS ProtocolException", pex);
+	    // ProtocolException just means the command wasn't recognized,
+	    // or failed.  This should never happen if we check the
+	    // CAPABILITY first.
+	    throw pex;
+	} catch (Exception ex) {
+	    logger.log(Level.FINE, "COMPRESS Exception", ex);
+	    // any other exception means we have to shut down the connection
+	    // generate an artificial BYE response and disconnect
+	    Response[] r = { Response.byeResponse(ex) };
+	    notifyResponseHandlers(r);
+	    disconnect();
+	    throw new ProtocolException("COMPRESS failure", ex);
+	}
+    }
+
+    /**
      * SELECT Command.
      *
      * @param	mbox	the mailbox name
