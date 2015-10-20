@@ -70,7 +70,7 @@ public final class WriteTimeoutSocketTest {
 
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(20000);
+    public Timeout deadlockTimeout = Timeout.seconds(20);
 
     private static final int TIMEOUT = 200;	// ms
     private static final String data =

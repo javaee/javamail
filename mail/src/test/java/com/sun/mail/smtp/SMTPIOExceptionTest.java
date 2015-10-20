@@ -67,7 +67,7 @@ public final class SMTPIOExceptionTest {
 
     // timeout the test in case of failure
     @Rule
-    public Timeout deadlockTimeout = new Timeout(5000);
+    public Timeout deadlockTimeout = Timeout.seconds(5);
 
     private boolean closed = false;
 

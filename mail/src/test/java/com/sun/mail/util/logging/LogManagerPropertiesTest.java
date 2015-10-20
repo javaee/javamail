@@ -52,7 +52,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.*;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
-import junit.framework.Assert;
 import org.junit.*;
 import static org.junit.Assert.*;
 

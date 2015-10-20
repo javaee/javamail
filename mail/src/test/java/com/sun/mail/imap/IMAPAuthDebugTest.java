@@ -67,7 +67,7 @@ public final class IMAPAuthDebugTest {
 
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(20000);
+    public Timeout deadlockTimeout = Timeout.seconds(20);
 
     /**
      * Test that authentication information isn't included in the debug output.

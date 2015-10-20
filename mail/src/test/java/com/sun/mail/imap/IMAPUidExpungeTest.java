@@ -68,7 +68,7 @@ public final class IMAPUidExpungeTest {
 
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(20000);
+    public Timeout deadlockTimeout = Timeout.seconds(20);
 
     public static interface IMAPTest {
 	public void test(Folder folder, IMAPHandlerExpunge handler)

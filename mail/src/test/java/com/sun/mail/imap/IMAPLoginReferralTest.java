@@ -70,7 +70,7 @@ public final class IMAPLoginReferralTest {
 
     // timeout the test in case of deadlock
     @Rule
-    public Timeout deadlockTimeout = new Timeout(5 * TIMEOUT);
+    public Timeout deadlockTimeout = Timeout.millis(5 * TIMEOUT);
 
     /**
      * Test referral in BYE when connecting.
