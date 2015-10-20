@@ -108,7 +108,6 @@ public final class TestServer extends Thread {
 	    } catch (IOException ex) {
 		// ignore
 	    }
-	    return;
 	}
 	throw new RuntimeException("Can't find unused port");
     }
