@@ -40,14 +40,15 @@
 
 package javax.mail.internet;
 
-import java.io.StringBufferInputStream;
+import com.sun.mail.test.AsciiStringInputStream;
+import com.sun.mail.test.NullOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
@@ -199,7 +200,7 @@ public class MimeMultipartPropertyTest {
 	    "\n" +
 	    (end ? "--" + actual + "--\n" : "");
  
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 
     /**
@@ -211,6 +212,6 @@ public class MimeMultipartPropertyTest {
 	    "Subject: Example\n" +
 	    "Content-Type: multipart/mixed; boundary=\"x\"\n\n";
  
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 }

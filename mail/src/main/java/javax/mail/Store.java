@@ -191,7 +191,7 @@ public abstract class Store extends Service {
     }
 
     // Vector of Store listeners
-    private volatile Vector storeListeners = null;
+    private volatile Vector<StoreListener> storeListeners = null;
 
     /**
      * Add a listener for StoreEvents on this Store. <p>
@@ -204,7 +204,7 @@ public abstract class Store extends Service {
      */
     public synchronized void addStoreListener(StoreListener l) {
 	if (storeListeners == null)
-	    storeListeners = new Vector();
+	    storeListeners = new Vector<StoreListener>();
 	storeListeners.addElement(l);
     }
 
@@ -244,7 +244,7 @@ public abstract class Store extends Service {
     }
 
     // Vector of folder listeners
-    private volatile Vector folderListeners = null;
+    private volatile Vector<FolderListener> folderListeners = null;
 
     /**
      * Add a listener for Folder events on any Folder object 
@@ -260,7 +260,7 @@ public abstract class Store extends Service {
      */
     public synchronized void addFolderListener(FolderListener l) {
    	if (folderListeners == null)
-	    folderListeners = new Vector();
+	    folderListeners = new Vector<FolderListener>();
 	folderListeners.addElement(l);
     }
 

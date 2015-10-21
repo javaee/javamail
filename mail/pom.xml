@@ -102,34 +102,19 @@
 	    -->
 	    <plugin>
 		<artifactId>maven-compiler-plugin</artifactId>
-		<executions>
-		    <execution>
-			<id>default-compile</id>
-			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
-			    <fork>true</fork>
-			    <!--
-				ignore some of the errors that are
-				too hard to fix for now
-			    -->
-			    <compilerArguments>
-				<Xlint:all/>
-				<Xlint:-rawtypes/>
-				<Xlint:-unchecked/>
+		<configuration>
+			<source>1.5</source>
+			<target>1.5</target>
+			<compilerArguments>
+				<Xlint/>
+				<!-- 1.5 is obsolete and will be removed in a future release -->
+				<Xlint:-options/>
 				<Xlint:-finally/>
-			    </compilerArguments>
-			    <showWarnings>true</showWarnings>
-			</configuration>
-		    </execution>
-		    <execution>
-			<id>default-testCompile</id>
-			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
-			</configuration>
-		    </execution>
-		</executions>
+				<Werror/>
+			</compilerArguments>
+			<showDeprecation>true</showDeprecation>
+			<showWarnings>true</showWarnings>
+		</configuration>
 	    </plugin>
 
 	    <!--

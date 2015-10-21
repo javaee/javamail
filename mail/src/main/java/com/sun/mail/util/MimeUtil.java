@@ -61,7 +61,7 @@ public class MimeUtil {
 	    String cth = System.getProperty("mail.mime.contenttypehandler");
 	    if (cth != null) {
 		ClassLoader cl = getContextClassLoader();
-		Class clsHandler = null;
+		Class<?> clsHandler = null;
 		if (cl != null) {
 		    try {
 			clsHandler = Class.forName(cth, false, cl);
@@ -70,7 +70,7 @@ public class MimeUtil {
 		if (clsHandler == null)
 		    clsHandler = Class.forName(cth);
 		meth = clsHandler.getMethod("cleanContentType",
-				new Class[] { MimePart.class, String.class });
+			new Class<?>[] { MimePart.class, String.class });
 	    }
 	} catch (ClassNotFoundException ex) {
 	    // ignore it
@@ -113,9 +113,9 @@ public class MimeUtil {
      * Thread.getContextClassLoader method.
      */
     private static ClassLoader getContextClassLoader() {
-	return (ClassLoader)
-		AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
+	return
+	AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+	    public ClassLoader run() {
 		ClassLoader cl = null;
 		try {
 		    cl = Thread.currentThread().getContextClassLoader();

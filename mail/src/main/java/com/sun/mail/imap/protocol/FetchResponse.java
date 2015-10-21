@@ -65,7 +65,7 @@ public class FetchResponse extends IMAPResponse {
      * regular items and extension items.
      */
     private Item[] items;
-    private Map extensionItems;
+    private Map<String, Object> extensionItems;
     private final FetchItem[] fitems;
 
     public FetchResponse(Protocol p) 
@@ -188,7 +188,7 @@ public class FetchResponse extends IMAPResponse {
      * @return	Map of extension items, or null if none
      * @since JavaMail 1.4.6
      */
-    public Map getExtensionItems() {
+    public Map<String, Object> getExtensionItems() {
 	return extensionItems;
     }
 
@@ -298,7 +298,7 @@ public class FetchResponse extends IMAPResponse {
 	for (int i = 0; i < fitems.length; i++) {
 	    if (match(fitems[i].getName())) {
 		if (extensionItems == null)
-		    extensionItems = new HashMap();
+		    extensionItems = new HashMap<String, Object>();
 		extensionItems.put(fitems[i].getName(),
 				    fitems[i].parseItem(this));
 		return true;

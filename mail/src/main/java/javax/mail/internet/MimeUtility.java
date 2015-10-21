@@ -148,7 +148,8 @@ public class MimeUtility {
 
     // cached map of whether a charset is compatible with ASCII
     // Map<String,Boolean>
-    private static final Map nonAsciiCharsetMap = new HashMap();
+    private static final Map<String, Boolean> nonAsciiCharsetMap
+	    = new HashMap<String, Boolean>();
 
     private static final boolean decodeStrict =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodetext.strict", true);
@@ -256,7 +257,7 @@ public class MimeUtility {
 	charset = charset.toLowerCase(Locale.ENGLISH);
 	Boolean bool;
 	synchronized (nonAsciiCharsetMap) {
-	    bool = (Boolean)nonAsciiCharsetMap.get(charset);
+	    bool = nonAsciiCharsetMap.get(charset);
 	}
 	if (bool == null) {
 	    try {
@@ -1197,8 +1198,7 @@ public class MimeUtility {
 	    // no mapping table, or charset parameter is null
 	    return charset;
 
-	String alias =
-	    (String)mime2java.get(charset.toLowerCase(Locale.ENGLISH));
+	String alias = mime2java.get(charset.toLowerCase(Locale.ENGLISH));
 	return alias == null ? charset : alias;
     }
 
@@ -1220,8 +1220,7 @@ public class MimeUtility {
 	    // no mapping table or charset param is null
 	    return charset;
 
-	String alias =
-	    (String)java2mime.get(charset.toLowerCase(Locale.ENGLISH));
+	String alias = java2mime.get(charset.toLowerCase(Locale.ENGLISH));
 	return alias == null ? charset : alias;
     }
 
@@ -1290,12 +1289,12 @@ public class MimeUtility {
 
     // Tables to map MIME charset names to Java names and vice versa.
     // XXX - Should eventually use J2SE 1.4 java.nio.charset.Charset
-    private static Hashtable mime2java;
-    private static Hashtable java2mime;
+    private static Hashtable<String, String> mime2java;
+    private static Hashtable<String, String> java2mime;
 
     static {
-	java2mime = new Hashtable(40);
-	mime2java = new Hashtable(10);
+	java2mime = new Hashtable<String, String>(40);
+	mime2java = new Hashtable<String, String>(10);
 
 	try {
 	    // Use this class's classloader to load the mapping file
@@ -1386,7 +1385,8 @@ public class MimeUtility {
 	}
     }
 
-    private static void loadMappings(LineInputStream is, Hashtable table) {
+    private static void loadMappings(LineInputStream is,
+	    Hashtable<String, String> table) {
 	String currLine;
 
 	while (true) {

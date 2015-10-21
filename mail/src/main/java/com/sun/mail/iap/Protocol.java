@@ -89,7 +89,8 @@ public class Protocol {
      * because we depend on it always existing and depend
      * on the synchronization that Vector provides.
      */
-    private final Vector handlers = new Vector(); // response handlers
+    private final Vector<ResponseHandler> handlers
+	    = new Vector<ResponseHandler>(); // response handlers
 
     private volatile long timestamp;
 
@@ -339,7 +340,7 @@ public class Protocol {
      */
     public synchronized Response[] command(String command, Argument args) {
 	commandStart(command);
-	Vector v = new Vector();
+	Vector<Response> v = new Vector<Response>();
 	boolean done = false;
 	String tag = null;
 	Response r = null;

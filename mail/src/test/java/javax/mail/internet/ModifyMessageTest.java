@@ -40,20 +40,17 @@
 
 package javax.mail.internet;
 
-import java.io.OutputStream;
-import java.io.StringBufferInputStream;
+import com.sun.mail.test.AsciiStringInputStream;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.MessagingException;
 import javax.mail.BodyPart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test some of the ways you might modify a message that has been
@@ -159,7 +156,7 @@ public class ModifyMessageTest {
 	    "\n" +
 	    "-----\n";
 
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 
     private static MimeMessage createNestedMessage() throws MessagingException {
@@ -189,6 +186,6 @@ public class ModifyMessageTest {
 	    "--x--\n" +
 	    "-----\n";
 
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 }

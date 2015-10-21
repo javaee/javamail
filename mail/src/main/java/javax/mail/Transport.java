@@ -213,21 +213,22 @@ public abstract class Transport extends Service {
 	 * protocols is a hashtable containing the addresses
 	 * indexed by address type
 	 */
-	Hashtable protocols = new Hashtable();
+	Hashtable<String, Vector<Address>> protocols
+		= new Hashtable<String, Vector<Address>>();
 
 	// Vectors of addresses
-	Vector invalid = new Vector();
-	Vector validSent = new Vector();
-	Vector validUnsent = new Vector();
+	Vector<Address> invalid = new Vector<Address>();
+	Vector<Address> validSent = new Vector<Address>();
+	Vector<Address> validUnsent = new Vector<Address>();
 
 	for (int i = 0; i < addresses.length; i++) {
 	    // is this address type already in the hashtable?
 	    if (protocols.containsKey(addresses[i].getType())) {
-		Vector v = (Vector)protocols.get(addresses[i].getType());
+		Vector<Address> v = protocols.get(addresses[i].getType());
 		v.addElement(addresses[i]);
 	    } else {
 		// need to add a new protocol
-		Vector w = new Vector();
+		Vector<Address> w = new Vector<Address>();
 		w.addElement(addresses[i]);
 		protocols.put(addresses[i].getType(), w);
 	    }
@@ -265,9 +266,9 @@ public abstract class Transport extends Service {
 	MessagingException chainedEx = null;
 	boolean sendFailed = false;
 
-	Enumeration e = protocols.elements();
+	Enumeration<Vector<Address>> e = protocols.elements();
 	while (e.hasMoreElements()) {
-	    Vector v = (Vector)e.nextElement();
+	    Vector<Address> v = e.nextElement();
 	    Address[] protaddresses = new Address[v.size()];
 	    v.copyInto(protaddresses);
 
@@ -365,7 +366,7 @@ public abstract class Transport extends Service {
 				throws MessagingException;
 
     // Vector of Transport listeners
-    private volatile Vector transportListeners = null;
+    private volatile Vector<TransportListener> transportListeners = null;
 
     /**
      * Add a listener for Transport events. <p>
@@ -378,7 +379,7 @@ public abstract class Transport extends Service {
      */
     public synchronized void addTransportListener(TransportListener l) {
 	if (transportListeners == null)
-	    transportListeners = new Vector();
+	    transportListeners = new Vector<TransportListener>();
 	transportListeners.addElement(l);
     }
 

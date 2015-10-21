@@ -493,7 +493,8 @@ public class SharedFileInputStream extends BufferedInputStream
      * @return  the current position
      */
     public long getPosition() {
-//System.out.println("getPosition: start " + start + " pos " + pos + " bufpos " + bufpos + " = " + (bufpos + pos - start));
+//System.out.println("getPosition: start " + start + " pos " + pos 
+//	+ " bufpos " + bufpos + " = " + (bufpos + pos - start));
 	if (in == null)
 	    throw new RuntimeException("Stream closed");
 	return bufpos + pos - start;

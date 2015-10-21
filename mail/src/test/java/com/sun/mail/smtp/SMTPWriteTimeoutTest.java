@@ -56,7 +56,6 @@ import com.sun.mail.test.TestServer;
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -66,7 +65,7 @@ public final class SMTPWriteTimeoutTest {
 
     // timeout the test in case of failure
     @Rule
-    public Timeout deadlockTimeout = Timeout.seconds(5);
+    public Timeout deadlockTimeout = Timeout.seconds(10);
 
     private static final int TIMEOUT = 200;	// write timeout, in millis
 

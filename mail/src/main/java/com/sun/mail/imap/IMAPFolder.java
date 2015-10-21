@@ -192,7 +192,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     // accessor lock for message cache
     protected final Object messageCacheLock = new Object();
 
-    protected Hashtable uidTable;	// UID->Message hashtable
+    protected Hashtable<Long, IMAPMessage> uidTable; // UID->Message hashtable
 
     /* An IMAP delimiter is a 7bit US-ASCII character. (except NUL).
      * We use '\uffff' (a non 7bit character) to indicate that we havent
@@ -1222,8 +1222,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		return;
 
 	    Response[] r = null;
-	    Vector v = new Vector(); // to collect non-FETCH responses &
-	    			     // unsolicited FETCH FLAG responses 
+	    // to collect non-FETCH responses & unsolicited FETCH FLAG responses 
+	    Vector<Response> v = new Vector<Response>();
 	    try {
 		r = getProtocol().fetch(msgsets, command.toString());
 	    } catch (ConnectionException cex) {
@@ -2501,11 +2501,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		if (uidTable != null) {
 		    // Check in uidTable
-		    m = (IMAPMessage)uidTable.get(l);
+		    m = uidTable.get(l);
 		    if (m != null) // found it
 			return m;
 		} else
-		    uidTable = new Hashtable();
+		    uidTable = new Hashtable<Long, IMAPMessage>();
 
 		// Check with the server
 		// Issue UID FETCH command
@@ -2513,7 +2513,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		if (uidTable != null) {
 		    // Check in uidTable
-		    m = (IMAPMessage)uidTable.get(l);
+		    m = uidTable.get(l);
 		    if (m != null) // found it
 			return m;
 		}
@@ -2541,7 +2541,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	try {
 	    synchronized(messageCacheLock) {
 		if (uidTable == null)
-		    uidTable = new Hashtable();
+		    uidTable = new Hashtable<Long, IMAPMessage>();
 
 		// Issue UID FETCH for given range
 		long[] ua = getProtocol().fetchSequenceNumbers(start, end);
@@ -2549,7 +2549,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		List<Message> ma = new ArrayList<Message>();
 		// NOTE: Below must be within messageCacheLock region
 		for (int i = 0; i < ua.length; i++) {
-		    Message m = (Message)uidTable.get(Long.valueOf(ua[i]));
+		    Message m = uidTable.get(Long.valueOf(ua[i]));
 		    if (m != null) // found it
 			ma.add(m);
 		}
@@ -2579,7 +2579,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    synchronized(messageCacheLock) {
 		long[] unavailUids = uids;
 		if (uidTable != null) {
-		    Vector v = new Vector(); // to collect unavailable UIDs
+		    // to collect unavailable UIDs
+		    Vector<Long> v = new Vector<Long>();
 		    Long l;
 		    for (int i = 0; i < uids.length; i++) {
 			if (!uidTable.containsKey(l = Long.valueOf(uids[i])))
@@ -2590,9 +2591,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    int vsize = v.size();
 		    unavailUids = new long[vsize];
 		    for (int i = 0; i < vsize; i++)
-			unavailUids[i] = ((Long)v.elementAt(i)).longValue();
+			unavailUids[i] = v.elementAt(i).longValue();
 		} else
-		    uidTable = new Hashtable();
+		    uidTable = new Hashtable<Long, IMAPMessage>();
 
 		if (unavailUids.length > 0) {
 		    // Issue UID FETCH request for given uids
@@ -2643,7 +2644,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		    // insert this message into uidTable
 		    if (uidTable == null)
-			uidTable = new Hashtable();
+			uidTable = new Hashtable<Long, IMAPMessage>();
 		    uidTable.put(Long.valueOf(uid), m);
 		}
 	    } catch (ConnectionException cex) {
@@ -2664,7 +2665,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	for (int i = 0; i < uids.length; i++) {
 	    IMAPMessage m = null;
 	    if (uidTable != null)
-		m = (IMAPMessage)uidTable.get(Long.valueOf(uids[i]));
+		m = uidTable.get(Long.valueOf(uids[i]));
 	    if (m == null) {
 		// fake it, we don't know what message this really is
 		m = newIMAPMessage(-1);	// no sequence number
@@ -3279,6 +3280,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *					ID extension
      * @since	JavaMail 1.5.1
      */
+    @SuppressWarnings("unchecked")
     public Map<String, String> id(final Map<String, String> clientParams)
 				throws MessagingException {
 	checkOpened();
@@ -3479,7 +3481,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (uid != null && msg.getUID() != uid.uid) {
 		msg.setUID(uid.uid);
 		if (uidTable == null)
-		    uidTable = new Hashtable();
+		    uidTable = new Hashtable<Long, IMAPMessage>();
 		uidTable.put(Long.valueOf(uid.uid), msg);
 		notify = true;
 	    }

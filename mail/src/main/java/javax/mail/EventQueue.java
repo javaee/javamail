@@ -40,6 +40,7 @@
 
 package javax.mail;
 
+import java.util.EventListener;
 import java.util.Vector;
 import java.util.Queue;
 import java.util.WeakHashMap;
@@ -83,9 +84,9 @@ class EventQueue implements Runnable {
      */
     static class QueueElement {
 	MailEvent event = null;
-	Vector vector = null;
+	Vector<? extends EventListener> vector = null;
 
-	QueueElement(MailEvent event, Vector vector) {
+	QueueElement(MailEvent event, Vector<? extends EventListener> vector) {
 	    this.event = event;
 	    this.vector = vector;
 	}
@@ -102,7 +103,8 @@ class EventQueue implements Runnable {
     /**
      * Enqueue an event.
      */
-    synchronized void enqueue(MailEvent event, Vector vector) {
+    synchronized void enqueue(MailEvent event,
+	    Vector<? extends EventListener> vector) {
 	// if this is the first event, create the queue and start the event task
 	if (q == null) {
 	    q = new LinkedBlockingQueue<QueueElement>();
@@ -122,7 +124,7 @@ class EventQueue implements Runnable {
      */
     synchronized void terminateQueue() {
 	if (q != null) {
-	    Vector dummyListeners = new Vector();
+	    Vector<EventListener> dummyListeners = new Vector<EventListener>();
 	    dummyListeners.setSize(1); // need atleast one listener
 	    q.add(new QueueElement(new TerminatorEvent(), dummyListeners));
 	    q = null;
@@ -159,7 +161,7 @@ class EventQueue implements Runnable {
 		// block until an item is available
 		QueueElement qe = bq.take();
 		MailEvent e = qe.event;
-		Vector v = qe.vector;
+		Vector<? extends EventListener> v = qe.vector;
 
 		for (int i = 0; i < v.size(); i++)
 		    try {

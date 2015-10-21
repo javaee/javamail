@@ -51,13 +51,13 @@ import com.sun.mail.util.*;
  */
 
 public class Argument {
-    protected List items;
+    protected List<Object> items;
 
     /**
      * Constructor
      */
     public Argument() {
-	items = new ArrayList(1);
+	items = new ArrayList<Object>(1);
     }
 
     /**

@@ -229,7 +229,7 @@ public final class WriteTimeoutSocketTest {
 	@Override
         protected void collectMessage(int bytes) throws IOException {
 	    try {
-		Thread.currentThread().sleep(TIMEOUT*2);
+		Thread.sleep(TIMEOUT*2);
 	    } catch (InterruptedException ex) { }
 	    super.collectMessage(bytes);
         }

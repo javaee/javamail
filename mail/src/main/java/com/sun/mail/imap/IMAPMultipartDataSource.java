@@ -59,13 +59,13 @@ import com.sun.mail.imap.protocol.*;
 
 public class IMAPMultipartDataSource extends MimePartDataSource
 				     implements MultipartDataSource {
-    private Vector parts;
+    private Vector<IMAPBodyPart> parts;
 
     protected IMAPMultipartDataSource(MimePart part, BODYSTRUCTURE[] bs, 
 				      String sectionId, IMAPMessage msg) {
 	super(part);
 
-	parts = new Vector(bs.length);
+	parts = new Vector<IMAPBodyPart>(bs.length);
 	for (int i = 0; i < bs.length; i++)
 	    parts.addElement(
 		new IMAPBodyPart(bs[i], 
@@ -81,6 +81,6 @@ public class IMAPMultipartDataSource extends MimePartDataSource
     }
 
     public BodyPart getBodyPart(int index) throws MessagingException {
-	return (BodyPart)parts.elementAt(index);
+	return parts.elementAt(index);
     }
 }

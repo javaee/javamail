@@ -85,10 +85,10 @@ public class IMAPProtocol extends Protocol {
     // WARNING: authenticated may be set to true in superclass
     //		constructor, don't initialize it here.
 
-    private Map capabilities;
+    private Map<String, String> capabilities;
     // WARNING: capabilities may be initialized as a result of superclass
     //		constructor, don't initialize it here.
-    private List authmechs;
+    private List<String> authmechs;
     // WARNING: authmechs may be initialized as a result of superclass
     //		constructor, don't initialize it here.
 
@@ -178,7 +178,7 @@ public class IMAPProtocol extends Protocol {
 	    !PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
 
 	if (capabilities == null)
-	    capabilities = new HashMap();
+	    capabilities = new HashMap<String, String>();
 
 	searchCharsets = new String[2]; // 2, for now.
 	searchCharsets[0] = "UTF-8";
@@ -214,8 +214,8 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	if (response.isOK()) {
-	    capabilities = new HashMap(10);
-	    authmechs = new ArrayList(5);
+	    capabilities = new HashMap<String, String>(10);
+	    authmechs = new ArrayList<String>(5);
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
 		    continue;
@@ -249,8 +249,8 @@ public class IMAPProtocol extends Protocol {
 	s = r.readAtom();
 	if (!s.equalsIgnoreCase("CAPABILITY"))
 	    return;
-	capabilities = new HashMap(10);
-	authmechs = new ArrayList(5);
+	capabilities = new HashMap<String, String>(10);
+	authmechs = new ArrayList<String>(5);
 	parseCapabilities(r);
     }
 
@@ -404,9 +404,9 @@ public class IMAPProtocol extends Protocol {
     public boolean hasCapability(String c) {
 	if (c.endsWith("*")) {
 	    c = c.substring(0, c.length() - 1).toUpperCase(Locale.ENGLISH);
-	    Iterator it = capabilities.keySet().iterator();
+	    Iterator<String> it = capabilities.keySet().iterator();
 	    while (it.hasNext()) {
-		if (((String)it.next()).startsWith(c))
+		if (it.next().startsWith(c))
 		    return true;
 	    }
 	    return false;
@@ -420,7 +420,7 @@ public class IMAPProtocol extends Protocol {
      * @return	the Map of capabilities
      * @since	JavaMail 1.4.1
      */
-    public Map getCapabilities() {
+    public Map<String, String> getCapabilities() {
 	return capabilities;
     }
 
@@ -933,9 +933,9 @@ public class IMAPProtocol extends Protocol {
 	    serviceHost = host;
 	if (saslAuthenticator == null) {
 	    try {
-		Class sac = Class.forName(
+		Class<?> sac = Class.forName(
 		    "com.sun.mail.imap.protocol.IMAPSaslAuthenticator");
-		Constructor c = sac.getConstructor(new Class[] {
+		Constructor<?> c = sac.getConstructor(new Class<?>[] {
 					IMAPProtocol.class,
 					String.class,
 					Properties.class,
@@ -958,10 +958,10 @@ public class IMAPProtocol extends Protocol {
 	}
 
 	// were any allowed mechanisms specified?
-	List v;
+	List<String> v;
 	if (allowed != null && allowed.length > 0) {
 	    // remove anything not supported by the server
-	    v = new ArrayList(allowed.length);
+	    v = new ArrayList<String>(allowed.length);
 	    for (int i = 0; i < allowed.length; i++)
 		if (authmechs.contains(allowed[i]))	// XXX - case must match
 		    v.add(allowed[i]);
@@ -969,7 +969,7 @@ public class IMAPProtocol extends Protocol {
 	    // everything is allowed
 	    v = authmechs;
 	}
-	String[] mechs = (String[])v.toArray(new String[v.size()]);
+	String[] mechs = v.toArray(new String[v.size()]);
 
 	try {
 
@@ -2069,7 +2069,7 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = command("UID FETCH " + msgSequence +
 		" (FLAGS) (CHANGEDSINCE " + String.valueOf(modseq) + ")", null);
 
-	List v = new ArrayList();
+	List<Integer> v = new ArrayList<Integer>();
 	for (int i = 0, len = r.length; i < len; i++) {
 	    if (r[i] == null || !(r[i] instanceof FetchResponse))
 		continue;
@@ -2085,7 +2085,7 @@ public class IMAPProtocol extends Protocol {
 	int vsize = v.size();
 	int[] matches = new int[vsize];
 	for (int i = 0; i < vsize; i++)
-	    matches[i] = ((Integer)v.get(i)).intValue();
+	    matches[i] = v.get(i).intValue();
 	return matches;
     }
 
@@ -2708,7 +2708,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 
-	Hashtable tab = new Hashtable();
+	Hashtable<String, Quota> tab = new Hashtable<String, Quota>();
 
 	// Grab all QUOTAROOT and QUOTA responses
 	if (response.isOK()) { // command succesful 
@@ -2731,7 +2731,7 @@ public class IMAPProtocol extends Protocol {
 		    r[i] = null;
 		} else if (ir.keyEquals("QUOTA")) {
 		    Quota quota = parseQuota(ir);
-		    Quota q = (Quota)tab.get(quota.quotaRoot);
+		    Quota q = tab.get(quota.quotaRoot);
 		    if (q != null && q.resources != null) {
 			// merge resources
 			int newl = q.resources.length + quota.resources.length;
@@ -2753,9 +2753,9 @@ public class IMAPProtocol extends Protocol {
 	handleResult(response);
 
 	Quota[] qa = new Quota[tab.size()];
-	Enumeration e = tab.elements();
+	Enumeration<Quota> e = tab.elements();
 	for (int i = 0; e.hasMoreElements(); i++)
-	    qa[i] = (Quota)e.nextElement();
+	    qa[i] = e.nextElement();
 	return qa;
     }
 

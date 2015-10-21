@@ -245,18 +245,19 @@ public class IMAPStore extends Store
     private boolean messageCacheDebug;
 
     // constructors for IMAPFolder class provided by user
-    private volatile Constructor folderConstructor = null;
-    private volatile Constructor folderConstructorLI = null;
+    private volatile Constructor<?> folderConstructor = null;
+    private volatile Constructor<?> folderConstructorLI = null;
 
     // Connection pool info
 
     static class ConnectionPool {
 
         // container for the pool's IMAP protocol objects
-        private Vector authenticatedConnections = new Vector();
+        private Vector<IMAPProtocol> authenticatedConnections
+		= new Vector<IMAPProtocol>();
 
         // vectore of open folders
-        private Vector folders;
+        private Vector<IMAPFolder> folders;
 
         // is the store connection being used?
         private boolean storeConnectionInUse = false; 
@@ -519,7 +520,7 @@ public class IMAPStore extends Store
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.CONFIG))
 		    logger.config("SASL mechanisms allowed: " + s);
-		Vector v = new Vector(5);
+		Vector<String> v = new Vector<String>(5);
 		StringTokenizer st = new StringTokenizer(s, " ,");
 		while (st.hasMoreTokens()) {
 		    String m = st.nextToken();
@@ -603,7 +604,7 @@ public class IMAPStore extends Store
 		ClassLoader cl = this.getClass().getClassLoader();
 
 		// now load the class
-		Class folderClass = null;
+		Class<?> folderClass = null;
 		try {
 		    // First try the "application's" class loader.
 		    // This should eventually be replaced by
@@ -616,10 +617,10 @@ public class IMAPStore extends Store
 		    folderClass = Class.forName(s);
 		}
 
-		Class[] c = { String.class, char.class, IMAPStore.class,
+		Class<?>[] c = { String.class, char.class, IMAPStore.class,
 				Boolean.class };
 		folderConstructor = folderClass.getConstructor(c);
-		Class[] c2 = { ListInfo.class, IMAPStore.class };
+		Class<?>[] c2 = { ListInfo.class, IMAPStore.class };
 		folderConstructorLI = folderClass.getConstructor(c2);
 	    } catch (Exception ex) {
 		logger.log(Level.CONFIG,
@@ -1025,7 +1026,7 @@ public class IMAPStore extends Store
                         pool.authenticatedConnections.size());
 
                 // remove the available connection from the Authenticated queue
-                p = (IMAPProtocol)pool.authenticatedConnections.lastElement();
+                p = pool.authenticatedConnections.lastElement();
                 pool.authenticatedConnections.removeElement(p);
 
 		// check if the connection is still live
@@ -1092,7 +1093,7 @@ public class IMAPStore extends Store
 	    // Add folder to folder-list
 	    if (folder != null) {
                 if (pool.folders == null)
-                    pool.folders = new Vector();
+                    pool.folders = new Vector<IMAPFolder>();
 		pool.folders.addElement(folder);
 	    }
         }
@@ -1160,7 +1161,7 @@ public class IMAPStore extends Store
                     pool.logger.fine("getStoreProtocol() - " +
                         "connection available -- size: " +
                         pool.authenticatedConnections.size());
-                p = (IMAPProtocol)pool.authenticatedConnections.firstElement();
+                p = pool.authenticatedConnections.firstElement();
 
 		// if proxyAuthUser has changed, switch to new user
 		if (proxyAuthUser != null &&
@@ -1384,7 +1385,7 @@ public class IMAPStore extends Store
             for (int index = pool.authenticatedConnections.size() - 1;
 		    index >= 0; --index) {
                 try {
-		    IMAPProtocol p = (IMAPProtocol)
+		    IMAPProtocol p =
 			pool.authenticatedConnections.elementAt(index);
 		    p.removeResponseHandler(this);
 		    if (force)
@@ -1427,7 +1428,7 @@ public class IMAPStore extends Store
                 // (leave the first connection).
                 for (int index = pool.authenticatedConnections.size() - 1; 
                      index > 0; index--) {
-                    p = (IMAPProtocol)pool.authenticatedConnections.
+                    p = pool.authenticatedConnections.
                         elementAt(index);
 		    if (pool.logger.isLoggable(Level.FINE))
                         pool.logger.fine("protocol last used: " +
@@ -1693,7 +1694,7 @@ public class IMAPStore extends Store
 	    logger.fine("IMAPStore cleanup, force " + force);
 
 	if (!force || closeFoldersOnStoreFailure) {
-        Vector foldersCopy = null;
+        Vector<IMAPFolder> foldersCopy = null;
         boolean done = true;
 
 	// To avoid violating the locking hierarchy, there's no lock we
@@ -1720,7 +1721,7 @@ public class IMAPStore extends Store
 
 	    // Close and remove any open folders under this Store.
 	    for (int i = 0, fsize = foldersCopy.size(); i < fsize; i++) {
-		IMAPFolder f = (IMAPFolder)foldersCopy.elementAt(i);
+		IMAPFolder f = foldersCopy.elementAt(i);
 
 		try {
 		    if (force) {

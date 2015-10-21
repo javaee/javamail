@@ -388,7 +388,7 @@ public class SocketFetcher {
 	// dynamically load the class 
 
 	ClassLoader cl = getContextClassLoader();
-	Class clsSockFact = null;
+	Class<?> clsSockFact = null;
 	if (cl != null) {
 	    try {
 		clsSockFact = Class.forName(sfClass, false, cl);
@@ -398,7 +398,7 @@ public class SocketFetcher {
 	    clsSockFact = Class.forName(sfClass);
 	// get & invoke the getDefault() method
 	Method mthGetDefault = clsSockFact.getMethod("getDefault", 
-						     new Class[]{});
+						     new Class<?>[]{});
 	SocketFactory sf = (SocketFactory)
 	    mthGetDefault.invoke(new Object(), new Object[]{});
 	return sf;
@@ -667,12 +667,12 @@ public class SocketFetcher {
 	 * in the JDK we're running on.
 	 */
 	try {
-	    Class hnc = Class.forName("sun.security.util.HostnameChecker");
+	    Class<?> hnc = Class.forName("sun.security.util.HostnameChecker");
 	    // invoke HostnameChecker.getInstance(HostnameChecker.TYPE_LDAP)
 	    // HostnameChecker.TYPE_LDAP == 2
 	    // LDAP requires the same regex handling as we need
 	    Method getInstance = hnc.getMethod("getInstance", 
-					new Class[] { byte.class });
+					new Class<?>[] { byte.class });
 	    Object hostnameChecker = getInstance.invoke(new Object(),
 					new Object[] { Byte.valueOf((byte)2) });
 
@@ -680,7 +680,7 @@ public class SocketFetcher {
 	    if (logger.isLoggable(Level.FINER))
 		logger.finer("using sun.security.util.HostnameChecker");
 	    Method match = hnc.getMethod("match",
-			new Class[] { String.class, X509Certificate.class });
+			new Class<?>[] { String.class, X509Certificate.class });
 	    try {
 		match.invoke(hostnameChecker, new Object[] { server, cert });
 		return true;
@@ -703,11 +703,11 @@ public class SocketFetcher {
 	     * XXX - only checks DNS names, should also handle
 	     * case where server name is a literal IP address
 	     */
-	    Collection names = cert.getSubjectAlternativeNames();
+	    Collection<List<?>> names = cert.getSubjectAlternativeNames();
 	    if (names != null) {
 		boolean foundName = false;
-		for (Iterator it = names.iterator(); it.hasNext(); ) {
-		    List nameEnt = (List)it.next();
+		for (Iterator<List<?>> it = names.iterator(); it.hasNext(); ) {
+		    List<?> nameEnt = it.next();
 		    Integer type = (Integer)nameEnt.get(0);
 		    if (type.intValue() == 2) {	// 2 == dNSName
 			foundName = true;
@@ -766,10 +766,10 @@ public class SocketFetcher {
      */
     private static String[] stringArray(String s) {
 	StringTokenizer st = new StringTokenizer(s);
-	List tokens = new ArrayList();
+	List<String> tokens = new ArrayList<String>();
 	while (st.hasMoreTokens())
 	    tokens.add(st.nextToken());
-	return (String[])tokens.toArray(new String[tokens.size()]);
+	return tokens.toArray(new String[tokens.size()]);
     }
 
     /**
@@ -778,9 +778,9 @@ public class SocketFetcher {
      * Thread.getContextClassLoader method.
      */
     private static ClassLoader getContextClassLoader() {
-	return (ClassLoader)
-		AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
+	return
+	AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+	    public ClassLoader run() {
 		ClassLoader cl = null;
 		try {
 		    cl = Thread.currentThread().getContextClassLoader();

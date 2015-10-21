@@ -184,13 +184,16 @@ public final class Session {
 
     private final Properties props;
     private final Authenticator authenticator;
-    private final Hashtable authTable = new Hashtable();
+    private final Hashtable<URLName, PasswordAuthentication> authTable
+	    = new Hashtable<URLName, PasswordAuthentication>();
     private boolean debug = false;
     private PrintStream out;			// debug output stream
     private MailLogger logger;
-    private final Vector providers = new Vector();
-    private final Hashtable providersByProtocol = new Hashtable();
-    private final Hashtable providersByClassName = new Hashtable();
+    private final Vector<Provider> providers = new Vector<Provider>();
+    private final Hashtable<String, Provider> providersByProtocol
+	    = new Hashtable<String, Provider>();
+    private final Hashtable<String, Provider> providersByClassName
+	    = new Hashtable<String, Provider>();
     private final Properties addressMap = new Properties();
 						// maps type to protocol
     // the queue of events to be delivered, if mail.event.scope===session
@@ -211,7 +214,7 @@ public final class Session {
 	logger.log(Level.CONFIG, "JavaMail version {0}", Version.version);
 
 	// get the Class associated with the Authenticator
-	Class cl;
+	Class<?> cl;
 	if (authenticator != null)
 	    cl = authenticator.getClass();
 	else
@@ -465,14 +468,14 @@ public final class Session {
 				   ".class property exists and points to " + 
 				   _className);
 	    }
-	    _provider = (Provider)providersByClassName.get(_className);
+	    _provider = providersByClassName.get(_className);
 	} 
 
 	if (_provider != null) {
 	    return _provider;
 	} else {
 	    // returning currently default protocol in providersByProtocol
-	    _provider = (Provider)providersByProtocol.get(protocol);
+	    _provider = providersByProtocol.get(protocol);
 	}
 
 	if (_provider == null) {
@@ -774,7 +777,7 @@ public final class Session {
 	    cl = this.getClass().getClassLoader();
 
 	// now load the class
-	Class serviceClass = null;
+	Class<?> serviceClass = null;
 	try {
 	    // First try the "application's" class loader.
 	    ClassLoader ccl = getContextClassLoader();
@@ -810,8 +813,8 @@ public final class Session {
 
 	// construct an instance of the class
 	try {
-	    Class[] c = {javax.mail.Session.class, javax.mail.URLName.class};
-	    Constructor cons = serviceClass.getConstructor(c);
+	    Class<?>[] c = {javax.mail.Session.class, javax.mail.URLName.class};
+	    Constructor<?> cons = serviceClass.getConstructor(c);
 
 	    Object[] o = {this, url};
 	    service = cons.newInstance(o);
@@ -851,7 +854,7 @@ public final class Session {
      * @return	the PasswordAuthentication corresponding to the URLName
      */
     public PasswordAuthentication getPasswordAuthentication(URLName url) {
-	return (PasswordAuthentication)authTable.get(url);
+	return authTable.get(url);
     }
 
     /**
@@ -909,7 +912,7 @@ public final class Session {
     /**
      * Load the protocol providers config files.
      */
-    private void loadProviders(Class cl) {
+    private void loadProviders(Class<?> cl) {
 	StreamLoader loader = new StreamLoader() {
 	    public void load(InputStream is) throws IOException {
 		loadProvidersFromStream(is);
@@ -1037,7 +1040,7 @@ public final class Session {
 
     // load maps in reverse order of preference so that the preferred
     // map is loaded last since its entries will override the previous ones
-    private void loadAddressMap(Class cl) {
+    private void loadAddressMap(Class<?> cl) {
 	StreamLoader loader = new StreamLoader() {
 	    public void load(InputStream is) throws IOException {
 		addressMap.load(is);
@@ -1113,7 +1116,7 @@ public final class Session {
     /**
      * Load from the named resource.
      */
-    private void loadResource(String name, Class cl, StreamLoader loader) {
+    private void loadResource(String name, Class<?> cl, StreamLoader loader) {
 	InputStream clis = null;
 	try {
 	    clis = getResourceAsStream(cl, name);
@@ -1141,7 +1144,8 @@ public final class Session {
     /**
      * Load all of the named resource.
      */
-    private void loadAllResources(String name, Class cl, StreamLoader loader) {
+    private void loadAllResources(String name, Class<?> cl,
+	    StreamLoader loader) {
 	boolean anyLoaded = false;
 	try {
 	    URL[] urls;
@@ -1204,42 +1208,44 @@ public final class Session {
      */
 
     static ClassLoader getContextClassLoader() {
-	return (ClassLoader)
-		AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
-		ClassLoader cl = null;
-		try {
-		    cl = Thread.currentThread().getContextClassLoader();
-		} catch (SecurityException ex) { }
-		return cl;
-	    }
-	});
+	return AccessController.doPrivileged(
+		new PrivilegedAction<ClassLoader>() {
+		    public ClassLoader run() {
+			ClassLoader cl = null;
+			try {
+			    cl = Thread.currentThread().getContextClassLoader();
+			} catch (SecurityException ex) {
+			}
+			return cl;
+		    }
+		}
+	);
     }
 
-    private static InputStream getResourceAsStream(final Class c,
+    private static InputStream getResourceAsStream(final Class<?> c,
 				final String name) throws IOException {
 	try {
-	    return (InputStream)
-		AccessController.doPrivileged(new PrivilegedExceptionAction() {
-		    public Object run() throws IOException {
-			return c.getResourceAsStream(name);
+	    return AccessController.doPrivileged(
+		    new PrivilegedExceptionAction<InputStream>() {
+			public InputStream run() throws IOException {
+			    return c.getResourceAsStream(name);
+			}
 		    }
-		});
+	    );
 	} catch (PrivilegedActionException e) {
 	    throw (IOException)e.getException();
 	}
     }
 
     private static URL[] getResources(final ClassLoader cl, final String name) {
-	return (URL[])
-		AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
+	return AccessController.doPrivileged(new PrivilegedAction<URL[]>() {
+	    public URL[] run() {
 		URL[] ret = null;
 		try {
-		    Vector v = new Vector();
-		    Enumeration e = cl.getResources(name);
+		    Vector<URL> v = new Vector<URL>();
+		    Enumeration<URL> e = cl.getResources(name);
 		    while (e != null && e.hasMoreElements()) {
-			URL url = (URL)e.nextElement();
+			URL url = e.nextElement();
 			if (url != null)
 			    v.addElement(url);
 		    }
@@ -1255,15 +1261,14 @@ public final class Session {
     }
 
     private static URL[] getSystemResources(final String name) {
-	return (URL[])
-		AccessController.doPrivileged(new PrivilegedAction() {
-	    public Object run() {
+	return AccessController.doPrivileged(new PrivilegedAction<URL[]>() {
+	    public URL[] run() {
 		URL[] ret = null;
 		try {
-		    Vector v = new Vector();
-		    Enumeration e = ClassLoader.getSystemResources(name);
+		    Vector<URL> v = new Vector<URL>();
+		    Enumeration<URL> e = ClassLoader.getSystemResources(name);
 		    while (e != null && e.hasMoreElements()) {
-			URL url = (URL)e.nextElement();
+			URL url = e.nextElement();
 			if (url != null)
 			    v.addElement(url);
 		    }
@@ -1280,12 +1285,13 @@ public final class Session {
 
     private static InputStream openStream(final URL url) throws IOException {
 	try {
-	    return (InputStream)
-		AccessController.doPrivileged(new PrivilegedExceptionAction() {
-		    public Object run() throws IOException {
-			return url.openStream();
+	    return AccessController.doPrivileged(
+		    new PrivilegedExceptionAction<InputStream>() {
+			public InputStream run() throws IOException {
+			    return url.openStream();
+			}
 		    }
-		});
+	    );
 	} catch (PrivilegedActionException e) {
 	    throw (IOException)e.getException();
 	}

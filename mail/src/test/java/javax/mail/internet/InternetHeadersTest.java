@@ -40,7 +40,9 @@
 
 package javax.mail.internet;
 
+import com.sun.mail.test.AsciiStringInputStream;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 
 import javax.mail.*;
@@ -66,7 +68,7 @@ public class InternetHeadersTest {
     public void testContinuationLine() throws Exception {
 	String header = "Subject: a\r\n b\r\n\r\n";
 	InternetHeaders ih = new InternetHeaders(
-				new StringBufferInputStream(header));
+		new AsciiStringInputStream(header));
 	assertEquals(1, ih.getHeader("Subject").length);
 	assertEquals("a\r\n b", ih.getHeader("Subject")[0]);
     }
@@ -77,7 +79,7 @@ public class InternetHeadersTest {
     @Test
     public void testInitialWhitespaceLineConstructor() throws Exception {
 	InternetHeaders ih = new InternetHeaders(
-			new StringBufferInputStream(initialWhitespaceHeader));
+		new AsciiStringInputStream(initialWhitespaceHeader));
 	testInitialWhitespaceLine(ih);
     }
 
@@ -87,7 +89,7 @@ public class InternetHeadersTest {
     @Test
     public void testInitialWhitespaceLineLoad() throws Exception {
 	InternetHeaders ih = new InternetHeaders();
-	ih.load(new StringBufferInputStream(initialWhitespaceHeader));
+	ih.load(new AsciiStringInputStream(initialWhitespaceHeader));
 	testInitialWhitespaceLine(ih);
     }
 
@@ -95,9 +97,10 @@ public class InternetHeadersTest {
 				throws Exception {
 	assertEquals(1, ih.getHeader("Subject").length);
 	assertEquals("test", ih.getHeader("Subject")[0]);
-	Enumeration e = ih.getAllHeaders();
+	@SuppressWarnings("unchecked")
+	Enumeration<Header> e = ih.getAllHeaders();
 	while (e.hasMoreElements()) {
-	    Header h = (Header)e.nextElement();
+	    Header h = e.nextElement();
 	    assertEquals("Subject", h.getName());
 	    assertEquals("test", h.getValue());
 	}
@@ -109,7 +112,7 @@ public class InternetHeadersTest {
     @Test
     public void testInitialContinuationLineConstructor() throws Exception {
 	InternetHeaders ih = new InternetHeaders(
-			new StringBufferInputStream(initialContinuationHeader));
+		new AsciiStringInputStream(initialContinuationHeader));
 	testInitialContinuationLine(ih);
     }
 
@@ -119,7 +122,7 @@ public class InternetHeadersTest {
     @Test
     public void testInitialContinuationLineLoad() throws Exception {
 	InternetHeaders ih = new InternetHeaders();
-	ih.load(new StringBufferInputStream(initialContinuationHeader));
+	ih.load(new AsciiStringInputStream(initialContinuationHeader));
 	testInitialContinuationLine(ih);
     }
 
@@ -127,9 +130,10 @@ public class InternetHeadersTest {
 				throws Exception {
 	assertEquals(1, ih.getHeader("Subject").length);
 	assertEquals("test", ih.getHeader("Subject")[0]);
-	Enumeration e = ih.getAllHeaders();
+	@SuppressWarnings("unchecked")
+	Enumeration<Header> e = ih.getAllHeaders();
 	while (e.hasMoreElements()) {
-	    Header h = (Header)e.nextElement();
+	    Header h = e.nextElement();
 	    assertEquals("Subject", h.getName());
 	    assertEquals("test", h.getValue());
 	}

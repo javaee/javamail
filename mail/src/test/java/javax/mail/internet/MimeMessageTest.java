@@ -40,7 +40,9 @@
 
 package javax.mail.internet;
 
+import com.sun.mail.test.AsciiStringInputStream;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.Enumeration;
 
@@ -50,6 +52,7 @@ import javax.mail.*;
 import static javax.mail.Message.RecipientType.*;
 
 import org.junit.*;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -75,7 +78,7 @@ public class MimeMessageTest {
 	m.setRecipients(TO, addr);
 	assertEquals("To: is set", addr, m.getRecipients(TO)[0].toString());
 	m.setRecipients(TO, (String)null);
-	assertEquals("To: is removed", null, m.getRecipients(TO));
+	assertArrayEquals("To: is removed", null, m.getRecipients(TO));
     }
 
     /**
@@ -129,8 +132,10 @@ public class MimeMessageTest {
 	InternetAddress[] addrs = InternetAddress.parse(
 	"long-address1@example.com, long-address2@example.com, joe@foobar.com");
 	msg.setReplyTo(addrs);	// use Reply-To because it's a long header name
-	Enumeration e = msg.getMatchingHeaderLines(new String[] { "Reply-To" });
-	String line = (String)e.nextElement();
+	@SuppressWarnings("unchecked")
+	Enumeration<String> e 
+		= msg.getMatchingHeaderLines(new String[] { "Reply-To" });
+	String line = e.nextElement();
 	int npos = line.indexOf("\r");
 	// was the line folded where we expected?
 	assertTrue("Header folded",
@@ -147,7 +152,7 @@ public class MimeMessageTest {
 	    "\n" +
 	    "test message\n";
 
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 
     private static String getString(InputStream is) throws IOException {

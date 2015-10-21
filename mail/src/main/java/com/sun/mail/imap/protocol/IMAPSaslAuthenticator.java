@@ -140,8 +140,10 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	};
 
 	try {
+	    @SuppressWarnings("unchecked")
+	    Map<String, ?> propsMap = (Map) props;
 	    sc = Sasl.createSaslClient(mechs, authzid, name, host,
-					(Map)props, cbh);
+					propsMap, cbh);
 	} catch (SaslException sex) {
 	    logger.log(Level.FINE, "Failed to create SASL client", sex);
 	    throw new UnsupportedOperationException(sex.getMessage(), sex);

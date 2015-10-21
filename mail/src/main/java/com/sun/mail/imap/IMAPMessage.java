@@ -88,7 +88,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * @since JavaMail 1.4.6
      */
-    protected Map items;		// Map<String,Object>
+    protected Map<String, Object> items;		// Map<String,Object>
 
     private Date receivedDate;		// INTERNALDATE
     private int size = -1;		// RFC822.SIZE
@@ -124,7 +124,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * Could this somehow be included in the InternetHeaders object ??
      */
-    private Hashtable loadedHeaders = new Hashtable(1);
+    private Hashtable<String, String> loadedHeaders
+	    = new Hashtable<String, String>(1);
 
     // This is our Envelope
     static final String EnvelopeCmd = "ENVELOPE INTERNALDATE RFC822.SIZE";
@@ -937,7 +938,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all headers.
      */
-    public Enumeration getAllHeaders() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getAllHeaders() throws MessagingException {
 	checkExpunged();
 	loadHeaders();
 	return super.getAllHeaders();
@@ -946,7 +948,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get matching headers.
      */
-    public Enumeration getMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getMatchingHeaders(String[] names)
 			throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -956,7 +959,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get non-matching headers.
      */
-    public Enumeration getNonMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -970,7 +974,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all header-lines.
      */
-    public Enumeration getAllHeaderLines() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	checkExpunged();
 	loadHeaders();
 	return super.getAllHeaderLines();
@@ -979,7 +984,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all matching header-lines.
      */
-    public Enumeration getMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
 			throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -989,7 +995,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all non-matching headerlines.
      */
-    public Enumeration getNonMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 			throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -1100,7 +1107,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	private boolean needSize = false;
 	private boolean needMessage = false;
 	private String[] hdrs = null;
-	private Set need = new HashSet();	// Set<FetchItem>
+	private Set<FetchItem> need = new HashSet<FetchItem>();
 
 	/**
 	 * Create a FetchProfileCondition to determine if we need to fetch
@@ -1160,9 +1167,9 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		if (!m.isHeaderLoaded(hdrs[i]))
 		    return true; // Nope, return
 	    }
-	    Iterator it = need.iterator();
+	    Iterator<FetchItem> it = need.iterator();
 	    while (it.hasNext()) {
-		FetchItem fitem = (FetchItem)it.next();
+		FetchItem fitem = it.next();
 		if (m.items == null || m.items.get(fitem.getName()) == null)
 		    return true;
 	    }
@@ -1208,7 +1215,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    uid = u.uid; // set uid
 	    // add entry into uid table
 	    if (((IMAPFolder)folder).uidTable == null)
-		((IMAPFolder)folder).uidTable = new Hashtable();
+		((IMAPFolder) folder).uidTable
+			= new Hashtable<Long, IMAPMessage>();
 	    ((IMAPFolder)folder).uidTable.put(Long.valueOf(u.uid), this);
 	}
 
@@ -1264,9 +1272,10 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		     * object, because InternetHeaders is not thread
 		     * safe.
 		     */
-		    Enumeration e = h.getAllHeaders();
+		    @SuppressWarnings("unchecked")
+		    Enumeration<Header> e = h.getAllHeaders();
 		    while (e.hasMoreElements()) {
-			Header he = (Header)e.nextElement();
+			Header he = e.nextElement();
 			if (!isHeaderLoaded(he.getName()))
 			    headers.addHeader(
 					he.getName(), he.getValue());
@@ -1298,11 +1307,12 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * @param	extensionItems	the Map to add fetch items to
      * @since JavaMail 1.4.6
      */
-    protected void handleExtensionFetchItems(Map extensionItems) {
+    protected void handleExtensionFetchItems(
+	    Map<String, Object> extensionItems) {
 	if (extensionItems == null || extensionItems.isEmpty())
 	    return;
 	if (items == null)
-	    items = new HashMap();
+	    items = new HashMap<String, Object>();
 	items.putAll(extensionItems);
     }
 

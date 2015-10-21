@@ -68,7 +68,8 @@ public class MimeUtilityTest {
 	(byte)0x0d, (byte)0x00, (byte)0x0a, (byte)0x00
     };
 
-    private static final Set encodings = new HashSet() {{
+    @SuppressWarnings("serial")
+    private static final Set<String> encodings = new HashSet<String>() {{
 	add("7bit"); add("8bit"); add("quoted-printable"); add("base64"); }};
 
     /**

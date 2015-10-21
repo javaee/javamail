@@ -38,7 +38,7 @@
  * holder.
  */
 
-package javax.mail.internet;
+package com.sun.mail.test;
 
 import java.io.*;
 

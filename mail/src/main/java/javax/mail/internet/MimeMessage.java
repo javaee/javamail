@@ -690,7 +690,8 @@ public class MimeMessage extends Message implements MimePart {
             if (addresses != null && addresses.length() != 0)
                 addHeader("Newsgroups", addresses);
         } else
-            addAddressHeader(getHeaderName(type), InternetAddress.parse(addresses));
+            addAddressHeader(getHeaderName(type),
+		    InternetAddress.parse(addresses));
     }
  
     /**
@@ -1674,7 +1675,7 @@ public class MimeMessage extends Message implements MimePart {
 	Address a[] = getReplyTo();
 	reply.setRecipients(Message.RecipientType.TO, a);
 	if (replyToAll) {
-	    Vector v = new Vector();
+	    Vector<Address> v = new Vector<Address>();
 	    // add my own address to list
 	    InternetAddress me = InternetAddress.getLocalAddress(session);
 	    if (me != null)
@@ -1762,7 +1763,7 @@ public class MimeMessage extends Message implements MimePart {
      * Return a new array without the duplicates.  Add any new
      * addresses to v.  Note that the input array may be modified.
      */
-    private Address[] eliminateDuplicates(Vector v, Address[] addrs) {
+    private Address[] eliminateDuplicates(Vector<Address> v, Address[] addrs) {
 	if (addrs == null)
 	    return null;
 	int gone = 0;
@@ -1852,10 +1853,11 @@ public class MimeMessage extends Message implements MimePart {
 
 	// Else, the content is untouched, so we can just output it
 	// First, write out the header
-	Enumeration hdrLines = getNonMatchingHeaderLines(ignoreList);
+	@SuppressWarnings("unchecked")
+	Enumeration<String> hdrLines = getNonMatchingHeaderLines(ignoreList);
 	LineOutputStream los = new LineOutputStream(os);
 	while (hdrLines.hasMoreElements())
-	    los.writeln((String)hdrLines.nextElement());
+	    los.writeln(hdrLines.nextElement());
 
 	// The CRLF separator between header and content
 	los.writeln();
@@ -1987,6 +1989,7 @@ public class MimeMessage extends Message implements MimePart {
      * @exception  MessagingException for failures
      * @see 	javax.mail.internet.MimeUtility
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getAllHeaders() throws MessagingException {
 	return headers.getAllHeaders();	
     }
@@ -1998,6 +2001,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getMatchingHeaders(String[] names)
 			throws MessagingException {
 	return headers.getMatchingHeaders(names);
@@ -2010,6 +2014,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	return headers.getNonMatchingHeaders(names);
@@ -2035,6 +2040,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getAllHeaderLines() throws MessagingException {
 	return headers.getAllHeaderLines();
     }
@@ -2046,6 +2052,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	return headers.getMatchingHeaderLines(names);
@@ -2058,6 +2065,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getNonMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	return headers.getNonMatchingHeaderLines(names);

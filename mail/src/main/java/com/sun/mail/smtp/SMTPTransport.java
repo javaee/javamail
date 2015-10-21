@@ -106,9 +106,10 @@ public class SMTPTransport extends Transport {
     private SMTPOutputStream dataStream;
 
     // Map of SMTP service extensions supported by server, if EHLO used.
-    private Hashtable extMap;
+    private Hashtable<String, String> extMap;
 
-    private Map authenticators = new HashMap();
+    private Map<String, Authenticator> authenticators
+	    = new HashMap<String, Authenticator>();
     private String defaultAuthenticationMechanisms;	// set in constructor
 
     private boolean quitWait = false;	// true if we should wait
@@ -411,7 +412,7 @@ public class SMTPTransport extends Transport {
      */
     public synchronized String[] getSASLMechanisms() {
 	if (saslMechanisms == UNKNOWN_SA) {
-	    List v = new ArrayList(5);
+	    List<String> v = new ArrayList<String>(5);
 	    String s = session.getProperty("mail." + name + ".sasl.mechanisms");
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.FINE))
@@ -791,7 +792,7 @@ public class SMTPTransport extends Transport {
 	while (st.hasMoreTokens()) {
 	    String m = st.nextToken();
 	    m = m.toUpperCase(Locale.ENGLISH);
-	    Authenticator a = (Authenticator)authenticators.get(m);
+	    Authenticator a = authenticators.get(m);
 	    if (a == null) {
 		logger.log(Level.FINE, "no authenticator for mechanism {0}", m);
 		continue;
@@ -1097,9 +1098,9 @@ public class SMTPTransport extends Transport {
 	    serviceHost = host;
 	if (saslAuthenticator == null) {
 	    try {
-		Class sac = Class.forName(
+		Class<?> sac = Class.forName(
 		    "com.sun.mail.smtp.SMTPSaslAuthenticator");
-		Constructor c = sac.getConstructor(new Class[] {
+		Constructor<?> c = sac.getConstructor(new Class<?>[] {
 					SMTPTransport.class,
 					String.class,
 					Properties.class,
@@ -1122,18 +1123,18 @@ public class SMTPTransport extends Transport {
 	}
 
 	// were any allowed mechanisms specified?
-	List v;
+	List<String> v;
 	if (allowed != null && allowed.length > 0) {
 	    // remove anything not supported by the server
-	    v = new ArrayList(allowed.length);
+	    v = new ArrayList<String>(allowed.length);
 	    for (int i = 0; i < allowed.length; i++)
 		if (supportsAuthentication(allowed[i]))	// XXX - case must match
 		    v.add(allowed[i]);
 	} else {
 	    // everything is allowed
-	    v = new ArrayList();
+	    v = new ArrayList<String>();
 	    if (extMap != null) {
-		String a = (String)extMap.get("AUTH");
+		String a = extMap.get("AUTH");
 		if (a != null) {
 		    StringTokenizer st = new StringTokenizer(a);
 		    while (st.hasMoreTokens())
@@ -1141,7 +1142,7 @@ public class SMTPTransport extends Transport {
 		}
 	    }
 	}
-	String[] mechs = (String[])v.toArray(new String[v.size()]);
+	String[] mechs = v.toArray(new String[v.size()]);
 	try {
 	    if (noauthdebug && isTracing()) {
 		logger.fine("SASL AUTH command trace suppressed");
@@ -1434,13 +1435,13 @@ public class SMTPTransport extends Transport {
      * Expand any group addresses.
      */
     private void expandGroups() {
-	Vector groups = null;
+	Vector<Address> groups = null;
 	for (int i = 0; i < addresses.length; i++) {
 	    InternetAddress a = (InternetAddress)addresses[i];
 	    if (a.isGroup()) {
 		if (groups == null) {
 		    // first group, catch up with where we are
-		    groups = new Vector();
+		    groups = new Vector<Address>();
 		    for (int k = 0; k < i; k++)
 			groups.addElement(addresses[k]);
 		}
@@ -1622,7 +1623,7 @@ public class SMTPTransport extends Transport {
 	    BufferedReader rd =
 		new BufferedReader(new StringReader(lastServerResponse));
 	    String line;
-	    extMap = new Hashtable();
+	    extMap = new Hashtable<String, String>();
 	    try {
 		boolean first = true;
 		while ((line = rd.readLine()) != null) {
@@ -1780,9 +1781,9 @@ public class SMTPTransport extends Transport {
      * valid addr: 552 (quota), 450, 451, 452 (quota), 421 (srvr abort)
      */
     protected void rcptTo() throws MessagingException {
-	Vector valid = new Vector();
-	Vector validUnsent = new Vector();
-	Vector invalid = new Vector();
+	Vector<InternetAddress> valid = new Vector<InternetAddress>();
+	Vector<InternetAddress> validUnsent = new Vector<InternetAddress>();
+	Vector<InternetAddress> invalid = new Vector<InternetAddress>();
 	int retCode = -1;
 	MessagingException mex = null;
 	boolean sendFailed = false;
@@ -2441,7 +2442,7 @@ public class SMTPTransport extends Transport {
      */
     public String getExtensionParameter(String ext) {
 	return extMap == null ? null :
-			(String)extMap.get(ext.toUpperCase(Locale.ENGLISH));
+			extMap.get(ext.toUpperCase(Locale.ENGLISH));
     }
 
     /**
@@ -2458,7 +2459,7 @@ public class SMTPTransport extends Transport {
 	assert Thread.holdsLock(this);
 	if (extMap == null)
 	    return false;
-	String a = (String)extMap.get("AUTH");
+	String a = extMap.get("AUTH");
 	if (a == null)
 	    return false;
 	StringTokenizer st = new StringTokenizer(a);

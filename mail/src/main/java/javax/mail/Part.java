@@ -449,6 +449,7 @@ public interface Part {
      * @return  enumeration of Header objects
      * @exception       MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getAllHeaders() throws MessagingException;
 
     /**
@@ -459,6 +460,7 @@ public interface Part {
      * @return  enumeration of Header objects
      * @exception       MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getMatchingHeaders(String[] header_names)
 				throws MessagingException;
 
@@ -470,6 +472,7 @@ public interface Part {
      * @return  enumeration of Header objects
      * @exception       MessagingException for failures
      */
+    @SuppressWarnings("rawtypes")
     public Enumeration getNonMatchingHeaders(String[] header_names) 
 				throws MessagingException;
 }

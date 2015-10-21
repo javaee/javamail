@@ -42,6 +42,7 @@ package javax.mail;
 
 import java.io.*;
 import java.lang.*;
+import java.util.EventListener;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
@@ -1287,7 +1288,7 @@ public abstract class Folder {
      */
     public Message[] search(SearchTerm term, Message[] msgs)
 				throws MessagingException {
-	Vector matchedMsgs = new Vector();
+	Vector<Message> matchedMsgs = new Vector<Message>();
 
 	// Run thru the given messages
 	for (int i = 0; i < msgs.length; i++) {
@@ -1324,7 +1325,7 @@ public abstract class Folder {
      */
 
     // Vector of connection listeners.
-    private volatile Vector connectionListeners = null;
+    private volatile Vector<ConnectionListener> connectionListeners = null;
 
     /**
      * Add a listener for Connection events on this Folder. <p>
@@ -1338,7 +1339,7 @@ public abstract class Folder {
     public synchronized void
     addConnectionListener(ConnectionListener l) { 
    	if (connectionListeners == null) 
-	    connectionListeners = new Vector();
+	    connectionListeners = new Vector<ConnectionListener>();
 	connectionListeners.addElement(l);
     }
 
@@ -1391,7 +1392,7 @@ public abstract class Folder {
     }
 
     // Vector of folder listeners
-    private volatile Vector folderListeners = null;
+    private volatile Vector<FolderListener> folderListeners = null;
 
     /**
      * Add a listener for Folder events on this Folder. <p>
@@ -1404,7 +1405,7 @@ public abstract class Folder {
      */
     public synchronized void addFolderListener(FolderListener l) { 
    	if (folderListeners == null)
-	    folderListeners = new Vector();
+	    folderListeners = new Vector<FolderListener>();
 	folderListeners.addElement(l);
     }
 
@@ -1472,7 +1473,7 @@ public abstract class Folder {
     }
 
     // Vector of MessageCount listeners
-    private volatile Vector messageCountListeners = null;
+    private volatile Vector<MessageCountListener> messageCountListeners = null;
 
     /**
      * Add a listener for MessageCount events on this Folder. <p>
@@ -1485,7 +1486,7 @@ public abstract class Folder {
      */
     public synchronized void addMessageCountListener(MessageCountListener l) { 
    	if (messageCountListeners == null)
-	    messageCountListeners = new Vector();
+	    messageCountListeners = new Vector<MessageCountListener>();
 	messageCountListeners.addElement(l);
     }
 
@@ -1560,7 +1561,8 @@ public abstract class Folder {
     }
 
     // Vector of MessageChanged listeners.
-    private volatile Vector messageChangedListeners = null;
+    private volatile Vector<MessageChangedListener> messageChangedListeners
+	    = null;
 
     /**
      * Add a listener for MessageChanged events on this Folder. <p>
@@ -1574,7 +1576,7 @@ public abstract class Folder {
     public synchronized void
 			addMessageChangedListener(MessageChangedListener l) { 
    	if (messageChangedListeners == null)
-	    messageChangedListeners = new Vector();
+	    messageChangedListeners = new Vector<MessageChangedListener>();
 	messageChangedListeners.addElement(l);
     }
 
@@ -1617,7 +1619,9 @@ public abstract class Folder {
     /*
      * Add the event and vector of listeners to the queue to be delivered.
      */
-    private void queueEvent(MailEvent event, Vector vector) {
+    @SuppressWarnings("unchecked")
+    private void queueEvent(MailEvent event,
+	    Vector<? extends EventListener> vector) {
 	/*
          * Copy the vector in order to freeze the state of the set
          * of EventListeners the event should be delivered to prior
@@ -1626,7 +1630,7 @@ public abstract class Folder {
          * of this event will not take effect until after the event is
          * delivered.
          */
-	Vector v = (Vector)vector.clone();
+	Vector<? extends EventListener> v = (Vector)vector.clone();
 	q.enqueue(event, v);
     }
 

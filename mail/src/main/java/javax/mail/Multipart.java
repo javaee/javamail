@@ -69,6 +69,7 @@ public abstract class Multipart {
     /**
      * Vector of BodyPart objects.
      */
+    @SuppressWarnings("rawtypes")
     protected Vector parts = new Vector(); // Holds BodyParts
 
     /**
@@ -211,10 +212,11 @@ public abstract class Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
+    @SuppressWarnings("unchecked")
     public synchronized void addBodyPart(BodyPart part) 
 		throws MessagingException {
 	if (parts == null)
-	    parts = new Vector();
+	    parts = new Vector<BodyPart>();
 
 	parts.addElement(part);
 	part.setParent(this);
@@ -234,10 +236,11 @@ public abstract class Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
+    @SuppressWarnings("unchecked")
     public synchronized void addBodyPart(BodyPart part, int index) 
 				throws MessagingException {
 	if (parts == null)
-	    parts = new Vector();
+	    parts = new Vector<BodyPart>();
 
 	parts.insertElementAt(part, index);
 	part.setParent(this);

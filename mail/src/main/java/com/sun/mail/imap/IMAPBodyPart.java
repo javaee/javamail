@@ -243,9 +243,11 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 
 		    try {
 			// Write out the header
-			Enumeration hdrLines = super.getAllHeaderLines();
+			@SuppressWarnings("unchecked")
+			Enumeration<String> hdrLines
+				= super.getAllHeaderLines();
 			while (hdrLines.hasMoreElements())
-			    los.writeln((String)hdrLines.nextElement());
+			    los.writeln(hdrLines.nextElement());
 
 			// The CRLF separator between header and content
 			los.writeln();
@@ -334,18 +336,21 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
-    public Enumeration getAllHeaders() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getAllHeaders() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaders();
     }
 
-    public Enumeration getMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaders(names);
     }
 
-    public Enumeration getNonMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getNonMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getNonMatchingHeaders(names);
@@ -355,18 +360,21 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
-    public Enumeration getAllHeaderLines() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaderLines();
     }
 
-    public Enumeration getMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaderLines(names);
     }
 
-    public Enumeration getNonMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getNonMatchingHeaderLines(names);

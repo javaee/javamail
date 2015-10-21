@@ -271,12 +271,14 @@ public class MailDateFormatTest {
      */
     @Test
     public void mustFailFastIfDayContainsTooManyDigits() {
-        mustFail(getLenient(), "100000000000000000000000000000001 Jan 2015 00:00 +0000", 0);
+        mustFail(getLenient(),
+		"100000000000000000000000000000001 Jan 2015 00:00 +0000", 0);
     }
 
     @Test
     public void mustFailFastIfYearContainsTooManyDigits() {
-        mustFail(getLenient(), "1 Jan 100000000000000000000000000000002015 00:00 +0000", 6);
+        mustFail(getLenient(),
+		"1 Jan 100000000000000000000000000000002015 00:00 +0000", 6);
     }
 
     @Test

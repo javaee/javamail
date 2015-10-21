@@ -103,9 +103,10 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
 	}
 
 	// First, write out the header
-	Enumeration hdrLines = getAllHeaderLines();
+	@SuppressWarnings("unchecked")
+	Enumeration<String> hdrLines = getAllHeaderLines();
 	while (hdrLines.hasMoreElements())
-	    los.writeln((String)hdrLines.nextElement());
+	    los.writeln(hdrLines.nextElement());
 
 	// The CRLF separator between header and content
 	los.writeln();

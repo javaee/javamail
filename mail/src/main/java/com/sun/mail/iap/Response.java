@@ -286,7 +286,7 @@ public class Response {
 	    return null;
 	index++; // skip '('
 
-	Vector v = new Vector();
+	Vector<String> v = new Vector<String>();
 	do {
 	    v.addElement(atom ? readAtomString() : readString());
 	} while (buffer[index++] != ')');

@@ -74,7 +74,7 @@ public class POP3Folder extends Folder {
     private int size;
     private boolean exists = false;
     private volatile boolean opened = false;
-    private Vector message_cache;
+    private Vector<POP3Message> message_cache;
     private boolean doneUidl = false;
     private volatile TempFile fileCache = null;
 
@@ -233,7 +233,7 @@ public class POP3Folder extends Folder {
 	}
 
 	// Create the message cache vector of appropriate size
-	message_cache = new Vector(total);
+	message_cache = new Vector<POP3Message>(total);
 	message_cache.setSize(total);
 	doneUidl = false;
 
@@ -259,7 +259,7 @@ public class POP3Folder extends Folder {
 	    if (expunge && mode == READ_WRITE) {
 		// find all messages marked deleted and issue DELE commands
 		for (int i = 0; i < message_cache.size(); i++) {
-		    if ((m = (POP3Message)message_cache.elementAt(i)) != null) {
+		    if ((m = message_cache.elementAt(i)) != null) {
 			if (m.isSet(Flags.Flag.DELETED))
 			    try {
 				port.dele(i + 1);
@@ -276,7 +276,7 @@ public class POP3Folder extends Folder {
 	     * Flush and free all cached data for the messages.
 	     */
 	    for (int i = 0; i < message_cache.size(); i++) {
-		if ((m = (POP3Message)message_cache.elementAt(i)) != null)
+		if ((m = message_cache.elementAt(i)) != null)
 		    m.invalidate(true);
 	    }
 
@@ -343,7 +343,7 @@ public class POP3Folder extends Folder {
 	POP3Message m;
 
 	// Assuming that msgno is <= total 
-	if ((m = (POP3Message)message_cache.elementAt(msgno-1)) == null) {
+	if ((m = message_cache.elementAt(msgno-1)) == null) {
 	    m = createMessage(this, msgno);
 	    message_cache.setElementAt(m, msgno-1);
 	}
@@ -353,7 +353,7 @@ public class POP3Folder extends Folder {
     protected POP3Message createMessage(Folder f, int msgno)
 				throws MessagingException {
 	POP3Message m = null;
-	Constructor cons = store.messageConstructor;
+	Constructor<?> cons = store.messageConstructor;
 	if (cons != null) {
 	    try {
 		Object[] o = { this, Integer.valueOf(msgno) };

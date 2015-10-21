@@ -139,7 +139,7 @@ public class ClassLoaderSuite extends Suite {
     @Override
     protected void runChild(Runner runner, RunNotifier notifier) {
 	// XXX - is it safe to assume it's always a ParentRunner?
-	ParentRunner pr = (ParentRunner)runner;
+	ParentRunner<?> pr = (ParentRunner<?>)runner;
 	ClassLoader cl = null;
 	try {
 	    cl = Thread.currentThread().getContextClassLoader();

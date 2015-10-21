@@ -41,7 +41,9 @@
 package com.sun.mail.imap.protocol;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Properties;
+import com.sun.mail.test.AsciiStringInputStream;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -77,7 +79,7 @@ public class IMAPProtocolTest {
     @Test
     public void testMultipleBodyResponses() throws Exception {
 	IMAPProtocol p = new IMAPProtocol(
-	    new StringBufferInputStream(response),
+	    new AsciiStringInputStream(response),
 	    new PrintStream(new ByteArrayOutputStream()),
 	    new Properties(),
 	    debug);
@@ -100,7 +102,7 @@ public class IMAPProtocolTest {
     @Test
     public void testMultipleBodyResponses2() throws Exception {
 	IMAPProtocol p = new IMAPProtocol(
-	    new StringBufferInputStream(response),
+	    new AsciiStringInputStream(response),
 	    new PrintStream(new ByteArrayOutputStream()),
 	    new Properties(),
 	    debug);

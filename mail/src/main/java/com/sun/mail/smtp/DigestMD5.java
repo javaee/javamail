@@ -102,16 +102,16 @@ public class DigestMD5 {
 	logger.fine("Begin authentication ...");
 
 	// Code based on http://www.ietf.org/rfc/rfc2831.txt
-	Hashtable map = tokenize(serverChallenge);
+	Hashtable<String, String> map = tokenize(serverChallenge);
 
 	if (realm == null) {
-	    String text = (String)map.get("realm");
+	    String text = map.get("realm");
 	    realm = text != null ? new StringTokenizer(text, ",").nextToken()
 				 : host;
 	}
 
 	// server challenge random value
-	String nonce = (String)map.get("nonce");
+	String nonce = map.get("nonce");
 
 	random.nextBytes(bytes);
 	b64os.write(bytes);
@@ -158,12 +158,12 @@ public class DigestMD5 {
      * @exception	IOException	for character conversion failures
      */
     public boolean authServer(String serverResponse) throws IOException {
-	Hashtable map = tokenize(serverResponse);
+	Hashtable<String, String> map = tokenize(serverResponse);
 	// DIGEST-MD5 computation, server response (order critical)
 	md5.update(ASCIIUtility.getBytes(":" + uri));
 	md5.update(ASCIIUtility.getBytes(clientResponse + toHex(md5.digest())));
 	String text = toHex(md5.digest());
-	if (!text.equals((String)map.get("rspauth"))) {
+	if (!text.equals(map.get("rspauth"))) {
 	    if (logger.isLoggable(Level.FINE))
 		logger.fine("Expected => rspauth=" + text);
 	    return false;	// server NOT authenticated by client !!!
@@ -177,8 +177,9 @@ public class DigestMD5 {
      * @return	Hashtable containing key/value pairs from server
      */
     @SuppressWarnings("fallthrough")
-    private Hashtable tokenize(String serverResponse) throws IOException {
-	Hashtable map	= new Hashtable();
+    private Hashtable<String, String> tokenize(String serverResponse)
+	    throws IOException {
+	Hashtable<String, String> map	= new Hashtable<String, String>();
 	byte[] bytes = serverResponse.getBytes("iso-8859-1");	// really ASCII?
 	String key = null;
 	int ttype;

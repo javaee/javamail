@@ -83,8 +83,8 @@ import java.util.Vector;
 
 public class FetchProfile {
 
-    private Vector specials; // specials
-    private Vector headers; // vector of header names
+    private Vector<Item> specials; // specials
+    private Vector<String> headers; // vector of header names
 
     /**
      * This inner class is the base class of all items that
@@ -180,7 +180,7 @@ public class FetchProfile {
      */
     public void add(Item item) { 
 	if (specials == null)
-	    specials = new Vector();
+	    specials = new Vector<Item>();
 	specials.addElement(item);
     }
 
@@ -192,7 +192,7 @@ public class FetchProfile {
      */
     public void add(String headerName) { 
    	if (headers == null)
-	    headers = new Vector();
+	    headers = new Vector<String>();
 	headers.addElement(headerName);
     }
 

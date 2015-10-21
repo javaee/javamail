@@ -71,7 +71,7 @@ public class HeaderTokenizerTest {
     static int errors = 0;			// number of errors detected
 
     static boolean junit;
-    static List testData;
+    static List<Object[]> testData;
 
     public HeaderTokenizerTest(String heder, String value, String[] expect) {
 	this.header = header;
@@ -80,9 +80,9 @@ public class HeaderTokenizerTest {
     }
 
     @Parameters
-    public static Collection data() throws IOException {
+    public static Collection<Object[]> data() throws IOException {
 	junit = true;
-	testData = new ArrayList();
+	testData = new ArrayList<Object[]>();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressTest.class.getResourceAsStream("tokenlist"))));
 	return testData;
@@ -230,7 +230,8 @@ public class HeaderTokenizerTest {
 			mime ? HeaderTokenizer.MIME : HeaderTokenizer.RFC822,
 			!return_comments);
 	    HeaderTokenizer.Token tok;
-	    Vector toklist = new Vector();
+	    Vector<HeaderTokenizer.Token> toklist
+		    = new Vector<HeaderTokenizer.Token>();
 	    while ((tok = ht.next()).getType() != HeaderTokenizer.Token.EOF)
 		toklist.addElement(tok);
 	    if (gen_test_input)
@@ -248,7 +249,7 @@ public class HeaderTokenizerTest {
 		}
 	    }
 	    for (int i = 0; i < toklist.size(); i++) {
-		tok = (HeaderTokenizer.Token)toklist.elementAt(i);
+		tok = toklist.elementAt(i);
 		if (gen_test_input)
 		    out.println("\t" + type(tok.getType()) +
 						"\t" + tok.getValue());

@@ -199,7 +199,7 @@ public class NewsAddress extends Address {
 				throws AddressException {
 	// XXX - verify format of newsgroup name?
 	StringTokenizer st = new StringTokenizer(newsgroups, ",");
-	Vector nglist = new Vector();
+	Vector<NewsAddress> nglist = new Vector<NewsAddress>();
 	while (st.hasMoreTokens()) {
 	    String ng = st.nextToken();
 	    nglist.addElement(new NewsAddress(ng));

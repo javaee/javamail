@@ -82,11 +82,11 @@ public class POP3Store extends Store {
     private boolean useStartTLS = false;
     private boolean requireStartTLS = false;
     private boolean usingSSL = false;
-    private Map capabilities;
+    private Map<String, String> capabilities;
     private MailLogger logger;
 
     // following set here and accessed by other classes in this package
-    volatile Constructor messageConstructor = null;
+    volatile Constructor<?> messageConstructor = null;
     volatile boolean rsetBeforeQuit = false;
     volatile boolean disableTop = false;
     volatile boolean forgetTopHeaders = false;
@@ -143,7 +143,7 @@ public class POP3Store extends Store {
 		ClassLoader cl = this.getClass().getClassLoader();
 
 		// now load the class
-		Class messageClass = null;
+		Class<?> messageClass = null;
 		try {
 		    // First try the "application's" class loader.
 		    // This should eventually be replaced by
@@ -156,7 +156,7 @@ public class POP3Store extends Store {
 		    messageClass = Class.forName(s);
 		}
 
-		Class[] c = {javax.mail.Folder.class, int.class};
+		Class<?>[] c = {javax.mail.Folder.class, int.class};
 		messageConstructor = messageClass.getConstructor(c);
 	    } catch (Exception ex) {
 		logger.log(Level.CONFIG, "failed to load message class", ex);
@@ -386,15 +386,15 @@ public class POP3Store extends Store {
      * @exception	MessagingException for failures
      * @since	JavaMail 1.4.3
      */
-    public Map capabilities() throws MessagingException {
-	Map c;
+    public Map<String, String> capabilities() throws MessagingException {
+	Map<String, String> c;
 	synchronized (this) {
 	    c = capabilities;
 	}
 	if (c != null)
 	    return Collections.unmodifiableMap(c);
 	else
-	    return Collections.EMPTY_MAP;
+	    return Collections.<String, String>emptyMap();
     }
 
     /**

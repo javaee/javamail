@@ -290,9 +290,10 @@ public class ParameterListDecode {
 		    errors++;
 		}
 	    }
-	    Enumeration e = pl.getNames();
+	    @SuppressWarnings("unchecked")
+	    Enumeration<String> e = pl.getNames();
 	    for (int i = 0; e.hasMoreElements(); i++) {
-		String name = (String)e.nextElement();
+		String name = e.nextElement();
 		String pvalue = pl.get(name);
 		if (gen_test_input)
 		    out.println("\t" + name + "=" + pvalue);	// XXX - newline

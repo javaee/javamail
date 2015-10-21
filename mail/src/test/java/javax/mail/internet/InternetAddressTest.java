@@ -74,7 +74,7 @@ public class InternetAddressTest {
     static int errors = 0;			// number of errors detected
 
     static boolean junit;
-    static List testData;
+    static List<Object[]> testData;
 
     public InternetAddressTest(String headerName, String headerValue,
 	    String[] expected, boolean doStrict, boolean doParseHeader) {
@@ -86,9 +86,9 @@ public class InternetAddressTest {
     }
 
     @Parameters
-    public static Collection data() throws IOException {
+    public static Collection<Object[]> data() throws IOException {
 	junit = true;
-	testData = new ArrayList();
+	testData = new ArrayList<Object[]>();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressTest.class.getResourceAsStream("addrlist"))));
 	return testData;

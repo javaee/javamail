@@ -84,7 +84,7 @@ public class UUDecoderStreamTest {
     }
 
     @Parameters
-    public static Collection data() throws Exception {
+    public static Collection<TestData[]> data() throws Exception {
 	junit = true;
 	// XXX - gratuitous array requirement
 	List<TestData[]> testData = new ArrayList<TestData[]>();

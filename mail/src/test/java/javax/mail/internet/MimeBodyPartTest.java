@@ -40,7 +40,9 @@
 
 package javax.mail.internet;
 
+import com.sun.mail.test.AsciiStringInputStream;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import javax.activation.DataHandler;
@@ -182,7 +184,7 @@ public class MimeBodyPartTest {
 	    "\n" +
 	    "-----\n";
 
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 
     private static String getString(InputStream is) throws IOException {

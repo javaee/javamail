@@ -72,7 +72,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
     String uid = UNKNOWN;	// controlled by folder lock
 
     // rawData itself is never null
-    private SoftReference rawData = new SoftReference(null);
+    private SoftReference<InputStream> rawData
+	    = new SoftReference<InputStream>(null);
 
     public POP3Message(Folder folder, int msgno)
 			throws MessagingException {
@@ -156,7 +157,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	InputStream rawcontent = null;
 	try {
 	synchronized(this) {
-	    rawcontent = (InputStream)rawData.get();
+	    rawcontent = rawData.get();
 	    if (rawcontent == null) {
 		TempFile cache = folder.getFileCache();
 		if (cache != null) {
@@ -237,7 +238,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 		// skipped the header, the message is what's left
 		msgSize = rawcontent.available();
 
-		rawData = new SoftReference(rawcontent);
+		rawData = new SoftReference<InputStream>(rawcontent);
 	    }
 	}
 	} catch (EOFException eex) {
@@ -301,7 +302,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      */
     public synchronized void invalidate(boolean invalidateHeaders) {
 	content = null;
-	InputStream rstream = (InputStream)rawData.get();
+	InputStream rstream = rawData.get();
 	if (rstream != null) {
 	    // note that if the content is in the file cache, it will be lost
 	    // and fetched from the server if it's needed again
@@ -310,7 +311,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	    } catch (IOException ex) {
 		// ignore it
 	    }
-	    rawData = new SoftReference(null);
+	    rawData = new SoftReference<InputStream>(null);
 	}
 	if (contentStream != null) {
 	    try {
@@ -449,7 +450,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      * @exception	MessagingException for failures
      * @see 	javax.mail.internet.MimeUtility
      */
-    public Enumeration getAllHeaders() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getAllHeaders() throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
 	return headers.getAllHeaders();	
@@ -461,7 +463,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    public Enumeration getMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getMatchingHeaders(String[] names)
 			throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -474,7 +477,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    public Enumeration getNonMatchingHeaders(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<Header> getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -502,7 +506,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    public Enumeration getAllHeaderLines() throws MessagingException {
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
 	return headers.getAllHeaderLines();
@@ -515,7 +520,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    public Enumeration getMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -529,7 +535,8 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    public Enumeration getNonMatchingHeaderLines(String[] names)
+    @SuppressWarnings("unchecked")
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -564,7 +571,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      */
     public synchronized void writeTo(OutputStream os, String[] ignoreList)
 				throws IOException, MessagingException {
-	InputStream rawcontent = (InputStream)rawData.get();
+	InputStream rawcontent = rawData.get();
 	if (rawcontent == null && ignoreList == null &&
 			!((POP3Store)(folder.getStore())).cacheWriteTo) {
 	    if (folder.logger.isLoggable(Level.FINE))

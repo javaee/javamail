@@ -305,7 +305,7 @@ public class Rights implements Cloneable {
      * @return	array of Rights.Right objects representing rights
      */
     public Right[] getRights() {
-	Vector v = new Vector();
+	Vector<Right> v = new Vector<Right>();
 	for (int i = 0; i < this.rights.length; i++)
 	    if (this.rights[i])
 		v.addElement(Right.getInstance((char)i));

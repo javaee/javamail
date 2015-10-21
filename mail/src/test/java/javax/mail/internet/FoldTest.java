@@ -62,7 +62,7 @@ public class FoldTest {
     private String orig;
     private String expect;
 
-    private static List testData;
+    private static List<Object[]> testData;
 
     public FoldTest(String direction, String orig, String expect) {
 	this.direction = direction;
@@ -71,8 +71,8 @@ public class FoldTest {
     }
 
     @Parameters
-    public static Collection data() throws IOException {
-	testData = new ArrayList();
+    public static Collection<Object[]> data() throws IOException {
+	testData = new ArrayList<Object[]>();
 	parse(new BufferedReader(new InputStreamReader(
 	    FoldTest.class.getResourceAsStream("folddata"))));
 	return testData;

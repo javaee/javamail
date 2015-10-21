@@ -86,7 +86,8 @@ public abstract class Service {
      * (Sychronizing on the Service object itself can cause
      * deadlocks when notifying listeners.)
      */
-    private final Vector connectionListeners = new Vector();
+    private final Vector<ConnectionListener> connectionListeners
+	    = new Vector<ConnectionListener>();
 
     /**
      * The queue of events to be delivered.
@@ -261,7 +262,8 @@ public abstract class Service {
      * @see #connect(java.lang.String, java.lang.String, java.lang.String)
      * @since           JavaMail 1.4
      */
-    public void connect(String user, String password) throws MessagingException {
+    public void connect(String user, String password)
+	    throws MessagingException {
         connect(null, user, password);
     }
 
@@ -635,6 +637,7 @@ public abstract class Service {
      * @param	event	the event
      * @param	vector	the vector of listeners
      */
+    @SuppressWarnings("rawtypes")
     protected void queueEvent(MailEvent event, Vector vector) {
 	/*
          * Copy the vector in order to freeze the state of the set
@@ -644,7 +647,8 @@ public abstract class Service {
          * of this event will not take effect until after the event is
          * delivered.
          */
-	Vector v = (Vector)vector.clone();
+	@SuppressWarnings("unchecked")
+	Vector<? extends EventListener> v = (Vector)vector.clone();
 	q.enqueue(event, v);
     }
 

@@ -100,7 +100,7 @@ import java.util.*;
 public class Flags implements Cloneable, Serializable {
 
     private int system_flags = 0;
-    private Hashtable user_flags = null;
+    private Hashtable<String, String> user_flags = null;
 
     private final static int ANSWERED_BIT 	= 0x01;
     private final static int DELETED_BIT 	= 0x02;
@@ -191,6 +191,7 @@ public class Flags implements Cloneable, Serializable {
      *
      * @param flags	the flags for initialization
      */
+    @SuppressWarnings("unchecked")
     public Flags(Flags flags) {
 	this.system_flags = flags.system_flags;
 	if (flags.user_flags != null)
@@ -212,7 +213,7 @@ public class Flags implements Cloneable, Serializable {
      * @param flag	the flag for initialization
      */
     public Flags(String flag) {
-	user_flags = new Hashtable(1);
+	user_flags = new Hashtable<String, String>(1);
 	user_flags.put(flag.toLowerCase(Locale.ENGLISH), flag);
     }
 
@@ -232,7 +233,7 @@ public class Flags implements Cloneable, Serializable {
      */
     public void add(String flag) {
 	if (user_flags == null)
-	    user_flags = new Hashtable(1);
+	    user_flags = new Hashtable<String, String>(1);
 	user_flags.put(flag.toLowerCase(Locale.ENGLISH), flag);
     }
 
@@ -247,12 +248,12 @@ public class Flags implements Cloneable, Serializable {
 
 	if (f.user_flags != null) { // add user-defined flags
 	    if (user_flags == null)
-		user_flags = new Hashtable(1);
+		user_flags = new Hashtable<String, String>(1);
 
-	    Enumeration e = f.user_flags.keys();
+	    Enumeration<String> e = f.user_flags.keys();
 
 	    while (e.hasMoreElements()) {
-		String s = (String)e.nextElement();
+		String s = e.nextElement();
 		user_flags.put(s, f.user_flags.get(s));
 	    }
 	}
@@ -290,7 +291,7 @@ public class Flags implements Cloneable, Serializable {
 	    if (user_flags == null)
 		return;
 
-	    Enumeration e = f.user_flags.keys();
+	    Enumeration<String> e = f.user_flags.keys();
 	    while (e.hasMoreElements())
 		user_flags.remove(e.nextElement());
 	}
@@ -336,7 +337,7 @@ public class Flags implements Cloneable, Serializable {
 	if (f.user_flags != null) {
 	    if (user_flags == null)
 		return false;
-	    Enumeration e = f.user_flags.keys();
+	    Enumeration<String> e = f.user_flags.keys();
 
 	    while (e.hasMoreElements()) {
 		if (!user_flags.containsKey(e.nextElement()))
@@ -368,7 +369,7 @@ public class Flags implements Cloneable, Serializable {
 	    return true;
 	if (f.user_flags != null && this.user_flags != null &&
 		f.user_flags.size() == this.user_flags.size()) {
-	    Enumeration e = f.user_flags.keys();
+	    Enumeration<String> e = f.user_flags.keys();
 
 	    while (e.hasMoreElements()) {
 		if (!this.user_flags.containsKey(e.nextElement()))
@@ -388,9 +389,9 @@ public class Flags implements Cloneable, Serializable {
     public int hashCode() {
 	int hash = system_flags;
 	if (user_flags != null) {
-	    Enumeration e = user_flags.keys();
+	    Enumeration<String> e = user_flags.keys();
 	    while (e.hasMoreElements())
-		hash += ((String)e.nextElement()).hashCode();
+		hash += e.nextElement().hashCode();
 	}
 	return hash;
     }
@@ -402,7 +403,7 @@ public class Flags implements Cloneable, Serializable {
      * @return	array of Flags.Flag objects representing system flags
      */
     public Flag[] getSystemFlags() {
-	Vector v = new Vector();
+	Vector<Flag> v = new Vector<Flag>();
 	if ((system_flags & ANSWERED_BIT) != 0)
 	    v.addElement(Flag.ANSWERED);
 	if ((system_flags & DELETED_BIT) != 0)
@@ -430,9 +431,9 @@ public class Flags implements Cloneable, Serializable {
      * @return	array of Strings, each String represents a flag.
      */
     public String[] getUserFlags() {
-	Vector v = new Vector();
+	Vector<String> v = new Vector<String>();
 	if (user_flags != null) {
-	    Enumeration e = user_flags.elements();
+	    Enumeration<String> e = user_flags.elements();
 
 	    while (e.hasMoreElements())
 		v.addElement(e.nextElement());
@@ -446,6 +447,7 @@ public class Flags implements Cloneable, Serializable {
     /**
      * Returns a clone of this Flags object.
      */
+    @SuppressWarnings("unchecked")
     public Object clone() {
 	Flags f = null;
 	try {

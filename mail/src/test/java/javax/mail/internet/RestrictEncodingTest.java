@@ -40,15 +40,14 @@
 
 package javax.mail.internet;
 
-import java.io.StringBufferInputStream;
+import com.sun.mail.test.AsciiStringInputStream;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import javax.mail.Session;
 import javax.mail.MessagingException;
 import javax.mail.BodyPart;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
@@ -128,6 +127,6 @@ public class RestrictEncodingTest {
 	    "\n" +
 	    "--=3D--\n";
 
-	return new MimeMessage(s, new StringBufferInputStream(content));
+	return new MimeMessage(s, new AsciiStringInputStream(content));
     }
 }
