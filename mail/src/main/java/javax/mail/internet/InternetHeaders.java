@@ -637,7 +637,7 @@ public class InternetHeaders {
 	    // line is empty, ignore it
 	    return;
 	} catch (NoSuchElementException e) {
-	    // XXX - vector is empty?
+	    // XXX - list is empty?
 	}
     }
 

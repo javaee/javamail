@@ -40,11 +40,11 @@
 
 package javax.mail;
 
-import java.io.*;
 import java.lang.*;
+import java.util.ArrayList;
 import java.util.EventListener;
+import java.util.List;
 import java.util.Vector;
-import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
 import javax.mail.search.SearchTerm;
 import javax.mail.event.*;
@@ -1288,19 +1288,17 @@ public abstract class Folder {
      */
     public Message[] search(SearchTerm term, Message[] msgs)
 				throws MessagingException {
-	Vector<Message> matchedMsgs = new Vector<Message>();
+	List<Message> matchedMsgs = new ArrayList<Message>();
 
 	// Run thru the given messages
-	for (int i = 0; i < msgs.length; i++) {
+	for (Message msg : msgs) {
 	    try {
-		if (msgs[i].match(term)) // matched
-		    matchedMsgs.addElement(msgs[i]); // add it
+		if (msg.match(term)) // matched
+		    matchedMsgs.add(msg); // add it
 	    } catch(MessageRemovedException mrex) { }
 	}
 
-	Message[] m = new Message[matchedMsgs.size()];
-	matchedMsgs.copyInto(m);
-	return m;
+	return matchedMsgs.toArray(new Message[matchedMsgs.size()]);
     }
 
     /*

@@ -40,11 +40,11 @@
 
 package javax.mail;
 
-import java.io.IOException;
-import java.net.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
-import java.util.Hashtable;
-import java.util.Enumeration;
 import javax.mail.event.*;
 
 /**
@@ -210,26 +210,26 @@ public abstract class Transport extends Service {
 	    throw new SendFailedException("No recipient addresses");
 
 	/*
-	 * protocols is a hashtable containing the addresses
+	 * protocols is a map containing the addresses
 	 * indexed by address type
 	 */
-	Hashtable<String, Vector<Address>> protocols
-		= new Hashtable<String, Vector<Address>>();
+	Map<String, List<Address>> protocols
+		= new HashMap<String, List<Address>>();
 
-	// Vectors of addresses
-	Vector<Address> invalid = new Vector<Address>();
-	Vector<Address> validSent = new Vector<Address>();
-	Vector<Address> validUnsent = new Vector<Address>();
+	// Lists of addresses
+	List<Address> invalid = new ArrayList<Address>();
+	List<Address> validSent = new ArrayList<Address>();
+	List<Address> validUnsent = new ArrayList<Address>();
 
 	for (int i = 0; i < addresses.length; i++) {
-	    // is this address type already in the hashtable?
+	    // is this address type already in the map?
 	    if (protocols.containsKey(addresses[i].getType())) {
-		Vector<Address> v = protocols.get(addresses[i].getType());
-		v.addElement(addresses[i]);
+		List<Address> v = protocols.get(addresses[i].getType());
+		v.add(addresses[i]);
 	    } else {
 		// need to add a new protocol
-		Vector<Address> w = new Vector<Address>();
-		w.addElement(addresses[i]);
+		List<Address> w = new ArrayList<Address>();
+		w.add(addresses[i]);
 		protocols.put(addresses[i].getType(), w);
 	    }
 	}
@@ -266,18 +266,16 @@ public abstract class Transport extends Service {
 	MessagingException chainedEx = null;
 	boolean sendFailed = false;
 
-	Enumeration<Vector<Address>> e = protocols.elements();
-	while (e.hasMoreElements()) {
-	    Vector<Address> v = e.nextElement();
+	for(List<Address> v : protocols.values()) {
 	    Address[] protaddresses = new Address[v.size()];
-	    v.copyInto(protaddresses);
+	    v.toArray(protaddresses);
 
 	    // Get a Transport that can handle this address type.
 	    if ((transport = s.getTransport(protaddresses[0])) == null) {
 		// Could not find an appropriate Transport ..
 		// Mark these addresses invalid.
 		for (int j = 0; j < protaddresses.length; j++)
-		    invalid.addElement(protaddresses[j]);
+		    invalid.add(protaddresses[j]);
 		continue;
 	    }
 	    try {
@@ -295,19 +293,19 @@ public abstract class Transport extends Service {
 		Address[] a = sex.getInvalidAddresses();
 		if (a != null)
 		    for (int j = 0; j < a.length; j++) 
-			invalid.addElement(a[j]);
+			invalid.add(a[j]);
 
 		// retrieve validSent addresses
 		a = sex.getValidSentAddresses();
 		if (a != null)
 		    for (int k = 0; k < a.length; k++) 
-			validSent.addElement(a[k]);
+			validSent.add(a[k]);
 
 		// retrieve validUnsent addresses
 		Address[] c = sex.getValidUnsentAddresses();
 		if (c != null)
 		    for (int l = 0; l < c.length; l++) 
-			validUnsent.addElement(c[l]);
+			validUnsent.add(c[l]);
 	    } catch (MessagingException mex) {
 		sendFailed = true;
 		// chain the exception we're catching to any previous ones
@@ -324,18 +322,18 @@ public abstract class Transport extends Service {
 	if (sendFailed || invalid.size() != 0 || validUnsent.size() != 0) { 
 	    Address[] a = null, b = null, c = null;
 
-	    // copy address vectors into arrays
+	    // copy address lists into arrays
 	    if (validSent.size() > 0) {
 		a = new Address[validSent.size()];
-		validSent.copyInto(a);
+		validSent.toArray(a);
 	    }
 	    if (validUnsent.size() > 0) {
 		b = new Address[validUnsent.size()];
-		validUnsent.copyInto(b);
+		validUnsent.toArray(b);
 	    }
 	    if (invalid.size() > 0) {
 		c = new Address[invalid.size()];
-		invalid.copyInto(c);
+		invalid.toArray(c);
 	    }
 	    throw new SendFailedException("Sending failed", chainedEx, 
 					  a, b, c);

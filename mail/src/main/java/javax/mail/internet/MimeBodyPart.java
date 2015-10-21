@@ -1329,7 +1329,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
 	// Tokenize the header to obtain the Language-tags (skip comments)
 	HeaderTokenizer h = new HeaderTokenizer(s, HeaderTokenizer.MIME);
-	Vector<String> v = new Vector<String>();
+	List<String> v = new ArrayList<String>();
 
 	HeaderTokenizer.Token tk;
 	int tkType;
@@ -1340,16 +1340,16 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	    if (tkType == HeaderTokenizer.Token.EOF)
 		break; // done
 	    else if (tkType == HeaderTokenizer.Token.ATOM)
-		v.addElement(tk.getValue());
+		v.add(tk.getValue());
 	    else // invalid token, skip it.
 		continue;
 	}
 
-	if (v.size() == 0)
+	if (v.isEmpty())
 	    return null;
 
 	String[] language = new String[v.size()];
-	v.copyInto(language);
+	v.toArray(language);
 	return language;	
     }
 

@@ -40,10 +40,6 @@
 
 package javax.mail;
 
-import java.util.Vector;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
 import javax.activation.DataSource;
 
 /**

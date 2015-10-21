@@ -2541,7 +2541,7 @@ public class IMAPProtocol extends Protocol {
 		}
 	    }
 
-	    // Copy the vector into 'matches'
+	    // Copy the list into 'matches'
 	    int vsize = v.size();
 	    matches = new int[vsize];
 	    for (int i = 0; i < vsize; i++)
@@ -2632,7 +2632,7 @@ public class IMAPProtocol extends Protocol {
 		}
 	    }
 
-	    // Copy the vector into 'matches'
+	    // Copy the list into 'matches'
 	    int vsize = v.size();
 	    matches = new int[vsize];
 	    for (int i = 0; i < vsize; i++)
@@ -2708,7 +2708,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 
-	Hashtable<String, Quota> tab = new Hashtable<String, Quota>();
+	Map<String, Quota> tab = new HashMap<String, Quota>();
 
 	// Grab all QUOTAROOT and QUOTA responses
 	if (response.isOK()) { // command succesful 
@@ -2752,11 +2752,7 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 	handleResult(response);
 
-	Quota[] qa = new Quota[tab.size()];
-	Enumeration<Quota> e = tab.elements();
-	for (int i = 0; e.hasMoreElements(); i++)
-	    qa[i] = e.nextElement();
-	return qa;
+	return tab.values().toArray(new Quota[tab.size()]);
     }
 
     /**

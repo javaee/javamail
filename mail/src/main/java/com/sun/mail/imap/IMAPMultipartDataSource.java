@@ -40,16 +40,13 @@
 
 package com.sun.mail.imap;
 
-import java.io.InputStream;
-import java.io.IOException;
-import java.util.Vector;
 
 import javax.mail.*;
 import javax.mail.internet.*;
 
-import com.sun.mail.util.*;
-import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class 
@@ -59,15 +56,15 @@ import com.sun.mail.imap.protocol.*;
 
 public class IMAPMultipartDataSource extends MimePartDataSource
 				     implements MultipartDataSource {
-    private Vector<IMAPBodyPart> parts;
+    private List<IMAPBodyPart> parts;
 
     protected IMAPMultipartDataSource(MimePart part, BODYSTRUCTURE[] bs, 
 				      String sectionId, IMAPMessage msg) {
 	super(part);
 
-	parts = new Vector<IMAPBodyPart>(bs.length);
+	parts = new ArrayList<IMAPBodyPart>(bs.length);
 	for (int i = 0; i < bs.length; i++)
-	    parts.addElement(
+	    parts.add(
 		new IMAPBodyPart(bs[i], 
 				 sectionId == null ? 
 				   Integer.toString(i+1) : 
@@ -81,6 +78,6 @@ public class IMAPMultipartDataSource extends MimePartDataSource
     }
 
     public BodyPart getBodyPart(int index) throws MessagingException {
-	return parts.elementAt(index);
+	return parts.get(index);
     }
 }

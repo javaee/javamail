@@ -41,20 +41,18 @@
 package com.sun.mail.pop3;
 
 import javax.mail.*;
-import javax.mail.internet.*;
 import javax.mail.event.*;
 import java.io.InputStream;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.EOFException;
-import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.lang.reflect.Constructor;
 
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.MailLogger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A POP3 Folder (can only be "INBOX").
@@ -74,7 +72,7 @@ public class POP3Folder extends Folder {
     private int size;
     private boolean exists = false;
     private volatile boolean opened = false;
-    private Vector<POP3Message> message_cache;
+    private POP3Message[] message_cache;
     private boolean doneUidl = false;
     private volatile TempFile fileCache = null;
 
@@ -232,9 +230,8 @@ public class POP3Folder extends Folder {
 	    throw new MessagingException("Open failed", ioex);
 	}
 
-	// Create the message cache vector of appropriate size
-	message_cache = new Vector<POP3Message>(total);
-	message_cache.setSize(total);
+	// Create the message cache array of appropriate size
+	message_cache = new POP3Message[total];
 	doneUidl = false;
 
 	notifyConnectionListeners(ConnectionEvent.OPENED);
@@ -258,8 +255,8 @@ public class POP3Folder extends Folder {
 	    POP3Message m;
 	    if (expunge && mode == READ_WRITE) {
 		// find all messages marked deleted and issue DELE commands
-		for (int i = 0; i < message_cache.size(); i++) {
-		    if ((m = message_cache.elementAt(i)) != null) {
+		for (int i = 0; i < message_cache.length; i++) {
+		    if ((m = message_cache[i]) != null) {
 			if (m.isSet(Flags.Flag.DELETED))
 			    try {
 				port.dele(i + 1);
@@ -275,8 +272,8 @@ public class POP3Folder extends Folder {
 	    /*
 	     * Flush and free all cached data for the messages.
 	     */
-	    for (int i = 0; i < message_cache.size(); i++) {
-		if ((m = message_cache.elementAt(i)) != null)
+	    for (int i = 0; i < message_cache.length; i++) {
+		if ((m = message_cache[i]) != null)
 		    m.invalidate(true);
 	    }
 
@@ -343,9 +340,9 @@ public class POP3Folder extends Folder {
 	POP3Message m;
 
 	// Assuming that msgno is <= total 
-	if ((m = message_cache.elementAt(msgno-1)) == null) {
+	if ((m = message_cache[msgno-1]) == null) {
 	    m = createMessage(this, msgno);
-	    message_cache.setElementAt(m, msgno-1);
+	    message_cache[msgno-1] = m;
 	}
 	return m;
     }
@@ -412,7 +409,7 @@ public class POP3Folder extends Folder {
 	     * decision on the number of messages fetched, or the
 	     * percentage of the total number of messages fetched.
 	     */
-	    String[] uids = new String[message_cache.size()];
+	    String[] uids = new String[message_cache.length];
 	    try {
 		if (!port.uidl(uids))
 		    return;

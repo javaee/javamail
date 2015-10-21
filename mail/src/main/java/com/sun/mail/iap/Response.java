@@ -282,22 +282,21 @@ public class Response {
     private String[] readStringList(boolean atom) {
 	skipSpaces();
 
-	if (buffer[index] != '(') // not what we expected
+	if (buffer[index] != '(') { // not what we expected
 	    return null;
+	}
 	index++; // skip '('
 
-	Vector<String> v = new Vector<String>();
+	List<String> result = new ArrayList<String>();
 	do {
-	    v.addElement(atom ? readAtomString() : readString());
+	    result.add(atom ? readAtomString() : readString());
 	} while (buffer[index++] != ')');
 
-	int size = v.size();
-	if (size > 0) {
-	    String[] s = new String[size];
-	    v.copyInto(s);
-	    return s;
-	} else  // empty list
+	if (!result.isEmpty()) {
+	    return result.toArray(new String[result.size()]);
+	} else {
 	    return null;
+	}
     }
 
     /**

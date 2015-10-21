@@ -44,7 +44,6 @@ import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.Locale;
-import java.io.PrintStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -61,6 +60,8 @@ import com.sun.mail.util.PropUtil;
 import com.sun.mail.util.MailLogger;
 import com.sun.mail.util.SocketConnectException;
 import com.sun.mail.util.MailConnectException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class provides access to an IMAP message store. <p>
@@ -520,15 +521,15 @@ public class IMAPStore extends Store
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.CONFIG))
 		    logger.config("SASL mechanisms allowed: " + s);
-		Vector<String> v = new Vector<String>(5);
+		List<String> v = new ArrayList<String>(5);
 		StringTokenizer st = new StringTokenizer(s, " ,");
 		while (st.hasMoreTokens()) {
 		    String m = st.nextToken();
 		    if (m.length() > 0)
-			v.addElement(m);
+			v.add(m);
 		}
 		saslMechanisms = new String[v.size()];
-		v.copyInto(saslMechanisms);
+		v.toArray(saslMechanisms);
 	    }
 	}
 
@@ -1694,7 +1695,7 @@ public class IMAPStore extends Store
 	    logger.fine("IMAPStore cleanup, force " + force);
 
 	if (!force || closeFoldersOnStoreFailure) {
-        Vector<IMAPFolder> foldersCopy = null;
+        List<IMAPFolder> foldersCopy = null;
         boolean done = true;
 
 	// To avoid violating the locking hierarchy, there's no lock we
@@ -1721,7 +1722,7 @@ public class IMAPStore extends Store
 
 	    // Close and remove any open folders under this Store.
 	    for (int i = 0, fsize = foldersCopy.size(); i < fsize; i++) {
-		IMAPFolder f = foldersCopy.elementAt(i);
+		IMAPFolder f = foldersCopy.get(i);
 
 		try {
 		    if (force) {

@@ -1223,7 +1223,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    Response[] r = null;
 	    // to collect non-FETCH responses & unsolicited FETCH FLAG responses 
-	    Vector<Response> v = new Vector<Response>();
+	    List<Response> v = new ArrayList<Response>();
 	    try {
 		r = getProtocol().fetch(msgsets, command.toString());
 	    } catch (ConnectionException cex) {
@@ -1241,7 +1241,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		if (r[i] == null)
 		    continue;
 		if (!(r[i] instanceof FetchResponse)) {
-		    v.addElement(r[i]); // Unsolicited Non-FETCH response
+		    v.add(r[i]); // Unsolicited Non-FETCH response
 		    continue;
 		}
 
@@ -1270,14 +1270,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		// If this response contains any unsolicited FLAGS
 		// add it to the unsolicited response vector
 		if (unsolicitedFlags)
-		    v.addElement(f);
+		    v.add(f);
 	    }
 
 	    // Dispatch any unsolicited responses
-	    int size = v.size();
-	    if (size != 0) {
-		Response[] responses = new Response[size];
-		v.copyInto(responses);
+	    if (!v.isEmpty()) {
+		Response[] responses = new Response[v.size()];
+		v.toArray(responses);
 		handleResponses(responses);
 	    }
 
@@ -2580,18 +2579,19 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		long[] unavailUids = uids;
 		if (uidTable != null) {
 		    // to collect unavailable UIDs
-		    Vector<Long> v = new Vector<Long>();
-		    Long l;
-		    for (int i = 0; i < uids.length; i++) {
-			if (!uidTable.containsKey(l = Long.valueOf(uids[i])))
+		    List<Long> v = new ArrayList<Long>();
+		    for (long uid : uids) {
+			if (!uidTable.containsKey(uid)) {
 			    // This UID has not been loaded yet.
-			    v.addElement(l);
+			    v.add(uid);
+			}
 		    }
 
 		    int vsize = v.size();
 		    unavailUids = new long[vsize];
-		    for (int i = 0; i < vsize; i++)
-			unavailUids[i] = v.elementAt(i).longValue();
+		    for (int i = 0; i < vsize; i++) {
+			unavailUids[i] = v.get(i);
+		    }
 		} else
 		    uidTable = new Hashtable<Long, IMAPMessage>();
 

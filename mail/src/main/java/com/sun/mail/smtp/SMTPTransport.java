@@ -1435,39 +1435,39 @@ public class SMTPTransport extends Transport {
      * Expand any group addresses.
      */
     private void expandGroups() {
-	Vector<Address> groups = null;
+	List<Address> groups = null;
 	for (int i = 0; i < addresses.length; i++) {
 	    InternetAddress a = (InternetAddress)addresses[i];
 	    if (a.isGroup()) {
 		if (groups == null) {
 		    // first group, catch up with where we are
-		    groups = new Vector<Address>();
+		    groups = new ArrayList<Address>();
 		    for (int k = 0; k < i; k++)
-			groups.addElement(addresses[k]);
+			groups.add(addresses[k]);
 		}
 		// parse it and add each individual address
 		try {
 		    InternetAddress[] ia = a.getGroup(true);
 		    if (ia != null) {
 			for (int j = 0; j < ia.length; j++)
-			    groups.addElement(ia[j]);
+			    groups.add(ia[j]);
 		    } else
-			groups.addElement(a);
+			groups.add(a);
 		} catch (ParseException pex) {
 		    // parse failed, add the whole thing
-		    groups.addElement(a);
+		    groups.add(a);
 		}
 	    } else {
 		// if we've started accumulating a list, add this to it
 		if (groups != null)
-		    groups.addElement(a);
+		    groups.add(a);
 	    }
 	}
 
 	// if we have a new list, convert it back to an array
 	if (groups != null) {
 	    InternetAddress[] newa = new InternetAddress[groups.size()];
-	    groups.copyInto(newa);
+	    groups.toArray(newa);
 	    addresses = newa;
 	}
     }
@@ -1776,14 +1776,14 @@ public class SMTPTransport extends Transport {
      * E: 500, 501, 503, 421
      *
      * and how we map the above error/failure conditions to valid/invalid
-     * address vectors that are reported in the thrown exception:
+     * address lists that are reported in the thrown exception:
      * invalid addr: 550, 501, 503, 551, 553
      * valid addr: 552 (quota), 450, 451, 452 (quota), 421 (srvr abort)
      */
     protected void rcptTo() throws MessagingException {
-	Vector<InternetAddress> valid = new Vector<InternetAddress>();
-	Vector<InternetAddress> validUnsent = new Vector<InternetAddress>();
-	Vector<InternetAddress> invalid = new Vector<InternetAddress>();
+	List<InternetAddress> valid = new ArrayList<InternetAddress>();
+	List<InternetAddress> validUnsent = new ArrayList<InternetAddress>();
+	List<InternetAddress> invalid = new ArrayList<InternetAddress>();
 	int retCode = -1;
 	MessagingException mex = null;
 	boolean sendFailed = false;
@@ -1824,7 +1824,7 @@ public class SMTPTransport extends Transport {
 	    retCode = readServerResponse();
 	    switch (retCode) {
 	    case 250: case 251:
-		valid.addElement(ia);
+		valid.add(ia);
 		if (!reportSuccess)
 		    break;
 
@@ -1844,7 +1844,7 @@ public class SMTPTransport extends Transport {
 		// given address is invalid
 		if (!sendPartial)
 		    sendFailed = true;
-		invalid.addElement(ia);
+		invalid.add(ia);
 		// create and chain the exception
 		sfex = new SMTPAddressFailedException(ia, cmd, retCode,
 							lastServerResponse);
@@ -1858,7 +1858,7 @@ public class SMTPTransport extends Transport {
 		// given address is valid
 		if (!sendPartial)
 		    sendFailed = true;
-		validUnsent.addElement(ia);
+		validUnsent.add(ia);
 		// create and chain the exception
 		sfex = new SMTPAddressFailedException(ia, cmd, retCode,
 							lastServerResponse);
@@ -1872,10 +1872,10 @@ public class SMTPTransport extends Transport {
 		// handle remaining 4xy & 5xy codes
 		if (retCode >= 400 && retCode <= 499) {
 		    // assume address is valid, although we don't really know
-		    validUnsent.addElement(ia);
+		    validUnsent.add(ia);
 		} else if (retCode >= 500 && retCode <= 599) {
 		    // assume address is invalid, although we don't really know
-		    invalid.addElement(ia);
+		    invalid.add(ia);
 		} else {
 		    // completely unexpected response, just give up
 		    if (logger.isLoggable(Level.FINE))
@@ -1908,19 +1908,19 @@ public class SMTPTransport extends Transport {
 	if (sendPartial && valid.size() == 0)
 	    sendFailed = true;
 
-	// copy the vectors into appropriate arrays
+	// copy the lists into appropriate arrays
 	if (sendFailed) {
 	    // copy invalid addrs
 	    invalidAddr = new Address[invalid.size()];
-	    invalid.copyInto(invalidAddr);
+	    invalid.toArray(invalidAddr);
 
 	    // copy all valid addresses to validUnsent, since something failed
 	    validUnsentAddr = new Address[valid.size() + validUnsent.size()];
 	    int i = 0;
 	    for (int j = 0; j < valid.size(); j++)
-		validUnsentAddr[i++] = (Address)valid.elementAt(j);
+		validUnsentAddr[i++] = (Address)valid.get(j);
 	    for (int j = 0; j < validUnsent.size(); j++)
-		validUnsentAddr[i++] = (Address)validUnsent.elementAt(j);
+		validUnsentAddr[i++] = (Address)validUnsent.get(j);
 	} else if (reportSuccess || (sendPartial &&
 			(invalid.size() > 0 || validUnsent.size() > 0))) {
 	    // we'll go on to send the message, but after sending we'll
@@ -1930,15 +1930,15 @@ public class SMTPTransport extends Transport {
 
 	    // copy invalid addrs
 	    invalidAddr = new Address[invalid.size()];
-	    invalid.copyInto(invalidAddr);
+	    invalid.toArray(invalidAddr);
 
 	    // copy valid unsent addresses to validUnsent
 	    validUnsentAddr = new Address[validUnsent.size()];
-	    validUnsent.copyInto(validUnsentAddr);
+	    validUnsent.toArray(validUnsentAddr);
 
 	    // copy valid addresses to validSent
 	    validSentAddr = new Address[valid.size()];
-	    valid.copyInto(validSentAddr);
+	    valid.toArray(validSentAddr);
 	} else {        // all addresses pass
 	    validSentAddr = addresses;
 	}

@@ -40,8 +40,6 @@
 
 package javax.mail;
 
-import java.util.Vector;
-
 /**
  * This class represents a set of quotas for a given quota root.
  * Each quota root has a set of resources, represented by the

@@ -40,7 +40,8 @@
 
 package javax.mail.internet;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Locale;
 import javax.mail.*;
@@ -199,15 +200,11 @@ public class NewsAddress extends Address {
 				throws AddressException {
 	// XXX - verify format of newsgroup name?
 	StringTokenizer st = new StringTokenizer(newsgroups, ",");
-	Vector<NewsAddress> nglist = new Vector<NewsAddress>();
+	List<NewsAddress> nglist = new ArrayList<NewsAddress>();
 	while (st.hasMoreTokens()) {
 	    String ng = st.nextToken();
-	    nglist.addElement(new NewsAddress(ng));
+	    nglist.add(new NewsAddress(ng));
 	}
-	int size = nglist.size();
-	NewsAddress[] na = new NewsAddress[size];
-	if (size > 0)
-	    nglist.copyInto(na);
-	return na;
+	return nglist.toArray(new NewsAddress[nglist.size()]);
     }
 }

@@ -52,10 +52,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.concurrent.Executor;
 
-import javax.activation.*;
 
 import com.sun.mail.util.LineInputStream;
 import com.sun.mail.util.MailLogger;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The Session class represents a mail session and is not subclassed.
@@ -1242,16 +1243,10 @@ public final class Session {
 	    public URL[] run() {
 		URL[] ret = null;
 		try {
-		    Vector<URL> v = new Vector<URL>();
-		    Enumeration<URL> e = cl.getResources(name);
-		    while (e != null && e.hasMoreElements()) {
-			URL url = e.nextElement();
-			if (url != null)
-			    v.addElement(url);
-		    }
-		    if (v.size() > 0) {
+		    List<URL> v = Collections.list(cl.getResources(name));
+		    if (!v.isEmpty()) {
 			ret = new URL[v.size()];
-			v.copyInto(ret);
+			v.toArray(ret);
 		    }
 		} catch (IOException ioex) {
 		} catch (SecurityException ex) { }
@@ -1265,16 +1260,11 @@ public final class Session {
 	    public URL[] run() {
 		URL[] ret = null;
 		try {
-		    Vector<URL> v = new Vector<URL>();
-		    Enumeration<URL> e = ClassLoader.getSystemResources(name);
-		    while (e != null && e.hasMoreElements()) {
-			URL url = e.nextElement();
-			if (url != null)
-			    v.addElement(url);
-		    }
-		    if (v.size() > 0) {
+		    List<URL> v = Collections.list(
+			    ClassLoader.getSystemResources(name));
+		    if (!v.isEmpty()) {
 			ret = new URL[v.size()];
-			v.copyInto(ret);
+			v.toArray(ret);
 		    }
 		} catch (IOException ioex) {
 		} catch (SecurityException ex) { }

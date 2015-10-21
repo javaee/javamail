@@ -1289,12 +1289,12 @@ public class MimeUtility {
 
     // Tables to map MIME charset names to Java names and vice versa.
     // XXX - Should eventually use J2SE 1.4 java.nio.charset.Charset
-    private static Hashtable<String, String> mime2java;
-    private static Hashtable<String, String> java2mime;
+    private static Map<String, String> mime2java;
+    private static Map<String, String> java2mime;
 
     static {
-	java2mime = new Hashtable<String, String>(40);
-	mime2java = new Hashtable<String, String>(10);
+	java2mime = new HashMap<String, String>(40);
+	mime2java = new HashMap<String, String>(10);
 
 	try {
 	    // Use this class's classloader to load the mapping file
@@ -1386,7 +1386,7 @@ public class MimeUtility {
     }
 
     private static void loadMappings(LineInputStream is,
-	    Hashtable<String, String> table) {
+	    Map<String, String> table) {
 	String currLine;
 
 	while (true) {

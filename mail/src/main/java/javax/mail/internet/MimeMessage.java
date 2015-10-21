@@ -1675,11 +1675,11 @@ public class MimeMessage extends Message implements MimePart {
 	Address a[] = getReplyTo();
 	reply.setRecipients(Message.RecipientType.TO, a);
 	if (replyToAll) {
-	    Vector<Address> v = new Vector<Address>();
+	    List<Address> v = new ArrayList<Address>();
 	    // add my own address to list
 	    InternetAddress me = InternetAddress.getLocalAddress(session);
 	    if (me != null)
-		v.addElement(me);
+		v.add(me);
 	    // add any alternate names I'm known by
 	    String alternates = null;
 	    if (session != null)
@@ -1763,15 +1763,15 @@ public class MimeMessage extends Message implements MimePart {
      * Return a new array without the duplicates.  Add any new
      * addresses to v.  Note that the input array may be modified.
      */
-    private Address[] eliminateDuplicates(Vector<Address> v, Address[] addrs) {
+    private Address[] eliminateDuplicates(List<Address> v, Address[] addrs) {
 	if (addrs == null)
 	    return null;
 	int gone = 0;
 	for (int i = 0; i < addrs.length; i++) {
 	    boolean found = false;
-	    // search the vector for this address
+	    // search the list for this address
 	    for (int j = 0; j < v.size(); j++) {
-		if (((InternetAddress)v.elementAt(j)).equals(addrs[i])) {
+		if (((InternetAddress)v.get(j)).equals(addrs[i])) {
 		    // found it; count it and remove it from the input array
 		    found = true;
 		    gone++;
@@ -1780,7 +1780,7 @@ public class MimeMessage extends Message implements MimePart {
 		}
 	    }
 	    if (!found)
-		v.addElement(addrs[i]);	// add new address to vector
+		v.add(addrs[i]);	// add new address to list
 	}
 	// if we found any duplicates, squish the array
 	if (gone != 0) {

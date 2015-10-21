@@ -102,7 +102,7 @@ public class DigestMD5 {
 	logger.fine("Begin authentication ...");
 
 	// Code based on http://www.ietf.org/rfc/rfc2831.txt
-	Hashtable<String, String> map = tokenize(serverChallenge);
+	Map<String, String> map = tokenize(serverChallenge);
 
 	if (realm == null) {
 	    String text = map.get("realm");
@@ -158,7 +158,7 @@ public class DigestMD5 {
      * @exception	IOException	for character conversion failures
      */
     public boolean authServer(String serverResponse) throws IOException {
-	Hashtable<String, String> map = tokenize(serverResponse);
+	Map<String, String> map = tokenize(serverResponse);
 	// DIGEST-MD5 computation, server response (order critical)
 	md5.update(ASCIIUtility.getBytes(":" + uri));
 	md5.update(ASCIIUtility.getBytes(clientResponse + toHex(md5.digest())));
@@ -174,12 +174,12 @@ public class DigestMD5 {
     /**
      * Tokenize a response from the server.
      *
-     * @return	Hashtable containing key/value pairs from server
+     * @return	Map containing key/value pairs from server
      */
     @SuppressWarnings("fallthrough")
-    private Hashtable<String, String> tokenize(String serverResponse)
+    private Map<String, String> tokenize(String serverResponse)
 	    throws IOException {
-	Hashtable<String, String> map	= new Hashtable<String, String>();
+	Map<String, String> map	= new HashMap<String, String>();
 	byte[] bytes = serverResponse.getBytes("iso-8859-1");	// really ASCII?
 	String key = null;
 	int ttype;

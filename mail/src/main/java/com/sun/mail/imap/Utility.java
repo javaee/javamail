@@ -40,15 +40,15 @@
 
 package com.sun.mail.imap;
 
-import java.util.Vector;
 import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.mail.*;
 
-import com.sun.mail.util.*;
 import com.sun.mail.imap.protocol.MessageSet;
 import com.sun.mail.imap.protocol.UIDSet;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Holder for some static utility methods.
@@ -77,7 +77,7 @@ public final class Utility {
      * @return		the MessageSet array
      */
     public static MessageSet[] toMessageSet(Message[] msgs, Condition cond) {
-	Vector<MessageSet> v = new Vector<MessageSet>(1);
+	List<MessageSet> v = new ArrayList<MessageSet>(1);
 	int current, next;
 
 	IMAPMessage msg;
@@ -118,15 +118,13 @@ public final class Utility {
 		}
 	    }
 	    set.end = current;
-	    v.addElement(set);
+	    v.add(set);
 	}
 	
 	if (v.isEmpty()) // No valid messages
 	    return null;
 	else {
-	    MessageSet[] sets = new MessageSet[v.size()];
-	    v.copyInto(sets);
-	    return sets;
+	    return v.toArray(new MessageSet[v.size()]);
 	}
     }
     /**
@@ -172,7 +170,7 @@ public final class Utility {
      * @return		the UIDSet array
      */
     public static UIDSet[] toUIDSet(Message[] msgs) {
-	Vector<UIDSet> v = new Vector<UIDSet>(1);
+	List<UIDSet> v = new ArrayList<UIDSet>(1);
 	long current, next;
 
 	IMAPMessage msg;
@@ -206,15 +204,13 @@ public final class Utility {
 		}
 	    }
 	    set.end = current;
-	    v.addElement(set);
+	    v.add(set);
 	}
 
 	if (v.isEmpty()) // No valid messages
 	    return null;
 	else {
-	    UIDSet[] sets = new UIDSet[v.size()];
-	    v.copyInto(sets);
-	    return sets;
+	    return v.toArray(new UIDSet[v.size()]);
 	}
     }
 

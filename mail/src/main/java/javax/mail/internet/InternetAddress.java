@@ -752,7 +752,7 @@ public class InternetAddress extends Address implements Cloneable {
 			break;	// nope, nothing there
 		    }
 		    if (!in_group) {
-			// got a token, add this to our InternetAddress vector
+			// got a token, add this to our InternetAddress list
 			if (end == -1)	// should never happen
 			    end = index;
 			String addr = s.substring(start, end).trim();
@@ -943,7 +943,7 @@ public class InternetAddress extends Address implements Cloneable {
 		    route_addr = false;
 		    break;
 		}
-		// got a token, add this to our InternetAddress vector
+		// got a token, add this to our InternetAddress list
 		if (end == -1)
 		    end = index;
 
@@ -1066,7 +1066,7 @@ public class InternetAddress extends Address implements Cloneable {
 
 	if (start >= 0) {
 	    /*
-	     * The last token, add this to our InternetAddress vector.
+	     * The last token, add this to our InternetAddress list.
 	     * Note that this block of code should be identical to the
 	     * block above for "case ','".
 	     */

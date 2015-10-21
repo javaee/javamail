@@ -40,7 +40,6 @@
 
 package com.sun.mail.iap;
 
-import java.util.Vector;
 import java.util.Properties;
 import java.io.*;
 import java.nio.channels.SocketChannel;
@@ -53,6 +52,9 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import com.sun.mail.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * General protocol handling code for IMAP-like protocols. <p>
@@ -84,13 +86,8 @@ public class Protocol {
 
     private String localHostName;
 
-    /*
-     * handlers is a Vector, initialized here,
-     * because we depend on it always existing and depend
-     * on the synchronization that Vector provides.
-     */
-    private final Vector<ResponseHandler> handlers
-	    = new Vector<ResponseHandler>(); // response handlers
+    private final List<ResponseHandler> handlers
+	    = new CopyOnWriteArrayList<ResponseHandler>();
 
     private volatile long timestamp;
 
@@ -201,7 +198,7 @@ public class Protocol {
      * @param	h	the response handler
      */
     public void addResponseHandler(ResponseHandler h) {
-	handlers.addElement(h);
+	handlers.add(h);
     }
 
     /**
@@ -210,7 +207,7 @@ public class Protocol {
      * @param	h	the response handler
      */
     public void removeResponseHandler(ResponseHandler h) {
-	handlers.removeElement(h);
+	handlers.remove(h);
     }
 
     /**
@@ -219,24 +216,17 @@ public class Protocol {
      * @param	responses	the responses
      */
     public void notifyResponseHandlers(Response[] responses) {
-	if (handlers.size() == 0)
+	if (handlers.isEmpty()) {
 	    return;
-	
-	for (int i = 0; i < responses.length; i++) { // go thru responses
-	    Response r = responses[i];
+	}
 
-	    // skip responses that have already been handled
-	    if (r == null)
-		continue;
-
-	    // Need to copy handlers list because handlers can be removed
-	    // when handling a response.
-	    Object[] h = handlers.toArray();
-
-	    // dispatch 'em
-	    for (int j = 0; j < h.length; j++) {
-		if (h[j] != null)
-		    ((ResponseHandler)h[j]).handleResponse(r);
+	for (Response r : responses) {
+	    if (r != null) {
+		for (ResponseHandler rh : handlers) {
+		    if (rh != null) {
+			rh.handleResponse(r);
+		    }
+		}
 	    }
 	}
     }
@@ -340,7 +330,7 @@ public class Protocol {
      */
     public synchronized Response[] command(String command, Argument args) {
 	commandStart(command);
-	Vector<Response> v = new Vector<Response>();
+	List<Response> v = new ArrayList<Response>();
 	boolean done = false;
 	String tag = null;
 	Response r = null;
@@ -349,11 +339,11 @@ public class Protocol {
 	try {
 	    tag = writeCommand(command, args);
 	} catch (LiteralException lex) {
-	    v.addElement(lex.getResponse());
+	    v.add(lex.getResponse());
 	    done = true;
 	} catch (Exception ex) {
 	    // Convert this into a BYE response
-	    v.addElement(Response.byeResponse(ex));
+	    v.add(Response.byeResponse(ex));
 	    done = true;
 	}
 
@@ -376,7 +366,7 @@ public class Protocol {
 		continue;
 	    }
 
-	    v.addElement(r);
+	    v.add(r);
 
 	    // If this is a matching command completion response, we are done
 	    if (r.isTagged() && r.getTag().equals(tag))
@@ -384,9 +374,9 @@ public class Protocol {
 	}
 
 	if (byeResp != null)
-		v.addElement(byeResp);	// must be last
+		v.add(byeResp);	// must be last
 	Response[] responses = new Response[v.size()];
-	v.copyInto(responses);
+	v.toArray(responses);
         timestamp = System.currentTimeMillis();
 	commandEnd();
 	return responses;

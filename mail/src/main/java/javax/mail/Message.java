@@ -40,9 +40,7 @@
 
 package javax.mail;
 
-import java.util.Vector;
 import java.util.Date;
-import java.util.Properties;
 import java.io.*;
 import javax.mail.search.SearchTerm;
 
