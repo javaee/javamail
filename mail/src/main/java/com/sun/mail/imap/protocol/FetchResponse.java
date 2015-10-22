@@ -271,7 +271,7 @@ public class FetchResponse extends IMAPResponse {
 		if (match(HEADER))
 		    isHeader = true;	// skip ".HEADER"
 		else if (match(TEXT))
-		    ;	// skip ".TEXT"
+		    isHeader = false;	// skip ".TEXT"
 		return new RFC822DATA(this, isHeader);
 	    }
 	    break;
