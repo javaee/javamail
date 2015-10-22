@@ -50,6 +50,7 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+import java.lang.reflect.Constructor;
 
 import com.sun.mail.util.*;
 import java.util.ArrayList;
@@ -452,8 +453,24 @@ public class Protocol {
      */
     public synchronized void startCompression(String cmd)
 				throws IOException, ProtocolException {
+	/*
+	 * The Deflator.SYNC_FLUSH support requires JDK 1.7 so use
+	 * reflection to allow compiling on 1.5 but running on 1.7.
+	 */
+	Class<DeflaterOutputStream> dc = DeflaterOutputStream.class;
+	Constructor<DeflaterOutputStream> cons = null;
+	try {
+	    cons = dc.getConstructor(
+			    OutputStream.class, Deflater.class, boolean.class);
+	} catch (NoSuchMethodException ex) {
+	    logger.fine("Ignoring COMPRESS; " +
+			"missing JDK 1.7 DeflaterOutputStream constructor");
+	    return;	// ignore request, just as if server doesn't support it
+	}
+
 	// XXX - check whether compression is already enabled?
 	simpleCommand(cmd, null);
+
 	// need to create our own Inflater and Deflater in order to set nowrap
 	Inflater inf = new Inflater(true);
 	traceInput = new TraceInputStream(new InflaterInputStream(
@@ -482,8 +499,14 @@ public class Protocol {
 	} catch (IllegalArgumentException ex) {
 	    logger.log(Level.FINE, "Ignoring bad compression strategy", ex);
 	}
-	traceOutput = new TraceOutputStream(new DeflaterOutputStream(
+	//traceOutput = new TraceOutputStream(new DeflaterOutputStream(
+	//		    socket.getOutputStream(), def, true), traceLogger);
+	try {
+	    traceOutput = new TraceOutputStream(cons.newInstance(
 			    socket.getOutputStream(), def, true), traceLogger);
+	} catch (Exception ex) {
+	    throw new ProtocolException("can't create deflater", ex);
+	}
 	traceOutput.setQuote(quote);
 	output = new DataOutputStream(new BufferedOutputStream(traceOutput));
     }
