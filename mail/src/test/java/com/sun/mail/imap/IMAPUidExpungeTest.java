@@ -79,7 +79,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDSingle() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message m = ((UIDFolder)folder).getMessageByUID(2);
@@ -103,7 +102,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDSingle2() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message m = ((UIDFolder)folder).getMessageByUID(2);
@@ -127,7 +125,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDRange() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(2, 4);
@@ -156,7 +153,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDRange2() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(2, 4);
@@ -185,7 +181,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDRange3() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(2, 4);
@@ -214,7 +209,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDRange4() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(1, 3);
@@ -245,7 +239,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDRange5() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(2, 4);
@@ -276,7 +269,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDList() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(
@@ -306,7 +298,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDList2() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(
@@ -336,7 +327,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDList3() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(
@@ -365,7 +355,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDList4() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(
@@ -397,7 +386,6 @@ public final class IMAPUidExpungeTest {
     public void testUIDList5() {
 	testWithHandler(
 	    new IMAPTest() {
-		@Override
 		public void test(Folder folder, IMAPHandlerExpunge handler)
 				    throws MessagingException {
 		    Message[] msgs = ((UIDFolder)folder).getMessagesByUID(

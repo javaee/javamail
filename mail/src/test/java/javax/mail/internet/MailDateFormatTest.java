@@ -494,7 +494,7 @@ public class MailDateFormatTest {
     @Ignore("until the next spec change (1.6)")
     public void mustProhibitSetDateFormatSymbols() {
         SimpleDateFormat fmt = getStrict();
-        fmt.setDateFormatSymbols(DateFormatSymbols.getInstance(Locale.FRENCH));
+        fmt.setDateFormatSymbols(new DateFormatSymbols(Locale.FRENCH));
         Date date = mustPass(fmt, "1 Jan 2015 00:00:00 +0000");
         assertThatDate(date, "jeu., 1 janv. 2015 00:00:00 +0000 (UTC)");
     }

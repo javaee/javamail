@@ -303,10 +303,10 @@
 				    <compilerVersion>1.5</compilerVersion>
 				    <source>1.5</source>
 				    <target>1.5</target>
-				    <compilerArgs>
-					<arg>-Xlint</arg>
-					<arg>-Xlint:-finally</arg>
-				    </compilerArgs>
+				    <compilerArguments combine.self="override">
+					<Xlint/>
+					<Xlint:-finally/>
+				    </compilerArguments>
 			<showDeprecation>true</showDeprecation>
 			<showWarnings>true</showWarnings>
 				</configuration>
