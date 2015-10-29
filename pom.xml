@@ -303,10 +303,10 @@
 				    <compilerVersion>1.5</compilerVersion>
 				    <source>1.5</source>
 				    <target>1.5</target>
-				    <compilerArguments combine.self="override">
-					<Xlint/>
-					<Xlint:-finally/>
-				    </compilerArguments>
+				    <compilerArgs combine.self="override">
+					<arg>-Xlint</arg>
+					<arg>-Xlint:-finally</arg>
+				    </compilerArgs>
 			<showDeprecation>true</showDeprecation>
 			<showWarnings>true</showWarnings>
 				</configuration>
@@ -564,7 +564,7 @@
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-compiler-plugin</artifactId>
-		    <version>2.4</version>
+		    <version>3.3</version>
 		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>

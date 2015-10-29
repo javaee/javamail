@@ -105,13 +105,13 @@
 		<configuration>
 			<source>1.5</source>
 			<target>1.5</target>
-			<compilerArguments>
-				<Xlint/>
+			<compilerArgs>
+				<arg>-Xlint</arg>
 				<!-- 1.5 is obsolete and will be removed in a future release -->
-				<Xlint:-options/>
-				<Xlint:-finally/>
-				<Werror/>
-			</compilerArguments>
+				<arg>-Xlint:-options</arg>
+				<arg>-Xlint:-finally</arg>
+				<arg>-Werror</arg>
+			</compilerArgs>
 			<showDeprecation>true</showDeprecation>
 			<showWarnings>true</showWarnings>
 		</configuration>

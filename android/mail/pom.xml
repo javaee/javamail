@@ -98,7 +98,7 @@
 		    <execution>
 			<!-- download the binaries -->
 			<id>get-binaries</id>
-			<phase>process-sources</phase>
+			<phase>compile</phase>
 			<goals>
 			    <goal>unpack</goal>
 			</goals>
@@ -106,7 +106,7 @@
 		    <execution>
 			<!-- download the sources -->
 			<id>get-sources</id>
-			<phase>process-sources</phase>
+			<phase>compile</phase>
 			<goals>
 			    <goal>unpack</goal>
 			</goals>
