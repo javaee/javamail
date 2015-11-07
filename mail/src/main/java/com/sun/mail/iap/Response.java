@@ -288,15 +288,14 @@ public class Response {
 	index++; // skip '('
 
 	List<String> result = new ArrayList<String>();
-	do {
-	    result.add(atom ? readAtomString() : readString());
-	} while (buffer[index++] != ')');
-
-	if (!result.isEmpty()) {
-	    return result.toArray(new String[result.size()]);
-	} else {
-	    return null;
+	skipSpaces();
+	if (peekByte() != ')') {
+	    do {
+		result.add(atom ? readAtomString() : readString());
+	    } while (buffer[index++] != ')');
 	}
+
+	return result.toArray(new String[result.size()]);
     }
 
     /**

@@ -39,6 +39,7 @@ K  7027	IMAP Folder methods throw runtime exceptions when connection drops
 K  7028	InternetAddress doesn't detect some illegal newlines
 K  7030	Status class doesn't decode mailbox name
 K  7035	add support for IMAP COMPRESS extension (RFC 4978)
+K  7052	Empty Gmail X-GM-LABELS list is misparsed
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
