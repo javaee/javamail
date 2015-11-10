@@ -81,7 +81,6 @@
 	    com.sun.mail.util.logging; version=${mail.osgiversion},
 	    com.sun.mail.handlers; version=${mail.osgiversion}
 	</mail.packages.export>
-	<javac.path>/opt/jdk1.5/bin/javac</javac.path>
     </properties>
 
     <build>
@@ -155,35 +154,6 @@
 			</manifestFile>
 		    </archive>
 		</configuration>
-	    </plugin>
-
-	    <!--
-		We need to build this one file in an environment that
-		doesn't include javax.activation.*.  The simplest way
-		to do that is to use a real 1.5 compiler.
-		(JAF was added to the JDK in 1.6.)
-	    -->
-	    <plugin>
-		<artifactId>maven-compiler-plugin</artifactId>
-		<executions>
-		    <execution>
-			<id>default-compile</id>
-			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
-			    <fork>true</fork>
-			    <executable>${javac.path}</executable>
-			    <compilerVersion>1.5</compilerVersion>
-			</configuration>
-		    </execution>
-		    <execution>
-			<id>default-testCompile</id>
-			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
-			</configuration>
-		    </execution>
-		</executions>
 	    </plugin>
 	</plugins>
     </build>

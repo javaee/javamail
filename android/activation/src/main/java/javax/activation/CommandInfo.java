@@ -129,7 +129,30 @@ public class CommandInfo {
 	Object new_bean = null;
 
 	// try to instantiate the bean
-	new_bean = java.beans.Beans.instantiate(loader, className);
+	Class<?> beans = null;
+	try {
+	    beans = Class.forName("java.beans.Beans", true, loader);
+	} catch (Exception ex) { }
+
+	try {
+	    if (beans != null) {
+		// invoke via reflection:
+		//   new_bean = java.beans.Beans.instantiate(loader, className);
+		java.lang.reflect.Method m = beans.getMethod("instantiate",
+					    ClassLoader.class, String.class);
+		new_bean = m.invoke(null, loader, className);
+	    } else {
+		new_bean = Class.forName(className, true, loader).newInstance();
+	    }
+	} catch (java.lang.reflect.InvocationTargetException ex) {
+	    // ignore it
+	} catch (InstantiationException ex) {
+	    // ignore it
+	} catch (NoSuchMethodException ex) {
+	    // ignore it
+	} catch (IllegalAccessException ex) {
+	    // ignore it
+	}
 
 	// if we got one and it is a CommandObject
 	if (new_bean != null) {

@@ -61,4 +61,45 @@
 	<module>mail</module>
     </modules>
 
+    <properties>
+	<!--
+	    The minimum required Android API version.
+	    This corresponds to Android Gingerbread.
+	    https://en.wikipedia.org/wiki/Android_version_history
+	    Older versions may also work but this seems old enough.
+	    See the Maven repository for exact versions available:
+	    https://repo1.maven.org/maven2/net/sf/androidscents/signature/
+	    This only checks API signatures; it doesn't imply that it
+	    works correctly in a runtime of that version.
+	-->
+	<android.api.level>9</android.api.level>
+	<android.version>2.3.1_r2</android.version>
+    </properties>
+
+    <build>
+	<plugins>
+	    <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>animal-sniffer-maven-plugin</artifactId>
+		<version>1.14</version>
+		<executions>
+		    <execution>
+			<id>check-sig</id>
+			<phase>package</phase>
+			<goals>
+			    <goal>check</goal>
+			</goals>
+		    </execution>
+		</executions>
+		<configuration>
+		    <signature>
+			<groupId>net.sf.androidscents.signature</groupId>
+			<artifactId>android-api-level-${android.api.level}</artifactId>
+			<version>${android.version}</version>
+		    </signature>
+		</configuration>
+	    </plugin>
+	</plugins>
+    </build>
+
 </project>
