@@ -64,7 +64,7 @@ import java.util.logging.*;
  * <li>{@literal <filter-name>}.duration the number of milliseconds to suppress
  * log records from being published. This is also used as duration to determine
  * the log record rate. A numeric long integer or a multiplication expression
- * can be used as the value. If the {@code java.time} package is avaliable then
+ * can be used as the value. If the {@code java.time} package is available then
  * an ISO-8601 duration format of {@code PnDTnHnMn.nS} can be used as the value.
  * The suffixes of "D", "H", "M" and "S" are for days, hours, minutes and
  * seconds. The suffixes must occur in order. The seconds can be specified with
@@ -109,7 +109,7 @@ public class DurationFilter implements Filter {
     /**
      * The most recent record time seen for the current duration.
      */
-    private long peek;
+    private long peak;
     /**
      * The start time for the current duration.
      */
@@ -166,12 +166,12 @@ public class DurationFilter implements Filter {
         final long s;
         synchronized (other) {
             c = other.count;
-            p = other.peek;
+            p = other.peak;
             s = other.start;
         }
 
         synchronized (this) {
-            if (c != this.count || p != this.peek || s != this.start) {
+            if (c != this.count || p != this.peak || s != this.start) {
                 return false;
             }
         }
@@ -224,7 +224,7 @@ public class DurationFilter implements Filter {
             if (c != records || (millis - s) >= duration) {
                 return true;
             }
-        } else {
+        } else {  //Subtraction is used to deal with numeric overflow.
             if ((millis - s) >= 0L || c == 0L) {
                 return true;
             }
@@ -257,7 +257,7 @@ public class DurationFilter implements Filter {
     protected DurationFilter clone() throws CloneNotSupportedException {
         final DurationFilter clone = (DurationFilter) super.clone();
         clone.count = 0L; //Reset the filter state.
-        clone.peek = 0L;
+        clone.peak = 0L;
         clone.start = 0L;
         return clone;
     }
@@ -269,10 +269,11 @@ public class DurationFilter implements Filter {
      * @return true if accepted false otherwise.
      */
     private synchronized boolean accept(final long millis) {
+        //Subtraction is used to deal with numeric overflow of millis.
         boolean allow;
         if (count > 0L) { //If not saturated.
-            if ((millis - peek) > 0L) {
-                peek = millis; //Record the new peek.
+            if ((millis - peak) > 0L) {
+                peak = millis; //Record the new peak.
             }
 
             //Under the rate if the count has not been reached.
@@ -280,13 +281,13 @@ public class DurationFilter implements Filter {
                 ++count;
                 allow = true;
             } else {
-                if ((peek - start) >= duration) {
+                if ((peak - start) >= duration) {
                     count = 1L;  //Start a new duration.
-                    start = peek;
+                    start = peak;
                     allow = true;
                 } else {
                     count = -1L; //Saturate for the duration.
-                    start = peek + duration;
+                    start = peak + duration;
                     allow = false;
                 }
             }
@@ -296,7 +297,7 @@ public class DurationFilter implements Filter {
             if ((millis - start) >= 0L || count == 0L) {
                 count = 1L;
                 start = millis;
-                peek = millis;
+                peak = millis;
                 allow = true;
             } else {
                 allow = false; //Remain in a saturated state.
@@ -319,6 +320,7 @@ public class DurationFilter implements Filter {
         final String p = getClass().getName();
         String value = fromLogManager(p.concat(suffix));
         if (value != null && value.length() != 0) {
+            value = value.trim();
             if (isTimeEntry(suffix, value)) {
                 try {
                     result = LogManagerProperties.parseDurationToMillis(value);
@@ -370,8 +372,7 @@ public class DurationFilter implements Filter {
      * @throws NullPointerException if the given value is null.
      * @throws NumberFormatException if the expression is invalid.
      */
-    private static String[] tokenizeLongs(String value) {
-        value = value.trim();
+    private static String[] tokenizeLongs(final String value) {
         String[] e;
         final int i = value.indexOf('*');
         if (i > -1 && (e = value.split("\\s*\\*\\s*")).length != 0) {

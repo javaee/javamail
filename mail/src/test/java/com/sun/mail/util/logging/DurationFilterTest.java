@@ -260,7 +260,7 @@ public class DurationFilterTest {
 
         //Still saturated.
         millis += duration;
-        final long peek = millis;
+        final long peak = millis;
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
             r.setMillis(millis);
@@ -268,7 +268,7 @@ public class DurationFilterTest {
         }
 
         //Cool down and allow.
-        millis = peek + duration;
+        millis = peak + duration;
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
             r.setMillis(millis);
@@ -702,7 +702,7 @@ public class DurationFilterTest {
             Class.forName("java.time.Duration");
             return true;
         } catch (final ClassNotFoundException notSupported) {
-        } catch (final NoClassDefFoundError notSupported) {
+        } catch (final LinkageError notSupported) {
         }
         return false;
     }
