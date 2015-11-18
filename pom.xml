@@ -424,6 +424,12 @@
 			<configuration>
 			    <source>1.5</source>
 			    <target>1.5</target>
+			    <!--
+				XXX - workaround for bug in maven compiler
+				plugin versions 3.0 - 3.3 (at least):
+				https://issues.apache.org/jira/browse/MCOMPILER-209
+			    -->
+			    <useIncrementalCompilation>false</useIncrementalCompilation>
 			</configuration>
 		    </execution>
 		    <execution>
