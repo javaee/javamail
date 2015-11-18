@@ -1580,21 +1580,19 @@ public class MailHandler extends Handler {
         return null; //text/plain
     }
 
-    /**
-     * Determines if the given throwable is a no content exception.
-     * Package-private for unit testing.
+   /**
+     * Determines if the given throwable is a no content exception.  It is
+     * assumed Transport.sendMessage will call Message.writeTo so we need to
+     * ignore any exceptions that could be layered on top of that call chain to
+     * infer that sendMessage is failing because of writeTo.  Package-private
+     * for unit testing.
      * @param msg the message without content.
-     * @param t the throwable to test.
+     * @param t the throwable chain to test.
      * @return true if the throwable is a missing content exception.
      * @throws NullPointerException if any of the arguments are null.
      * @since JavaMail 1.4.5
      */
     final boolean isMissingContent(Message msg, Throwable t) {
-        for (Throwable cause = t.getCause(); cause != null;) {
-            t = cause;
-            cause = cause.getCause();
-        }
-
         final Object ccl = getAndSetContextClassLoader(MAILHANDLER_LOADER);
         try {
             msg.writeTo(new ByteArrayOutputStream(MIN_HEADER_SIZE));
@@ -1602,8 +1600,13 @@ public class MailHandler extends Handler {
             throw RE; //Avoid catch all.
         } catch (final Exception noContent) {
             final String txt = noContent.getMessage();
-            if (!isEmpty(txt) && noContent.getClass() == t.getClass()) {
-                return txt.equals(t.getMessage());
+            if (!isEmpty(txt)) {
+                for (; t != null; t = t.getCause()) {
+                    if (noContent.getClass() == t.getClass()
+                            && txt.equals(t.getMessage())) {
+                       return true;
+                    }
+                }
             }
         } finally {
             getAndSetContextClassLoader(ccl);
