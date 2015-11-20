@@ -5167,6 +5167,10 @@ public class MailHandlerTest {
             assertNotNull(expect.getMessage());
             assertTrue(expect.getMessage().length() != 0);
             assertTrue(target.isMissingContent(msg, expect));
+            assertTrue(target.isMissingContent(msg, new Exception(expect)));
+            assertTrue(target.isMissingContent(msg, new MessagingException("", expect)));
+            assertFalse(target.isMissingContent(msg, new Exception()));
+            assertFalse(target.isMissingContent(msg, new RuntimeException()));
         }
     }
 

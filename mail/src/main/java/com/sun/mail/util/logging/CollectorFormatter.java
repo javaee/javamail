@@ -324,6 +324,7 @@ public class CollectorFormatter extends Formatter {
      */
     @Override
     public String getTail(final Handler h) {
+        super.getTail(h);  //Be forward compatible with super.getHead.
         return formatRecord(h, true);
     }
 
@@ -468,7 +469,7 @@ public class CollectorFormatter extends Formatter {
          * These arguments are described in the getTail documentation.
          */
         return mf.format(new Object[]{finish(head), finish(msg), finish(tail),
-            c, (c - 1), t, (c - t), msl, msh, (msh - msl), INIT_TIME, now,
+            c, (c - 1L), t, (c - t), msl, msh, (msh - msl), INIT_TIME, now,
             (now - INIT_TIME), g});
     }
 
