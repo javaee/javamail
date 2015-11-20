@@ -466,12 +466,12 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     }
 
     /**
-     * Get the recieved date (INTERNALDATE)
+     * Get the received date (INTERNALDATE).
      */
     public Date getReceivedDate() throws MessagingException {
 	checkExpunged();
-	// XXX - have to go to the server for this
-	loadEnvelope();
+	if (receivedDate == null)
+	    loadEnvelope(); // have to go to the server for this
 	if (receivedDate == null)
 	    return null;
 	else
