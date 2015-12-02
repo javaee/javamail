@@ -154,6 +154,93 @@ public class CollectorFormatterTest {
         f.format((LogRecord) null);
     }
 
+    private static final class TestFormatterAccept extends LogRecord {
+
+        private static final long serialVersionUID = 1L;
+
+        int inferred;
+        private transient Formatter f;
+
+        TestFormatterAccept(Level level, CollectorFormatter f) {
+            super(level, "");
+            this.f = f;
+        }
+
+        @Override
+        public Throwable getThrown() {
+            if (inferred == 0) {
+                assertEquals(Level.INFO.getLocalizedName().concat("11111"),
+                        f.getTail((Handler) null));
+            }
+            return super.getThrown();
+        }
+
+        @Override
+        public String getSourceMethodName() {
+            ++inferred;
+            return super.getSourceMethodName();
+        }
+    }
+
+    @Test(timeout = 60000)
+    public void testFormatAccept() throws Exception {
+        final CollectorFormatter f = new CollectorFormatter(
+                "{1}{3}{5}{7}{8}{13}",
+                new CompactFormatter("%4$s"),
+                new SeverityComparator());
+        LogRecord first = new LogRecord(Level.INFO, "");
+        first.setThrown(new Throwable());
+        first.setMillis(1L);
+        f.format(first);
+
+        TestFormatterAccept r = new TestFormatterAccept(Level.FINE, f);
+        r.setMillis(2L);
+        r.setThrown(new Throwable());
+        f.format(r);
+        assertEquals(1, r.inferred);
+        assertEquals(Level.FINE.getLocalizedName().concat("11222"),
+                f.getTail((Handler) null));
+    }
+
+    private static final class TestFormatAcceptAndUpdate extends LogRecord {
+
+        private static final long serialVersionUID = 1L;
+        int inferred;
+        private transient Formatter f;
+
+        public TestFormatAcceptAndUpdate(Level level, CollectorFormatter f) {
+            super(level, "");
+            this.f = f;
+        }
+
+        @Override
+        public String getSourceMethodName() {
+            if (++inferred == 1) {
+                LogRecord r = new LogRecord(Level.INFO, "");
+                r.setMillis(1L);
+                f.format(r);
+            }
+            return super.getSourceMethodName();
+        }
+    }
+
+    @Test(timeout = 60000)
+    public void testFormatAcceptAndUpdate() throws Exception {
+        final CollectorFormatter f = new CollectorFormatter(
+                "{1}{3}{5}{7}{8}{13}",
+                new CompactFormatter("%4$s"),
+                new SeverityComparator());
+
+        TestFormatAcceptAndUpdate r
+                = new TestFormatAcceptAndUpdate(Level.SEVERE, f);
+        r.setMillis(2L);
+        r.setThrown(new Throwable());
+        f.format(r);
+        assertEquals(2, r.inferred);
+        assertEquals(Level.SEVERE.getLocalizedName().concat("21121"),
+                f.getTail((Handler) null));
+    }
+
     @Test
     public void testFormatFormat() {
         String msg = "message";
@@ -575,14 +662,12 @@ public class CollectorFormatterTest {
         String output = cf.getTail((Handler) null);
         assertNotNull(output);
 
-
         cf.format(min);
         for (int i = 0; i < 114; ++i) {
             LogRecord mid = new LogRecord(Level.SEVERE, "");
             mid.setMillis(min.getMillis());
             cf.format(mid);
         }
-
 
         max.setMillis(min.getMillis() + 2591000000L);
         cf.format(max);
@@ -816,7 +901,6 @@ public class CollectorFormatterTest {
         assertEquals(75, n.longValue());
     }
 
-
     @Test
     public void testFormatInitTimeMillis() throws Exception {
         CollectorFormatter f = new CollectorFormatter("{10}", (Formatter) null,
@@ -832,7 +916,7 @@ public class CollectorFormatterTest {
     @Test
     public void testFormatInitTimeDateTime() throws Exception {
         CollectorFormatter f = new CollectorFormatter(
-                "{10,date,"+DATE_TIME_FMT+"}",
+                "{10,date," + DATE_TIME_FMT + "}",
                 (Formatter) null,
                 (Comparator<LogRecord>) null);
 
@@ -860,7 +944,7 @@ public class CollectorFormatterTest {
     @Test
     public void testFormatCurrentTimeDateTime() throws Exception {
         CollectorFormatter f = new CollectorFormatter(
-                "{11,date,"+DATE_TIME_FMT+"}",
+                "{11,date," + DATE_TIME_FMT + "}",
                 (Formatter) null,
                 (Comparator<LogRecord>) null);
 
@@ -964,6 +1048,7 @@ public class CollectorFormatterTest {
      * An example of a broken implementation of apply.
      */
     private static class ApplyReturnsNull extends CollectorFormatter {
+
         /**
          * The number of records.
          */

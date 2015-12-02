@@ -42,6 +42,7 @@ K  7035	add support for IMAP COMPRESS extension (RFC 4978)
 K  7052	Empty Gmail X-GM-LABELS list is misparsed
 K  7075	IMAPMessage.getReceivedDate should check if receivedDate is present
 	before loading envelope
+K  7083	CollectorFormatter descending order data race
 K  7090	off-by-1 error in Response.readStringList causes early termination of
 	parsing FETCH response
 

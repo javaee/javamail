@@ -209,8 +209,7 @@ public class CollectorFormatter extends Formatter {
                 update.getSourceMethodName(); //Infer caller, null check.
                 accepted = acceptAndUpdate(peek, update);
             } else {
-                accepted = true;
-                accept(record);
+                accepted = accept(peek, record);
             }
         } while (!accepted);
         return "";
@@ -368,21 +367,36 @@ public class CollectorFormatter extends Formatter {
     }
 
     /**
-     * Updates the summary statistics but does not store the given LogRecord.
+     * Updates the summary statistics only if the expected record matches the
+     * last record.  The update record is not stored.
      *
-     * @param record the LogRecord used to collect statistics.
+     * @param e the LogRecord that is expected.
+     * @param u the LogRecord used to collect statistics.
+     * @return true if the last record was the expected record.
+     * @throws NullPointerException if the update record is null.
      */
-    private synchronized void accept(final LogRecord record) {
-        final long millis = record.getMillis();
-        if (++count != 1L) {
-            minMillis = Math.min(minMillis, millis);
-        } else { //Show single records as instant and not a time period.
-            minMillis = millis;
-        }
-        maxMillis = Math.max(maxMillis, millis);
+    private synchronized boolean accept(final LogRecord e, final LogRecord u) {
+        /**
+         * LogRecord methods must be called before the check of the last stored
+         * record to guard against subclasses of LogRecord that might attempt to
+         * reset the state by triggering a call to getTail.
+         */
+        final long millis = u.getMillis(); //Null check.
+        final Throwable ex = u.getThrown();
+        if (last == e) {  //Only if the exact same reference.
+            if (++count != 1L) {
+                minMillis = Math.min(minMillis, millis);
+            } else { //Show single records as instant and not a time period.
+                minMillis = millis;
+            }
+            maxMillis = Math.max(maxMillis, millis);
 
-        if (record.getThrown() != null) {
-            ++thrown;
+            if (ex != null) {
+                ++thrown;
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -501,10 +515,10 @@ public class CollectorFormatter extends Formatter {
      * @param e the expected record.
      * @param u the update record.
      * @return true if the update was performed.
+     * @throws NullPointerException if the update record is null.
      */
     private synchronized boolean acceptAndUpdate(LogRecord e, LogRecord u) {
-        if (e == this.last) {
-            accept(u);
+        if (accept(e, u)) {
             this.last = u;
             return true;
         } else {
