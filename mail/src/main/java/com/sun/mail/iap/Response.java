@@ -292,8 +292,9 @@ public class Response {
 	if (peekByte() != ')') {
 	    do {
 		result.add(atom ? readAtomString() : readString());
-	    } while (buffer[index++] != ')');
-	}
+	    } while (index < size && buffer[index++] != ')');
+	} else
+	    index++;	// skip ')'
 
 	return result.toArray(new String[result.size()]);
     }

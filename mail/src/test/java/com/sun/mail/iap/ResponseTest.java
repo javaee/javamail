@@ -109,11 +109,32 @@ public class ResponseTest {
     }
 
     /**
+     * Test astring lists with more data following.
+     */
+    @Test
+    public void testAStringListMore() throws Exception {
+	Response r = new Response("* " + "(A B \"C\") atom");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+	assertEquals("atom", r.readAtomString());
+    }
+
+    /**
      * Test empty astring lists.
      */
     @Test
     public void testAStringListEmpty() throws Exception {
 	Response r = new Response("* " + "()");
 	assertArrayEquals(new String[0], r.readAtomStringList());
+    }
+
+    /**
+     * Test empty astring lists with more data following.
+     */
+    @Test
+    public void testAStringListEmptyMore() throws Exception {
+	Response r = new Response("* " + "() atom");
+	assertArrayEquals(new String[0], r.readAtomStringList());
+	assertEquals("atom", r.readAtomString());
     }
 }
