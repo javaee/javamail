@@ -1106,6 +1106,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	private boolean needHeaders = false;
 	private boolean needSize = false;
 	private boolean needMessage = false;
+	private boolean needRDate = false;
 	private String[] hdrs = null;
 	private Set<FetchItem> need = new HashSet<FetchItem>();
 
@@ -1134,6 +1135,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		needSize = true;
 	    if (fp.contains(IMAPFolder.FetchProfileItem.MESSAGE))
 		needMessage = true;
+	    if (fp.contains(IMAPFolder.FetchProfileItem.INTERNALDATE))
+		needRDate = true;
 	    hdrs = fp.getHeaderNames();
 	    for (int i = 0; i < fitems.length; i++) {
 		if (fp.contains(fitems[i].getFetchProfileItem()))
@@ -1160,6 +1163,8 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    if (needSize && m.size == -1 && !m.bodyLoaded) // no size
 		return true;
 	    if (needMessage && !m.bodyLoaded)		// no message body
+		return true;
+	    if (needRDate && m.receivedDate == null)	// no received date
 		return true;
 
 	    // Is the desired header present ?

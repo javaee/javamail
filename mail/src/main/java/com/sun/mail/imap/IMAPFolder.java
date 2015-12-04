@@ -354,6 +354,27 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	 */ 
 	public static final FetchProfileItem MESSAGE = 
 		new FetchProfileItem("MESSAGE");
+
+	/**
+	 * INTERNALDATE is a fetch profile item that can be included in a
+	 * <code>FetchProfile</code> during a fetch request to a Folder.
+	 * This item indicates that the IMAP INTERNALDATE values
+	 * (received date) of the messages in the specified 
+	 * range are desired to be prefetched.  <p>
+	 * 
+	 * An example of how a client uses this is below:
+	 * <blockquote><pre>
+	 *
+	 * 	FetchProfile fp = new FetchProfile();
+	 *	fp.add(IMAPFolder.FetchProfileItem.INTERNALDATE);
+	 *	folder.fetch(msgs, fp);
+	 *
+	 * </pre></blockquote>
+	 *
+	 * @since	JavaMail 1.5.5
+	 */ 
+	public static final FetchProfileItem INTERNALDATE = 
+		new FetchProfileItem("INTERNALDATE");
     }
 
     /**
@@ -1179,6 +1200,10 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	if (fp.contains(FetchProfile.Item.SIZE) ||
 		fp.contains(IMAPFolder.FetchProfileItem.SIZE)) {
 	    command.append(first ? "RFC822.SIZE" : " RFC822.SIZE");
+	    first = false;
+	}
+	if (fp.contains(IMAPFolder.FetchProfileItem.INTERNALDATE)) {
+	    command.append(first ? "INTERNALDATE" : " INTERNALDATE");
 	    first = false;
 	}
 
