@@ -145,7 +145,9 @@ public class GmailFolder extends IMAPFolder {
 
 	synchronized(messageCacheLock) {
 	    try {
-		GmailProtocol p = (GmailProtocol)getProtocol();
+		IMAPProtocol ip = getProtocol();
+		assert ip instanceof GmailProtocol;
+		GmailProtocol p = (GmailProtocol)ip;
 		MessageSet[] ms = Utility.toMessageSetSorted(msgs, null);
 		if (ms == null)
 		    throw new MessageRemovedException(

@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -52,6 +52,17 @@
 	<Class name="com.sun.mail.gimap.protocol.GmailProtocol"/>
 	<Method name="getFetchItems"/>
 	<Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+
+    <!--
+	The setLabels method needs to be synchronized because of its
+	use of the protocol object.  The getLabels method depends on
+	the getItem method to do the synchronization.
+    -->
+    <Match>
+	<Class name="com.sun.mail.gimap.GmailMessage"/>
+	<Method name="getLabels"/>
+	<Bug pattern="UG_SYNC_SET_UNSYNC_GET"/>
     </Match>
 
 </FindBugsFilter>

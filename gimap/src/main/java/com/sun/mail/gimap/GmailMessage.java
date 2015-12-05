@@ -133,7 +133,9 @@ public class GmailMessage extends IMAPMessage {
         // Acquire MessageCacheLock, to freeze seqnum.
         synchronized(getMessageCacheLock()) {
 	    try {
-		GmailProtocol p = (GmailProtocol)getProtocol();
+		IMAPProtocol ip = getProtocol();
+		assert ip instanceof GmailProtocol;
+		GmailProtocol p = (GmailProtocol)ip;
 		checkExpunged(); // Insure that this message is not expunged
 		p.storeLabels(getSequenceNumber(), labels, set);
 	    } catch (ConnectionException cex) {
