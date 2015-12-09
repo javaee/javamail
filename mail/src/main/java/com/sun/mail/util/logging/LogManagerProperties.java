@@ -181,7 +181,8 @@ final class LogManagerProperties extends Properties {
     /**
      * Check that the current context is trusted to modify the logging
      * configuration. This requires LoggingPermission("control").
-     *
+     * @throws SecurityException  if a security manager exists and the caller
+     * does not have {@code LoggingPermission("control")}.
      * @since JavaMail 1.5.3
      */
     static void checkLogManagerAccess() {
@@ -211,7 +212,8 @@ final class LogManagerProperties extends Properties {
      * Check that the current context is trusted to modify the logging
      * configuration when the LogManager is not present. This requires
      * LoggingPermission("control").
-     *
+     * @throws SecurityException  if a security manager exists and the caller
+     * does not have {@code LoggingPermission("control")}.
      * @since JavaMail 1.5.3
      */
     private static void checkLoggingAccess() {
@@ -288,8 +290,8 @@ final class LogManagerProperties extends Properties {
 
     /**
      * Used to parse an ISO-8601 duration format of {@code PnDTnHnMn.nS}.
-     * 
-     * @param value ISO-8601 duration string.
+     *
+     * @param value an ISO-8601 duration character sequence.
      * @return the number of milliseconds parsed from the duration.
      * @throws ClassNotFoundException if the java.time classes are not present.
      * @throws IllegalAccessException if the method is inaccessible.
@@ -303,7 +305,7 @@ final class LogManagerProperties extends Properties {
      * are not allowed.
      * @since JavaMail 1.5.5
      */
-    static long parseDurationToMillis(final String value) throws Exception {
+    static long parseDurationToMillis(final CharSequence value) throws Exception {
         try {
             final Class<?> k = findClass("java.time.Duration");
             final Method parse = k.getMethod("parse", CharSequence.class);

@@ -118,7 +118,7 @@ public class DurationFilterTest {
         assertFalse(clone.isLoggable(r));
     }
 
-    @Test
+    @Test(timeout = 15000)
     @SuppressWarnings("SleepWhileInLoop")
     public void testIsLoggableNow() throws Exception {
         final int records = 10;
@@ -156,6 +156,47 @@ public class DurationFilterTest {
         }
 
         assertFalse(sf.isLoggable());
+        assertFalse(sf.isLoggable(r));
+    }
+
+    @Test(timeout = 15000)
+    @SuppressWarnings("SleepWhileInLoop")
+    public void testIsIdleNow() throws Exception {
+        final int records = 10;
+        final int duration = 1000;
+        Level lvl = Level.INFO;
+        DurationFilter sf = new DurationFilter(records, duration);
+        LogRecord r = new LogRecord(lvl, "");
+        assertTrue(sf.isIdle());
+        assertTrue(sf.isLoggable(r));
+        assertFalse(sf.isIdle());
+
+        //Allow
+        for (int i = 1; i < records; i++) {
+            r = new LogRecord(lvl, "");
+            String msg = Integer.toString(i);
+            assertFalse(msg, sf.isIdle());
+            assertTrue(msg, sf.isLoggable(r));
+        }
+
+        assertFalse(sf.isIdle());
+        assertFalse(sf.isLoggable(r));
+
+        //Cool down and allow.
+        final long then = System.currentTimeMillis();
+        do {
+            Thread.sleep(duration + 100);
+        } while ((System.currentTimeMillis() - then) < duration);
+
+        assertTrue(sf.isIdle());
+        for (int i = 0; i < records; i++) {
+            r = new LogRecord(lvl, "");
+            String msg = Integer.toString(i);
+            assertTrue(msg, sf.isLoggable(r));
+            assertFalse(msg, sf.isIdle());
+        }
+
+        assertFalse(sf.isIdle());
         assertFalse(sf.isLoggable(r));
     }
 
@@ -492,6 +533,8 @@ public class DurationFilterTest {
         assertTrue(two.equals(two));
         assertFalse(one.equals(two));
         assertFalse(two.equals(one));
+        assertFalse(one.equals((Object) null));
+        assertFalse(two.equals((Object) null));
     }
 
     @Test
@@ -524,6 +567,7 @@ public class DurationFilterTest {
         assertTrue(s.startsWith(f.getClass().getName()));
         assertTrue(s.contains("records="));
         assertTrue(s.contains("duration="));
+        assertTrue(s.contains("idle="));
         assertTrue(s.contains("loggable="));
     }
 

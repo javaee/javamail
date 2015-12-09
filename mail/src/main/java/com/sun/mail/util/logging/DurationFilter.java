@@ -144,11 +144,11 @@ public class DurationFilter implements Filter {
      */
     @Override
     public boolean equals(final Object obj) {
-        if (obj == null) {
-            return false;
+        if (this == obj) { //Avoid locks and deal with rapid state changes.
+            return true;
         }
 
-        if (getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
@@ -164,18 +164,30 @@ public class DurationFilter implements Filter {
         final long c;
         final long p;
         final long s;
-        synchronized (other) {
-            c = other.count;
-            p = other.peak;
-            s = other.start;
+        synchronized (this) {
+            c = this.count;
+            p = this.peak;
+            s = this.start;
         }
 
-        synchronized (this) {
-            if (c != this.count || p != this.peak || s != this.start) {
+        synchronized (other) {
+            if (c != other.count || p != other.peak || s != other.start) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Determines if this filter is able to accept the maximum number of log
+     * records for this instant in time. The result is a best-effort estimate
+     * and should be considered out of date as soon as it is produced. This
+     * method is designed for use in monitoring the state of this filter.
+     *
+     * @return true if the filter is idle; false otherwise.
+     */
+    public boolean isIdle() {
+        return test(0L, System.currentTimeMillis());
     }
 
     /**
@@ -212,36 +224,30 @@ public class DurationFilter implements Filter {
      * @return true if the filter is not saturated; false otherwise.
      */
     public boolean isLoggable() {
-        final long c;
-        final long s;
-        synchronized (this) {
-            c = count;
-            s = start;
-        }
-
-        final long millis = System.currentTimeMillis();
-        if (c > 0L) { //If not saturated.
-            if (c != records || (millis - s) >= duration) {
-                return true;
-            }
-        } else {  //Subtraction is used to deal with numeric overflow.
-            if ((millis - s) >= 0L || c == 0L) {
-                return true;
-            }
-        }
-        return false;
+        return test(records, System.currentTimeMillis());
     }
 
     /**
-     * Returns a string representation of this filter.
+     * Returns a string representation of this filter. The result is a
+     * best-effort estimate and should be considered out of date as soon as it
+     * is produced.
      *
      * @return a string representation of this filter.
      */
     @Override
     public String toString() {
+        boolean idle;
+        boolean loggable;
+        synchronized (this) {
+            final long millis = System.currentTimeMillis();
+            idle = test(0L, millis);
+            loggable = test(records, millis);
+        }
+
         return getClass().getName() + "{records=" + records
                 + ", duration=" + duration
-                + ", loggable=" + isLoggable() + '}';
+                + ", idle=" + idle
+                + ", loggable=" + loggable + '}';
     }
 
     /**
@@ -260,6 +266,34 @@ public class DurationFilter implements Filter {
         clone.peak = 0L;
         clone.start = 0L;
         return clone;
+    }
+
+    /**
+     * Checks if this filter is not saturated or bellow a maximum rate.
+     *
+     * @param limit the number of records allowed to be under the rate.
+     * @param millis the current time in milliseconds.
+     * @return true if not saturated or bellow the rate.
+     */
+    private boolean test(final long limit, final long millis) {
+        assert limit >= 0L : limit;
+        final long c;
+        final long s;
+        synchronized (this) {
+            c = count;
+            s = start;
+        }
+
+        if (c > 0L) { //If not saturated.
+            if ((millis - s) >= duration || c < limit) {
+                return true;
+            }
+        } else {  //Subtraction is used to deal with numeric overflow.
+            if ((millis - s) >= 0L || c == 0L) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
