@@ -46,6 +46,7 @@ K  7083	CollectorFormatter descending order data race
 K  7090	off-by-1 error in Response.readStringList causes early termination of
 	parsing FETCH response
 K  7094	INTERNALDATE FetchProfile Item
+K  7104	Exchange returns NIL instead of "" for empty parameter, causing NPE
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
