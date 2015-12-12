@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -179,6 +179,9 @@ If pipelining is supported, when fetching a message with the RETR command,
 the LIST command will be sent as well, and the result will be used to size
 the I/O buffer, greatly reducing memory usage when fetching messages.
 <P>
+<A NAME="properties">
+<H4>Properties</H4>
+</A>
 The POP3 protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
 The properties are always set as strings; the Type column describes
@@ -198,26 +201,30 @@ all the properties would be named "mail.pop3s.*".
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.user"></A>
+<TR id="mail.pop3.user">
 <TD>mail.pop3.user</TD>
 <TD>String</TD>
 <TD>Default user name for POP3.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.host"></A>
+<TR id="mail.pop3.host">
 <TD>mail.pop3.host</TD>
 <TD>String</TD>
 <TD>The POP3 server to connect to.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.port"></A>
+<TR id="mail.pop3.port">
 <TD>mail.pop3.port</TD>
 <TD>int</TD>
 <TD>The POP3 server port to connect to, if the connect() method doesn't
 explicitly specify one. Defaults to 110.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.connectiontimeout"></A>
+<TR id="mail.pop3.connectiontimeout">
 <TD>mail.pop3.connectiontimeout</TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
@@ -225,7 +232,8 @@ This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.timeout"></A>
+<TR id="mail.pop3.timeout">
 <TD>mail.pop3.timeout</TD>
 <TD>int</TD>
 <TD>Socket read timeout value in milliseconds.
@@ -233,7 +241,8 @@ This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.writetimeout"></A>
+<TR id="mail.pop3.writetimeout">
 <TD>mail.pop3.writetimeout</TD>
 <TD>int</TD>
 <TD>Socket write timeout value in milliseconds.
@@ -244,7 +253,8 @@ Thus, the overhead of using this timeout is one thread per connection.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.rsetbeforequit"></A>
+<TR id="mail.pop3.rsetbeforequit">
 <TD>mail.pop3.rsetbeforequit</TD>
 <TD>boolean</TD>
 <TD>
@@ -256,7 +266,8 @@ is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.message.class"></A>
+<TR id="mail.pop3.message.class">
 <TD>mail.pop3.message.class</TD>
 <TD>String</TD>
 <TD>
@@ -268,7 +279,8 @@ throws MessagingException</code>.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.localaddress"></A>
+<TR id="mail.pop3.localaddress">
 <TD>mail.pop3.localaddress</TD>
 <TD>String</TD>
 <TD>
@@ -279,7 +291,8 @@ where it's important to pick a particular local address to bind to.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.localport"></A>
+<TR id="mail.pop3.localport">
 <TD>mail.pop3.localport</TD>
 <TD>int</TD>
 <TD>
@@ -288,7 +301,8 @@ Defaults to the port number picked by the Socket class.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.apop.enable"></A>
+<TR id="mail.pop3.apop.enable">
 <TD>mail.pop3.apop.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -299,7 +313,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socketFactory"></A>
+<TR id="mail.pop3.socketFactory">
 <TD>mail.pop3.socketFactory</TD>
 <TD>SocketFactory</TD>
 <TD>
@@ -311,7 +326,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socketFactory.class"></A>
+<TR id="mail.pop3.socketFactory.class">
 <TD>mail.pop3.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
@@ -321,7 +337,8 @@ will be used to create POP3 sockets.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socketFactory.fallback"></A>
+<TR id="mail.pop3.socketFactory.fallback">
 <TD>mail.pop3.socketFactory.fallback</TD>
 <TD>boolean</TD>
 <TD>
@@ -332,7 +349,8 @@ Defaults to true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socketFactory.port"></A>
+<TR id="mail.pop3.socketFactory.port">
 <TD>mail.pop3.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
@@ -342,7 +360,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.enable"></A>
+<TR id="mail.pop3.ssl.enable">
 <TD>mail.pop3.ssl.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -351,7 +370,8 @@ Defaults to false for the "pop3" protocol and true for the "pop3s" protocol.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.checkserveridentity"></A>
+<TR id="mail.pop3.ssl.checkserveridentity">
 <TD>mail.pop3.ssl.checkserveridentity</TD>
 <TD>boolean</TD>
 <TD>
@@ -363,7 +383,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.trust"></A>
+<TR id="mail.pop3.ssl.trust">
 <TD>mail.pop3.ssl.trust</TD>
 <TD>String</TD>
 <TD>
@@ -375,7 +396,8 @@ Otherwise, trust depends on the certificate the server presents.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.socketFactory"></A>
+<TR id="mail.pop3.ssl.socketFactory">
 <TD>mail.pop3.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>
@@ -387,7 +409,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.socketFactory.class"></A>
+<TR id="mail.pop3.ssl.socketFactory.class">
 <TD>mail.pop3.ssl.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
@@ -397,7 +420,8 @@ will be used to create POP3 SSL sockets.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.socketFactory.port"></A>
+<TR id="mail.pop3.ssl.socketFactory.port">
 <TD>mail.pop3.ssl.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
@@ -407,7 +431,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.protocols"></A>
+<TR id="mail.pop3.ssl.protocols">
 <TD>mail.pop3.ssl.protocols</TD>
 <TD>string</TD>
 <TD>
@@ -417,7 +442,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledProtocols</code> method.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.ssl.ciphersuites"></A>
+<TR id="mail.pop3.ssl.ciphersuites">
 <TD>mail.pop3.ssl.ciphersuites</TD>
 <TD>string</TD>
 <TD>
@@ -427,7 +453,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.starttls.enable"></A>
+<TR id="mail.pop3.starttls.enable">
 <TD>mail.pop3.starttls.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -440,7 +467,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.starttls.required"></A>
+<TR id="mail.pop3.starttls.required">
 <TD>mail.pop3.starttls.required</TD>
 <TD>boolean</TD>
 <TD>
@@ -451,7 +479,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socks.host"></A>
+<TR id="mail.pop3.socks.host">
 <TD>mail.pop3.socks.host</TD>
 <TD>string</TD>
 <TD>
@@ -461,7 +490,8 @@ connections to the mail server.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.socks.port"></A>
+<TR id="mail.pop3.socks.port">
 <TD>mail.pop3.socks.port</TD>
 <TD>string</TD>
 <TD>
@@ -471,7 +501,8 @@ the standard port number of 1080.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.disabletop"></A>
+<TR id="mail.pop3.disabletop">
 <TD>mail.pop3.disabletop</TD>
 <TD>boolean</TD>
 <TD>
@@ -483,7 +514,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.disablecapa"></A>
+<TR id="mail.pop3.disablecapa">
 <TD>mail.pop3.disablecapa</TD>
 <TD>boolean</TD>
 <TD>
@@ -495,7 +527,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.forgettopheaders"></A>
+<TR id="mail.pop3.forgettopheaders">
 <TD>mail.pop3.forgettopheaders</TD>
 <TD>boolean</TD>
 <TD>
@@ -514,7 +547,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.filecache.enable"></A>
+<TR id="mail.pop3.filecache.enable">
 <TD>mail.pop3.filecache.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -527,7 +561,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.filecache.dir"></A>
+<TR id="mail.pop3.filecache.dir">
 <TD>mail.pop3.filecache.dir</TD>
 <TD>String</TD>
 <TD>
@@ -536,7 +571,8 @@ default directory used by the JDK for temporary files.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.cachewriteto"></A>
+<TR id="mail.pop3.cachewriteto">
 <TD>mail.pop3.cachewriteto</TD>
 <TD>boolean</TD>
 <TD>
@@ -551,7 +587,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.pop3.keepmessagecontent"></A>
+<TR id="mail.pop3.keepmessagecontent">
 <TD>mail.pop3.keepmessagecontent</TD>
 <TD>boolean</TD>
 <TD>

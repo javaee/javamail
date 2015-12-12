@@ -88,6 +88,9 @@ The <A HREF="http://www.oracle.com/technetwork/java/javamail/" TARGET="_top">
 JavaMail web site</A>
 contains many additional resources.
 <P>
+<A NAME="properties">
+<H4>Properties</H4>
+</A>
 The JavaMail API supports the following standard properties,
 which may be set in the <code>Session</code> object, or in the
 <code>Properties</code> object used to create the <code>Session</code> object.
@@ -105,7 +108,8 @@ to set the <code>mail.debug</code> property, which is of type boolean.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.debug"></A>
+<TR id="mail.debug">
 <TD>mail.debug</TD>
 <TD>boolean</TD>
 <TD>
@@ -114,7 +118,8 @@ Default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.from"></A>
+<TR id="mail.from">
 <TD>mail.from</TD>
 <TD>String</TD>
 <TD>
@@ -123,7 +128,8 @@ The return email address of the current user, used by the
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.address.strict"></A>
+<TR id="mail.mime.address.strict">
 <TD>mail.mime.address.strict</TD>
 <TD>boolean</TD>
 <TD>
@@ -134,7 +140,8 @@ method.  The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.host"></A>
+<TR id="mail.host">
 <TD>mail.host</TD>
 <TD>String</TD>
 <TD>
@@ -143,7 +150,8 @@ Used if the <code>mail.<i>protocol</i>.host</code> property isn't set.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.store.protocol"></A>
+<TR id="mail.store.protocol">
 <TD>mail.store.protocol</TD>
 <TD>String</TD>
 <TD>
@@ -154,7 +162,8 @@ provider in the configuration files is returned.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.transport.protocol"></A>
+<TR id="mail.transport.protocol">
 <TD>mail.transport.protocol</TD>
 <TD>String</TD>
 <TD>
@@ -165,7 +174,8 @@ provider in the configuration files is returned.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.user"></A>
+<TR id="mail.user">
 <TD>mail.user</TD>
 <TD>String</TD>
 <TD>
@@ -174,7 +184,8 @@ Used if the <code>mail.<i>protocol</i>.user</code> property isn't set.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.protocol.class"></A>
+<TR id="mail.protocol.class">
 <TD>mail.<i>protocol</i>.class</TD>
 <TD>String</TD>
 <TD>
@@ -186,7 +197,8 @@ in a configuration file.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.protocol.host"></A>
+<TR id="mail.protocol.host">
 <TD>mail.<i>protocol</i>.host</TD>
 <TD>String</TD>
 <TD>
@@ -195,7 +207,8 @@ Overrides the <code>mail.host</code> property.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.protocol.port"></A>
+<TR id="mail.protocol.port">
 <TD>mail.<i>protocol</i>.port</TD>
 <TD>int</TD>
 <TD>
@@ -204,7 +217,8 @@ If not specified the protocol's default port number is used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.protocol.user"></A>
+<TR id="mail.protocol.user">
 <TD>mail.<i>protocol</i>.user</TD>
 <TD>String</TD>
 <TD>
@@ -229,7 +243,8 @@ change in future releases.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.debug.auth"></A>
+<TR id="mail.debug.auth">
 <TD>mail.debug.auth</TD>
 <TD>boolean</TD>
 <TD>
@@ -239,7 +254,8 @@ Default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.transport.protocol.address-type"></A>
+<TR id="mail.transport.protocol.address-type">
 <TD>mail.transport.protocol.<i>address-type</i></TD>
 <TD>String</TD>
 <TD>
@@ -256,7 +272,8 @@ protocol is used instead of the "smtp" protocol by setting the property
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.event.scope"></A>
+<TR id="mail.event.scope">
 <TD>mail.event.scope</TD>
 <TD>String</TD>
 <TD>
@@ -271,7 +288,8 @@ event queue processed by a single thread for the current application.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.event.executor"></A>
+<TR id="mail.event.executor">
 <TD>mail.event.executor</TD>
 <TD>java.util.concurrent.Executor</TD>
 <TD>

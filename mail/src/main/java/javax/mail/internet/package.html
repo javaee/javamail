@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -55,6 +55,9 @@ based on the MIME standard
 The IMAP, SMTP, and POP3 protocols use
 {@link javax.mail.internet.MimeMessage MimeMessages}.
 <P>
+<A NAME="properties">
+<H4>Properties</H4>
+</A>
 The JavaMail API supports the following standard properties,
 which may be set in the <code>Session</code> object, or in the
 <code>Properties</code> object used to create the <code>Session</code> object.
@@ -73,7 +76,8 @@ which is of type boolean.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.mime.address.strict"></A>
+<TR id="mail.mime.address.strict">
 <TD>mail.mime.address.strict</TD>
 <TD>boolean</TD>
 <TD>
@@ -104,7 +108,8 @@ which is of type boolean.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.mime.charset"></A>
+<TR id="mail.mime.charset">
 <TD>mail.mime.charset</TD>
 <TD>String</TD>
 <TD>
@@ -120,7 +125,8 @@ the system, this property should be set.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.decodetext.strict"></A>
+<TR id="mail.mime.decodetext.strict">
 <TD>mail.mime.decodetext.strict</TD>
 <TD>boolean</TD>
 <TD>
@@ -134,7 +140,8 @@ illegal encoded words. The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.encodeeol.strict"></A>
+<TR id="mail.mime.encodeeol.strict">
 <TD>mail.mime.encodeeol.strict</TD>
 <TD>boolean</TD>
 <TD>
@@ -150,7 +157,8 @@ be used when necessary.  The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.decodefilename"></A>
+<TR id="mail.mime.decodefilename">
 <TD>mail.mime.decodefilename</TD>
 <TD>boolean</TD>
 <TD>
@@ -164,7 +172,8 @@ The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.encodefilename"></A>
+<TR id="mail.mime.encodefilename">
 <TD>mail.mime.encodefilename</TD>
 <TD>boolean</TD>
 <TD>
@@ -178,7 +187,8 @@ The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.decodeparameters"></A>
+<TR id="mail.mime.decodeparameters">
 <TD>mail.mime.decodeparameters</TD>
 <TD>boolean</TD>
 <TD>
@@ -190,7 +200,8 @@ The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.encodeparameters"></A>
+<TR id="mail.mime.encodeparameters">
 <TD>mail.mime.encodeparameters</TD>
 <TD>boolean</TD>
 <TD>
@@ -202,7 +213,8 @@ The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.multipart.ignoremissingendboundary"></A>
+<TR id="mail.mime.multipart.ignoremissingendboundary">
 <TD>mail.mime.multipart. ignoremissingendboundary</TD>
 <TD>boolean</TD>
 <TD>
@@ -217,7 +229,8 @@ message.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.multipart.ignoremissingboundaryparameter"></A>
+<TR id="mail.mime.multipart.ignoremissingboundaryparameter">
 <TD>mail.mime.multipart. ignoremissingboundaryparameter</TD>
 <TD>boolean</TD>
 <TD>
@@ -232,7 +245,8 @@ The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.multipart.ignoreexistingboundaryparameter"></A>
+<TR id="mail.mime.multipart.ignoreexistingboundaryparameter">
 <TD>mail.mime.multipart. ignoreexistingboundaryparameter</TD>
 <TD>boolean</TD>
 <TD>
@@ -248,7 +262,8 @@ The default value of this property is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.multipart.allowempty"></A>
+<TR id="mail.mime.multipart.allowempty">
 <TD>mail.mime.multipart. allowempty</TD>
 <TD>boolean</TD>
 <TD>
@@ -281,7 +296,8 @@ change in future releases.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.alternates"></A>
+<TR id="mail.alternates">
 <TD>mail.alternates</TD>
 <TD>String</TD>
 <TD>
@@ -292,7 +308,8 @@ to avoid sending the reply back to the sender.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.replyallcc"></A>
+<TR id="mail.replyallcc">
 <TD>mail.replyallcc</TD>
 <TD>boolean</TD>
 <TD>
@@ -320,7 +337,8 @@ change in future releases.
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.mime.base64.ignoreerrors"></A>
+<TR id="mail.mime.base64.ignoreerrors">
 <TD>mail.mime.base64.ignoreerrors</TD>
 <TD>boolean</TD>
 <TD>
@@ -333,7 +351,8 @@ with extreme caution.  The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.foldtext"></A>
+<TR id="mail.mime.foldtext">
 <TD>mail.mime.foldtext</TD>
 <TD>boolean</TD>
 <TD>
@@ -345,7 +364,8 @@ when set and unfolded when read.  The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.setcontenttypefilename"></A>
+<TR id="mail.mime.setcontenttypefilename">
 <TD>mail.mime.setcontenttypefilename</TD>
 <TD>boolean</TD>
 <TD>
@@ -356,7 +376,8 @@ some old mail clients.  The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.setdefaulttextcharset"></A>
+<TR id="mail.mime.setdefaulttextcharset">
 <TD>mail.mime.setdefaulttextcharset</TD>
 <TD>boolean</TD>
 <TD>
@@ -368,7 +389,8 @@ The default is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.parameters.strict"></A>
+<TR id="mail.mime.parameters.strict">
 <TD>mail.mime.parameters.strict</TD>
 <TD>boolean</TD>
 <TD>
@@ -382,7 +404,8 @@ or special characters.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.applefilenames"></A>
+<TR id="mail.mime.applefilenames">
 <TD>mail.mime.applefilenames</TD>
 <TD>boolean</TD>
 <TD>
@@ -397,7 +420,8 @@ This property will likely be removed in a future release.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.windowsfilenames"></A>
+<TR id="mail.mime.windowsfilenames">
 <TD>mail.mime.windowsfilenames</TD>
 <TD>boolean</TD>
 <TD>
@@ -414,7 +438,8 @@ files sent by IE6.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.ignoreunknownencoding"></A>
+<TR id="mail.mime.ignoreunknownencoding">
 <TD>mail.mime. ignoreunknownencoding</TD>
 <TD>boolean</TD>
 <TD>
@@ -426,7 +451,8 @@ unknown encoding value.  The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.uudecode.ignoreerrors"></A>
+<TR id="mail.mime.uudecode.ignoreerrors">
 <TD>mail.mime.uudecode. ignoreerrors</TD>
 <TD>boolean</TD>
 <TD>
@@ -437,7 +463,8 @@ incorrectly encoded message part.  The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.uudecode.ignoremissingbeginend"></A>
+<TR id="mail.mime.uudecode.ignoremissingbeginend">
 <TD>mail.mime.uudecode. ignoremissingbeginend</TD>
 <TD>boolean</TD>
 <TD>
@@ -449,7 +476,8 @@ The default is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.ignorewhitespacelines"></A>
+<TR id="mail.mime.ignorewhitespacelines">
 <TD>mail.mime. ignorewhitespacelines</TD>
 <TD>boolean</TD>
 <TD>
@@ -460,7 +488,8 @@ line.  The default value of this property is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.ignoremultipartencoding"></A>
+<TR id="mail.mime.ignoremultipartencoding">
 <TD>mail.mime. ignoremultipartencoding</TD>
 <TD>boolean</TD>
 <TD>
@@ -473,7 +502,8 @@ The default value of this property is true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.allowencodedmessages"></A>
+<TR id="mail.mime.allowencodedmessages">
 <TD>mail.mime.allowencodedmessages</TD>
 <TD>boolean</TD>
 <TD>
@@ -487,7 +517,8 @@ The default value of this property is false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.mime.contenttypehandler"></A>
+<TR id="mail.mime.contenttypehandler">
 <TD>mail.mime.contenttypehandler</TD>
 <TD>String</TD>
 <TD>

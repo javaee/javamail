@@ -163,6 +163,9 @@ to understand what these features do and how to use them.  Don't just
 start setting properties and then complain to us when it doesn't work
 like you expect it to work.  <strong>READ THE RFCs FIRST!!!</strong>
 <P>
+<A NAME="properties">
+<H4>Properties</H4>
+</A>
 The SMTP protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
 The properties are always set as strings; the Type column describes
@@ -182,26 +185,30 @@ all the properties would be named "mail.smtps.*".
 <TH>Description</TH>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.user"></A>
+<TR id="mail.smtp.user">
 <TD>mail.smtp.user</TD>
 <TD>String</TD>
 <TD>Default user name for SMTP.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.host"></A>
+<TR id="mail.smtp.host">
 <TD>mail.smtp.host</TD>
 <TD>String</TD>
 <TD>The SMTP server to connect to.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.port"></A>
+<TR id="mail.smtp.port">
 <TD>mail.smtp.port</TD>
 <TD>int</TD>
 <TD>The SMTP server port to connect to, if the connect() method doesn't
 explicitly specify one. Defaults to 25.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.connectiontimeout"></A>
+<TR id="mail.smtp.connectiontimeout">
 <TD>mail.smtp.connectiontimeout</TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
@@ -209,7 +216,8 @@ This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.timeout"></A>
+<TR id="mail.smtp.timeout">
 <TD>mail.smtp.timeout</TD>
 <TD>int</TD>
 <TD>Socket read timeout value in milliseconds.
@@ -217,7 +225,8 @@ This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.writetimeout"></A>
+<TR id="mail.smtp.writetimeout">
 <TD>mail.smtp.writetimeout</TD>
 <TD>int</TD>
 <TD>Socket write timeout value in milliseconds.
@@ -228,7 +237,8 @@ Thus, the overhead of using this timeout is one thread per connection.
 Default is infinite timeout.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.from"></A>
+<TR id="mail.smtp.from">
 <TD>mail.smtp.from</TD>
 <TD>String</TD>
 <TD>
@@ -239,7 +249,8 @@ used for this.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.localhost"></A>
+<TR id="mail.smtp.localhost">
 <TD>mail.smtp.localhost</TD>
 <TD>String</TD>
 <TD>
@@ -250,7 +261,8 @@ be set if your JDK and your name service are configured properly.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.localaddress"></A>
+<TR id="mail.smtp.localaddress">
 <TD>mail.smtp.localaddress</TD>
 <TD>String</TD>
 <TD>
@@ -261,7 +273,8 @@ where it's important to pick a particular local address to bind to.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.localport"></A>
+<TR id="mail.smtp.localport">
 <TD>mail.smtp.localport</TD>
 <TD>int</TD>
 <TD>
@@ -270,7 +283,8 @@ Defaults to the port number picked by the Socket class.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ehlo"></A>
+<TR id="mail.smtp.ehlo">
 <TD>mail.smtp.ehlo</TD>
 <TD>boolean</TD>
 <TD>
@@ -281,14 +295,16 @@ properly or don't implement EHLO properly.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth"></A>
+<TR id="mail.smtp.auth">
 <TD>mail.smtp.auth</TD>
 <TD>boolean</TD>
 <TD>If true, attempt to authenticate the user using the AUTH command.
 Defaults to false.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.mechanisms"></A>
+<TR id="mail.smtp.auth.mechanisms">
 <TD>mail.smtp.auth.mechanisms</TD>
 <TD>String</TD>
 <TD>
@@ -301,35 +317,40 @@ except XOAUTH2.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.login.disable"></A>
+<TR id="mail.smtp.auth.login.disable">
 <TD>mail.smtp.auth.login.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH LOGIN</code> command.
 Default is false.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.plain.disable"></A>
+<TR id="mail.smtp.auth.plain.disable">
 <TD>mail.smtp.auth.plain.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH PLAIN</code> command.
 Default is false.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.digest-md5.disable"></A>
+<TR id="mail.smtp.auth.digest-md5.disable">
 <TD>mail.smtp.auth.digest-md5.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH DIGEST-MD5</code> command.
 Default is false.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.ntlm.disable"></A>
+<TR id="mail.smtp.auth.ntlm.disable">
 <TD>mail.smtp.auth.ntlm.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH NTLM</code> command.
 Default is false.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.ntlm.domain"></A>
+<TR id="mail.smtp.auth.ntlm.domain">
 <TD>mail.smtp.auth.ntlm.domain</TD>
 <TD>String</TD>
 <TD>
@@ -337,7 +358,8 @@ The NTLM authentication domain.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.ntlm.flags"></A>
+<TR id="mail.smtp.auth.ntlm.flags">
 <TD>mail.smtp.auth.ntlm.flags</TD>
 <TD>int</TD>
 <TD>
@@ -348,7 +370,8 @@ http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
 </TR>
 
 <!--
-<TR>
+<A NAME="mail.smtp.auth.ntlm.unicode"></A>
+<TR id="mail.smtp.auth.ntlm.unicode">
 <TD>mail.smtp.auth.ntlm.unicode</TD>
 <TD>boolean</TD>
 <TD>
@@ -358,7 +381,8 @@ Currently has no effect.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.auth.ntlm.lmcompat"></A>
+<TR id="mail.smtp.auth.ntlm.lmcompat">
 <TD>mail.smtp.auth.ntlm.lmcompat</TD>
 <TD>int</TD>
 <TD>
@@ -370,7 +394,8 @@ Defaults to "3".  Currently not used.
 </TR>
 -->
 
-<TR>
+<A NAME="mail.smtp.auth.xoauth2.disable"></A>
+<TR id="mail.smtp.auth.xoauth2.disable">
 <TD>mail.smtp.auth.xoauth2.disable</TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTHENTICATE XOAUTH2</code> command.
@@ -380,7 +405,8 @@ setting this property to "false" or by setting the "mail.smtp.auth.mechanisms"
 property to "XOAUTH2".</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.submitter"></A>
+<TR id="mail.smtp.submitter">
 <TD>mail.smtp.submitter</TD>
 <TD>String</TD>
 <TD>The submitter to use in the AUTH tag in the MAIL FROM command.
@@ -392,20 +418,23 @@ Mail clients typically do not use this.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.dsn.notify"></A>
+<TR id="mail.smtp.dsn.notify">
 <TD>mail.smtp.dsn.notify</TD>
 <TD>String</TD>
 <TD>The NOTIFY option to the RCPT command.  Either NEVER, or some
 combination of SUCCESS, FAILURE, and DELAY (separated by commas).</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.dsn.ret"></A>
+<TR id="mail.smtp.dsn.ret">
 <TD>mail.smtp.dsn.ret</TD>
 <TD>String</TD>
 <TD>The RET option to the MAIL command.  Either FULL or HDRS.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.allow8bitmime"></A>
+<TR id="mail.smtp.allow8bitmime">
 <TD>mail.smtp.allow8bitmime</TD>
 <TD>boolean</TD>
 <TD>
@@ -416,7 +445,8 @@ for 8bit text.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sendpartial"></A>
+<TR id="mail.smtp.sendpartial">
 <TD>mail.smtp.sendpartial</TD>
 <TD>boolean</TD>
 <TD>
@@ -428,7 +458,8 @@ address.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sasl.enable"></A>
+<TR id="mail.smtp.sasl.enable">
 <TD>mail.smtp.sasl.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -438,7 +469,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sasl.mechanisms"></A>
+<TR id="mail.smtp.sasl.mechanisms">
 <TD>mail.smtp.sasl.mechanisms</TD>
 <TD>String</TD>
 <TD>
@@ -447,7 +479,8 @@ to use.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sasl.authorizationid"></A>
+<TR id="mail.smtp.sasl.authorizationid">
 <TD>mail.smtp.sasl.authorizationid</TD>
 <TD>String</TD>
 <TD>
@@ -456,13 +489,15 @@ If not set, the authentication ID (user name) is used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sasl.realm"></A>
+<TR id="mail.smtp.sasl.realm">
 <TD>mail.smtp.sasl.realm</TD>
 <TD>String</TD>
 <TD>The realm to use with DIGEST-MD5 authentication.</TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.sasl.usecanonicalhostname"></A>
+<TR id="mail.smtp.sasl.usecanonicalhostname">
 <TD>mail.smtp.sasl.usecanonicalhostname</TD>
 <TD>boolean</TD>
 <TD>
@@ -473,7 +508,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.quitwait"></A>
+<TR id="mail.smtp.quitwait">
 <TD>mail.smtp.quitwait</TD>
 <TD>boolean</TD>
 <TD>
@@ -484,7 +520,8 @@ for the response to the QUIT command.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.reportsuccess"></A>
+<TR id="mail.smtp.reportsuccess">
 <TD>mail.smtp.reportsuccess</TD>
 <TD>boolean</TD>
 <TD>
@@ -503,7 +540,8 @@ successfully.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socketFactory"></A>
+<TR id="mail.smtp.socketFactory">
 <TD>mail.smtp.socketFactory</TD>
 <TD>SocketFactory</TD>
 <TD>
@@ -515,7 +553,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socketFactory.class"></A>
+<TR id="mail.smtp.socketFactory.class">
 <TD>mail.smtp.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
@@ -525,7 +564,8 @@ will be used to create SMTP sockets.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socketFactory.fallback"></A>
+<TR id="mail.smtp.socketFactory.fallback">
 <TD>mail.smtp.socketFactory.fallback</TD>
 <TD>boolean</TD>
 <TD>
@@ -536,7 +576,8 @@ Defaults to true.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socketFactory.port"></A>
+<TR id="mail.smtp.socketFactory.port">
 <TD>mail.smtp.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
@@ -546,7 +587,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.enable"></A>
+<TR id="mail.smtp.ssl.enable">
 <TD>mail.smtp.ssl.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -555,7 +597,8 @@ Defaults to false for the "smtp" protocol and true for the "smtps" protocol.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.checkserveridentity"></A>
+<TR id="mail.smtp.ssl.checkserveridentity">
 <TD>mail.smtp.ssl.checkserveridentity</TD>
 <TD>boolean</TD>
 <TD>
@@ -567,7 +610,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.trust"></A>
+<TR id="mail.smtp.ssl.trust">
 <TD>mail.smtp.ssl.trust</TD>
 <TD>String</TD>
 <TD>
@@ -579,7 +623,8 @@ Otherwise, trust depends on the certificate the server presents.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.socketFactory"></A>
+<TR id="mail.smtp.ssl.socketFactory">
 <TD>mail.smtp.ssl.socketFactory</TD>
 <TD>SSLSocketFactory</TD>
 <TD>
@@ -591,7 +636,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.socketFactory.class"></A>
+<TR id="mail.smtp.ssl.socketFactory.class">
 <TD>mail.smtp.ssl.socketFactory.class</TD>
 <TD>String</TD>
 <TD>
@@ -601,7 +647,8 @@ will be used to create SMTP SSL sockets.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.socketFactory.port"></A>
+<TR id="mail.smtp.ssl.socketFactory.port">
 <TD>mail.smtp.ssl.socketFactory.port</TD>
 <TD>int</TD>
 <TD>
@@ -611,7 +658,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.protocols"></A>
+<TR id="mail.smtp.ssl.protocols">
 <TD>mail.smtp.ssl.protocols</TD>
 <TD>string</TD>
 <TD>
@@ -621,7 +669,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledProtocols</code> method.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.ssl.ciphersuites"></A>
+<TR id="mail.smtp.ssl.ciphersuites">
 <TD>mail.smtp.ssl.ciphersuites</TD>
 <TD>string</TD>
 <TD>
@@ -631,7 +680,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.starttls.enable"></A>
+<TR id="mail.smtp.starttls.enable">
 <TD>mail.smtp.starttls.enable</TD>
 <TD>boolean</TD>
 <TD>
@@ -644,7 +694,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.starttls.required"></A>
+<TR id="mail.smtp.starttls.required">
 <TD>mail.smtp.starttls.required</TD>
 <TD>boolean</TD>
 <TD>
@@ -655,7 +706,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socks.host"></A>
+<TR id="mail.smtp.socks.host">
 <TD>mail.smtp.socks.host</TD>
 <TD>string</TD>
 <TD>
@@ -665,7 +717,8 @@ connections to the mail server.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.socks.port"></A>
+<TR id="mail.smtp.socks.port">
 <TD>mail.smtp.socks.port</TD>
 <TD>string</TD>
 <TD>
@@ -675,7 +728,8 @@ the standard port number of 1080.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.mailextension"></A>
+<TR id="mail.smtp.mailextension">
 <TD>mail.smtp.mailextension</TD>
 <TD>String</TD>
 <TD>
@@ -692,7 +746,8 @@ and other RFCs that define specific extensions.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.userset"></A>
+<TR id="mail.smtp.userset">
 <TD>mail.smtp.userset</TD>
 <TD>boolean</TD>
 <TD>
@@ -704,7 +759,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<TR>
+<A NAME="mail.smtp.noop.strict"></A>
+<TR id="mail.smtp.noop.strict">
 <TD>mail.smtp.noop.strict</TD>
 <TD>boolean</TD>
 <TD>
