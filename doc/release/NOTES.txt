@@ -206,6 +206,7 @@ Servers tested with:
 	Sun Java System Messaging Server version 7.0
 	UW IMAP4 server version 2003.339
 	Cyrus IMAP4 server version 1.6.19
+	Microsoft Exchange 2010
 
   Previous releases have been tested with:
 	Sun Java System Messaging Server version 5.2
@@ -222,6 +223,7 @@ Servers tested with:
 	Sendmail version 8.13.8
 	Oracle Beehive
 	Sun Java System Messaging Server version 7.0
+	Microsoft Exchange 2010
 
   Previous releases have been tested with:
 	Sendmail version 8.6 and 8.9.1
@@ -244,7 +246,7 @@ Check out our website at https://javamail.java.net.
 
 You can also find help in the JavaMail forum:
 
-	https://community.oracle.com/community/java/java_enterprise_%26_remote_computing/javamail
+	https://community.oracle.com/community/java/java-ee-java-enterprise-edition/javamail
 
 
 ------------------------------------------------------------------
