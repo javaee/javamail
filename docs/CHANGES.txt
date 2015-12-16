@@ -1,17 +1,52 @@
-You can find more information about each bug number by visiting the Sun
+You can find more information about each bug number by visiting the
 Bug Database and looking up each bug you're interested in.
 
-	http://bugs.sun.com
+Bug IDs that start with "K" can be found in the Kenai Bugzilla
+(after removing the "K"):
+
+	https://kenai.com/bugzilla/
 
 Bug IDs that start with "G" can be found in the GlassFish Issue Tracker
 (after removing the "G"):
 
 	https://java.net/jira/browse/GLASSFISH
 
-Bug IDs that start with "K" can be found in the Kenai Bugzilla
-(after removing the "K"):
+Seven digit bug numbers are from the old Sun bug database, which is no
+longer available.
 
-	https://kenai.com/bugzilla/
+
+		  CHANGES IN THE 1.5.5 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.5 release.
+
+K  6886	add support for setting GMail labels on messages
+K  6905	Add spam filter for use with MailHandler.
+K  6907	Address MailDateFormat issues
+K  6938	Typo in "mail.stmp.sendpartial"
+K  6943	mail.mime.encodefilename property should override RFC 2231 encoding
+K  6964	IMAP should support a mail.imap.auth.mechanisms property like SMTP
+K  6965	setting mail.<protocol>.auth.mechanisms should override
+	mail.<protocol>.auth.<mechanism>.disable
+K  6966	add support for OAuth 2.0 without SASL
+K  6973	capability() command doesn't properly transform errors
+K  6989	MailHandler needs better support for stateful filters.
+K  6997	add support for IMAP login referrals (RFC 2221)
+K  7009	whitespace line at beginning confuses InternetHeaders
+K  7014	IndexOutOfBoundsException reading IMAP literal when connection fails
+K  7019	IdleManager dies with CancelledKeyException
+K  7026	IdleManager can deadlock when not busy
+K  7027	IMAP Folder methods throw runtime exceptions when connection drops
+K  7028	InternetAddress doesn't detect some illegal newlines
+K  7030	Status class doesn't decode mailbox name
+K  7035	add support for IMAP COMPRESS extension (RFC 4978)
+K  7052	Empty Gmail X-GM-LABELS list is misparsed
+K  7075	IMAPMessage.getReceivedDate should check if receivedDate is present
+	before loading envelope
+K  7083	CollectorFormatter descending order data race
+K  7090	off-by-1 error in Response.readStringList causes early termination of
+	parsing FETCH response
+K  7094	INTERNALDATE FetchProfile Item
+K  7104	Exchange returns NIL instead of "" for empty parameter, causing NPE
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
