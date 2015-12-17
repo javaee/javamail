@@ -115,6 +115,7 @@
 			com/sun/mail/util/logging/MailHandler.java,
 			com/sun/mail/util/logging/CollectorFormatter.java,
 			com/sun/mail/util/logging/CompactFormatter.java,
+			com/sun/mail/util/logging/DurationFilter.java,
 			com/sun/mail/util/logging/SeverityComparator.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
