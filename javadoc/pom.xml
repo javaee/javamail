@@ -112,11 +112,7 @@
 			com/sun/mail/util/MailConnectException.java,
 			com/sun/mail/util/MailSSLSocketFactory.java,
 			com/sun/mail/util/ReadableMime.java,
-			com/sun/mail/util/logging/MailHandler.java,
-			com/sun/mail/util/logging/CollectorFormatter.java,
-			com/sun/mail/util/logging/CompactFormatter.java,
-			com/sun/mail/util/logging/DurationFilter.java,
-			com/sun/mail/util/logging/SeverityComparator.java
+			com/sun/mail/util/logging/*.java
 					"/>
 				    <fileset dir="../dsn/src/main/java"
 					includes="
@@ -130,14 +126,7 @@
 				    <fileset dir="../gimap/src/main/java"
 					includes="
 			com/sun/mail/gimap/package.html,
-			com/sun/mail/gimap/GmailStore.java,
-			com/sun/mail/gimap/GmailSSLStore.java,
-			com/sun/mail/gimap/GmailFolder.java,
-			com/sun/mail/gimap/GmailMessage.java,
-			com/sun/mail/gimap/GmailMsgIdTerm.java,
-			com/sun/mail/gimap/GmailThrIdTerm.java,
-			com/sun/mail/gimap/GmailRawSearchTerm.java,
-			com/sun/mail/gimap/LongTerm.java
+			com/sun/mail/gimap/*.java
 					"/>
 				</copy>
 
@@ -173,6 +162,9 @@
 			    </windowtitle>
 			    <splitindex>true</splitindex>
 			    <use>true</use>
+			    <notimestamp>true</notimestamp>
+			    <serialwarn>true</serialwarn>
+			    <quiet>true</quiet>
 			    <overview>
 				${basedir}/target/javadoc/overview.html
 			    </overview>
