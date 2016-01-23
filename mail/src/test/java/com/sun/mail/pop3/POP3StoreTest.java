@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,12 +54,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
 /**
- * Test is connected.
- * 
+ * Test POP3Store.
+ *
  * @author sbo
+ * @author Bill Shannon
  */
 public final class POP3StoreTest {
-    
+
     /**
      * Check is connected.
      */
@@ -70,20 +71,19 @@ public final class POP3StoreTest {
             final POP3Handler handler = new POP3HandlerNoopErr();
             server = new TestServer(handler);
             server.start();
-            Thread.sleep(1000);
-            
+
             final Properties properties = new Properties();
             properties.setProperty("mail.pop3.host", "localhost");
             properties.setProperty("mail.pop3.port", "" + server.getPort());
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);
-            
+
             final Store store = session.getStore("pop3");
             try {
                 store.connect("test", "test");
                 final Folder folder = store.getFolder("INBOX");
                 folder.open(Folder.READ_ONLY);
-                
+
                 // Check
                 assertFalse(folder.isOpen());
             } finally {
@@ -98,20 +98,72 @@ public final class POP3StoreTest {
             }
         }
     }
-    
+
+    /**
+     * Check that enabling APOP with a server that doesn't support APOP
+     * (and doesn't return any information in the greeting) doesn't fail.
+     */
+    @Test
+    public void testApopNotSupported() {
+        TestServer server = null;
+        try {
+            final POP3Handler handler = new POP3HandlerNoGreeting();
+            server = new TestServer(handler);
+            server.start();
+
+            final Properties properties = new Properties();
+            properties.setProperty("mail.pop3.host", "localhost");
+            properties.setProperty("mail.pop3.port", "" + server.getPort());
+            properties.setProperty("mail.pop3.apop.enable", "true");
+            final Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            final Store store = session.getStore("pop3");
+            try {
+                store.connect("test", "test");
+		// success!
+            } finally {
+                store.close();
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+            }
+        }
+    }
+
     /**
      * Custom handler. Returns ERR for NOOP.
-     * 
+     *
      * @author sbo
      */
     private static final class POP3HandlerNoopErr extends POP3Handler {
-        
+
         /**
          * {@inheritDoc}
          */
 	@Override
         public void noop() throws IOException {
             this.println("-ERR");
+        }
+    }
+
+    /**
+     * Custom handler.  Don't include any extra information in the greeting.
+     *
+     * @author Bill Shannon
+     */
+    private static final class POP3HandlerNoGreeting extends POP3Handler {
+
+        /**
+         * {@inheritDoc}
+         */
+	@Override
+        public void sendGreetings() throws IOException {
+            this.println("+OK");
         }
     }
 }
