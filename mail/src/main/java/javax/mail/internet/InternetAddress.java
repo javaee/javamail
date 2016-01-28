@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1284,29 +1284,31 @@ public class InternetAddress extends Address implements Cloneable {
 		    throw new AddressException(
 			    "Domain literal end not at end of domain", addr);
 		inliteral = false;
-	    } else if (c <= 040 || c >= 0177)
+	    } else if (c <= 040 || c >= 0177) {
 		throw new AddressException(
 				"Domain contains control or whitespace", addr);
-	    // RFC 2822 rule
-	    //if (specialsNoDot.indexOf(c) >= 0)
-	    /*
-	     * RFC 1034 rule is more strict
-	     * the full rule is:
-	     * 
-	     * <domain> ::= <subdomain> | " "
-	     * <subdomain> ::= <label> | <subdomain> "." <label>
-	     * <label> ::= <letter> [ [ <ldh-str> ] <let-dig> ]
-	     * <ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
-	     * <let-dig-hyp> ::= <let-dig> | "-"
-	     * <let-dig> ::= <letter> | <digit>
-	     */
-	    if (!inliteral) {
-		if (!(Character.isLetterOrDigit(c) || c == '-' || c == '.'))
-		    throw new AddressException(
+	    } else {
+		// RFC 2822 rule
+		//if (specialsNoDot.indexOf(c) >= 0)
+		/*
+		 * RFC 1034 rule is more strict
+		 * the full rule is:
+		 * 
+		 * <domain> ::= <subdomain> | " "
+		 * <subdomain> ::= <label> | <subdomain> "." <label>
+		 * <label> ::= <letter> [ [ <ldh-str> ] <let-dig> ]
+		 * <ldh-str> ::= <let-dig-hyp> | <let-dig-hyp> <ldh-str>
+		 * <let-dig-hyp> ::= <let-dig> | "-"
+		 * <let-dig> ::= <letter> | <digit>
+		 */
+		if (!inliteral) {
+		    if (!(Character.isLetterOrDigit(c) || c == '-' || c == '.'))
+			throw new AddressException(
 				    "Domain contains illegal character", addr);
-		if (c == '.' && lastc == '.')
-		    throw new AddressException(
-				    "Domain contains dot-dot", addr);
+		    if (c == '.' && lastc == '.')
+			throw new AddressException(
+					"Domain contains dot-dot", addr);
+		}
 	    }
 	    lastc = c;
 	}

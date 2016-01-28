@@ -2,7 +2,7 @@ Comment:
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -308,6 +308,9 @@ Expect: 1
 To: "john doe" (john.doe@a.com)
 Expect: 1
 	"john doe"
+To: (test domain literal verification) b@[1.2.3.4]
+Expect: 1
+	b@[1.2.3.4]
 Comment: parsed as a header, we pick out the address from the "comment"
 Header: true
 To: "john doe" (john.doe@a.com)
