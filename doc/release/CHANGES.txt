@@ -21,6 +21,7 @@ The following bugs have been fixed in the 1.5.6 release.
 
 K  7140	NPE by APOP detection when no greeting banner
 K  7151	InternetAddress.parse fails for valid domain literal address
+K  7332	MimeBodyPart.isMimeType returns false if type header can't be parsed
 
 
 		  CHANGES IN THE 1.5.5 RELEASE

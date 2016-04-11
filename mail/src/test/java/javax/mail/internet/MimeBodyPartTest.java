@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2011-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,7 @@ import javax.mail.*;
 
 import org.junit.*;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 
@@ -165,6 +166,24 @@ public class MimeBodyPartTest {
 	in = mbp2.getInputStream();
 	assertEquals(1, in.read());
 	in.close();
+    }
+
+    /**
+     * Test that isMimeType does something reasonable even if the
+     * Content-Type header can't be parsed because of a bad parameter.
+     */
+    @Test
+    public void testIsMimeTypeBadParameter() throws Exception {
+	String part = 
+	    "Content-Type: application/x-test; type=a/b\n" +
+	    "\n" +
+	    "\n";
+	InputStream in = new ByteArrayInputStream(part.getBytes("iso-8859-1"));
+	MimeBodyPart mbp = new MimeBodyPart(in);
+	in.close();
+	assertTrue("complete MIME type", mbp.isMimeType("application/x-test"));
+	assertTrue("pattern MIME type", mbp.isMimeType("application/*"));
+	assertFalse("wrong MIME type", mbp.isMimeType("application/test"));
     }
 
 
