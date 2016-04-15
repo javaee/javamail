@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -579,13 +579,13 @@ public class IMAPProtocol extends Protocol {
 		    done = true;
 		else if (r.isBYE()) // outta here
 		    done = true;
-		else // hmm .. unsolicited response here ?!
-		    v.add(r);
+		// hmm .. unsolicited response here ?!
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 		done = true;
 	    }
+	    v.add(r);
 	}
 
 	} finally {
@@ -689,13 +689,13 @@ public class IMAPProtocol extends Protocol {
 		    done = true;
 		else if (r.isBYE()) // outta here
 		    done = true;
-		else // hmm .. unsolicited response here ?!
-		    v.add(r);
+		// hmm .. unsolicited response here ?!
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 		done = true;
 	    }
+	    v.add(r);
 	}
 
 	} finally {
@@ -786,13 +786,13 @@ public class IMAPProtocol extends Protocol {
 		    done = true;
 		else if (r.isBYE()) // outta here
 		    done = true;
-		else // hmm .. unsolicited response here ?!
-		    v.add(r);
+		// hmm .. unsolicited response here ?!
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 		done = true;
 	    }
+	    v.add(r);
 	}
 
 	} finally {
@@ -880,13 +880,13 @@ public class IMAPProtocol extends Protocol {
 		    done = true;
 		else if (r.isBYE()) // outta here
 		    done = true;
-		else // hmm .. unsolicited response here ?!
-		    v.add(r);
+		// hmm .. unsolicited response here ?!
 	    } catch (Exception ioex) {
 		// convert this into a BYE response
 		r = Response.byeResponse(ioex);
 		done = true;
 	    }
+	    v.add(r);
 	}
 
 	} finally {
@@ -1004,11 +1004,11 @@ public class IMAPProtocol extends Protocol {
      * @exception	ProtocolException	for protocol failures
      * @since	JavaMail 1.5.5
      */
-    void handleLoginResult(Response r) throws ProtocolException {
+    protected void handleLoginResult(Response r) throws ProtocolException {
 	if (hasCapability("LOGIN-REFERRALS") &&
 		(!r.isOK() || referralException))
 	    checkReferral(r);
-	super.handleResult(r);
+	handleResult(r);
     }
 
     /**
