@@ -113,19 +113,11 @@ class Protocol {
 	    initStreams();
 	    r = simpleCommand(null);
 	} catch (IOException ioe) {
-	    try {
-		socket.close();
-	    } finally {
-		throw ioe;
-	    }
+	    throw cleanupAndThrow(socket, ioe);
 	}
 
 	if (!r.ok) {
-	    try {
-		socket.close();
-	    } finally {
-		throw new IOException("Connect failed");
-	    }
+	    throw cleanupAndThrow(socket, new IOException("Connect failed"));
 	}
 	if (enableAPOP && r.data != null) {
 	    int challStart = r.data.indexOf('<');	// start of challenge
@@ -143,6 +135,30 @@ class Protocol {
 	    PropUtil.getBooleanProperty(props, prefix + ".pipelining", false);
 	if (pipelining)
 	    logger.config("PIPELINING enabled");
+    }
+
+    private static IOException cleanupAndThrow(Socket socket, IOException ife) {
+	try {
+	    socket.close();
+	} catch (Throwable thr) {
+	    if (isRecoverable(thr)) {
+		ife.addSuppressed(thr);
+	    } else {
+		thr.addSuppressed(ife);
+		if (thr instanceof Error) {
+		    throw (Error) thr;
+		}
+		if (thr instanceof RuntimeException) {
+		    throw (RuntimeException) thr;
+		}
+		throw new RuntimeException("unexpected exception", thr);
+	    }
+	}
+	return ife;
+    }
+
+    private static boolean isRecoverable(Throwable t) {
+	return (t instanceof Exception) || (t instanceof LinkageError);
     }
 
     /**

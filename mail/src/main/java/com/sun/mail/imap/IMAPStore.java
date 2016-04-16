@@ -1056,11 +1056,11 @@ public class IMAPStore extends Store
 			try {
 			    p.removeResponseHandler(nonStoreResponseHandler);
 			    p.disconnect();
-			} finally {
+			} catch (RuntimeException ignored) {
 			    // don't let any exception stop us
-			    p = null;
-			    continue;	// try again, from the top
 			}
+			p = null;
+			continue;   // try again, from the top
 		    }
 		}
 
@@ -1084,11 +1084,11 @@ public class IMAPStore extends Store
 			try {
 			    p.removeResponseHandler(nonStoreResponseHandler);
 			    p.disconnect();
-			} finally {
+			} catch (RuntimeException ignored) {
 			    // don't let any exception stop us
-			    p = null;
-			    continue;	// try again, from the top
 			}
+			p = null;
+			continue;   // try again, from the top
 		    }
 		}
 

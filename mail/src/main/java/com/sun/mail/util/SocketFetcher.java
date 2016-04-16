@@ -607,13 +607,34 @@ public class SocketFetcher {
 	if (sf instanceof MailSSLSocketFactory) {
 	    MailSSLSocketFactory msf = (MailSSLSocketFactory)sf;
 	    if (!msf.isServerTrusted(host, sslsocket)) {
-		try {
-		    sslsocket.close();
-		} finally {
-		    throw new IOException("Server is not trusted: " + host);
-		}
+		throw cleanupAndThrow(sslsocket,
+			new IOException("Server is not trusted: " + host));
 	    }
 	}
+    }
+
+    private static IOException cleanupAndThrow(Socket socket, IOException ife) {
+	try {
+	    socket.close();
+	} catch (Throwable thr) {
+	    if (isRecoverable(thr)) {
+		ife.addSuppressed(thr);
+	    } else {
+		thr.addSuppressed(ife);
+		if (thr instanceof Error) {
+		    throw (Error) thr;
+		}
+		if (thr instanceof RuntimeException) {
+		    throw (RuntimeException) thr;
+		}
+		throw new RuntimeException("unexpected exception", thr);
+	    }
+	}
+	return ife;
+    }
+
+    private static boolean isRecoverable(Throwable t) {
+	return (t instanceof Exception) || (t instanceof LinkageError);
     }
 
     /**

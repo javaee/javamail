@@ -308,9 +308,8 @@ public class POP3Folder extends Folder {
 		close(false);
 	    } catch (MessagingException mex) {
 		// ignore it
-	    } finally {
-		return false;
 	    }
+	    return false;
 	}
 	return true;
     }

@@ -144,7 +144,6 @@
 		    <target>1.7</target>
 		    <compilerArgs>
 			<arg>-Xlint</arg>
-			<arg>-Xlint:-finally</arg>
 			<arg>-Xlint:-options</arg>
 			<arg>-Xlint:-path</arg>
 			<arg>-Werror</arg>

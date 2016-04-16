@@ -1056,12 +1056,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    } catch (ProtocolException pex) {
 		// got a BAD or a BYE; connection may be bad, close it
 		try {
-		    protocol.logout();
-		} catch (ProtocolException pex2) {
-		    // ignore
+		    throw logoutAndThrow(pex.getMessage(), pex);
 		} finally {
 		    releaseProtocol(false);
-		    throw new MessagingException(pex.getMessage(), pex);
 		}
 	    }
 
@@ -1070,24 +1067,9 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			((IMAPStore)store).allowReadOnlySelect()) {
 		    ;		// all ok, allow it
 		} else {	// otherwise, it's an error
-		    try {
-			// close mailbox and return connection
-			protocol.close();
-			releaseProtocol(true);
-		    } catch (ProtocolException pex) {
-			// something went wrong, close connection
-			try {
-			    protocol.logout();
-			} catch (ProtocolException pex2) {
-			    // ignore
-			} finally {
-			    releaseProtocol(false);
-			}
-		    } finally {
-			throw new ReadOnlyFolderException(this,
-				      "Cannot open in desired mode");
-		    }
-
+		    ReadOnlyFolderException ife = new ReadOnlyFolderException(
+			    this, "Cannot open in desired mode");
+		    throw cleanupAndThrow(ife);
 		}
             }
 	
@@ -1143,6 +1125,55 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	notifyConnectionListeners(ConnectionEvent.OPENED);
 
 	return openEvents;
+    }
+
+    private MessagingException cleanupAndThrow(MessagingException ife) {
+	try {
+	    try {
+		// close mailbox and return connection
+		protocol.close();
+		releaseProtocol(true);
+	    } catch (ProtocolException pex) {
+		// something went wrong, close connection
+		try {
+		    addSuppressed(ife, logoutAndThrow(pex.getMessage(), pex));
+		} finally {
+		    releaseProtocol(false);
+		}
+	    }
+	} catch (Throwable thr) {
+	    addSuppressed(ife, thr);
+	}
+	return ife;
+    }
+
+    private MessagingException logoutAndThrow(String why, ProtocolException t) {
+	MessagingException ife = new MessagingException(why, t);
+	try {
+	    protocol.logout();
+	} catch (Throwable thr) {
+	    addSuppressed(ife, thr);
+	}
+	return ife;
+    }
+
+    private void addSuppressed(Throwable ife, Throwable thr) {
+	if (isRecoverable(thr)) {
+	    ife.addSuppressed(thr);
+	} else {
+	    thr.addSuppressed(ife);
+	    if (thr instanceof Error) {
+		throw (Error) thr;
+	    }
+	    if (thr instanceof RuntimeException) {
+		throw (RuntimeException) thr;
+	    }
+	    throw new RuntimeException("unexpected exception", thr);
+	}
+    }
+
+    private boolean isRecoverable(Throwable t) {
+	return (t instanceof Exception) || (t instanceof LinkageError);
     }
 
     /**

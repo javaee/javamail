@@ -249,9 +249,8 @@ public class POP3Store extends Store {
 		super.close();		// notifies listeners
 	    } catch (MessagingException mex) {
 		// ignore it
-	    } finally {
-		return false;
 	    }
+	    return false;
 	}
     }
 
@@ -275,21 +274,13 @@ public class POP3Store extends Store {
 		    p.setCapabilities(p.capa());
 		} else if (requireStartTLS) {
 		    logger.fine("STLS required but failed");
-		    try {
-			p.quit();
-		    } catch (IOException ioex) {
-		    } finally {
-			throw new EOFException("STLS required but failed");
-		    }
+		    throw cleanupAndThrow(p,
+			    new EOFException("STLS required but failed"));
 		}
 	    } else if (requireStartTLS) {
 		logger.fine("STLS required but not supported");
-		try {
-		    p.quit();
-		} catch (IOException ioex) {
-		} finally {
-		    throw new EOFException("STLS required but not supported");
-		}
+		throw cleanupAndThrow(p,
+			new EOFException("STLS required but not supported"));
 	    }
 	}
 
@@ -312,12 +303,7 @@ public class POP3Store extends Store {
 
 	String msg = null;
 	if ((msg = p.login(user, passwd)) != null) {
-	    try {
-		p.quit();
-	    } catch (IOException ioex) {
-	    } finally {
-		throw new EOFException(msg);
-	    }
+	    throw cleanupAndThrow(p, new EOFException(msg));
 	}
 
 	/*
@@ -335,6 +321,30 @@ public class POP3Store extends Store {
 	if (portOwner == null)
 	    portOwner = owner;
 	return p;
+    }
+
+    private static IOException cleanupAndThrow(Protocol p, IOException ife) {
+	try {
+	    p.quit();
+	} catch (Throwable thr) {
+	    if (isRecoverable(thr)) {
+		ife.addSuppressed(thr);
+	    } else {
+		thr.addSuppressed(ife);
+		if (thr instanceof Error) {
+		    throw (Error) thr;
+		}
+		if (thr instanceof RuntimeException) {
+		    throw (RuntimeException) thr;
+		}
+		throw new RuntimeException("unexpected exception", thr);
+	    }
+	}
+	return ife;
+    }
+
+    private static boolean isRecoverable(Throwable t) {
+	return (t instanceof Exception) || (t instanceof LinkageError);
     }
 
     synchronized void closePort(POP3Folder owner) {
