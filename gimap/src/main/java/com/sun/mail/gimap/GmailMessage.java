@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -144,5 +144,20 @@ public class GmailMessage extends IMAPMessage {
 		throw new MessagingException(pex.getMessage(), pex);
 	    }
 	}
+    }
+
+    /**
+     * Clear any cached labels for this message.
+     * The Gmail labels for a messge will be cached when first accessed
+     * using either the fetch method or the getLabels method.  Gmail provides
+     * no notification when the labels have been changed by another application
+     * so applications may need to clear the cache if accessing the labels for
+     * a message more than once while the Folder is open.
+     *
+     * @since JavaMail 1.5.6
+     */
+    public synchronized void clearCachedLabels() {
+	if (items != null)
+	    items.remove(GmailProtocol.LABELS_ITEM.getName());
     }
 }
