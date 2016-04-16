@@ -1033,8 +1033,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * Return all the headers from this Message as an Enumeration of
      * Header objects.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaders() throws MessagingException {
+    public Enumeration<Header> getAllHeaders() throws MessagingException {
 	return headers.getAllHeaders();
     }
    
@@ -1042,8 +1041,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * Return matching headers from this Message as an Enumeration of
      * Header objects.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getMatchingHeaders(String[] names)
+    public Enumeration<Header> getMatchingHeaders(String[] names)
                         throws MessagingException {
 	return headers.getMatchingHeaders(names);
     }
@@ -1052,8 +1050,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * Return non-matching headers from this Message as an
      * Enumeration of Header objects.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNonMatchingHeaders(String[] names)
+    public Enumeration<Header> getNonMatchingHeaders(String[] names)
                         throws MessagingException {
 	return headers.getNonMatchingHeaders(names);
     }
@@ -1070,8 +1067,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * line is a raw RFC 822 header line, containing both the "name"
      * and "value" field.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaderLines() throws MessagingException {
+    public Enumeration<String> getAllHeaderLines() throws MessagingException {
   	return headers.getAllHeaderLines(); 
     }
  
@@ -1080,8 +1076,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * A Header line is a raw RFC 822 header line, containing both
      * the "name" and "value" field.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getMatchingHeaderLines(String[] names)
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
                                     throws MessagingException {
 	return headers.getMatchingHeaderLines(names);
     }
@@ -1091,8 +1086,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
      * A Header line is a raw RFC 822 header line, containing both
      * the "name"  and "value" field.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNonMatchingHeaderLines(String[] names)  
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)  
                                         throws MessagingException {
 	return headers.getNonMatchingHeaderLines(names);
     }
@@ -1613,7 +1607,6 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	}
 
 	// First, write out the header
-	@SuppressWarnings("unchecked")
 	Enumeration<String> hdrLines
 		= part.getNonMatchingHeaderLines(ignoreList);
 	while (hdrLines.hasMoreElements())

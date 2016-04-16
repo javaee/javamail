@@ -938,7 +938,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all headers.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getAllHeaders() throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -948,7 +947,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get matching headers.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getMatchingHeaders(String[] names)
 			throws MessagingException {
 	checkExpunged();
@@ -959,7 +957,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get non-matching headers.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	checkExpunged();
@@ -974,7 +971,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all header-lines.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	checkExpunged();
 	loadHeaders();
@@ -984,7 +980,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all matching header-lines.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getMatchingHeaderLines(String[] names)
 			throws MessagingException {
 	checkExpunged();
@@ -995,7 +990,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     /**
      * Get all non-matching headerlines.
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 			throws MessagingException {
 	checkExpunged();
@@ -1277,7 +1271,6 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 		     * object, because InternetHeaders is not thread
 		     * safe.
 		     */
-		    @SuppressWarnings("unchecked")
 		    Enumeration<Header> e = h.getAllHeaders();
 		    while (e.hasMoreElements()) {
 			Header he = e.nextElement();

@@ -243,7 +243,6 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 
 		    try {
 			// Write out the header
-			@SuppressWarnings("unchecked")
 			Enumeration<String> hdrLines
 				= super.getAllHeaderLines();
 			while (hdrLines.hasMoreElements())
@@ -336,20 +335,17 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getAllHeaders() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaders();
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaders(names);
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getNonMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
@@ -360,20 +356,17 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaderLines();
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaderLines(names);
     }
 
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();

@@ -97,7 +97,6 @@ public class InternetHeadersTest {
 				throws Exception {
 	assertEquals(1, ih.getHeader("Subject").length);
 	assertEquals("test", ih.getHeader("Subject")[0]);
-	@SuppressWarnings("unchecked")
 	Enumeration<Header> e = ih.getAllHeaders();
 	while (e.hasMoreElements()) {
 	    Header h = e.nextElement();
@@ -130,7 +129,6 @@ public class InternetHeadersTest {
 				throws Exception {
 	assertEquals(1, ih.getHeader("Subject").length);
 	assertEquals("test", ih.getHeader("Subject")[0]);
-	@SuppressWarnings("unchecked")
 	Enumeration<Header> e = ih.getAllHeaders();
 	while (e.hasMoreElements()) {
 	    Header h = e.nextElement();

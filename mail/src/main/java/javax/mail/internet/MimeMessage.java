@@ -1853,7 +1853,6 @@ public class MimeMessage extends Message implements MimePart {
 
 	// Else, the content is untouched, so we can just output it
 	// First, write out the header
-	@SuppressWarnings("unchecked")
 	Enumeration<String> hdrLines = getNonMatchingHeaderLines(ignoreList);
 	LineOutputStream los = new LineOutputStream(os);
 	while (hdrLines.hasMoreElements())
@@ -1989,8 +1988,7 @@ public class MimeMessage extends Message implements MimePart {
      * @exception  MessagingException for failures
      * @see 	javax.mail.internet.MimeUtility
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaders() throws MessagingException {
+    public Enumeration<Header> getAllHeaders() throws MessagingException {
 	return headers.getAllHeaders();	
     }
 
@@ -2001,8 +1999,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getMatchingHeaders(String[] names)
+    public Enumeration<Header> getMatchingHeaders(String[] names)
 			throws MessagingException {
 	return headers.getMatchingHeaders(names);
     }
@@ -2014,8 +2011,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNonMatchingHeaders(String[] names)
+    public Enumeration<Header> getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	return headers.getNonMatchingHeaders(names);
     }
@@ -2040,8 +2036,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaderLines() throws MessagingException {
+    public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	return headers.getAllHeaderLines();
     }
 
@@ -2052,8 +2047,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getMatchingHeaderLines(String[] names)
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	return headers.getMatchingHeaderLines(names);
     }
@@ -2065,8 +2059,7 @@ public class MimeMessage extends Message implements MimePart {
      *
      * @exception  	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNonMatchingHeaderLines(String[] names)
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	return headers.getNonMatchingHeaderLines(names);
     }

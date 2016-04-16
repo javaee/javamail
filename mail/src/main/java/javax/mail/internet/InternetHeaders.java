@@ -297,14 +297,12 @@ public class InternetHeaders {
      *
      * @since	JavaMail 1.4
      */
-    @SuppressWarnings("rawtypes")
-    protected List headers;
+    protected List<InternetHeader> headers;
 
     /**
      * Create an empty InternetHeaders object.  Placeholder entries
      * are inserted to indicate the preferred order of headers.
      */
-    @SuppressWarnings("unchecked")
     public InternetHeaders() { 
    	headers = new ArrayList<InternetHeader>(40); 
 	headers.add(new InternetHeader("Return-Path", null));
@@ -440,7 +438,6 @@ public class InternetHeaders {
      * @return		array of header values, or null if none
      */
     public String[] getHeader(String name) {
-	@SuppressWarnings("unchecked")
 	Iterator<InternetHeader> e = headers.iterator();
 	// XXX - should we just step through in index order?
 	List<String> v = new ArrayList<String>(); // accumulate return values
@@ -502,7 +499,7 @@ public class InternetHeaders {
 	boolean found = false;
 
 	for (int i = 0; i < headers.size(); i++) {
-	    InternetHeader h = (InternetHeader)headers.get(i);
+	    InternetHeader h = headers.get(i);
 	    if (name.equalsIgnoreCase(h.getName())) {
 		if (!found) {
 		    int j;
@@ -540,7 +537,6 @@ public class InternetHeaders {
      * @param	name	header name
      * @param	value	header value
      */ 
-    @SuppressWarnings("unchecked")
     public void addHeader(String name, String value) {
 	int pos = headers.size();
 	boolean addReverse =
@@ -549,7 +545,7 @@ public class InternetHeaders {
 	if (addReverse)
 	    pos = 0;
 	for (int i = headers.size() - 1; i >= 0; i--) {
-	    InternetHeader h = (InternetHeader)headers.get(i);
+	    InternetHeader h = headers.get(i);
 	    if (name.equalsIgnoreCase(h.getName())) {
 		if (addReverse) {
 		    pos = i;
@@ -571,7 +567,7 @@ public class InternetHeaders {
      */
     public void removeHeader(String name) { 
 	for (int i = 0; i < headers.size(); i++) {
-	    InternetHeader h = (InternetHeader)headers.get(i);
+	    InternetHeader h = headers.get(i);
 	    if (name.equalsIgnoreCase(h.getName())) {
 		h.line = null;
 		//headers.remove(i);
@@ -586,8 +582,7 @@ public class InternetHeaders {
      *
      * @return	Enumeration of Header objects	
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public Enumeration getAllHeaders() {
+    public Enumeration<Header> getAllHeaders() {
 	return (new MatchHeaderEnum(headers, null, false));
     }
 
@@ -597,8 +592,7 @@ public class InternetHeaders {
      * @param	names	the headers to return
      * @return	Enumeration of matching Header objects	
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public Enumeration getMatchingHeaders(String[] names) {
+    public Enumeration<Header> getMatchingHeaders(String[] names) {
 	return (new MatchHeaderEnum(headers, names, true));
     }
 
@@ -608,8 +602,7 @@ public class InternetHeaders {
      * @param	names	the headers to not return
      * @return	Enumeration of non-matching Header objects	
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public Enumeration getNonMatchingHeaders(String[] names) {
+    public Enumeration<Header> getNonMatchingHeaders(String[] names) {
 	return (new MatchHeaderEnum(headers, names, false));
     }
 
@@ -623,13 +616,11 @@ public class InternetHeaders {
      *
      * @param	line	raw RFC822 header line
      */
-    @SuppressWarnings("unchecked")
     public void addHeaderLine(String line) {
 	try {
 	    char c = line.charAt(0);
 	    if (c == ' ' || c == '\t') {
-		InternetHeader h =
-		    (InternetHeader)headers.get(headers.size() - 1);
+		InternetHeader h = headers.get(headers.size() - 1);
 		h.line += "\r\n" + line;
 	    } else
 		headers.add(new InternetHeader(line));
@@ -646,8 +637,7 @@ public class InternetHeaders {
      *
      * @return	Enumeration of Strings of all header lines
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaderLines() { 
+    public Enumeration<String> getAllHeaderLines() { 
 	return (getNonMatchingHeaderLines(null));
     }
 
@@ -657,8 +647,7 @@ public class InternetHeaders {
      * @param	names	the headers to return
      * @return	Enumeration of Strings of all matching header lines
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public Enumeration getMatchingHeaderLines(String[] names) {
+    public Enumeration<String> getMatchingHeaderLines(String[] names) {
 	return (new MatchStringEnum(headers, names, true));	
     }
 
@@ -668,8 +657,7 @@ public class InternetHeaders {
      * @param	names	the headers to not return
      * @return	Enumeration of Strings of all non-matching header lines
      */
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    public Enumeration getNonMatchingHeaderLines(String[] names) {
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names) {
 	return (new MatchStringEnum(headers, names, false));
     }
 }

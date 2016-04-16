@@ -450,7 +450,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      * @exception	MessagingException for failures
      * @see 	javax.mail.internet.MimeUtility
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getAllHeaders() throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -463,7 +462,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getMatchingHeaders(String[] names)
 			throws MessagingException {
 	if (headers == null)
@@ -477,7 +475,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<Header> getNonMatchingHeaders(String[] names)
 			throws MessagingException {
 	if (headers == null)
@@ -506,7 +503,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	if (headers == null)
 	    loadHeaders();
@@ -520,7 +516,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	if (headers == null)
@@ -535,7 +530,6 @@ public class POP3Message extends MimeMessage implements ReadableMime {
      *
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("unchecked")
     public Enumeration<String> getNonMatchingHeaderLines(String[] names)
                                         throws MessagingException {
 	if (headers == null)

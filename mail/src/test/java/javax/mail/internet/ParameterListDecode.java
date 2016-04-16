@@ -290,7 +290,6 @@ public class ParameterListDecode {
 		    errors++;
 		}
 	    }
-	    @SuppressWarnings("unchecked")
 	    Enumeration<String> e = pl.getNames();
 	    for (int i = 0; e.hasMoreElements(); i++) {
 		String name = e.nextElement();

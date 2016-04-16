@@ -213,7 +213,6 @@ public class MimeMessageTest {
 	InternetAddress[] addrs = InternetAddress.parse(
 	"long-address1@example.com, long-address2@example.com, joe@foobar.com");
 	msg.setReplyTo(addrs);	// use Reply-To because it's a long header name
-	@SuppressWarnings("unchecked")
 	Enumeration<String> e 
 		= msg.getMatchingHeaderLines(new String[] { "Reply-To" });
 	String line = e.nextElement();

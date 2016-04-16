@@ -637,8 +637,8 @@ public abstract class Service {
      * @param	event	the event
      * @param	vector	the vector of listeners
      */
-    @SuppressWarnings("rawtypes")
-    protected void queueEvent(MailEvent event, Vector vector) {
+    protected void queueEvent(MailEvent event,
+	    Vector<? extends EventListener> vector) {
 	/*
          * Copy the vector in order to freeze the state of the set
          * of EventListeners the event should be delivered to prior

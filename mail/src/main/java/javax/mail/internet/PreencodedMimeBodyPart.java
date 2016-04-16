@@ -103,7 +103,6 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
 	}
 
 	// First, write out the header
-	@SuppressWarnings("unchecked")
 	Enumeration<String> hdrLines = getAllHeaderLines();
 	while (hdrLines.hasMoreElements())
 	    los.writeln(hdrLines.nextElement());

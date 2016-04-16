@@ -624,8 +624,7 @@ public class ParameterList {
      *
      * @return Enumeration of all parameter names in this list.
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNames() {
+    public Enumeration<String> getNames() {
 	return new ParamEnum(list.keySet().iterator());
     }
 

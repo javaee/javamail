@@ -108,8 +108,7 @@ public interface MimePart extends Part {
      * @return	an Enumeration of Strings
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getAllHeaderLines() throws MessagingException;
+    public Enumeration<String> getAllHeaderLines() throws MessagingException;
 
     /**
      * Get matching header lines as an Enumeration of Strings. 
@@ -120,8 +119,7 @@ public interface MimePart extends Part {
      * @return	an Enumeration of Strings
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getMatchingHeaderLines(String[] names)
+    public Enumeration<String> getMatchingHeaderLines(String[] names)
 			throws MessagingException;
 
     /**
@@ -133,8 +131,7 @@ public interface MimePart extends Part {
      * @return	an Enumeration of Strings
      * @exception	MessagingException for failures
      */
-    @SuppressWarnings("rawtypes")
-    public Enumeration getNonMatchingHeaderLines(String[] names)
+    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 			throws MessagingException;
 
     /**

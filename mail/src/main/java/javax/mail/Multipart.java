@@ -69,8 +69,7 @@ public abstract class Multipart {
     /**
      * Vector of BodyPart objects.
      */
-    @SuppressWarnings("rawtypes")
-    protected Vector parts = new Vector(); // Holds BodyParts
+    protected Vector<BodyPart> parts = new Vector<>(); // Holds BodyParts
 
     /**
      * This field specifies the content-type of this multipart
@@ -156,7 +155,7 @@ public abstract class Multipart {
 	if (parts == null)
 	    throw new IndexOutOfBoundsException("No such BodyPart");
 
-	return (BodyPart)parts.elementAt(index);
+	return parts.elementAt(index);
     }
 
     /**
@@ -197,7 +196,7 @@ public abstract class Multipart {
 	if (parts == null)
 	    throw new IndexOutOfBoundsException("No such BodyPart");
 
-	BodyPart part = (BodyPart)parts.elementAt(index);
+	BodyPart part = parts.elementAt(index);
 	parts.removeElementAt(index);
 	part.setParent(null);
     }
@@ -212,7 +211,6 @@ public abstract class Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
-    @SuppressWarnings("unchecked")
     public synchronized void addBodyPart(BodyPart part) 
 		throws MessagingException {
 	if (parts == null)
@@ -236,7 +234,6 @@ public abstract class Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
-    @SuppressWarnings("unchecked")
     public synchronized void addBodyPart(BodyPart part, int index) 
 				throws MessagingException {
 	if (parts == null)
