@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -60,7 +60,7 @@ import static org.junit.Assert.*;
  *
  * @author Jason Mehrens
  */
-public class LogManagerPropertiesTest {
+public class LogManagerPropertiesTest extends AbstractLogging {
 
     /**
      * Holder used to inject Throwables into other APIs.
@@ -268,47 +268,12 @@ public class LogManagerPropertiesTest {
 
     @Test
     public void testJavaMailLinkage() throws Exception {
-        for (Method m : LogManagerProperties.class.getDeclaredMethods()) {
-            assertFalse(m.getReturnType().getName(),
-                    isFromJavaMail(m.getReturnType()));
-            for (Class<?> p : m.getParameterTypes()) {
-                assertFalse(p.getName(), isFromJavaMail(p));
-            }
-
-            for (Class<?> e : m.getExceptionTypes()) {
-                assertFalse(e.getName(), isFromJavaMail(e));
-            }
-        }
-
-        for (Constructor<?> c : LogManagerProperties.class.getDeclaredConstructors()) {
-            for (Class<?> p : c.getParameterTypes()) {
-                assertFalse(p.getName(), isFromJavaMail(p));
-            }
-
-            for (Class<?> e : c.getExceptionTypes()) {
-                assertFalse(e.getName(), isFromJavaMail(e));
-            }
-        }
-
-        for (Field f : LogManagerProperties.class.getDeclaredFields()) {
-            assertFalse(f.getName(), isFromJavaMail(f.getType()));
-        }
+        testJavaMailLinkage(LogManagerProperties.class);
     }
 
-    private boolean isFromJavaMail(Class<?> k) throws Exception {
-        for (Class<?> t = k; t != null; t = t.getSuperclass()) {
-            final String n = t.getName();
-            if (n.startsWith("javax.mail.")) {
-                return true;
-            }
-
-            //Not included with logging-mailhandler.jar.
-            if (n.startsWith("com.sun.mail.")
-                    && !n.startsWith("com.sun.mail.util.logging.")) {
-                return true;
-            }
-        }
-        return false;
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(LogManagerProperties.class);
     }
 
     @Test
@@ -462,7 +427,7 @@ public class LogManagerPropertiesTest {
         }
         Assert.assertFalse(fail);
     }
-    
+
     @Test
     public void testParseDurationMs() throws Exception {
         try {
@@ -1218,12 +1183,6 @@ public class LogManagerPropertiesTest {
         throw new AssertionError();
     }
 
-    private void read(LogManager manager, Properties props) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-        props.store(out, "No comment");
-        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
-    }
-
     private boolean contains(Properties props, String key, String value) {
         if (key == null) {
             throw new NullPointerException();
@@ -1281,6 +1240,7 @@ public class LogManagerPropertiesTest {
             throw new UnsupportedOperationException();
         }
 
+        @SuppressWarnings("override")
         public Comparator<LogRecord> reversed() {
             return new DescComparator();
         }
@@ -1295,6 +1255,7 @@ public class LogManagerPropertiesTest {
             throw new UnsupportedOperationException();
         }
 
+        @SuppressWarnings("override")
         public Comparator<LogRecord> reversed() {
             return new AscComparator();
         }

@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -64,7 +64,7 @@ import static org.junit.Assert.*;
  *
  * @author Jason Mehrens
  */
-public class MailHandlerTest {
+public class MailHandlerTest extends AbstractLogging {
 
     /**
      * See LogManager.
@@ -161,11 +161,6 @@ public class MailHandlerTest {
         } catch (UnknownHostException UHE) {
             throw new AssertionError(UHE);
         }
-    }
-
-    @SuppressWarnings({"CallToThreadDumpStack", "CallToPrintStackTrace"})
-    private static void dump(Throwable t) {
-        t.printStackTrace();
     }
 
     private static Throwable getPending() {
@@ -335,45 +330,13 @@ public class MailHandlerTest {
     }
 
     @Test
-    public void testWebappClassLoaderFieldNames() throws Exception {
-        /**
-         * Test that the MailHandler is using field types from the java.* or
-         * javax.* packages only.
-         */
-        testWebappClassLoaderFieldNames(MailHandler.class);
+    public void testLogManagerModifiers() throws Exception {
+        testLogManagerModifiers(MailHandler.class);
     }
 
-    private void testWebappClassLoaderFieldNames(Class<?> c) throws Exception {
-        /**
-         * WebappClassLoader.clearReferencesStaticFinal() method will ignore
-         * fields that have type names that start with 'java.' or 'javax.'. The
-         * MailHandler conforms to this rule so it doesn't become a target for
-         * the WebappClassLoader.
-         */
-        for (Field f : c.getDeclaredFields()) {
-            Class<?> k = f.getType();
-            while (k.isArray()) {
-                k = k.getComponentType();
-            }
-
-            /**
-             * The WebappClassLoader ignores primitives, non-static, and
-             * synthetic fields. For the MailHandler, the test is stricter than
-             * what the WebappClassLoader actually clears. This restricts the
-             * MailHandler to standard field types for both static and
-             * non-static fields and named static inner class to avoid synthetic
-             * fields. The idea is to try to stay forward compatible with
-             * WebappClassLoader.
-             */
-            if (!k.isPrimitive() && !k.getName().startsWith("java.")
-                    && !k.getName().startsWith("javax.")) {
-                fail(f.toString());
-            }
-        }
-
-        for (Class<?> ic : c.getDeclaredClasses()) {
-            testWebappClassLoaderFieldNames(ic);
-        }
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(MailHandler.class);
     }
 
     private void testVerify(ClassLoaderSecurityManager sm, ClassLoader expect) throws Exception {
@@ -1494,7 +1457,7 @@ public class MailHandlerTest {
                     new Filter() {
                         public boolean isLoggable(LogRecord record) {
                             h.setAttachmentFormatters(new SimpleFormatter(),
-                            new SimpleFormatter());
+                                    new SimpleFormatter());
                             h.setAttachmentFilters(one, push);
                             return push.isLoggable(record);
                         }
@@ -6380,12 +6343,6 @@ public class MailHandlerTest {
         }
     }
 
-    private void read(LogManager manager, Properties props) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-        props.store(out, MailHandlerTest.class.getName());
-        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
-    }
-
     static Properties createInitProperties(String p) {
         final Properties props = new Properties();
         if (p.length() != 0) {
@@ -6659,23 +6616,6 @@ public class MailHandlerTest {
         assertTrue(null != h.getAttachmentNames()[2]);
         assertEquals(XMLFormatter.class, h.getAttachmentNames()[2].getClass());
         h.close();
-    }
-
-    private Level[] getAllLevels() {
-        final Field[] fields = Level.class.getFields();
-        List<Level> a = new ArrayList<Level>(fields.length);
-        for (Field field : fields) {
-            if (Modifier.isStatic(field.getModifiers()) && Level.class.isAssignableFrom(field.getType())) {
-                try {
-                    a.add((Level) field.get((Object) null));
-                } catch (IllegalArgumentException ex) {
-                    fail(ex.toString());
-                } catch (IllegalAccessException ex) {
-                    fail(ex.toString());
-                }
-            }
-        }
-        return a.toArray(new Level[a.size()]);
     }
 
     private static boolean isConnectOrTimeout(Throwable t) {
@@ -6984,6 +6924,7 @@ public class MailHandlerTest {
             return s1 < s2 ? -1 : s1 > s2 ? 1 : 0;
         }
 
+        @SuppressWarnings("override")
         public Comparator<LogRecord> reversed() {
             return new SequenceDescComparator();
         }
@@ -7886,6 +7827,7 @@ public class MailHandlerTest {
             super(capacity);
         }
 
+        @SuppressWarnings("override")
         public boolean isLoggable(LogRecord record) {
             int levelValue = getLevel().intValue();
             if (record.getLevel().intValue() < levelValue
@@ -8010,6 +7952,7 @@ public class MailHandlerTest {
             this.expect = loader;
         }
 
+        @SuppressWarnings("override")
         protected PasswordAuthentication getPasswordAuthentication() {
             checkContextClassLoader(expect);
             for (StackTraceElement se : new Throwable().getStackTrace()) {
@@ -8042,17 +7985,19 @@ public class MailHandlerTest {
             return new SequenceComparator().compare(o1, o2);
         }
 
-        @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+        @SuppressWarnings({"EqualsWhichDoesntCheckParameterClass", "override"})
         public boolean equals(Object o) {
             checkContextClassLoader(expect);
             return super.equals(o);
         }
 
+        @SuppressWarnings("override")
         public int hashCode() {
             checkContextClassLoader(expect);
             return super.hashCode();
         }
 
+        @SuppressWarnings("override")
         public String toString() {
             checkContextClassLoader(expect);
             return super.toString();

@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -60,7 +60,7 @@ import static org.junit.Assert.*;
  * @author Jason Mehrens
  * @since JavaMail 1.5.2
  */
-public class CollectorFormatterTest {
+public class CollectorFormatterTest extends AbstractLogging {
 
     /**
      * See LogManager.
@@ -86,21 +86,6 @@ public class CollectorFormatterTest {
 
     private static void fullFence() {
         LogManager.getLogManager().getProperty("");
-    }
-
-    @SuppressWarnings("SleepWhileInLoop")
-    private static void tick() throws InterruptedException {
-        final long delay = 1L;
-        long then = System.currentTimeMillis();
-        for (int i = 0; i < Short.MAX_VALUE; i++) {
-            long now = System.currentTimeMillis();
-            long delta = (now - then);
-            if (delta >= delay) {
-                return;
-            }
-            Thread.sleep(delay - delta);
-        }
-        throw new AssertionError(then + " " + System.currentTimeMillis());
     }
 
     @BeforeClass
@@ -159,6 +144,7 @@ public class CollectorFormatterTest {
         private static final long serialVersionUID = 1L;
 
         int inferred;
+        @SuppressWarnings("FieldMayBeFinal")
         private transient Formatter f;
 
         TestFormatterAccept(Level level, CollectorFormatter f) {
@@ -206,6 +192,7 @@ public class CollectorFormatterTest {
 
         private static final long serialVersionUID = 1L;
         int inferred;
+        @SuppressWarnings("FieldMayBeFinal")
         private transient Formatter f;
 
         public TestFormatAcceptAndUpdate(Level level, CollectorFormatter f) {
@@ -864,6 +851,25 @@ public class CollectorFormatterTest {
     }
 
     @Test
+    public void testFormat() throws Exception {
+        final String p = CollectorFormatter.class.getName();
+        Properties props = new Properties();
+        final String expect = CollectorFormatterTest.class.getName();
+        props.put(p.concat(".format"), expect);
+        LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            CollectorFormatter cf = new CollectorFormatter();
+            LogRecord first = new LogRecord(Level.SEVERE, Level.SEVERE.getName());
+            assertEquals("", cf.format(first));
+            String result = cf.getTail((Handler) null);
+            assertEquals(expect, result);
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
     public void testFormatter() throws Exception {
         final String p = CollectorFormatter.class.getName();
         Properties props = new Properties();
@@ -1038,10 +1044,19 @@ public class CollectorFormatterTest {
         }
     }
 
-    private void read(LogManager manager, Properties props) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-        props.store(out, CollectorFormatterTest.class.getName());
-        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
+    @Test
+    public void testJavaMailLinkage() throws Exception {
+        testJavaMailLinkage(CollectorFormatter.class);
+    }
+
+    @Test
+    public void testLogManagerModifiers() throws Exception {
+        testLogManagerModifiers(CollectorFormatter.class);
+    }
+
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(CollectorFormatter.class);
     }
 
     /**

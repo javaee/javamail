@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,7 +57,7 @@ import static org.junit.Assert.*;
  * @author Jason Mehrens
  * @since JavaMail 1.5.2
  */
-public class CompactFormatterTest {
+public class CompactFormatterTest extends AbstractLogging {
 
     private static final String UNKNOWN_CLASS_NAME
             = CompactFormatterTest.class.getName().concat("Foo");
@@ -117,6 +117,24 @@ public class CompactFormatterTest {
     @After
     public void tearDown() {
         fullFence();
+    }
+
+    @Test
+    public void testFormat() throws Exception {
+        final String p = CompactFormatter.class.getName();
+        Properties props = new Properties();
+        props.put(p.concat(".format"), "%9$s");
+        LogManager manager = LogManager.getLogManager();
+        try {
+            read(manager, props);
+            CompactFormatter cf = new CompactFormatter();
+            LogRecord first = new LogRecord(Level.SEVERE, Level.INFO.getName());
+            first.setSequenceNumber(Short.MAX_VALUE);
+            String result = cf.format(first);
+            assertEquals(String.valueOf((int) Short.MAX_VALUE), result);
+        } finally {
+            manager.reset();
+        }
     }
 
     @Test
@@ -1049,6 +1067,21 @@ public class CompactFormatterTest {
     public void testToAlternateNull() {
         CompactFormatter cf = new CompactFormatter();
         assertNull(cf.toAlternate((String) null));
+    }
+
+    @Test
+    public void testJavaMailLinkage() throws Exception {
+        testJavaMailLinkage(CompactFormatter.class);
+    }
+
+    @Test
+    public void testLogManagerModifiers() throws Exception {
+        testLogManagerModifiers(CompactFormatter.class);
+    }
+
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(CompactFormatter.class);
     }
 
     private static String rpad(String s, int len, String p) {

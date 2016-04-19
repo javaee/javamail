@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -923,11 +923,29 @@ public class MailHandler extends Handler {
     @Override
     public void setErrorManager(final ErrorManager em) {
         checkAccess();
+        setErrorManager0(em);
+    }
+
+    /**
+     * Sets the error manager on this handler and the super handler.  In secure
+     * environments the super call may not be allowed which is not a failure
+     * condition as it is an attempt to free the unused the error manager.
+     *
+     * @param em a non null error manager.
+     * @throws NullPointerException if the given error manager is null.
+     * @since JavaMail 1.5.6
+     */
+    private void setErrorManager0(final ErrorManager em) {
         if (em == null) {
            throw new NullPointerException();
         }
-        synchronized (this) { //Wait for writeLogRecords.
-            this.errorManager = em;
+        try {
+            synchronized (this) { //Wait for writeLogRecords.
+               this.errorManager = em;
+               super.setErrorManager(em); //Try to free super error manager.
+            }
+        } catch (final RuntimeException ignore) {
+        } catch (final LinkageError ignore) {
         }
     }
 
@@ -1272,7 +1290,11 @@ public class MailHandler extends Handler {
      */
     public final void setAttachmentFilters(Filter... filters) {
         checkAccess();
-        filters = copyOf(filters, filters.length, Filter[].class);
+        if (filters.length == 0) {
+            filters = emptyFilterArray();
+        } else {
+            filters = copyOf(filters, filters.length, Filter[].class);
+        }
         synchronized (this) {
             if (this.attachmentFormatters.length != filters.length) {
                 throw attachmentMismatch(this.attachmentFormatters.length, filters.length);
@@ -1433,7 +1455,12 @@ public class MailHandler extends Handler {
     public final void setAttachmentNames(Formatter... formatters) {
         checkAccess();
 
-        formatters = copyOf(formatters, formatters.length, Formatter[].class);
+        if (formatters.length == 0) {
+            formatters = emptyFormatterArray();
+        } else {
+            formatters = copyOf(formatters, formatters.length, Formatter[].class);
+        }
+
         for (int i = 0; i < formatters.length; ++i) {
             if (formatters[i] == null) {
                 throw new NullPointerException(atIndexMsg(i));
@@ -2424,6 +2451,8 @@ public class MailHandler extends Handler {
             em = super.getErrorManager();
         } catch (final RuntimeException ignore) {
             em = null;
+        } catch (final LinkageError ignore) {
+            em = null;
         }
 
         //Don't assume that the super call is not null.
@@ -2444,7 +2473,7 @@ public class MailHandler extends Handler {
         try {
             String name = fromLogManager(p.concat(".errorManager"));
             if (name != null) {
-                this.errorManager = LogManagerProperties.newErrorManager(name);
+                setErrorManager0(LogManagerProperties.newErrorManager(name));
             }
         } catch (final SecurityException SE) {
             throw SE; //Avoid catch all.

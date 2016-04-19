@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2015-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,6 @@
  */
 package com.sun.mail.util.logging;
 
-import java.io.*;
 import java.lang.reflect.Field;
 import java.util.Properties;
 import java.util.logging.*;
@@ -52,7 +51,7 @@ import static org.junit.Assert.*;
  *
  * @author Jason Mehrens
  */
-public class DurationFilterTest {
+public class DurationFilterTest extends AbstractLogging {
 
     public DurationFilterTest() {
     }
@@ -119,7 +118,6 @@ public class DurationFilterTest {
     }
 
     @Test(timeout = 15000)
-    @SuppressWarnings("SleepWhileInLoop")
     public void testIsLoggableNow() throws Exception {
         final int records = 10;
         final int duration = 1000;
@@ -142,11 +140,7 @@ public class DurationFilterTest {
         assertFalse(sf.isLoggable());
         assertFalse(sf.isLoggable(r));
 
-        //Cool down and allow.
-        final long then = System.currentTimeMillis();
-        do {
-            Thread.sleep(duration + 100);
-        } while ((System.currentTimeMillis() - then) < duration);
+        tick(duration + 100); //Cool down and allow.
 
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, "");
@@ -160,7 +154,6 @@ public class DurationFilterTest {
     }
 
     @Test(timeout = 15000)
-    @SuppressWarnings("SleepWhileInLoop")
     public void testIsIdleNow() throws Exception {
         final int records = 10;
         final int duration = 1000;
@@ -182,11 +175,7 @@ public class DurationFilterTest {
         assertFalse(sf.isIdle());
         assertFalse(sf.isLoggable(r));
 
-        //Cool down and allow.
-        final long then = System.currentTimeMillis();
-        do {
-            Thread.sleep(duration + 100);
-        } while ((System.currentTimeMillis() - then) < duration);
+        tick(duration + 100); //Cool down and allow.
 
         assertTrue(sf.isIdle());
         for (int i = 0; i < records; i++) {
@@ -572,6 +561,21 @@ public class DurationFilterTest {
     }
 
     @Test
+    public void testJavaMailLinkage() throws Exception {
+        testJavaMailLinkage(DurationFilter.class);
+    }
+
+    @Test
+    public void testLogManagerModifiers() throws Exception {
+        testLogManagerModifiers(DurationFilter.class);
+    }
+
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(DurationFilter.class);
+    }
+
+    @Test
     public void testInitRecords() throws Exception {
         testInitRecords("210", 210);
     }
@@ -749,12 +753,6 @@ public class DurationFilterTest {
         } catch (final LinkageError notSupported) {
         }
         return false;
-    }
-
-    private void read(LogManager manager, Properties props) throws IOException {
-        final ByteArrayOutputStream out = new ByteArrayOutputStream(512);
-        props.store(out, "No comment");
-        manager.readConfiguration(new ByteArrayInputStream(out.toByteArray()));
     }
 
     public static final class DurationFilterExt extends DurationFilter

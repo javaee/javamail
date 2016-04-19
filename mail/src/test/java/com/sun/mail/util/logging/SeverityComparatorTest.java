@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2014 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,7 +42,6 @@ package com.sun.mail.util.logging;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileLockInterruptionException;
@@ -58,7 +57,7 @@ import org.junit.Test;
  * @author Jason Mehrens
  * @since JavaMail 1.5.2
  */
-public class SeverityComparatorTest {
+public class SeverityComparatorTest extends AbstractLogging {
 
     @Test
     public void testApplyNull() {
@@ -584,6 +583,7 @@ public class SeverityComparatorTest {
         LogRecord r1 = new LogRecord(Level.INFO, Level.INFO.toString());
         LogRecord r2 = new LogRecord(Level.INFO, Level.INFO.toString());
         r1.setSequenceNumber(r2.getSequenceNumber());
+        r2.setMillis(System.currentTimeMillis()); //Truncate nanos.
         r1.setMillis(r2.getMillis());
 
         assertEquals(r1.getLevel(), r2.getLevel());
@@ -1130,11 +1130,18 @@ public class SeverityComparatorTest {
     }
 
     @Test
+    public void testJavaMailLinkage() throws Exception {
+        testJavaMailLinkage(SeverityComparator.class);
+    }
+
+    @Test
     public void testLogManagerModifiers() throws Exception {
-        final Class<?> c = SeverityComparator.class;
-        assertTrue(Modifier.isPublic(c.getModifiers()));
-        assertFalse(Modifier.isStatic(c.getModifiers()));
-        assertTrue(Modifier.isPublic(c.getConstructor().getModifiers()));
+        testLogManagerModifiers(SeverityComparator.class);
+    }
+
+    @Test
+    public void testWebappClassLoaderFieldNames() throws Exception {
+        testWebappClassLoaderFieldNames(SeverityComparator.class);
     }
 
     @Test

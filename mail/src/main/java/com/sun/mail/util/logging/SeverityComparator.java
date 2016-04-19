@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -97,8 +97,12 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
 
     /**
      * A single instance that is shared among the logging package.
+     * The field is declared as java.util.Comparator so
+     * WebappClassLoader.clearReferencesStaticFinal() method will ignore this
+     * field.
      */
-    private static final SeverityComparator INSTANCE = new SeverityComparator();
+    private static final Comparator<LogRecord> INSTANCE
+            = new SeverityComparator();
 
     /**
      * A shared instance of a SeverityComparator. This is package private so the
@@ -107,7 +111,7 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
      * @return a shared instance of a SeverityComparator.
      */
     static SeverityComparator getInstance() {
-        return INSTANCE;
+        return (SeverityComparator) INSTANCE;
     }
 
     /**
@@ -212,8 +216,10 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
                 return t2 instanceof Error ? -1
                         : t2 instanceof RuntimeException ? 0 : 1;
             } else {
+                //Bitwise inclusive OR produces tighter bytecode for instanceof
+                //and matches with multicatch syntax.
                 return t2 instanceof Error
-                        || t2 instanceof RuntimeException ? -1 : 0;
+                        | t2 instanceof RuntimeException ? -1 : 0;
             }
         }
     }

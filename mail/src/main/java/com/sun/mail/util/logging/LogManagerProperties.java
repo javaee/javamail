@@ -633,7 +633,7 @@ final class LogManagerProperties extends Properties {
             //case insensitive (BUG ID 6196068).  In some cases, we allow class
             //names or literal names, this code guards against the case where a
             //literal name happens to match a class name in a different case.
-            //This is also a nice way to adap this error for the error manager.
+            //This is also a nice way to adapt this error for the error manager.
             throw new ClassNotFoundException(NCDFE.toString(), NCDFE);
         } catch (final ExceptionInInitializerError EIIE) {
             throw wrapOrThrow(EIIE);
@@ -652,8 +652,10 @@ final class LogManagerProperties extends Properties {
     private static Exception paramOrError(InvocationTargetException ite) {
         final Throwable cause = ite.getCause();
         if (cause != null) {
+            //Bitwise inclusive OR produces tighter bytecode for instanceof
+            //and matches with multicatch syntax.
             if (cause instanceof VirtualMachineError
-                    || cause instanceof ThreadDeath) {
+                    | cause instanceof ThreadDeath) {
                 throw (Error) cause;
             }
         }
