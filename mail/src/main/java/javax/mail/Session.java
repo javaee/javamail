@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1229,7 +1229,15 @@ public final class Session {
 	    return AccessController.doPrivileged(
 		    new PrivilegedExceptionAction<InputStream>() {
 			public InputStream run() throws IOException {
-			    return c.getResourceAsStream(name);
+			    try {
+				return c.getResourceAsStream(name);
+			    } catch (RuntimeException e) {
+				// gracefully handle ClassLoader bugs (Tomcat)
+				IOException ioex = new IOException(
+				    "ClassLoader.getResourceAsStream failed");
+				ioex.initCause(e);
+				throw ioex;
+			    }
 			}
 		    }
 	    );
