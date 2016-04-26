@@ -109,6 +109,12 @@ public class CollectorFormatterTest extends AbstractLogging {
     }
 
     @Test
+    public void testDeclaredClasses() throws Exception {
+        Class<?>[] declared = CollectorFormatter.class.getDeclaredClasses();
+        assertEquals(Arrays.toString(declared), 0, declared.length);
+    }
+
+    @Test
     public void testFormatHead() {
         String msg = "message";
         XMLFormatter xml = new XMLFormatter();
@@ -176,11 +182,11 @@ public class CollectorFormatterTest extends AbstractLogging {
                 new SeverityComparator());
         LogRecord first = new LogRecord(Level.INFO, "");
         first.setThrown(new Throwable());
-        first.setMillis(1L);
+        setEpochMilli(first, 1L);
         f.format(first);
 
         TestFormatterAccept r = new TestFormatterAccept(Level.FINE, f);
-        r.setMillis(2L);
+        setEpochMilli(r, 2L);
         r.setThrown(new Throwable());
         f.format(r);
         assertEquals(1, r.inferred);
@@ -204,7 +210,7 @@ public class CollectorFormatterTest extends AbstractLogging {
         public String getSourceMethodName() {
             if (++inferred == 1) {
                 LogRecord r = new LogRecord(Level.INFO, "");
-                r.setMillis(1L);
+                setEpochMilli(r, 1L);
                 f.format(r);
             }
             return super.getSourceMethodName();
@@ -220,7 +226,7 @@ public class CollectorFormatterTest extends AbstractLogging {
 
         TestFormatAcceptAndUpdate r
                 = new TestFormatAcceptAndUpdate(Level.SEVERE, f);
-        r.setMillis(2L);
+        setEpochMilli(r, 2L);
         r.setThrown(new Throwable());
         f.format(r);
         assertEquals(2, r.inferred);
@@ -433,11 +439,11 @@ public class CollectorFormatterTest extends AbstractLogging {
                 (Formatter) null,
                 (Comparator<LogRecord>) null);
 
-        tick(); //Make sure the max not equal to the start time.
+        tickMilli(); //Make sure the max not equal to the start time.
 
         final String min = minF.getTail((Handler) null);
         NumberFormat.getIntegerInstance().parse(min);
-        tick();
+        tickMilli();
 
         //Next min is not old min.
         String next = minF.getTail((Handler) null);
@@ -462,23 +468,23 @@ public class CollectorFormatterTest extends AbstractLogging {
         long min = 100L;
 
         LogRecord r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 1000L);
+        setEpochMilli(r, min + 1000L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 2000L);
+        setEpochMilli(r, min + 2000L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min);
+        setEpochMilli(r, min);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 3000L);
+        setEpochMilli(r, min + 3000L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 4000L);
+        setEpochMilli(r, min + 4000L);
         f.format(r);
 
         String result = f.getTail((Handler) null);
@@ -493,7 +499,7 @@ public class CollectorFormatterTest extends AbstractLogging {
         String now = f.getTail((Handler) null);
         Number num = NumberFormat.getIntegerInstance().parse(now);
         assertFalse(Long.MIN_VALUE == num.longValue());
-        tick();
+        tickMilli();
         String next = f.getTail((Handler) null);
         assertFalse(NumberFormat.getIntegerInstance().parse(now).longValue()
                 == Long.MIN_VALUE);
@@ -511,23 +517,23 @@ public class CollectorFormatterTest extends AbstractLogging {
         long high = 4000L;
 
         LogRecord r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 1000L);
+        setEpochMilli(r, min + 1000L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + high);
+        setEpochMilli(r, min + high);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 2000L);
+        setEpochMilli(r, min + 2000L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min);
+        setEpochMilli(r, min);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, msg);
-        r.setMillis(min + 3000L);
+        setEpochMilli(r, min + 3000L);
         f.format(r);
 
         String result = f.getTail((Handler) null);
@@ -541,11 +547,11 @@ public class CollectorFormatterTest extends AbstractLogging {
                 (Comparator<LogRecord>) null);
 
         LogRecord r = new LogRecord(Level.SEVERE, "");
-        r.setMillis(100);
+        setEpochMilli(r, 100);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, "");
-        r.setMillis(200);
+        setEpochMilli(r, 200);
         f.format(r);
 
         //Check that the min and max are different.
@@ -555,7 +561,7 @@ public class CollectorFormatterTest extends AbstractLogging {
                 (output.length() - fence) - 1));
 
         r = new LogRecord(Level.SEVERE, "");
-        r.setMillis(400);
+        setEpochMilli(r, 400);
         f.format(r);
 
         //Previous max is 200 so at this point the min and max better be 400.
@@ -604,18 +610,18 @@ public class CollectorFormatterTest extends AbstractLogging {
                 + "{8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n";
         CollectorFormatter cf = new CollectorFormatter(p);
         LogRecord min = new LogRecord(Level.SEVERE, "");
-        min.setMillis(1248203502449L);
+        setEpochMilli(min, 1248203502449L);
         cf.format(min);
 
         int count = 290;
         for (int i = 0; i < count; ++i) {
             LogRecord mid = new LogRecord(Level.SEVERE, "");
-            mid.setMillis(min.getMillis());
+            setEpochMilli(mid, min.getMillis());
             cf.format(mid);
         }
 
         LogRecord max = new LogRecord(Level.SEVERE, "");
-        max.setMillis(1258723764000L);
+        setEpochMilli(max, 1258723764000L);
         cf.format(max);
         Object[] args = new Object[9];
         args[3] = count + 2L;
@@ -633,17 +639,17 @@ public class CollectorFormatterTest extends AbstractLogging {
                 + "|86400000<{7,date} and {8,date}}\n";
         CollectorFormatter cf = new CollectorFormatter(p);
         LogRecord min = new LogRecord(Level.SEVERE, "");
-        min.setMillis(1248203502449L);
+        setEpochMilli(min, 1248203502449L);
         cf.format(min);
 
         for (int i = 0; i < 71; ++i) {
             LogRecord mid = new LogRecord(Level.SEVERE, "");
-            mid.setMillis(min.getMillis());
+            setEpochMilli(mid, min.getMillis());
             cf.format(mid);
         }
 
         LogRecord max = new LogRecord(Level.SEVERE, "");
-        max.setMillis(min.getMillis() + 110500);
+        setEpochMilli(max, min.getMillis() + 110500);
         cf.format(max);
 
         String output = cf.getTail((Handler) null);
@@ -652,11 +658,11 @@ public class CollectorFormatterTest extends AbstractLogging {
         cf.format(min);
         for (int i = 0; i < 114; ++i) {
             LogRecord mid = new LogRecord(Level.SEVERE, "");
-            mid.setMillis(min.getMillis());
+            setEpochMilli(mid, min.getMillis());
             cf.format(mid);
         }
 
-        max.setMillis(min.getMillis() + 2591000000L);
+        setEpochMilli(max, min.getMillis() + 2591000000L);
         cf.format(max);
 
         output = cf.getTail((Handler) null);
@@ -669,17 +675,17 @@ public class CollectorFormatterTest extends AbstractLogging {
                 + "|86400000<{7,date} and {8,date}}\n";
         CollectorFormatter cf = new CollectorFormatter(p);
         LogRecord min = new LogRecord(Level.SEVERE, "");
-        min.setMillis(1248203502449L);
+        setEpochMilli(min, 1248203502449L);
 
         cf.format(min);
         for (int i = 0; i < 114; ++i) {
             LogRecord mid = new LogRecord(Level.SEVERE, "");
-            mid.setMillis(min.getMillis());
+            setEpochMilli(mid, min.getMillis());
             cf.format(mid);
         }
 
         LogRecord max = new LogRecord(Level.SEVERE, "");
-        max.setMillis(min.getMillis() + 2591000000L);
+        setEpochMilli(max, min.getMillis() + 2591000000L);
         cf.format(max);
 
         String output = cf.getTail((Handler) null);
@@ -895,11 +901,11 @@ public class CollectorFormatterTest extends AbstractLogging {
         CollectorFormatter f = new CollectorFormatter("{9}", (Formatter) null,
                 (Comparator<LogRecord>) null);
         LogRecord r = new LogRecord(Level.SEVERE, "");
-        r.setMillis(25L);
+        setEpochMilli(r, 25L);
         f.format(r);
 
         r = new LogRecord(Level.SEVERE, "");
-        r.setMillis(100L);
+        setEpochMilli(r, 100L);
         f.format(r);
 
         String init = f.getTail((Handler) null);
@@ -914,7 +920,7 @@ public class CollectorFormatterTest extends AbstractLogging {
 
         String init = f.getTail((Handler) null);
         NumberFormat.getIntegerInstance().parse(init);
-        tick();
+        tickMilli();
 
         assertTrue(init.equals(f.getTail((Handler) null)));
     }
@@ -929,7 +935,7 @@ public class CollectorFormatterTest extends AbstractLogging {
         String init = f.getTail((Handler) null);
         DateFormat df = new SimpleDateFormat(DATE_TIME_FMT);
         Date dt = df.parse(init);
-        tick();
+        tickMilli();
 
         assertTrue(init.equals(f.getTail((Handler) null)));
         assertTrue(dt.equals(df.parse(f.getTail((Handler) null))));
@@ -942,7 +948,7 @@ public class CollectorFormatterTest extends AbstractLogging {
 
         String now = f.getTail((Handler) null);
         NumberFormat.getIntegerInstance().parse(now);
-        tick();
+        tickMilli();
 
         assertFalse(now.equals(f.getTail((Handler) null)));
     }
@@ -957,7 +963,7 @@ public class CollectorFormatterTest extends AbstractLogging {
         String init = f.getTail((Handler) null);
         DateFormat df = new SimpleDateFormat(DATE_TIME_FMT);
         Date dt = df.parse(init);
-        tick();
+        tickMilli();
 
         assertFalse(init.equals(f.getTail((Handler) null)));
         assertFalse(dt.equals(df.parse(f.getTail((Handler) null))));
@@ -970,7 +976,7 @@ public class CollectorFormatterTest extends AbstractLogging {
 
         String up = f.getTail((Handler) null);
         NumberFormat.getIntegerInstance().parse(up);
-        tick();
+        tickMilli();
 
         assertFalse(up.equals(f.getTail((Handler) null)));
     }

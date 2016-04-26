@@ -58,6 +58,7 @@ Main Classes:
                         Options:
                             -all    : Execute all demos.
                             -body   : An email with all records and only a body.
+                            -custom : An email with attachments and dynamic names.
                             -debug  : Output basic debug information about the
                                         JVM and log configuration.
                             -low    : Generates multiple emails due to low

@@ -4313,6 +4313,78 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testReportErrorSuper() throws Exception {
+        Field mhem = MailHandler.class.getDeclaredField("errorManager");
+        mhem.setAccessible(true);
+        Field hem = Handler.class.getDeclaredField("errorManager");
+        hem.setAccessible(true);
+
+        InternalErrorManager superEm = new InternalErrorManager();
+        InternalErrorManager em = new InternalErrorManager();
+        MailHandler h = new MailHandler();
+        try {
+            Exception tester = new Exception();
+            synchronized (h) {
+                assertSame(h.getErrorManager(), hem.get(h));
+
+                h.setErrorManager(superEm);
+                assertSame(superEm, hem.get(h));
+                assertSame(superEm, mhem.get(h));
+
+                mhem.set(h, em);
+                assertSame(em, h.getErrorManager());
+                assertSame(superEm, hem.get(h));
+                h.reportError("", tester, ErrorManager.GENERIC_FAILURE);
+            }
+
+            assertEquals(1, em.exceptions.size());
+            assertSame(tester, em.exceptions.get(0));
+            assertTrue(superEm.exceptions.toString(),
+                    superEm.exceptions.isEmpty());
+        } finally {
+            h.close();
+        }
+    }
+
+    @Test
+    public void testGaeReportErrorSuper() throws Exception {
+        Field mhem = MailHandler.class.getDeclaredField("errorManager");
+        mhem.setAccessible(true);
+        Field hem = Handler.class.getDeclaredField("errorManager");
+        hem.setAccessible(true);
+
+        InternalErrorManager em = new InternalErrorManager();
+        GaeSecurityManager sm = new GaeSecurityManager();
+        System.setSecurityManager(sm);
+        sm.secure = true;
+        try {
+            MailHandler h = new MailHandler();
+            try {
+                Exception tester = new Exception();
+                synchronized (h) {
+                    final Object def = hem.get(h);
+                    assertEquals(h.getErrorManager().getClass(), def.getClass());
+                    assertNotSame(h.getErrorManager(), def);
+
+                    h.setErrorManager(em);
+                    assertSame(def, hem.get(h));
+                    assertSame(h.getErrorManager(), em);
+
+                    h.reportError("", tester, ErrorManager.GENERIC_FAILURE);
+                }
+
+                assertEquals(1, em.exceptions.size());
+                assertSame(tester, em.exceptions.get(0));
+            } finally {
+                h.close();
+            }
+        } finally {
+            sm.secure = false;
+            System.setSecurityManager((SecurityManager) null);
+        }
+    }
+
+    @Test
     public void testReportErrorLinkageWithStack() throws Exception {
         testReportErrorLinkageWithStack(new LinkageErrorStream());
     }
@@ -6846,6 +6918,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public static class ThrowFilter implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new RuntimeException(record.toString());
         }
@@ -6856,6 +6929,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 8493707928829966353L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             throw new RuntimeException();
         }
@@ -6884,6 +6958,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 7973575043680596722L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             return o1.toString().compareTo(o2.toString());
         }
@@ -6894,6 +6969,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             long s1 = o1.getSequenceNumber();
             long s2 = o2.getSequenceNumber();
@@ -6906,6 +6982,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             long s1 = o1.getSequenceNumber();
             long s2 = o2.getSequenceNumber();
@@ -6918,6 +6995,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             long s1 = o1.getSequenceNumber();
             long s2 = o2.getSequenceNumber();
@@ -6935,6 +7013,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = -6539179106541617400L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(Object o1, Object o2) {
             long s1 = LogRecord.class.cast(o1).getSequenceNumber();
             long s2 = LogRecord.class.cast(o2).getSequenceNumber();
@@ -6985,6 +7064,7 @@ public class MailHandlerTest extends AbstractLogging {
             this.value = v;
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord r) {
             return value;
         }
@@ -7003,6 +7083,7 @@ public class MailHandlerTest extends AbstractLogging {
             this.result = f;
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord r) {
             ++count;
             return result.isLoggable(r);
@@ -7223,6 +7304,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
         }
@@ -7230,6 +7312,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public static class ReentranceFilter implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             if (!getClass().getName().equals(record.getSourceClassName())) {
                 final Logger logger = Logger.getLogger(record.getLoggerName());
@@ -7241,6 +7324,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public static class ErrorFilter implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new Error("");
         }
@@ -7250,6 +7334,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         volatile boolean value;
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             return value;
         }
@@ -7273,6 +7358,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -7299,6 +7385,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             throw new NoSuchMethodError();
         }
@@ -7317,10 +7404,12 @@ public class MailHandlerTest extends AbstractLogging {
 
         private static final long serialVersionUID = -7282673499043066003L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             throw new UnsupportedOperationException();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord lr) {
             return true;
         }
@@ -7343,6 +7432,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public static class InternBadFilter implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             return true;
         }
@@ -7368,6 +7458,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public final static class InternFilter implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord lr) {
             return true;
         }
@@ -7386,6 +7477,7 @@ public class MailHandlerTest extends AbstractLogging {
     public final static class InternFilterErrorManager
             extends InternalErrorManager implements Filter {
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord lr) {
             return true;
         }
@@ -7409,6 +7501,7 @@ public class MailHandlerTest extends AbstractLogging {
             return "";
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord lr) {
             return true;
         }
@@ -7460,6 +7553,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -7471,6 +7565,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -7533,6 +7628,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             throw new NoSuchMethodError();
         }
@@ -7563,6 +7659,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -7574,6 +7671,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new NoSuchMethodError();
         }
@@ -7636,6 +7734,7 @@ public class MailHandlerTest extends AbstractLogging {
             throwPending();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             throw new NoSuchMethodError();
         }
@@ -7774,6 +7873,7 @@ public class MailHandlerTest extends AbstractLogging {
             this.allow = allow;
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             final ResourceBundle rb = record.getResourceBundle();
             return rb == null ? allow : locale.equals(rb.getLocale());
@@ -7827,7 +7927,7 @@ public class MailHandlerTest extends AbstractLogging {
             super(capacity);
         }
 
-        @SuppressWarnings("override")
+        @Override
         public boolean isLoggable(LogRecord record) {
             int levelValue = getLevel().intValue();
             if (record.getLevel().intValue() < levelValue
@@ -7980,6 +8080,7 @@ public class MailHandlerTest extends AbstractLogging {
             this.expect = expect;
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord o1, LogRecord o2) {
             checkContextClassLoader(expect);
             return new SequenceComparator().compare(o1, o2);
@@ -8042,6 +8143,7 @@ public class MailHandlerTest extends AbstractLogging {
             return format;
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             checkContextClassLoader(expect);
             return true;

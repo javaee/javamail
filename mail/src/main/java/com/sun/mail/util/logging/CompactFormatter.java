@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2013-2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2013-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,6 +65,22 @@ import java.util.logging.LogRecord;
  * @since JavaMail 1.5.2
  */
 public class CompactFormatter extends java.util.logging.Formatter {
+    /**
+     * Load any declared classes to workaround GLASSFISH-21258.
+     */
+    static {
+        loadDeclaredClasses();
+    }
+
+    /**
+     * Used to load declared classes encase class loader doesn't allow loading
+     * during JVM termination.  This method is used with unit testing.
+     *
+     * @return an array of classes never null.
+     */
+    private static Class<?>[] loadDeclaredClasses() {
+        return new Class<?>[]{Alternate.class};
+    }
 
     /**
      * Holds the java.util.Formatter pattern.
@@ -720,6 +736,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
             this.right = String.valueOf(right);
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public void formatTo(java.util.Formatter formatter, int flags,
                 int width, int precision) {
 

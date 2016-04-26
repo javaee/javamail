@@ -49,10 +49,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -115,6 +119,38 @@ abstract class AbstractLogging {
     }
 
     /**
+     * Sets the log record time using milliseconds from the epoch of
+     * 1970-01-01T00:00:00Z. Any nanosecond information is set to zero. This
+     * method is used to support JDK8 when running on JDK9 or newer.
+     *
+     * @param record the log record to adjust.
+     * @param epochMilli the time in milliseconds from epoch.
+     * @throws NullPointerException if the given record is null.
+     */
+    @SuppressWarnings("deprecation") //See JDK-8144262 and K7091.
+    static void setEpochMilli(final LogRecord record, final long epochMilli) {
+        record.setMillis(epochMilli);
+    }
+
+    /**
+     * Determines if the {@code java.time} APIs are available for this JVM.
+     *
+     * @return true if the time classes can be loaded.
+     */
+    static boolean hasJavaTimeModule() {
+        try {
+            Class.forName("java.time.Duration");
+            Class.forName("java.time.Instant");
+            Class.forName("java.time.ZonedDateTime");
+            Class.forName("java.time.ZoneId");
+            return true;
+        } catch (final ClassNotFoundException notSupported) {
+        } catch (final LinkageError notSupported) {
+        }
+        return false;
+    }
+
+    /**
      * Fails if any declared types are outside of the logging-mailhandler.jar.
      *
      * @param k the type to check for dependencies.
@@ -162,6 +198,33 @@ abstract class AbstractLogging {
             }
             assertFalse(f.getName(), isFromJavaMail(f.getType()));
         }
+    }
+
+    /**
+     * Tests that the private static loadDeclaredClasses method of the given
+     * type.  Objects used by the MailHandler during a push might require
+     * declaring classes to be loaded on create since a push may happen after a
+     * class loader is shutdown.
+     *
+     * @param k the type to check never null.
+     * @throws Exception if there is a problem.
+     */
+    final void testLoadDeclaredClasses(Class<?> k) throws Exception {
+        Method m = k.getDeclaredMethod("loadDeclaredClasses");
+        assertTrue(Modifier.isStatic(m.getModifiers()));
+        assertTrue(Modifier.isPrivate(m.getModifiers()));
+        assertEquals(Class[].class, m.getReturnType());
+        m.setAccessible(true);
+        Class<?>[] named = (Class<?>[]) m.invoke((Object) null);
+        assertTrue(named.length != 0);
+        HashSet<Class<?>> declared = new HashSet<Class<?>>(
+                Arrays.<Class<?>>asList(k.getDeclaredClasses()));
+        for (Class<?> c : named) {
+            assertEquals(c.toString(), k, c.getEnclosingClass());
+            assertTrue(c.getDeclaredClasses().length == 0);
+            declared.remove(c);
+        }
+        assertTrue(declared.toString(), declared.isEmpty());
     }
 
     /**
@@ -217,8 +280,8 @@ abstract class AbstractLogging {
      *
      * @throws InterruptedException if the current thread is interrupted.
      */
-    static void tick() throws InterruptedException {
-        tick(1L);
+    static void tickMilli() throws InterruptedException {
+        tickMilli(1L);
     }
 
     /**
@@ -230,7 +293,7 @@ abstract class AbstractLogging {
      * @throws InterruptedException if the current thread is interrupted.
      */
     @SuppressWarnings("SleepWhileInLoop")
-    static void tick(long delay) throws InterruptedException {
+    static void tickMilli(long delay) throws InterruptedException {
         if (delay <= 0L) {
             throw new IllegalArgumentException(Long.toString(delay));
         }

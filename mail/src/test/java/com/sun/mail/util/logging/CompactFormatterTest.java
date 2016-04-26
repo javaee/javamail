@@ -120,6 +120,11 @@ public class CompactFormatterTest extends AbstractLogging {
     }
 
     @Test
+    public void testDeclaredClasses() throws Exception {
+        testLoadDeclaredClasses(CompactFormatter.class);
+    }
+
+    @Test
     public void testFormat() throws Exception {
         final String p = CompactFormatter.class.getName();
         Properties props = new Properties();
@@ -741,7 +746,7 @@ public class CompactFormatterTest extends AbstractLogging {
         LogRecord r = new LogRecord(Level.SEVERE, "Encoding failed.");
         r.setSourceClassName("MyClass");
         r.setSourceMethodName("fatal");
-        r.setMillis(1258723764000L);
+        setEpochMilli(r, 1258723764000L);
         RuntimeException npe = new NullPointerException();
         StackTraceElement frame = new StackTraceElement("java.lang.String",
                 "getBytes", "String.java", 913);
@@ -758,7 +763,7 @@ public class CompactFormatterTest extends AbstractLogging {
         LogRecord r = new LogRecord(Level.SEVERE, "Unable to send notification.");
         r.setSourceClassName("MyClass");
         r.setSourceMethodName("fatal");
-        r.setMillis(1258723764000L);
+        setEpochMilli(r, 1258723764000L);
 
         Exception t = new SocketException("Permission denied: connect");
         t = new MessagingException("Couldn't connect to host", t);
@@ -776,7 +781,7 @@ public class CompactFormatterTest extends AbstractLogging {
         r.setThreadID(38);
         r.setSourceClassName("MyClass");
         r.setSourceMethodName("fatal");
-        r.setMillis(1248203502449L);
+        setEpochMilli(r, 1248203502449L);
 
         Exception t = new SocketException("Permission denied: connect");
 

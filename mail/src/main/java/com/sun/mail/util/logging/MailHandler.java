@@ -607,6 +607,7 @@ public class MailHandler extends Handler {
      *
      * @param  record  description of the log event.
      */
+    @Override
     public void publish(final LogRecord record) {
         /**
          * It is possible for the handler to be closed after the
@@ -679,7 +680,7 @@ public class MailHandler extends Handler {
             try {
                 final String msg;
                 if (record != null) {
-                    final SimpleFormatter f = new SimpleFormatter();
+                    final Formatter f = createSimpleFormatter();
                     msg = "Log record " + record.getSequenceNumber()
                             + " was not published. "
                             + head(f) + format(f, record) + tail(f, "");
@@ -812,6 +813,7 @@ public class MailHandler extends Handler {
      * a push.
      * @see #push()
      */
+    @Override
     public void flush() {
         push(false, ErrorManager.FLUSH_FAILURE);
     }
@@ -829,6 +831,7 @@ public class MailHandler extends Handler {
      * caller does not have <tt>LoggingPermission("control")</tt>.
      * @see #flush()
      */
+    @Override
     public void close() {
         checkAccess(); //Ensure setLevel works before clearing the buffer.
         Message msg = null;
@@ -929,7 +932,7 @@ public class MailHandler extends Handler {
     /**
      * Sets the error manager on this handler and the super handler.  In secure
      * environments the super call may not be allowed which is not a failure
-     * condition as it is an attempt to free the unused the error manager.
+     * condition as it is an attempt to free the unused handler error manager.
      *
      * @param em a non null error manager.
      * @throws NullPointerException if the given error manager is null.
@@ -1195,7 +1198,7 @@ public class MailHandler extends Handler {
         if (password == null) {
             setAuthenticator0((Authenticator) null);
         } else {
-            setAuthenticator0(new DefaultAuthenticator(new String(password)));
+            setAuthenticator0(DefaultAuthenticator.of(new String(password)));
         }
     }
 
@@ -1410,7 +1413,7 @@ public class MailHandler extends Handler {
             final String name = names[i];
             if (name != null) {
                 if (name.length() > 0) {
-                    formatters[i] = new TailNameFormatter(name);
+                    formatters[i] = TailNameFormatter.of(name);
                 } else {
                     throw new IllegalArgumentException(atIndexMsg(i));
                 }
@@ -1503,7 +1506,7 @@ public class MailHandler extends Handler {
      */
     public final void setSubject(final String subject) {
         if (subject != null) {
-            this.setSubject(new TailNameFormatter(subject));
+            this.setSubject(TailNameFormatter.of(subject));
         } else {
             checkAccess();
             throw new NullPointerException();
@@ -1619,6 +1622,7 @@ public class MailHandler extends Handler {
      * @throws NullPointerException if any of the arguments are null.
      * @since JavaMail 1.4.5
      */
+    @SuppressWarnings({"UseSpecificCatch", "ThrowableResultIgnored"})
     final boolean isMissingContent(Message msg, Throwable t) {
         final Object ccl = getAndSetContextClassLoader(MAILHANDLER_LOADER);
         try {
@@ -1649,6 +1653,7 @@ public class MailHandler extends Handler {
      * @param code the ErrorManager code.
      * @since JavaMail 1.4.5
      */
+    @SuppressWarnings("UseSpecificCatch")
     private void reportError(Message msg, Exception ex, int code) {
         try { //Use direct call so we do not prefix raw email.
             errorManager.error(toRawString(msg), ex, code);
@@ -1873,7 +1878,7 @@ public class MailHandler extends Handler {
         } else {
             for (int i = 0; i < expect; ++i) {
                 if (this.attachmentNames[i] == null) {
-                    this.attachmentNames[i] = new TailNameFormatter(
+                    this.attachmentNames[i] = TailNameFormatter.of(
                             toString(this.attachmentFormatters[i]));
                 }
             }
@@ -2172,6 +2177,16 @@ public class MailHandler extends Handler {
     }
 
     /**
+     * Factory method used to create a java.util.logging.SimpleFormatter.
+     * @return a new SimpleFormatter.
+     * @since JavaMail 1.5.6
+     */
+    private static Formatter createSimpleFormatter() {
+        //Don't force the byte code verifier to load the formatter.
+        return Formatter.class.cast(new SimpleFormatter());
+    }
+
+    /**
      * Checks a string value for null or empty.
      * @param s the string.
      * @return true if the given string is null or zero length.
@@ -2252,18 +2267,18 @@ public class MailHandler extends Handler {
                         if (a[i] instanceof TailNameFormatter) {
                             final Exception CNFE = new ClassNotFoundException(a[i].toString());
                             reportError("Attachment formatter.", CNFE, ErrorManager.OPEN_FAILURE);
-                            a[i] = new SimpleFormatter();
+                            a[i] = createSimpleFormatter();
                         }
                     } catch (final SecurityException SE) {
                         throw SE; //Avoid catch all.
                     } catch (final Exception E) {
                         reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
-                        a[i] = new SimpleFormatter();
+                        a[i] = createSimpleFormatter();
                     }
                 } else {
                     final Exception NPE = new NullPointerException(atIndexMsg(i));
                     reportError("Attachment formatter.", NPE, ErrorManager.OPEN_FAILURE);
-                    a[i] = new SimpleFormatter();
+                    a[i] = createSimpleFormatter();
                 }
             }
 
@@ -2294,9 +2309,9 @@ public class MailHandler extends Handler {
                         try {
                             a[i] = LogManagerProperties.newFormatter(names[i]);
                         } catch (final ClassNotFoundException literal) {
-                            a[i] = new TailNameFormatter(names[i]);
+                            a[i] = TailNameFormatter.of(names[i]);
                         } catch (final ClassCastException literal) {
-                            a[i] = new TailNameFormatter(names[i]);
+                            a[i] = TailNameFormatter.of(names[i]);
                         }
                     } catch (final SecurityException SE) {
                         throw SE; //Avoid catch all.
@@ -2336,9 +2351,9 @@ public class MailHandler extends Handler {
             } catch (final SecurityException SE) {
                 throw SE;
             } catch (final ClassNotFoundException literalAuth) {
-                this.auth = new DefaultAuthenticator(name);
+                this.auth = DefaultAuthenticator.of(name);
             } catch (final ClassCastException literalAuth) {
-                this.auth = new DefaultAuthenticator(name);
+                this.auth = DefaultAuthenticator.of(name);
             } catch (final Exception E) {
                 reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
             }
@@ -2499,16 +2514,16 @@ public class MailHandler extends Handler {
                 if (f instanceof TailNameFormatter == false) {
                     formatter = f;
                 } else {
-                    formatter = new SimpleFormatter();
+                    formatter = createSimpleFormatter();
                 }
             } else {
-                formatter = new SimpleFormatter();
+                formatter = createSimpleFormatter();
             }
         } catch (final SecurityException SE) {
             throw SE; //Avoid catch all.
         } catch (final Exception E) {
             reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
-            formatter = new SimpleFormatter();
+            formatter = createSimpleFormatter();
         }
     }
 
@@ -2599,21 +2614,21 @@ public class MailHandler extends Handler {
             } catch (final SecurityException SE) {
                 throw SE; //Avoid catch all.
             } catch (final ClassNotFoundException literalSubject) {
-                this.subjectFormatter = new TailNameFormatter(name);
+                this.subjectFormatter = TailNameFormatter.of(name);
             } catch (final ClassCastException literalSubject) {
-                this.subjectFormatter = new TailNameFormatter(name);
+                this.subjectFormatter = TailNameFormatter.of(name);
             } catch (final Exception E) {
-                this.subjectFormatter = new TailNameFormatter(name);
+                this.subjectFormatter = TailNameFormatter.of(name);
                 reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
             }
         } else {
             if (name != null) {
-                this.subjectFormatter = new TailNameFormatter(name);
+                this.subjectFormatter = TailNameFormatter.of(name);
             }
         }
 
         if (this.subjectFormatter == null) { //Ensure not null.
-            this.subjectFormatter = new TailNameFormatter("");
+            this.subjectFormatter = TailNameFormatter.of("");
         }
     }
 
@@ -3491,7 +3506,7 @@ public class MailHandler extends Handler {
             chunk = chunk.replaceAll("[\\x00-\\x1F\\x7F]+", "");
             final String charset = getEncodingName();
             final String old = msg.getSubject();
-            assert msg instanceof MimeMessage;
+            assert msg instanceof MimeMessage : msg;
             ((MimeMessage) msg).setSubject(old != null ? old.concat(chunk)
                     : chunk, MimeUtility.mimeCharset(charset));
         } catch (final MessagingException ME) {
@@ -3605,7 +3620,7 @@ public class MailHandler extends Handler {
      */
     private void reportFilterError(final LogRecord record) {
         assert Thread.holdsLock(this);
-        final SimpleFormatter f = new SimpleFormatter();
+        final Formatter f = createSimpleFormatter();
         final String msg = "Log record " + record.getSequenceNumber()
                 + " was filtered from all message parts.  "
                 + head(f) + format(f, record) + tail(f, "");
@@ -4104,15 +4119,29 @@ public class MailHandler extends Handler {
     private static final class DefaultAuthenticator extends Authenticator {
 
         /**
+         * Creates an Authenticator for the given password.  This method is used
+         * so class verification of assignments in MailHandler doesn't require
+         * loading this class which otherwise can occur when using the
+         * constructor.  Default access to avoid generating extra class files.
+         *
+         * @param pass the password.
+         * @return an Authenticator for the password.
+         * @since JavaMail 1.5.6
+         */
+        static Authenticator of(final String pass) {
+            return new DefaultAuthenticator(pass);
+        }
+
+        /**
          * The password to use.
          */
         private final String pass;
 
         /**
-         * Creates a new DefaultAuthenticator.
+         * Use the factory method instead of this constructor.
          * @param pass the password.
          */
-        DefaultAuthenticator(final String pass) {
+        private DefaultAuthenticator(final String pass) {
             assert pass != null;
             this.pass = pass;
         }
@@ -4142,7 +4171,7 @@ public class MailHandler extends Handler {
          * Create the action.
          * @param source null for boot class loader, a class loader, a class
          * used to get the class loader, or a source object to get the class
-         * loader.
+         * loader. Default access to avoid generating extra class files.
          */
         GetAndSetContext(final Object source) {
             this.source = source;
@@ -4154,6 +4183,7 @@ public class MailHandler extends Handler {
          * @return the replaced context class loader which can be null or
          * NOT_MODIFIED to indicate that nothing was modified.
          */
+        @SuppressWarnings("override") //JDK-6954234
         public final Object run() {
             final Thread current = Thread.currentThread();
             final ClassLoader ccl = current.getContextClassLoader();
@@ -4186,20 +4216,34 @@ public class MailHandler extends Handler {
     private static final class TailNameFormatter extends Formatter {
 
         /**
+         * Creates or gets a formatter from the given name.  This method is used
+         * so class verification of assignments in MailHandler doesn't require
+         * loading this class which otherwise can occur when using the
+         * constructor.  Default access to avoid generating extra class files.
+         *
+         * @param name any not null string.
+         * @return a formatter for that string.
+         * @since JavaMail 1.5.6
+         */
+        static Formatter of(final String name) {
+            return new TailNameFormatter(name);
+        }
+
+        /**
          * The value used as the output.
          */
         private final String name;
 
         /**
-         * Creates the formatter with the given name.
-         * Default access to avoid extra generated class files.
+         * Use the factory method instead of this constructor.
          * @param name any not null string.
          */
-        TailNameFormatter(final String name) {
+        private TailNameFormatter(final String name) {
             assert name != null;
             this.name = name;
         }
 
+        @Override
         public final String format(LogRecord record) {
             return "";
         }

@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2015 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -65,18 +65,22 @@ public class MailHandlerDemo {
     private static final Logger LOGGER = Logger.getLogger(CLASS_NAME);
 
     /**
+     * Runs the demo.
+     *
      * @param args the command line arguments
+     * @throws IOException if there is a problem.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         List<String> l = Arrays.asList(args);
         if (l.contains("/?") || l.contains("-?") || l.contains("-help")) {
             LOGGER.info("Usage: java MailHandlerDemo "
-                    + "[[-all] | [-body] | [-debug] | [-low] | [-simple] "
-                    + "| [-pushlevel] | [-pushfilter] | [-pushnormal]"
-                    + "| [-pushonly]] "
+                    + "[[-all] | [-body] | [-custom] | [-debug] | [-low] "
+                    + "| [-simple] | [-pushlevel] | [-pushfilter] "
+                    + "| [-pushnormal] | [-pushonly]] "
                     + "\n\n"
                     + "-all\t\t: Execute all demos.\n"
                     + "-body\t\t: An email with all records and only a body.\n"
+                    + "-custom\t\t: An email with attachments and dynamic names.\n"
                     + "-debug\t\t: Output basic debug information about the JVM "
                     + "and log configuration.\n"
                     + "-low\t\t: Generates multiple emails due to low capacity."
@@ -97,7 +101,7 @@ public class MailHandlerDemo {
                     + "priority emails when the push level is triggered and "
                     + "normal priority when flushed.\n");
         } else {
-            init(l); //may create log messages.
+            final boolean debug = init(l); //may create log messages.
             try {
                 LOGGER.log(Level.FINEST, "This is the finest part of the demo.",
                         new MessagingException("Fake JavaMail issue."));
@@ -122,6 +126,11 @@ public class MailHandlerDemo {
             } finally {
                 closeHandlers();
             }
+
+            //Force parse errors.  This does have side effects.
+            if (debug && getConfigLocation() != null) {
+                LogManager.getLogManager().readConfiguration();
+            }
         }
     }
 
@@ -144,16 +153,24 @@ public class MailHandlerDemo {
         }
 
         try {
+            err.println(prefix + ": java.version="
+                    + System.getProperty("java.version"));
             err.println(prefix + ": LOGGER=" + LOGGER.getLevel());
-            err.println(prefix + ": JVM id " + ManagementFactory.getRuntimeMXBean().getName());
-            err.println(prefix + ": java.security.debug=" + System.getProperty("java.security.debug"));
+            err.println(prefix + ": JVM id "
+                    + ManagementFactory.getRuntimeMXBean().getName());
+            err.println(prefix + ": java.security.debug="
+                    + System.getProperty("java.security.debug"));
             SecurityManager sm = System.getSecurityManager();
             if (sm != null) {
-                err.println(prefix + ": SecurityManager.class=" + sm.getClass().getName());
+                err.println(prefix + ": SecurityManager.class="
+                        + sm.getClass().getName());
+                err.println(prefix + ": SecurityManager classLoader="
+                        + toString(sm.getClass().getClassLoader()));
                 err.println(prefix + ": SecurityManager.toString=" + sm);
             } else {
                 err.println(prefix + ": SecurityManager.class=null");
                 err.println(prefix + ": SecurityManager.toString=null");
+                err.println(prefix + ": SecurityManager classLoader=null");
             }
 
             String policy = System.getProperty("java.security.policy");
@@ -179,17 +196,23 @@ public class MailHandlerDemo {
                 err.println(prefix + ": canRead=" + f.canRead());
                 err.println(prefix + ": lastModified="
                         + new java.util.Date(f.lastModified()));
-                //Force any errors. This is only safe if key is present.
-                manager.readConfiguration();
             } else {
-                err.println(prefix + ": " + key + " is not set as a system property.");
+                err.println(prefix + ": " + key
+                        + " is not set as a system property.");
             }
-            err.println(prefix + ": LogManager.class=" + manager.getClass().getName());
+            err.println(prefix + ": LogManager.class="
+                    + manager.getClass().getName());
+            err.println(prefix + ": LogManager classLoader="
+                    + toString(manager.getClass().getClassLoader()));
             err.println(prefix + ": LogManager.toString=" + manager);
-            err.println(prefix + ": MailHandler classLoader=" + MailHandler.class.getClassLoader());
-            err.println(prefix + ": Context ClassLoader=" + Thread.currentThread().getContextClassLoader());
-            err.println(prefix + ": Session ClassLoader=" + Session.class.getClassLoader());
-            err.println(prefix + ": DataHandler ClassLoader=" + DataHandler.class.getClassLoader());
+            err.println(prefix + ": MailHandler classLoader="
+                    + toString(MailHandler.class.getClassLoader()));
+            err.println(prefix + ": Context ClassLoader="
+                    + toString(Thread.currentThread().getContextClassLoader()));
+            err.println(prefix + ": Session ClassLoader="
+                    + toString(Session.class.getClassLoader()));
+            err.println(prefix + ": DataHandler ClassLoader="
+                    + toString(DataHandler.class.getClassLoader()));
 
             final String p = MailHandler.class.getName();
             key = p.concat(".mail.to");
@@ -234,6 +257,22 @@ public class MailHandlerDemo {
             error.printStackTrace(err);
         }
         err.flush();
+    }
+
+    /**
+     * Gets the class loader list.
+     *
+     * @param cl the class loader or null.
+     * @return the class loader list.
+     */
+    private static String toString(ClassLoader cl) {
+        StringBuilder buf = new StringBuilder();
+        buf.append(cl);
+        while (cl != null) {
+            cl = cl.getParent();
+            buf.append("<-").append(cl);
+        }
+        return buf.toString();
     }
 
     /**
@@ -295,6 +334,8 @@ public class MailHandlerDemo {
             err.print(prefix + ": ");
             error.printStackTrace(err);
         }
+
+        buf.append(", ").append(toString(h.getClass().getClassLoader()));
         return buf.toString();
     }
 
@@ -500,8 +541,9 @@ public class MailHandlerDemo {
      * Sets up the demos that will run.
      *
      * @param l the list of arguments.
+     * @return true if debug is on.
      */
-    private static void init(List<String> l) {
+    private static boolean init(List<String> l) {
         l = new ArrayList<String>(l);
         Session session = Session.getInstance(System.getProperties());
         boolean all = l.remove("-all") || l.isEmpty();
@@ -538,7 +580,8 @@ public class MailHandlerDemo {
         }
 
         boolean fallback = applyFallbackSettings();
-        if (l.remove("-debug") || session.getDebug()) {
+        boolean debug = l.remove("-debug") || session.getDebug();
+        if (debug) {
             checkConfig(CLASS_NAME, session.getDebugOut());
         }
 
@@ -549,6 +592,7 @@ public class MailHandlerDemo {
         if (fallback) {
             LOGGER.info("Check your user temp dir for output.");
         }
+        return debug;
     }
 
     /**

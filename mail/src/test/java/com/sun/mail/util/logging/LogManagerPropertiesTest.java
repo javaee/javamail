@@ -44,6 +44,7 @@ import java.io.*;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
@@ -92,6 +93,12 @@ public class LogManagerPropertiesTest extends AbstractLogging {
     @After
     public void tearDown() {
         fullFence();
+    }
+
+    @Test
+    public void testDeclaredClasses() throws Exception {
+        Class<?>[] declared = LogManagerProperties.class.getDeclaredClasses();
+        assertEquals(Arrays.toString(declared), 0, declared.length);
     }
 
     @Test
@@ -434,7 +441,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             long ms = LogManagerProperties.parseDurationToMillis("PT0.345S");
             assertEquals(345L, ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -444,7 +453,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             long ms = LogManagerProperties.parseDurationToMillis("PT20.345S");
             assertEquals((20L * 1000L) + 345L, ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -454,7 +465,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             long ms = LogManagerProperties.parseDurationToMillis("PT15M");
             assertEquals(15L * 60L * 1000L, ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -464,7 +477,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             long ms = LogManagerProperties.parseDurationToMillis("PT10H");
             assertEquals(10L * 60L * 60L * 1000L, ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -474,7 +489,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             long ms = LogManagerProperties.parseDurationToMillis("P2D");
             assertEquals(2L * 24L * 60L * 60L * 1000L, ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -487,7 +504,9 @@ public class LogManagerPropertiesTest extends AbstractLogging {
                     + (3L * 60L * 60L * 1000L) + (4L * 60L * 1000L)
                     + ((20L * 1000L) + 345), ms);
         } catch (ClassNotFoundException ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         } catch (NoClassDefFoundError ignore) {
+            assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
 
@@ -1226,6 +1245,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             throwPendingIfSet();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord r1, LogRecord r2) {
             throw new Error("");
         }
@@ -1236,6 +1256,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord r1, LogRecord r2) {
             throw new UnsupportedOperationException();
         }
@@ -1251,6 +1272,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
 
         private static final long serialVersionUID = 1L;
 
+        @SuppressWarnings("override") //JDK-6954234
         public int compare(LogRecord r1, LogRecord r2) {
             throw new UnsupportedOperationException();
         }
@@ -1267,6 +1289,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             throwPendingIfSet();
         }
 
+        @SuppressWarnings("override") //JDK-6954234
         public boolean isLoggable(LogRecord record) {
             throw new Error("");
         }
@@ -1278,6 +1301,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             throwPendingIfSet();
         }
 
+        @Override
         public String format(LogRecord record) {
             throw new Error("");
         }

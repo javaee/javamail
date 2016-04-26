@@ -62,10 +62,11 @@ import java.util.logging.LogRecord;
  * {@linkplain Level#intValue level}.
  * <li> The expected recovery order of {@linkplain LogRecord#getThrown() thrown}
  * property of a LogRecord and its cause chain. This ordering is derived from
- * the JLS 11.5 The Exception Hierarchy. This is performed by
- * {@linkplain #apply(java.lang.Throwable) finding} the throwable that best
- * describes the entire cause chain. Once a specific throwable of each chain is
- * identified it is then ranked lowest to highest by the following rules:
+ * the JLS 11.1.1. The Kinds of Exceptions and JLS 11.5 The Exception Hierarchy.
+ * This is performed by {@linkplain #apply(java.lang.Throwable) finding} the
+ * throwable that best describes the entire cause chain. Once a specific
+ * throwable of each chain is identified it is then ranked lowest to highest by
+ * the following rules:
  *
  * <ul>
  * <li>All LogRecords with a {@code Throwable} defined as
@@ -209,6 +210,7 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
             }
 
             //Rank the two unidenticial throwables using the rules from
+            //JLS 11.1.1. The Kinds of Exceptions and
             //JLS 11.5 The Exception Hierarchy.
             if (t1 instanceof Error) {
                 return t2 instanceof Error ? 0 : 1;
@@ -216,10 +218,8 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
                 return t2 instanceof Error ? -1
                         : t2 instanceof RuntimeException ? 0 : 1;
             } else {
-                //Bitwise inclusive OR produces tighter bytecode for instanceof
-                //and matches with multicatch syntax.
                 return t2 instanceof Error
-                        | t2 instanceof RuntimeException ? -1 : 0;
+                        || t2 instanceof RuntimeException ? -1 : 0;
             }
         }
     }
@@ -233,6 +233,7 @@ public class SeverityComparator implements Comparator<LogRecord>, Serializable {
      * argument is less than, equal to, or greater than the second.
      * @throws NullPointerException if either argument is null.
      */
+    @SuppressWarnings("override") //JDK-6954234
     public int compare(final LogRecord o1, final LogRecord o2) {
         if (o1 == null || o2 == null) { //Don't allow null.
             throw new NullPointerException(toString(o1, o2));

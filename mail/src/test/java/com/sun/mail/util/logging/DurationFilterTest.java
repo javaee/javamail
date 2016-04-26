@@ -41,6 +41,7 @@
 package com.sun.mail.util.logging;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.*;
 import org.junit.*;
@@ -75,6 +76,12 @@ public class DurationFilterTest extends AbstractLogging {
     }
 
     @Test
+    public void testDeclaredClasses() throws Exception {
+        Class<?>[] declared = DurationFilter.class.getDeclaredClasses();
+        assertEquals(Arrays.toString(declared), 0, declared.length);
+    }
+
+    @Test
     public void testClone() throws Exception {
         DurationFilterExt source = new DurationFilterExt();
         final Filter clone = source.clone();
@@ -101,13 +108,13 @@ public class DurationFilterTest extends AbstractLogging {
 
         //Allow
         for (int i = 0; i < records; i++) {
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
         }
 
         Filter clone = sf.clone();
         for (int i = 0; i < records; i++) {
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             String m = Integer.toString(i);
             assertFalse(m, sf.isLoggable(r));
             assertTrue(m, clone.isLoggable(r));
@@ -140,7 +147,7 @@ public class DurationFilterTest extends AbstractLogging {
         assertFalse(sf.isLoggable());
         assertFalse(sf.isLoggable(r));
 
-        tick(duration + 100); //Cool down and allow.
+        tickMilli(duration + 100); //Cool down and allow.
 
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, "");
@@ -175,7 +182,7 @@ public class DurationFilterTest extends AbstractLogging {
         assertFalse(sf.isIdle());
         assertFalse(sf.isLoggable(r));
 
-        tick(duration + 100); //Cool down and allow.
+        tickMilli(duration + 100); //Cool down and allow.
 
         assertTrue(sf.isIdle());
         for (int i = 0; i < records; i++) {
@@ -202,14 +209,14 @@ public class DurationFilterTest extends AbstractLogging {
         for (int i = 0; i < records; i++) {
             ++millis;
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
         }
 
         //Saturate.
         for (int i = 0; i < records * 10; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertFalse(Integer.toString(i), sf.isLoggable(r));
         }
 
@@ -218,7 +225,7 @@ public class DurationFilterTest extends AbstractLogging {
         for (int i = 0; i < records; i++) {
             ++millis;
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
         }
     }
@@ -239,16 +246,16 @@ public class DurationFilterTest extends AbstractLogging {
         sf.isLoggable(r); //Init the duration.
         millis += (2 * duration) - 1;
         for (int i = 0; i < records - 2; i++) {
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
         }
 
         millis += 100;
-        r.setMillis(millis);
+        setEpochMilli(r, millis);
         assertTrue(sf.isLoggable(r));
 
         for (int i = 0; i < records - 1; i++) {
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertFalse(Integer.toString(i), sf.isLoggable(r));
         }
     }
@@ -283,7 +290,7 @@ public class DurationFilterTest extends AbstractLogging {
         //Allow
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             --millis;
         }
@@ -293,7 +300,7 @@ public class DurationFilterTest extends AbstractLogging {
         final long peak = millis;
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertFalse(Integer.toString(i), sf.isLoggable(r));
         }
 
@@ -301,7 +308,7 @@ public class DurationFilterTest extends AbstractLogging {
         millis = peak + duration;
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             ++millis;
         }
@@ -334,13 +341,13 @@ public class DurationFilterTest extends AbstractLogging {
         DurationFilter sf = new DurationFilter(records, records);
         LogRecord r = new LogRecord(Level.INFO, "");
         for (int i = 1; i < (records / 2); i++) {
-            r.setMillis(++millis);
+            setEpochMilli(r, ++millis);
             assertTrue(sf.isLoggable(r));
         }
 
         millis += signum * (60L * 60L * 1000L);
         for (int i = (records / 2); i <= records; i++) {
-            r.setMillis(++millis);
+            setEpochMilli(r, ++millis);
             assertTrue(sf.isLoggable(r));
         }
     }
@@ -352,16 +359,16 @@ public class DurationFilterTest extends AbstractLogging {
         DurationFilter sf = new DurationFilter(records, duration);
         for (int i = 0; i < records; i++) {
             LogRecord r = new LogRecord(Level.INFO, "");
-            r.setMillis(Long.MAX_VALUE);
+            setEpochMilli(r, Long.MAX_VALUE);
             assertTrue(sf.isLoggable(r));
         }
 
         LogRecord r = new LogRecord(Level.INFO, "");
-        r.setMillis(Long.MAX_VALUE);
+        setEpochMilli(r, Long.MAX_VALUE);
         assertFalse(sf.isLoggable(r));
 
         r = new LogRecord(Level.INFO, "");
-        r.setMillis(Long.MAX_VALUE + duration);
+        setEpochMilli(r, Long.MAX_VALUE + duration);
         assertTrue(sf.isLoggable(r));
     }
 
@@ -372,16 +379,16 @@ public class DurationFilterTest extends AbstractLogging {
         DurationFilter sf = new DurationFilter(records, duration);
         for (int i = 0; i < records; i++) {
             LogRecord r = new LogRecord(Level.INFO, "");
-            r.setMillis(Long.MIN_VALUE);
+            setEpochMilli(r, Long.MIN_VALUE);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
         }
 
         LogRecord r = new LogRecord(Level.INFO, "");
-        r.setMillis(Long.MIN_VALUE);
+        setEpochMilli(r, Long.MIN_VALUE);
         assertFalse(sf.isLoggable(r));
 
         r = new LogRecord(Level.INFO, "");
-        r.setMillis(Long.MIN_VALUE + duration);
+        setEpochMilli(r, Long.MIN_VALUE + duration);
         assertTrue(sf.isLoggable(r));
     }
 
@@ -398,7 +405,7 @@ public class DurationFilterTest extends AbstractLogging {
         assertEquals(period, (double) duration / (double) records, 0.0);
         for (int i = 0; i < records * records; i++) {
             r = new LogRecord(lvl, Long.toString(millis));
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             millis += period;
         }
@@ -416,7 +423,7 @@ public class DurationFilterTest extends AbstractLogging {
         double period = duration / (double) records;
         for (int i = 0; i < (duration * records) * 2; i++) {
             r = new LogRecord(lvl, Double.toString(millis));
-            r.setMillis((long) millis);
+            setEpochMilli(r, (long) millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             millis = millis + Math.ceil(period);
         }
@@ -433,7 +440,7 @@ public class DurationFilterTest extends AbstractLogging {
         long period = duration / records;
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString((long) millis));
-            r.setMillis((long) millis);
+            setEpochMilli(r, (long) millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             millis += period;
         }
@@ -441,14 +448,14 @@ public class DurationFilterTest extends AbstractLogging {
         //Saturated for records + one.
         for (int i = 0; i <= records; i++) {
             r = new LogRecord(lvl, Long.toString((long) millis));
-            r.setMillis((long) millis);
+            setEpochMilli(r, (long) millis);
             assertFalse(Integer.toString(i), sf.isLoggable(r));
             millis += period;
         }
 
         for (int i = 0; i < records; i++) {
             r = new LogRecord(lvl, Long.toString((long) millis));
-            r.setMillis((long) millis);
+            setEpochMilli(r, (long) millis);
             assertTrue(Integer.toString(i), sf.isLoggable(r));
             millis += period;
         }
@@ -460,12 +467,12 @@ public class DurationFilterTest extends AbstractLogging {
         LogRecord r = new LogRecord(lvl, Long.toString(millis));
 
         for (long i = 0; i < records; i++) {
-            r.setMillis(millis);
+            setEpochMilli(r, millis);
             assertTrue(sf.isLoggable(r));
         }
 
         r = new LogRecord(lvl, Long.toString(millis));
-        r.setMillis(millis);
+        setEpochMilli(r, millis);
         assertFalse(sf.isLoggable(r));
     }
 
@@ -592,7 +599,7 @@ public class DurationFilterTest extends AbstractLogging {
 
     @Test
     public void testInitRecordIso8601() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitRecords("PT30M", 1000);
         }
     }
@@ -679,42 +686,42 @@ public class DurationFilterTest extends AbstractLogging {
 
     @Test
     public void testInitDurationIso8601Ms() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("PT0.345S", 345);
         }
     }
 
     @Test
     public void testInitDurationIso8601Sec() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("PT20.345S", (20L * 1000L) + 345);
         }
     }
 
     @Test
     public void testInitDurationIso8601Min() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("PT30M", 30L * 60L * 1000L);
         }
     }
 
     @Test
     public void testInitDurationIso8601Hour() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("PT10H", 10L * 60L * 60L * 1000L);
         }
     }
 
     @Test
     public void testInitDurationIso8601Day() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("P2D", 2L * 24L * 60L * 60L * 1000L);
         }
     }
 
     @Test
     public void testInitDurationIso8601All() throws Exception {
-        if (isoDurationAllowed()) {
+        if (hasJavaTimeModule()) {
             testInitDuration("P2DT3H4M20.345S", (2L * 24L * 60L * 60L * 1000L)
                     + (3L * 60L * 60L * 1000L) + (4L * 60L * 1000L)
                     + ((20L * 1000L) + 345));
@@ -743,16 +750,6 @@ public class DurationFilterTest extends AbstractLogging {
         } finally {
             m.reset();
         }
-    }
-
-    private boolean isoDurationAllowed() {
-        try {
-            Class.forName("java.time.Duration");
-            return true;
-        } catch (final ClassNotFoundException notSupported) {
-        } catch (final LinkageError notSupported) {
-        }
-        return false;
     }
 
     public static final class DurationFilterExt extends DurationFilter

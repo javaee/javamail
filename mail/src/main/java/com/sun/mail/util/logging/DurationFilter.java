@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2015 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2015-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015-2016 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -211,6 +211,7 @@ public class DurationFilter implements Filter {
      * @return true if allowed; false otherwise.
      * @throws NullPointerException if given record is null.
      */
+    @SuppressWarnings("override") //JDK-6954234
     public boolean isLoggable(final LogRecord record) {
         return accept(record.getMillis());
     }

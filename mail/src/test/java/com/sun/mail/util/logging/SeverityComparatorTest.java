@@ -60,6 +60,12 @@ import org.junit.Test;
 public class SeverityComparatorTest extends AbstractLogging {
 
     @Test
+    public void testDeclaredClasses() throws Exception {
+        Class<?>[] declared = SeverityComparator.class.getDeclaredClasses();
+        assertEquals(Arrays.toString(declared), 0, declared.length);
+    }
+
+    @Test
     public void testApplyNull() {
         SeverityComparator a = new SeverityComparator();
         assertNull(a.apply(null));
@@ -583,8 +589,8 @@ public class SeverityComparatorTest extends AbstractLogging {
         LogRecord r1 = new LogRecord(Level.INFO, Level.INFO.toString());
         LogRecord r2 = new LogRecord(Level.INFO, Level.INFO.toString());
         r1.setSequenceNumber(r2.getSequenceNumber());
-        r2.setMillis(System.currentTimeMillis()); //Truncate nanos.
-        r1.setMillis(r2.getMillis());
+        setEpochMilli(r2, System.currentTimeMillis()); //Truncate nanos.
+        setEpochMilli(r1, r2.getMillis());
 
         assertEquals(r1.getLevel(), r2.getLevel());
         assertEquals(r1.getSequenceNumber(), r2.getSequenceNumber());
@@ -1192,8 +1198,8 @@ public class SeverityComparatorTest extends AbstractLogging {
         LogRecord r1 = new LogRecord(Level.INFO, Level.INFO.toString());
         LogRecord r2 = new LogRecord(Level.INFO, Level.INFO.toString());
         r2.setSequenceNumber(r1.getSequenceNumber());
-        r1.setMillis(10);
-        r2.setMillis(20);
+        setEpochMilli(r1, 10);
+        setEpochMilli(r2, 20);
 
         assertEquals(r1.getLevel(), r2.getLevel());
         assertEquals(r1.getThrown(), r2.getThrown());
