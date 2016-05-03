@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -138,6 +138,8 @@ public class SMTPTransport extends Transport {
     private SaslAuthenticator saslAuthenticator; // if SASL is being used
 
     private boolean noauthdebug = true;	// hide auth info in debug output
+    private boolean debugusername;	// include username in debug output?
+    private boolean debugpassword;	// include password in debug output?
 
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
@@ -171,6 +173,10 @@ public class SMTPTransport extends Transport {
 	traceLogger = logger.getSubLogger("protocol", null);
 	noauthdebug = !PropUtil.getBooleanSessionProperty(session,
 			    "mail.debug.auth", false);
+	debugusername = PropUtil.getBooleanSessionProperty(session,
+			"mail.debug.auth.username", true);
+	debugpassword = PropUtil.getBooleanSessionProperty(session,
+			"mail.debug.auth.password", false);
 	if (urlname != null)
 	    name = urlname.getProtocol();
 	this.name = name;
@@ -651,7 +657,8 @@ public class SMTPTransport extends Transport {
      * @exception MessagingException	for non-authentication failures
      */
     protected synchronized boolean protocolConnect(String host, int port,
-			String user, String passwd) throws MessagingException {
+				String user, String password)
+				throws MessagingException {
 	// setting mail.smtp.auth to true enables attempts to use AUTH
 	boolean useAuth = PropUtil.getBooleanSessionProperty(session,
 					"mail." + name + ".auth", false);
@@ -662,8 +669,14 @@ public class SMTPTransport extends Transport {
 	 * because the server doesn't support ESMTP or doesn't support
 	 * the AUTH extension).
 	 */
-	if (useAuth && (user == null || passwd == null)) {
-	    logger.fine("need username and password for authentication");
+	if (useAuth && (user == null || password == null)) {
+	    if (logger.isLoggable(Level.FINE)) {
+		logger.fine("need username and password for authentication");
+		logger.fine("protocolConnect returning false" +
+				", host=" + host +
+				", user=" + traceUser(user) +
+				", password=" + tracePassword(password));
+	    }
 	    return false;
 	}
 
@@ -724,10 +737,15 @@ public class SMTPTransport extends Transport {
 		}
 	    }
 
-	    if ((useAuth || (user != null && passwd != null)) &&
+	    if ((useAuth || (user != null && password != null)) &&
 		  (supportsExtension("AUTH") ||
 		   supportsExtension("AUTH=LOGIN"))) {
-		connected = authenticate(user, passwd);
+		if (logger.isLoggable(Level.FINE))
+		    logger.fine("protocolConnect login" +
+				", host=" + host +
+				", user=" + traceUser(user) +
+				", password=" + tracePassword(password));
+		connected = authenticate(user, password);
 		return connected;
 	    }
 
@@ -2522,6 +2540,15 @@ public class SMTPTransport extends Transport {
 	    }
 	}
 	return sb != null ? sb.toString() : s;
+    }
+
+    private String traceUser(String user) {
+	return debugusername ? user : "<user name suppressed>";
+    }
+
+    private String tracePassword(String password) {
+	return debugpassword ? password :
+				(password == null ? "<null>" : "<non-null>");
     }
 
     /*
