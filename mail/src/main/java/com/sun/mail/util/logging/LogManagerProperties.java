@@ -44,6 +44,7 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.*;
@@ -78,6 +79,63 @@ final class LogManagerProperties extends Properties {
      * Generated serial id.
      */
     private static final long serialVersionUID = -2239983349056806252L;
+    /**
+     * Holds the method used to get the LogRecord instant if running on JDK 9 or
+     * later.
+     */
+    private static final Method LR_GET_INSTANT;
+
+    /**
+     * Holds the method used to get the default time zone if running on JDK 9 or
+     * later.
+     */
+    private static final Method ZI_SYSTEM_DEFAULT;
+
+    /**
+     * Holds the method used to convert and instant to a zoned date time if
+     * running on JDK 9 later.
+     */
+    private static final Method ZDT_OF_INSTANT;
+
+    static {
+        Method lrgi = null;
+        Method zisd = null;
+        Method zdtoi = null;
+        try {
+            lrgi = LogRecord.class.getMethod("getInstant");
+            assert Comparable.class
+                    .isAssignableFrom(lrgi.getReturnType()) : lrgi;
+            zisd = findClass("java.time.ZoneId")
+                    .getMethod("systemDefault");
+            if (!Modifier.isStatic(zisd.getModifiers())) {
+                throw new NoSuchMethodException(zisd.toString());
+            }
+
+            zdtoi = findClass("java.time.ZonedDateTime")
+                    .getMethod("ofInstant", findClass("java.time.Instant"),
+                            findClass("java.time.ZoneId"));
+            if (!Modifier.isStatic(zdtoi.getModifiers())) {
+                throw new NoSuchMethodException(zdtoi.toString());
+            }
+
+            if (!Comparable.class.isAssignableFrom(zdtoi.getReturnType())) {
+                throw new NoSuchMethodException(zdtoi.toString());
+            }
+        } catch (final RuntimeException ignore) {
+        } catch (final Exception ignore) { //No need for specific catch.
+        } catch (final LinkageError ignore) {
+        } finally {
+            if (lrgi == null || zisd == null || zdtoi == null) {
+                lrgi = null; //If any are null then clear all.
+                zisd = null;
+                zdtoi = null;
+            }
+        }
+
+        LR_GET_INSTANT = lrgi;
+        ZI_SYSTEM_DEFAULT = zisd;
+        ZDT_OF_INSTANT = zdtoi;
+    }
     /**
      * Caches the read only reflection class names string array. Declared
      * volatile for safe publishing only. The VO_VOLATILE_REFERENCE_TO_ARRAY
@@ -254,6 +312,44 @@ final class LogManagerProperties extends Properties {
     static boolean hasLogManager() {
         final Object m = LOG_MANAGER;
         return m != null && !(m instanceof Properties);
+    }
+
+    /**
+     * Gets the ZonedDateTime from the given log record.
+     *
+     * @param record used to generate the zoned date time.
+     * @return null if LogRecord doesn't support nanoseconds otherwise a new
+     * zoned date time is returned.
+     * @throws NullPointerException if record is null.
+     * @since JavaMail 1.5.6
+     */
+    @SuppressWarnings("UseSpecificCatch")
+    static Comparable<?> getZonedDateTime(LogRecord record) {
+        if (record == null) {
+           throw new NullPointerException();
+        }
+        final Method m = ZDT_OF_INSTANT;
+        if (m != null) {
+            try {
+                return (Comparable<?>) m.invoke((Object) null,
+                        LR_GET_INSTANT.invoke(record),
+                        ZI_SYSTEM_DEFAULT.invoke((Object) null));
+            } catch (final RuntimeException ignore) {
+                assert LR_GET_INSTANT != null
+                        && ZI_SYSTEM_DEFAULT != null : ignore;
+            } catch (final InvocationTargetException ite) {
+                final Throwable cause = ite.getCause();
+                if (cause instanceof Error) {
+                    throw (Error) cause;
+                } else if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else { //Should never happen.
+                    throw new UndeclaredThrowableException(ite);
+                }
+            } catch (final Exception ignore) {
+            }
+        }
+        return null;
     }
 
     /**

@@ -20,6 +20,7 @@ longer available.
 The following bugs have been fixed in the 1.5.6 release.
 
 K  7091	Support LogRecord.setMillis being deprecated in JDK 9
+K  7092	Logging should support LogRecord.getInstant
 K  7097	Create common super class for logging tests
 K  7140	NPE by APOP detection when no greeting banner
 K  7150	Make IMAPProtocol.handleLoginResult protected

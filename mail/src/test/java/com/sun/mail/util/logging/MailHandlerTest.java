@@ -330,6 +330,16 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testJavaMailLinkage() throws Exception {
+        /**
+         * The MailHandler has to depend on the official JavaMail spec classes.
+         * The logging-mailhandler.jar needs to be portable to other platforms
+         * so it doesn't depend on reference implementation classes directly.
+         */
+        testJavaMailLinkage(MailHandler.class, false);
+    }
+
+    @Test
     public void testLogManagerModifiers() throws Exception {
         testLogManagerModifiers(MailHandler.class);
     }
@@ -1986,8 +1996,13 @@ public class MailHandlerTest extends AbstractLogging {
         PrintStream ls = new LinkageErrorStream(new StackTraceElement[0]);
         @SuppressWarnings("UseOfSystemOutOrSystemErr")
         final PrintStream err = System.err;
+        final Thread.UncaughtExceptionHandler ueh
+                = Thread.currentThread().getUncaughtExceptionHandler();
         try {
+            CountingUncaughtExceptionHandler cueh
+                    = new CountingUncaughtExceptionHandler();
             System.setErr(new LinkageErrorStream(new StackTraceElement[0]));
+            Thread.currentThread().setUncaughtExceptionHandler(cueh);
             boolean linkageErrorEscapes = false;
             try {
                 ErrorManager em = new ErrorManager();
@@ -2003,12 +2018,6 @@ public class MailHandlerTest extends AbstractLogging {
                 assertEquals(ErrorManager.class,
                         instance.getErrorManager().getClass());
                 instance.publish(new LogRecord(Level.SEVERE, ""));
-                /**
-                 * LinkageError escapes push and flush because only user created
-                 * code calls those methods. Therefore, user created code can
-                 * trap those errors. In all other cases we assume the worst and
-                 * just swallow the linkage error.
-                 */
                 if ("preDestroy".equals(method)) {
                     instance.preDestroy();
                 } else if ("publish".equals(method)) {
@@ -2019,21 +2028,9 @@ public class MailHandlerTest extends AbstractLogging {
                             = new CloseLogRecord(Level.SEVERE, "", instance);
                     instance.publish(r);
                 } else if ("flush".equals(method)) {
-                    boolean escapes = false;
-                    try {
-                        instance.flush();
-                    } catch (LinkageError expect) {
-                        escapes = true;
-                    }
-                    assertTrue(escapes);
+                    instance.flush();
                 } else if ("push".equals(method)) {
-                    boolean escapes = false;
-                    try {
-                        instance.push();
-                    } catch (LinkageError expect) {
-                        escapes = true;
-                    }
-                    assertTrue(escapes);
+                    instance.push();
                 } else if ("close".equals(method)) {
                     instance.close();
                 } else {
@@ -2044,8 +2041,10 @@ public class MailHandlerTest extends AbstractLogging {
                 instance.close();
             }
             assertTrue(ls.checkError());
+            assertEquals(1, cueh.count);
         } finally {
             System.setErr(err);
+            Thread.currentThread().setUncaughtExceptionHandler(ueh);
         }
     }
 
@@ -2246,9 +2245,8 @@ public class MailHandlerTest extends AbstractLogging {
 
                 for (Exception exception : em.exceptions) {
                     Throwable t = exception;
-                    System.err.println("Verify index=" + v);
                     dump(t);
-                    fail(t.toString());
+                    fail("Verify index=" + v);
                 }
 
                 manager.reset();
@@ -2261,14 +2259,12 @@ public class MailHandlerTest extends AbstractLogging {
                             continue;
                         }
                         if (!isConnectOrTimeout(t)) {
-                            System.err.println("Verify index=" + v);
                             dump(t);
-                            fail(t.toString());
+                            fail("Verify index=" + v);
                         }
                     } else {
-                        System.err.println("Verify index=" + v);
                         dump(t);
-                        fail(t.toString());
+                        fail("Verify index=" + v);
                     }
                 }
             }
@@ -3274,9 +3270,26 @@ public class MailHandlerTest extends AbstractLogging {
 
     @Test
     public void testAuthenticator_Char_Array_Arg() {
+        PasswordAuthentication pa;
         MailHandler instance = new MailHandler(createInitProperties(""));
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
+
+        //Null literal means actual password value here.
+        instance.setAuthenticator("null".toCharArray());
+        pa = passwordAuthentication(instance.getAuthenticator(), "user");
+        assertEquals("user", pa.getUserName());
+        assertEquals("null", pa.getPassword());
+
+        instance.setAuthenticator("Null".toCharArray());
+        pa = passwordAuthentication(instance.getAuthenticator(), "user");
+        assertEquals("user", pa.getUserName());
+        assertEquals("Null", pa.getPassword());
+
+        instance.setAuthenticator("NULL".toCharArray());
+        pa = passwordAuthentication(instance.getAuthenticator(), "user");
+        assertEquals("user", pa.getUserName());
+        assertEquals("NULL", pa.getPassword());
 
         try {
             instance.setAuthenticator((char[]) null);
@@ -3292,7 +3305,7 @@ public class MailHandlerTest extends AbstractLogging {
 
         try {
             instance.setAuthenticator("password".toCharArray());
-            PasswordAuthentication pa = passwordAuthentication(
+            pa = passwordAuthentication(
                     instance.getAuthenticator(), "user");
             assertEquals("user", pa.getUserName());
             assertEquals("password", pa.getPassword());
@@ -4460,13 +4473,7 @@ public class MailHandlerTest extends AbstractLogging {
         try {
             try {
                 instance.setErrorManager(new ErrorManager());
-                try {
-                    instance.reportError(null, null, ErrorManager.FLUSH_FAILURE);
-                    dump(new Throwable());
-                    fail("Expected runtime exception");
-                } catch (RuntimeException expect) {
-                } catch (LinkageError expect) {
-                }
+                instance.reportError(null, null, ErrorManager.FLUSH_FAILURE);
 
                 instance.setErrorManager(new ErrorManager());
                 instance.reportError(null, null, ErrorManager.CLOSE_FAILURE);
@@ -5797,6 +5804,65 @@ public class MailHandlerTest extends AbstractLogging {
                 assertTrue(em.exceptions.isEmpty());
             } finally {
                 target.close();
+            }
+        } finally {
+            manager.reset();
+        }
+    }
+
+    @Test
+    public void testInitAuthenticator() throws Exception {
+        //Liternal null and null reference mean no Authenticator
+        //when dealing with a properties file.
+        testInitAuthenticator("user", null);
+        testInitAuthenticator("user", "null");
+        testInitAuthenticator("user", "NULL");
+        testInitAuthenticator("user", "Null");
+        testInitAuthenticator("user", "");
+        testInitAuthenticator("user", "somepassword");
+    }
+
+    private void testInitAuthenticator(String user, String pass) throws Exception {
+        InternalErrorManager em;
+        MailHandler target;
+        final String p = MailHandler.class.getName();
+        final LogManager manager = LogManager.getLogManager();
+        final Properties props = createInitProperties(p);
+        props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
+        if (pass != null) {
+            props.put(p.concat(".authenticator"), pass);
+        }
+        props.put(p.concat(".mail.transport.protocol"), "smtp");
+
+        read(manager, props);
+        try {
+            target = new MailHandler();
+            try {
+                em = internalErrorManagerFrom(target);
+                for (Exception exception : em.exceptions) {
+                    dump(exception);
+                }
+                assertTrue(em.exceptions.isEmpty());
+            } finally {
+                target.close();
+            }
+
+            if (pass != null && !"null".equalsIgnoreCase(pass)) {
+                assertNotNull(target.getAuthenticator());
+                PasswordAuthentication initPa = passwordAuthentication(
+                        target.getAuthenticator(), user);
+                assertEquals(user, initPa.getUserName());
+                assertEquals(pass, initPa.getPassword());
+
+                target.setAuthenticator(pass.toCharArray());
+                PasswordAuthentication setPa = passwordAuthentication(
+                        target.getAuthenticator(), user);
+                assertEquals(setPa.getUserName(), initPa.getUserName());
+                assertEquals(setPa.getPassword(), initPa.getPassword());
+            } else {
+                assertNull(target.getAuthenticator());
+                target.setAuthenticator((char[]) null);
+                assertNull(target.getAuthenticator());
             }
         } finally {
             manager.reset();
@@ -7800,6 +7866,17 @@ public class MailHandlerTest extends AbstractLogging {
             Throwable t = new Throwable(getClass().getName(), getCause());
             t.setStackTrace(getStackTrace());
             t.printStackTrace();
+        }
+    }
+
+    private static class CountingUncaughtExceptionHandler
+                                implements Thread.UncaughtExceptionHandler {
+
+        int count;
+
+        @SuppressWarnings("override") //JDK-6954234
+        public void uncaughtException(Thread t, Throwable e) {
+            count++;
         }
     }
 

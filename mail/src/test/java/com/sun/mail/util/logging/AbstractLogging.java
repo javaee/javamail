@@ -133,6 +133,25 @@ abstract class AbstractLogging {
     }
 
     /**
+     * Sets the log record time using the seconds and nanoseconds of the epoch
+     * from 1970-01-01T00:00:00Z.
+     *
+     * @param record the log record.
+     * @param epochSecond the seconds.
+     * @param nanoAdjustment the nano seconds.
+     * @throws ClassNotFoundException if running on pre JDK 8.
+     * @throws NoSuchMethodException if running on JDK 8.
+     * @throws Exception if there is a problem.
+     */
+    static void setEpochSecond(final LogRecord record, final long epochSecond,
+            final long nanoAdjustment) throws Exception {
+        final Class<?> k = Class.forName("java.time.Instant");
+        Method instant = k.getMethod("ofEpochSecond", long.class, long.class);
+        Method set = LogRecord.class.getMethod("setInstant", k);
+        set.invoke(record, instant.invoke(null, epochSecond, nanoAdjustment));
+    }
+
+    /**
      * Determines if the {@code java.time} APIs are available for this JVM.
      *
      * @return true if the time classes can be loaded.
@@ -152,57 +171,74 @@ abstract class AbstractLogging {
 
     /**
      * Fails if any declared types are outside of the logging-mailhandler.jar.
+     * This includes classes from the JavaMail spec.
      *
      * @param k the type to check for dependencies.
      * @throws Exception if there is a problem.
      */
     final void testJavaMailLinkage(final Class<?> k) throws Exception {
-        assertFalse(k.getName(), isFromJavaMail(k));
+        testJavaMailLinkage(k, true);
+    }
+
+    /**
+     * Fails if any declared types are outside of the logging-mailhandler.jar.
+     *
+     * @param k the type to check for dependencies.
+     * @param includeSpec if true this includes official JavaMail spec classes.
+     * @throws Exception if there is a problem.
+     */
+    final void testJavaMailLinkage(final Class<?> k, final boolean includeSpec)
+            throws Exception {
+        assertFalse(k.getName(), isFromJavaMail(k, includeSpec));
         for (Annotation an : k.getDeclaredAnnotations()) {
-            assertFalse(an.toString(), isFromJavaMail(an.annotationType()));
+            assertFalse(an.toString(),
+                    isFromJavaMail(an.annotationType(), includeSpec));
         }
 
         for (Method m : k.getDeclaredMethods()) {
             assertFalse(m.getReturnType().getName(),
-                    isFromJavaMail(m.getReturnType()));
+                    isFromJavaMail(m.getReturnType(), includeSpec));
             for (Class<?> p : m.getParameterTypes()) {
-                assertFalse(p.getName(), isFromJavaMail(p));
+                assertFalse(p.getName(), isFromJavaMail(p, includeSpec));
             }
 
             for (Class<?> e : m.getExceptionTypes()) {
-                assertFalse(e.getName(), isFromJavaMail(e));
+                assertFalse(e.getName(), isFromJavaMail(e, includeSpec));
             }
 
             for (Annotation an : m.getDeclaredAnnotations()) {
-                assertFalse(an.toString(), isFromJavaMail(an.annotationType()));
+                assertFalse(an.toString(),
+                        isFromJavaMail(an.annotationType(), includeSpec));
             }
         }
 
         for (Constructor<?> c : k.getDeclaredConstructors()) {
             for (Class<?> p : c.getParameterTypes()) {
-                assertFalse(p.getName(), isFromJavaMail(p));
+                assertFalse(p.getName(), isFromJavaMail(p, includeSpec));
             }
 
             for (Class<?> e : c.getExceptionTypes()) {
-                assertFalse(e.getName(), isFromJavaMail(e));
+                assertFalse(e.getName(), isFromJavaMail(e, includeSpec));
             }
 
             for (Annotation an : c.getDeclaredAnnotations()) {
-                assertFalse(an.toString(), isFromJavaMail(an.annotationType()));
+                assertFalse(an.toString(),
+                        isFromJavaMail(an.annotationType(), includeSpec));
             }
         }
 
         for (Field f : k.getDeclaredFields()) {
             for (Annotation an : k.getDeclaredAnnotations()) {
-                assertFalse(an.toString(), isFromJavaMail(an.annotationType()));
+                assertFalse(an.toString(),
+                        isFromJavaMail(an.annotationType(), includeSpec));
             }
-            assertFalse(f.getName(), isFromJavaMail(f.getType()));
+            assertFalse(f.getName(), isFromJavaMail(f.getType(), includeSpec));
         }
     }
 
     /**
      * Tests that the private static loadDeclaredClasses method of the given
-     * type.  Objects used by the MailHandler during a push might require
+     * type. Objects used by the MailHandler during a push might require
      * declaring classes to be loaded on create since a push may happen after a
      * class loader is shutdown.
      *
@@ -309,11 +345,11 @@ abstract class AbstractLogging {
         throw new AssertionError(then + " " + System.currentTimeMillis());
     }
 
-    private boolean isFromJavaMail(Class<?> k) throws Exception {
+    private boolean isFromJavaMail(Class<?> k, boolean include) throws Exception {
         for (Class<?> t = k; t != null; t = t.getSuperclass()) {
             final String n = t.getName();
             if (n.startsWith("javax.mail.")) {
-                return true;
+                return include;
             }
 
             //Not included with logging-mailhandler.jar.

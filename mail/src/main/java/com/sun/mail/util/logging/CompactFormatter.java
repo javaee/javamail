@@ -117,8 +117,11 @@ public class CompactFormatter extends java.util.logging.Formatter {
      *     java.util.Formatter} format string specified in the
      * &lt;formatter-name&gt;.format property or the format that was given when
      * this formatter was created.</li>
-     * <li>{@code date} - a {@linkplain Date} object representing
-     * {@linkplain LogRecord#getMillis event time} of the log record.</li>
+     * <li>{@code date} - if the log record supports nanoseconds then a
+     *     ZonedDateTime object representing the event time of the log record in
+     *     the system time zone. Otherwise, a {@linkplain Date} object
+     *     representing {@linkplain LogRecord#getMillis event time} of the log
+     *     record.</li>
      * <li>{@code source} - a string representing the caller, if available;
      * otherwise, the logger's name.</li>
      * <li>{@code logger} - the logger's
@@ -230,7 +233,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
         String thrown = formatThrown(record);
         String err = formatError(record);
         Object[] params = {
-            new Date(record.getMillis()),
+            formatZonedDateTime(record),
             formatSource(record),
             formatLoggerName(record),
             formatLevel(record),
@@ -522,6 +525,22 @@ public class CompactFormatter extends java.util.logging.Formatter {
      */
     protected String toAlternate(final String s) {
         return s != null ? s.replaceAll("[\\x00-\\x1F\\x7F]+", "") : null;
+    }
+
+    /**
+     * Gets the zoned date time from the given log record.
+     *
+     * @param record the current log record.
+     * @return a zoned date time or a legacy date object.
+     * @throws NullPointerException if the given record is null.
+     * @since JavaMail 1.5.6
+     */
+    private Comparable<?> formatZonedDateTime(final LogRecord record) {
+        Comparable<?> zdt = LogManagerProperties.getZonedDateTime(record);
+        if (zdt == null) {
+           zdt = new java.util.Date(record.getMillis());
+        }
+        return zdt;
     }
 
     /**

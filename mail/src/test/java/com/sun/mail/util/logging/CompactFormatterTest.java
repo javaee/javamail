@@ -41,6 +41,7 @@
 package com.sun.mail.util.logging;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.SocketException;
 import java.util.*;
 import java.util.logging.Level;
@@ -473,6 +474,23 @@ public class CompactFormatterTest extends AbstractLogging {
         LogRecord r = new LogRecord(Level.SEVERE, "");
         assertEquals(String.format(p, r.getMillis()),
                 cf.format(r));
+    }
+
+    @Test
+    public void testFormatZoneDateTime() throws Exception {
+        LogRecord r = new LogRecord(Level.SEVERE, "");
+        Object zdt = LogManagerProperties.getZonedDateTime(r);
+        if (zdt != null) {
+            String p = "%1$tb %1$td, %1$tY %1$tl:%1$tM:%1$tS.%1$tN %1$Tp";
+            CompactFormatter cf = new CompactFormatter(p);
+            assertEquals(String.format(p, zdt), cf.format(r));
+        } else {
+            try {
+                Method m = LogRecord.class.getMethod("getInstant");
+                fail(m.toString());
+            } catch (final NoSuchMethodException expect) {
+            }
+        }
     }
 
     @Test(expected=NullPointerException.class)

@@ -1159,6 +1159,41 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         }
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetZonedDateTime() throws Exception {
+        LogRecord r1 = new LogRecord(Level.SEVERE, "");
+        LogRecord r2 = new LogRecord(Level.SEVERE, "");
+        try {
+            final Class<?> k = Class.forName("java.time.ZonedDateTime");
+            setEpochSecond(r1, 100, 1);
+            setEpochSecond(r2, 100, 1);
+            Comparable<Object> c1 = (Comparable<Object>)
+                LogManagerProperties.getZonedDateTime(r1);
+            Comparable<Object> c2 = (Comparable<Object>)
+                LogManagerProperties.getZonedDateTime(r2);
+
+            assertEquals(k, c1.getClass());
+            assertEquals(k, c2.getClass());
+            assertNotSame(c1, c2);
+            assertEquals(c1.getClass(), c2.getClass());
+            assertEquals(0, c1.compareTo(c2));
+        } catch (final NoSuchMethodException preJdk9) {
+            assertNull(LogManagerProperties.getZonedDateTime(r1));
+            assertNull(LogManagerProperties.getZonedDateTime(r2));
+            assertTrue(hasJavaTimeModule());
+        } catch (final ClassNotFoundException preJdk8) {
+            assertNull(LogManagerProperties.getZonedDateTime(r1));
+            assertNull(LogManagerProperties.getZonedDateTime(r2));
+            assertFalse(hasJavaTimeModule());
+        }
+    }
+
+    @Test(expected=NullPointerException.class)
+    public void testGetZonedDateTimeNull() throws Exception {
+        LogManagerProperties.getZonedDateTime((LogRecord) null);
+    }
+
     private static void setPending(final Throwable t) {
         if (t != null) {
             PENDING.set(t);

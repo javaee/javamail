@@ -380,7 +380,10 @@ public class MailHandler extends Handler {
     private static final PrivilegedAction<Object> MAILHANDLER_LOADER
             = new GetAndSetContext(MailHandler.class);
     /**
-     * A thread local mutex used to prevent logging loops.
+     * A thread local mutex used to prevent logging loops.  This code has to be
+     * prepared to deal with unexpected null values since the
+     * WebappClassLoader.clearReferencesThreadLocals() and
+     * InnocuousThread.eraseThreadLocals() can remove thread local values.
      * The MUTEX has 4 states:
      * 1. A null value meaning default state of not publishing.
      * 2. MUTEX_PUBLISH on first entry of a push or publish.
@@ -390,12 +393,19 @@ public class MailHandler extends Handler {
     private static final ThreadLocal<Integer> MUTEX = new ThreadLocal<Integer>();
     /**
      * The marker object used to report a publishing state.
+     * This must be less than the body filter index.
      */
     private static final Integer MUTEX_PUBLISH = -2;
     /**
      * The used for the error reporting state.
+     * This must be less than the PUBLISH state.
      */
     private static final Integer MUTEX_REPORT = -4;
+    /**
+     * The used for linkage error reporting.
+     * This must be less than the REPORT state.
+     */
+    private static final Integer MUTEX_LINKAGE = -8;
     /**
      * Used to turn off security checks.
      */
@@ -622,6 +632,8 @@ public class MailHandler extends Handler {
                     record.getSourceMethodName(); //Infer caller.
                     publish0(record);
                 }
+            } catch (final LinkageError JDK8152515) {
+                reportLinkageError(JDK8152515, ErrorManager.WRITE_FAILURE);
             } finally {
                 releaseMutex();
             }
@@ -675,7 +687,7 @@ public class MailHandler extends Handler {
      */
     private void reportUnPublishedError(LogRecord record) {
         final Integer idx = MUTEX.get();
-        if (!MUTEX_REPORT.equals(idx)) {
+        if (idx == null || idx > MUTEX_REPORT) {
             MUTEX.set(MUTEX_REPORT);
             try {
                 final String msg;
@@ -692,7 +704,11 @@ public class MailHandler extends Handler {
                         + Thread.currentThread());
                 reportError(msg, e, ErrorManager.WRITE_FAILURE);
             } finally {
-                MUTEX.set(idx);
+                if (idx != null) {
+                    MUTEX.set(idx);
+                } else {
+                    MUTEX.remove();
+                }
             }
         }
     }
@@ -732,8 +748,8 @@ public class MailHandler extends Handler {
      */
     private int getMatchedPart() {
         //assert Thread.holdsLock(this);
-        int idx = MUTEX.get();
-        if (idx >= readOnlyAttachmentFilters().length) {
+        Integer idx = MUTEX.get();
+        if (idx == null || idx >= readOnlyAttachmentFilters().length) {
            idx = MUTEX_PUBLISH;
         }
         return idx;
@@ -777,6 +793,7 @@ public class MailHandler extends Handler {
      *
      * @since JavaMail 1.5.3
      */
+    //@javax.annotation.PostConstruct
     public void postConstruct() {
     }
 
@@ -790,6 +807,7 @@ public class MailHandler extends Handler {
      *
      * @since JavaMail 1.5.3
      */
+    //@javax.annotation.PreDestroy
     public void preDestroy() {
         /**
          * Close can require permissions so just trigger a push.
@@ -833,33 +851,37 @@ public class MailHandler extends Handler {
      */
     @Override
     public void close() {
-        checkAccess(); //Ensure setLevel works before clearing the buffer.
-        Message msg = null;
-        synchronized (this) {
-            try {
-                msg = writeLogRecords(ErrorManager.CLOSE_FAILURE);
-            } finally {  //Change level after formatting.
-                this.logLevel = Level.OFF;
-                /**
-                 * The sign bit of the capacity is set to ensure that
-                 * records that have passed isLoggable, but have yet to be
-                 * added to the internal buffer, are immediately pushed as
-                 * an email.
-                 */
-                if (this.capacity > 0) {
-                    this.capacity = -this.capacity;
-                }
+        try {
+            checkAccess(); //Ensure setLevel works before clearing the buffer.
+            Message msg = null;
+            synchronized (this) {
+                try {
+                    msg = writeLogRecords(ErrorManager.CLOSE_FAILURE);
+                } finally {  //Change level after formatting.
+                    this.logLevel = Level.OFF;
+                    /**
+                     * The sign bit of the capacity is set to ensure that
+                     * records that have passed isLoggable, but have yet to be
+                     * added to the internal buffer, are immediately pushed as
+                     * an email.
+                     */
+                    if (this.capacity > 0) {
+                        this.capacity = -this.capacity;
+                    }
 
-                //Ensure not inside a push.
-                if (size == 0 && data.length != 1) {
-                    this.data = new LogRecord[1];
-                    this.matched = new int[this.data.length];
+                    //Ensure not inside a push.
+                    if (size == 0 && data.length != 1) {
+                        this.data = new LogRecord[1];
+                        this.matched = new int[this.data.length];
+                    }
                 }
             }
-        }
 
-        if (msg != null) {
-            send(msg, false, ErrorManager.CLOSE_FAILURE);
+            if (msg != null) {
+                send(msg, false, ErrorManager.CLOSE_FAILURE);
+            }
+        } catch (final LinkageError JDK8152515) {
+            reportLinkageError(JDK8152515, ErrorManager.CLOSE_FAILURE);
         }
     }
 
@@ -1667,64 +1689,35 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Re-throws the given error or runtime exception only if it wasn't thrown
-     * during a call to ErrorManager.error or generated by Handler.reportError.
-     * If there is no stack trace information available the given error or
-     * runtime exception will be thrown if the given code is a flush error.
+     * Reports the given linkage error or runtime exception.
      *
      * The current LogManager code will stop closing all remaining handlers if
-     * an error is thrown during resetLogger.  It is best to just swallow
-     * these linkage errors thrown from the default ErrorManager to ensure other
-     * handlers are closed.  This is a workaround for GLASSFISH-21258.  Custom
-     * error managers are responsible for catching or throwing errors from
-     * System.err implementations that are hostile.
+     * an error is thrown during resetLogger.  This is a workaround for
+     * GLASSFISH-21258 and JDK-8152515.
      * @param le the linkage error or a RuntimeException.
      * @param code the ErrorManager code.
      * @throws NullPointerException if error is null.
-     * @throws LinkageError if the given error should not be suppressed.
-     * @throws RuntimeException if the given exception should not be suppressed.
      * @since JavaMail 1.5.3
      */
-    private void reportLinkageError(Throwable le, int code) {
+    private void reportLinkageError(final Throwable le, final int code) {
         if (le == null) {
            throw new NullPointerException(String.valueOf(code));
         }
 
-        boolean reThrow = true;
-        final StackTraceElement[] stack = le.getStackTrace();
-        if (stack.length > 1) {
-            for (int i = 1; i < stack.length; ++i) {
-                final StackTraceElement s = stack[i];
-                if ("error".equals(s.getMethodName())
-                        && "java.util.logging.ErrorManager"
-                                .equals(s.getClassName())) {
-                        reThrow = false;
-                        break;
-                } else if ("reportError".equals(s.getMethodName())
-                        && "java.util.logging.Handler"
-                                .equals(s.getClassName())) {
-                    final StackTraceElement p = stack[i - 1];
-                    if ("println".equals(p.getMethodName()) ||
-                            "printStackTrace".equals(p.getMethodName())) {
-                        reThrow = false;
-                        break;
-                    }
+        final Integer idx = MUTEX.get();
+        if (idx == null || idx > MUTEX_LINKAGE) {
+            MUTEX.set(MUTEX_LINKAGE);
+            try {
+                Thread.currentThread().getUncaughtExceptionHandler()
+                        .uncaughtException(Thread.currentThread(), le);
+            } catch (final RuntimeException ignore) {
+            } catch (final LinkageError ignore) {
+            } finally {
+                if (idx != null) {
+                    MUTEX.set(idx);
+                } else {
+                    MUTEX.remove();
                 }
-            }
-        } else {
-            //Only user created code calls flush or push.
-            if (code != ErrorManager.FLUSH_FAILURE) {
-               reThrow = false;
-            }
-        }
-
-        if (reThrow) {
-            if (le instanceof Error) {
-                throw (Error) le;
-            } else if (le instanceof RuntimeException) {
-                throw (RuntimeException) le;
-            } else {
-                assert false : le; //Should not happen.
             }
         }
     }
@@ -2344,18 +2337,22 @@ public class MailHandler extends Handler {
     private void initAuthenticator(final String p) {
         assert Thread.holdsLock(this);
         String name = fromLogManager(p.concat(".authenticator"));
-        if (hasValue(name)) {
-            try {
-                this.auth = LogManagerProperties
-                        .newObjectFrom(name, Authenticator.class);
-            } catch (final SecurityException SE) {
-                throw SE;
-            } catch (final ClassNotFoundException literalAuth) {
+        if (name != null && !"null".equalsIgnoreCase(name)) {
+            if (name.length() != 0) {
+                try {
+                    this.auth = LogManagerProperties
+                            .newObjectFrom(name, Authenticator.class);
+                } catch (final SecurityException SE) {
+                    throw SE;
+                } catch (final ClassNotFoundException literalAuth) {
+                    this.auth = DefaultAuthenticator.of(name);
+                } catch (final ClassCastException literalAuth) {
+                    this.auth = DefaultAuthenticator.of(name);
+                } catch (final Exception E) {
+                    reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
+                }
+            } else { //Authenticator is installed to provide the user name.
                 this.auth = DefaultAuthenticator.of(name);
-            } catch (final ClassCastException literalAuth) {
-                this.auth = DefaultAuthenticator.of(name);
-            } catch (final Exception E) {
-                reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
             }
         }
     }
@@ -2691,6 +2688,8 @@ public class MailHandler extends Handler {
                 if (msg != null) {
                     send(msg, priority, code);
                 }
+            } catch (final LinkageError JDK8152515) {
+                reportLinkageError(JDK8152515, code);
             } finally {
                 releaseMutex();
             }
@@ -2937,20 +2936,24 @@ public class MailHandler extends Handler {
      * @since JavaMail 1.4.4
      */
     private void verifySettings(final Session session) {
-        if (session != null) {
-            final Properties props = session.getProperties();
-            final Object check = props.put("verify", "");
-            if (check instanceof String) {
-                String value = (String) check;
-                //Perform the verify if needed.
-                if (hasValue(value)) {
-                    verifySettings0(session, value);
-                }
-            } else {
-                if (check != null) { //This call will fail.
-                    verifySettings0(session, check.getClass().toString());
+        try {
+            if (session != null) {
+                final Properties props = session.getProperties();
+                final Object check = props.put("verify", "");
+                if (check instanceof String) {
+                    String value = (String) check;
+                    //Perform the verify if needed.
+                    if (hasValue(value)) {
+                        verifySettings0(session, value);
+                    }
+                } else {
+                    if (check != null) { //This call will fail.
+                        verifySettings0(session, check.getClass().toString());
+                    }
                 }
             }
+        } catch (final LinkageError JDK8152515) {
+            reportLinkageError(JDK8152515, ErrorManager.OPEN_FAILURE);
         }
     }
 
@@ -3084,20 +3087,36 @@ public class MailHandler extends Handler {
             } else {
                 //Force a property copy.
                 final String protocol = t.getURLName().getProtocol();
-                session.getProperty("mail.host");
-                session.getProperty("mail.user");
-                session.getProperty("mail." + protocol + ".host");
+                String mailHost = session.getProperty("mail."
+                        + protocol + ".host");
+                if (isEmpty(mailHost)) {
+                    mailHost = session.getProperty("mail.host");
+                } else {
+                    session.getProperty("mail.host");
+                }
                 session.getProperty("mail." + protocol + ".port");
                 session.getProperty("mail." + protocol + ".user");
+                session.getProperty("mail.user");
+                session.getProperty("mail." + protocol + ".localport");
                 local = session.getProperty("mail." + protocol + ".localhost");
                 if (isEmpty(local)) {
                     local = session.getProperty("mail."
                             + protocol + ".localaddress");
+                } else {
+                    session.getProperty("mail." + protocol + ".localaddress");
                 }
 
                 if ("resolve".equals(verify)) {
                     try { //Resolve the remote host name.
-                        verifyHost(t.getURLName().getHost());
+                        String transportHost = t.getURLName().getHost();
+                        if (!isEmpty(transportHost)) {
+                            verifyHost(transportHost);
+                            if (!transportHost.equalsIgnoreCase(mailHost)) {
+                                verifyHost(mailHost);
+                            }
+                        } else {
+                            verifyHost(mailHost);
+                        }
                     } catch (final IOException IOE) {
                         MessagingException ME =
                                 new MessagingException(msg, IOE);
