@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -3330,7 +3330,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @exception MessagingException	for errors
      * @since	JavaMail 1.5.2
      */
-    public long getStatusItem(String item) throws MessagingException {
+    public synchronized long getStatusItem(String item)
+				throws MessagingException {
 	if (!opened) {
 	    checkExists();
 
@@ -3571,6 +3572,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *     }
      * </pre></blockquote>
      *
+     * ASSERT: Must be called with this folder's synchronization lock held.
+     *
      * @return	the IMAPProtocol for the Store's connection
      * @exception	ProtocolException for protocol errors
      */
@@ -3771,18 +3774,16 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	return null;
     }
 
-    protected Object doProtocolCommand(ProtocolCommand cmd)
+    protected synchronized Object doProtocolCommand(ProtocolCommand cmd)
 				throws ProtocolException {
-	synchronized (this) {
-	    /*
-	     * Check whether we have a protocol object, not whether we're
-	     * opened, to allow use of the exsting protocol object in the
-	     * open method before the state is changed to "opened".
-	     */
-	    if (protocol != null) {
-		synchronized (messageCacheLock) {
-		    return cmd.doCommand(getProtocol());
-		}
+	/*
+	 * Check whether we have a protocol object, not whether we're
+	 * opened, to allow use of the exsting protocol object in the
+	 * open method before the state is changed to "opened".
+	 */
+	if (protocol != null) {
+	    synchronized (messageCacheLock) {
+		return cmd.doCommand(getProtocol());
 	    }
 	}
 
@@ -3801,6 +3802,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Release the store protocol object.  If we borrowed a protocol
      * object from the connection pool, give it back.  If we used our
      * own protocol object, nothing to do.
+     *
+     * ASSERT: Must be called with this folder's synchronization lock held.
      *
      * @param	p	the IMAPProtocol object
      */
