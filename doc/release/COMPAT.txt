@@ -24,6 +24,12 @@ with this release of the JavaMail API.
 	property "mail.mime.address.usecanonicalhostname" can be set to
 	"false" to revert to the previous behavior.
 
+- SMTPTransport.sasllogin no longer public
+
+	The SMTPTransport.sasllogin method should never have been
+	declared public.  It's used internally when SASL authentication
+	is requested; applications should not use the method directly.
+
 
 
 -- JavaMail 1.5.4 --

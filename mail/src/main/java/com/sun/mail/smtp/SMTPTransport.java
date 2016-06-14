@@ -1107,7 +1107,7 @@ public class SMTPTransport extends Transport {
      * @return		true for success
      * @exception	MessagingException for failures
      */
-    public boolean sasllogin(String[] allowed, String realm, String authzid,
+    private boolean sasllogin(String[] allowed, String realm, String authzid,
 				String u, String p) throws MessagingException {
 	String serviceHost;
 	if (useCanonicalHostName)
