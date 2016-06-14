@@ -29,6 +29,8 @@ K  7238	unsolicited FETCH response *must* invalidate X-GM-LABELS in cache
 K  7332	MimeBodyPart.isMimeType returns false if type header can't be parsed
 K  7356	NPE in Tomcat ClassLoader causes Session.getInstance to fail
 K  7378	Deadlock in IMAPFolder.doProtocolCommand()
+K  7471	InternetAddress.getLocalAddress should use
+	InetAddress.getCanonicalHostName
 
 
 		  CHANGES IN THE 1.5.5 RELEASE

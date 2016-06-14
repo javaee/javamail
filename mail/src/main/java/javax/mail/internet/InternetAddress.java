@@ -85,6 +85,10 @@ public class InternetAddress extends Address implements Cloneable {
 	PropUtil.getBooleanSystemProperty(
 			    "mail.mime.address.ignorebogusgroupname", true);
 
+    private static final boolean useCanonicalHostName =
+	PropUtil.getBooleanSystemProperty(
+			    "mail.mime.address.usecanonicalhostname", true);
+
     /**
      * Default constructor.
      */
@@ -567,7 +571,14 @@ public class InternetAddress extends Address implements Cloneable {
 	String host = null;
 	InetAddress me = InetAddress.getLocalHost();
 	if (me != null) {
-	    host = me.getHostName();
+	    // try canonical host name first
+	    if (useCanonicalHostName)
+		host = me.getCanonicalHostName();
+	    if (host == null)
+		host = me.getHostName();
+	    // if we can't get our name, use local address literal
+	    if (host == null)
+		host = me.getHostAddress();
 	    if (host != null && host.length() > 0 && isInetAddressLiteral(host))
 		host = '[' + host + ']';
 	}

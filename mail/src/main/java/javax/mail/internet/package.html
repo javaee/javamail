@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -539,6 +539,25 @@ Note that the Content-Type handler doesn't affect the
 Note also that the handler doesn't affect the IMAP provider; the IMAP
 server is responsible for returning pre-parsed, syntactically correct
 Content-Type information.
+</TD>
+</TR>
+
+<A NAME="mail.mime.address.usecanonicalhostname"></A>
+<TR id="mail.mime.address.usecanonicalhostname">
+<TD>mail.mime.address.usecanonicalhostname</TD>
+<TD>boolean</TD>
+<TD>
+Use the
+{@link java.net.InetAddress#getCanonicalHostName InetAddress.getCanonicalHostName}
+method to determine the host name in the
+{@link javax.mail.internet.InternetAddress#getLocalAddress InternetAddress.getLocalAddress}
+method.
+With some network configurations, InetAddress.getCanonicalHostName may be
+slow or may return an address instead of a host name.
+In that case, setting this System property to false will cause the
+{@link java.net.InetAddress#getHostName InetAddress.getHostName}
+method to be used instead.
+The default is true.
 </TD>
 </TR>
 

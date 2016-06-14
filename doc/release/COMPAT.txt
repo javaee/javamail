@@ -14,6 +14,18 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.5.6 --
+
+- InternetAddress.getLocalAddress uses canonical host name
+
+	The InternetAddress.getLocalAddress method now uses the
+	java.net.InetAddress.getCanonicalHostName method if neither the
+	"mail.from" nor "mail.host" properties have been set.  The System
+	property "mail.mime.address.usecanonicalhostname" can be set to
+	"false" to revert to the previous behavior.
+
+
+
 -- JavaMail 1.5.4 --
 
 - Idlemanager.watch no longer throws IOException
