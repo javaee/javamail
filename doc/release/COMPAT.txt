@@ -16,6 +16,20 @@ with this release of the JavaMail API.
 
 -- JavaMail 1.5.6 --
 
+- finalizers close sockets abruptly
+
+	It's important for finalizers to close an open socket
+	connection to prevent file descriptor leaks.  Previously the
+	finalizers for the IMAP and POP3 providers would try to close
+	the connection cleanly, which could result in a timeout waiting
+	for the server.  They now close the connection without
+	performing any socket I/O, which may result in an unclean
+	shutdown when seen from the server.  Applications should always
+	close Stores and Folders when done with them to avoid the need
+	for the finalizer to do this cleanup.  The Session property
+	"mail.<protocol>.finalizecleanclose" can be set to "true" to
+	force the connection to be closed cleanly in the finalizer.
+
 - InternetAddress.getLocalAddress uses canonical host name
 
 	The InternetAddress.getLocalAddress method now uses the

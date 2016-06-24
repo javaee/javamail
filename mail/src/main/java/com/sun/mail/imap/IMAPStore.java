@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -225,6 +225,7 @@ public class IMAPStore extends Store
     private boolean peek = false;
     private boolean closeFoldersOnStoreFailure = true;
     private boolean enableCompress = false;	// enable COMPRESS=DEFLATE
+    private boolean finalizeCleanClose = false;
 
     /*
      * This field is set in the Store's response handler if we see
@@ -597,6 +598,12 @@ public class IMAPStore extends Store
 	    "mail." + name + ".compress.enable", false);
 	if (enableCompress)
 	    logger.config("enable COMPRESS");
+
+	// check if finalizeCleanClose is enabled
+	finalizeCleanClose = PropUtil.getBooleanSessionProperty(session,
+	    "mail." + name + ".finalizecleanclose", false);
+	if (finalizeCleanClose)
+	    logger.config("close connection cleanly in finalize");
 
 	s = session.getProperty("mail." + name + ".folder.class");
 	if (s != null) {
@@ -1662,6 +1669,14 @@ public class IMAPStore extends Store
     }
 
     protected void finalize() throws Throwable {
+	if (!finalizeCleanClose) {
+	    // when finalizing, close connections abruptly
+	    synchronized (connectionFailedLock) {
+		connectionFailed = true;
+		forceClose = true;
+	    }
+	    closeFoldersOnStoreFailure = true;	// make sure folders get closed
+	}
 	try {
 	    close();
 	} finally {

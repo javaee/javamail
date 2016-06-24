@@ -346,15 +346,24 @@ class Protocol {
 	    Response r = simpleCommand("QUIT");
 	    ok = r.ok;
 	} finally {
-	    try {
-		socket.close();
-	    } finally {
-		socket = null;
-		input = null;
-		output = null;
-	    }
+	    close();
 	}
 	return ok;
+    }
+
+    /**
+     * Close the connection without sending any commands.
+     */
+    void close() {
+	try {
+	    socket.close();
+	} catch (IOException ex) {
+	    // ignore it
+	} finally {
+	    socket = null;
+	    input = null;
+	    output = null;
+	}
     }
 
     /**

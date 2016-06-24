@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -603,6 +603,20 @@ is closed or the cached content is explicitly invalidated (using the
 {@link com.sun.mail.pop3.POP3Message#invalidate invalidate} method).
 (This was the behavior in previous versions of JavaMail.)
 Defaults to false.
+</TD>
+</TR>
+
+<A NAME="mail.pop3.finalizecleanclose"></A>
+<TR id="mail.pop3.finalizecleanclose">
+<TD>mail.pop3.finalizecleanclose</TD>
+<TD>boolean</TD>
+<TD>
+When the finalizer for POP3Store or POP3Folder is called,
+should the connection to the server be closed cleanly, as if the
+application called the close method?
+Or should the connection to the server be closed without sending
+any commands to the server?
+Defaults to false, the connection is not closed cleanly.
 </TD>
 </TR>
 

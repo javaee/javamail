@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -75,6 +75,7 @@ public class POP3Folder extends Folder {
     private POP3Message[] message_cache;
     private boolean doneUidl = false;
     private volatile TempFile fileCache = null;
+    private boolean forceClose;
 
     MailLogger logger;	// package private, for POP3Message
 
@@ -250,10 +251,10 @@ public class POP3Folder extends Folder {
 	     * the "marked for deletion" flags.  We can then explicitly
 	     * delete messages as desired.
 	     */
-	    if (store.rsetBeforeQuit)
+	    if (store.rsetBeforeQuit && !forceClose)
 		port.rset();
 	    POP3Message m;
-	    if (expunge && mode == READ_WRITE) {
+	    if (expunge && mode == READ_WRITE && !forceClose) {
 		// find all messages marked deleted and issue DELE commands
 		for (int i = 0; i < message_cache.length; i++) {
 		    if ((m = message_cache[i]) != null) {
@@ -277,7 +278,10 @@ public class POP3Folder extends Folder {
 		    m.invalidate(true);
 	    }
 
-	    port.quit();
+	    if (forceClose)
+		port.close();
+	    else
+		port.quit();
 	} catch (IOException ex) {
 	    // do nothing
 	} finally {
@@ -545,11 +549,13 @@ public class POP3Folder extends Folder {
      * Close the folder when we're finalized.
      */
     protected void finalize() throws Throwable {
+	forceClose = !store.finalizeCleanClose;
 	try {
 	    if (opened)
 		close(false);
 	} finally {
 	    super.finalize();
+	    forceClose = false;
 	}
     }
 

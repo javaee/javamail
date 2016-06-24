@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -864,6 +864,20 @@ If this property is true (the default), failures in the Store connection cause
 all associated Folders to be closed.
 Set this property to false to better handle transient failures in the Store
 connection.
+</TD>
+</TR>
+
+<A NAME="mail.imap.finalizecleanclose"></A>
+<TR id="mail.imap.finalizecleanclose">
+<TD>mail.imap.finalizecleanclose</TD>
+<TD>boolean</TD>
+<TD>
+When the finalizer for IMAPStore is called,
+should the connection to the server be closed cleanly, as if the
+application called the close method?
+Or should the connection to the server be closed without sending
+any commands to the server?
+Defaults to false, the connection is not closed cleanly.
 </TD>
 </TR>
 
