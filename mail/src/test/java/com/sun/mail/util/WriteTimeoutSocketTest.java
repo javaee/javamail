@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,11 +40,15 @@
 
 package com.sun.mail.util;
 
+import java.lang.reflect.*;
+
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.mail.*;
 import javax.mail.internet.MimeMessage;
@@ -140,6 +144,40 @@ public final class WriteTimeoutSocketTest {
 	test(properties, true);
 	// make sure our socket factory was actually used
 	assertTrue(sf.getSocketWrapped() || sf.getSocketCreated());
+    }
+
+    /**
+     * Test that WriteTimeoutSocket overrides all methods from Socket.
+     * XXX - this is kind of hacky since it depends on Method.toString
+     */
+    @Test
+    public void testOverrides() throws Exception {
+	Set<String> socketMethods = new HashSet<String>();
+	Method[] m = java.net.Socket.class.getDeclaredMethods();
+	String className = java.net.Socket.class.getName() + ".";
+	for (int i = 0; i < m.length; i++) {
+	    if (Modifier.isPublic(m[i].getModifiers()) &&
+		!Modifier.isStatic(m[i].getModifiers())) {
+		String name = m[i].toString().
+				    replace("synchronized ", "").
+				    replace(className, "");
+		socketMethods.add(name);
+	    }
+	}
+	Set<String> wtsocketMethods = new HashSet<String>();
+	m = WriteTimeoutSocket.class.getDeclaredMethods();
+	className = WriteTimeoutSocket.class.getName() + ".";
+	for (int i = 0; i < m.length; i++) {
+	    if (Modifier.isPublic(m[i].getModifiers())) {
+		String name = m[i].toString().
+				    replace("synchronized ", "").
+				    replace(className, "");
+		socketMethods.remove(name);
+	    }
+	}
+	for (String s : socketMethods)
+	    System.out.println("WriteTimeoutSocket did not override: " + s);
+	assertTrue(socketMethods.isEmpty());
     }
 
     private static String[] getAnonCipherSuitesArray() {

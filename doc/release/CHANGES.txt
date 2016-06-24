@@ -33,6 +33,7 @@ K  7471	InternetAddress.getLocalAddress should use
 	InetAddress.getCanonicalHostName
 K  7472	Store finalizers should not talk to server
 K  7512	NullPointerException if SASL is enabled on Android
+K  7513	write timeouts don't work with SSL on Android
 
 
 		  CHANGES IN THE 1.5.5 RELEASE
