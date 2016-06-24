@@ -32,6 +32,7 @@ K  7378	Deadlock in IMAPFolder.doProtocolCommand()
 K  7471	InternetAddress.getLocalAddress should use
 	InetAddress.getCanonicalHostName
 K  7472	Store finalizers should not talk to server
+K  7512	NullPointerException if SASL is enabled on Android
 
 
 		  CHANGES IN THE 1.5.5 RELEASE
