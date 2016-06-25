@@ -652,7 +652,7 @@ public class SMTPTransport extends Transport {
      * @param	host		  the name of the host to connect to
      * @param	port		  the port to use (-1 means use default port)
      * @param	user		  the name of the user to login as
-     * @param	passwd	  	  the user's password
+     * @param	password	  the user's password
      * @return	true if connection successful, false if authentication failed
      * @exception MessagingException	for non-authentication failures
      */
