@@ -49,7 +49,7 @@ import javax.mail.internet.InternetAddress;
 /**
  * Demo for the different configurations for the MailHandler. If the logging
  * properties file or class is not specified then this demo will apply some
- * default settings to store emails in the users temp dir.
+ * default settings to store emails in the user's temp directory.
  *
  * @author Jason Mehrens
  */
@@ -440,9 +440,8 @@ public class MailHandlerDemo {
      * com.sun.mail.util.logging.MailHandler.level=ALL
      * java.util.logging.MemoryHandler.level=ALL
      * java.util.logging.MemoryHandler.push=WARNING
-     * com.sun.mail.util.logging.MailHandler.subject=Push on MessagingException demo
-     * com.sun.mail.util.logging.MailHandler.pushLevel=ALL
-     * com.sun.mail.util.logging.MailHandler.pushFilter=MailHandlerDemo$MessageErrorsFilter
+     * com.sun.mail.util.logging.MailHandler.subject=Push only demo
+     * com.sun.mail.util.logging.MailHandler.pushLevel=WARNING
      * ##
      * </code>
      */
@@ -657,5 +656,13 @@ public class MailHandlerDemo {
             return System.getProperty("java.util.logging.config.class");
         }
         return file;
+    }
+
+    /**
+     * No objects are allowed.
+     * @throws IllegalAccessException always.
+     */
+    private MailHandlerDemo() throws IllegalAccessException {
+        throw new IllegalAccessException();
     }
 }

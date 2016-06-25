@@ -2482,6 +2482,53 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testContentTypeOfFormatter() {
+        MailHandler instance = new MailHandler(createInitProperties(""));
+        InternalErrorManager em = new InternalErrorManager();
+        instance.setErrorManager(em);
+
+        assertEquals("text/plain", instance.contentTypeOf(new SimpleFormatter()));
+        assertEquals("text/plain", instance.contentTypeOf(new SimpleFormatter(){}));
+
+        assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter()));
+        assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter(){}));
+
+        /**
+         * None of the Formatter methods that can generate content should be
+         * invoked during a verify as that could lead to poor startup times.
+         */
+        class UnsupportedHTML extends Formatter {
+
+            @Override
+            public String getHead(Handler h) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String format(LogRecord record) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String getTail(Handler h) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public String toString() {
+                throw new UnsupportedOperationException();
+            }
+        }
+        assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML()));
+        assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML(){}));
+
+        instance.close();
+        for (Exception exception : em.exceptions) {
+            fail(exception.toString());
+        }
+    }
+
+    @Test
     public void testGuessContentTypeReadlimit() throws Exception {
         class LastMarkInputStream extends ByteArrayInputStream {
 
@@ -5627,7 +5674,7 @@ public class MailHandlerTest extends AbstractLogging {
             Properties props = createInitProperties(p);
             props.put(p.concat(".subject"), p.concat(" test"));
             props.put(p.concat(".errorManager"), InternalErrorManager.class.getName());
-
+            props.put(p.concat(".formatter"), XMLFormatter.class.getName());
             read(manager, props);
 
             props = createInitProperties("");
@@ -5656,7 +5703,7 @@ public class MailHandlerTest extends AbstractLogging {
             props.put("subject", "test");
             props.put("mail.from", "badAddress");
             props.put("verify", "local");
-
+            
             instance = new MailHandler(props);
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);

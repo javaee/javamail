@@ -384,16 +384,17 @@ public class MailHandler extends Handler {
      * prepared to deal with unexpected null values since the
      * WebappClassLoader.clearReferencesThreadLocals() and
      * InnocuousThread.eraseThreadLocals() can remove thread local values.
-     * The MUTEX has 4 states:
+     * The MUTEX has 5 states:
      * 1. A null value meaning default state of not publishing.
      * 2. MUTEX_PUBLISH on first entry of a push or publish.
      * 3. The index of the first filter to accept a log record.
      * 4. MUTEX_REPORT when cycle of records is detected.
+     * 5. MUTEXT_LINKAGE when a linkage error is reported.
      */
     private static final ThreadLocal<Integer> MUTEX = new ThreadLocal<Integer>();
     /**
      * The marker object used to report a publishing state.
-     * This must be less than the body filter index.
+     * This must be less than the body filter index (-1).
      */
     private static final Integer MUTEX_PUBLISH = -2;
     /**
@@ -1632,6 +1633,39 @@ public class MailHandler extends Handler {
         return null; //text/plain
     }
 
+    /**
+     * Determines the mimeType of a formatter by the class name.  This method
+     * avoids calling getHead and getTail of content formatters during verify
+     * because they might trigger side effects or excessive work.  The name
+     * formatters and subject are usually safe to call.
+     * Package-private for unit testing.
+     *
+     * @param f the formatter or null.
+     * @return return the mime type or text/plain.
+     * @since JavaMail 1.5.6
+     */
+    final String contentTypeOf(final Formatter f) {
+        if (f != null) {
+            for (Class<?> k = f.getClass(); k != Formatter.class;
+                    k = k.getSuperclass()) {
+                String name = k.getName().toLowerCase(Locale.ENGLISH);
+                for (int idx = name.indexOf('$') + 1;
+                        (idx = name.indexOf("ml", idx)) > -1; idx += 2) {
+                    if (idx > 0) {
+                       if (name.charAt(idx - 1) == 'x')  {
+                           return "application/xml";
+                       }
+                       if (idx > 1 && name.charAt(idx - 2) == 'h'
+                               && name.charAt(idx - 1) == 't') {
+                           return "text/html";
+                       }
+                    }
+                }
+            }
+        }
+        return "text/plain";
+    }
+
    /**
      * Determines if the given throwable is a no content exception.  It is
      * assumed Transport.sendMessage will call Message.writeTo so we need to
@@ -1677,12 +1711,14 @@ public class MailHandler extends Handler {
      */
     @SuppressWarnings("UseSpecificCatch")
     private void reportError(Message msg, Exception ex, int code) {
-        try { //Use direct call so we do not prefix raw email.
-            errorManager.error(toRawString(msg), ex, code);
-        } catch (final RuntimeException re) {
-            reportError(toMsgString(re), ex, code);
-        } catch (final Exception e) {
-            reportError(toMsgString(e), ex, code);
+        try {
+            try { //Use direct call so we do not prefix raw email.
+                errorManager.error(toRawString(msg), ex, code);
+            } catch (final RuntimeException re) {
+                reportError(toMsgString(re), ex, code);
+            } catch (final Exception e) {
+                reportError(toMsgString(e), ex, code);
+            }
         } catch (final LinkageError GLASSFISH_21258) {
             reportLinkageError(GLASSFISH_21258, code);
         }
@@ -1798,7 +1834,7 @@ public class MailHandler extends Handler {
      * Sets the capacity for this handler.  This method is kept private
      * because we would have to define a public policy for when the size is
      * greater than the capacity.
-     * I.E. do nothing, flush now, truncate now, push now and resize.
+     * E.G. do nothing, flush now, truncate now, push now and resize.
      * @param newCapacity the max number of records.
      * @throws SecurityException  if a security manager exists and the
      * caller does not have <tt>LoggingPermission("control")</tt>.
@@ -2998,9 +3034,19 @@ public class MailHandler extends Handler {
         }
 
         //Perform all of the copy actions first.
+        String[] atn;
         synchronized (this) { //Create the subject.
             appendSubject(abort, head(subjectFormatter));
             appendSubject(abort, tail(subjectFormatter, ""));
+            atn = new String[attachmentNames.length];
+            for (int i = 0; i < atn.length; ++i) {
+                atn[i] = head(attachmentNames[i]);
+                if (atn[i].length() == 0) {
+                    atn[i] = tail(attachmentNames[i], "");
+                } else {
+                    atn[i] = atn[i].concat(tail(attachmentNames[i], ""));
+                }
+            }
         }
 
         setIncompleteCopy(abort); //Original body part is never added.
@@ -3151,13 +3197,29 @@ public class MailHandler extends Handler {
                 try { //Verify that the DataHandler can be loaded.
                     Object ccl = getAndSetContextClassLoader(MAILHANDLER_LOADER);
                     try {
-                        final MimeMultipart multipart = new MimeMultipart();
-                        final MimeBodyPart body = new MimeBodyPart();
-                        body.setDisposition(Part.INLINE);
+                        MimeMultipart multipart = new MimeMultipart();
+                        MimeBodyPart[] ambp = new MimeBodyPart[atn.length];
+                        final MimeBodyPart body;
+                        final String bodyContentType;
+                        synchronized (this) {
+                            bodyContentType = contentTypeOf(getFormatter());
+                            body = createBodyPart();
+                            for (int i = 0; i < atn.length; ++i) {
+                                ambp[i] = createBodyPart(i);
+                                ambp[i].setFileName(atn[i]);
+                                //Convert names to mime type.
+                                atn[i] = getContentType(atn[i]);
+                            }
+                        }
+
                         body.setDescription(verify);
-                        setAcceptLang(body);
-                        setContent(body, "", "text/plain");
+                        setContent(body, "", bodyContentType);
                         multipart.addBodyPart(body);
+                        for (int i = 0; i < ambp.length; ++i) {
+                            ambp[i].setDescription(verify);
+                            setContent(ambp[i], "", atn[i]);
+                        }
+
                         abort.setContent(multipart);
                         abort.saveChanges();
                         abort.writeTo(new ByteArrayOutputStream(MIN_HEADER_SIZE));
@@ -3220,6 +3282,8 @@ public class MailHandler extends Handler {
      * @param host the host or null.
      * @return the address.
      * @throws IOException if the host name is not valid.
+     * @throws SecurityException if security manager is present and doesn't
+     * allow access to check connect permission.
      * @since JavaMail 1.5.0
      */
     private static InetAddress verifyHost(String host) throws IOException {
