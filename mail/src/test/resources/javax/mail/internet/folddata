@@ -1,7 +1,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -39,7 +39,7 @@
 #
 
 #
-# Test data used by foldtest.java to test the MimeUtility.fold
+# Test data used by FoldTest.java to test the MimeUtility.fold
 # and MimeUtility.unfold methods.
 #
 # First, tests that ensure simple strings aren't changed.
@@ -265,3 +265,53 @@ a
 	b$
 EXPECT
 a b$
+#
+# Fold with embedded newlines
+#
+FOLD
+a
+b$
+EXPECT
+a
+ b$
+FOLD
+a
+
+b$
+EXPECT
+a
+ b$
+FOLD
+ab$
+EXPECT
+a
+ b$
+FOLD
+ab$
+EXPECT
+a
+ b$
+FOLD
+a
+b$
+EXPECT
+a
+ b$
+FOLD
+a
+b$
+EXPECT
+a
+ b$
+FOLD
+a
+ b$
+EXPECT
+a
+ b$
+FOLD
+a
+ b$
+EXPECT
+a
+ b$

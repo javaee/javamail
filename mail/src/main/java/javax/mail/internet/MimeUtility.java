@@ -1070,10 +1070,10 @@ public class MimeUtility {
 
 	// if the string fits now, just return it
 	if (used + s.length() <= 76)
-	    return s;
+	    return makesafe(s);
 
 	// have to actually fold the string
-	StringBuffer sb = new StringBuffer(s.length() + 4);
+	StringBuilder sb = new StringBuilder(s.length() + 4);
 	char lastc = 0;
 	while (used + s.length() > 76) {
 	    int lastspace = -1;
@@ -1101,6 +1101,46 @@ public class MimeUtility {
 	    used = 1;
 	}
 	sb.append(s);
+	return makesafe(sb);
+    }
+
+    /**
+     * If the String or StringBuilder has any embedded newlines,
+     * make sure they're followed by whitespace, to prevent header
+     * injection errors.
+     */
+    private static String makesafe(CharSequence s) {
+	int i;
+	for (i = 0; i < s.length(); i++) {
+	    char c = s.charAt(i);
+	    if (c == '\r' || c == '\n')
+		break;
+	}
+	if (i == s.length())	// went through whole string with no CR or LF
+	    return s.toString();
+
+	// read the lines in the string and reassemble them,
+	// eliminating blank lines and inserting whitespace as necessary
+	StringBuilder sb = new StringBuilder(s.length() + 1);
+	BufferedReader r = new BufferedReader(new StringReader(s.toString()));
+	String line;
+	try {
+	    while ((line = r.readLine()) != null) {
+		if (line.trim().length() == 0)
+		    continue;	// ignore empty lines
+		if (sb.length() > 0) {
+		    sb.append("\r\n");
+		    assert line.length() > 0; // proven above
+		    char c = line.charAt(0);
+		    if (c != ' ' && c != '\t')
+			sb.append(' ');
+		}
+		sb.append(line);
+	    }
+	} catch (IOException ex) {
+	    // XXX - should never happen when reading from a string
+	    return s.toString();
+	}
 	return sb.toString();
     }
 

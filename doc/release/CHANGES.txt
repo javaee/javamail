@@ -35,6 +35,7 @@ K  7472	Store finalizers should not talk to server
 K  7506	MailHandler verify should load additional content handlers
 K  7512	NullPointerException if SASL is enabled on Android
 K  7513	write timeouts don't work with SSL on Android
+K  7529	JavaMail allows injection of unwanted headers
 
 
 		  CHANGES IN THE 1.5.5 RELEASE

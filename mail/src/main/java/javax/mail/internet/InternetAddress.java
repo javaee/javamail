@@ -459,7 +459,7 @@ public class InternetAddress extends Address implements Cloneable {
 	if (addresses == null || addresses.length == 0)
 	    return null;
 
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 
 	for (int i = 0; i < addresses.length; i++) {
 	    if (i != 0) { // need to append comma
@@ -467,9 +467,14 @@ public class InternetAddress extends Address implements Cloneable {
 		used += 2;
 	    }
 
-	    String s = addresses[i].toString();
+	    // prefer not to split a single address across lines so used=0 below
+	    String s = MimeUtility.fold(0, addresses[i].toString());
 	    int len = lengthOfFirstSegment(s); // length till CRLF
 	    if (used + len > 76) { // overflows ...
+		// smash trailing space from ", " above
+		int curlen = sb.length();
+		if (curlen > 0 && sb.charAt(curlen - 1) == ' ')
+		    sb.setLength(curlen - 1);
 		sb.append("\r\n\t"); // .. start new continuation line
 		used = 8; // account for the starting <tab> char
 	    }
@@ -480,7 +485,8 @@ public class InternetAddress extends Address implements Cloneable {
 	return sb.toString();
     }
 
-    /* Return the length of the first segment within this string.
+    /*
+     * Return the length of the first segment within this string.
      * If no segments exist, the length of the whole line is returned.
      */
     private static int lengthOfFirstSegment(String s) {
