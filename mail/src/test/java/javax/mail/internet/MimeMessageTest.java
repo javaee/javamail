@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -78,6 +78,20 @@ public class MimeMessageTest {
 	m.setRecipients(TO, addr);
 	assertEquals("To: is set", addr, m.getRecipients(TO)[0].toString());
 	m.setRecipients(TO, (String)null);
+	assertArrayEquals("To: is removed", null, m.getRecipients(TO));
+    }
+
+    /**
+     * Test that setRecipient with a null string address removes the header.
+     * (Bug 7536)
+     */
+    @Test
+    public void testSetRecipientStringNull() throws Exception {
+	String addr = "joe@example.com";
+	MimeMessage m = new MimeMessage(s);
+	m.setRecipient(TO, new InternetAddress(addr));
+	assertEquals("To: is set", addr, m.getRecipients(TO)[0].toString());
+	m.setRecipient(TO, (Address)null);
 	assertArrayEquals("To: is removed", null, m.getRecipients(TO));
     }
 

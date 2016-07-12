@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -374,9 +374,13 @@ public abstract class Message implements Part {
      */
     public void setRecipient(RecipientType type, Address address)
                                 throws MessagingException {
-	Address[] a = new Address[1];
-	a[0] = address;
-	setRecipients(type, a);
+	if (address == null)
+	    setRecipients(type, null);
+	else {
+	    Address[] a = new Address[1];
+	    a[0] = address;
+	    setRecipients(type, a);
+	}
     }
 
     /**
