@@ -50,6 +50,7 @@ import javax.activation.DataHandler;
 
 import javax.mail.*;
 import static javax.mail.Message.RecipientType.*;
+import static javax.mail.internet.MimeMessage.RecipientType.*;
 
 import org.junit.*;
 import static org.junit.Assert.assertArrayEquals;
@@ -93,6 +94,72 @@ public class MimeMessageTest {
 	assertEquals("To: is set", addr, m.getRecipients(TO)[0].toString());
 	m.setRecipient(TO, (Address)null);
 	assertArrayEquals("To: is removed", null, m.getRecipients(TO));
+    }
+
+    /**
+     * Test that setFrom with an address containing a newline is folded
+     * properly.
+     * (Bug 7529)
+     */
+    @Test
+    public void testSetFromFold() throws Exception {
+	InternetAddress addr = new InternetAddress("joe@bad.com", "Joe\r\nBad");
+	MimeMessage m = new MimeMessage(s);
+	m.setFrom(addr);
+	assertEquals("Joe\r\n Bad <joe@bad.com>", m.getHeader("From", null));
+    }
+
+    /**
+     * Test that setSender with an address containing a newline is folded
+     * properly.
+     * (Bug 7529)
+     */
+    @Test
+    public void testSetSenderFold() throws Exception {
+	InternetAddress addr = new InternetAddress("joe@bad.com", "Joe\r\nBad");
+	MimeMessage m = new MimeMessage(s);
+	m.setSender(addr);
+	assertEquals("Joe\r\n Bad <joe@bad.com>", m.getHeader("Sender", null));
+    }
+
+    /**
+     * Test that setRecipient with a newsgroup address containing a newline is
+     * handled properly.
+     * (Bug 7529)
+     */
+    @Test
+    public void testSetNewsgroupWhitespace() throws Exception {
+	NewsAddress addr = new NewsAddress("alt.\r\nbad");
+	MimeMessage m = new MimeMessage(s);
+	m.setRecipient(NEWSGROUPS, addr);
+	assertEquals("alt.bad", m.getHeader("Newsgroups", null));
+    }
+
+    /**
+     * Test that setRecipients with many newsgroup addresses is folded properly.
+     * (Bug 7529)
+     */
+    @Test
+    public void testSetNewsgroupFold() throws Exception {
+	NewsAddress[] longng = NewsAddress.parse(
+	    "alt.loooooooooooooooooooooooooooooooooooooooooooooooooong," +
+	    "alt.verylongggggggggggggggggggggggggggggggggggggggggggggg");
+	MimeMessage m = new MimeMessage(s);
+	m.setRecipients(NEWSGROUPS, longng);
+	assertTrue(m.getHeader("Newsgroups", null).indexOf("\r\n\t") > 0);
+    }
+
+    /**
+     * Test that newsgroups can be set and read back (even if folded).
+     */
+    @Test
+    public void testSetGetNewsgroups() throws Exception {
+	NewsAddress[] longng = NewsAddress.parse(
+	    "alt.loooooooooooooooooooooooooooooooooooooooooooooooooong," +
+	    "alt.verylongggggggggggggggggggggggggggggggggggggggggggggg");
+	MimeMessage m = new MimeMessage(s);
+	m.setRecipients(NEWSGROUPS, longng);
+	assertArrayEquals(longng, m.getRecipients(NEWSGROUPS));
     }
 
     /**

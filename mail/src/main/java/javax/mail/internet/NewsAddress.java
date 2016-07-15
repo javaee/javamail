@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2014 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -81,7 +81,9 @@ public class NewsAddress extends Address {
      * @param host	the host
      */
     public NewsAddress(String newsgroup, String host) {
-	this.newsgroup = newsgroup;
+	// XXX - this method should throw an exception so we can report
+	// illegal addresses, but for now just remove whitespace
+	this.newsgroup = newsgroup.replaceAll("\\s+", "");
 	this.host = host;
     }
 
@@ -182,14 +184,24 @@ public class NewsAddress extends Address {
 
 	StringBuffer s = 
 		new StringBuffer(((NewsAddress)addresses[0]).toString());
-	for (int i = 1; i < addresses.length; i++)
-	    s.append(",").append(((NewsAddress)addresses[i]).toString());
+	int used = s.length();
+	for (int i = 1; i < addresses.length; i++) {
+	    s.append(",");
+	    used++;
+	    String ng = ((NewsAddress)addresses[i]).toString();
+	    if (used + ng.length() > 76) {
+		s.append("\r\n\t");
+		used = 8;
+	    }
+	    s.append(ng);
+	    used += ng.length();
+	}
 	
 	return s.toString();
     }
 
     /**
-     * Parse the given comma separated sequence of newsgroup into
+     * Parse the given comma separated sequence of newsgroups into
      * NewsAddress objects.
      *
      * @param newsgroups	comma separated newsgroup string
