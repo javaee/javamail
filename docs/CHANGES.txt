@@ -15,6 +15,30 @@ Seven digit bug numbers are from the old Sun bug database, which is no
 longer available.
 
 
+		  CHANGES IN THE 1.5.6 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.6 release.
+
+K  7091	Support LogRecord.setMillis being deprecated in JDK 9
+K  7092	Logging should support LogRecord.getInstant
+K  7097	Create common super class for logging tests
+K  7140	NPE by APOP detection when no greeting banner
+K  7150	Make IMAPProtocol.handleLoginResult protected
+K  7151	InternetAddress.parse fails for valid domain literal address
+K  7238	unsolicited FETCH response *must* invalidate X-GM-LABELS in cache
+K  7332	MimeBodyPart.isMimeType returns false if type header can't be parsed
+K  7356	NPE in Tomcat ClassLoader causes Session.getInstance to fail
+K  7378	Deadlock in IMAPFolder.doProtocolCommand()
+K  7471	InternetAddress.getLocalAddress should use
+	InetAddress.getCanonicalHostName
+K  7472	Store finalizers should not talk to server
+K  7506	MailHandler verify should load additional content handlers
+K  7512	NullPointerException if SASL is enabled on Android
+K  7513	write timeouts don't work with SSL on Android
+K  7529	JavaMail allows injection of unwanted headers
+K  7536	Message.setRecipient(type, null) should remove recipients
+
+
 		  CHANGES IN THE 1.5.5 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.5 release.

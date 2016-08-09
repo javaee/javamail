@@ -1,7 +1,7 @@
 			COMPATIBILITY NOTES
 			===================
 
-		    JavaMail(TM) API 1.5.5 release
+		    JavaMail(TM) API 1.5.6 release
 		    ------------------------------
 
 The JavaMail 1.5 specification is fully compatible with the JavaMail
@@ -12,6 +12,38 @@ applications that depend on behavior beyond what is defined by the
 JavaMail specification, or that use features specific to the reference
 implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
+
+
+-- JavaMail 1.5.6 --
+
+- finalizers close sockets abruptly
+
+	It's important for finalizers to close an open socket
+	connection to prevent file descriptor leaks.  Previously the
+	finalizers for the IMAP and POP3 providers would try to close
+	the connection cleanly, which could result in a timeout waiting
+	for the server.  They now close the connection without
+	performing any socket I/O, which may result in an unclean
+	shutdown when seen from the server.  Applications should always
+	close Stores and Folders when done with them to avoid the need
+	for the finalizer to do this cleanup.  The Session property
+	"mail.<protocol>.finalizecleanclose" can be set to "true" to
+	force the connection to be closed cleanly in the finalizer.
+
+- InternetAddress.getLocalAddress uses canonical host name
+
+	The InternetAddress.getLocalAddress method now uses the
+	java.net.InetAddress.getCanonicalHostName method if neither the
+	"mail.from" nor "mail.host" properties have been set.  The System
+	property "mail.mime.address.usecanonicalhostname" can be set to
+	"false" to revert to the previous behavior.
+
+- SMTPTransport.sasllogin no longer public
+
+	The SMTPTransport.sasllogin method should never have been
+	declared public.  It's used internally when SASL authentication
+	is requested; applications should not use the method directly.
+
 
 
 -- JavaMail 1.5.4 --

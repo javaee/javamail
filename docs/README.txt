@@ -1,10 +1,10 @@
 			README
 			======
 
-	    JavaMail(TM) API 1.5.5 release
+	    JavaMail(TM) API 1.5.6 release
 	    ------------------------------
 
-Welcome to the JavaMail API 1.5.5 release!  This release includes
+Welcome to the JavaMail API 1.5.6 release!  This release includes
 versions of the JavaMail API implementation, IMAP, SMTP, and POP3
 service providers, some examples, and documentation for the JavaMail
 API.
