@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,6 +47,7 @@ public class populate {
     static boolean skipSpecial = false;
     static boolean clear = false;
     static boolean dontPreserveFlags = false;
+    static boolean warn = false;
 
     public static void main(String argv[]) {
 	String srcURL = null;
@@ -70,6 +71,8 @@ public class populate {
 		clear = true;
 	    } else if (argv[optind].equals("-P")) {
 		dontPreserveFlags = true;
+	    } else if (argv[optind].equals("-W")) {
+		warn = true;
 	    } else if (argv[optind].equals("--")) {
 		optind++;
 		break;
@@ -222,7 +225,20 @@ public class populate {
 		msgs[i] = m;
 	    }
 	}
-	src.copyMessages(msgs, dst);
+	if (warn) {
+	    // have to copy messages one at a time
+	    for (int i = 0; i < msgs.length; i++) {
+		try {
+		    src.copyMessages(new Message[] { msgs[i] }, dst);
+		} catch (MessagingException mex) {
+		    System.out.println("WARNING: Copy of message " + (i + 1) +
+			" from " + src.getFullName() +
+			" to " + dst.getFullName() +
+			" failed: " + mex.toString());
+		}
+	    }
+	} else
+	    src.copyMessages(msgs, dst);
     }
 
     private static void printUsage() {
