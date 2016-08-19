@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,6 +51,7 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 import com.sun.mail.util.*;
 import java.util.ArrayList;
@@ -538,7 +539,23 @@ public class Protocol {
      * @since	JavaMail 1.5.2
      */
     public SocketChannel getChannel() {
-	return socket.getChannel();
+	SocketChannel ret = socket.getChannel();
+	if (ret != null)
+	    return ret;
+
+	// XXX - Android is broken and SSL wrapped sockets don't delegate
+	// the getChannel method to the wrapped Socket
+	if (socket instanceof SSLSocket) {
+	    try {
+		Field f = socket.getClass().getDeclaredField("socket");
+		f.setAccessible(true);
+		Socket s = (Socket)f.get(socket);
+		ret = s.getChannel();
+	    } catch (Exception ex) {
+		// ignore anything that might go wrong
+	    }
+	}
+	return ret;
     }
 
     /**
