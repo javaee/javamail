@@ -89,6 +89,39 @@
 	</findbugs.exclude>
     </properties>
 
+    <profiles>
+	<!--
+	    A special profile for compiling with the real JDK 1.7 compiler.
+	    Exclude MailSessionDefinition and MailSessionDefinitions since
+	    the former requires JDK 1.8 and the latter depends on the former.
+	-->
+	<profile>
+	    <id>1.7</id>
+	    <build>
+		<plugins>
+		    <plugin>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>default-compile</id>
+				<configuration>
+				    <excludes>
+					<exclude>
+					  javax/mail/MailSessionDefinition.java
+					</exclude>
+					<exclude>
+					  javax/mail/MailSessionDefinitions.java
+					</exclude>
+				    </excludes>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
+    </profiles>
+
     <build>
 	<resources>
 	    <resource>
@@ -99,19 +132,25 @@
 	<plugins>
 	    <!--
 		Configure compiler plugin to print lint warnings.
+		Need to exclude options warning because bootstrap
+		classpath isn't set (on purpose).
+		Need to exclude path warnings because Maven includes
+		source directories that don't exist (e.g., generated-sources).
 	    -->
 	    <plugin>
 		<artifactId>maven-compiler-plugin</artifactId>
 		<configuration>
-			<source>1.8</source>
-			<target>1.8</target>
-			<compilerArgs>
-				<arg>-Xlint</arg>
-				<arg>-Xlint:-finally</arg>
-				<arg>-Werror</arg>
-			</compilerArgs>
-			<showDeprecation>true</showDeprecation>
-			<showWarnings>true</showWarnings>
+		    <source>1.7</source>
+		    <target>1.7</target>
+		    <compilerArgs>
+			<arg>-Xlint</arg>
+			<arg>-Xlint:-finally</arg>
+			<arg>-Xlint:-options</arg>
+			<arg>-Xlint:-path</arg>
+			<arg>-Werror</arg>
+		    </compilerArgs>
+		    <showDeprecation>true</showDeprecation>
+		    <showWarnings>true</showWarnings>
 		</configuration>
 	    </plugin>
 
