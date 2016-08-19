@@ -15,6 +15,13 @@ Seven digit bug numbers are from the old Sun bug database, which is no
 longer available.
 
 
+		  CHANGES IN THE 1.6.0 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.5.6 release.
+
+K  8398	MailSessionDefinition should use the Repeatable annotation for Java EE 8
+
+
 		  CHANGES IN THE 1.5.6 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.6 release.
