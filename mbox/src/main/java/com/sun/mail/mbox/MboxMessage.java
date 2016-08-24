@@ -482,12 +482,11 @@ public class MboxMessage extends MimeMessage {
 		// setContentSize((int)cos.getSize());
 	    }
 
-	    os = new NewlineOutputStream(os);
+	    os = new NewlineOutputStream(os, true);
 	    PrintStream pos = new PrintStream(os, false, "iso-8859-1");
 
 	    pos.println(unix_from);
 	    super.writeTo(pos, null);
-	    pos.println();	// make sure there's a blank line at the end
 	    pos.flush();
 	} catch (MessagingException e) {
 	    throw new IOException("unexpected exception " + e);

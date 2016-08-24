@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,8 +51,9 @@ final class MessageLoader {
     private final TempFile temp;
     private FileInputStream fis = null;
     private AppendStream fos = null;
-    private int pos, len;
-    private long off;
+    private int pos, len;	// position in and length of buffer
+    private long off;		// current offset in temp file
+    private long prevend;	// the end of the previous message in temp file
     private MboxFolder.MessageMetadata md;
     private byte[] buf = null;
     // the length of the longest header we'll need to look at
@@ -78,7 +79,7 @@ final class MessageLoader {
 	    fis = new FileInputStream(fd);
 	    if (fis.skip(offset) != offset)
 		throw new EOFException("Failed to skip to offset " + offset);
-	    this.off = offset;
+	    this.off = prevend = temp.length();
 	    pos = len = 0;
 	    line = new char[LINELEN];
 	    buf = new byte[64 * 1024];
@@ -91,23 +92,27 @@ final class MessageLoader {
 		    // didn't find a Content-Length, skip the body
 		    start = skipBody();
 		    if (start < 0) {
-			md.end = -1;
+			md.end = md.dataend = -1;
 			msgs.add(md);
 			loaded++;
 			break;
 		    }
+		    md.dataend = start;
 		} else {
 		    // skip over the body
 		    skip(n);
+		    md.dataend = off;
 		    int b;
-		    start = off;
 		    // skip any blank lines after the body
 		    while ((b = get()) >= 0) {
 			if (b != '\n')
 			    break;
 		    }
+		    start = off;
+		    if (b >= 0)
+			start--;	// back up one byte if not at EOF
 		}
-		md.end = start;
+		md.end = prevend = start;
 		msgs.add(md);
 		loaded++;
 	    }
@@ -140,6 +145,7 @@ final class MessageLoader {
 	int lpos = -1;
 	int b;
 	md = new MboxFolder.MessageMetadata();
+	md.start = prevend;
 	md.recent = true;
 	while ((b = get()) >= 0) {
 	    if (bol) {

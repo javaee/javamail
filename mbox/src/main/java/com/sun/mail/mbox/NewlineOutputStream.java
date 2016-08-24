@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,10 +44,13 @@ import java.io.*;
 
 /**
  * Convert the various newline conventions to the local platform's
- * newline convention.
+ * newline convention.  Optionally, make sure the output ends with
+ * a blank line.
  */
 public class NewlineOutputStream extends FilterOutputStream {
     private int lastb = -1;
+    private int bol = 1; // number of times in a row we're at beginning of line
+    private final boolean endWithBlankLine;
     private static final byte[] newline;
 
     static {
@@ -64,17 +67,26 @@ public class NewlineOutputStream extends FilterOutputStream {
     }
 
     public NewlineOutputStream(OutputStream os) {
+	this(os, false);
+    }
+
+    public NewlineOutputStream(OutputStream os, boolean endWithBlankLine) {
 	super(os);
+	this.endWithBlankLine = endWithBlankLine;
     }
 
     public void write(int b) throws IOException {
 	if (b == '\r') {
 	    out.write(newline);
+	    bol++;
 	} else if (b == '\n') {
-	    if (lastb != '\r')
+	    if (lastb != '\r') {
 		out.write(newline);
+		bol++;
+	    }
 	} else {
 	    out.write(b);
+	    bol = 0;	// no longer at beginning of line
 	}
 	lastb = b;
     }
@@ -87,5 +99,20 @@ public class NewlineOutputStream extends FilterOutputStream {
 	for (int i = 0 ; i < len ; i++) {
 	    write(b[off + i]);
 	}
+    }
+
+    public void flush() throws IOException {
+	if (endWithBlankLine) {
+	    if (bol == 0) {
+		// not at bol, return to bol and add a blank line
+		out.write(newline);
+		out.write(newline);
+	    } else if (bol == 1) {
+		// at bol, add a blank line
+		out.write(newline);
+	    }
+	}
+	bol = 2;
+	out.flush();
     }
 }

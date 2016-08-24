@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -60,25 +60,27 @@
 	<mail.packages.export>
 	    com.sun.mail.mbox; version=${mail.version}
 	</mail.packages.export>
+	<findbugs.skip>
+	    false
+	</findbugs.skip>
+	<findbugs.exclude>
+	    ${project.basedir}/exclude.xml
+	</findbugs.exclude>
     </properties>
 
     <build>
 	<plugins>
 	    <!--
-		Configure FindBugs to run with "mvn findbugs:findbugs"
-		and generate XML output that can be used by the Hudson
-		FindBugs plugin.
+		Configure test plugin to find *TestSuite classes.
 	    -->
 	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-plugin</artifactId>
 		<configuration>
-		    <skip>false</skip>
-		    <threshold>${findbugs.threshold}</threshold>
-		    <excludeFilterFile>
-			${project.basedir}/exclude.xml
-		    </excludeFilterFile>
-		    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+		    <includes>
+			<include>**/*Test.java</include>
+			<include>**/*TestSuite.java</include>
+		    </includes>
 		</configuration>
 	    </plugin>
 	</plugins>
@@ -89,23 +91,12 @@
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
         </dependency>
+	<dependency>
+	    <groupId>junit</groupId>
+	    <artifactId>junit</artifactId>
+	    <version>4.12</version>
+	    <scope>test</scope>
+	    <optional>true</optional>
+	</dependency>
     </dependencies>
-
-    <reporting>
-	<plugins>
-	    <!--
-		Configure FindBugs to run with "mvn site" and
-		generate html output that can be viewed directly.
-	    -->
-	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
-		<configuration>
-		    <skip>false</skip>
-		    <threshold>${findbugs.threshold}</threshold>
-		    <excludeFilterFile>exclude.xml</excludeFilterFile>
-		</configuration>
-	    </plugin>
-	</plugins>
-    </reporting>
 </project>
