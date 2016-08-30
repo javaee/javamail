@@ -189,6 +189,7 @@ public class URLName {
     /**
      * Constructs a string representation of this URLName.
      */
+    @Override
     public String toString() {
 	if (fullURL == null) {
 	    // add the "protocol:"
@@ -433,6 +434,7 @@ public class URLName {
      * Note also that the password field is not included in the comparison,
      * nor is any reference field appended to the filename.
      */
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof URLName))
 	    return false;
@@ -485,6 +487,7 @@ public class URLName {
     /**
      * Compute the hash code for this URLName.
      */
+    @Override
     public int hashCode() {
 	if (hashCode != 0)
 	    return hashCode;

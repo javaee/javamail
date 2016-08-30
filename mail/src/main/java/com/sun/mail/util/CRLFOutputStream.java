@@ -58,6 +58,7 @@ public class CRLFOutputStream extends FilterOutputStream {
 	super(os);
     }
 
+    @Override
     public void write(int b) throws IOException {
 	if (b == '\r') {
 	    writeln();
@@ -71,10 +72,12 @@ public class CRLFOutputStream extends FilterOutputStream {
 	lastb = b;
     }
 
+    @Override
     public void write(byte b[]) throws IOException {
 	write(b, 0, b.length);
     }
 
+    @Override
     public void write(byte b[], int off, int len) throws IOException {
 	int start = off;
 	

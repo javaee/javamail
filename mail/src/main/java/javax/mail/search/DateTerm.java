@@ -114,6 +114,7 @@ public abstract class DateTerm extends ComparisonTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof DateTerm))
 	    return false;
@@ -124,6 +125,7 @@ public abstract class DateTerm extends ComparisonTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return date.hashCode() + super.hashCode();
     }

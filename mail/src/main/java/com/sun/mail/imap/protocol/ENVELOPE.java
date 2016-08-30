@@ -239,10 +239,12 @@ class IMAPAddress extends InternetAddress {
 	return group && groupname == null;
     }
 
+    @Override
     public boolean isGroup() {
 	return group;
     }
 
+    @Override
     public InternetAddress[] getGroup(boolean strict) throws AddressException {
 	if (grouplist == null)
 	    return null;

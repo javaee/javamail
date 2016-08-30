@@ -269,6 +269,7 @@ public final class IMAPIdleManagerTest {
 	    println("* 3 EXISTS\r\n" + tag + " OK");
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -290,6 +291,7 @@ public final class IMAPIdleManagerTest {
 	    ok();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -314,6 +316,7 @@ public final class IMAPIdleManagerTest {
 	    ok();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -337,6 +340,7 @@ public final class IMAPIdleManagerTest {
 	    ok();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -361,6 +365,7 @@ public final class IMAPIdleManagerTest {
 	    ok();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -380,6 +385,7 @@ public final class IMAPIdleManagerTest {
 	    exit();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -399,6 +405,7 @@ public final class IMAPIdleManagerTest {
 	    exit();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}
@@ -419,6 +426,7 @@ public final class IMAPIdleManagerTest {
 	    exit();
         }
 
+	@Override
 	public void waitForIdle() throws InterruptedException {
 	    latch.await();
 	}

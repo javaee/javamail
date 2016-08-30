@@ -103,15 +103,18 @@ public class UUEncoderStream extends FilterOutputStream {
 	this.mode = mode;
     }
 
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
 	for (int i = 0; i < len; i++)
 	    write(b[off + i]);
     }
 
+    @Override
     public void write(byte[] data) throws IOException {
 	write(data, 0, data.length);
     }
 
+    @Override
     public void write(int c) throws IOException {
 	/* buffer up characters till we get a line's worth, then encode
 	 * and write them out. Max number of characters allowed per 
@@ -125,6 +128,7 @@ public class UUEncoderStream extends FilterOutputStream {
 	}
     }
 
+    @Override
     public void flush() throws IOException {
 	if (bufsize > 0) { // If there's unencoded characters in the buffer
 	    writePrefix();
@@ -135,6 +139,7 @@ public class UUEncoderStream extends FilterOutputStream {
 	out.flush();
     }
 
+    @Override
     public void close() throws IOException {
 	flush();
 	out.close();

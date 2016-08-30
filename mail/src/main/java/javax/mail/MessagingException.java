@@ -112,6 +112,7 @@ public class MessagingException extends Exception {
      *
      * @return	next Exception, null if none.
      */
+    @Override
     public synchronized Throwable getCause() {
 	return next;
     }
@@ -144,6 +145,7 @@ public class MessagingException extends Exception {
      * Override toString method to provide information on
      * nested exceptions.
      */
+    @Override
     public synchronized String toString() {
 	String s = super.toString();
 	Exception n = next;

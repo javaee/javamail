@@ -67,6 +67,7 @@ public final class FromTerm extends AddressTerm {
      * @param msg	The address comparison is applied to this Message
      * @return		true if the comparison succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	Address[] from;
 
@@ -88,6 +89,7 @@ public final class FromTerm extends AddressTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof FromTerm))
 	    return false;

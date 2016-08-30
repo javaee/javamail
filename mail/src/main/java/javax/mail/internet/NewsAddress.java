@@ -91,6 +91,7 @@ public class NewsAddress extends Address {
      * Return the type of this address.  The type of a NewsAddress
      * is "news".
      */
+    @Override
     public String getType() {
 	return "news";
     }
@@ -136,6 +137,7 @@ public class NewsAddress extends Address {
      *
      * @return		newsgroup
      */
+    @Override
     public String toString() {
 	return newsgroup;
     }
@@ -143,6 +145,7 @@ public class NewsAddress extends Address {
     /**
      * The equality operator.
      */
+    @Override
     public boolean equals(Object a) {
 	if (!(a instanceof NewsAddress))
 	    return false;
@@ -157,6 +160,7 @@ public class NewsAddress extends Address {
     /**
      * Compute a hash code for the address.
      */
+    @Override
     public int hashCode() {
 	int hash = 0;
 	if (newsgroup != null)

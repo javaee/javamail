@@ -77,6 +77,7 @@ public class QEncoderStream extends QPEncoderStream {
      * @param      c   the <code>byte</code>.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void write(int c) throws IOException {
 	c = c & 0xff; // Turn off the MSB.
 	if (c == ' ')

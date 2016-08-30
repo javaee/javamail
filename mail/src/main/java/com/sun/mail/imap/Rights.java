@@ -159,6 +159,7 @@ public class Rights implements Cloneable {
 	    return cache[(int)right];
 	}
 
+	@Override
 	public String toString() {
 	    return String.valueOf(right);
 	}
@@ -272,6 +273,7 @@ public class Rights implements Cloneable {
      *
      * @return	true if they're equal
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof Rights))
 	    return false;
@@ -290,6 +292,7 @@ public class Rights implements Cloneable {
      *
      * @return	the hash code
      */
+    @Override
     public int hashCode() {
 	int hash = 0;
 	for (int i = 0; i < this.rights.length; i++)
@@ -315,6 +318,7 @@ public class Rights implements Cloneable {
     /**
      * Returns a clone of this Rights object.
      */
+    @Override
     public Object clone() {
 	Rights r = null;
 	try {
@@ -327,6 +331,7 @@ public class Rights implements Cloneable {
 	return r;
     }
 
+    @Override
     public String toString() {
 	StringBuffer sb = new StringBuffer();
 	for (int i = 0; i < this.rights.length; i++)

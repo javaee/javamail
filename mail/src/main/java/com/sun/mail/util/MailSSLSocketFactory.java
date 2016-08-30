@@ -350,6 +350,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 	 * @see javax.net.ssl.X509TrustManager#checkClientTrusted(
 	 *		java.security.cert.X509Certificate[], java.lang.String)
 	 */
+	@Override
 	public void checkClientTrusted(X509Certificate[] certs, String authType)
 					throws CertificateException {
 	    if (!(isTrustAllHosts() || getTrustedHosts() != null))
@@ -360,6 +361,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 	 * @see javax.net.ssl.X509TrustManager#checkServerTrusted(
 	 *		java.security.cert.X509Certificate[], java.lang.String)
 	 */
+	@Override
 	public void checkServerTrusted(X509Certificate[] certs, String authType)
 					throws CertificateException {
 
@@ -370,6 +372,7 @@ public class MailSSLSocketFactory extends SSLSocketFactory {
 	/* (non-Javadoc)
 	 * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
 	 */
+	@Override
 	public X509Certificate[] getAcceptedIssuers() {
 	    return adapteeTrustManager.getAcceptedIssuers();
 	}

@@ -57,6 +57,7 @@ public class SMTPOutputStream extends CRLFOutputStream {
 	super(os);
     }
 
+    @Override
     public void write(int b) throws IOException {
 	// if that last character was a newline, and the current
 	// character is ".", we always write out an extra ".".
@@ -70,6 +71,7 @@ public class SMTPOutputStream extends CRLFOutputStream {
     /* 
      * This method has been added to improve performance.
      */
+    @Override
     public void write(byte b[], int off, int len) throws IOException {
 	int lastc = (lastb == -1) ? '\n' : lastb;
 	int start = off;
@@ -99,6 +101,7 @@ public class SMTPOutputStream extends CRLFOutputStream {
      * SMTPTransport will manually flush the socket before reading
      * the response.
      */
+    @Override
     public void flush() {
 	// do nothing
     }

@@ -89,6 +89,7 @@ public class ConnectionEvent extends MailEvent  {
     /**
      * Invokes the appropriate ConnectionListener method
      */
+    @Override
     public void dispatch(Object listener) {
 	if (type == OPENED)
 	    ((ConnectionListener)listener).opened(this);

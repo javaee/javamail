@@ -70,6 +70,7 @@ public abstract class Address implements Serializable {
      *
      * @return	string representation of this address
      */
+    @Override
     public abstract String toString();
 
     /**
@@ -84,5 +85,6 @@ public abstract class Address implements Serializable {
      *
      * @param	address	Address object
      */
+    @Override
     public abstract boolean equals(Object address);
 }

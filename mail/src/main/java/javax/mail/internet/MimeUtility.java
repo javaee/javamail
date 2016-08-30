@@ -1298,6 +1298,7 @@ public class MimeUtility {
 	    } catch (SecurityException sex) {
 		
 		class NullInputStream extends InputStream {
+		    @Override
 		    public int read() {
 			return 0;
 		    }
@@ -1641,14 +1642,17 @@ class AsciiOutputStream extends OutputStream {
 	checkEOL = encodeEolStrict && breakOnNonAscii;
     }
 
+    @Override
     public void write(int b) throws IOException {
 	check(b);
     }
 
+    @Override
     public void write(byte b[]) throws IOException {
 	write(b, 0, b.length);
     }
 
+    @Override
     public void write(byte b[], int off, int len) throws IOException {
 	len += off;
 	for (int i = off; i < len ; i++)

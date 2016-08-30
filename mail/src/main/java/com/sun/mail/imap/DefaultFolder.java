@@ -60,19 +60,23 @@ public class DefaultFolder extends IMAPFolder {
 	type = HOLDS_FOLDERS; // obviously
     }
 
+    @Override
     public synchronized String getName() {
 	return fullName;
     }
 
+    @Override
     public Folder getParent() {
 	return null;
     }
 
+    @Override
     public synchronized Folder[] list(final String pattern)
 				throws MessagingException {
 	ListInfo[] li = null;
 
 	li = (ListInfo[])doCommand(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		return p.list("", pattern);
 	    }
@@ -87,11 +91,13 @@ public class DefaultFolder extends IMAPFolder {
 	return folders;
     }
 
+    @Override
     public synchronized Folder[] listSubscribed(final String pattern)
 				throws MessagingException {
 	ListInfo[] li = null;
 
 	li = (ListInfo[])doCommand(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		return p.lsub("", pattern);
 	    }
@@ -106,30 +112,36 @@ public class DefaultFolder extends IMAPFolder {
 	return folders;
     }
 
+    @Override
     public boolean hasNewMessages() throws MessagingException {
 	// Not applicable on DefaultFolder
 	return false;
     }
 
+    @Override
     public Folder getFolder(String name) throws MessagingException {
 	return ((IMAPStore)store).newIMAPFolder(name, UNKNOWN_SEPARATOR);
     }
 
+    @Override
     public boolean delete(boolean recurse) throws MessagingException {  
 	// Not applicable on DefaultFolder
 	throw new MethodNotSupportedException("Cannot delete Default Folder");
     }
 
+    @Override
     public boolean renameTo(Folder f) throws MessagingException {
 	// Not applicable on DefaultFolder
 	throw new MethodNotSupportedException("Cannot rename Default Folder");
     }
 
+    @Override
     public void appendMessages(Message[] msgs) throws MessagingException {
 	// Not applicable on DefaultFolder
 	throw new MethodNotSupportedException("Cannot append to Default Folder");
     }
 
+    @Override
     public Message[] expunge() throws MessagingException {
 	// Not applicable on DefaultFolder
 	throw new MethodNotSupportedException("Cannot expunge Default Folder");

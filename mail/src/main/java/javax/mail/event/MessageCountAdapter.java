@@ -49,6 +49,8 @@ package javax.mail.event;
  * @author John Mani
  */
 public abstract class MessageCountAdapter implements MessageCountListener {
+    @Override
     public void messagesAdded(MessageCountEvent e) {}
+    @Override
     public void messagesRemoved(MessageCountEvent e) {}
 }

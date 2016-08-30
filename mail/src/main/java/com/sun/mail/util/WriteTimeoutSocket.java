@@ -346,6 +346,7 @@ class TimeoutOutputStream extends OutputStream {
 	this.ses = ses;
 	this.timeout = timeout;
 	timeoutTask = new Callable<Object>() {
+	    @Override
 	    public Object call() throws Exception {
 		os.close();	// close the stream to abort the write
 		return null;

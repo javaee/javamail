@@ -67,6 +67,7 @@ public abstract class ComparisonTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof ComparisonTerm))
 	    return false;
@@ -77,6 +78,7 @@ public abstract class ComparisonTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return comparison;
     }

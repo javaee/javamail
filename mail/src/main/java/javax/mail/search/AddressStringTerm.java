@@ -95,6 +95,7 @@ public abstract class AddressStringTerm extends StringTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof AddressStringTerm))
 	    return false;

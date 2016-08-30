@@ -69,10 +69,12 @@ public class text_xml extends text_plain {
 	new ActivationDataFlavor(StreamSource.class, "application/xml", "XML")
     };
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return flavors;
     }
 
+    @Override
     protected Object getData(ActivationDataFlavor aFlavor, DataSource ds)
 				throws IOException {
 	if (aFlavor.getRepresentationClass() == String.class)
@@ -85,6 +87,7 @@ public class text_xml extends text_plain {
 
     /**
      */
+    @Override
     public void writeTo(Object obj, String mimeType, OutputStream os)
 				    throws IOException {
 	if (!isXmlType(mimeType))

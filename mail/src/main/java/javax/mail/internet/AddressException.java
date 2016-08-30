@@ -125,6 +125,7 @@ public class AddressException extends ParseException {
 	return pos;
     }
 
+    @Override
     public String toString() {
 	String s = super.toString();
 	if (ref == null)

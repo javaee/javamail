@@ -104,6 +104,7 @@ public final class IMAPResponseEventTest {
 
             final Store store = session.getStore("imap");
 	    store.addStoreListener(new StoreListener() {
+		@Override
 		public void notification(StoreEvent e) {
 		    String s;
 		    if (e.getMessageType() == IMAPStore.RESPONSE) {

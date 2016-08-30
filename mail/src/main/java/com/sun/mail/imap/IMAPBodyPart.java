@@ -87,46 +87,57 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
      * be inserted in newly crafted MimeMessages, especially when
      * forwarding or replying to messages.
      */
+    @Override
     protected void updateHeaders() {
 	return;
     }
 
+    @Override
     public int getSize() throws MessagingException {
 	return bs.size;
     }
 
+    @Override
     public int getLineCount() throws MessagingException {
 	return bs.lines;
     }
 
+    @Override
     public String getContentType() throws MessagingException {
 	return type;
     }
 
+    @Override
     public String getDisposition() throws MessagingException {
 	return bs.disposition;
     }
 
+    @Override
     public void setDisposition(String disposition) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public String getEncoding() throws MessagingException {
 	return bs.encoding;
     }
 
+    @Override
     public String getContentID() throws MessagingException {
 	return bs.id;
     }
 
+    @Override
     public String getContentMD5() throws MessagingException {
 	return bs.md5;
     }
 
+    @Override
     public void setContentMD5(String md5) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public String getDescription() throws MessagingException {
 	if (description != null) // cached value ?
 	    return description;
@@ -143,11 +154,13 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	return description;
     }
 
+    @Override
     public void setDescription(String description, String charset)
 			throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public String getFileName() throws MessagingException {
 	String filename = null;
 	if (bs.dParams != null)
@@ -164,10 +177,12 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	return filename;
     }
 
+    @Override
     public void setFileName(String filename) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     protected InputStream getContentStream() throws MessagingException {
 	InputStream is = null;
 	boolean pk = message.getPeek();	// acquire outside of message cache lock
@@ -274,6 +289,7 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
      * @return	the MIME format stream
      * @since	JavaMail 1.4.5
      */
+    @Override
     public InputStream getMimeStream() throws MessagingException {
 	/*
 	 * The IMAP protocol doesn't support returning the entire
@@ -283,6 +299,7 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	return new SequenceInputStream(getHeaderStream(), getContentStream());
     }
 	    
+    @Override
     public synchronized DataHandler getDataHandler() 
 		throws MessagingException {
 	if (dh == null) {
@@ -304,69 +321,83 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	return super.getDataHandler();
     }
 
+    @Override
     public void setDataHandler(DataHandler content) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public void setContent(Object o, String type) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public void setContent(Multipart mp) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public String[] getHeader(String name) throws MessagingException {
 	loadHeaders();
 	return super.getHeader(name);
     }
 
+    @Override
     public void setHeader(String name, String value)
 		throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public void addHeader(String name, String value)
 		throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public void removeHeader(String name) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public Enumeration<Header> getAllHeaders() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaders();
     }
 
+    @Override
     public Enumeration<Header> getMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaders(names);
     }
 
+    @Override
     public Enumeration<Header> getNonMatchingHeaders(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getNonMatchingHeaders(names);
     }
 
+    @Override
     public void addHeaderLine(String line) throws MessagingException {
 	throw new IllegalWriteException("IMAPBodyPart is read-only");
     }
 
+    @Override
     public Enumeration<String> getAllHeaderLines() throws MessagingException {
 	loadHeaders();
 	return super.getAllHeaderLines();
     }
 
+    @Override
     public Enumeration<String> getMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();
 	return super.getMatchingHeaderLines(names);
     }
 
+    @Override
     public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 		throws MessagingException {
 	loadHeaders();

@@ -148,6 +148,7 @@ public class MessageCountEvent extends MailEvent {
     /**
      * Invokes the appropriate MessageCountListener method.
      */
+    @Override
     public void dispatch(Object listener) {
 	if (type == ADDED)
 	    ((MessageCountListener)listener).messagesAdded(this);

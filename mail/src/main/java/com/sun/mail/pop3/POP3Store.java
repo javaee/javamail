@@ -187,6 +187,7 @@ public class POP3Store extends Store {
         return session;
     }
 
+    @Override
     protected synchronized boolean protocolConnect(String host, int portNum,
 		String user, String passwd) throws MessagingException {
 		    
@@ -232,6 +233,7 @@ public class POP3Store extends Store {
      * as long as we can reconnect at that point.  This means that we
      * need to be able to reconnect the Store on demand.
      */
+    @Override
     public synchronized boolean isConnected() {
 	if (!super.isConnected())
 	    // if we haven't been connected at all, don't bother with
@@ -354,6 +356,7 @@ public class POP3Store extends Store {
 	}
     }
 
+    @Override
     public synchronized void close() throws MessagingException {
 	close(false);
     }
@@ -375,6 +378,7 @@ public class POP3Store extends Store {
 	}
     }
 
+    @Override
     public Folder getDefaultFolder() throws MessagingException {
 	checkConnected();
 	return new DefaultFolder(this);
@@ -383,11 +387,13 @@ public class POP3Store extends Store {
     /**
      * Only the name "INBOX" is supported.
      */
+    @Override
     public Folder getFolder(String name) throws MessagingException {
 	checkConnected();
 	return new POP3Folder(this, name);
     }
 
+    @Override
     public Folder getFolder(URLName url) throws MessagingException {
 	checkConnected();
 	return new POP3Folder(this, url.getFile());
@@ -429,6 +435,7 @@ public class POP3Store extends Store {
 	return usingSSL;
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    if (port != null)	// don't force a connection attempt

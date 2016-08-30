@@ -109,6 +109,7 @@ public class ACL implements Cloneable {
     /**
      * Clone this ACL entry.
      */
+    @Override
     public Object clone() throws CloneNotSupportedException {
 	ACL acl = (ACL)super.clone();
 	acl.rights = (Rights)this.rights.clone();

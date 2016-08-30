@@ -62,15 +62,18 @@ public class text_plain extends handler_base {
 	    super(os);
 	}
 
+	@Override
 	public void close() {
 	    // do nothing
 	}
     }
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
     }
 
+    @Override
     public Object getContent(DataSource ds) throws IOException {
 	String enc = null;
 	InputStreamReader is = null;
@@ -121,6 +124,7 @@ public class text_plain extends handler_base {
     /**
      * Write the object to the output stream, using the specified MIME type.
      */
+    @Override
     public void writeTo(Object obj, String type, OutputStream os) 
 			throws IOException {
 	if (!(obj instanceof String))

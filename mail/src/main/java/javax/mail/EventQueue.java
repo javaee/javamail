@@ -73,6 +73,7 @@ class EventQueue implements Runnable {
 	    super(new Object());
 	}
 
+	@Override
 	public void dispatch(Object listener) {
 	    // Kill the event dispatching thread.
 	    Thread.currentThread().interrupt();
@@ -150,6 +151,7 @@ class EventQueue implements Runnable {
     /**
      * Pull events off the queue and dispatch them.
      */
+    @Override
     public void run() {
 
 	BlockingQueue<QueueElement> bq = q;

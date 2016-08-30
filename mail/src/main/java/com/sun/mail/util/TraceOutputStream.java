@@ -107,6 +107,7 @@ public class TraceOutputStream extends FilterOutputStream {
      * @param	b	the byte to write
      * @exception	IOException	for I/O errors
      */
+    @Override
     public void write(int b) throws IOException {
 	if (trace) {
 	    if (quote)
@@ -127,6 +128,7 @@ public class TraceOutputStream extends FilterOutputStream {
      * @param	len	number of bytes to write
      * @exception	IOException	for I/O errors
      */
+    @Override
     public void write(byte b[], int off, int len) throws IOException {
 	if (trace) {
 	    if (quote) {

@@ -75,6 +75,7 @@ public final class FromStringTerm extends AddressStringTerm {
      *		    	address.
      * @return          true if the match succeeds, otherwise false.
      */
+    @Override
     public boolean match(Message msg) {
 	Address[] from;
 
@@ -96,6 +97,7 @@ public final class FromStringTerm extends AddressStringTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof FromStringTerm))
 	    return false;

@@ -51,6 +51,7 @@ public class image_jpeg extends image_gif {
 	new ActivationDataFlavor(Image.class, "image/jpeg", "JPEG Image")
     };
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
     }

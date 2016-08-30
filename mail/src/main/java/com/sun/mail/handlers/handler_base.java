@@ -69,6 +69,7 @@ public abstract class handler_base implements DataContentHandler {
      *
      * @return The DataFlavors
      */
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
 	ActivationDataFlavor[] adf = getDataFlavors();
 	if (adf.length == 1)	// the common case
@@ -85,6 +86,7 @@ public abstract class handler_base implements DataContentHandler {
      * @param ds The DataSource corresponding to the data
      * @return String object
      */
+    @Override
     public Object getTransferData(DataFlavor df, DataSource ds) 
 			throws IOException {
 	ActivationDataFlavor[] adf = getDataFlavors();

@@ -79,6 +79,7 @@ public final class SMTPIOExceptionTest {
 	final CountDownLatch closedLatch = new CountDownLatch(1);
         try {
 	    SMTPHandler handler = new SMTPHandler() {
+		@Override
 		public void rcpt() throws IOException {
 		    try {
 			// delay long enough to cause timeout

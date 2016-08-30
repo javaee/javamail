@@ -80,6 +80,7 @@ public final class IMAPAlertTest {
 
             final Store store = session.getStore("imap");
 	    store.addStoreListener(new StoreListener() {
+		@Override
 		public void notification(StoreEvent e) {
 		    String s;
 		    if (e.getMessageType() == StoreEvent.ALERT) {

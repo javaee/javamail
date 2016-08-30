@@ -103,6 +103,7 @@ public final class AndTerm extends SearchTerm {
      *			and the AND operator is applied to their results.
      * @return		true if the AND succeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	for (int i=0; i < terms.length; i++)
 	    if (!terms[i].match(msg))
@@ -113,6 +114,7 @@ public final class AndTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof AndTerm))
 	    return false;
@@ -128,6 +130,7 @@ public final class AndTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	int hash = 0;
 	for (int i=0; i < terms.length; i++)

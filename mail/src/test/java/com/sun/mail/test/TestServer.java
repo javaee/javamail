@@ -160,6 +160,7 @@ public final class TestServer extends Thread {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void start() {
 	super.start();
 	// don't return until server is really listening
@@ -177,6 +178,7 @@ public final class TestServer extends Thread {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void run() {
         try {
             keepOn = true;

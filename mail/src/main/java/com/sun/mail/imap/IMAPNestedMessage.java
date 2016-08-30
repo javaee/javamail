@@ -73,6 +73,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * Get the enclosing message's Protocol object. Overrides
      * IMAPMessage.getProtocol().
      */
+    @Override
     protected IMAPProtocol getProtocol()
 			throws ProtocolException, FolderClosedException {
 	return msg.getProtocol();
@@ -81,6 +82,7 @@ public class IMAPNestedMessage extends IMAPMessage {
     /*
      * Is this an IMAP4 REV1 server?
      */
+    @Override
     protected boolean isREV1() throws FolderClosedException {
 	return msg.isREV1();
     }
@@ -89,6 +91,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * Get the enclosing message's messageCacheLock. Overrides
      * IMAPMessage.getMessageCacheLock().
      */
+    @Override
     protected Object getMessageCacheLock() {
 	return msg.getMessageCacheLock();
     }
@@ -97,6 +100,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * Get the enclosing message's sequence number. Overrides
      * IMAPMessage.getSequenceNumber().
      */
+    @Override
     protected int getSequenceNumber() {
 	return msg.getSequenceNumber();
     }
@@ -105,6 +109,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * Check whether the enclosing message is expunged. Overrides 
      * IMAPMessage.checkExpunged().
      */
+    @Override
     protected void checkExpunged() throws MessageRemovedException {
 	msg.checkExpunged();
     }
@@ -113,6 +118,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * Check whether the enclosing message is expunged. Overrides
      * Message.isExpunged().
      */
+    @Override
     public boolean isExpunged() {
 	return msg.isExpunged();
     }
@@ -120,6 +126,7 @@ public class IMAPNestedMessage extends IMAPMessage {
     /*
      * Get the enclosing message's fetchBlockSize. 
      */
+    @Override
     protected int getFetchBlockSize() {
 	return msg.getFetchBlockSize();
     }
@@ -127,6 +134,7 @@ public class IMAPNestedMessage extends IMAPMessage {
     /*
      * Get the enclosing message's ignoreBodyStructureSize. 
      */
+    @Override
     protected boolean ignoreBodyStructureSize() {
 	return msg.ignoreBodyStructureSize();
     }
@@ -135,6 +143,7 @@ public class IMAPNestedMessage extends IMAPMessage {
      * IMAPMessage uses RFC822.SIZE. We use the "size" field from
      * our BODYSTRUCTURE.
      */
+    @Override
     public int getSize() throws MessagingException {
 	return bs.size;
     }
@@ -142,6 +151,7 @@ public class IMAPNestedMessage extends IMAPMessage {
     /*
      * Disallow setting flags on nested messages
      */
+    @Override
     public synchronized void setFlags(Flags flag, boolean set) 
 			throws MessagingException {
 	// Cannot set FLAGS on a nested IMAP message	

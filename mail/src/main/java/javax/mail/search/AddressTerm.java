@@ -85,6 +85,7 @@ public abstract class AddressTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof AddressTerm))
 	    return false;
@@ -95,6 +96,7 @@ public abstract class AddressTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return address.hashCode();
     }

@@ -157,6 +157,7 @@ public class IdleManager {
 	logger = new MailLogger(this.getClass(), "DEBUG IMAP", session);
 	selector = Selector.open();
 	es.execute(new Runnable() {
+	    @Override
 	    public void run() {
 		logger.fine("IdleManager select starting");
 		try {
@@ -414,7 +415,7 @@ public class IdleManager {
 		toWatch.remove(folder);
 		final IMAPFolder folder0 = folder;
 		es.execute(new Runnable() {
-		    //@Override
+		    @Override
 		    public void run() {
 			// send the DONE and wait for the response
 			folder0.idleAbortWait();

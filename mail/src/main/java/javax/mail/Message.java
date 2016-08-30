@@ -276,6 +276,7 @@ public abstract class Message implements Part {
 		    "Attempt to resolve unknown RecipientType: " + type);
 	}
 
+	@Override
 	public String toString() {
 	    return type;
 	}

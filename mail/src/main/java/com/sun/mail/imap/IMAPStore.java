@@ -406,6 +406,7 @@ public class IMAPStore extends Store
      * that the connection is dead.
      */
     private ResponseHandler nonStoreResponseHandler = new ResponseHandler() {
+	@Override
 	public void handleResponse(Response r) {
 	    // Any of these responses may have a response code.
 	    if (r.isOK() || r.isNO() || r.isBAD() || r.isBYE())
@@ -649,6 +650,7 @@ public class IMAPStore extends Store
      * being used does not require a password, an empty string or other
      * suitable dummy password should be used.
      */
+    @Override
     protected synchronized boolean 
     protocolConnect(String host, int pport, String user, String password)
 		throws MessagingException {
@@ -1567,6 +1569,7 @@ public class IMAPStore extends Store
      * Check whether this store is connected. Override superclass
      * method, to actually ping our server connection.
      */
+    @Override
     public synchronized boolean isConnected() {
 	if (!super.isConnected()) {
 	    // if we haven't been connected at all, don't bother with
@@ -1607,6 +1610,7 @@ public class IMAPStore extends Store
     /**
      * Close this Store.
      */
+    @Override
     public synchronized void close() throws MessagingException {
 	if (!super.isConnected()) // Already closed.
 	    return;
@@ -1669,6 +1673,7 @@ public class IMAPStore extends Store
         }
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	if (!finalizeCleanClose) {
 	    // when finalizing, close connections abruptly
@@ -1778,6 +1783,7 @@ public class IMAPStore extends Store
      * Get the default folder, representing the root of this user's 
      * namespace. Returns a closed DefaultFolder object.
      */
+    @Override
     public synchronized Folder getDefaultFolder() throws MessagingException {
 	checkConnected();
 	return new DefaultFolder(this);
@@ -1786,6 +1792,7 @@ public class IMAPStore extends Store
     /**
      * Get named folder. Returns a new, closed IMAPFolder.
      */
+    @Override
     public synchronized Folder getFolder(String name)
 				throws MessagingException {
 	checkConnected();
@@ -1795,6 +1802,7 @@ public class IMAPStore extends Store
     /**
      * Get named folder. Returns a new, closed IMAPFolder.
      */
+    @Override
     public synchronized Folder getFolder(URLName url)
 				throws MessagingException {
 	checkConnected();
@@ -1867,6 +1875,7 @@ public class IMAPStore extends Store
      * Using the IMAP NAMESPACE command (RFC 2342), return a set
      * of folders representing the Personal namespaces.
      */
+    @Override
     public Folder[] getPersonalNamespaces() throws MessagingException {
 	Namespaces ns = getNamespaces();
 	if (ns == null || ns.personal == null)
@@ -1878,6 +1887,7 @@ public class IMAPStore extends Store
      * Using the IMAP NAMESPACE command (RFC 2342), return a set
      * of folders representing the User's namespaces.
      */
+    @Override
     public Folder[] getUserNamespaces(String user)
 				throws MessagingException {
 	Namespaces ns = getNamespaces();
@@ -1890,6 +1900,7 @@ public class IMAPStore extends Store
      * Using the IMAP NAMESPACE command (RFC 2342), return a set
      * of folders representing the Shared namespaces.
      */
+    @Override
     public Folder[] getSharedNamespaces() throws MessagingException {
 	Namespaces ns = getNamespaces();
 	if (ns == null || ns.shared == null)
@@ -1955,6 +1966,7 @@ public class IMAPStore extends Store
      * @exception MessagingException	if the server doesn't support the
      *					QUOTA extension
      */
+    @Override
     public synchronized Quota[] getQuota(String root)
 				throws MessagingException {
 	checkConnected();
@@ -1985,6 +1997,7 @@ public class IMAPStore extends Store
      * @exception MessagingException	if the server doesn't support the
      *					QUOTA extension
      */
+    @Override
     public synchronized void setQuota(Quota quota) throws MessagingException {
 	checkConnected();
         IMAPProtocol p = null;
@@ -2011,6 +2024,7 @@ public class IMAPStore extends Store
     /**
      * Response handler method.
      */
+    @Override
     public void handleResponse(Response r) {
 	// Any of these responses may have a response code.
 	if (r.isOK() || r.isNO() || r.isBAD() || r.isBYE())

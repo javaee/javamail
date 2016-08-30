@@ -88,6 +88,7 @@ public class SharedByteArrayInputStream extends ByteArrayInputStream
      *
      * @return  the current position
      */
+    @Override
     public long getPosition() {
 	return pos - start;
     }
@@ -104,6 +105,7 @@ public class SharedByteArrayInputStream extends ByteArrayInputStream
      * @param	end	the ending position + 1
      * @return		the new stream
      */
+    @Override
     public InputStream newStream(long start, long end) {
 	if (start < 0)
 	    throw new IllegalArgumentException("start < 0");

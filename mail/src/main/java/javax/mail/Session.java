@@ -915,6 +915,7 @@ public final class Session {
      */
     private void loadProviders(Class<?> cl) {
 	StreamLoader loader = new StreamLoader() {
+	    @Override
 	    public void load(InputStream is) throws IOException {
 		loadProvidersFromStream(is);
 	    }
@@ -1043,6 +1044,7 @@ public final class Session {
     // map is loaded last since its entries will override the previous ones
     private void loadAddressMap(Class<?> cl) {
 	StreamLoader loader = new StreamLoader() {
+	    @Override
 	    public void load(InputStream is) throws IOException {
 		addressMap.load(is);
 	    }
@@ -1211,6 +1213,7 @@ public final class Session {
     static ClassLoader getContextClassLoader() {
 	return AccessController.doPrivileged(
 		new PrivilegedAction<ClassLoader>() {
+		    @Override
 		    public ClassLoader run() {
 			ClassLoader cl = null;
 			try {
@@ -1228,6 +1231,7 @@ public final class Session {
 	try {
 	    return AccessController.doPrivileged(
 		    new PrivilegedExceptionAction<InputStream>() {
+			@Override
 			public InputStream run() throws IOException {
 			    try {
 				return c.getResourceAsStream(name);
@@ -1248,6 +1252,7 @@ public final class Session {
 
     private static URL[] getResources(final ClassLoader cl, final String name) {
 	return AccessController.doPrivileged(new PrivilegedAction<URL[]>() {
+	    @Override
 	    public URL[] run() {
 		URL[] ret = null;
 		try {
@@ -1265,6 +1270,7 @@ public final class Session {
 
     private static URL[] getSystemResources(final String name) {
 	return AccessController.doPrivileged(new PrivilegedAction<URL[]>() {
+	    @Override
 	    public URL[] run() {
 		URL[] ret = null;
 		try {
@@ -1285,6 +1291,7 @@ public final class Session {
 	try {
 	    return AccessController.doPrivileged(
 		    new PrivilegedExceptionAction<InputStream>() {
+			@Override
 			public InputStream run() throws IOException {
 			    return url.openStream();
 			}

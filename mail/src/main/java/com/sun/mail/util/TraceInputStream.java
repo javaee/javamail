@@ -103,6 +103,7 @@ public class TraceInputStream extends FilterInputStream {
      * <code>-1</code> if no data is available. Writes out the read
      * byte into the trace stream, if trace mode is <code>true</code>
      */
+    @Override
     public int read() throws IOException {
 	int b = in.read();
 	if (trace && b != -1) {
@@ -120,6 +121,7 @@ public class TraceInputStream extends FilterInputStream {
      * is available. Writes out the read bytes into the trace stream, if 
      * trace mode is <code>true</code>
      */
+    @Override
     public int read(byte b[], int off, int len) throws IOException {
 	int count = in.read(b, off, len);
 	if (trace && count != -1) {

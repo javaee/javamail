@@ -65,7 +65,7 @@ public class OAuth2SaslClientFactory implements SaslClientFactory {
 	}
     }
 
-    //@Override
+    @Override
     public SaslClient createSaslClient(String[] mechanisms,
 				String authorizationId, String protocol,
 				String serverName, Map<String,?> props,
@@ -77,7 +77,7 @@ public class OAuth2SaslClientFactory implements SaslClientFactory {
 	return null;
     }
 
-    //@Override
+    @Override
     public String[] getMechanismNames(Map<String,?> props) {
 	return new String[] { "XOAUTH2" };
     }

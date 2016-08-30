@@ -85,6 +85,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	this.host = host;
     }
 
+    @Override
     public boolean authenticate(String[] mechs, final String realm,
 				final String authzid, final String u,
 				final String p) throws ProtocolException {
@@ -103,6 +104,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 
 	SaslClient sc;
 	CallbackHandler cbh = new CallbackHandler() {
+		@Override
 	    public void handle(Callback[] callbacks) {
 		if (logger.isLoggable(Level.FINE))
 		    logger.fine("SASL callback length: " + callbacks.length);

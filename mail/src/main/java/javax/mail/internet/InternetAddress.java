@@ -183,6 +183,7 @@ public class InternetAddress extends Address implements Cloneable {
      * Return a copy of this InternetAddress object.
      * @since		JavaMail 1.2
      */
+    @Override
     public Object clone() {
 	InternetAddress a = null;
 	try {
@@ -195,6 +196,7 @@ public class InternetAddress extends Address implements Cloneable {
      * Return the type of this address. The type of an InternetAddress
      * is "rfc822".
      */
+    @Override
     public String getType() {
 	return "rfc822";
     }
@@ -291,6 +293,7 @@ public class InternetAddress extends Address implements Cloneable {
      *
      * @return		possibly encoded address string
      */
+    @Override
     public String toString() {
 	String a = address == null ? "" : address;
 	if (encodedPersonal == null && personal != null)
@@ -396,6 +399,7 @@ public class InternetAddress extends Address implements Cloneable {
     /**
      * The equality operator.
      */
+    @Override
     public boolean equals(Object a) {
 	if (!(a instanceof InternetAddress))
 	    return false;
@@ -412,6 +416,7 @@ public class InternetAddress extends Address implements Cloneable {
     /**
      * Compute a hash code for the address.
      */
+    @Override
     public int hashCode() {
 	if (address == null)
 	    return 0;

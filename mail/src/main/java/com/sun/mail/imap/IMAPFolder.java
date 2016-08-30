@@ -534,6 +534,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the name of this folder.
      */
+    @Override
     public synchronized String getName() {
 	/* Return the last component of this Folder's full name.
 	 * Folder components are delimited by the separator character.
@@ -551,6 +552,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the fullname of this folder.
      */
+    @Override
     public String getFullName() {
 	return fullName;	
     }
@@ -558,6 +560,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get this folder's parent.
      */
+    @Override
     public synchronized Folder getParent() throws MessagingException {
 	char c = getSeparator();
 	int index;
@@ -571,6 +574,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Check whether this folder really exists on the server.
      */
+    @Override
     public synchronized boolean exists() throws MessagingException {
 	// Check whether this folder exists ..
 	ListInfo[] li = null;
@@ -581,6 +585,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    lname = fullName;
 
 	li = (ListInfo[])doCommand(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		return p.list("", lname);
 	    }
@@ -634,6 +639,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * List all subfolders matching the specified pattern.
      */
+    @Override
     public Folder[] list(String pattern) throws MessagingException {
 	return doList(pattern, false);
     }
@@ -641,6 +647,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * List all subscribed subfolders matching the specified pattern.
      */
+    @Override
     public Folder[] listSubscribed(String pattern) throws MessagingException {
 	return doList(pattern, true);
     }
@@ -657,6 +664,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	ListInfo[] li = (ListInfo[])doCommandIgnoreFailure(
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    if (subscribed)
@@ -695,11 +703,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the separator character.
      */
+    @Override
     public synchronized char getSeparator() throws MessagingException {
 	if (separator == UNKNOWN_SEPARATOR) {
 	    ListInfo[] li = null;
 
 	    li = (ListInfo[])doCommand(new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    // REV1 allows the following LIST format to obtain
@@ -723,6 +733,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the type of this folder.
      */
+    @Override
     public synchronized int getType() throws MessagingException {
 	if (opened) {
 	    // never throw FolderNotFoundException if folder is open
@@ -737,6 +748,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Check whether this folder is subscribed.
      */
+    @Override
     public synchronized boolean isSubscribed() {
 	ListInfo[] li = null;
 	final String lname;
@@ -747,6 +759,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	try {
 	    li = (ListInfo[])doProtocolCommand(new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.lsub("", lname);
@@ -765,9 +778,11 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Subscribe/Unsubscribe this folder.
      */
+    @Override
     public synchronized void setSubscribed(final boolean subscribe) 
 			throws MessagingException {
 	doCommandIgnoreFailure(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		if (subscribe)
 		    p.subscribe(fullName);
@@ -781,6 +796,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Create this folder, with the specified type.
      */
+    @Override
     public synchronized boolean create(final int type)
 				throws MessagingException {
 
@@ -789,6 +805,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    c = getSeparator();
 	final char sep = c;
 	Object ret = doCommandIgnoreFailure(new ProtocolCommand() {
+	    @Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    if ((type & HOLDS_MESSAGES) == 0)	// only holds folders
@@ -831,6 +848,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Check whether this folder has new messages.
      */
+    @Override
     public synchronized boolean hasNewMessages() throws MessagingException {
 	synchronized (messageCacheLock) {
 	    if (opened) { // If we are open, we already have this information
@@ -857,6 +875,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	else
 	    lname = fullName;
 	li = (ListInfo[])doCommandIgnoreFailure(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		return p.list("", lname);
 	    }
@@ -892,6 +911,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the named subfolder.
      */
+    @Override
     public synchronized Folder getFolder(String name)
 				throws MessagingException {
 	// If we know that this folder is *not* a directory, don't
@@ -906,6 +926,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Delete this folder.
      */
+    @Override
     public synchronized boolean delete(boolean recurse) 
 			throws MessagingException {  
 	checkClosed(); // insure that this folder is closed.
@@ -920,6 +941,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	// Attempt to delete this folder
 
 	Object ret = doCommandIgnoreFailure(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		p.delete(fullName);
 		return Boolean.TRUE;
@@ -942,6 +964,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Rename this folder.
      */
+    @Override
     public synchronized boolean renameTo(final Folder f)
 				throws MessagingException {
 	checkClosed(); // insure that we are closed.
@@ -951,6 +974,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 
 	Object ret = doCommandIgnoreFailure(new ProtocolCommand() {
+	    @Override
 	    public Object doCommand(IMAPProtocol p) throws ProtocolException {
 		p.rename(fullName, f.getFullName());
 		return Boolean.TRUE;
@@ -969,6 +993,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Open this folder in the given mode.
      */
+    @Override
     public synchronized void open(int mode) throws MessagingException {
 	open(mode, null);
     }
@@ -1179,6 +1204,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Prefetch attributes, based on the given FetchProfile.
      */
+    @Override
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 			throws MessagingException {
 	// cache this information in case connection is closed and
@@ -1394,6 +1420,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Set the specified flags for the given array of messages.
      */
+    @Override
     public synchronized void setFlags(Message[] msgs, Flags flag, boolean value)
 			throws MessagingException {
 	checkOpened();
@@ -1421,6 +1448,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Set the specified flags for the given range of message numbers.
      */
+    @Override
     public synchronized void setFlags(int start, int end,
 			Flags flag, boolean value) throws MessagingException {
 	checkOpened();
@@ -1434,6 +1462,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Set the specified flags for the given array of message numbers.
      */
+    @Override
     public synchronized void setFlags(int[] msgnums, Flags flag, boolean value)
 			throws MessagingException {
 	checkOpened();
@@ -1446,6 +1475,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Close this folder.
      */
+    @Override
     public synchronized void close(boolean expunge) throws MessagingException {
 	close(expunge, false);
     }
@@ -1576,6 +1606,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Check whether this connection is really open.
      */
+    @Override
     public synchronized boolean isOpen() {
 	synchronized(messageCacheLock) {
 	    // Probe the connection to make sure its really open.
@@ -1592,6 +1623,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Return the permanent flags supported by the server.
      */
+    @Override
     public synchronized Flags getPermanentFlags() {
 	if (permanentFlags == null)
 	    return null;
@@ -1601,6 +1633,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the total message count.
      */
+    @Override
     public synchronized int getMessageCount() throws MessagingException {
 	synchronized (messageCacheLock) {
 	    if (opened) {
@@ -1649,6 +1682,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the new message count.
      */
+    @Override
     public synchronized int getNewMessageCount() throws MessagingException {
 	synchronized (messageCacheLock) {
 	    if (opened) {
@@ -1697,6 +1731,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the unread message count.
      */
+    @Override
     public synchronized int getUnreadMessageCount()
 			throws MessagingException {
 	if (!opened) {
@@ -1738,6 +1773,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the deleted message count.
      */
+    @Override
     public synchronized int getDeletedMessageCount()
 			throws MessagingException {
 	if (!opened) {
@@ -1795,6 +1831,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the specified message.
      */
+    @Override
     public synchronized Message getMessage(int msgnum) 
 		throws MessagingException {
 	checkOpened();
@@ -1823,6 +1860,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Append the given messages into this folder.
      */
+    @Override
     public synchronized void appendMessages(Message[] msgs)
 				throws MessagingException {
 	checkExists(); // verify that self exists
@@ -1855,6 +1893,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    }
 
 	    doCommand(new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    p.append(fullName, f, dd, mos);
@@ -1915,6 +1954,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    final Date dd = d;
 	    final Flags f = m.getFlags();
 	    AppendUID auid = (AppendUID)doCommand(new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.appenduid(fullName, f, dd, mos);
@@ -1968,6 +2008,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Copy the specified messages from this folder, to the
      * specified destination.
      */
+    @Override
     public synchronized void copyMessages(Message[] msgs, Folder folder)
 			throws MessagingException {
 	copymoveMessages(msgs, folder, false);
@@ -2228,6 +2269,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Expunge all messages marked as DELETED.
      */
+    @Override
     public synchronized Message[] expunge() throws MessagingException {
 	return expunge(null);
     }
@@ -2317,6 +2359,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      *			true and the search is too complex for the IMAP protocol
      * @exception	MessagingException for other failures
      */
+    @Override
     public synchronized Message[] search(SearchTerm term)
 				throws MessagingException {
 	checkOpened();
@@ -2352,6 +2395,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * array of matching messages. Returns an empty array if no matching
      * messages are found.
      */
+    @Override
     public synchronized Message[] search(SearchTerm term, Message[] msgs) 
 			throws MessagingException {
 	checkOpened();
@@ -2457,6 +2501,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * method.  It's too hard to keep track of when all listeners
      * are removed, and that's a rare case, so we don't try.
      */
+    @Override
     public synchronized void addMessageCountListener(MessageCountListener l) { 
 	super.addMessageCountListener(l);
 	hasMessageCountListener = true;
@@ -2469,6 +2514,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Returns the UIDValidity for this folder.
      */
+    @Override
     public synchronized long getUIDValidity() throws MessagingException {
 	if (opened) // we already have this information
 	    return uidvalidity;
@@ -2544,6 +2590,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Get the Message corresponding to the given UID.
      * If no such message exists, <code> null </code> is returned.
      */
+    @Override
     public synchronized Message getMessageByUID(long uid) 
 			throws MessagingException {
 	checkOpened(); // insure folder is open
@@ -2587,6 +2634,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * Returns Message objects for all valid messages in this range.
      * Returns an empty array if no messages are found.
      */
+    @Override
     public synchronized Message[] getMessagesByUID(long start, long end) 
 			throws MessagingException {
 	checkOpened(); // insure that folder is open
@@ -2626,6 +2674,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * If any UID in the array is invalid, a <code>null</code> entry
      * is returned for that element.
      */
+    @Override
     public synchronized Message[] getMessagesByUID(long[] uids)
 			throws MessagingException {
 	checkOpened(); // insure that folder is open
@@ -2672,6 +2721,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     /**
      * Get the UID for the specified message.
      */
+    @Override
     public synchronized long getUID(Message message) 
 			throws MessagingException {
 	if (message.getFolder() != this)
@@ -2825,6 +2875,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public Quota[] getQuota() throws MessagingException {
 	return (Quota[])doOptionalCommand("QUOTA not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.getQuotaRoot(fullName);
@@ -2845,6 +2896,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public void setQuota(final Quota quota) throws MessagingException {
 	doOptionalCommand("QUOTA not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    p.setQuota(quota);
@@ -2863,6 +2915,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public ACL[] getACL() throws MessagingException {
 	return (ACL[])doOptionalCommand("ACL not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.getACL(fullName);
@@ -2893,6 +2946,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public void removeACL(final String name) throws MessagingException {
 	doOptionalCommand("ACL not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    p.deleteACL(fullName, name);
@@ -2948,6 +3002,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public Rights[] listRights(final String name) throws MessagingException {
 	return (Rights[])doOptionalCommand("ACL not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.listRights(fullName, name);
@@ -2965,6 +3020,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     public Rights myRights() throws MessagingException {
 	return (Rights)doOptionalCommand("ACL not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.myRights(fullName);
@@ -2976,6 +3032,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 				throws MessagingException {
 	doOptionalCommand("ACL not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    p.setACL(fullName, mod, acl);
@@ -3113,6 +3170,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    "Folder already being watched by another IdleManager");
 	    Boolean started = (Boolean)doOptionalCommand("IDLE not supported",
 		new ProtocolCommand() {
+		    @Override
 		    public Object doCommand(IMAPProtocol p)
 			    throws ProtocolException {
 			// if the IdleManager is already watching this folder,
@@ -3342,6 +3400,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	checkOpened();
 	return (Map<String,String>)doOptionalCommand("ID not supported",
 	    new ProtocolCommand() {
+		@Override
 		public Object doCommand(IMAPProtocol p)
 			throws ProtocolException {
 		    return p.id(clientParams);
@@ -3401,6 +3460,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * synchronized methods on IMAPFolder or IMAPMessage)
      * since that will result in violating the locking hierarchy.
      */
+    @Override
     public void handleResponse(Response r) {
 	assert Thread.holdsLock(messageCacheLock);
 
@@ -3987,10 +4047,12 @@ class MessageLiteral implements Literal {
 	buf = lc.getBytes();
     }
 
+    @Override
     public int size() {
 	return msgSize;
     }
 
+    @Override
     public void writeTo(OutputStream os) throws IOException {
 	// the message should not change between the constructor and this call
 	try {
@@ -4023,6 +4085,7 @@ class LengthCounter extends OutputStream {
 	this.maxsize = maxsize;
     }
 
+    @Override
     public void write(int b) {
 	int newsize = size + 1;
 	if (buf != null) {
@@ -4040,6 +4103,7 @@ class LengthCounter extends OutputStream {
 	size = newsize;
     }
 
+    @Override
     public void write(byte b[], int off, int len) {
 	if ((off < 0) || (off > b.length) || (len < 0) ||
             ((off + len) > b.length) || ((off + len) < 0)) {
@@ -4063,6 +4127,7 @@ class LengthCounter extends OutputStream {
         size = newsize;
     }
 
+    @Override
     public void write(byte[] b) throws IOException {
 	write(b, 0, b.length);
     }

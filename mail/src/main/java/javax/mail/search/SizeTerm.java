@@ -68,6 +68,7 @@ public final class SizeTerm extends IntegerComparisonTerm {
      * @param msg	the size comparator is applied to this Message's size
      * @return		true if the size is equal, otherwise false 
      */
+    @Override
     public boolean match(Message msg) {
 	int size;
 
@@ -86,6 +87,7 @@ public final class SizeTerm extends IntegerComparisonTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof SizeTerm))
 	    return false;

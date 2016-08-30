@@ -330,6 +330,7 @@ public class MimeMultipart extends Multipart {
      *
      * @return		number of parts
      */
+    @Override
     public synchronized int getCount() throws MessagingException {
 	parse();
 	return super.getCount();
@@ -342,6 +343,7 @@ public class MimeMultipart extends Multipart {
      * @return		the Part
      * @exception       MessagingException if no such BodyPart exists
      */
+    @Override
     public synchronized BodyPart getBodyPart(int index) 
 			throws MessagingException {
 	parse();
@@ -381,6 +383,7 @@ public class MimeMultipart extends Multipart {
      *			implementation does not support modification
      *			of existing values
      */
+    @Override
     public boolean removeBodyPart(BodyPart part) throws MessagingException {
 	parse();
 	return super.removeBodyPart(part);
@@ -398,6 +401,7 @@ public class MimeMultipart extends Multipart {
      *			of existing values
      * @exception	MessagingException for other failures
      */
+    @Override
     public void removeBodyPart(int index) throws MessagingException {
 	parse();
 	super.removeBodyPart(index);
@@ -413,6 +417,7 @@ public class MimeMultipart extends Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
+    @Override
     public synchronized void addBodyPart(BodyPart part) 
 		throws MessagingException {
 	parse();
@@ -433,6 +438,7 @@ public class MimeMultipart extends Multipart {
      *			of existing values
      * @exception       MessagingException for other failures
      */
+    @Override
     public synchronized void addBodyPart(BodyPart part, int index) 
 				throws MessagingException {
 	parse();
@@ -519,6 +525,7 @@ public class MimeMultipart extends Multipart {
      * Iterates through all the parts and outputs each MIME part
      * separated by a boundary.
      */
+    @Override
     public synchronized void writeTo(OutputStream os)
 				throws IOException, MessagingException {
 	parse();

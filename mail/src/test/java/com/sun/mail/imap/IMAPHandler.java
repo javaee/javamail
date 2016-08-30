@@ -76,6 +76,7 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to write to socket
      */
+    @Override
     public void sendGreetings() throws IOException {
         untagged("OK [CAPABILITY " + capabilities + "] IMAPHandler");
     }
@@ -185,6 +186,7 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to read/write to socket
      */
+    @Override
     public void handleCommand() throws IOException {
         currentLine = reader.readLine();
 

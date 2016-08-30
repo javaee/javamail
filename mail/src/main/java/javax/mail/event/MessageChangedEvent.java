@@ -101,6 +101,7 @@ public class MessageChangedEvent extends MailEvent {
     /**
      * Invokes the appropriate MessageChangedListener method.
      */
+    @Override
     public void dispatch(Object listener) {
 	((MessageChangedListener)listener).messageChanged(this);
     }

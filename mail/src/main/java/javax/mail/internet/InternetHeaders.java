@@ -145,6 +145,7 @@ public class InternetHeaders {
 	/**
 	 * Return the "value" part of the header line.
 	 */
+	@Override
 	public String getValue() {
 	    int i = line.indexOf(':');
 	    if (i < 0)

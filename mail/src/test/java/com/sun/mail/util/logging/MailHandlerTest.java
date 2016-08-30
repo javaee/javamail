@@ -1465,6 +1465,7 @@ public class MailHandlerTest extends AbstractLogging {
         if (clear) {
             h.setAttachmentFilters(one, two,
                     new Filter() {
+			@Override
                         public boolean isLoggable(LogRecord record) {
                             h.setAttachmentFormatters(new SimpleFormatter(),
                                     new SimpleFormatter());

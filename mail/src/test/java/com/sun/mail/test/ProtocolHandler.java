@@ -102,6 +102,7 @@ public abstract class ProtocolHandler implements Runnable, Cloneable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public final void run() {
         try {
 
@@ -146,6 +147,7 @@ public abstract class ProtocolHandler implements Runnable, Cloneable {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Object clone() {
         try {
             return super.clone();

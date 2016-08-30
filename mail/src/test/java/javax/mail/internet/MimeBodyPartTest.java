@@ -154,6 +154,7 @@ public class MimeBodyPartTest {
 	MimeBodyPart mbp = new MimeBodyPart(in);
 	in.close();
 	MimeBodyPart mbp2 = new MimeBodyPart() {
+	    @Override
 	    public void setDataHandler(DataHandler dh)
 						throws MessagingException {
 		super.setDataHandler(dh);

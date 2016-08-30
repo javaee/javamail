@@ -65,6 +65,7 @@ public class SMTPSaslHandler extends SMTPHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
+    @Override
     public void ehlo() throws IOException {
         println("250-hello");
         println("250 AUTH DIGEST-MD5");
@@ -76,6 +77,7 @@ public class SMTPSaslHandler extends SMTPHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
+    @Override
     public void auth(String line) throws IOException {
         StringTokenizer ct = new StringTokenizer(line, " ");
         String commandName = ct.nextToken().toUpperCase();
@@ -89,6 +91,7 @@ public class SMTPSaslHandler extends SMTPHandler {
 	final String realm = "test";
 
 	CallbackHandler cbh = new CallbackHandler() {
+	    @Override
 	    public void handle(Callback[] callbacks) {
 		if (LOGGER.isLoggable(Level.FINE))
 		    LOGGER.fine("SASL callback length: " + callbacks.length);

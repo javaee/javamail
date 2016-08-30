@@ -73,10 +73,12 @@ public class IMAPMultipartDataSource extends MimePartDataSource
 	    );
     }
 
+    @Override
     public int getCount() {
 	return parts.size();
     }
 
+    @Override
     public BodyPart getBodyPart(int index) throws MessagingException {
 	return parts.get(index);
     }

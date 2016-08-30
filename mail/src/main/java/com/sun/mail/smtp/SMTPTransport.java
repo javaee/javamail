@@ -656,6 +656,7 @@ public class SMTPTransport extends Transport {
      * @return	true if connection successful, false if authentication failed
      * @exception MessagingException	for non-authentication failures
      */
+    @Override
     protected synchronized boolean protocolConnect(String host, int port,
 				String user, String password)
 				throws MessagingException {
@@ -957,6 +958,7 @@ public class SMTPTransport extends Transport {
 	    super("LOGIN");
 	}
 
+	@Override
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    // send username
@@ -978,6 +980,7 @@ public class SMTPTransport extends Transport {
 	    super("PLAIN");
 	}
 
+	@Override
 	String getInitialResponse(String host, String authzid, String user,
 			String passwd) throws MessagingException, IOException {
 	    // return "authzid<NUL>user<NUL>passwd"
@@ -995,6 +998,7 @@ public class SMTPTransport extends Transport {
 	    return ASCIIUtility.toString(bos.toByteArray());
 	}
 
+	@Override
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    // should never get here
@@ -1018,6 +1022,7 @@ public class SMTPTransport extends Transport {
 	    return md5support;
 	}
 
+	@Override
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    DigestMD5 md5 = getMD5();
@@ -1049,6 +1054,7 @@ public class SMTPTransport extends Transport {
 	    super("NTLM");
 	}
 
+	@Override
 	String getInitialResponse(String host, String authzid, String user,
 		String passwd) throws MessagingException, IOException {
 	    ntlm = new Ntlm(getNTLMDomain(), getLocalHost(),
@@ -1062,6 +1068,7 @@ public class SMTPTransport extends Transport {
 	    return type1;
 	}
 
+	@Override
 	void doAuth(String host, String authzid, String user, String passwd)
 		throws MessagingException, IOException {
 	    assert ntlm != null;
@@ -1081,6 +1088,7 @@ public class SMTPTransport extends Transport {
 	    super("XOAUTH2", false);	// disabled by default
 	}
 
+	@Override
 	String getInitialResponse(String host, String authzid, String user,
 		String passwd) throws MessagingException, IOException {
 	    String resp = "user=" + user + "\001auth=Bearer " +
@@ -1089,6 +1097,7 @@ public class SMTPTransport extends Transport {
 	    return ASCIIUtility.toString(b);
 	}
 
+	@Override
 	void doAuth(String host, String authzid, String user, String passwd)
 		throws MessagingException, IOException {
 	    // should never get here
@@ -1207,6 +1216,7 @@ public class SMTPTransport extends Transport {
      *                  or not in the connected state or if the message is
      *                  not a MimeMessage.
      */
+    @Override
     public synchronized void sendMessage(Message message, Address[] addresses)
 		    throws MessagingException, SendFailedException {
 
@@ -1343,6 +1353,7 @@ public class SMTPTransport extends Transport {
     /**
      * Close the Transport and terminate the connection to the server.
      */
+    @Override
     public synchronized void close() throws MessagingException {
 	if (!super.isConnected()) // Already closed.
 	    return;
@@ -1381,6 +1392,7 @@ public class SMTPTransport extends Transport {
      * Check whether the transport is connected. Override superclass
      * method, to actually ping our server connection.
      */
+    @Override
     public synchronized boolean isConnected() {
 	if (!super.isConnected())
 	    // if we haven't been connected at all, don't bother with NOOP
@@ -1438,6 +1450,7 @@ public class SMTPTransport extends Transport {
      *
      * @since	JavaMail 1.4.2
      */
+    @Override
     protected void notifyTransportListeners(int type, Address[] validSent,
 					    Address[] validUnsent,
 					    Address[] invalid, Message msg) {
@@ -1585,6 +1598,7 @@ public class SMTPTransport extends Transport {
 	return need8bit;
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    closeConnection();

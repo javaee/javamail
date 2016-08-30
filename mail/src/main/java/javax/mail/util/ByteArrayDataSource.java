@@ -151,6 +151,7 @@ public class ByteArrayDataSource implements DataSource {
      * @return		the InputStream
      * @exception	IOException	if no data has been set
      */
+    @Override
     public InputStream getInputStream() throws IOException {
 	if (data == null)
 	    throw new IOException("no data");
@@ -166,6 +167,7 @@ public class ByteArrayDataSource implements DataSource {
      *
      * @exception	IOException	always
      */
+    @Override
     public OutputStream getOutputStream() throws IOException {
 	throw new IOException("cannot do this");
     }
@@ -175,6 +177,7 @@ public class ByteArrayDataSource implements DataSource {
      *
      * @return	the MIME type
      */
+    @Override
     public String getContentType() {
         return type;
     }
@@ -185,6 +188,7 @@ public class ByteArrayDataSource implements DataSource {
      *
      * @return	the name of this data
      */
+    @Override
     public String getName() {
         return name;
     }

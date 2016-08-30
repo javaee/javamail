@@ -192,6 +192,7 @@ class Protocol {
 			new OutputStreamWriter(traceOutput, "iso-8859-1")));
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    if (socket != null)	// Forgot to logout ?!

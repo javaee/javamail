@@ -801,6 +801,7 @@ public class SocketFetcher {
     private static ClassLoader getContextClassLoader() {
 	return
 	AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+	    @Override
 	    public ClassLoader run() {
 		ClassLoader cl = null;
 		try {

@@ -647,6 +647,7 @@ public class Protocol {
     /**
      * Finalizer.
      */
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    disconnect();

@@ -52,10 +52,12 @@ public class image_gif extends handler_base {
 	new ActivationDataFlavor(Image.class, "image/gif", "GIF Image")
     };
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
     }
 
+    @Override
     public Object getContent(DataSource ds) throws IOException {
 	InputStream is = ds.getInputStream();
 	int pos = 0;
@@ -82,6 +84,7 @@ public class image_gif extends handler_base {
     /**
      * Write the object to the output stream, using the specified MIME type.
      */
+    @Override
     public void writeTo(Object obj, String type, OutputStream os)
 			throws IOException {
 	if (!(obj instanceof Image))

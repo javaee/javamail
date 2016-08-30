@@ -82,6 +82,7 @@ public final class ModifiedSinceTerm extends SearchTerm {
      *			MODSEQ
      * @return		true if the comparison succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	long m;
 
@@ -100,6 +101,7 @@ public final class ModifiedSinceTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof ModifiedSinceTerm))
 	    return false;
@@ -109,6 +111,7 @@ public final class ModifiedSinceTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return (int)modseq;
     }

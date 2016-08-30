@@ -106,6 +106,7 @@ public class ClassLoaderSuite extends Suite {
 	    super(urls, parent);
 	}
 
+	@Override
 	public Class<?> loadClass(String name, boolean resolve)
 				    throws ClassNotFoundException {
 	    Class<?> c = null;

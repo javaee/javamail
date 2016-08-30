@@ -116,6 +116,7 @@ public class StoreEvent extends MailEvent {
     /**
      * Invokes the appropriate StoreListener method.
      */
+    @Override
     public void dispatch(Object listener) {
 	((StoreListener)listener).notification(this);
     }

@@ -94,6 +94,7 @@ public class POP3Handler extends ProtocolHandler {
      * @throws IOException
      *             unable to write to socket
      */
+    @Override
     public void sendGreetings() throws IOException {
         this.println("+OK POP3 CUSTOM");
     }
@@ -118,6 +119,7 @@ public class POP3Handler extends ProtocolHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
+    @Override
     public void handleCommand() throws IOException {
         this.currentLine = this.reader.readLine();
 

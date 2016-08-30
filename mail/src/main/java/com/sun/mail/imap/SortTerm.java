@@ -98,6 +98,7 @@ public final class SortTerm {
 	this.term = term;
     }
 
+    @Override
     public String toString() {
 	return term;
     }

@@ -62,6 +62,7 @@ public final class IMAPCloseFailureTest {
     static class NoIMAPHandler extends IMAPHandler {
 	static boolean first = true;
 
+	@Override
 	public void examine() throws IOException {
 	    if (first)
 		no("mailbox gone");
@@ -74,6 +75,7 @@ public final class IMAPCloseFailureTest {
     static class BadIMAPHandler extends IMAPHandler {
 	static boolean first = true;
 
+	@Override
 	public void examine() throws IOException {
 	    if (first)
 		bad("mailbox gone");

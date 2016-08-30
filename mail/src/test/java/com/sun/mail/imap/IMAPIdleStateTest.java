@@ -84,6 +84,7 @@ public final class IMAPIdleStateTest {
 
 		// create a thread to run the IDLE command on the Store
 		Thread t = new Thread() {
+		    @Override
 		    public void run() {
 			try {
 			    store.idle();

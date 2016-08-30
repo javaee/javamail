@@ -118,6 +118,7 @@ public abstract class StringTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof StringTerm))
 	    return false;
@@ -133,6 +134,7 @@ public abstract class StringTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return ignoreCase ? pattern.hashCode() : ~pattern.hashCode();
     }

@@ -623,6 +623,7 @@ public abstract class Service {
      * Return <code>getURLName.toString()</code> if this service has a URLName,
      * otherwise it will return the default <code>toString</code>.
      */
+    @Override
     public String toString() {
 	URLName url = getURLName();
 	if (url != null)
@@ -655,6 +656,7 @@ public abstract class Service {
     /**
      * Stop the event dispatcher thread so the queue can be garbage collected.
      */
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    q.terminateQueue();

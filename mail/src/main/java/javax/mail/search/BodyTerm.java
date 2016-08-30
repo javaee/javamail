@@ -71,6 +71,7 @@ public final class BodyTerm extends StringTerm {
      * @param msg	The pattern search is applied on this Message's body
      * @return		true if the pattern is found; otherwise false 
      */
+    @Override
     public boolean match(Message msg) {
 	return matchPart(msg);
     }
@@ -117,6 +118,7 @@ public final class BodyTerm extends StringTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof BodyTerm))
 	    return false;

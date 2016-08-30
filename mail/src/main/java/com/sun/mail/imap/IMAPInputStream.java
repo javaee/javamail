@@ -187,6 +187,7 @@ public class IMAPInputStream extends InputStream {
      * Reads the next byte of data from this buffered input stream.
      * If no byte is available, the value <code>-1</code> is returned.
      */
+    @Override
     public synchronized int read() throws IOException {
 	if (bufpos >= bufcount) {
 	    fill();
@@ -210,6 +211,7 @@ public class IMAPInputStream extends InputStream {
      * the return value to insure that they have obtained the
      * requisite number of bytes.
      */
+    @Override
     public synchronized int read(byte b[], int off, int len) 
 		throws IOException {
 
@@ -240,6 +242,7 @@ public class IMAPInputStream extends InputStream {
      * the return value to insure that they have obtained the
      * requisite number of bytes.
      */
+    @Override
     public int read(byte b[]) throws IOException {
 	return read(b, 0, b.length);
     }
@@ -248,6 +251,7 @@ public class IMAPInputStream extends InputStream {
      * Returns the number of bytes that can be read from this input
      * stream without blocking.
      */
+    @Override
     public synchronized int available() throws IOException {
 	return (bufcount - bufpos);
     }

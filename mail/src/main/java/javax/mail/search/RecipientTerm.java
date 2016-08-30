@@ -87,6 +87,7 @@ public final class RecipientTerm extends AddressTerm {
      *			address
      * @return		true if the match succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	Address[] recipients;
 
@@ -108,6 +109,7 @@ public final class RecipientTerm extends AddressTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof RecipientTerm))
 	    return false;
@@ -118,6 +120,7 @@ public final class RecipientTerm extends AddressTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return type.hashCode() + super.hashCode();
     }

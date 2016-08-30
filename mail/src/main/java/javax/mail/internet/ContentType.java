@@ -215,6 +215,7 @@ public class ContentType {
      *
      * @return	RFC2045 style string
      */
+    @Override
     public String toString() {
 	if (primaryType == null || subType == null) // need both
 	    return "";

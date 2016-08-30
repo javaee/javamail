@@ -354,6 +354,7 @@ public class Flags implements Cloneable, Serializable {
      *
      * @return	true if they're equal
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof Flags))
 	    return false;
@@ -386,6 +387,7 @@ public class Flags implements Cloneable, Serializable {
      *
      * @return	the hash code
      */
+    @Override
     public int hashCode() {
 	int hash = system_flags;
 	if (user_flags != null) {
@@ -448,6 +450,7 @@ public class Flags implements Cloneable, Serializable {
      * Returns a clone of this Flags object.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public Object clone() {
 	Flags f = null;
 	try {

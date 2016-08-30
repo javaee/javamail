@@ -156,6 +156,7 @@ public class FolderEvent extends MailEvent {
     /**
      * Invokes the appropriate FolderListener method
      */
+    @Override
     public void dispatch(Object listener) {
 	if (type == CREATED)
 	    ((FolderListener)listener).folderCreated(this);

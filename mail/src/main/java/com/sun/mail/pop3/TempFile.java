@@ -80,6 +80,7 @@ class TempFile {
 	file.delete();
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    close();

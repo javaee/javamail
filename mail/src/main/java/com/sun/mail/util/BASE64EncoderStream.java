@@ -113,6 +113,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
      * @param      len   the number of bytes to write.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public synchronized void write(byte[] b, int off, int len)
 				throws IOException {
 	int end = off + len;
@@ -161,6 +162,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
      * @param      b   the data to be written.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void write(byte[] b) throws IOException {
 	write(b, 0, b.length);
     }
@@ -171,6 +173,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
      * @param      c   the <code>byte</code>.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public synchronized void write(int c) throws IOException {
 	buffer[bufsize++] = (byte)c;
 	if (bufsize == 3) { // Encoding unit = 3 bytes
@@ -185,6 +188,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
      *
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public synchronized void flush() throws IOException {
 	if (bufsize > 0) { // If there's unencoded characters in the buffer ..
 	    encode();      // .. encode them
@@ -197,6 +201,7 @@ public class BASE64EncoderStream extends FilterOutputStream {
      * Forces any buffered output bytes to be encoded out to the stream
      * and closes this output stream
      */
+    @Override
     public synchronized void close() throws IOException {
 	flush();
 	if (count > 0 && !noCRLF) {

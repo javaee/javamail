@@ -101,6 +101,7 @@ public abstract class IntegerComparisonTerm extends ComparisonTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof IntegerComparisonTerm))
 	    return false;
@@ -111,6 +112,7 @@ public abstract class IntegerComparisonTerm extends ComparisonTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return number + super.hashCode();
     }

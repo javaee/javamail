@@ -71,6 +71,7 @@ public class QDecoderStream extends QPDecoderStream {
      *             stream is reached.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public int read() throws IOException {
 	int c = in.read();
 

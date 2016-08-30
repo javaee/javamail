@@ -205,10 +205,12 @@ public class ParameterList {
 	    this.it = it;
 	}
 
+	@Override
 	public boolean hasMoreElements() {
 	    return it.hasNext();
 	}
 
+	@Override
 	public String nextElement() {
 	    return it.next();
 	}
@@ -634,6 +636,7 @@ public class ParameterList {
      *
      * @return		String
      */
+    @Override
     public String toString() {
 	return toString(0);
     }
@@ -758,6 +761,7 @@ public class ParameterList {
 	    }
 	}
 
+	@Override
 	public String toString() {
 	    return sb.toString();
 	}

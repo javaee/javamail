@@ -156,6 +156,7 @@ public class FetchProfile {
 	/**
 	 * Include the name in the toString return value for debugging.
 	 */
+	@Override
 	public String toString() {
 	    return getClass().getName() + "[" + name + "]";
 	}

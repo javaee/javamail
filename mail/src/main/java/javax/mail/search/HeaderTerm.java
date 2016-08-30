@@ -86,6 +86,7 @@ public final class HeaderTerm extends StringTerm {
      * @param msg	The match is applied to this Message's header
      * @return		true if the match succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	String[] headers;
 
@@ -107,6 +108,7 @@ public final class HeaderTerm extends StringTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof HeaderTerm))
 	    return false;
@@ -118,6 +120,7 @@ public final class HeaderTerm extends StringTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	// XXX - depends on header comparisons being case independent
 	return headerName.toLowerCase(Locale.ENGLISH).hashCode() +

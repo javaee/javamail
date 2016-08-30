@@ -70,6 +70,7 @@ public final class ReceivedDateTerm extends DateTerm {
      *			received date
      * @return		true if the comparison succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	Date d;
 
@@ -88,6 +89,7 @@ public final class ReceivedDateTerm extends DateTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof ReceivedDateTerm))
 	    return false;

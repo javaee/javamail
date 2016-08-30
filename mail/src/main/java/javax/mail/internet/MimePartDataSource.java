@@ -91,6 +91,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      * @see	javax.mail.internet.MimeUtility#decode
      * @return 	decoded input stream
      */
+    @Override
     public InputStream getInputStream() throws IOException {
 	InputStream is;
 
@@ -123,6 +124,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      *
      * This implementation throws the UnknownServiceException.
      */
+    @Override
     public OutputStream getOutputStream() throws IOException {
 	throw new UnknownServiceException("Writing not supported");
     }
@@ -133,6 +135,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      * This implementation just invokes the <code>getContentType</code>
      * method on the MimePart.
      */
+    @Override
     public String getContentType() {
 	try {
 	    return part.getContentType();
@@ -150,6 +153,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      *
      * This implementation just returns an empty string.
      */
+    @Override
     public String getName() {
 	try {
 	    if (part instanceof MimeBodyPart)
@@ -164,6 +168,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
      * Return the <code>MessageContext</code> for the current part.
      * @since JavaMail 1.1
      */
+    @Override
     public synchronized MessageContext getMessageContext() {
 	if (context == null)
 	    context = new MessageContext(part);

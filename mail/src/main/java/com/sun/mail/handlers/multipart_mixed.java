@@ -53,6 +53,7 @@ public class multipart_mixed extends handler_base {
 				    "multipart/mixed", "Multipart")
     };
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return myDF;
     }
@@ -60,6 +61,7 @@ public class multipart_mixed extends handler_base {
     /**
      * Return the content.
      */
+    @Override
     public Object getContent(DataSource ds) throws IOException {
 	try {
 	    return new MimeMultipart(ds); 
@@ -74,6 +76,7 @@ public class multipart_mixed extends handler_base {
     /**
      * Write the object to the output stream, using the specific MIME type.
      */
+    @Override
     public void writeTo(Object obj, String mimeType, OutputStream os) 
 			throws IOException {
 	if (obj instanceof Multipart) {

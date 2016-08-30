@@ -69,6 +69,7 @@ public final class IMAPLoginFailureTest {
 	TestServer server = null;
 	try {
 	    final IMAPHandler handler = new IMAPHandler() {
+		@Override
 		public void sendGreetings() throws IOException {
 		    capabilities = "IMAP4REV1 LOGINDISABLED";
 		    super.sendGreetings();

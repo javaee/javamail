@@ -176,6 +176,7 @@ public class ContentDisposition {
      * @return	RFC2045 style string
      * @since		JavaMail 1.2
      */
+    @Override
     public String toString() {
 	if (disposition == null)
 	    return "";

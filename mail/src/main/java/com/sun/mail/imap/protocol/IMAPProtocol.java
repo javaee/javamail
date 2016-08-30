@@ -295,6 +295,7 @@ public class IMAPProtocol extends Protocol {
      * @param	r	the greeting response
      * @exception	ProtocolException	for protocol failures
      */
+    @Override
     protected void processGreeting(Response r) throws ProtocolException {
 	if (r.isBYE()) {
 	    checkReferral(r);	// may throw exception
@@ -373,6 +374,7 @@ public class IMAPProtocol extends Protocol {
      *
      * @return	true if non-synchronizing literals are supported
      */
+    @Override
     protected boolean supportsNonSyncLiterals() {
 	return hasCapability("LITERAL+");
     }
@@ -384,6 +386,7 @@ public class IMAPProtocol extends Protocol {
      * @exception	IOException	for I/O errors
      * @exception	ProtocolException	for protocol failures
      */
+    @Override
     public Response readResponse() throws IOException, ProtocolException {
 	// assert Thread.holdsLock(this);
 	// can't assert because it's called from constructor
@@ -430,6 +433,7 @@ public class IMAPProtocol extends Protocol {
      * This method just makes the Protocol.disconnect() method
      * public.
      */
+    @Override
     public void disconnect() {
 	super.disconnect();
 	authenticated = false;	// just in case
@@ -1849,6 +1853,7 @@ public class IMAPProtocol extends Protocol {
      *
      * @return	the buffer to use
      */
+    @Override
     protected ByteArray getResponseBuffer() {
 	ByteArray ret = ba;
 	ba = null;

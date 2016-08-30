@@ -97,6 +97,7 @@ public final class NopServer extends Thread {
 	return gotEOF;
     }
 
+    @Override
     public void run() {
         try {
             keepOn = true;

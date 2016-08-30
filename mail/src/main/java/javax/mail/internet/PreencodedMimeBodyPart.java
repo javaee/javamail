@@ -78,6 +78,7 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
      * Returns the content transfer encoding specified when
      * this object was created.
      */
+    @Override
     public String getEncoding() throws MessagingException {
 	return encoding;
     }
@@ -91,6 +92,7 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
      * @exception MessagingException for other failures
      * @see javax.activation.DataHandler#writeTo
      */
+    @Override
     public void writeTo(OutputStream os)
 			throws IOException, MessagingException {
 
@@ -119,6 +121,7 @@ public class PreencodedMimeBodyPart extends MimeBodyPart {
      * Force the <code>Content-Transfer-Encoding</code> header to use
      * the encoding that was specified when this object was created.
      */
+    @Override
     protected void updateHeaders() throws MessagingException {
 	super.updateHeaders();
 	MimeBodyPart.setEncoding(this, encoding);

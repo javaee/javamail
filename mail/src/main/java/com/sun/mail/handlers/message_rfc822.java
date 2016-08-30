@@ -58,6 +58,7 @@ public class message_rfc822 extends handler_base {
 	new ActivationDataFlavor(Message.class, "message/rfc822", "Message")
     };
 
+    @Override
     protected ActivationDataFlavor[] getDataFlavors() {
 	return ourDataFlavor;
     }
@@ -65,6 +66,7 @@ public class message_rfc822 extends handler_base {
     /**
      * Return the content.
      */
+    @Override
     public Object getContent(DataSource ds) throws IOException {
 	// create a new MimeMessage
 	try {
@@ -92,6 +94,7 @@ public class message_rfc822 extends handler_base {
     /**
      * Write the object as a byte stream.
      */
+    @Override
     public void writeTo(Object obj, String mimeType, OutputStream os) 
 			throws IOException {
 	// if the object is a message, we know how to write that out

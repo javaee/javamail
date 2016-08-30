@@ -104,6 +104,7 @@ public final class FlagTerm extends SearchTerm {
      * @param msg	The flag comparison is applied to this Message
      * @return		true if the comparson succeeds, otherwise false.
      */
+    @Override
     public boolean match(Message msg) {
 
 	try {
@@ -149,6 +150,7 @@ public final class FlagTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof FlagTerm))
 	    return false;
@@ -159,6 +161,7 @@ public final class FlagTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return set ? flags.hashCode() : ~flags.hashCode();
     }

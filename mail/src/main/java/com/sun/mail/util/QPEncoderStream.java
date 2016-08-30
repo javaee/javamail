@@ -90,6 +90,7 @@ public class QPEncoderStream extends FilterOutputStream {
      * @param      len   the number of bytes to write.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
 	for (int i = 0; i < len; i++)
 	    write(b[off + i]);
@@ -100,6 +101,7 @@ public class QPEncoderStream extends FilterOutputStream {
      * @param      b   the data to be written.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void write(byte[] b) throws IOException {
 	write(b, 0, b.length);
     }
@@ -109,6 +111,7 @@ public class QPEncoderStream extends FilterOutputStream {
      * @param      c   the <code>byte</code>.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void write(int c) throws IOException {
 	c = c & 0xff; // Turn off the MSB.
 	if (gotSpace) { // previous character was <SPACE>
@@ -148,6 +151,7 @@ public class QPEncoderStream extends FilterOutputStream {
      * to be encoded out to the stream.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void flush() throws IOException {
 	if (gotSpace) {
 	    output(' ', true);
@@ -162,6 +166,7 @@ public class QPEncoderStream extends FilterOutputStream {
      *
      * @exception	IOException	for I/O errors
      */
+    @Override
     public void close() throws IOException {
 	flush();
 	out.close();

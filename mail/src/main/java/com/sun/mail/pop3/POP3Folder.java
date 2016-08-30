@@ -89,14 +89,17 @@ public class POP3Folder extends Folder {
 				"DEBUG POP3", store.getSession());
     }
 
+    @Override
     public String getName() {
 	return name;
     }
 
+    @Override
     public String getFullName() {
 	return name;
     }
 
+    @Override
     public Folder getParent() {
 	return new DefaultFolder(store);
     }
@@ -107,6 +110,7 @@ public class POP3Folder extends Folder {
      *
      * @return	true for INBOX, false otherwise
      */
+    @Override
     public boolean exists() {
 	return exists;
     }
@@ -117,6 +121,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MessagingException	always
      */
+    @Override
     public Folder[] list(String pattern) throws MessagingException {
 	throw new MessagingException("not a directory");
     }
@@ -126,6 +131,7 @@ public class POP3Folder extends Folder {
      *
      * @return	NUL
      */
+    @Override
     public char getSeparator() {
 	return '\0';
     }
@@ -135,6 +141,7 @@ public class POP3Folder extends Folder {
      *
      * @return	Folder.HOLDS_MESSAGES
      */
+    @Override
     public int getType() {
 	return HOLDS_MESSAGES;
     }
@@ -145,6 +152,7 @@ public class POP3Folder extends Folder {
      *
      * @return	false
      */
+    @Override
     public boolean create(int type) throws MessagingException {
 	return false;
     }
@@ -155,6 +163,7 @@ public class POP3Folder extends Folder {
      *
      * @return	false
      */
+    @Override
     public boolean hasNewMessages() throws MessagingException {
 	return false;    // no way to know
     }
@@ -165,6 +174,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MessagingException	always
      */
+    @Override
     public Folder getFolder(String name) throws MessagingException {
 	throw new MessagingException("not a directory");
     }
@@ -176,6 +186,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MethodNotSupportedException	always
      */
+    @Override
     public boolean delete(boolean recurse) throws MessagingException {
 	throw new MethodNotSupportedException("delete");
     }
@@ -186,6 +197,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MethodNotSupportedException	always
      */
+    @Override
     public boolean renameTo(Folder f) throws MessagingException {
 	throw new MethodNotSupportedException("renameTo");
     }
@@ -198,6 +210,7 @@ public class POP3Folder extends Folder {
      * @exception	AuthenticationFailedException	authentication failures
      * @exception	MessagingException	other open failures
      */
+    @Override
     public synchronized void open(int mode) throws MessagingException {
 	checkClosed();
 	if (!exists)
@@ -238,6 +251,7 @@ public class POP3Folder extends Folder {
 	notifyConnectionListeners(ConnectionEvent.OPENED);
     }
 
+    @Override
     public synchronized void close(boolean expunge) throws MessagingException {
 	checkOpen();
 
@@ -297,6 +311,7 @@ public class POP3Folder extends Folder {
 	}
     }
 
+    @Override
     public synchronized boolean isOpen() {
 	if (!opened)
 	    return false;
@@ -320,6 +335,7 @@ public class POP3Folder extends Folder {
      *
      * @return	empty Flags object
      */
+    @Override
     public Flags getPermanentFlags() {
 	return new Flags(); // empty flags object
     }
@@ -329,6 +345,7 @@ public class POP3Folder extends Folder {
      * protocol doesn't support notification of new messages
      * arriving in open folders.
      */
+    @Override
     public synchronized int getMessageCount() throws MessagingException {
 	if (!opened)
 	    return -1;
@@ -336,6 +353,7 @@ public class POP3Folder extends Folder {
 	return total;
     }
 
+    @Override
     public synchronized Message getMessage(int msgno)
 					throws MessagingException {
 	checkOpen();
@@ -373,6 +391,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MethodNotSupportedException	always
      */
+    @Override
     public void appendMessages(Message[] msgs) throws MessagingException {
 	throw new MethodNotSupportedException("Append not supported");	
     }
@@ -386,6 +405,7 @@ public class POP3Folder extends Folder {
      *
      * @exception	MethodNotSupportedException	always
      */
+    @Override
     public Message[] expunge() throws MessagingException {
 	throw new MethodNotSupportedException("Expunge not supported");
     }
@@ -399,6 +419,7 @@ public class POP3Folder extends Folder {
      * the headers and size of all messages are fetched using the POP3 TOP
      * and LIST commands.
      */
+    @Override
     public synchronized void fetch(Message[] msgs, FetchProfile fp)
 				throws MessagingException {
 	checkReadable();
@@ -547,6 +568,7 @@ public class POP3Folder extends Folder {
     /**
      * Close the folder when we're finalized.
      */
+    @Override
     protected void finalize() throws Throwable {
 	forceClose = !store.finalizeCleanClose;
 	try {
@@ -599,6 +621,7 @@ public class POP3Folder extends Folder {
     /*
      * Only here to make accessible to POP3Message.
      */
+    @Override
     protected void notifyMessageChangedListeners(int type, Message m) {
 	super.notifyMessageChangedListeners(type, m);
     }

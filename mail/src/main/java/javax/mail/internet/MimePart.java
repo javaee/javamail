@@ -213,6 +213,7 @@ public interface MimePart extends Part {
      * @exception	MessagingException	if an error occurs
      * @see	#setText(String text, String charset)
      */
+    @Override
     public void setText(String text) throws MessagingException;
 
     /**

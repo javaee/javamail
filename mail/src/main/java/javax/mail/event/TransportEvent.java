@@ -166,6 +166,7 @@ public class TransportEvent extends MailEvent {
     /**
      * Invokes the appropriate TransportListener method.
      */
+    @Override
     public void dispatch(Object listener) {
 	if (type == MESSAGE_DELIVERED)	
 	    ((TransportListener)listener).messageDelivered(this);

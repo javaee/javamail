@@ -83,6 +83,7 @@ public final class OlderTerm extends SearchTerm {
      *			received date
      * @return		true if the comparison succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	Date d;
 
@@ -102,6 +103,7 @@ public final class OlderTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof OlderTerm))
 	    return false;
@@ -111,6 +113,7 @@ public final class OlderTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return interval;
     }

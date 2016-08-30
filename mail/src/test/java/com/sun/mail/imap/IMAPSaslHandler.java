@@ -75,6 +75,7 @@ public class IMAPSaslHandler extends IMAPHandler {
 	final String realm = "test";
 
 	CallbackHandler cbh = new CallbackHandler() {
+	    @Override
 	    public void handle(Callback[] callbacks) {
 		if (LOGGER.isLoggable(Level.FINE))
 		    LOGGER.fine("SASL callback length: " + callbacks.length);

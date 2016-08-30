@@ -90,6 +90,7 @@ public final class IMAPFetchProfileTest {
     public void testINTERNALDATEFetch() {
 	testWithHandler(
 	    new IMAPTest() {
+		@Override
 		public void test(Folder folder, IMAPHandlerFetch handler)
 				    throws MessagingException {
 		    FetchProfile fp = new FetchProfile();
@@ -117,6 +118,7 @@ public final class IMAPFetchProfileTest {
     public void testINTERNALDATEFetchEnvelope() {
 	testWithHandler(
 	    new IMAPTest() {
+		@Override
 		public void test(Folder folder, IMAPHandlerFetch handler)
 				    throws MessagingException {
 		    FetchProfile fp = new FetchProfile();
@@ -144,6 +146,7 @@ public final class IMAPFetchProfileTest {
     public void testINTERNALDATENoFetch() {
 	testWithHandler(
 	    new IMAPTest() {
+		@Override
 		public void test(Folder folder, IMAPHandlerFetch handler)
 				    throws MessagingException {
 		    Message m = folder.getMessage(1);

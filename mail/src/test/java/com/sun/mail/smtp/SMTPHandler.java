@@ -63,6 +63,7 @@ public class SMTPHandler extends ProtocolHandler {
      * @throws IOException
      *             unable to write to socket
      */
+    @Override
     public void sendGreetings() throws IOException {
         println("220 localhost dummy server ready");
     }
@@ -87,6 +88,7 @@ public class SMTPHandler extends ProtocolHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
+    @Override
     public void handleCommand() throws IOException {
         currentLine = reader.readLine();
 

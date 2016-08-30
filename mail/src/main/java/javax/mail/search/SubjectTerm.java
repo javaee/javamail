@@ -71,6 +71,7 @@ public final class SubjectTerm extends StringTerm {
      *			subject header
      * @return		true if the pattern match succeeds, otherwise false
      */
+    @Override
     public boolean match(Message msg) {
 	String subj;
 
@@ -89,6 +90,7 @@ public final class SubjectTerm extends StringTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof SubjectTerm))
 	    return false;

@@ -62,15 +62,18 @@ public class SavedSocketFactory extends SocketFactory {
 	}
     }
 
+    @Override
     public Socket createSocket() throws IOException {
 	return save(factory.createSocket());
     }
 
+    @Override
     public Socket createSocket(InetAddress host, int port)
 				throws IOException {
 	return save(factory.createSocket(host, port));
     }
 
+    @Override
     public Socket createSocket(InetAddress address, int port,
 				InetAddress localAddress, int localPort)
 				throws IOException {
@@ -78,10 +81,12 @@ public class SavedSocketFactory extends SocketFactory {
 				    address, port, localAddress, localPort));
     }
 
+    @Override
     public Socket createSocket(String host, int port) throws IOException {
 	return save(factory.createSocket(host, port));
     }
 
+    @Override
     public Socket createSocket(String host, int port,
 				InetAddress localHost, int localPort)
 				throws IOException {

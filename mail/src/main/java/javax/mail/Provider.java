@@ -69,6 +69,7 @@ public class Provider {
 	    this.type = type;
 	}
 
+	@Override
 	public String toString() {
 	    return type;
 	}
@@ -144,6 +145,7 @@ public class Provider {
     }
 
     /** Overrides Object.toString() */
+    @Override
     public String toString() {
 	String s = "javax.mail.Provider[" + type + "," +
 		    protocol + "," + className;

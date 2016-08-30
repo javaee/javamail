@@ -74,6 +74,7 @@ public final class SMTPWriteTimeoutTest {
         TestServer server = null;
         try {
 	    SMTPHandler handler = new SMTPHandler() {
+		@Override
 		public void readMessage() throws IOException {
 		    try {
 			// delay long enough to cause timeout

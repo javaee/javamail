@@ -114,6 +114,7 @@ public class UUDecoderStream extends FilterInputStream {
      * @exception  IOException  if an I/O error occurs.
      * @see        java.io.FilterInputStream#in
      */
+    @Override
     public int read() throws IOException {
 	if (index >= bufsize) {
 	    readPrefix();
@@ -124,6 +125,7 @@ public class UUDecoderStream extends FilterInputStream {
 	return buffer[index++] & 0xff; // return lower byte
     }
 
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
 	int i, c;
 	for (i = 0; i < len; i++) {
@@ -137,10 +139,12 @@ public class UUDecoderStream extends FilterInputStream {
 	return i;
     }
 
+    @Override
     public boolean markSupported() {
 	return false;
     }
 
+    @Override
     public int available() throws IOException {
 	 // This is only an estimate, since in.available()
 	 // might include CRLFs too ..

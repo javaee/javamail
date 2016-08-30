@@ -74,6 +74,7 @@ class WritableSharedFile extends SharedFileInputStream {
     /**
      * Close the readable and writable files.
      */
+    @Override
     public void close() throws IOException {
 	try {
 	    super.close();

@@ -1632,6 +1632,7 @@ public abstract class Folder {
 	q.enqueue(event, v);
     }
 
+    @Override
     protected void finalize() throws Throwable {
 	try {
 	    q.terminateQueue();
@@ -1646,6 +1647,7 @@ public abstract class Folder {
      * the default toString() behavior.
      */
 
+    @Override
     public String toString() {
 	String s = getFullName();
 	if (s != null)

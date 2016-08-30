@@ -71,6 +71,7 @@ public class EncodeFileName extends NoEncodeFileName {
     }
 
     @Test
+    @Override
     public void test() throws Exception {
 	MimeBodyPart mbp = new MimeBodyPart();
 	mbp.setText("test");

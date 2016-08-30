@@ -72,6 +72,7 @@ public final class NotTerm extends SearchTerm {
     }
 
     /* The NOT operation */
+    @Override
     public boolean match(Message msg) {
 	return !term.match(msg);
     }
@@ -79,6 +80,7 @@ public final class NotTerm extends SearchTerm {
     /**
      * Equality comparison.
      */
+    @Override
     public boolean equals(Object obj) {
 	if (!(obj instanceof NotTerm))
 	    return false;
@@ -89,6 +91,7 @@ public final class NotTerm extends SearchTerm {
     /**
      * Compute a hashCode for this object.
      */
+    @Override
     public int hashCode() {
 	return term.hashCode() << 1;
     }

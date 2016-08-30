@@ -105,6 +105,7 @@ public class BASE64DecoderStream extends FilterInputStream {
      * @exception  IOException  if an I/O error occurs.
      * @see        java.io.FilterInputStream#in
      */
+    @Override
     public int read() throws IOException {
 	if (index >= bufsize) {
 	    bufsize = decode(buffer, 0, buffer.length);
@@ -129,6 +130,7 @@ public class BASE64DecoderStream extends FilterInputStream {
      *             the stream has been reached.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public int read(byte[] buf, int off, int len) throws IOException {
 	// empty out single byte read buffer
 	int off0 = off;
@@ -170,6 +172,7 @@ public class BASE64DecoderStream extends FilterInputStream {
     /**
      * Skips over and discards n bytes of data from this stream.
      */
+    @Override
     public long skip(long n) throws IOException {
 	long skipped = 0;
 	while (n-- > 0 && read() >= 0)
@@ -181,6 +184,7 @@ public class BASE64DecoderStream extends FilterInputStream {
      * Tests if this input stream supports marks. Currently this class
      * does not support marks
      */
+    @Override
     public boolean markSupported() {
 	return false; // Maybe later ..
     }
@@ -191,6 +195,7 @@ public class BASE64DecoderStream extends FilterInputStream {
      * a close approximation in case the original encoded stream
      * contains embedded CRLFs; since the CRLFs are discarded, not decoded
      */ 
+    @Override
     public int available() throws IOException {
 	 // This is only an estimate, since in.available()
 	 // might include CRLFs too ..
