@@ -48,6 +48,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.logging.Level;
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
@@ -198,10 +199,10 @@ public class MailDateFormat extends SimpleDateFormat {
      *
      * @return a clone of this instance
      */
-//    @Override
-//    public MailDateFormat clone() {
-//        return (MailDateFormat) super.clone();
-//    }
+    @Override
+    public MailDateFormat clone() {
+        return (MailDateFormat) super.clone();
+    }
 
     /**
      * Formats the given date in the format specified by 
@@ -280,11 +281,11 @@ public class MailDateFormat extends SimpleDateFormat {
      *
      * @throws UnsupportedOperationException if this method is invoked
      */
-//    @Override
-//    public void applyLocalizedPattern(String pattern) {
-//        throw new UnsupportedOperationException("Method "
-//                + "applyLocalizedPattern() shouldn't be called");
-//    }
+    @Override
+    public void applyLocalizedPattern(String pattern) {
+        throw new UnsupportedOperationException("Method "
+                + "applyLocalizedPattern() shouldn't be called");
+    }
 
     /**
      * This method always throws an UnsupportedOperationException and should not
@@ -292,11 +293,11 @@ public class MailDateFormat extends SimpleDateFormat {
      *
      * @throws UnsupportedOperationException if this method is invoked
      */
-//    @Override
-//    public void applyPattern(String pattern) {
-//        throw new UnsupportedOperationException("Method "
-//                + "applyPattern() shouldn't be called");
-//    }
+    @Override
+    public void applyPattern(String pattern) {
+        throw new UnsupportedOperationException("Method "
+                + "applyPattern() shouldn't be called");
+    }
 
     /**
      * This method allows serialization to change the pattern.
@@ -314,11 +315,11 @@ public class MailDateFormat extends SimpleDateFormat {
      * parsed
      * @throws UnsupportedOperationException if this method is invoked
      */
-//    @Override
-//    public Date get2DigitYearStart() {
-//        throw new UnsupportedOperationException("Method "
-//                + "get2DigitYearStart() shouldn't be called");
-//    }
+    @Override
+    public Date get2DigitYearStart() {
+        throw new UnsupportedOperationException("Method "
+                + "get2DigitYearStart() shouldn't be called");
+    }
 
     /**
      * This method always throws an UnsupportedOperationException and should not
@@ -327,11 +328,11 @@ public class MailDateFormat extends SimpleDateFormat {
      *
      * @throws UnsupportedOperationException if this method is invoked
      */
-//    @Override
-//    public void set2DigitYearStart(Date startDate) {
-//        throw new UnsupportedOperationException("Method "
-//                + "set2DigitYearStart() shouldn't be called");
-//    }
+    @Override
+    public void set2DigitYearStart(Date startDate) {
+        throw new UnsupportedOperationException("Method "
+                + "set2DigitYearStart() shouldn't be called");
+    }
 
     /**
      * This method always throws an UnsupportedOperationException and should not
@@ -339,11 +340,11 @@ public class MailDateFormat extends SimpleDateFormat {
      *
      * @throws UnsupportedOperationException if this method is invoked
      */
-//    @Override
-//    public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
-//        throw new UnsupportedOperationException("Method "
-//                + "setDateFormatSymbols() shouldn't be called");
-//    }
+    @Override
+    public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
+        throw new UnsupportedOperationException("Method "
+                + "setDateFormatSymbols() shouldn't be called");
+    }
 
     /**
      * Returns the date, as specified by the parameters.
@@ -420,8 +421,7 @@ public class MailDateFormat extends SimpleDateFormat {
                     LOGGER.log(Level.FINE, "Bad date: '" + text + "'", e);
                 }
                 pos.setErrorIndex(pos.getIndex());
-                // to prevent DateFormat::parse from throwing ParseException:
-                pos.setIndex(startPosition + 1);
+                pos.setIndex(startPosition);
                 return null;
             }
         }

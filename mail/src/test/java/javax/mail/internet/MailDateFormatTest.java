@@ -61,7 +61,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -297,7 +296,6 @@ public class MailDateFormatTest {
      * Parsing - FWS (folding white space)
      */
     @Test
-    @Ignore("until parse throws ParseException instead of returning null (1.6)")
     public void mustFailOrSkipCfws() {
         String input = "(3 Jan 2015 00:00 +0000) 1 Jan 2015 00:00 +0000";
         try {
@@ -359,17 +357,15 @@ public class MailDateFormatTest {
      * Parsing - year
      */
     @Test
-    @Ignore("until the next major release (1.6)")
-    public void lenientMustRejectSingleDigitYears() {
-        mustFail(getLenient(), "1 Jan 1 00:00 +0000", 6);
+    public void lenientMustAcceptSingleDigitYears() {
+        mustPass(getLenient(), "1 Jan 1 00:00 +0000");
     }
 
     @Test
-    @Ignore("until the next major release (1.6)")
-    public void lenientMustRejectYearsBetween1000and1899() {
+    public void lenientMustAcceptYearsBetween1000and1899() {
         mustPass(getLenient(), "1 Jan 999 00:00 +0000");
-        mustFail(getLenient(), "1 Jan 1000 00:00 +0000", 6);
-        mustFail(getLenient(), "1 Jan 1899 00:00 +0000", 6);
+        mustPass(getLenient(), "1 Jan 1000 00:00 +0000");
+        mustPass(getLenient(), "1 Jan 1899 00:00 +0000");
         mustPass(getStrict(), "1 Jan 1900 00:00 +0000");
     }
 
@@ -461,7 +457,6 @@ public class MailDateFormatTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @Ignore("until the next spec change (1.6)")
     public void mustProhibitApplyLocalizedPattern() {
         SimpleDateFormat fmt = getStrict();
         fmt.applyLocalizedPattern("yyyy");
@@ -470,7 +465,6 @@ public class MailDateFormatTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @Ignore("until the next spec change (1.6)")
     public void mustProhibitApplyPattern() {
         SimpleDateFormat fmt = getStrict();
         fmt.applyPattern("yyyy");
@@ -479,19 +473,16 @@ public class MailDateFormatTest {
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @Ignore("until the next spec change (1.6)")
     public void mustProhibitGet2DigitYearStart() {
         getDefault().get2DigitYearStart();
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @Ignore("until the next spec change (1.6)")
     public void mustProhibitSet2DigitYearStart() {
         getDefault().set2DigitYearStart(new Date());
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    @Ignore("until the next spec change (1.6)")
     public void mustProhibitSetDateFormatSymbols() {
         SimpleDateFormat fmt = getStrict();
         fmt.setDateFormatSymbols(new DateFormatSymbols(Locale.FRENCH));
@@ -539,12 +530,8 @@ public class MailDateFormatTest {
     private void mustFail(DateFormat fmt, String input, int errorOffset) {
         try {
             Date result = fmt.parse(input);
-            // TODO remove the if statement once parse throws ParseException
-            // instead of returning null (1.6)
-            if (result != null) {
-                fail(String.format("'%s' is not a valid date in %s mode", input,
-                        fmt.isLenient() ? "lenient" : "strict"));
-            }
+            fail(String.format("'%s' is not a valid date in %s mode", input,
+                    fmt.isLenient() ? "lenient" : "strict"));
         } catch (ParseException e) {
             assertThat(e.getErrorOffset(), is(errorOffset));
         }
