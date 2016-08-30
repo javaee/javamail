@@ -17,8 +17,9 @@ longer available.
 
 		  CHANGES IN THE 1.6.0 RELEASE
 		  ----------------------------
-The following bugs have been fixed in the 1.5.6 release.
+The following bugs have been fixed in the 1.6.0 release.
 
+K  6949	MailDateFormat changes for version 1.6
 K  7010	Fix javac warnings
 K  8398	MailSessionDefinition should use the Repeatable annotation for Java EE 8
 K  8399	IdleManager fails on Android

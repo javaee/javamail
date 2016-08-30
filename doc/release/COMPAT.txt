@@ -37,6 +37,23 @@ with this release of the JavaMail API.
 	or newer.  It is expected that the large majority of users
 	are already using JDK 1.7 or newer.
 
+- MailDateFormat changes
+
+	The following changes to MailDateFormat may impact applications:
+
+	* parse(String) now throws a ParseException on invalid input instead
+	  of returning null, to conform to the DateFormat contract
+	* with lenient parsing: reject years that have not been specified in the
+	  RFC, notably single-digit years, and years in the range [1000,1899]
+	* the following methods now throw UnsupprotedOperationException
+	  to prevent tampering with MailDateFormat's internals:
+
+		get2DigitYearStart
+		applyLocalizedPattern
+		applyPattern
+		set2DigitYearStart
+		setDateFormatSymbols
+
 
 
 -- JavaMail 1.5.6 --

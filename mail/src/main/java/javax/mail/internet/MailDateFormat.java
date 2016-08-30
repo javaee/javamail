@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -198,6 +198,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * Overrides Cloneable.
      *
      * @return a clone of this instance
+     * @since JavaMail 1.6
      */
     @Override
     public MailDateFormat clone() {
@@ -280,6 +281,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * be used because RFC 2822 mandates a specific pattern.
      *
      * @throws UnsupportedOperationException if this method is invoked
+     * @since JavaMail 1.6
      */
     @Override
     public void applyLocalizedPattern(String pattern) {
@@ -292,6 +294,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * be used because RFC 2822 mandates a specific pattern.
      *
      * @throws UnsupportedOperationException if this method is invoked
+     * @since JavaMail 1.6
      */
     @Override
     public void applyPattern(String pattern) {
@@ -314,6 +317,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * @return the start of the 100-year period into which two digit years are
      * parsed
      * @throws UnsupportedOperationException if this method is invoked
+     * @since JavaMail 1.6
      */
     @Override
     public Date get2DigitYearStart() {
@@ -327,6 +331,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * 2-digits years.
      *
      * @throws UnsupportedOperationException if this method is invoked
+     * @since JavaMail 1.6
      */
     @Override
     public void set2DigitYearStart(Date startDate) {
@@ -339,6 +344,7 @@ public class MailDateFormat extends SimpleDateFormat {
      * be used because RFC 2822 mandates specific date format symbols.
      *
      * @throws UnsupportedOperationException if this method is invoked
+     * @since JavaMail 1.6
      */
     @Override
     public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
