@@ -149,7 +149,7 @@ public class MimeUtility {
     // cached map of whether a charset is compatible with ASCII
     // Map<String,Boolean>
     private static final Map<String, Boolean> nonAsciiCharsetMap
-	    = new HashMap<String, Boolean>();
+	    = new HashMap<>();
 
     private static final boolean decodeStrict =
 	PropUtil.getBooleanSystemProperty("mail.mime.decodetext.strict", true);
@@ -1333,8 +1333,8 @@ public class MimeUtility {
     private static Map<String, String> java2mime;
 
     static {
-	java2mime = new HashMap<String, String>(40);
-	mime2java = new HashMap<String, String>(10);
+	java2mime = new HashMap<>(40);
+	mime2java = new HashMap<>(10);
 
 	try {
 	    // Use this class's classloader to load the mapping file

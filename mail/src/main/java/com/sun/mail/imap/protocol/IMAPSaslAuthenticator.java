@@ -90,7 +90,7 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 				final String p) throws ProtocolException {
 
 	synchronized (pr) {	// authenticate method should be synchronized
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;

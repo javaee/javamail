@@ -73,11 +73,11 @@ public class MailHandlerTest extends AbstractLogging {
     /**
      * Holder used to inject Throwables into other APIs.
      */
-    private static final ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+    private static final ThreadLocal<Throwable> PENDING = new ThreadLocal<>();
     /**
      * Holder used to inject ClassLoaders into other APIs.
      */
-    private static final ThreadLocal<ClassLoader> LOADER = new ThreadLocal<ClassLoader>();
+    private static final ThreadLocal<ClassLoader> LOADER = new ThreadLocal<>();
     /**
      * Stores the value of a port that is not used on the local machine.
      */
@@ -2945,7 +2945,7 @@ public class MailHandlerTest extends AbstractLogging {
         assertEquals(3, target.getAttachmentFormatters().length);
         assertEquals(3, target.getAttachmentFilters().length);
 
-        final List<File> files = new ArrayList<File>();
+        final List<File> files = new ArrayList<>();
         final Properties props = new Properties();
         final Locale current = Locale.getDefault();
         try {
@@ -7253,7 +7253,7 @@ public class MailHandlerTest extends AbstractLogging {
 
     public static class InternalErrorManager extends ErrorManager {
 
-        protected final List<Exception> exceptions = new ArrayList<Exception>();
+        protected final List<Exception> exceptions = new ArrayList<>();
 
         @Override
         public void error(String msg, Exception ex, int code) {

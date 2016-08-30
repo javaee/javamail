@@ -152,7 +152,7 @@ public final class WriteTimeoutSocketTest {
      */
     @Test
     public void testOverrides() throws Exception {
-	Set<String> socketMethods = new HashSet<String>();
+	Set<String> socketMethods = new HashSet<>();
 	Method[] m = java.net.Socket.class.getDeclaredMethods();
 	String className = java.net.Socket.class.getName() + ".";
 	for (int i = 0; i < m.length; i++) {
@@ -164,7 +164,7 @@ public final class WriteTimeoutSocketTest {
 		socketMethods.add(name);
 	    }
 	}
-	Set<String> wtsocketMethods = new HashSet<String>();
+	Set<String> wtsocketMethods = new HashSet<>();
 	m = WriteTimeoutSocket.class.getDeclaredMethods();
 	className = WriteTimeoutSocket.class.getName() + ".";
 	for (int i = 0; i < m.length; i++) {
@@ -182,7 +182,7 @@ public final class WriteTimeoutSocketTest {
 
     private static String[] getAnonCipherSuitesArray() {
 	SSLSocketFactory sf = (SSLSocketFactory)SSLSocketFactory.getDefault();
-	List<String> anon = new ArrayList<String>();
+	List<String> anon = new ArrayList<>();
 	String[] suites = sf.getSupportedCipherSuites();
 	for (int i = 0; i < suites.length; i++) {
 	    if (suites[i].indexOf("_anon_") >= 0) {

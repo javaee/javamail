@@ -112,7 +112,7 @@ public class IMAPResponse extends Response {
 	    return null;
 	index++; // skip '('
 
-	List<String> v = new ArrayList<String>();
+	List<String> v = new ArrayList<>();
 	int start;
 	for (start = index; buffer[index] != ')'; index++) {
 	    if (buffer[index] == ' ') { // got one item

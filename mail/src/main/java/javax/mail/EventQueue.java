@@ -107,7 +107,7 @@ class EventQueue implements Runnable {
 	    Vector<? extends EventListener> vector) {
 	// if this is the first event, create the queue and start the event task
 	if (q == null) {
-	    q = new LinkedBlockingQueue<QueueElement>();
+	    q = new LinkedBlockingQueue<>();
 	    if (executor != null) {
 		executor.execute(this);
 	    } else {
@@ -124,7 +124,7 @@ class EventQueue implements Runnable {
      */
     synchronized void terminateQueue() {
 	if (q != null) {
-	    Vector<EventListener> dummyListeners = new Vector<EventListener>();
+	    Vector<EventListener> dummyListeners = new Vector<>();
 	    dummyListeners.setSize(1); // need atleast one listener
 	    q.add(new QueueElement(new TerminatorEvent(), dummyListeners));
 	    q = null;
@@ -138,7 +138,7 @@ class EventQueue implements Runnable {
     static synchronized EventQueue getApplicationEventQueue(Executor ex) {
 	ClassLoader cl = Session.getContextClassLoader();
 	if (appq == null)
-	    appq = new WeakHashMap<ClassLoader,EventQueue>();
+	    appq = new WeakHashMap<>();
 	EventQueue q = appq.get(cl);
 	if (q == null) {
 	    q = new EventQueue(ex);

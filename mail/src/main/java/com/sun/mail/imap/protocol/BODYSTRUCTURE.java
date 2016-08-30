@@ -104,7 +104,7 @@ public class BODYSTRUCTURE implements Item {
 		System.out.println("DEBUG IMAP: parsing multipart");
 	    type = "multipart";
 	    processedType = MULTI;
-	    List<BODYSTRUCTURE> v = new ArrayList<BODYSTRUCTURE>(1);
+	    List<BODYSTRUCTURE> v = new ArrayList<>(1);
 	    int i = 1;
 	    do {
 		v.add(new BODYSTRUCTURE(r));

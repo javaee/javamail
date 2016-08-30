@@ -305,7 +305,7 @@ public class Rights implements Cloneable {
      * @return	array of Rights.Right objects representing rights
      */
     public Right[] getRights() {
-	List<Right> v = new ArrayList<Right>();
+	List<Right> v = new ArrayList<>();
 	for (int i = 0; i < this.rights.length; i++)
 	    if (this.rights[i])
 		v.add(Right.getInstance((char)i));

@@ -72,7 +72,7 @@ public class FoldTest {
 
     @Parameters
     public static Collection<Object[]> data() throws IOException {
-	testData = new ArrayList<Object[]>();
+	testData = new ArrayList<>();
 	parse(new BufferedReader(new InputStreamReader(
 	    FoldTest.class.getResourceAsStream("folddata"))));
 	return testData;

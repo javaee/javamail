@@ -57,7 +57,7 @@ public class Argument {
      * Constructor
      */
     public Argument() {
-	items = new ArrayList<Object>(1);
+	items = new ArrayList<>(1);
     }
 
     /**

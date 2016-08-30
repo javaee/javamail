@@ -140,8 +140,8 @@ public class IdleManager {
     private MailLogger logger;
     private volatile boolean die = false;
     private volatile boolean running;
-    private Queue<IMAPFolder> toWatch = new ConcurrentLinkedQueue<IMAPFolder>();
-    private Queue<IMAPFolder> toAbort = new ConcurrentLinkedQueue<IMAPFolder>();
+    private Queue<IMAPFolder> toWatch = new ConcurrentLinkedQueue<>();
+    private Queue<IMAPFolder> toAbort = new ConcurrentLinkedQueue<>();
 
     /**
      * Create an IdleManager.  The Session is used only to configure

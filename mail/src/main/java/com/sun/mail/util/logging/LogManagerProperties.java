@@ -666,7 +666,7 @@ final class LogManagerProperties extends Properties {
         final Class<?> thisClass = LogManagerProperties.class;
         assert Modifier.isFinal(thisClass.getModifiers()) : thisClass;
         try {
-            final HashSet<String> traces = new HashSet<String>();
+            final HashSet<String> traces = new HashSet<>();
             Throwable t = Throwable.class.getConstructor().newInstance();
             for (StackTraceElement ste : t.getStackTrace()) {
                 if (!thisClass.getName().equals(ste.getClassName())) {

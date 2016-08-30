@@ -89,7 +89,7 @@ public class Protocol {
     private String localHostName;
 
     private final List<ResponseHandler> handlers
-	    = new CopyOnWriteArrayList<ResponseHandler>();
+	    = new CopyOnWriteArrayList<>();
 
     private volatile long timestamp;
 
@@ -332,7 +332,7 @@ public class Protocol {
      */
     public synchronized Response[] command(String command, Argument args) {
 	commandStart(command);
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	boolean done = false;
 	String tag = null;
 	Response r = null;

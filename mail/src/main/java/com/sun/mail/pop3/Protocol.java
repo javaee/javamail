@@ -210,7 +210,7 @@ class Protocol {
 	    return;
 	}
 
-	capabilities = new HashMap<String, String>(10);
+	capabilities = new HashMap<>(10);
 	BufferedReader r = null;
 	try {
 	    r = new BufferedReader(new InputStreamReader(in, "us-ascii"));

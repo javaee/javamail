@@ -213,7 +213,7 @@ public class Flags implements Cloneable, Serializable {
      * @param flag	the flag for initialization
      */
     public Flags(String flag) {
-	user_flags = new Hashtable<String, String>(1);
+	user_flags = new Hashtable<>(1);
 	user_flags.put(flag.toLowerCase(Locale.ENGLISH), flag);
     }
 
@@ -233,7 +233,7 @@ public class Flags implements Cloneable, Serializable {
      */
     public void add(String flag) {
 	if (user_flags == null)
-	    user_flags = new Hashtable<String, String>(1);
+	    user_flags = new Hashtable<>(1);
 	user_flags.put(flag.toLowerCase(Locale.ENGLISH), flag);
     }
 
@@ -248,7 +248,7 @@ public class Flags implements Cloneable, Serializable {
 
 	if (f.user_flags != null) { // add user-defined flags
 	    if (user_flags == null)
-		user_flags = new Hashtable<String, String>(1);
+		user_flags = new Hashtable<>(1);
 
 	    Enumeration<String> e = f.user_flags.keys();
 
@@ -403,7 +403,7 @@ public class Flags implements Cloneable, Serializable {
      * @return	array of Flags.Flag objects representing system flags
      */
     public Flag[] getSystemFlags() {
-	Vector<Flag> v = new Vector<Flag>();
+	Vector<Flag> v = new Vector<>();
 	if ((system_flags & ANSWERED_BIT) != 0)
 	    v.addElement(Flag.ANSWERED);
 	if ((system_flags & DELETED_BIT) != 0)
@@ -431,7 +431,7 @@ public class Flags implements Cloneable, Serializable {
      * @return	array of Strings, each String represents a flag.
      */
     public String[] getUserFlags() {
-	Vector<String> v = new Vector<String>();
+	Vector<String> v = new Vector<>();
 	if (user_flags != null) {
 	    Enumeration<String> e = user_flags.elements();
 

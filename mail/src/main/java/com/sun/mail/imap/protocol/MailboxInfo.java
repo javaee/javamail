@@ -101,12 +101,12 @@ public class MailboxInfo {
 		r[i] = null; // remove this response
 	    } else if (ir.keyEquals("VANISHED")) {
 		if (responses == null)
-		    responses = new ArrayList<IMAPResponse>();
+		    responses = new ArrayList<>();
 		responses.add(ir);
 		r[i] = null; // remove this response
 	    } else if (ir.keyEquals("FETCH")) {
 		if (responses == null)
-		    responses = new ArrayList<IMAPResponse>();
+		    responses = new ArrayList<>();
 		responses.add(ir);
 		r[i] = null; // remove this response
 	    } else if (ir.isUnTagged() && ir.isOK()) {

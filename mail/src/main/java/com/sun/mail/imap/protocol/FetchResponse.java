@@ -158,7 +158,7 @@ public class FetchResponse extends IMAPResponse {
      */
     public static <T extends Item> List<T> getItems(Response[] r, int msgno,
 				Class<T> c) {
-	List<T> items = new ArrayList<T>();
+	List<T> items = new ArrayList<>();
 
 	if (r == null)
 	    return items;
@@ -201,7 +201,7 @@ public class FetchResponse extends IMAPResponse {
 	    throw new ParsingException(
 		"error in FETCH parsing, missing '(' at index " + index);
 
-	List<Item> v = new ArrayList<Item>();
+	List<Item> v = new ArrayList<>();
 	Item i = null;
 	do {
 	    index++; // skip '(', or SPACE
@@ -298,7 +298,7 @@ public class FetchResponse extends IMAPResponse {
 	for (int i = 0; i < fitems.length; i++) {
 	    if (match(fitems[i].getName())) {
 		if (extensionItems == null)
-		    extensionItems = new HashMap<String, Object>();
+		    extensionItems = new HashMap<>();
 		extensionItems.put(fitems[i].getName(),
 				    fitems[i].parseItem(this));
 		return true;

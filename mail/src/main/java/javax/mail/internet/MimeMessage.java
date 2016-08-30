@@ -1675,7 +1675,7 @@ public class MimeMessage extends Message implements MimePart {
 	Address a[] = getReplyTo();
 	reply.setRecipients(Message.RecipientType.TO, a);
 	if (replyToAll) {
-	    List<Address> v = new ArrayList<Address>();
+	    List<Address> v = new ArrayList<>();
 	    // add my own address to list
 	    InternetAddress me = InternetAddress.getLocalAddress(session);
 	    if (me != null)

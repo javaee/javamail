@@ -153,7 +153,7 @@ public class ENVELOPE implements Item {
 		return null;
 	    }
 
-	    List<InternetAddress> v = new ArrayList<InternetAddress>();
+	    List<InternetAddress> v = new ArrayList<>();
 
 	    do {
 		IMAPAddress a = new IMAPAddress(r);
@@ -211,7 +211,7 @@ class IMAPAddress extends InternetAddress {
 	    // representation of the group is accumulated in a StringBuffer.
 	    StringBuffer sb = new StringBuffer();
 	    sb.append(groupname).append(':');
-	    List<InternetAddress> v = new ArrayList<InternetAddress>();
+	    List<InternetAddress> v = new ArrayList<>();
 	    while (r.peekByte() != ')') {
 		IMAPAddress a = new IMAPAddress(r);
 		if (a.isEndOfGroup())	// reached end of group

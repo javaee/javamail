@@ -206,7 +206,7 @@ public final class IMAPFetchProfileTest {
      */
     private static class IMAPHandlerFetch extends IMAPHandler {
 	// must be static because handler is cloned for each connection
-	protected static Set<String> saw = new HashSet<String>();
+	protected static Set<String> saw = new HashSet<>();
 
 	@Override
         public void select() throws IOException {

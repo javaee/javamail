@@ -256,7 +256,7 @@ public class IMAPStore extends Store
 
         // container for the pool's IMAP protocol objects
         private Vector<IMAPProtocol> authenticatedConnections
-		= new Vector<IMAPProtocol>();
+		= new Vector<>();
 
         // vectore of open folders
         private Vector<IMAPFolder> folders;
@@ -522,7 +522,7 @@ public class IMAPStore extends Store
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.CONFIG))
 		    logger.config("SASL mechanisms allowed: " + s);
-		List<String> v = new ArrayList<String>(5);
+		List<String> v = new ArrayList<>(5);
 		StringTokenizer st = new StringTokenizer(s, " ,");
 		while (st.hasMoreTokens()) {
 		    String m = st.nextToken();
@@ -783,7 +783,7 @@ public class IMAPStore extends Store
 	// issue special ID command to Yahoo! Mail IMAP server
 	// http://en.wikipedia.org/wiki/Yahoo%21_Mail#Free_IMAP_and_SMTPs_access
 	if (guid != null) {
-	    Map<String,String> gmap = new HashMap<String,String>();
+	    Map<String,String> gmap = new HashMap<>();
 	    gmap.put("GUID", guid);
 	    p.id(gmap);
 	}
@@ -1102,7 +1102,7 @@ public class IMAPStore extends Store
 	    // Add folder to folder-list
 	    if (folder != null) {
                 if (pool.folders == null)
-                    pool.folders = new Vector<IMAPFolder>();
+                    pool.folders = new Vector<>();
 		pool.folders.addElement(folder);
 	    }
         }

@@ -204,7 +204,7 @@ public abstract class Store extends Service {
      */
     public synchronized void addStoreListener(StoreListener l) {
 	if (storeListeners == null)
-	    storeListeners = new Vector<StoreListener>();
+	    storeListeners = new Vector<>();
 	storeListeners.addElement(l);
     }
 
@@ -260,7 +260,7 @@ public abstract class Store extends Service {
      */
     public synchronized void addFolderListener(FolderListener l) {
    	if (folderListeners == null)
-	    folderListeners = new Vector<FolderListener>();
+	    folderListeners = new Vector<>();
 	folderListeners.addElement(l);
     }
 

@@ -180,7 +180,7 @@ public class FetchProfile {
      */
     public void add(Item item) { 
 	if (specials == null)
-	    specials = new Vector<Item>();
+	    specials = new Vector<>();
 	specials.addElement(item);
     }
 
@@ -192,7 +192,7 @@ public class FetchProfile {
      */
     public void add(String headerName) { 
    	if (headers == null)
-	    headers = new Vector<String>();
+	    headers = new Vector<>();
 	headers.addElement(headerName);
     }
 

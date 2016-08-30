@@ -214,7 +214,7 @@ public abstract class Multipart {
     public synchronized void addBodyPart(BodyPart part) 
 		throws MessagingException {
 	if (parts == null)
-	    parts = new Vector<BodyPart>();
+	    parts = new Vector<>();
 
 	parts.addElement(part);
 	part.setParent(this);
@@ -237,7 +237,7 @@ public abstract class Multipart {
     public synchronized void addBodyPart(BodyPart part, int index) 
 				throws MessagingException {
 	if (parts == null)
-	    parts = new Vector<BodyPart>();
+	    parts = new Vector<>();
 
 	parts.insertElementAt(part, index);
 	part.setParent(this);

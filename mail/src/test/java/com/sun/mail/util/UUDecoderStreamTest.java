@@ -87,7 +87,7 @@ public class UUDecoderStreamTest {
     public static Collection<TestData[]> data() throws Exception {
 	junit = true;
 	// XXX - gratuitous array requirement
-	List<TestData[]> testData = new ArrayList<TestData[]>();
+	List<TestData[]> testData = new ArrayList<>();
 	BufferedReader in = new BufferedReader(new InputStreamReader(
 	    UUDecoderStreamTest.class.getResourceAsStream("uudata")));
 	TestData t;

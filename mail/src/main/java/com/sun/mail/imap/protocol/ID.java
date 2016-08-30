@@ -75,7 +75,7 @@ public class ID {
 	if (c != '(')
 	    throw new ProtocolException("Missing '(' at start of ID");
 
-	serverParams = new HashMap<String, String>();
+	serverParams = new HashMap<>();
 
 	String[] v = r.readStringList();
 	if (v != null) {

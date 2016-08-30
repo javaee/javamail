@@ -391,7 +391,7 @@ public class MailHandler extends Handler {
      * 4. MUTEX_REPORT when cycle of records is detected.
      * 5. MUTEXT_LINKAGE when a linkage error is reported.
      */
-    private static final ThreadLocal<Integer> MUTEX = new ThreadLocal<Integer>();
+    private static final ThreadLocal<Integer> MUTEX = new ThreadLocal<>();
     /**
      * The marker object used to report a publishing state.
      * This must be less than the body filter index (-1).
@@ -2063,7 +2063,7 @@ public class MailHandler extends Handler {
         try {
             Object canidate;
             Object result;
-            final Map<Object, Object> seen = new HashMap<Object, Object>();
+            final Map<Object, Object> seen = new HashMap<>();
             try {
                 intern(seen, this.errorManager);
             } catch (final SecurityException se) {

@@ -1074,7 +1074,7 @@ public class SeverityComparatorTest extends AbstractLogging {
         SeverityComparator sc = new SeverityComparator();
         LogRecord[] rs = createRecords();
         PriorityQueue<LogRecord> q1
-                = new PriorityQueue<LogRecord>(rs.length, sc);
+                = new PriorityQueue<>(rs.length, sc);
         Collections.addAll(q1, rs);
         PriorityQueue<LogRecord> q2 = serialClone(q1);
 

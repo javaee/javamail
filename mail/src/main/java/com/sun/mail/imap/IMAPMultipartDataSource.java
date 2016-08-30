@@ -62,7 +62,7 @@ public class IMAPMultipartDataSource extends MimePartDataSource
 				      String sectionId, IMAPMessage msg) {
 	super(part);
 
-	parts = new ArrayList<IMAPBodyPart>(bs.length);
+	parts = new ArrayList<>(bs.length);
 	for (int i = 0; i < bs.length; i++)
 	    parts.add(
 		new IMAPBodyPart(bs[i], 

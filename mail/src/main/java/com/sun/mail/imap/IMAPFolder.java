@@ -1090,7 +1090,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    // process saved responses and return corresponding events
 	    if (mi.responses != null) {
-		openEvents = new ArrayList<MailEvent>();
+		openEvents = new ArrayList<>();
 		for (IMAPResponse ir : mi.responses) {
 		    if (ir.keyEquals("VANISHED")) {
 			// "VANISHED" SP ["(EARLIER)"] SP known-uids
@@ -1279,7 +1279,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 	    Response[] r = null;
 	    // to collect non-FETCH responses & unsolicited FETCH FLAG responses 
-	    List<Response> v = new ArrayList<Response>();
+	    List<Response> v = new ArrayList<>();
 	    try {
 		r = getProtocol().fetch(msgsets, command.toString());
 	    } catch (ConnectionException cex) {
@@ -2560,7 +2560,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		    if (m != null) // found it
 			return m;
 		} else
-		    uidTable = new Hashtable<Long, IMAPMessage>();
+		    uidTable = new Hashtable<>();
 
 		// Check with the server
 		// Issue UID FETCH command
@@ -2596,12 +2596,12 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	try {
 	    synchronized(messageCacheLock) {
 		if (uidTable == null)
-		    uidTable = new Hashtable<Long, IMAPMessage>();
+		    uidTable = new Hashtable<>();
 
 		// Issue UID FETCH for given range
 		long[] ua = getProtocol().fetchSequenceNumbers(start, end);
 
-		List<Message> ma = new ArrayList<Message>();
+		List<Message> ma = new ArrayList<>();
 		// NOTE: Below must be within messageCacheLock region
 		for (int i = 0; i < ua.length; i++) {
 		    Message m = uidTable.get(Long.valueOf(ua[i]));
@@ -2635,7 +2635,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		long[] unavailUids = uids;
 		if (uidTable != null) {
 		    // to collect unavailable UIDs
-		    List<Long> v = new ArrayList<Long>();
+		    List<Long> v = new ArrayList<>();
 		    for (long uid : uids) {
 			if (!uidTable.containsKey(uid)) {
 			    // This UID has not been loaded yet.
@@ -2649,7 +2649,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 			unavailUids[i] = v.get(i);
 		    }
 		} else
-		    uidTable = new Hashtable<Long, IMAPMessage>();
+		    uidTable = new Hashtable<>();
 
 		if (unavailUids.length > 0) {
 		    // Issue UID FETCH request for given uids
@@ -2700,7 +2700,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 
 		    // insert this message into uidTable
 		    if (uidTable == null)
-			uidTable = new Hashtable<Long, IMAPMessage>();
+			uidTable = new Hashtable<>();
 		    uidTable.put(Long.valueOf(uid), m);
 		}
 	    } catch (ConnectionException cex) {
@@ -3538,7 +3538,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    if (uid != null && msg.getUID() != uid.uid) {
 		msg.setUID(uid.uid);
 		if (uidTable == null)
-		    uidTable = new Hashtable<Long, IMAPMessage>();
+		    uidTable = new Hashtable<>();
 		uidTable.put(Long.valueOf(uid.uid), msg);
 		notify = true;
 	    }

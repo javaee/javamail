@@ -88,7 +88,7 @@ public class InternetAddressTest {
     @Parameters
     public static Collection<Object[]> data() throws IOException {
 	junit = true;
-	testData = new ArrayList<Object[]>();
+	testData = new ArrayList<>();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressTest.class.getResourceAsStream("addrlist"))));
 	return testData;

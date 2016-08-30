@@ -89,7 +89,7 @@ public class ParameterList {
      * will all move to the end.
      */
     // keep parameters in order
-    private Map<String, Object> list = new LinkedHashMap<String, Object>();
+    private Map<String, Object> list = new LinkedHashMap<>();
 
     /**
      * A set of names for multi-segment parameters that we
@@ -220,8 +220,8 @@ public class ParameterList {
     public ParameterList() { 
 	// initialize other collections only if they'll be needed
 	if (decodeParameters) {
-	    multisegmentNames = new HashSet<String>();
-	    slist = new HashMap<String, Object>();
+	    multisegmentNames = new HashSet<>();
+	    slist = new HashMap<>();
 	}
     }
 

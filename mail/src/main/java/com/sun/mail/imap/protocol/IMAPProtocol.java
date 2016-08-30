@@ -178,7 +178,7 @@ public class IMAPProtocol extends Protocol {
 	    !PropUtil.getBooleanProperty(props, "mail.debug.auth", false);
 
 	if (capabilities == null)
-	    capabilities = new HashMap<String, String>();
+	    capabilities = new HashMap<>();
 
 	searchCharsets = new String[2]; // 2, for now.
 	searchCharsets[0] = "UTF-8";
@@ -214,8 +214,8 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	if (response.isOK()) {
-	    capabilities = new HashMap<String, String>(10);
-	    authmechs = new ArrayList<String>(5);
+	    capabilities = new HashMap<>(10);
+	    authmechs = new ArrayList<>(5);
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
 		    continue;
@@ -249,8 +249,8 @@ public class IMAPProtocol extends Protocol {
 	s = r.readAtom();
 	if (!s.equalsIgnoreCase("CAPABILITY"))
 	    return;
-	capabilities = new HashMap<String, String>(10);
-	authmechs = new ArrayList<String>(5);
+	capabilities = new HashMap<>(10);
+	authmechs = new ArrayList<>(5);
 	parseCapabilities(r);
     }
 
@@ -512,7 +512,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authlogin(String u, String p)
 				throws ProtocolException {
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -626,7 +626,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authplain(String authzid, String u, String p)
 				throws ProtocolException {
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -735,7 +735,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authntlm(String authzid, String u, String p)
 				throws ProtocolException {
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -832,7 +832,7 @@ public class IMAPProtocol extends Protocol {
      */
     public synchronized void authoauth2(String u, String p)
 				throws ProtocolException {
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	String tag = null;
 	Response r = null;
 	boolean done = false;
@@ -961,7 +961,7 @@ public class IMAPProtocol extends Protocol {
 	List<String> v;
 	if (allowed != null && allowed.length > 0) {
 	    // remove anything not supported by the server
-	    v = new ArrayList<String>(allowed.length);
+	    v = new ArrayList<>(allowed.length);
 	    for (int i = 0; i < allowed.length; i++)
 		if (authmechs.contains(allowed[i]))	// XXX - case must match
 		    v.add(allowed[i]);
@@ -1063,7 +1063,7 @@ public class IMAPProtocol extends Protocol {
     @Deprecated
     public void id(String guid) throws ProtocolException {
 	// support this for now, but remove it soon
-	Map<String,String> gmap = new HashMap<String,String>();
+	Map<String,String> gmap = new HashMap<>();
 	gmap.put("GUID", guid);
 	id(gmap);
     }
@@ -1273,7 +1273,7 @@ public class IMAPProtocol extends Protocol {
 	args.writeAtom(cap);
 	simpleCommand("ENABLE", args);
 	if (enabled == null)
-	    enabled = new HashSet<String>();
+	    enabled = new HashSet<>();
 	enabled.add(cap.toUpperCase(Locale.ENGLISH));
     }
 
@@ -1504,7 +1504,7 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	if (response.isOK()) { // command succesful 
-	    List<ListInfo> v = new ArrayList<ListInfo>(1);
+	    List<ListInfo> v = new ArrayList<>(1);
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
 		    continue;
@@ -2004,7 +2004,7 @@ public class IMAPProtocol extends Protocol {
 			     "UID", true);	
 
 	UID u;
-	List<UID> v = new ArrayList<UID>();
+	List<UID> v = new ArrayList<>();
 	for (int i = 0, len = r.length; i < len; i++) {
 	    if (r[i] == null || !(r[i] instanceof FetchResponse))
 		continue;
@@ -2069,7 +2069,7 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = command("UID FETCH " + msgSequence +
 		" (FLAGS) (CHANGEDSINCE " + String.valueOf(modseq) + ")", null);
 
-	List<Integer> v = new ArrayList<Integer>();
+	List<Integer> v = new ArrayList<>();
 	for (int i = 0, len = r.length; i < len; i++) {
 	    if (r[i] == null || !(r[i] instanceof FetchResponse))
 		continue;
@@ -2526,7 +2526,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Grab all SEARCH responses
 	if (response.isOK()) { // command succesful
-	    List<Integer> v = new ArrayList<Integer>();
+	    List<Integer> v = new ArrayList<>();
 	    int num;
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -2618,7 +2618,7 @@ public class IMAPProtocol extends Protocol {
 
 	// Grab all SORT responses
 	if (response.isOK()) { // command succesful
-	    List<Integer> v = new ArrayList<Integer>();
+	    List<Integer> v = new ArrayList<>();
 	    int num;
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -2708,7 +2708,7 @@ public class IMAPProtocol extends Protocol {
 
 	Response response = r[r.length-1];
 
-	Map<String, Quota> tab = new HashMap<String, Quota>();
+	Map<String, Quota> tab = new HashMap<>();
 
 	// Grab all QUOTAROOT and QUOTA responses
 	if (response.isOK()) { // command succesful 
@@ -2776,7 +2776,7 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = command("GETQUOTA", args);
 
 	Quota quota = null;
-	List<Quota> v = new ArrayList<Quota>();
+	List<Quota> v = new ArrayList<>();
 	Response response = r[r.length-1];
 
 	// Grab all QUOTA responses
@@ -2871,7 +2871,7 @@ public class IMAPProtocol extends Protocol {
 	if (r.readByte() != '(')
 	    throw new ParsingException("parse error in QUOTA");
 
-	List<Quota.Resource> v = new ArrayList<Quota.Resource>();
+	List<Quota.Resource> v = new ArrayList<>();
 	while (r.peekByte() != ')') {
 	    // quota_resource ::= atom SP number SP number
 	    String name = r.readAtom();
@@ -2970,7 +2970,7 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	// Grab all ACL responses
-	List<ACL> v = new ArrayList<ACL>();
+	List<ACL> v = new ArrayList<>();
 	if (response.isOK()) { // command succesful 
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -3026,7 +3026,7 @@ public class IMAPProtocol extends Protocol {
 	Response response = r[r.length-1];
 
 	// Grab LISTRIGHTS response
-	List<Rights> v = new ArrayList<Rights>();
+	List<Rights> v = new ArrayList<>();
 	if (response.isOK()) { // command succesful 
 	    for (int i = 0, len = r.length; i < len; i++) {
 		if (!(r[i] instanceof IMAPResponse))
@@ -3129,7 +3129,7 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("IDLE")) 
 	    throw new BadCommandException("IDLE not supported");
 
-	List<Response> v = new ArrayList<Response>();
+	List<Response> v = new ArrayList<>();
 	boolean done = false;
 	Response r = null;
 

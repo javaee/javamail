@@ -287,7 +287,7 @@ public class Response {
 	}
 	index++; // skip '('
 
-	List<String> result = new ArrayList<String>();
+	List<String> result = new ArrayList<>();
 	skipSpaces();
 	if (peekByte() != ')') {
 	    do {

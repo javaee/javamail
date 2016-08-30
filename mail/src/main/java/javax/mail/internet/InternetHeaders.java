@@ -304,7 +304,7 @@ public class InternetHeaders {
      * are inserted to indicate the preferred order of headers.
      */
     public InternetHeaders() { 
-   	headers = new ArrayList<InternetHeader>(40); 
+   	headers = new ArrayList<>(40); 
 	headers.add(new InternetHeader("Return-Path", null));
 	headers.add(new InternetHeader("Received", null));
 	headers.add(new InternetHeader("Resent-Date", null));
@@ -353,7 +353,7 @@ public class InternetHeaders {
      * @exception	MessagingException for any I/O error reading the stream
      */
     public InternetHeaders(InputStream is) throws MessagingException {
-   	headers = new ArrayList<InternetHeader>(40); 
+   	headers = new ArrayList<>(40); 
 	load(is);
     }
 
@@ -440,7 +440,7 @@ public class InternetHeaders {
     public String[] getHeader(String name) {
 	Iterator<InternetHeader> e = headers.iterator();
 	// XXX - should we just step through in index order?
-	List<String> v = new ArrayList<String>(); // accumulate return values
+	List<String> v = new ArrayList<>(); // accumulate return values
 
 	while (e.hasNext()) {
 	    InternetHeader h = e.next();

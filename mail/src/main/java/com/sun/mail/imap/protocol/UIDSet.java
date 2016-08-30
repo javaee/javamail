@@ -78,7 +78,7 @@ public class UIDSet {
     public static UIDSet[] createUIDSets(long[] uids) {
 	if (uids == null)
 	    return null;
-	List<UIDSet> v = new ArrayList<UIDSet>();
+	List<UIDSet> v = new ArrayList<>();
 	int i,j;
 
 	for (i=0; i < uids.length; i++) {
@@ -108,7 +108,7 @@ public class UIDSet {
     public static UIDSet[] parseUIDSets(String uids) {
 	if (uids == null)
 	    return null;
-	List<UIDSet> v = new ArrayList<UIDSet>();
+	List<UIDSet> v = new ArrayList<>();
 	StringTokenizer st = new StringTokenizer(uids, ",:", true);
 	long start = -1;
 	UIDSet cur = null;

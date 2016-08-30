@@ -1288,7 +1288,7 @@ public abstract class Folder {
      */
     public Message[] search(SearchTerm term, Message[] msgs)
 				throws MessagingException {
-	List<Message> matchedMsgs = new ArrayList<Message>();
+	List<Message> matchedMsgs = new ArrayList<>();
 
 	// Run thru the given messages
 	for (Message msg : msgs) {
@@ -1337,7 +1337,7 @@ public abstract class Folder {
     public synchronized void
     addConnectionListener(ConnectionListener l) { 
    	if (connectionListeners == null) 
-	    connectionListeners = new Vector<ConnectionListener>();
+	    connectionListeners = new Vector<>();
 	connectionListeners.addElement(l);
     }
 
@@ -1403,7 +1403,7 @@ public abstract class Folder {
      */
     public synchronized void addFolderListener(FolderListener l) { 
    	if (folderListeners == null)
-	    folderListeners = new Vector<FolderListener>();
+	    folderListeners = new Vector<>();
 	folderListeners.addElement(l);
     }
 
@@ -1484,7 +1484,7 @@ public abstract class Folder {
      */
     public synchronized void addMessageCountListener(MessageCountListener l) { 
    	if (messageCountListeners == null)
-	    messageCountListeners = new Vector<MessageCountListener>();
+	    messageCountListeners = new Vector<>();
 	messageCountListeners.addElement(l);
     }
 
@@ -1574,7 +1574,7 @@ public abstract class Folder {
     public synchronized void
 			addMessageChangedListener(MessageChangedListener l) { 
    	if (messageChangedListeners == null)
-	    messageChangedListeners = new Vector<MessageChangedListener>();
+	    messageChangedListeners = new Vector<>();
 	messageChangedListeners.addElement(l);
     }
 

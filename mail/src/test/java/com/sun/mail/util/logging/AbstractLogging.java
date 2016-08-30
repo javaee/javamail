@@ -87,7 +87,7 @@ abstract class AbstractLogging {
      */
     static Level[] getAllLevels() {
         final Field[] fields = Level.class.getFields();
-        List<Level> a = new ArrayList<Level>(fields.length);
+        List<Level> a = new ArrayList<>(fields.length);
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers())
                     && Level.class.isAssignableFrom(field.getType())) {
@@ -253,7 +253,7 @@ abstract class AbstractLogging {
         m.setAccessible(true);
         Class<?>[] named = (Class<?>[]) m.invoke((Object) null);
         assertTrue(named.length != 0);
-        HashSet<Class<?>> declared = new HashSet<Class<?>>(
+        HashSet<Class<?>> declared = new HashSet<>(
                 Arrays.<Class<?>>asList(k.getDeclaredClasses()));
         for (Class<?> c : named) {
             assertEquals(c.toString(), k, c.getEnclosingClass());

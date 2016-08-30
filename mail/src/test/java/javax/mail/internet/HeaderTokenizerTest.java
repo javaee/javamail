@@ -82,7 +82,7 @@ public class HeaderTokenizerTest {
     @Parameters
     public static Collection<Object[]> data() throws IOException {
 	junit = true;
-	testData = new ArrayList<Object[]>();
+	testData = new ArrayList<>();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressTest.class.getResourceAsStream("tokenlist"))));
 	return testData;
@@ -231,7 +231,7 @@ public class HeaderTokenizerTest {
 			!return_comments);
 	    HeaderTokenizer.Token tok;
 	    Vector<HeaderTokenizer.Token> toklist
-		    = new Vector<HeaderTokenizer.Token>();
+		    = new Vector<>();
 	    while ((tok = ht.next()).getType() != HeaderTokenizer.Token.EOF)
 		toklist.addElement(tok);
 	    if (gen_test_input)

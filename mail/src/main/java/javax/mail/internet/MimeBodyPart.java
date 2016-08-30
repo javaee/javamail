@@ -1330,7 +1330,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
 	// Tokenize the header to obtain the Language-tags (skip comments)
 	HeaderTokenizer h = new HeaderTokenizer(s, HeaderTokenizer.MIME);
-	List<String> v = new ArrayList<String>();
+	List<String> v = new ArrayList<>();
 
 	HeaderTokenizer.Token tk;
 	int tkType;

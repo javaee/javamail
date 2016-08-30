@@ -217,7 +217,7 @@ public class MessageCache {
     public IMAPMessage[] removeExpungedMessages() {
 	logger.fine("remove expunged messages");
 	// list of expunged messages
-	List<IMAPMessage> mlist = new ArrayList<IMAPMessage>();
+	List<IMAPMessage> mlist = new ArrayList<>();
 
 	/*
 	 * Walk through the array compressing it by copying
@@ -268,7 +268,7 @@ public class MessageCache {
     public IMAPMessage[] removeExpungedMessages(Message[] msgs) {
 	logger.fine("remove expunged messages");
 	// list of expunged messages
-	List<IMAPMessage> mlist = new ArrayList<IMAPMessage>();
+	List<IMAPMessage> mlist = new ArrayList<>();
 
 	/*
 	 * Copy the message numbers of the expunged messages into

@@ -67,7 +67,7 @@ public class ListInfo {
     public ListInfo(IMAPResponse r) throws ParsingException {
 	String[] s = r.readSimpleList();
 
-	List<String> v = new ArrayList<String>();	// accumulate attributes
+	List<String> v = new ArrayList<>();	// accumulate attributes
 	if (s != null) {
 	    // non-empty attribute list
 	    for (int i = 0; i < s.length; i++) {

@@ -125,7 +125,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      * Could this somehow be included in the InternetHeaders object ??
      */
     private Hashtable<String, String> loadedHeaders
-	    = new Hashtable<String, String>(1);
+	    = new Hashtable<>(1);
 
     // This is our Envelope
     static final String EnvelopeCmd = "ENVELOPE INTERNALDATE RFC822.SIZE";
@@ -1102,7 +1102,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	private boolean needMessage = false;
 	private boolean needRDate = false;
 	private String[] hdrs = null;
-	private Set<FetchItem> need = new HashSet<FetchItem>();
+	private Set<FetchItem> need = new HashSet<>();
 
 	/**
 	 * Create a FetchProfileCondition to determine if we need to fetch
@@ -1215,7 +1215,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    // add entry into uid table
 	    if (((IMAPFolder)folder).uidTable == null)
 		((IMAPFolder) folder).uidTable
-			= new Hashtable<Long, IMAPMessage>();
+			= new Hashtable<>();
 	    ((IMAPFolder)folder).uidTable.put(Long.valueOf(u.uid), this);
 	}
 
@@ -1310,7 +1310,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	if (extensionItems == null || extensionItems.isEmpty())
 	    return;
 	if (items == null)
-	    items = new HashMap<String, Object>();
+	    items = new HashMap<>();
 	items.putAll(extensionItems);
     }
 

@@ -109,7 +109,7 @@ public class SMTPTransport extends Transport {
     private Hashtable<String, String> extMap;
 
     private Map<String, Authenticator> authenticators
-	    = new HashMap<String, Authenticator>();
+	    = new HashMap<>();
     private String defaultAuthenticationMechanisms;	// set in constructor
 
     private boolean quitWait = false;	// true if we should wait
@@ -418,7 +418,7 @@ public class SMTPTransport extends Transport {
      */
     public synchronized String[] getSASLMechanisms() {
 	if (saslMechanisms == UNKNOWN_SA) {
-	    List<String> v = new ArrayList<String>(5);
+	    List<String> v = new ArrayList<>(5);
 	    String s = session.getProperty("mail." + name + ".sasl.mechanisms");
 	    if (s != null && s.length() > 0) {
 		if (logger.isLoggable(Level.FINE))
@@ -1144,13 +1144,13 @@ public class SMTPTransport extends Transport {
 	List<String> v;
 	if (allowed != null && allowed.length > 0) {
 	    // remove anything not supported by the server
-	    v = new ArrayList<String>(allowed.length);
+	    v = new ArrayList<>(allowed.length);
 	    for (int i = 0; i < allowed.length; i++)
 		if (supportsAuthentication(allowed[i]))	// XXX - case must match
 		    v.add(allowed[i]);
 	} else {
 	    // everything is allowed
-	    v = new ArrayList<String>();
+	    v = new ArrayList<>();
 	    if (extMap != null) {
 		String a = extMap.get("AUTH");
 		if (a != null) {
@@ -1459,7 +1459,7 @@ public class SMTPTransport extends Transport {
 	    if (a.isGroup()) {
 		if (groups == null) {
 		    // first group, catch up with where we are
-		    groups = new ArrayList<Address>();
+		    groups = new ArrayList<>();
 		    for (int k = 0; k < i; k++)
 			groups.add(addresses[k]);
 		}
@@ -1641,7 +1641,7 @@ public class SMTPTransport extends Transport {
 	    BufferedReader rd =
 		new BufferedReader(new StringReader(lastServerResponse));
 	    String line;
-	    extMap = new Hashtable<String, String>();
+	    extMap = new Hashtable<>();
 	    try {
 		boolean first = true;
 		while ((line = rd.readLine()) != null) {
@@ -1799,9 +1799,9 @@ public class SMTPTransport extends Transport {
      * valid addr: 552 (quota), 450, 451, 452 (quota), 421 (srvr abort)
      */
     protected void rcptTo() throws MessagingException {
-	List<InternetAddress> valid = new ArrayList<InternetAddress>();
-	List<InternetAddress> validUnsent = new ArrayList<InternetAddress>();
-	List<InternetAddress> invalid = new ArrayList<InternetAddress>();
+	List<InternetAddress> valid = new ArrayList<>();
+	List<InternetAddress> validUnsent = new ArrayList<>();
+	List<InternetAddress> invalid = new ArrayList<>();
 	int retCode = -1;
 	MessagingException mex = null;
 	boolean sendFailed = false;

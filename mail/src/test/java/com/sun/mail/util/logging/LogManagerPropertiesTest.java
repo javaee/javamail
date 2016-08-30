@@ -66,7 +66,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
     /**
      * Holder used to inject Throwables into other APIs.
      */
-    private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<Throwable>();
+    private final static ThreadLocal<Throwable> PENDING = new ThreadLocal<>();
 
     @BeforeClass
     public static void setUpClass() throws Exception {

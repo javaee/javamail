@@ -77,7 +77,7 @@ public final class Utility {
      * @return		the MessageSet array
      */
     public static MessageSet[] toMessageSet(Message[] msgs, Condition cond) {
-	List<MessageSet> v = new ArrayList<MessageSet>(1);
+	List<MessageSet> v = new ArrayList<>(1);
 	int current, next;
 
 	IMAPMessage msg;
@@ -170,7 +170,7 @@ public final class Utility {
      * @return		the UIDSet array
      */
     public static UIDSet[] toUIDSet(Message[] msgs) {
-	List<UIDSet> v = new ArrayList<UIDSet>(1);
+	List<UIDSet> v = new ArrayList<>(1);
 	long current, next;
 
 	IMAPMessage msg;

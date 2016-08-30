@@ -212,7 +212,7 @@ public class NewsAddress extends Address {
 				throws AddressException {
 	// XXX - verify format of newsgroup name?
 	StringTokenizer st = new StringTokenizer(newsgroups, ",");
-	List<NewsAddress> nglist = new ArrayList<NewsAddress>();
+	List<NewsAddress> nglist = new ArrayList<>();
 	while (st.hasMoreTokens()) {
 	    String ng = st.nextToken();
 	    nglist.add(new NewsAddress(ng));

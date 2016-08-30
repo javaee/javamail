@@ -699,7 +699,7 @@ public class InternetAddress extends Address implements Cloneable {
 	boolean route_addr = false;	// address came from route-addr term
 	boolean rfc822 = false;		// looks like an RFC822 address
 	char c;
-	List<InternetAddress> v = new ArrayList<InternetAddress>();
+	List<InternetAddress> v = new ArrayList<>();
 	InternetAddress ma;
 
 	for (start = end = -1, index = 0; index < length; index++) {

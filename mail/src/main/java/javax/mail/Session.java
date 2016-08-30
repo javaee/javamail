@@ -186,15 +186,15 @@ public final class Session {
     private final Properties props;
     private final Authenticator authenticator;
     private final Hashtable<URLName, PasswordAuthentication> authTable
-	    = new Hashtable<URLName, PasswordAuthentication>();
+	    = new Hashtable<>();
     private boolean debug = false;
     private PrintStream out;			// debug output stream
     private MailLogger logger;
-    private final Vector<Provider> providers = new Vector<Provider>();
+    private final Vector<Provider> providers = new Vector<>();
     private final Hashtable<String, Provider> providersByProtocol
-	    = new Hashtable<String, Provider>();
+	    = new Hashtable<>();
     private final Hashtable<String, Provider> providersByClassName
-	    = new Hashtable<String, Provider>();
+	    = new Hashtable<>();
     private final Properties addressMap = new Properties();
 						// maps type to protocol
     // the queue of events to be delivered, if mail.event.scope===session

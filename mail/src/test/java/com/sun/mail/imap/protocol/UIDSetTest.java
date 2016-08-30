@@ -85,7 +85,7 @@ public class UIDSetTest {
     public static Collection<TestData[]> data() throws Exception {
 	junit = true;
 	// XXX - gratuitous array requirement
-	List<TestData[]> testData = new ArrayList<TestData[]>();
+	List<TestData[]> testData = new ArrayList<>();
 	BufferedReader in = new BufferedReader(new InputStreamReader(
 	    UIDSetTest.class.getResourceAsStream("uiddata")));
 	TestData t;
@@ -177,7 +177,7 @@ public class UIDSetTest {
 	    st = new StringTokenizer(line);
 	    tok = st.nextToken();
 	}
-	List<Long> uids = new ArrayList<Long>();
+	List<Long> uids = new ArrayList<>();
 	if (!tok.equals("EXPECT"))
 	    throw new Exception("Bad test data format: " + line);
 	while (st.hasMoreTokens()) {

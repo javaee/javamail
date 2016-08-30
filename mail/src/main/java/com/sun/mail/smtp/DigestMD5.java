@@ -179,7 +179,7 @@ public class DigestMD5 {
     @SuppressWarnings("fallthrough")
     private Map<String, String> tokenize(String serverResponse)
 	    throws IOException {
-	Map<String, String> map	= new HashMap<String, String>();
+	Map<String, String> map	= new HashMap<>();
 	byte[] bytes = serverResponse.getBytes("iso-8859-1");	// really ASCII?
 	String key = null;
 	int ttype;

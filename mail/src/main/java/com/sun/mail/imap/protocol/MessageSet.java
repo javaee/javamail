@@ -74,7 +74,7 @@ public class MessageSet {
      * @return		array of MessageSet objects
      */
     public static MessageSet[] createMessageSets(int[] msgs) {
-	List<MessageSet> v = new ArrayList<MessageSet>();
+	List<MessageSet> v = new ArrayList<>();
 	int i,j;
 
 	for (i=0; i < msgs.length; i++) {

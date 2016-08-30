@@ -121,7 +121,7 @@ public final class TestServer extends Thread {
 	    ss = sf.createServerSocket(port);
 	    // enable only the anonymous cipher suites so we don't have to
 	    // create a server certificate
-	    List<String> anon = new ArrayList<String>();
+	    List<String> anon = new ArrayList<>();
 	    String[] suites = sf.getSupportedCipherSuites();
 	    for (int i = 0; i < suites.length; i++) {
 		if (suites[i].indexOf("_anon_") >= 0) {

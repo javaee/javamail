@@ -152,7 +152,7 @@ public class Namespaces {
 	r.skipSpaces();
 	//    Namespace = nil / "(" 1*( Namespace_Element) ")"
 	if (r.peekByte() == '(') {
-	    List<Namespace> v = new ArrayList<Namespace>();
+	    List<Namespace> v = new ArrayList<>();
 	    r.readByte();
 	    do {
 		Namespace ns = new Namespace(r);

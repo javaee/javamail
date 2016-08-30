@@ -70,7 +70,7 @@ public class InternetAddressFoldTest {
 
     @Parameters
     public static Collection<Object[]> data() throws Exception {
-	testData = new ArrayList<Object[]>();
+	testData = new ArrayList<>();
 	parse(new BufferedReader(new InputStreamReader(
 	    InternetAddressFoldTest.class.getResourceAsStream("addrfolddata"))));
 	return testData;

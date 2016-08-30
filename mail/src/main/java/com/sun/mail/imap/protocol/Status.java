@@ -108,7 +108,7 @@ public class Status {
 		highestmodseq = r.readLong();
 	    else {
 		if (items == null)
-		    items = new HashMap<String,Long>();
+		    items = new HashMap<>();
 		items.put(attr.toUpperCase(Locale.ENGLISH),
 			    Long.valueOf(r.readLong()));
 	    }

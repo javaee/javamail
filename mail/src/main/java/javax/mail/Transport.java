@@ -214,12 +214,12 @@ public abstract class Transport extends Service {
 	 * indexed by address type
 	 */
 	Map<String, List<Address>> protocols
-		= new HashMap<String, List<Address>>();
+		= new HashMap<>();
 
 	// Lists of addresses
-	List<Address> invalid = new ArrayList<Address>();
-	List<Address> validSent = new ArrayList<Address>();
-	List<Address> validUnsent = new ArrayList<Address>();
+	List<Address> invalid = new ArrayList<>();
+	List<Address> validSent = new ArrayList<>();
+	List<Address> validUnsent = new ArrayList<>();
 
 	for (int i = 0; i < addresses.length; i++) {
 	    // is this address type already in the map?
@@ -228,7 +228,7 @@ public abstract class Transport extends Service {
 		v.add(addresses[i]);
 	    } else {
 		// need to add a new protocol
-		List<Address> w = new ArrayList<Address>();
+		List<Address> w = new ArrayList<>();
 		w.add(addresses[i]);
 		protocols.put(addresses[i].getType(), w);
 	    }
@@ -377,7 +377,7 @@ public abstract class Transport extends Service {
      */
     public synchronized void addTransportListener(TransportListener l) {
 	if (transportListeners == null)
-	    transportListeners = new Vector<TransportListener>();
+	    transportListeners = new Vector<>();
 	transportListeners.addElement(l);
     }
 

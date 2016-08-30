@@ -572,7 +572,7 @@ public class SocketFetcher {
 	    if (logger.isLoggable(Level.FINER))
 		logger.finer("SSL enabled protocols before " +
 		    Arrays.asList(prots));
-	    List<String> eprots = new ArrayList<String>();
+	    List<String> eprots = new ArrayList<>();
 	    for (int i = 0; i < prots.length; i++) {
 		if (prots[i] != null && !prots[i].startsWith("SSL"))
 		    eprots.add(prots[i]);
@@ -787,7 +787,7 @@ public class SocketFetcher {
      */
     private static String[] stringArray(String s) {
 	StringTokenizer st = new StringTokenizer(s);
-	List<String> tokens = new ArrayList<String>();
+	List<String> tokens = new ArrayList<>();
 	while (st.hasMoreTokens())
 	    tokens.add(st.nextToken());
 	return tokens.toArray(new String[tokens.size()]);

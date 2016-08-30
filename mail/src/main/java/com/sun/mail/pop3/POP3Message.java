@@ -73,7 +73,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 
     // rawData itself is never null
     private SoftReference<InputStream> rawData
-	    = new SoftReference<InputStream>(null);
+	    = new SoftReference<>(null);
 
     public POP3Message(Folder folder, int msgno)
 			throws MessagingException {
@@ -238,7 +238,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 		// skipped the header, the message is what's left
 		msgSize = rawcontent.available();
 
-		rawData = new SoftReference<InputStream>(rawcontent);
+		rawData = new SoftReference<>(rawcontent);
 	    }
 	}
 	} catch (EOFException eex) {
@@ -311,7 +311,7 @@ public class POP3Message extends MimeMessage implements ReadableMime {
 	    } catch (IOException ex) {
 		// ignore it
 	    }
-	    rawData = new SoftReference<InputStream>(null);
+	    rawData = new SoftReference<>(null);
 	}
 	if (contentStream != null) {
 	    try {

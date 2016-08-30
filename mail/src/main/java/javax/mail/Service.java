@@ -87,7 +87,7 @@ public abstract class Service {
      * deadlocks when notifying listeners.)
      */
     private final Vector<ConnectionListener> connectionListeners
-	    = new Vector<ConnectionListener>();
+	    = new Vector<>();
 
     /**
      * The queue of events to be delivered.
