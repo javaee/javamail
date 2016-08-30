@@ -1,0 +1,322 @@
+
+		JavaMail 1.6
+		============
+
+		(Updated XXX, 2017)
+
+Following is a description of the changes to the JavaMail
+API introduced in JavaMail 1.6.  The numbers in parentheses
+are bug numbers; you can find more information about the
+bug reports at:
+
+    https://kenai.com/bugzilla/
+
+Please send comments and feedback to javamail_ww@oracle.com.
+
+JavaMail 1.6 will also require at least Java SE 7.
+
+
+===================================================================
+
+1. MailSessionDefinition should use Repeatable annotation for Java EE 8 (8398)
+------------------------------------------------------------------------------
+
+The MailSessionDefinition annotation now includes the Repeatable annotation:
+
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Repeatable(MailSessionDefinitions.class)
+	public @interface MailSessionDefinition {
+	    ...
+	}
+
+The Repeatble annotation is not know to Java SE 7 and will be ignored
+when JavaMail 1.6 is used on Java SE 7 (as expected).
+
+
+===================================================================
+
+2. MimeMessage.updateHeaders should set Date header if not already set (6074)
+-----------------------------------------------------------------------------
+
+RFC 2822 requires a Date header.  The MimeMessage.updateHeaders method
+now sets the Date header if it's not already set:
+
+	/**
+	 * Called by the <code>saveChanges</code> method to actually
+	 * update the MIME headers.  The implementation here sets the
+	 * <code>Content-Transfer-Encoding</code> header (if needed
+	 * and not already set), the <code>Date</code> header (if
+	 * not already set), the <code>MIME-Version</code> header
+	 * and the <code>Message-ID</code> header. Also, if the content
+	 * of this message is a <code>MimeMultipart</code>, its
+	 * <code>updateHeaders</code> method is called. <p>
+	 *
+	 * If the {@link #cachedContent} field is not null (that is,
+	 * it references a Multipart or Message object), then
+	 * that object is used to set a new DataHandler, any
+	 * stream data used to create this object is discarded,
+	 * and the {@link #cachedContent} field is cleared.
+	 *
+	 * @exception       IllegalWriteException if the underlying
+	 *                  implementation does not support modification
+	 * @exception       IllegalStateException if this message is
+	 *                  obtained from a READ_ONLY folder.
+	 * @exception       MessagingException for other failures
+	 */
+	protected synchronized void updateHeaders() throws MessagingException {
+	    ...
+	}
+
+
+===================================================================
+
+3. Update public API to use generics (8415)
+-------------------------------------------
+
+Methods on the following APIs have been updated to use generics
+when appropriate:
+
+	javax.mail.Multipart
+	javax.mail.Part
+	javax.mail.Service
+	javax.mail.internet.InternetHeaders
+	javax.mail.internet.MimeBodyPart
+	javax.mail.internet.MimeMessage
+	javax.mail.internet.MimePart
+	javax.mail.internet.ParameterList
+
+Details follow:
+
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Multipart.java
+--- a/mail/src/main/java/javax/mail/Multipart.java
++++ b/mail/src/main/java/javax/mail/Multipart.java
+@@ -72,2 +72,1 @@
+-    @SuppressWarnings("rawtypes")
+-    protected Vector parts = new Vector(); // Holds BodyParts
++    protected Vector<BodyPart> parts = new Vector<>(); // Holds BodyParts
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Part.java
+--- a/mail/src/main/java/javax/mail/Part.java
++++ b/mail/src/main/java/javax/mail/Part.java
+@@ -452,2 +452,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException;
++    public Enumeration<Header> getAllHeaders() throws MessagingException;
+@@ -463,2 +462,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] header_names)
++    public Enumeration<Header> getMatchingHeaders(String[] header_names)
+@@ -475,2 +473,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] header_names) 
++    public Enumeration<Header> getNonMatchingHeaders(String[] header_names) 
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Service.java
+--- a/mail/src/main/java/javax/mail/Service.java
++++ b/mail/src/main/java/javax/mail/Service.java
+@@ -640,2 +640,2 @@
+-    @SuppressWarnings("rawtypes")
+-    protected void queueEvent(MailEvent event, Vector vector) {
++    protected void queueEvent(MailEvent event,
++	    Vector<? extends EventListener> vector) {
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/InternetHeaders.java
+--- a/mail/src/main/java/javax/mail/internet/InternetHeaders.java
++++ b/mail/src/main/java/javax/mail/internet/InternetHeaders.java
+@@ -300,2 +300,1 @@
+-    @SuppressWarnings("rawtypes")
+-    protected List headers;
++    protected List<InternetHeader> headers;
+@@ -589,2 +585,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getAllHeaders() {
++    public Enumeration<Header> getAllHeaders() {
+@@ -600,2 +595,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getMatchingHeaders(String[] names) {
++    public Enumeration<Header> getMatchingHeaders(String[] names) {
+@@ -611,2 +605,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getNonMatchingHeaders(String[] names) {
++    public Enumeration<Header> getNonMatchingHeaders(String[] names) {
+@@ -649,2 +640,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() { 
++    public Enumeration<String> getAllHeaderLines() { 
+@@ -660,2 +650,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getMatchingHeaderLines(String[] names) {
++    public Enumeration<String> getMatchingHeaderLines(String[] names) {
+@@ -671,2 +660,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getNonMatchingHeaderLines(String[] names) {
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names) {
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeBodyPart.java
+--- a/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
++++ b/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
+@@ -1036,2 +1036,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException {
++    public Enumeration<Header> getAllHeaders() throws MessagingException {
+@@ -1045,2 +1044,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] names)
++    public Enumeration<Header> getMatchingHeaders(String[] names)
+@@ -1055,2 +1053,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] names)
++    public Enumeration<Header> getNonMatchingHeaders(String[] names)
+@@ -1073,2 +1070,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException {
++    public Enumeration<String> getAllHeaderLines() throws MessagingException {
+@@ -1083,2 +1079,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -1094,2 +1089,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)  
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)  
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeMessage.java
+--- a/mail/src/main/java/javax/mail/internet/MimeMessage.java
++++ b/mail/src/main/java/javax/mail/internet/MimeMessage.java
+@@ -1992,2 +1991,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException {
++    public Enumeration<Header> getAllHeaders() throws MessagingException {
+@@ -2004,2 +2002,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] names)
++    public Enumeration<Header> getMatchingHeaders(String[] names)
+@@ -2017,2 +2014,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] names)
++    public Enumeration<Header> getNonMatchingHeaders(String[] names)
+@@ -2043,2 +2039,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException {
++    public Enumeration<String> getAllHeaderLines() throws MessagingException {
+@@ -2055,2 +2050,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -2068,2 +2062,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimePart.java
+--- a/mail/src/main/java/javax/mail/internet/MimePart.java
++++ b/mail/src/main/java/javax/mail/internet/MimePart.java
+@@ -111,2 +111,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException;
++    public Enumeration<String> getAllHeaderLines() throws MessagingException;
+@@ -123,2 +122,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -136,2 +134,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/ParameterList.java
+--- a/mail/src/main/java/javax/mail/internet/ParameterList.java
++++ b/mail/src/main/java/javax/mail/internet/ParameterList.java
+@@ -627,2 +627,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNames() {
++    public Enumeration<String> getNames() {
+
+
+===================================================================
+
+4. MailDateFormat changes for version 1.6 (6949)
+------------------------------------------------
+
+The parse(String) method currently returns null for invalid dates,
+which violates the contract of DateFormat.  It should throw ParseException.
+
+Some methods of MailDateFormat throw UnsupportedOperationException.
+The following methods should also do so:
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates a specific pattern.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void applyLocalizedPattern(String pattern) {
+	    throw new UnsupportedOperationException("Method "
+		    + "applyLocalizedPattern() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates a specific pattern.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void applyPattern(String pattern) {
+	    throw new UnsupportedOperationException("Method "
+		    + "applyPattern() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates another strategy
+	 * for interpreting 2-digits years.
+	 *
+	 * @return the start of the 100-year period into which two digit
+	 * years are parsed
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public Date get2DigitYearStart() {
+	    throw new UnsupportedOperationException("Method "
+		    + "get2DigitYearStart() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates another strategy
+	 * for interpreting 2-digits years.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void set2DigitYearStart(Date startDate) {
+	    throw new UnsupportedOperationException("Method "
+		    + "set2DigitYearStart() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates specific date
+	 * format symbols.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
+	    throw new UnsupportedOperationException("Method "
+		    + "setDateFormatSymbols() shouldn't be called");
+	}
+
+MailDateFormat should include a proper clone method:
+
+	/**
+	 * Overrides Cloneable.
+	 *
+	 * @return a clone of this instance
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public MailDateFormat clone() {
+	    return (MailDateFormat) super.clone();
+	}
