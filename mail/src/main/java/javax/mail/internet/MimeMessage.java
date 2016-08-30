@@ -2170,7 +2170,8 @@ public class MimeMessage extends Message implements MimePart {
      * Called by the <code>saveChanges</code> method to actually
      * update the MIME headers.  The implementation here sets the
      * <code>Content-Transfer-Encoding</code> header (if needed
-     * and not already set), the <code>MIME-Version</code> header
+     * and not already set), the <code>Date</code> header (if
+     * not already set), the <code>MIME-Version</code> header
      * and the <code>Message-ID</code> header. Also, if the content
      * of this message is a <code>MimeMultipart</code>, its
      * <code>updateHeaders</code> method is called. <p>
@@ -2190,6 +2191,8 @@ public class MimeMessage extends Message implements MimePart {
     protected synchronized void updateHeaders() throws MessagingException {
 	MimeBodyPart.updateHeaders(this);	
 	setHeader("MIME-Version", "1.0");
+	if (getHeader("Date") == null)
+	    setSentDate(new Date());
         updateMessageID();
 
 	if (cachedContent != null) {
