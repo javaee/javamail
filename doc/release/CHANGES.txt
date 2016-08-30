@@ -19,6 +19,7 @@ longer available.
 		  ----------------------------
 The following bugs have been fixed in the 1.5.6 release.
 
+K  7010	Fix javac warnings
 K  8398	MailSessionDefinition should use the Repeatable annotation for Java EE 8
 K  8399	IdleManager fails on Android
 K  8403	Test fails: javax.mail.internet.GetLocalAddressTest
