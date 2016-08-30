@@ -4,14 +4,39 @@
 		    JavaMail(TM) API ${mail.version} release
 		    ------------------------------
 
-The JavaMail 1.5 specification is fully compatible with the JavaMail
-1.4 specification, with the exceptions listed below.
+The JavaMail 1.6 specification is fully compatible with the JavaMail
+1.5 specification, with the exceptions listed below.
 
 In addition, changes in the implementation may impact
 applications that depend on behavior beyond what is defined by the
 JavaMail specification, or that use features specific to the reference
 implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
+
+
+-- JavaMail 1.6 --
+
+- Public API updated to use generics
+
+	Methods in the following classes have been updated to use generics.
+	This change should be binary compatible but may require source
+	code changes in applications.
+
+		javax.mail.Multipart
+		javax.mail.Part
+		javax.mail.Service
+		javax.mail.internet.InternetHeaders
+		javax.mail.internet.MimeBodyPart
+		javax.mail.internet.MimeMessage
+		javax.mail.internet.MimePart
+		javax.mail.internet.ParameterList
+
+- JDK 1.7 or newer required
+
+	The JavaMail reference implementation now requires JDK 1.7
+	or newer.  It is expected that the large majority of users
+	are already using JDK 1.7 or newer.
+
 
 
 -- JavaMail 1.5.6 --

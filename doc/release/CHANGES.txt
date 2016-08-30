@@ -24,6 +24,7 @@ K  8398	MailSessionDefinition should use the Repeatable annotation for Java EE 8
 K  8399	IdleManager fails on Android
 K  8403	Test fails: javax.mail.internet.GetLocalAddressTest
 K  8405	MboxFolder.expunge can corrupt mailbox file
+K  8415	Update public API to use generics
 
 
 		  CHANGES IN THE 1.5.6 RELEASE
