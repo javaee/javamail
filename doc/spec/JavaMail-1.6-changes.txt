@@ -30,7 +30,7 @@ The MailSessionDefinition annotation now includes the Repeatable annotation:
 	    ...
 	}
 
-The Repeatble annotation is not know to Java SE 7 and will be ignored
+The Repeatable annotation is not known to Java SE 7 and will be ignored
 when JavaMail 1.6 is used on Java SE 7 (as expected).
 
 

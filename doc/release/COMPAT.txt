@@ -43,9 +43,7 @@ with this release of the JavaMail API.
 
 	* parse(String) now throws a ParseException on invalid input instead
 	  of returning null, to conform to the DateFormat contract
-	* with lenient parsing: reject years that have not been specified in the
-	  RFC, notably single-digit years, and years in the range [1000,1899]
-	* the following methods now throw UnsupprotedOperationException
+	* the following methods now throw UnsupportedOperationException
 	  to prevent tampering with MailDateFormat's internals:
 
 		get2DigitYearStart
