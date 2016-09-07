@@ -228,7 +228,7 @@ public class FetchResponse extends IMAPResponse {
      */
     private String next20() {
 	if (index + 20 > size)
-	    return ASCIIUtility.toString(buffer, index, index + size);
+	    return ASCIIUtility.toString(buffer, index, size);
 	else
 	    return ASCIIUtility.toString(buffer, index, index + 20) + "...";
     }
