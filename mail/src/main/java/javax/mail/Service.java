@@ -59,7 +59,7 @@ import javax.mail.event.*;
  * @author Kanwar Oberoi
  */
 
-public abstract class Service {
+public abstract class Service implements AutoCloseable {
 
     /**
      * The session from which this service was created.

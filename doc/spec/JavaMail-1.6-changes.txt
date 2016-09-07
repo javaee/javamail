@@ -320,3 +320,48 @@ MailDateFormat should include a proper clone method:
 	public MailDateFormat clone() {
 	    return (MailDateFormat) super.clone();
 	}
+
+
+===================================================================
+
+5. Store, Transport, and Folder should implement AutoCloseable (6823)
+---------------------------------------------------------------------
+
+To enable use in a try-with-resources block, the Store, Transport,
+and Folder classes should implement the java.lang.AutoCloseable interface.
+Store and Transport are subclasses of Service, which already has the
+required close() method, so having Service implement AutoCloseable is
+sufficient.  The Folder class includes a close method with a required
+"expunge" parameter so we add a new close() method with no parameter
+that behaves the same as close(true), and have Folder implement AutoCloseable.
+
+	public abstract class Service implements AutoCloseable {
+	    ...
+	}
+
+	public abstract class Folder implements AutoCloseable {
+	    ...
+ 
+	    /**
+	     * Close this Folder and expunge deleted messages. <p>
+	     *
+	     * A CLOSED ConnectionEvent is delivered to any ConnectionListeners
+	     * registered on this Folder. Note that the folder is closed even
+	     * if this method terminates abnormally by throwing a
+	     * MessagingException. <p>
+	     *
+	     * This method supports the {@link java.lang.AutoCloseable AutoCloseable}
+	     * interface. <p>
+	     *
+	     * This implementation calls <code>close(true)</code>.
+	     *
+	     * @exception	IllegalStateException if this folder is not opened
+	     * @exception       MessagingException for other failures
+	     * @see 		javax.mail.event.ConnectionEvent
+	     * @since		JavaMail 1.6
+	     */
+	    @Override
+	    public void close() throws MessagingException {
+		close(true);
+	    }
+	}

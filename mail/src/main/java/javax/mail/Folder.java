@@ -116,7 +116,7 @@ import javax.mail.event.*;
  * @author Bill Shannon
  */
 
-public abstract class Folder {
+public abstract class Folder implements AutoCloseable {
 
     /**
      * The parent store.
@@ -645,6 +645,29 @@ public abstract class Folder {
      * @see 		javax.mail.event.ConnectionEvent
      */
     public abstract void close(boolean expunge) throws MessagingException;
+
+    /**
+     * Close this Folder and expunge deleted messages. <p>
+     *
+     * A CLOSED ConnectionEvent is delivered to any ConnectionListeners
+     * registered on this Folder. Note that the folder is closed even
+     * if this method terminates abnormally by throwing a
+     * MessagingException. <p>
+     *
+     * This method supports the {@link java.lang.AutoCloseable AutoCloseable}
+     * interface. <p>
+     *
+     * This implementation calls <code>close(true)</code>.
+     *
+     * @exception	IllegalStateException if this folder is not opened
+     * @exception       MessagingException for other failures
+     * @see 		javax.mail.event.ConnectionEvent
+     * @since		JavaMail 1.6
+     */
+    @Override
+    public void close() throws MessagingException {
+	close(true);
+    }
 
     /**
      * Indicates whether this Folder is in the 'open' state.
