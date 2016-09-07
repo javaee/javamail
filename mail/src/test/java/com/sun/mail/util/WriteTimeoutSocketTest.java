@@ -267,7 +267,8 @@ public final class WriteTimeoutSocketTest {
 	@Override
         protected void collectMessage(int bytes) throws IOException {
 	    try {
-		Thread.sleep(TIMEOUT*2);
+		// allow plenty of time for even slow machines to time out
+		Thread.sleep(TIMEOUT*20);
 	    } catch (InterruptedException ex) { }
 	    super.collectMessage(bytes);
         }
