@@ -261,13 +261,18 @@ public class IMAPSaslAuthenticator implements SaslAuthenticator {
 	    }
 	}
 
-	/* Dispatch untagged responses.
+	Response[] responses = v.toArray(new Response[v.size()]);
+
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	pr.handleCapabilityResponse(responses);
+
+	/*
+	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the 
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = v.toArray(new Response[v.size()]);
 	pr.notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response

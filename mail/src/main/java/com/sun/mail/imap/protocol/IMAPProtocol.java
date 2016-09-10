@@ -213,24 +213,36 @@ public class IMAPProtocol extends Protocol {
 	Response[] r = command("CAPABILITY", null);
 	Response response = r[r.length-1];
 
-	if (response.isOK()) {
-	    capabilities = new HashMap<>(10);
-	    authmechs = new ArrayList<>(5);
-	    for (int i = 0, len = r.length; i < len; i++) {
-		if (!(r[i] instanceof IMAPResponse))
-		    continue;
+	if (response.isOK())
+	    handleCapabilityResponse(r);
+	handleResult(response);
+    }
 
-		IMAPResponse ir = (IMAPResponse)r[i];
+    /**
+     * Handle any untagged CAPABILITY response in the Response array.
+     */
+    public void handleCapabilityResponse(Response[] r) {
+	boolean first = true;
+	for (int i = 0, len = r.length; i < len; i++) {
+	    if (!(r[i] instanceof IMAPResponse))
+		continue;
 
-		// Handle *all* untagged CAPABILITY responses.
-		//   Though the spec seemingly states that only
-		// one CAPABILITY response string is allowed (6.1.1),
-		// some server vendors claim otherwise.
-		if (ir.keyEquals("CAPABILITY"))
-		    parseCapabilities(ir);
+	    IMAPResponse ir = (IMAPResponse)r[i];
+
+	    // Handle *all* untagged CAPABILITY responses.
+	    // Though the spec seemingly states that only
+	    // one CAPABILITY response string is allowed (6.1.1),
+	    // some server vendors claim otherwise.
+	    if (ir.keyEquals("CAPABILITY")) {
+		if (first) {
+		    // clear out current when first response seen
+		    capabilities = new HashMap<>(10);
+		    authmechs = new ArrayList<>(5);
+		    first = false;
+		}
+		parseCapabilities(ir);
 	    }
 	}
-	handleResult(response);
     }
 
     /**
@@ -493,6 +505,9 @@ public class IMAPProtocol extends Protocol {
 	    resumeTracing();
 	}
 
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	handleCapabilityResponse(r);
+
 	// dispatch untagged responses
 	notifyResponseHandlers(r);
 
@@ -596,13 +611,18 @@ public class IMAPProtocol extends Protocol {
 	    resumeTracing();
 	}
 
-	/* Dispatch untagged responses.
+	Response[] responses = v.toArray(new Response[v.size()]);
+
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	handleCapabilityResponse(responses);
+
+	/*
+	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the 
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -706,13 +726,18 @@ public class IMAPProtocol extends Protocol {
 	    resumeTracing();
 	}
 
-	/* Dispatch untagged responses.
+	Response[] responses = v.toArray(new Response[v.size()]);
+
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	handleCapabilityResponse(responses);
+
+	/*
+	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -803,6 +828,11 @@ public class IMAPProtocol extends Protocol {
 	    resumeTracing();
 	}
 
+	Response[] responses = v.toArray(new Response[v.size()]);
+
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	handleCapabilityResponse(responses);
+
 	/*
 	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
@@ -810,7 +840,6 @@ public class IMAPProtocol extends Protocol {
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response
@@ -897,13 +926,18 @@ public class IMAPProtocol extends Protocol {
 	    resumeTracing();
 	}
 
-	/* Dispatch untagged responses.
+	Response[] responses = v.toArray(new Response[v.size()]);
+
+	// handle an illegal but not uncommon untagged CAPABILTY response
+	handleCapabilityResponse(responses);
+
+	/*
+	 * Dispatch untagged responses.
 	 * NOTE: in our current upper level IMAP classes, we add the
 	 * responseHandler to the Protocol object only *after* the
 	 * connection has been authenticated. So, for now, the below
 	 * code really ends up being just a no-op.
 	 */
-	Response[] responses = v.toArray(new Response[v.size()]);
 	notifyResponseHandlers(responses);
 
 	// Handle the final OK, NO, BAD or BYE response

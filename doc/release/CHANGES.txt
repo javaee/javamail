@@ -23,6 +23,7 @@ K  6074	MimeMessage.updateHeaders should set the Date header if not already set
 K  6823	Store, Transport, and Folder should implement AutoCloseable
 K  6949	MailDateFormat changes for version 1.6
 K  7010	Fix javac warnings
+K  7371	IMAP doesn't handle illegal CAPABILITY response after LOGIN/AUTHENTICATE
 K  8398	MailSessionDefinition should use the Repeatable annotation for Java EE 8
 K  8399	IdleManager fails on Android
 K  8403	Test fails: javax.mail.internet.GetLocalAddressTest
