@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -53,7 +53,7 @@ public class RFC822SIZE implements Item {
     static final char[] name = {'R','F','C','8','2','2','.','S','I','Z','E'};
     public int msgno;
 
-    public int size;
+    public long size;
 
     /**
      * Constructor.
@@ -64,6 +64,6 @@ public class RFC822SIZE implements Item {
     public RFC822SIZE(FetchResponse r) throws ParsingException {
 	msgno = r.getNumber();
 	r.skipSpaces();
-	size = r.readNumber();		
+	size = r.readLong();		
     }
 }

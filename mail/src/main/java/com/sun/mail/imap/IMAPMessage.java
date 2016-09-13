@@ -91,7 +91,7 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
     protected Map<String, Object> items;		// Map<String,Object>
 
     private Date receivedDate;		// INTERNALDATE
-    private int size = -1;		// RFC822.SIZE
+    private long size = -1;		// RFC822.SIZE
 
     private Boolean peek;		// use BODY.PEEK when fetching content?
 
@@ -500,9 +500,28 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
      *
      * Note that this returns RFC822.SIZE.  That is, it's the
      * size of the whole message, header and body included.
+     * Note also that if the size of the message is greater than
+     * Integer.MAX_VALUE (2GB), this method returns Integer.MAX_VALUE.
      */
     @Override
     public int getSize() throws MessagingException {
+	checkExpunged();
+	// if bodyLoaded, size is already set
+	if (size == -1)
+	    loadEnvelope();	// XXX - could just fetch the size
+	if (size > Integer.MAX_VALUE)
+	    return Integer.MAX_VALUE;	// the best we can do...
+	else
+	    return (int)size;
+    }
+
+    /**
+     * Get the message size as a long. <p>
+     *
+     * Suitable for messages that might be larger than 2GB.
+     * @since	JavaMail 1.6
+     */
+    public long getSizeLong() throws MessagingException {
 	checkExpunged();
 	// if bodyLoaded, size is already set
 	if (size == -1)

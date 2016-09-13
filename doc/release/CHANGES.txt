@@ -31,6 +31,7 @@ K  8404	Tests fail: com.sun.mail.util.WriteTimeoutSocketTest
 K  8405	MboxFolder.expunge can corrupt mailbox file
 K  8415	Update public API to use generics
 K  8420	Malformed IMAP FETCH response throws the wrong exception
+K  8422	RFC822.SIZE > 2GB isn't handled
 
 
 		  CHANGES IN THE 1.5.6 RELEASE
