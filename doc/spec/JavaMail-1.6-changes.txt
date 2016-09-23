@@ -365,3 +365,41 @@ that behaves the same as close(true), and have Folder implement AutoCloseable.
 		close(true);
 	    }
 	}
+
+
+===================================================================
+
+6. The UIDFolder interface should have a getter for UIDNEXT (6281)
+------------------------------------------------------------------
+
+The UIDFolder interface models the UID support in the IMAP protocol.
+After UIDFolder was originally created, the IMAP protocol added
+support for getting the value of the next UID that will be assigned.
+The IMAP provider in JavaMail has supported this for quite some time;
+it should be added to the UIDFolder interface:
+
+	/**
+	 * Returns the predicted UID that will be assigned to the
+	 * next message that is appended to this folder.
+	 * Messages might be appended to the folder after this value
+	 * is retrieved, causing this value to be out of date.
+	 * This value might only be updated when a folder is first opened.
+	 * Note that messages may have been appended to the folder
+	 * while it was open and thus this value may be out of
+	 * date. <p>
+	 *
+	 * If the value is unknown, -1 is returned.  <p>
+	 *
+	 * @return  the UIDNEXT value, or -1 if unknown
+	 * @exception       MessagingException for failures
+	 * @since   JavaMail 1.6
+	 */
+	public long getUIDNext() throws MessagingException;
+
+Ideally this new method added to the interface would include a default
+implementation to provide compatibility with existing classes that
+implement this method.  However, since the JavaMail 1.6 reference
+implementation targets Java SE 7, this is not possible.  It's very
+likely that the only class implementing this interface is the IMAPFolder
+class in the JavaMail reference implementation, thus this incompatibility
+is extremely unlikely to cause a problem in practice.

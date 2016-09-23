@@ -20,6 +20,7 @@ longer available.
 The following bugs have been fixed in the 1.6.0 release.
 
 K  6074	MimeMessage.updateHeaders should set the Date header if not already set
+K  6281	The UIDFolder interface should have a getter for UIDNEXT
 K  6823	Store, Transport, and Folder should implement AutoCloseable
 K  6949	MailDateFormat changes for version 1.6
 K  7010	Fix javac warnings

@@ -2559,7 +2559,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * @exception	MessagingException for failures
      * @since	JavaMail 1.3.3
      */
-    // Not a UIDFolder method, but still useful
+    @Override
     public synchronized long getUIDNext() throws MessagingException {
 	if (opened) // we already have this information
 	    return uidnext;

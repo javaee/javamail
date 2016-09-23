@@ -52,6 +52,13 @@ with this release of the JavaMail API.
 		set2DigitYearStart
 		setDateFormatSymbols
 
+- method added to UIDFolder interface
+
+	The UIDFolder interface has a new getUIDNext() method.  Any
+	classes implementing the UIDFolder interface will need to add
+	this method.  The IMAPFolder class implements the UIDFolder
+	interface and has provided this method for some time.
+
 
 
 -- JavaMail 1.5.6 --

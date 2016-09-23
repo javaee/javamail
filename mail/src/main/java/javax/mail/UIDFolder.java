@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -191,4 +191,22 @@ public interface UIDFolder {
      * @exception	MessagingException for other failures
      */
     public long getUID(Message message) throws MessagingException;
+
+    /**
+     * Returns the predicted UID that will be assigned to the
+     * next message that is appended to this folder.
+     * Messages might be appended to the folder after this value
+     * is retrieved, causing this value to be out of date.
+     * This value might only be updated when a folder is first opened.
+     * Note that messages may have been appended to the folder
+     * while it was open and thus this value may be out of
+     * date. <p>
+     *
+     * If the value is unknown, -1 is returned.  <p>
+     *
+     * @return		the UIDNEXT value, or -1 if unknown
+     * @exception	MessagingException for failures
+     * @since		JavaMail 1.6
+     */
+    public long getUIDNext() throws MessagingException;
 }
