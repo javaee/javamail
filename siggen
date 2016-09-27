@@ -2,7 +2,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 2010 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010-2016 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -42,14 +42,13 @@
 #
 # Generate a new signature file.
 #
-# Usage: siggen mail.jar mail.sig
+# Usage: siggen javax.mail.jar mail.sig
 #
-SIGTEST=${SIGTEST:-/java/re/sigtest/2.2/promoted/opensource/latest/binaries/sigtest-2.2}
+SIGTEST=${SIGTEST:-/java/re/sigtest/4.0/promoted/fcs/latest/binaries/sigtest-4.0}
 SIGTEST_JAR=$SIGTEST/lib/sigtestdev.jar
-JAF_JAR=${JAF_JAR:-$HOME/ext/activation.jar}
-JAVA_HOME=${JAVA_HOME:-/opt/jdk1.4}
+JAVA_HOME=${JAVA_HOME:-/opt/jdk1.8}
 PKG=javax.mail
-USAGE="siggen [-p package] mail.jar mail.sig"
+USAGE="siggen [-p package] javax.mail.jar mail.sig"
 
 while getopts p: opt
 do
@@ -61,5 +60,5 @@ done
 shift `expr $OPTIND - 1`
 
 ${JAVA_HOME}/bin/java -jar $SIGTEST_JAR setup -static \
-	-classpath "$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jsse.jar:$JAF_JAR" \
+	-classpath "$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jse.jar" \
 	-filename "$2" -package "$PKG" -nonclosedfile

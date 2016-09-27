@@ -2,7 +2,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 2010 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010-2016 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -42,15 +42,17 @@
 #
 # Compare API against a signature file.
 #
-# Usage: sigtest mail.jar mail.sig
+# Usage: sigtest javax.mail.jar mail.sig
 #
-SIGTEST=${SIGTEST:-/java/re/sigtest/2.2/promoted/opensource/latest/binaries/sigtest-2.2}
-APICHECK_JAR=$SIGTEST/lib/apicheck.jar
-JAF_JAR=${JAF_JAR:-$HOME/ext/activation.jar}
-JAVA_HOME=${JAVA_HOME:-/opt/jdk1.4}
-USAGE="sigtest [-b] [-p package] mail.jar mail.sig"
+SIGTEST=${SIGTEST:-/java/re/sigtest/4.0/promoted/fcs/latest/binaries/sigtest-4.0}
+# The apicheck program isn't working correctly, use sigtest instead.
+#APICHECK_JAR=$SIGTEST/lib/apicheck.jar
+SIGTEST_JAR=$SIGTEST/lib/sigtestdev.jar
+JAVA_HOME=${JAVA_HOME:-/opt/jdk1.8}
+USAGE="sigtest [-b] [-p package] javax.mail.jar mail.sig"
 PKG=javax.mail
 BACKWARD=
+PLATSIG=/tmp/$$.platform.sig
 
 while getopts bp: opt
 do
@@ -62,7 +64,20 @@ do
 done
 shift `expr $OPTIND - 1`
 
-${JAVA_HOME}/bin/java -jar $APICHECK_JAR -static \
-	-classpath "$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jsse.jar:$JAF_JAR" \
-	-filename "$2" -package "$PKG" -out /dev/stdout \
-	-nomerge -checkvalue -mode src "$BACKWARD"
+JAR="$1"
+SIG="$2"
+shift 2
+
+echo '*** Generate JDK signatures ***'
+${JAVA_HOME}/bin/java -jar $SIGTEST_JAR setup \
+	-classpath "${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jce.jar" \
+	-filename "$PLATSIG" -package java -package javax -keepfile \
+	-verbose nowarn
+echo
+echo '*** Check JavaMail signatures ***'
+${JAVA_HOME}/bin/java -jar $SIGTEST_JAR test -static \
+	-classpath "$PLATSIG:$JAR" \
+	-filename "$SIG" -package "$PKG" -out /dev/stdout \
+	-nomerge -checkvalue -mode src $BACKWARD "$@"
+
+rm "$PLATSIG"
