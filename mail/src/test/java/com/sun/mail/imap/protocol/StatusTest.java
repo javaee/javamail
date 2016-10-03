@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,8 @@
 
 package com.sun.mail.imap.protocol;
 
+import com.sun.mail.iap.ParsingException;
+
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
@@ -61,5 +63,25 @@ public class StatusTest {
 	assertEquals(mbox, s.mbox);
 	assertEquals(231, s.total);
 	assertEquals(44292, s.uidnext);
+    }
+
+    /**
+     * Test that a bad response throws a ParsingException
+     */
+    @Test(expected = ParsingException.class)
+    public void testBadResponseNoAttrList() throws Exception {
+	String mbox = "test";
+	IMAPResponse response = new IMAPResponse("* STATUS test ");
+	Status s = new Status(response);
+    }
+
+    /**
+     * Test that a bad response throws a ParsingException
+     */
+    @Test(expected = ParsingException.class)
+    public void testBadResponseNoAttrs() throws Exception {
+	String mbox = "test";
+	IMAPResponse response = new IMAPResponse("* STATUS test (");
+	Status s = new Status(response);
     }
 }

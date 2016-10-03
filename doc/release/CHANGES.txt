@@ -34,6 +34,7 @@ K  8415	Update public API to use generics
 K  8420	Malformed IMAP FETCH response throws the wrong exception
 K  8422	RFC822.SIZE > 2GB isn't handled
 K  8486	Protocol#command method call readResponse after IOException is thrown
+K  8487	Possible NPE in Status.<init> line 96
 
 
 		  CHANGES IN THE 1.5.6 RELEASE

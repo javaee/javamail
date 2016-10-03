@@ -94,6 +94,8 @@ public class Status {
 	
 	do {
 	    String attr = r.readAtom();
+	    if (attr == null)
+		throw new ParsingException("parse error in STATUS");
 	    if (attr.equalsIgnoreCase("MESSAGES"))
 		total = r.readNumber();
 	    else if (attr.equalsIgnoreCase("RECENT"))
