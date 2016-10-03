@@ -335,7 +335,6 @@ public class Protocol {
 	List<Response> v = new ArrayList<>();
 	boolean done = false;
 	String tag = null;
-	Response r = null;
 
 	// write the command
 	try {
@@ -351,13 +350,14 @@ public class Protocol {
 
 	Response byeResp = null;
 	while (!done) {
+	    Response r = null;
 	    try {
 		r = readResponse();
 	    } catch (IOException ioex) {
-		if (byeResp != null)	// connection closed after BYE was sent
-		    break;
-		// convert this into a BYE response
-		r = Response.byeResponse(ioex);
+		if (byeResp == null)	// convert this into a BYE response
+		    byeResp = Response.byeResponse(ioex);
+		// else, connection closed after BYE was sent
+		break;
 	    } catch (ProtocolException pex) {
 		logger.log(Level.FINE, "ignoring bad response", pex);
 		continue; // skip this response
