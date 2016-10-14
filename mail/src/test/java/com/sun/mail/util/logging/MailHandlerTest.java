@@ -2488,11 +2488,13 @@ public class MailHandlerTest extends AbstractLogging {
         InternalErrorManager em = new InternalErrorManager();
         instance.setErrorManager(em);
 
-        assertEquals("text/plain", instance.contentTypeOf(new SimpleFormatter()));
-        assertEquals("text/plain", instance.contentTypeOf(new SimpleFormatter(){}));
+        synchronized (instance) {
+            assertNull(instance.contentTypeOf(new SimpleFormatter()));
+            assertNull(instance.contentTypeOf(new SimpleFormatter(){}));
 
-        assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter()));
-        assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter(){}));
+            assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter()));
+            assertEquals("application/xml", instance.contentTypeOf(new XMLFormatter(){}));
+        }
 
         /**
          * None of the Formatter methods that can generate content should be
@@ -2520,8 +2522,11 @@ public class MailHandlerTest extends AbstractLogging {
                 throw new UnsupportedOperationException();
             }
         }
-        assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML()));
-        assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML(){}));
+
+        synchronized (instance) {
+            assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML()));
+            assertEquals("text/html", instance.contentTypeOf(new UnsupportedHTML(){}));
+        }
 
         instance.close();
         for (Exception exception : em.exceptions) {
@@ -2559,9 +2564,23 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testContentTypeNestedFormatter() throws Exception {
+        String expected = "application/xml; charset=us-ascii";
+        String type = getInlineContentType(new CollectorFormatter("{0}{1}{2}",
+                new XMLFormatter(), new SeverityComparator()));
+        assertEquals(expected, type);
+
+
+        expected = "text/plain; charset=us-ascii";
+        type = getInlineContentType(new CollectorFormatter("{0}{1}{2}",
+                new CompactFormatter(), new SeverityComparator()));
+        assertEquals(expected, type);
+    }
+
+    @Test
     public void testContentTypeOverride() throws Exception {
         String expected = "application/xml; charset=us-ascii";
-        String type = getInlineContentType();
+        String type = getInlineContentType(new XMLFormatter());
         assertEquals(expected, type);
 
         MimetypesFileTypeMap m = new MimetypesFileTypeMap();
@@ -2569,17 +2588,17 @@ public class MailHandlerTest extends AbstractLogging {
         final FileTypeMap old = FileTypeMap.getDefaultFileTypeMap();
         FileTypeMap.setDefaultFileTypeMap(m);
         try {
-            type = getInlineContentType();
+            type = getInlineContentType(new XMLFormatter());
             assertEquals("text/plain; charset=us-ascii", type);
         } finally {
             FileTypeMap.setDefaultFileTypeMap(old);
         }
 
-        type = getInlineContentType();
+        type = getInlineContentType(new XMLFormatter());
         assertEquals(expected, type);
     }
 
-    private String getInlineContentType() throws Exception {
+    private String getInlineContentType(Formatter f) throws Exception {
         final String[] value = new String[1];
         MailHandler instance = new MailHandler(createInitProperties(""));
         instance.setEncoding("us-ascii");
@@ -2602,7 +2621,7 @@ public class MailHandlerTest extends AbstractLogging {
         Properties props = createInitProperties("");
         props.put("mail.to", "localhost@localdomain");
         instance.setMailProperties(props);
-        instance.setFormatter(new XMLFormatter());
+        instance.setFormatter(f);
         instance.publish(new LogRecord(Level.SEVERE, "test"));
         instance.close();
 
@@ -3975,6 +3994,7 @@ public class MailHandlerTest extends AbstractLogging {
         instance.setErrorManager(em);
 
         assertNotNull(instance.getSubject());
+        assertEquals(CollectorFormatter.class, instance.getSubject().getClass());
 
         try {
             instance.setSubject((Formatter) null);
@@ -5704,7 +5724,7 @@ public class MailHandlerTest extends AbstractLogging {
             props.put("subject", "test");
             props.put("mail.from", "badAddress");
             props.put("verify", "local");
-            
+
             instance = new MailHandler(props);
             try {
                 InternalErrorManager em = internalErrorManagerFrom(instance);

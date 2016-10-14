@@ -125,8 +125,8 @@ import javax.mail.util.ByteArrayDataSource;
  * attachment. (default is no attachments)
  *
  * <li>&lt;handler-name&gt;.attachment.names a comma separated
- * list of names or <tt>Formatter</tt> class names of each attachment.  The
- * attachment file names must not contain any line breaks.
+ * list of names or <tt>Formatter</tt> class names of each attachment.  All
+ * control characters are removed from the attachment names.
  * (default is {@linkplain java.util.logging.Formatter#toString() toString}
  * of the attachment formatter)
  *
@@ -216,8 +216,9 @@ import javax.mail.util.ByteArrayDataSource;
  *
  * <li>&lt;handler-name&gt;.subject the name of a
  * <tt>Formatter</tt> class or string literal used to create the subject line.
- * The empty string can be used to specify no subject.  The subject line must
- * not contain any line breaks. (defaults to the empty string)
+ * The empty string can be used to specify no subject.  All control characters
+ * are removed from the subject line. (defaults to {@linkplain
+ * com.sun.mail.util.logging.CollectorFormatter CollectorFormatter}.)
  *
  * <li>&lt;handler-name&gt;.pushFilter the name of a
  * <tt>Filter</tt> class used to trigger an early push.
@@ -1003,7 +1004,7 @@ public class MailHandler extends Handler {
             if (newFilter != filter) {
                 clearMatches(-1);
             }
-            this.filter = newFilter;
+            this.filter = newFilter; //Volatile access.
         }
     }
 
@@ -1210,7 +1211,9 @@ public class MailHandler extends Handler {
 
     /**
      * Sets the <tt>Authenticator</tt> used to login to the email server.
-     * @param password a password or null if none is required.
+     * @param password a password, empty array can be used to only supply a
+     * user name set by <tt>mail.user</tt> property, or null if no credentials
+     * are required.
      * @throws SecurityException  if a security manager exists and the
      * caller does not have <tt>LoggingPermission("control")</tt>.
      * @throws IllegalStateException if called from inside a push.
@@ -1228,6 +1231,9 @@ public class MailHandler extends Handler {
     /**
      * A private hook to handle possible future overrides. See public method.
      * @param auth see public method.
+     * @throws SecurityException  if a security manager exists and the
+     * caller does not have <tt>LoggingPermission("control")</tt>.
+     * @throws IllegalStateException if called from inside a push.
      */
     private void setAuthenticator0(final Authenticator auth) {
         checkAccess();
@@ -1408,8 +1414,8 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Sets the attachment file name for each attachment.  The caller must
-     * ensure that the attachment file names do not contain any line breaks.
+     * Sets the attachment file name for each attachment.  All control
+     * characters are removed from the attachment names.
      * This method will create a set of custom formatters.
      * @param names an array of names.
      * @throws SecurityException  if a security manager exists and the
@@ -1464,10 +1470,10 @@ public class MailHandler extends Handler {
      * typically return an empty string. Instead of being used to format
      * records, it is used to gather information about the contents of an
      * attachment.  The <tt>getTail</tt> method should be used to construct the
-     * attachment file name and reset any formatter collected state.  The
-     * formatter must ensure that the attachment file name does not contain any
-     * line breaks.  The <tt>toString</tt> method of the given formatter should
-     * be overridden to provide a useful attachment file name, if possible.
+     * attachment file name and reset any formatter collected state.  All
+     * control characters will be removed from the output of the formatter.  The
+     * <tt>toString</tt> method of the given formatter should be overridden to
+     * provide a useful attachment file name, if possible.
      * @param formatters and array of attachment name formatters.
      * @throws SecurityException  if a security manager exists and the
      * caller does not have <tt>LoggingPermission("control")</tt>.
@@ -1517,8 +1523,8 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Sets a literal string for the email subject.  The caller must ensure that
-     * the subject line does not contain any line breaks.
+     * Sets a literal string for the email subject.  All control characters are
+     * removed from the subject line.
      * @param subject a non <tt>null</tt> string.
      * @throws SecurityException  if a security manager exists and the
      * caller does not have <tt>LoggingPermission("control")</tt>.
@@ -1543,8 +1549,8 @@ public class MailHandler extends Handler {
      * empty string.  This formatter is used to gather information to create a
      * summary about what information is contained in the email.  The
      * <tt>getTail</tt> method should be used to construct the subject and reset
-     * any formatter collected state.  The formatter must ensure that the
-     * subject line does not contain any line breaks.  The <tt>toString</tt>
+     * any formatter collected state.  All control characters
+     * will be removed from the formatter output.  The <tt>toString</tt>
      * method of the given formatter should be overridden to provide a useful
      * subject, if possible.
      * @param format the subject formatter.
@@ -1610,20 +1616,19 @@ public class MailHandler extends Handler {
      * this type of conversion.  Currently, this is only used for the body
      * since the attachments are computed by filename.
      * Package-private for unit testing.
-     * @param head any head string.
+     * @param chunk any char sequence or null.
      * @return return the mime type or null for text/plain.
      */
-    final String contentTypeOf(String head) {
-        if (!isEmpty(head)) {
+    final String contentTypeOf(CharSequence chunk) {
+        if (!isEmpty(chunk)) {
             final int MAX_CHARS = 25;
-            if (head.length() > MAX_CHARS) {
-                head = head.substring(0, MAX_CHARS);
+            if (chunk.length() > MAX_CHARS) {
+                chunk = chunk.subSequence(0, MAX_CHARS);
             }
             try {
                 final String charset = getEncodingName();
-                final ByteArrayInputStream in
-                        = new ByteArrayInputStream(head.getBytes(charset));
-
+                final byte[] b = chunk.toString().getBytes(charset);
+                final ByteArrayInputStream in = new ByteArrayInputStream(b);
                 assert in.markSupported() : in.getClass().getName();
                 return URLConnection.guessContentTypeFromStream(in);
             } catch (final IOException IOE) {
@@ -1641,14 +1646,26 @@ public class MailHandler extends Handler {
      * Package-private for unit testing.
      *
      * @param f the formatter or null.
-     * @return return the mime type or text/plain.
+     * @return return the mime type or null, meaning text/plain.
      * @since JavaMail 1.5.6
      */
     final String contentTypeOf(final Formatter f) {
+        assert Thread.holdsLock(this);
         if (f != null) {
+            String type = getContentType(f.getClass().getName());
+            if (type != null) {
+                return type;
+            }
+
             for (Class<?> k = f.getClass(); k != Formatter.class;
                     k = k.getSuperclass()) {
-                String name = k.getName().toLowerCase(Locale.ENGLISH);
+                String name;
+                try {
+                    name = k.getSimpleName();
+                } catch (final InternalError JDK8057919) {
+                    name = k.getName();
+                }
+                name = name.toLowerCase(Locale.ENGLISH);
                 for (int idx = name.indexOf('$') + 1;
                         (idx = name.indexOf("ml", idx)) > -1; idx += 2) {
                     if (idx > 0) {
@@ -1663,7 +1680,7 @@ public class MailHandler extends Handler {
                 }
             }
         }
-        return "text/plain";
+        return null;
     }
 
    /**
@@ -1790,7 +1807,7 @@ public class MailHandler extends Handler {
      * Set the content for a part using the encoding assigned to the handler.
      * @param part the part to assign.
      * @param buf the formatted data.
-     * @param type the mime type.
+     * @param type the mime type or null, meaning text/plain.
      * @throws MessagingException if there is a problem.
      */
     private void setContent(MimeBodyPart part, CharSequence buf, String type) throws MessagingException {
@@ -2216,11 +2233,11 @@ public class MailHandler extends Handler {
     }
 
     /**
-     * Checks a string value for null or empty.
-     * @param s the string.
+     * Checks a char sequence value for null or empty.
+     * @param s the char sequence.
      * @return true if the given string is null or zero length.
      */
-    private static boolean isEmpty(final String s) {
+    private static boolean isEmpty(final CharSequence s) {
         return s == null || s.length() == 0;
     }
 
@@ -2641,6 +2658,10 @@ public class MailHandler extends Handler {
     private void initSubject(final String p) {
         assert Thread.holdsLock(this);
         String name = fromLogManager(p.concat(".subject"));
+        if (name == null) { //Soft dependency on CollectorFormatter.
+            name = "com.sun.mail.util.logging.CollectorFormatter";
+        }
+
         if (hasValue(name)) {
             try {
                 this.subjectFormatter = LogManagerProperties.newFormatter(name);
@@ -2654,14 +2675,8 @@ public class MailHandler extends Handler {
                 this.subjectFormatter = TailNameFormatter.of(name);
                 reportError(E.getMessage(), E, ErrorManager.OPEN_FAILURE);
             }
-        } else {
-            if (name != null) {
-                this.subjectFormatter = TailNameFormatter.of(name);
-            }
-        }
-
-        if (this.subjectFormatter == null) { //Ensure not null.
-            this.subjectFormatter = TailNameFormatter.of("");
+        } else { //User has forced empty or literal null.
+            this.subjectFormatter = TailNameFormatter.of(name);
         }
     }
 
@@ -2847,7 +2862,6 @@ public class MailHandler extends Handler {
          */
         StringBuilder[] buffers = new StringBuilder[parts.length];
 
-        String contentType = null;
         StringBuilder buf = null;
 
         appendSubject(msg, head(subjectFormatter));
@@ -2871,9 +2885,7 @@ public class MailHandler extends Handler {
                 lmf = bodyFilter;
                 if (buf == null) {
                     buf = new StringBuilder();
-                    final String head = head(bodyFormat);
-                    buf.append(head);
-                    contentType = contentTypeOf(head);
+                    buf.append(head(bodyFormat));
                 }
                 formatted = true;
                 buf.append(format(bodyFormat, r));
@@ -2948,7 +2960,8 @@ public class MailHandler extends Handler {
         appendSubject(msg, tail(subjectFormatter, ""));
 
         MimeMultipart multipart = new MimeMultipart();
-        String altType = getContentType(bodyFormat.getClass().getName());
+        String contentType = contentTypeOf(buf);
+        String altType = contentTypeOf(bodyFormat);
         setContent(body, buf, altType == null ? contentType : altType);
         multipart.addBodyPart(body);
 
@@ -3207,7 +3220,7 @@ public class MailHandler extends Handler {
                             for (int i = 0; i < atn.length; ++i) {
                                 ambp[i] = createBodyPart(i);
                                 ambp[i].setFileName(atn[i]);
-                                //Convert names to mime type.
+                                //Convert names to mime type under lock.
                                 atn[i] = getContentType(atn[i]);
                             }
                         }
