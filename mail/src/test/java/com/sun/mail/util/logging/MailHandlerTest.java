@@ -40,7 +40,6 @@
  */
 package com.sun.mail.util.logging;
 
-import com.sun.mail.util.SocketConnectException;
 import java.io.*;
 import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
@@ -1225,7 +1224,12 @@ public class MailHandlerTest extends AbstractLogging {
     public void testEncoding() throws Exception {
         final String enc = "iso8859_1";
         //names are different but equal encodings.
-        assertFalse(enc, enc.equals(MimeUtility.mimeCharset(enc)));
+        final String found = MimeUtility.mimeCharset(enc);
+        Class<?> k = Session.getInstance(new Properties())
+                .getTransport("smtp").getClass();
+        if (isPrivateSpec(k)) {
+            assertFalse(enc + "==" + found, enc.equals(found));
+        }
 
         LogManager manager = LogManager.getLogManager();
         final MailHandler instance = new MailHandler(createInitProperties(""));
@@ -2751,11 +2755,8 @@ public class MailHandlerTest extends AbstractLogging {
         final File f = File.createTempFile(name, ".properties", findClassPathDir());
         Locale.setDefault(Locale.US);
         try {
-            FileOutputStream fos = new FileOutputStream(f);
-            try {
+            try (FileOutputStream fos = new FileOutputStream(f)) {
                 props.store(fos, "No Comment");
-            } finally {
-                fos.close();
             }
 
             String bundleName = f.getName().substring(0, f.getName().lastIndexOf('.'));
@@ -2848,11 +2849,8 @@ public class MailHandlerTest extends AbstractLogging {
         final File f = File.createTempFile(name, "_"
                 + Locale.ENGLISH.getLanguage() + ".properties", findClassPathDir());
         try {
-            FileOutputStream fos = new FileOutputStream(f);
-            try {
+            try (FileOutputStream fos = new FileOutputStream(f)) {
                 props.store(fos, "No Comment");
-            } finally {
-                fos.close();
             }
 
             String bundleName = f.getName().substring(0, f.getName().lastIndexOf('_'));
@@ -3052,11 +3050,8 @@ public class MailHandlerTest extends AbstractLogging {
         }
         final File f = File.createTempFile(name, prefix + ".properties", findClassPathDir());
         try {
-            FileOutputStream fos = new FileOutputStream(f);
-            try {
+            try (FileOutputStream fos = new FileOutputStream(f)) {
                 props.store(fos, "No Comment");
-            } finally {
-                fos.close();
             }
 
             Logger log;
@@ -3157,10 +3152,8 @@ public class MailHandlerTest extends AbstractLogging {
                 }
             } catch (final IOException ioe) {
                 fail = ioe;
-            } catch (final URISyntaxException use) {
+            } catch (final URISyntaxException | IllegalArgumentException use) {
                 fail = (IOException) new IOException(use.toString()).initCause(use);
-            } catch (final IllegalArgumentException iae) {
-                fail = (IOException) new IOException(iae.toString()).initCause(iae);
             }
         }
 
@@ -3597,7 +3590,9 @@ public class MailHandlerTest extends AbstractLogging {
         props.put("mail.transport.protocol", "smtp");
         Session s = Session.getInstance(props);
         Transport t = s.getTransport();
-        assertEquals(UNKNOWN_HOST, t.getURLName().getHost());
+        if (isPrivateSpec(t.getClass())) {
+            assertEquals(UNKNOWN_HOST, t.getURLName().getHost());
+        }
     }
 
     @Test
@@ -3821,8 +3816,7 @@ public class MailHandlerTest extends AbstractLogging {
         try {
             instance.setAttachmentNames(new String[1]);
             fail("Mismatch with attachment formatters.");
-        } catch (NullPointerException pass) {
-        } catch (IndexOutOfBoundsException pass) {
+        } catch (NullPointerException | IndexOutOfBoundsException pass) {
         } catch (RuntimeException re) {
             fail(re.toString());
         }
@@ -3887,8 +3881,7 @@ public class MailHandlerTest extends AbstractLogging {
         try {
             instance.setAttachmentNames(new Formatter[2]);
             fail("formatter mismatch.");
-        } catch (NullPointerException pass) {
-        } catch (IndexOutOfBoundsException pass) {
+        } catch (NullPointerException | IndexOutOfBoundsException pass) {
         } catch (RuntimeException re) {
             fail(re.toString());
         }
@@ -4036,7 +4029,9 @@ public class MailHandlerTest extends AbstractLogging {
         for (Exception exception : em.exceptions) {
             if (exception instanceof MessagingException) {
                 continue;
-            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1 && exception.getMessage().indexOf(Arrays.asList(instance.getAttachmentFilters()).toString()) > -1) {
+            } else if (exception instanceof RuntimeException
+                    && exception.getMessage().contains(instance.getFilter().toString())
+                    && exception.getMessage().contains(Arrays.asList(instance.getAttachmentFilters()).toString())) {
                 seenFormat++;
                 continue; //expected.
             } else {
@@ -4070,7 +4065,8 @@ public class MailHandlerTest extends AbstractLogging {
         for (Exception exception : em.exceptions) {
             if (exception instanceof MessagingException) {
                 continue;
-            } else if (exception instanceof RuntimeException && exception.getMessage().contains(instance.getFilter().toString())) {
+            } else if (exception instanceof RuntimeException
+                    && exception.getMessage().contains(instance.getFilter().toString())) {
                 seenFormat++;
                 continue; //expected.
             } else {
@@ -4113,7 +4109,8 @@ public class MailHandlerTest extends AbstractLogging {
         for (Exception exception : em.exceptions) {
             if (exception instanceof MessagingException) {
                 continue;
-            } else if (exception instanceof RuntimeException && exception.getMessage().indexOf(instance.getFilter().toString()) > -1) {
+            } else if (exception instanceof RuntimeException
+                    && exception.getMessage().contains(instance.getFilter().toString())) {
                 seenFormat++;
                 continue; //expected.
             } else {
@@ -4761,8 +4758,7 @@ public class MailHandlerTest extends AbstractLogging {
                 assertEquals(1, h.getAttachmentFormatters().length);
                 h.setAttachmentFilters((Filter[]) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4780,8 +4776,7 @@ public class MailHandlerTest extends AbstractLogging {
                 assertEquals(1, h.getAttachmentFormatters().length);
                 h.setAttachmentNames((String[]) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4790,8 +4785,7 @@ public class MailHandlerTest extends AbstractLogging {
                 assertEquals(1, h.getAttachmentFormatters().length);
                 h.setAttachmentNames((Formatter[]) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4830,8 +4824,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setAuthenticator((Authenticator) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4839,8 +4832,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setComparator((Comparator<? super LogRecord>) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4864,8 +4856,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setLevel((Level) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4913,8 +4904,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setFormatter((Formatter) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4946,8 +4936,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setErrorManager((ErrorManager) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -4995,8 +4984,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setMailProperties((Properties) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5004,8 +4992,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setPushFilter((Filter) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5029,8 +5016,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setPushLevel((Level) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5046,8 +5032,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setSubject((Formatter) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5055,8 +5040,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 h.setSubject((String) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5166,8 +5150,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 hardRef = new MailHandler(-100);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (IllegalArgumentException pass) {
+            } catch (SecurityException | IllegalArgumentException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5175,8 +5158,7 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 hardRef = new MailHandler((Properties) null);
                 fail("Missing secure check.");
-            } catch (SecurityException pass) {
-            } catch (NullPointerException pass) {
+            } catch (SecurityException | NullPointerException pass) {
             } catch (Exception fail) {
                 fail(fail.toString());
             }
@@ -5240,15 +5222,12 @@ public class MailHandlerTest extends AbstractLogging {
         msg.addFrom(from);
         msg.setRecipients(Message.RecipientType.TO, from);
         ByteArrayOutputStream out = new ByteArrayOutputStream(384);
+        msg.setHeader("Content-Transfer-Encoding", "base64");
         msg.saveChanges();
         try {
             msg.writeTo(out);
             fail("Verify type 'remote' may send a message with no content.");
-        } catch (MessagingException expect) {
-            msg.setContent("", "text/plain");
-            msg.saveChanges();
-            msg.writeTo(out);
-        } catch (IOException expect) {
+        } catch (MessagingException | IOException expect) {
             msg.setContent("", "text/plain");
             msg.saveChanges();
             msg.writeTo(out);
@@ -5267,6 +5246,7 @@ public class MailHandlerTest extends AbstractLogging {
         Address[] from = InternetAddress.parse("me@localhost", false);
         msg.addFrom(from);
         msg.setRecipients(Message.RecipientType.TO, from);
+        msg.setHeader("Content-Transfer-Encoding", "base64");
         msg.saveChanges();
         try {
             msg.writeTo(new ByteArrayOutputStream(384));
@@ -5642,6 +5622,27 @@ public class MailHandlerTest extends AbstractLogging {
         }
 
         props.put("verify", "resolve");
+        instance = new MailHandler();
+        try {
+            em = new InternalErrorManager();
+            instance.setErrorManager(em);
+            instance.setMailProperties(props);
+
+            for (Exception exception : em.exceptions) {
+                final Throwable t = exception;
+                if (isConnectOrTimeout(t)) {
+                    continue;
+                }
+                if (t instanceof AddressException == false) {
+                    dump(t);
+                    fail(t.toString());
+                }
+            }
+        } finally {
+            instance.close();
+        }
+
+        props.put("verify", "login");
         instance = new MailHandler();
         try {
             em = new InternalErrorManager();
@@ -6825,13 +6826,34 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     private static boolean isConnectOrTimeout(Throwable t) {
-        if (t instanceof MessagingException || t instanceof SocketConnectException) {
+        if (t instanceof MessagingException) {
+            Throwable cause = t.getCause();
+            if (cause == null) { //GNU JavaMail doesn't support 1.4 chaining.
+               cause = ((MessagingException) t).getNextException();
+            }
+            return isConnectOrTimeout(cause);
+        } else if (isInstanceof(t, "com.sun.mail.util.SocketConnectException")) {
             return isConnectOrTimeout(t.getCause());
         } else {
             return t instanceof java.net.ConnectException
                     || t instanceof java.net.UnknownHostException
                     || t instanceof java.net.SocketTimeoutException;
         }
+    }
+
+    private static boolean isInstanceof(Object o, String s) {
+        if (s == null) {
+           throw new NullPointerException();
+        }
+
+        if (o != null) {
+            for (Class<?> k = o.getClass(); k != null; k = k.getSuperclass()) {
+                if (s.equals(k.getClass().getName())) {
+                   return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static boolean isNoRecipientAddress(Throwable t) {
@@ -6950,12 +6972,9 @@ public class MailHandlerTest extends AbstractLogging {
                 assertEquals("urgent", message.getHeader("Priority")[0]);
                 assertEquals("auto-generated", message.getHeader("auto-submitted")[0]);
                 message.saveChanges();
-            } catch (RuntimeException RE) {
+            } catch (RuntimeException | MessagingException RE) {
                 dump(RE);
                 fail(RE.toString());
-            } catch (MessagingException ME) {
-                dump(ME);
-                fail(ME.toString());
             }
         }
     }
@@ -7014,12 +7033,9 @@ public class MailHandlerTest extends AbstractLogging {
                 } else {
                     assertEquals("", locale.getLanguage());
                 }
-            } catch (MessagingException me) {
+            } catch (MessagingException | IOException me) {
                 dump(me);
                 fail(me.toString());
-            } catch (IOException ioe) {
-                dump(ioe);
-                fail(ioe.toString());
             }
         }
     }
@@ -7040,12 +7056,9 @@ public class MailHandlerTest extends AbstractLogging {
                 assertNull(message.getHeader("Priority"));
                 assertEquals("auto-generated", message.getHeader("auto-submitted")[0]);
                 message.saveChanges();
-            } catch (RuntimeException RE) {
+            } catch (RuntimeException | MessagingException RE) {
                 dump(RE);
                 fail(RE.toString());
-            } catch (MessagingException ME) {
-                dump(ME);
-                fail(ME.toString());
             }
         }
     }

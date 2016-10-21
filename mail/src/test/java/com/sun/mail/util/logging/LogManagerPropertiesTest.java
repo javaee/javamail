@@ -210,11 +210,8 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             props.put(k.getName().concat(".dummy"), "value");
             final File f = File.createTempFile(k.getName(), ".properties");
             try {
-                final FileOutputStream out = new FileOutputStream(f);
-                try {
+                try (FileOutputStream out = new FileOutputStream(f)) {
                     props.store(out, "testFromLogManagerAbsent");
-                } finally {
-                    out.close();
                 }
                 System.setProperty(cfgKey, f.getAbsolutePath());
                 final Method m = k.getDeclaredMethod("readConfiguration");
@@ -397,8 +394,16 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         p.setProperty("mail.smtp.localhost", host);
         Session s = Session.getInstance(p);
         Transport t = s.getTransport(InternetAddress.getLocalAddress(s));
-        String h = LogManagerProperties.getLocalHost(t);
-        Assert.assertEquals(host, h);
+        try {
+            String h = LogManagerProperties.getLocalHost(t);
+            if (h != null || isPrivateSpec(t.getClass())) {
+                Assert.assertEquals(host, h);
+            }
+        } catch (NoSuchMethodException notOfficial) {
+            if (isPrivateSpec(t.getClass())) {
+                fail(t.toString());
+            }
+        }
     }
 
     @Test
@@ -440,9 +445,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         try {
             long ms = LogManagerProperties.parseDurationToMillis("PT0.345S");
             assertEquals(345L, ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -452,9 +455,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         try {
             long ms = LogManagerProperties.parseDurationToMillis("PT20.345S");
             assertEquals((20L * 1000L) + 345L, ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -464,9 +465,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         try {
             long ms = LogManagerProperties.parseDurationToMillis("PT15M");
             assertEquals(15L * 60L * 1000L, ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -476,9 +475,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         try {
             long ms = LogManagerProperties.parseDurationToMillis("PT10H");
             assertEquals(10L * 60L * 60L * 1000L, ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -488,9 +485,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
         try {
             long ms = LogManagerProperties.parseDurationToMillis("P2D");
             assertEquals(2L * 24L * 60L * 60L * 1000L, ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -503,9 +498,7 @@ public class LogManagerPropertiesTest extends AbstractLogging {
             assertEquals((2L * 24L * 60L * 60L * 1000L)
                     + (3L * 60L * 60L * 1000L) + (4L * 60L * 1000L)
                     + ((20L * 1000L) + 345), ms);
-        } catch (ClassNotFoundException ignore) {
-            assertFalse(ignore.toString(), hasJavaTimeModule());
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException | NoClassDefFoundError ignore) {
             assertFalse(ignore.toString(), hasJavaTimeModule());
         }
     }
@@ -764,8 +757,13 @@ public class LogManagerPropertiesTest extends AbstractLogging {
 
             final Session session = Session.getInstance(mp);
             final Object t = session.getTransport("smtp");
-            final String clazzName = "com.sun.mail.smtp.SMTPTransport";
-            assertEquals(clazzName, t.getClass().getName());
+            if (isPrivateSpec(t.getClass())) {
+                final String clazzName = "com.sun.mail.smtp.SMTPTransport";
+                assertEquals(clazzName, t.getClass().getName());
+            } else {
+                assertNotNull(t);
+                session.getProperty(keyShort); //Force a read through session.
+            }
             assertTrue(contains(mp, keyShort, "true"));
         } finally {
             manager.reset();
@@ -1229,10 +1227,8 @@ public class LogManagerPropertiesTest extends AbstractLogging {
                 mod.setInt(f, f.getModifiers() & ~Modifier.FINAL);
                 return mod;
             }
-        } catch (RuntimeException re) {
+        } catch (RuntimeException | ReflectiveOperationException re) {
             Assume.assumeNoException(re);
-        } catch (Exception e) {
-            Assume.assumeNoException(e);
         }
         throw new AssertionError();
     }

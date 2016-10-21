@@ -93,14 +93,25 @@ abstract class AbstractLogging {
                     && Level.class.isAssignableFrom(field.getType())) {
                 try {
                     a.add((Level) field.get((Object) null));
-                } catch (IllegalArgumentException ex) {
-                    fail(ex.toString());
-                } catch (IllegalAccessException ex) {
+                } catch (IllegalArgumentException | IllegalAccessException ex) {
                     fail(ex.toString());
                 }
             }
         }
         return a.toArray(new Level[a.size()]);
+    }
+
+    /**
+     * Determines if the given class is from the JavaMail API Reference
+     * Implementation {@code com.sun.mail} package.
+     *
+     * @param k the type to test.
+     * @return true if this is part of reference implementation but not part of
+     * the official API spec.
+     * @throws Exception if there is a problem.
+     */
+    final boolean isPrivateSpec(final Class<?> k) throws Exception {
+        return isFromJavaMail(k, false);
     }
 
     /**
@@ -163,8 +174,7 @@ abstract class AbstractLogging {
             Class.forName("java.time.ZonedDateTime");
             Class.forName("java.time.ZoneId");
             return true;
-        } catch (final ClassNotFoundException notSupported) {
-        } catch (final LinkageError notSupported) {
+        } catch (final ClassNotFoundException | LinkageError notSupported) {
         }
         return false;
     }
