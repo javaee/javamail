@@ -364,6 +364,356 @@ public class CompactFormatterTest extends AbstractLogging {
     }
 
     @Test
+    public void testFormatThrownTrailingDot() {
+        testFormatThrownIllegalClassName("Hello.");
+    }
+
+    @Test
+    public void testFormatThrownClassDotSpace() {
+        String msg = "test";
+        String prefix = IllegalStateException.class.getName() + ". ";
+        Throwable t = new PrefixException(prefix, null, null);
+        assertEquals(prefix, t.toString());
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String cns = t.getClass().getSimpleName()
+                + ": " + IllegalStateException.class.getSimpleName();
+        assertTrue(result, result.startsWith(cns));
+        assertTrue(result, result.indexOf(cns) == result.lastIndexOf(cns));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.indexOf(msg) == result.lastIndexOf(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatThrownLeadingDot() {
+        testFormatThrownIllegalClassName(".Hello");
+    }
+
+    @Test
+    public void testFormatThrownDotDot() {
+        testFormatThrownIllegalClassName("Hello..World");
+        testFormatThrownIllegalClassName("..HelloWorld");
+        testFormatThrownIllegalClassName("HelloWorld..");
+    }
+
+    @Test
+    public void testFormatThrownColonSpace() {
+        testFormatThrownIllegalClassName("Hello: World");
+    }
+
+    @Test
+    public void testFormatThrownEndSign() {
+        //Some of these are legal but not worth considering legal.
+        testFormatThrownIllegalClassName("HelloWorld$");
+        testFormatThrownIllegalClassName("HelloWorld.$");
+        testFormatThrownIllegalClassName("Hello.World$");
+    }
+
+    @Test
+    public void testFormatThrownStartSign() {
+        testFormatThrownIllegalClassName("$HelloWorld");
+        testFormatThrownIllegalClassName("$.HelloWorld");
+    }
+
+    @Test
+    public void testFormatThrownDotDotSign() {
+        testFormatThrownIllegalClassName("Hello..$World");
+        testFormatThrownIllegalClassName("..$HelloWorld");
+        testFormatThrownIllegalClassName("HelloWorld..$");
+    }
+
+    @Test
+    public void testFormatThrownSignDot() {
+        testFormatThrownIllegalClassName("$.HelloWorld");
+        testFormatThrownIllegalClassName("HelloWorld$.");
+    }
+
+    @Test
+    public void testFormatThrownSignDotDot() {
+        testFormatThrownIllegalClassName("Hello$..World");
+        testFormatThrownIllegalClassName("$..HelloWorld");
+        testFormatThrownIllegalClassName("HelloWorld$..");
+    }
+
+    @Test
+    public void testFormatThrownDotSignDot() {
+        testFormatThrownIllegalClassName("Hello.$.World");
+        testFormatThrownIllegalClassName(".$.HelloWorld");
+        testFormatThrownIllegalClassName("HelloWorld.$.");
+    }
+
+    private void testFormatThrownIllegalClassName(String prefix) {
+        Throwable t = new PrefixException(prefix, null, null);
+        assertEquals(prefix, t.toString());
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String cn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cn));
+        assertTrue(result, result.indexOf(cn) == result.lastIndexOf(cn));
+        assertTrue(result, result.contains(prefix));
+        assertTrue(result, result.indexOf(prefix) == result.lastIndexOf(prefix));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatThrownSimpleClassNameNullMessage() {
+        //javax.management.BadStringOperationException
+        String op = "some op";
+        Throwable t = new PrefixException(PrefixException.class.getSimpleName()
+                + ": " + op, (String) null, null);
+        assertNull(t.getMessage());
+        assertNotNull(t.toString());
+        assertTrue(t.toString().startsWith(t.getClass().getSimpleName()));
+
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String sn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(sn));
+        assertTrue(result, result.indexOf(sn) == result.lastIndexOf(sn));
+        assertTrue(result, result.contains(op));
+        assertTrue(result, result.indexOf(op) == result.lastIndexOf(op));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatServerSidetMetroException() {
+        //com.sun.xml.ws.developer.ServerSideException
+        String msg = "server error";
+        NullPointerException npe = new NullPointerException(msg);
+        Throwable t = new PrefixException(npe.getClass().getName(), msg, null);
+        assertEquals(msg, npe.getMessage());
+        assertEquals(msg, t.getMessage());
+        assertEquals(npe.toString(), t.toString());
+
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String cns = t.getClass().getSimpleName()
+                + ": " + npe.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cns));
+        assertTrue(result, result.indexOf(cns) == result.lastIndexOf(cns));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatThrownPrefixMessageRetainsFqn() {
+        String msg = "java.io.tmpdir";
+        NullPointerException npe = new NullPointerException(msg);
+        Throwable t = new PrefixException(npe.getClass().getName(), msg, null);
+        assertEquals(msg, npe.getMessage());
+        assertEquals(msg, t.getMessage());
+        assertEquals(npe.toString(), t.toString());
+
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String cns = t.getClass().getSimpleName()
+                + ": " + npe.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cns));
+        assertTrue(result, result.indexOf(cns) == result.lastIndexOf(cns));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatThrownHiddenMessageRetainsFqn() {
+        String msg = "java.io.tmpdir";
+        NullPointerException npe = new NullPointerException(msg);
+        Throwable t = new ToStringException(npe.getClass().getName(), msg);
+        assertEquals(msg, npe.getMessage());
+        assertEquals(msg, t.getMessage());
+
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        String cns = t.getClass().getSimpleName()
+                + ": " + npe.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cns));
+        assertTrue(result, result.indexOf(cns) == result.lastIndexOf(cns));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatXMLParseXercesException() {
+        //com.sun.org.apache.xerces.internal.xni.parser.XMLParseException
+        String msg = "XML";
+        String prefix = "1:two:3:four";
+        Throwable t = new PrefixException(prefix, msg, null);
+
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        assertTrue(prefix, t.toString().startsWith(prefix));
+        String cn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cn));
+        assertTrue(result, result.indexOf(cn) == result.lastIndexOf(cn));
+        assertTrue(result, result.contains(prefix));
+        assertTrue(result, result.indexOf(prefix) == result.lastIndexOf(prefix));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatGSSException() {
+        //org.ietf.jgss.GSSException
+        String msg = "Invalid name provided";
+        String prefix = PrefixException.class.getSimpleName();
+        Throwable t = new PrefixException(prefix, msg, null);
+        assertTrue(t.toString().startsWith(t.getClass().getSimpleName()));
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        assertTrue(prefix, t.toString().startsWith(prefix));
+        String cn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cn));
+        assertTrue(result, result.indexOf(cn) == result.lastIndexOf(cn));
+        assertTrue(result, result.contains(prefix));
+        assertTrue(result, result.indexOf(prefix) == result.lastIndexOf(prefix));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatMismatchedTreeNodeException() {
+        //org.antlr.runtime.MismatchedTreeNodeException
+        String prefix = ToStringException.class.getSimpleName()
+                + '(' + String.class.getName() + "!="
+                + Throwable.class.getName() + ')';
+
+        Throwable t = new ToStringException(prefix, (String) null);
+        assertNull(t.getLocalizedMessage());
+        assertNull(t.getMessage());
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        assertTrue(prefix, t.toString().startsWith(prefix));
+        String cn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cn));
+        assertTrue(result, result.indexOf(cn) == result.lastIndexOf(cn));
+        assertTrue(result, result.contains(prefix));
+        assertTrue(result, result.indexOf(prefix) == result.lastIndexOf(prefix));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
+    public void testFormatInnerException() {
+        String msg = "inner class";
+        String prefix = '(' + String.class.getName() + "!="
+                + Throwable.class.getName() + ')';
+
+        Throwable t = new ToStringException(ToStringException.class.getName()
+                + prefix, msg);
+        assertFalse(t.toString().contains(t.getLocalizedMessage()));
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(t);
+        CompactFormatter cf = new CompactFormatter("%6$s");
+        String result = cf.format(record);
+        StackTraceElement[] ste = t.getStackTrace();
+        String frame = CompactFormatterTest.class.getSimpleName()
+                + '.' + ste[0].getMethodName() + "(:"
+                + ste[0].getLineNumber() + ")";
+
+        assertTrue(prefix, t.toString().contains(prefix));
+        String cn = t.getClass().getSimpleName();
+        assertTrue(result, result.startsWith(cn));
+        assertTrue(result, result.indexOf(cn) == result.lastIndexOf(cn));
+        assertTrue(result, result.contains(prefix));
+        assertTrue(result, result.indexOf(prefix) == result.lastIndexOf(prefix));
+        assertTrue(result, result.contains(msg));
+        assertTrue(result, result.endsWith(frame));
+
+        cf = new CompactFormatter("%11$s %14$s");
+        assertEquals(result, cf.format(record));
+    }
+
+    @Test
     public void testFormatMessage_Throwable() {
         Exception e = new IOException(Exception.class.getName());
         e = new Exception(e.toString(), e);
@@ -371,7 +721,8 @@ public class CompactFormatterTest extends AbstractLogging {
 
         CompactFormatter cf = new CompactFormatter();
         String result = cf.formatMessage(e);
-        assertEquals(result, Exception.class.getSimpleName());
+        assertEquals(IOException.class.getSimpleName()
+                + ": " + Exception.class.getSimpleName(), result);
     }
 
     @Test
@@ -385,7 +736,8 @@ public class CompactFormatterTest extends AbstractLogging {
     public void testFormatMessage_ThrowableNullMessage() {
         CompactFormatter cf = new CompactFormatter();
         String result = cf.formatMessage(new Throwable());
-        assertNull(result);
+        String expect = Throwable.class.getSimpleName();
+        assertEquals(expect, result);
     }
 
     @Test(timeout = 30000)
@@ -418,6 +770,44 @@ public class CompactFormatterTest extends AbstractLogging {
         record.setLoggerName(Object.class.getName());
         String result = cf.formatLoggerName(record);
         assertEquals(Object.class.getSimpleName(), result);
+    }
+
+    @Test
+    public void testFormatRootLogger() {
+        testFormatLoggerNonClassName("");
+    }
+
+    @Test
+    public void testFormatGlobalLogger() {
+        testFormatLoggerNonClassName("global");
+    }
+
+    @Test
+    public void testFormatLoggerLeadingDot() {
+        testFormatLoggerNonClassName(".Hello");
+    }
+
+    @Test
+    public void testFormatLoggerDotDot() {
+        testFormatLoggerNonClassName("Hello..World");
+    }
+
+    @Test
+    public void testFormatLoggerColonSpace() {
+        testFormatLoggerNonClassName("Hello: World");
+    }
+
+    private void testFormatLoggerNonClassName(String name) {
+        CompactFormatter cf = new CompactFormatter();
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setSourceMethodName(null);
+        record.setSourceClassName(null);
+        record.setLoggerName(name);
+        String result = cf.formatLoggerName(record);
+        assertEquals(name, result);
+
+        cf = new CompactFormatter("%3$s");
+        assertEquals(result, cf.format(record));
     }
 
     @Test(expected = NullPointerException.class)
@@ -493,7 +883,7 @@ public class CompactFormatterTest extends AbstractLogging {
         }
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testFormatNull() {
         CompactFormatter cf = new CompactFormatter();
         cf.format((LogRecord) null);
@@ -601,6 +991,30 @@ public class CompactFormatterTest extends AbstractLogging {
         assertTrue(result, result.endsWith(cf.formatBackTrace(record)));
     }
 
+    @Test
+    public void testFormatThrownLocalized() {
+        //sun.security.provider.PolicyParser$ParsingException
+        CountLocalizedException cle = new CountLocalizedException();
+        CompactFormatter cf = new CompactFormatter();
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(cle);
+        String result = cf.formatThrown(record);
+        assertNotNull(result, result);
+        assertTrue(cle.localizedMessage > 0);
+    }
+
+    @Test
+    public void testInheritsFormatMessage() {
+        InheritsFormatMessage cf = new InheritsFormatMessage();
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(new Throwable());
+        String result = cf.formatThrown(record);
+        assertNotNull(cf.getClass().getName(), result);
+
+        result = cf.formatError(record);
+        assertNotNull(cf.getClass().getName(), result);
+    }
+
     @Test(expected = NullPointerException.class)
     public void testFormatThrownNullRecord() {
         CompactFormatter cf = new CompactFormatter();
@@ -617,7 +1031,6 @@ public class CompactFormatterTest extends AbstractLogging {
         String expect = Long.toString(record.getThreadID());
         assertEquals(expect, output);
 
-
         record.setThreadID(-1); //Largest value for the CompactFormatter.
         output = cf.format(record);
         expect = Long.toString((1L << 32L) - 1L);
@@ -629,7 +1042,7 @@ public class CompactFormatterTest extends AbstractLogging {
         assertEquals(expect, Long.toString(id.longValue()));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testFormatThreadIDNull() {
         CompactFormatter cf = new CompactFormatter();
         cf.formatThreadID((LogRecord) null);
@@ -656,7 +1069,7 @@ public class CompactFormatterTest extends AbstractLogging {
         assertTrue(output.endsWith(record.getThrown().getMessage()));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testFormatErrorNull() {
         CompactFormatter cf = new CompactFormatter();
         cf.formatError((LogRecord) null);
@@ -671,12 +1084,12 @@ public class CompactFormatterTest extends AbstractLogging {
         assertNotNull(output);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testFormatThrownMessageApplyReturnsNull() {
         CompactFormatter cf = new ApplyReturnsNull();
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             String output = cf.formatMessage(new Throwable());
-            assertNull(output);
+            assertEquals(Throwable.class.getSimpleName(), output);
         }
     }
 
@@ -718,11 +1131,11 @@ public class CompactFormatterTest extends AbstractLogging {
         assertTrue(output, output.endsWith(record.getMessage()));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testErrorApplyReturnsNull() {
-    CompactFormatter cf = new ApplyReturnsNull();
+        CompactFormatter cf = new ApplyReturnsNull();
         LogRecord r = new LogRecord(Level.SEVERE, "");
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             String output = cf.formatError(r);
             assertNotNull(output);
             r.setThrown(new Throwable(Integer.toString(i), r.getThrown()));
@@ -825,11 +1238,11 @@ public class CompactFormatterTest extends AbstractLogging {
         }
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testFormatApplyReturnsNull() {
-    CompactFormatter cf = new ApplyReturnsNull();
+        CompactFormatter cf = new ApplyReturnsNull();
         LogRecord r = new LogRecord(Level.SEVERE, "");
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             String output = cf.format(r);
             assertNotNull(output);
             r.setThrown(new Throwable(Integer.toString(i), r.getThrown()));
@@ -855,11 +1268,11 @@ public class CompactFormatterTest extends AbstractLogging {
         assertEquals(result, cf.format(record));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void testBackTraceApplyReturnsNull() {
-    CompactFormatter cf = new ApplyReturnsNull();
+        CompactFormatter cf = new ApplyReturnsNull();
         LogRecord r = new LogRecord(Level.SEVERE, "");
-        for (int i=0; i<10; i++) {
+        for (int i = 0; i < 10; i++) {
             String output = cf.formatBackTrace(r);
             assertNotNull(output);
             r.setThrown(new Throwable(Integer.toString(i), r.getThrown()));
@@ -881,6 +1294,40 @@ public class CompactFormatterTest extends AbstractLogging {
         String result = cf.formatBackTrace(record);
         assertTrue(result, result.startsWith("CompactFormatterTest"));
         assertTrue(result, result.contains("testFormatBackTrace"));
+    }
+
+    @Test
+    public void testFormatBackTracePunt() {
+        final Class<?> k = Collections.class;
+        Exception e = new NullPointerException("Fake NPE");
+        e.setStackTrace(new StackTraceElement[]{
+            new StackTraceElement(k.getName(), "newSetFromMap", null, 3878)});
+        assertNotNull(e.getMessage(), e.getMessage());
+
+        CompactFormatter cf = new CompactFormatter();
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(e);
+        String result = cf.formatBackTrace(record);
+        assertTrue(result, result.startsWith(k.getSimpleName()));
+        assertTrue(result, result.contains("newSetFromMap"));
+    }
+
+    @Test
+    public void testFormatBackTraceChainPunt() {
+        final Class<?> k = Collections.class;
+        Throwable e = new NullPointerException("Fake NPE");
+        e.setStackTrace(new StackTraceElement[0]);
+        e = new RuntimeException(e);
+        e.setStackTrace(new StackTraceElement[]{
+            new StackTraceElement(k.getName(), "newSetFromMap", null, 3878)});
+        assertNotNull(e.getMessage(), e.getMessage());
+
+        CompactFormatter cf = new CompactFormatter();
+        LogRecord record = new LogRecord(Level.SEVERE, "");
+        record.setThrown(e);
+        String result = cf.formatBackTrace(record);
+        assertTrue(result, result.startsWith(k.getSimpleName()));
+        assertTrue(result, result.contains("newSetFromMap"));
     }
 
     @Test(expected = NullPointerException.class)
@@ -1120,10 +1567,60 @@ public class CompactFormatterTest extends AbstractLogging {
         }
     }
 
+    private final static class CountLocalizedException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+        public int localizedMessage;
+
+        CountLocalizedException() {
+            super();
+        }
+
+        @Override
+        public String getLocalizedMessage() {
+            localizedMessage++;
+            return super.getLocalizedMessage();
+        }
+    }
+
+    private final static class ToStringException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+        private final String toString;
+
+        ToStringException(String toString, String msg) {
+            super(msg);
+            this.toString = toString;
+        }
+
+        @Override
+        public String toString() {
+            return toString;
+        }
+    }
+
+    private final static class PrefixException extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+        private final String prefix;
+
+        PrefixException(String prefix, String msg, Throwable cause) {
+            super(msg, cause);
+            this.prefix = prefix;
+        }
+
+        @Override
+        public String toString() {
+            String message = getLocalizedMessage();
+            return (message != null) ? (prefix + ": " + message) : prefix;
+        }
+    }
+
     /**
      * An example of a broken implementation of thread ID.
      */
     private static class ThreadIDReturnsNull extends CompactFormatter {
+
         /**
          * Promote access level.
          */
@@ -1137,10 +1634,22 @@ public class CompactFormatterTest extends AbstractLogging {
         }
     }
 
+    private static class InheritsFormatMessage extends CompactFormatter {
+
+        InheritsFormatMessage() {
+        }
+
+        @Override
+        public String formatMessage(Throwable t) {
+            return InheritsFormatMessage.class.getName();
+        }
+    }
+
     /**
      * An example of a broken implementation of apply.
      */
     private static class ApplyReturnsNull extends CompactFormatter {
+
         /**
          * The number of throwables.
          */

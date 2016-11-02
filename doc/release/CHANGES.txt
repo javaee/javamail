@@ -31,6 +31,7 @@ K  8399	IdleManager fails on Android
 K  8403	Test fails: javax.mail.internet.GetLocalAddressTest
 K  8404	Tests fail: com.sun.mail.util.WriteTimeoutSocketTest
 K  8405	MboxFolder.expunge can corrupt mailbox file
+K  8408	CompactFormatter should handle overridden Throwable.toString methods
 K  8415	Update public API to use generics
 K  8420	Malformed IMAP FETCH response throws the wrong exception
 K  8422	RFC822.SIZE > 2GB isn't handled

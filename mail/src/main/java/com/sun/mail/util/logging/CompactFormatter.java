@@ -49,10 +49,10 @@ import java.util.logging.LogRecord;
  * separator and newline characters. Only specified fields support an
  * {@linkplain #toAlternate(java.lang.String) alternate} fixed width format.
  * <p>
- * By default each <tt>CompactFormatter</tt> is initialized using the
- * following LogManager configuration properties where
+ * By default each <tt>CompactFormatter</tt> is initialized using the following
+ * LogManager configuration properties where
  * <tt>&lt;formatter-name&gt;</tt> refers to the fully qualified class name or
- * the fully qualified derived class name of the formatter.  If properties are
+ * the fully qualified derived class name of the formatter. If properties are
  * not defined, or contain invalid values, then the specified default values are
  * used.
  * <ul>
@@ -65,6 +65,7 @@ import java.util.logging.LogRecord;
  * @since JavaMail 1.5.2
  */
 public class CompactFormatter extends java.util.logging.Formatter {
+
     /**
      * Load any declared classes to workaround GLASSFISH-21258.
      */
@@ -74,7 +75,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
 
     /**
      * Used to load declared classes encase class loader doesn't allow loading
-     * during JVM termination.  This method is used with unit testing.
+     * during JVM termination. This method is used with unit testing.
      *
      * @return an array of classes never null.
      */
@@ -118,13 +119,13 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * &lt;formatter-name&gt;.format property or the format that was given when
      * this formatter was created.</li>
      * <li>{@code date} - if the log record supports nanoseconds then a
-     *     ZonedDateTime object representing the event time of the log record in
-     *     the system time zone. Otherwise, a {@linkplain Date} object
-     *     representing {@linkplain LogRecord#getMillis event time} of the log
-     *     record.</li>
+     * ZonedDateTime object representing the event time of the log record in the
+     * system time zone. Otherwise, a {@linkplain Date} object representing
+     * {@linkplain LogRecord#getMillis event time} of the log record.</li>
      * <li>{@code source} - a string representing the caller, if available;
      * otherwise, the logger's name.</li>
      * <li>{@code logger} - the logger's
+     * {@linkplain Class#getSimpleName() simple}
      * {@linkplain LogRecord#getLoggerName() name}.</li>
      * <li>{@code level} - the
      * {@linkplain java.util.logging.Level#getLocalizedName log level}.</li>
@@ -144,16 +145,17 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * {@linkplain LogRecord#getSequenceNumber() sequence number} if the given
      * log record.</li>
      * <li>{@code thread id} the {@linkplain LogRecord#getThreadID() thread id}
-     * of the given log record.  By default this is formatted as a {@code long}
+     * of the given log record. By default this is formatted as a {@code long}
      * by an unsigned conversion.</li>
-     * <li>{@code error} the throwable simple class name and
-     * {@linkplain #formatError(LogRecord) error message} without any
-     * stack trace.</li>
-     * <li>{@code message|error} The message and error properties joined as
-     * one parameter. This parameter supports
+     * <li>{@code error} the throwable
+     * {@linkplain Class#getSimpleName() simple class name} and
+     * {@linkplain #formatError(LogRecord) error message} without any stack
+     * trace.</li>
+     * <li>{@code message|error} The message and error properties joined as one
+     * parameter. This parameter supports
      * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
-     * <li>{@code error|message} The error and message properties joined as
-     * one parameter. This parameter supports
+     * <li>{@code error|message} The error and message properties joined as one
+     * parameter. This parameter supports
      * {@linkplain #toAlternate(java.lang.String) alternate} form.</li>
      * <li>{@code backtrace} only the
      * {@linkplain #formatBackTrace(LogRecord) stack trace} of the given
@@ -180,10 +182,10 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=%7$#.20s%n}
      * <p>
      * This prints only 20 characters of the message|thrown ({@code 7$}) using
-     * the {@linkplain #toAlternate(java.lang.String) alternate} form.  This
-     * will perform a weighted truncation of both the message and thrown
-     * properties of the log record.  The separator is not included as part of
-     * the total width.
+     * the {@linkplain #toAlternate(java.lang.String) alternate} form. This will
+     * perform a weighted truncation of both the message and thrown properties
+     * of the log record. The separator is not included as part of the total
+     * width.
      * <pre>
      * Encoding|NullPointerE
      * </pre>
@@ -209,8 +211,8 @@ public class CompactFormatter extends java.util.logging.Formatter {
      *
      * <li>{@code com.sun.mail.util.logging.CompactFormatter.format=[%9$d][%1$tT][%10$d][%2$s] %5$s%n%6$s%n}
      * <p>
-     * This prints the sequence ({@code 9$}), event time ({@code 1$}) as
-     * 24 hour time, thread id ({@code 10$}), source ({@code 2$}), log message
+     * This prints the sequence ({@code 9$}), event time ({@code 1$}) as 24 hour
+     * time, thread id ({@code 10$}), source ({@code 2$}), log message
      * ({@code 5$}), and the throwable with back trace ({@code 6$}).
      * <pre>
      * [125][14:11:42][38][MyClass fatal] Unable to send notification.
@@ -274,15 +276,42 @@ public class CompactFormatter extends java.util.logging.Formatter {
 
     /**
      * Formats the message from the thrown property of the log record. This
-     * method removes any fully qualified throwable class names from the message
-     * cause chain.
+     * method replaces fully qualified throwable class names from the message
+     * cause chain with simple class names.
      *
      * @param t the throwable to format or null.
      * @return the empty string if null was given or the formatted message
      * string from the throwable which may be null.
      */
     public String formatMessage(final Throwable t) {
-        return t != null ? replaceClassName(apply(t).getMessage(), t) : "";
+        String r;
+        if (t != null) {
+            final Throwable apply = apply(t);
+            final String m = apply.getLocalizedMessage();
+            final String s = apply.toString();
+            final String sn = simpleClassName(apply.getClass());
+            if (!isNullOrSpaces(m)) {
+                if (s.contains(m)) {
+                    if (s.startsWith(apply.getClass().getName())
+                            || s.startsWith(sn)) {
+                        r = replaceClassName(m, t);
+                    } else {
+                        r = replaceClassName(simpleClassName(s), t);
+                    }
+                } else {
+                    r = replaceClassName(simpleClassName(s) + ": " + m, t);
+                }
+            } else {
+                r = replaceClassName(simpleClassName(s), t);
+            }
+
+            if (!r.contains(sn)) {
+                r = sn + ": " + r;
+            }
+        } else {
+            r = "";
+        }
+        return r;
     }
 
     /**
@@ -330,7 +359,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
-     * Formats the thread id property of the given log record.  By default this
+     * Formats the thread id property of the given log record. By default this
      * is formatted as a {@code long} by an unsigned conversion.
      *
      * @param record the record.
@@ -341,8 +370,8 @@ public class CompactFormatter extends java.util.logging.Formatter {
     public Number formatThreadID(final LogRecord record) {
         /**
          * Thread.getID is defined as long and LogRecord.getThreadID is defined
-         * as int.  Convert to unsigned as a means to better map the two types
-         * of thread identifiers.
+         * as int. Convert to unsigned as a means to better map the two types of
+         * thread identifiers.
          */
         return (((long) record.getThreadID()) & 0xffffffffL);
     }
@@ -362,7 +391,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
         final Throwable t = record.getThrown();
         if (t != null) {
             String site = formatBackTrace(record);
-            msg = formatToString(t) + (isNullOrSpaces(site) ? "" : ' ' + site);
+            msg = formatMessage(t) + (isNullOrSpaces(site) ? "" : ' ' + site);
         } else {
             msg = "";
         }
@@ -382,25 +411,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @since JavaMail 1.5.4
      */
     public String formatError(final LogRecord record) {
-        Throwable t = record.getThrown();
-        if (t != null) {
-            return formatToString(t);
-        } else {
-            return "";
-        }
-    }
-
-    /**
-     * Gets the simple class name of the reduced throwable and message of
-     * the reduced throwable.
-     *
-     * @param t the given throwable.
-     * @return the formatted throwable.
-     * @since JavaMail 1.5.4
-     * @throws NullPointerException if given throwable is null.
-     */
-    private String formatToString(Throwable t) {
-        return simpleClassName(apply(t).getClass()) + ": " + formatMessage(t);
+        return formatMessage(record.getThrown());
     }
 
     /**
@@ -413,18 +424,24 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @see #formatThrown(java.util.logging.LogRecord)
      * @see #ignore(java.lang.StackTraceElement)
      */
-    public String formatBackTrace(LogRecord record) {
+    public String formatBackTrace(final LogRecord record) {
         String site = "";
         final Throwable t = record.getThrown();
         if (t != null) {
             final Throwable root = apply(t);
-            site = findAndFormat(root.getStackTrace());
+            StackTraceElement[] trace = root.getStackTrace();
+            site = findAndFormat(trace);
             if (isNullOrSpaces(site)) {
                 int limit = 0;
                 for (Throwable c = t; c != null; c = c.getCause()) {
-                    site = findAndFormat(c.getStackTrace());
+                    StackTraceElement[] ste = c.getStackTrace();
+                    site = findAndFormat(ste);
                     if (!isNullOrSpaces(site)) {
                         break;
+                    } else {
+                        if (trace.length == 0) {
+                           trace = ste;
+                        }
                     }
 
                     //Deal with excessive cause chains
@@ -432,6 +449,11 @@ public class CompactFormatter extends java.util.logging.Formatter {
                     if (++limit == (1 << 16)) {
                         break; //Give up.
                     }
+                }
+
+                //Punt.
+                if (isNullOrSpaces(site) && trace.length != 0) {
+                    site = formatStackTraceElement(trace[0]);
                 }
             }
         }
@@ -445,7 +467,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @return a String that best describes the call site.
      * @throws NullPointerException if stack trace element array is null.
      */
-    private String findAndFormat(StackTraceElement[] trace) {
+    private String findAndFormat(final StackTraceElement[] trace) {
         String site = "";
         for (StackTraceElement s : trace) {
             if (!ignore(s)) {
@@ -512,12 +534,12 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @return true if this frame should be ignored.
      * @see #formatThrown(java.util.logging.LogRecord)
      */
-    protected boolean ignore(StackTraceElement s) {
+    protected boolean ignore(final StackTraceElement s) {
         return isUnknown(s) || defaultIgnore(s);
     }
 
     /**
-     * Defines the alternate format.  This implementation removes all control
+     * Defines the alternate format. This implementation removes all control
      * characters from the given string.
      *
      * @param s any string or null.
@@ -538,7 +560,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
     private Comparable<?> formatZonedDateTime(final LogRecord record) {
         Comparable<?> zdt = LogManagerProperties.getZonedDateTime(record);
         if (zdt == null) {
-           zdt = new java.util.Date(record.getMillis());
+            zdt = new java.util.Date(record.getMillis());
         }
         return zdt;
     }
@@ -551,7 +573,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
      * @param s the stack trace element.
      * @return true if this frame should be ignored.
      */
-    private boolean defaultIgnore(StackTraceElement s) {
+    private boolean defaultIgnore(final StackTraceElement s) {
         return isSynthetic(s) || isStaticUtility(s) || isReflection(s);
     }
 
@@ -565,8 +587,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
         try {
             return LogManagerProperties.isStaticUtilityClass(s.getClassName());
         } catch (RuntimeException ignore) {
-        } catch (Exception ignore) {
-        } catch (LinkageError ignore) {
+        } catch (Exception | LinkageError ignore) {
         }
         final String cn = s.getClassName();
         return (cn.endsWith("s") && !cn.endsWith("es"))
@@ -607,8 +628,7 @@ public class CompactFormatter extends java.util.logging.Formatter {
         try {
             return LogManagerProperties.isReflectionClass(s.getClassName());
         } catch (RuntimeException ignore) {
-        } catch (Exception ignore) {
-        } catch (LinkageError ignore) {
+        } catch (Exception | LinkageError ignore) {
         }
         return s.getClassName().startsWith("java.lang.reflect.")
                 || s.getClassName().startsWith("sun.reflect.");
@@ -692,15 +712,45 @@ public class CompactFormatter extends java.util.logging.Formatter {
     }
 
     /**
-     * Converts a fully qualified class name to a simple class name.
+     * Converts a fully qualified class name to a simple class name. If the
+     * leading part of the given string is not a legal class name then the given
+     * string is returned.
      *
-     * @param name the fully qualified class name or null.
-     * @return the simple class name or null.
+     * @param name the fully qualified class name prefix or null.
+     * @return the simple class name or given input.
      */
     private static String simpleClassName(String name) {
         if (name != null) {
-            final int index = name.lastIndexOf('.');
-            name = index > -1 ? name.substring(index + 1) : name;
+            int cursor = 0;
+            int sign = -1;
+            int dot = -1;
+            for (int c, prev = dot; cursor < name.length();
+                    cursor += Character.charCount(c)) {
+                c = name.codePointAt(cursor);
+                if (!Character.isJavaIdentifierPart(c)) {
+                    if (c == ((int) '.')) {
+                        if ((dot + 1) != cursor && (dot + 1) != sign) {
+                            prev = dot;
+                            dot = cursor;
+                        } else {
+                            return name;
+                        }
+                    } else {
+                        if ((dot + 1) == cursor) {
+                            dot = prev;
+                        }
+                        break;
+                    }
+                } else {
+                    if (c == ((int) '$')) {
+                        sign = cursor;
+                    }
+                }
+            }
+
+            if (dot > -1 && ++dot < cursor && ++sign < cursor) {
+                name = name.substring(sign > dot ? sign : dot);
+            }
         }
         return name;
     }

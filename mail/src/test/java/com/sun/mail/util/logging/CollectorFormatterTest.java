@@ -634,9 +634,9 @@ public class CollectorFormatterTest extends AbstractLogging {
 
     @Test
     public void testGetTailExample3a() {
-        String p = "These {3} messages occurred between "
-                + "{9,choice,86400000#{7,date} {7,time} and {8,time}"
-                + "|86400000<{7,date} and {8,date}}\n";
+        String p = "These {3} messages occurred between\n"
+                + "{7,date,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}"
+                + " and {8,time,EEE, MMM dd HH:mm:ss:S ZZZ yyyy}\n";
         CollectorFormatter cf = new CollectorFormatter(p);
         LogRecord min = new LogRecord(Level.SEVERE, "");
         setEpochMilli(min, 1248203502449L);
@@ -654,21 +654,9 @@ public class CollectorFormatterTest extends AbstractLogging {
 
         String output = cf.getTail((Handler) null);
         assertNotNull(output);
-
-        cf.format(min);
-        for (int i = 0; i < 114; ++i) {
-            LogRecord mid = new LogRecord(Level.SEVERE, "");
-            setEpochMilli(mid, min.getMillis());
-            cf.format(mid);
-        }
-
-        setEpochMilli(max, min.getMillis() + 2591000000L);
-        cf.format(max);
-
-        output = cf.getTail((Handler) null);
-        assertNotNull(output);
     }
 
+    @Test
     public void testGetTailExample3b() {
         String p = "These {3} messages occurred between "
                 + "{9,choice,86400000#{7,date} {7,time} and {8,time}"
