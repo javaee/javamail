@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -59,8 +59,28 @@ import com.sun.mail.imap.ModifiedSinceTerm;
  * support for additional product-specific search terms.
  *
  * @author	John Mani
+ * @author	Bill Shannon
  */
 public class SearchSequence {
+
+    private IMAPProtocol protocol;	// for hasCapability checks; may be null
+
+    /**
+     * Create a SearchSequence for this IMAPProtocol.
+     *
+     * @param	p	the IMAPProtocol object for the server
+     * @since	JavaMail 1.6.0
+     */
+    public SearchSequence(IMAPProtocol p) {
+	protocol = p;
+    }
+
+    /**
+     * Create a SearchSequence.
+     */
+    @Deprecated
+    public SearchSequence() {
+    }
 
     /**
      * Generate the IMAP search sequence for the given search expression. 
@@ -486,6 +506,8 @@ public class SearchSequence {
      * @since	JavaMail 1.5.1
      */
     protected Argument older(OlderTerm term) throws SearchException {
+	if (protocol != null && !protocol.hasCapability("WITHIN"))
+	    throw new SearchException("Server doesn't support OLDER searches");
 	Argument result = new Argument();
 	result.writeAtom("OLDER");
 	result.writeNumber(term.getInterval());
@@ -501,6 +523,8 @@ public class SearchSequence {
      * @since	JavaMail 1.5.1
      */
     protected Argument younger(YoungerTerm term) throws SearchException {
+	if (protocol != null && !protocol.hasCapability("WITHIN"))
+	    throw new SearchException("Server doesn't support YOUNGER searches");
 	Argument result = new Argument();
 	result.writeAtom("YOUNGER");
 	result.writeNumber(term.getInterval());
@@ -517,6 +541,8 @@ public class SearchSequence {
      */
     protected Argument modifiedSince(ModifiedSinceTerm term)
 				throws SearchException {
+	if (protocol != null && !protocol.hasCapability("CONDSTORE"))
+	    throw new SearchException("Server doesn't support MODSEQ searches");
 	Argument result = new Argument();
 	result.writeAtom("MODSEQ");
 	result.writeNumber(term.getModSeq());

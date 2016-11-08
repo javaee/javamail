@@ -38,6 +38,7 @@ K  8422	RFC822.SIZE > 2GB isn't handled
 K  8486	Protocol#command method call readResponse after IOException is thrown
 K  8487	Possible NPE in Status.<init> line 96
 K  8492	MailHandler should support 'login' verify type.
+K  8550	use of YoungerTerm/OlderTerm on server without WITHIN support fails
 
 
 		  CHANGES IN THE 1.5.6 RELEASE

@@ -2605,7 +2605,7 @@ public class IMAPProtocol extends Protocol {
      */
     protected SearchSequence getSearchSequence() {
 	if (searchSequence == null)
-	    searchSequence = new SearchSequence();
+	    searchSequence = new SearchSequence(this);
 	return searchSequence;
     }
 
