@@ -2582,6 +2582,77 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testContentTypeNestedMultiFormatter() throws Exception {
+        String expected = "application/xml; charset=us-ascii";
+        String type = getInlineMultiContentType(new CollectorFormatter("{0}{1}{2}",
+                new XMLFormatter(), new SeverityComparator()));
+        assertEquals(expected, type);
+
+
+        expected = "text/plain; charset=us-ascii";
+        type = getInlineMultiContentType(new CollectorFormatter("{0}{1}{2}",
+                new CompactFormatter(), new SeverityComparator()));
+        assertEquals(expected, type);
+    }
+
+    @Test
+    public void testContentTypeMultiOverride() throws Exception {
+        String expected = "application/xml; charset=us-ascii";
+        String type = getInlineMultiContentType(new XMLFormatter());
+        assertEquals(expected, type);
+
+        MimetypesFileTypeMap m = new MimetypesFileTypeMap();
+        m.addMimeTypes("text/plain txt TXT XMLFormatter");
+        final FileTypeMap old = FileTypeMap.getDefaultFileTypeMap();
+        FileTypeMap.setDefaultFileTypeMap(m);
+        try {
+            type = getInlineMultiContentType(new XMLFormatter());
+            assertEquals("text/plain; charset=us-ascii", type);
+        } finally {
+            FileTypeMap.setDefaultFileTypeMap(old);
+        }
+
+        type = getInlineMultiContentType(new XMLFormatter());
+        assertEquals(expected, type);
+    }
+
+    private String getInlineMultiContentType(Formatter f) throws Exception {
+        final String[] value = new String[1];
+        MailHandler instance = new MailHandler(createInitProperties(""));
+        instance.setAttachmentFormatters(new SimpleFormatter());
+        instance.setAttachmentFilters(BooleanFilter.FALSE);
+        instance.setEncoding("us-ascii");
+
+        MessageErrorManager em = new MessageErrorManager(instance.getMailProperties()) {
+
+            @Override
+            protected void error(MimeMessage msg, Throwable t, int code) {
+                try {
+                    MimeMultipart multi = (MimeMultipart) msg.getContent();
+                    BodyPart body = multi.getBodyPart(0);
+                    assertEquals(Part.INLINE, body.getDisposition());
+                    String desc = msg.getDescription();
+                    assertTrue(desc.contains("Sorted using"));
+                    assertTrue(desc.contains("pushed when"));
+                    value[0] = body.getContentType();
+                } catch (Throwable E) {
+                    dump(E);
+                    fail(E.toString());
+                }
+            }
+        };
+        instance.setErrorManager(em);
+        Properties props = createInitProperties("");
+        props.put("mail.to", "localhost@localdomain");
+        instance.setMailProperties(props);
+        instance.setFormatter(f);
+        instance.publish(new LogRecord(Level.SEVERE, "test"));
+        instance.close();
+
+        return value[0];
+    }
+
+    @Test
     public void testContentTypeOverride() throws Exception {
         String expected = "application/xml; charset=us-ascii";
         String type = getInlineContentType(new XMLFormatter());
@@ -2611,10 +2682,10 @@ public class MailHandlerTest extends AbstractLogging {
             @Override
             protected void error(MimeMessage msg, Throwable t, int code) {
                 try {
-                    MimeMultipart multi = (MimeMultipart) msg.getContent();
-                    BodyPart body = multi.getBodyPart(0);
-                    assertEquals(Part.INLINE, body.getDisposition());
-                    value[0] = body.getContentType();
+                    String desc = msg.getDescription();
+                    assertTrue(desc.contains("filtered with"));
+                    assertTrue(desc.contains("named by"));
+                    value[0] = msg.getContentType();
                 } catch (Throwable E) {
                     dump(E);
                     fail(E.toString());
@@ -2746,6 +2817,8 @@ public class MailHandlerTest extends AbstractLogging {
         }
 
         MailHandler target = new MailHandler(createInitProperties(""));
+        target.setAttachmentFormatters(new SimpleFormatter());
+        target.setAttachmentFilters(BooleanFilter.FALSE);
 
         Properties props = new Properties();
         props.put("motd", "Hello MailHandler!");
@@ -2858,12 +2931,17 @@ public class MailHandlerTest extends AbstractLogging {
 
             cl = Locale.US;
             target = new MailHandler(createInitProperties(""));
+            target.setAttachmentFormatters(new SimpleFormatter());
+            target.setAttachmentFilters(BooleanFilter.FALSE);
+
             target.setErrorManager(new Infer(target.getMailProperties(), Locale.ENGLISH));
             logPrefix = p + '.' + f.getName() + cl;
             testContentLangInfer(target, logPrefix, bundleName, cl);
 
             cl = Locale.UK;
             target = new MailHandler(createInitProperties(""));
+            target.setAttachmentFormatters(new SimpleFormatter());
+            target.setAttachmentFilters(BooleanFilter.FALSE);
             target.setErrorManager(new Infer(target.getMailProperties(), Locale.ENGLISH));
             logPrefix = p + '.' + f.getName() + cl;
             testContentLangInfer(target, logPrefix, bundleName, cl);

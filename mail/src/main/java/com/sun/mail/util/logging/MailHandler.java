@@ -298,17 +298,18 @@ import javax.mail.util.ByteArrayDataSource;
  *
  * <p>
  * <b>Attachments:</b>
- * This <tt>Handler</tt> allows multiple attachments per each email.
- * The attachment order maps directly to the array index order in this
- * <tt>Handler</tt> with zero index being the first attachment.  The number of
- * attachment formatters controls the number of attachments per email and
- * the content type of each attachment.  The attachment filters determine if a
- * <tt>LogRecord</tt> will be included in an attachment.  If an attachment
- * filter is <tt>null</tt> then all records are included for that attachment.
- * Attachments without content will be omitted from email message.  The
- * attachment name formatters create the file name for an attachment.
- * Custom attachment name formatters can be used to generate an attachment name
- * based on the contents of the attachment.
+ * This <tt>Handler</tt> allows multiple attachments per each email message.
+ * The presence of an attachment formatter will change the content type of the
+ * email message to a multi-part message.  The attachment order maps directly to
+ * the array index order in this <tt>Handler</tt> with zero index being the
+ * first attachment.  The number of attachment formatters controls the number of
+ * attachments per email and the content type of each attachment.  The
+ * attachment filters determine if a <tt>LogRecord</tt> will be included in an
+ * attachment.  If an attachment filter is <tt>null</tt> then all records are
+ * included for that attachment.  Attachments without content will be omitted
+ * from email message.  The attachment name formatters create the file name for
+ * an attachment.  Custom attachment name formatters can be used to generate an
+ * attachment name based on the contents of the attachment.
  *
  * <p>
  * <b>Push Level and Push Filter:</b>
@@ -1825,7 +1826,7 @@ public class MailHandler extends Handler {
      * @param type the mime type or null, meaning text/plain.
      * @throws MessagingException if there is a problem.
      */
-    private void setContent(MimeBodyPart part, CharSequence buf, String type) throws MessagingException {
+    private void setContent(MimePart part, CharSequence buf, String type) throws MessagingException {
         final String charset = getEncodingName();
         if (type != null && !"text/plain".equalsIgnoreCase(type)) {
             type = contentWithEncoding(type, charset);
@@ -1853,7 +1854,7 @@ public class MailHandler extends Handler {
             final ContentType ct = new ContentType(type);
             ct.setParameter("charset", MimeUtility.mimeCharset(encoding));
             encoding = ct.toString(); //See javax.mail.internet.ContentType.
-            if (!isEmpty(encoding)) {
+            if (!isEmpty(encoding)) { //Support pre K5687.
                 type = encoding;
             }
         } catch (final MessagingException ME) {
@@ -2826,7 +2827,6 @@ public class MailHandler extends Handler {
             initSession();
         }
         MimeMessage msg = new MimeMessage(session);
-        msg.setDescription(descriptionFrom(comparator, pushLevel, pushFilter));
 
         /**
          * Parts are lazily created when an attachment performs a getHead
@@ -2839,12 +2839,19 @@ public class MailHandler extends Handler {
          * The buffers are lazily created when the part requires a getHead.
          */
         StringBuilder[] buffers = new StringBuilder[parts.length];
-
         StringBuilder buf = null;
+        final MimePart body;
+        if (parts.length == 0) {
+            msg.setDescription(descriptionFrom(
+                    getFormatter(), getFilter(), subjectFormatter));
+            body = msg;
+        } else {
+            msg.setDescription(descriptionFrom(
+                    comparator, pushLevel, pushFilter));
+            body = createBodyPart();
+        }
 
         appendSubject(msg, head(subjectFormatter));
-
-        final MimeBodyPart body = createBodyPart();
         final Formatter bodyFormat = getFormatter();
         final Filter bodyFilter = getFilter();
 
@@ -2897,7 +2904,8 @@ public class MailHandler extends Handler {
             }
 
             if (formatted) {
-                if (locale != null && !locale.equals(lastLocale)) {
+                if (body != msg && locale != null
+                        && !locale.equals(lastLocale)) {
                     appendContentLang(msg, locale);
                 }
             } else {  //Belongs to no mime part.
@@ -2937,19 +2945,22 @@ public class MailHandler extends Handler {
 
         appendSubject(msg, tail(subjectFormatter, ""));
 
-        MimeMultipart multipart = new MimeMultipart();
         String contentType = contentTypeOf(buf);
         String altType = contentTypeOf(bodyFormat);
         setContent(body, buf, altType == null ? contentType : altType);
-        multipart.addBodyPart(body);
+        if (body != msg) {
+            final MimeMultipart multipart = new MimeMultipart();
+            //assert body instanceof BodyPart : body;
+            multipart.addBodyPart((BodyPart) body);
 
-        for (int i = 0; i < parts.length; ++i) {
-            if (parts[i] != null) {
-                multipart.addBodyPart(parts[i]);
+            for (int i = 0; i < parts.length; ++i) {
+                if (parts[i] != null) {
+                    multipart.addBodyPart(parts[i]);
+                }
             }
+            msg.setContent(multipart);
         }
 
-        msg.setContent(multipart);
         return msg;
     }
 
@@ -3180,6 +3191,7 @@ public class MailHandler extends Handler {
                 try { //Verify that the DataHandler can be loaded.
                     Object ccl = getAndSetContextClassLoader(MAILHANDLER_LOADER);
                     try {
+                        //Always load the multipart classes.
                         MimeMultipart multipart = new MimeMultipart();
                         MimeBodyPart[] ambp = new MimeBodyPart[atn.length];
                         final MimeBodyPart body;
