@@ -59,6 +59,18 @@ with this release of the JavaMail API.
 	this method.  The IMAPFolder class implements the UIDFolder
 	interface and has provided this method for some time.
 
+- YoungerTerm, OlderTerm, and ModifiedSinceTerm fall back to local searching
+
+	In general, SearchTerms that are not understood by the IMAP
+	provider or not supported by the IMAP server fall back to doing
+	local searching.  The IMAP-specific YoungerTerm, OlderTerm, and
+	ModifiedSinceTerm were instead throwing an exception if the server
+	didn't support the extension that the search term depended on.
+	This has been fixed to fall back to doing the search locally.
+	This behavior can be changed by setting the property
+	"mail.imap.throwsearchexception" to "true" to cause an exception
+	to be thrown if the server can't perform the search.
+
 
 
 -- JavaMail 1.5.6 --
