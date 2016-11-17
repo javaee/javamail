@@ -403,3 +403,29 @@ implementation targets Java SE 7, this is not possible.  It's very
 likely that the only class implementing this interface is the IMAPFolder
 class in the JavaMail reference implementation, thus this incompatibility
 is extremely unlikely to cause a problem in practice.
+
+
+===================================================================
+
+7. The UIDFolder interface should have a MAXUID constant (8568)
+---------------------------------------------------------------
+
+An IMAP UID is a 32-bit unsigned integer and is represented as a Java long.
+A new constant indicates the maximum value of a UID:
+
+	/**
+	 * The largest value possible for a UID, a 32-bit unsigned integer.
+	 * This can be used to fetch all new messages by keeping track of the
+	 * last UID that was seen and using:
+	 * <blockquote><pre>
+	 *
+	 * 	Folder f = store.getFolder("whatever");
+	 *	UIDFolder uf = (UIDFolder)f;
+	 *	Message[] newMsgs =
+	 *		uf.getMessagesByUID(lastSeenUID + 1, UIDFolder.MAXUID);
+	 *
+	 * </pre></blockquote><p>
+	 *
+	 * @since JavaMail 1.6
+	 */
+	public static final long MAXUID = 0xffffffffL;

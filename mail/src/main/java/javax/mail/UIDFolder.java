@@ -75,6 +75,7 @@ import java.util.NoSuchElementException;
  *
  * </pre></blockquote><p>
  *
+ * @author Bill Shannon
  * @author John Mani
  */
 
@@ -119,7 +120,24 @@ public interface UIDFolder {
      *
      * @see #getMessagesByUID
      */ 
-    public final static long LASTUID = -1;
+    public static final long LASTUID = -1;
+
+    /**
+     * The largest value possible for a UID, a 32-bit unsigned integer.
+     * This can be used to fetch all new messages by keeping track of the
+     * last UID that was seen and using:
+     * <blockquote><pre>
+     *
+     * 	Folder f = store.getFolder("whatever");
+     *	UIDFolder uf = (UIDFolder)f;
+     *	Message[] newMsgs =
+     *		uf.getMessagesByUID(lastSeenUID + 1, UIDFolder.MAXUID);
+     *
+     * </pre></blockquote><p>
+     *
+     * @since JavaMail 1.6
+     */
+    public static final long MAXUID = 0xffffffffL; // max 32-bit unsigned int
 
     /**
      * Returns the UIDValidity value associated with this folder. <p>
