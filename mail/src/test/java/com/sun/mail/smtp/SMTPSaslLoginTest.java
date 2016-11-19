@@ -54,7 +54,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
- * Test login using a SASL mechanism.
+ * Test login using a SASL mechanism on the server
+ * with SASL and non-SASL on the client.
  */
 public class SMTPSaslLoginTest {
 
@@ -202,6 +203,98 @@ public class SMTPSaslLoginTest {
 		fail("wrong password succeeded");
 	    } catch (AuthenticationFailedException ex) {
 		// success!
+	    } catch (Exception ex) {
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    /**
+     * Test that AUTH with no mechanisms fails.
+     */
+    @Test
+    public void testAuthNoParam() {
+        TestServer server = null;
+        try {
+            server = new TestServer(new SMTPSaslHandler() {
+		@Override
+		public void ehlo() throws IOException {
+		    println("250-hello");
+		    println("250 AUTH");
+		}
+	    });
+            server.start();
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect("test", "test");
+		fail("Connect didn't fail");
+	    } catch (AuthenticationFailedException ex) {
+		// success
+	    } catch (Exception ex) {
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    /**
+     * Test that no AUTH succeeds by skipping authentication entirely.
+     */
+    @Test
+    public void testNoAuth() {
+        TestServer server = null;
+        try {
+            server = new TestServer(new SMTPSaslHandler() {
+		@Override
+		public void ehlo() throws IOException {
+		    println("250-hello");
+		    println("250 XXX");
+		}
+		@Override
+		public void auth(String line) throws IOException {
+		    println("501 Authentication failed");
+		}
+	    });
+            server.start();
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect("test", "test");
+		// success
 	    } catch (Exception ex) {
 		fail(ex.toString());
             } finally {
