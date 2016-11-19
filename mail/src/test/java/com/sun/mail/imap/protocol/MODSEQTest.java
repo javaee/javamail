@@ -46,55 +46,32 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * Test the Status class.
+ * Test the MODSEQ class.
  */
-public class StatusTest {
+public class MODSEQTest {
     /**
-     * Test that the returned mailbox name is decoded.
+     * Test an example MODSEQ response.
      */
     @Test
-    public void testMailboxDecode() throws Exception {
-	String mbox = "Entw\u00fcrfe";
+    public void testAll() throws Exception {
 	IMAPResponse response = new IMAPResponse(
-	    "* STATUS " +
-	    BASE64MailboxEncoder.encode(mbox) +
-	    " (MESSAGES 231 UIDNEXT 44292)");
-	Status s = new Status(response);
-	assertEquals(mbox, s.mbox);
-	assertEquals(231, s.total);
-	assertEquals(44292, s.uidnext);
+	    "* 1 FETCH (MODSEQ (624140003))");
+	FetchResponse fr = new FetchResponse(response);
+	MODSEQ m = fr.getItem(MODSEQ.class);
+	assertEquals(1, m.seqnum);
+	assertEquals(624140003, m.modseq);
     }
 
     /**
-     * Test that spaces in the response don't confuse it.
+     * Test an example MODSEQ response with unnecessary spaces.
      */
     @Test
     public void testSpaces() throws Exception {
 	IMAPResponse response = new IMAPResponse(
-	    "* STATUS  test  ( MESSAGES  231  UIDNEXT  44292 )");
-	Status s = new Status(response);
-	assertEquals("test", s.mbox);
-	assertEquals(231, s.total);
-	assertEquals(44292, s.uidnext);
-    }
-
-    /**
-     * Test that a bad response throws a ParsingException
-     */
-    @Test(expected = ParsingException.class)
-    public void testBadResponseNoAttrList() throws Exception {
-	String mbox = "test";
-	IMAPResponse response = new IMAPResponse("* STATUS test ");
-	Status s = new Status(response);
-    }
-
-    /**
-     * Test that a bad response throws a ParsingException
-     */
-    @Test(expected = ParsingException.class)
-    public void testBadResponseNoAttrs() throws Exception {
-	String mbox = "test";
-	IMAPResponse response = new IMAPResponse("* STATUS test (");
-	Status s = new Status(response);
+	    "* 1 FETCH ( MODSEQ ( 624140003 ) )");
+	FetchResponse fr = new FetchResponse(response);
+	MODSEQ m = fr.getItem(MODSEQ.class);
+	assertEquals(1, m.seqnum);
+	assertEquals(624140003, m.modseq);
     }
 }

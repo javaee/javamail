@@ -103,6 +103,41 @@ public class ResponseTest {
      */
     @Test
     public void testAStringList() throws Exception {
+	Response r = new Response("* " + "(A B C)");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+    }
+
+    @Test
+    public void testAStringListInitialSpace() throws Exception {
+	Response r = new Response("* " + "( A B C)");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+    }
+
+    @Test
+    public void testAStringListTrailingSpace() throws Exception {
+	Response r = new Response("* " + "(A B C )");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+    }
+
+    @Test
+    public void testAStringListInitialAndTrailingSpace() throws Exception {
+	Response r = new Response("* " + "( A B C )");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+    }
+
+    @Test
+    public void testAStringListMultipleSpaces() throws Exception {
+	Response r = new Response("* " + "(A  B    C)");
+	assertArrayEquals(new String[] { "A", "B", "C" },
+			    r.readAtomStringList());
+    }
+
+    @Test
+    public void testAStringListQuoted() throws Exception {
 	Response r = new Response("* " + "(A B \"C\")");
 	assertArrayEquals(new String[] { "A", "B", "C" },
 			    r.readAtomStringList());

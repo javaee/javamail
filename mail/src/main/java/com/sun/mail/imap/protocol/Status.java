@@ -114,7 +114,7 @@ public class Status {
 		items.put(attr.toUpperCase(Locale.ENGLISH),
 			    Long.valueOf(r.readLong()));
 	    }
-	} while (r.readByte() != ')');
+	} while (!r.isNextNonSpace(')'));
     }
 
     /**

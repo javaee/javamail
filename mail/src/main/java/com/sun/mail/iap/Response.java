@@ -191,6 +191,20 @@ public class Response {
     }
 
     /**
+     * Skip past any spaces.  If the next non-space character is c,
+     * consume it and return true.  Otherwise stop at that point
+     * and return false.
+     */
+    public boolean isNextNonSpace(char c) {
+	skipSpaces();
+	if (index < size && buffer[index] == (byte)c) {
+	    index++;
+	    return true;
+	}
+	return false;
+    }
+
+    /**
      * Skip to the next space, for use in error recovery while parsing.
      */
     public void skipToken() {
@@ -287,14 +301,11 @@ public class Response {
 	}
 	index++; // skip '('
 
+	// to handle buggy IMAP servers, we tolerate multiple spaces as
+	// well as spaces after the left paren or before the right paren
 	List<String> result = new ArrayList<>();
-	skipSpaces();
-	if (peekByte() != ')') {
-	    do {
-		result.add(atom ? readAtomString() : readString());
-	    } while (index < size && buffer[index++] != ')');
-	} else
-	    index++;	// skip ')'
+	while (!isNextNonSpace(')'))
+	    result.add(atom ? readAtomString() : readString());
 
 	return result.toArray(new String[result.size()]);
     }

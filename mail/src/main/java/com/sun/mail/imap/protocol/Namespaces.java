@@ -77,7 +77,7 @@ public class Namespaces {
 	public Namespace(Response r) throws ProtocolException {
 	    // Namespace_Element = "(" string SP (<"> QUOTED_CHAR <"> / nil)
 	    //		*(Namespace_Response_Extension) ")"
-	    if (r.readByte() != '(')
+	    if (!r.isNextNonSpace('('))
 		throw new ProtocolException(
 					"Missing '(' at start of Namespace");
 	    // first, the prefix
@@ -101,16 +101,16 @@ public class Namespaces {
 		delimiter = 0;
 	    }
 	    // at end of Namespace data?
-	    if (r.peekByte() != ')') {
-		// otherwise, must be a Namespace_Response_Extension
-		//    Namespace_Response_Extension = SP string SP
-		//	    "(" string *(SP string) ")"
-		r.skipSpaces();
-		r.readString();
-		r.skipSpaces();
-		r.readStringList();
-	    }
-	    if (r.readByte() != ')')
+	    if (r.isNextNonSpace(')'))
+		return;
+
+	    // otherwise, must be a Namespace_Response_Extension
+	    //    Namespace_Response_Extension = SP string SP
+	    //	    "(" string *(SP string) ")"
+	    r.readString();
+	    r.skipSpaces();
+	    r.readStringList();
+	    if (!r.isNextNonSpace(')'))
 		throw new ProtocolException("Missing ')' at end of Namespace");
 	}
     };
@@ -149,16 +149,13 @@ public class Namespaces {
      * Parse out one of the three sets of namespaces.
      */
     private Namespace[] getNamespaces(Response r) throws ProtocolException {
-	r.skipSpaces();
 	//    Namespace = nil / "(" 1*( Namespace_Element) ")"
-	if (r.peekByte() == '(') {
+	if (r.isNextNonSpace('(')) {
 	    List<Namespace> v = new ArrayList<>();
-	    r.readByte();
 	    do {
 		Namespace ns = new Namespace(r);
 		v.add(ns);
-	    } while (r.peekByte() != ')');
-	    r.readByte();
+	    } while (!r.isNextNonSpace(')'));
 	    return v.toArray(new Namespace[v.size()]);
 	} else {
 	    String s = r.readAtom();

@@ -133,7 +133,7 @@ public class ENVELOPE implements Item {
 	if (parseDebug)
 	    System.out.println("  Message-ID: " + messageId);
 
-	if (r.readByte() != ')')
+	if (!r.isNextNonSpace(')'))
 	    throw new ParsingException("ENVELOPE parse error");
     }
 
@@ -148,10 +148,8 @@ public class ENVELOPE implements Item {
 	     * list instead of NIL.  Handle that here even though it
 	     * doesn't conform to the IMAP spec.
 	     */
-	    if (r.peekByte() == ')') {
-		r.skip(1);
+	    if (r.isNextNonSpace(')'))
 		return null;
-	    }
 
 	    List<InternetAddress> v = new ArrayList<>();
 
@@ -162,10 +160,7 @@ public class ENVELOPE implements Item {
 		// if we see an end-of-group address at the top, ignore it
 		if (!a.isEndOfGroup())
 		    v.add(a);
-	    } while (r.peekByte() != ')');
-
-	    // skip the terminating ')' at the end of the addresslist
-	    r.skip(1);
+	    } while (!r.isNextNonSpace(')'));
 
 	    return v.toArray(new InternetAddress[v.size()]);
 	} else if (b == 'N' || b == 'n') { // NIL
@@ -197,7 +192,7 @@ class IMAPAddress extends InternetAddress {
 	// skip bogus spaces inserted by Yahoo IMAP server if
 	// "undisclosed-recipients" is a recipient
 	r.skipSpaces();
-        if (r.readByte() != ')') // skip past terminating ')'
+	if (!r.isNextNonSpace(')')) // skip past terminating ')'
             throw new ParsingException("ADDRESS parse error");
 
 	if (host == null) {

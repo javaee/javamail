@@ -46,55 +46,66 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
- * Test the Status class.
+ * Test the Namespaces class.
  */
-public class StatusTest {
+public class NamespacesTest {
     /**
-     * Test that the returned mailbox name is decoded.
+     * Test an example NAMESPACE response.
      */
     @Test
-    public void testMailboxDecode() throws Exception {
-	String mbox = "Entw\u00fcrfe";
+    public void testAll() throws Exception {
 	IMAPResponse response = new IMAPResponse(
-	    "* STATUS " +
-	    BASE64MailboxEncoder.encode(mbox) +
-	    " (MESSAGES 231 UIDNEXT 44292)");
-	Status s = new Status(response);
-	assertEquals(mbox, s.mbox);
-	assertEquals(231, s.total);
-	assertEquals(44292, s.uidnext);
+	    "* NAMESPACE ((\"\" \"/\")) " +	// personal
+	    "((\"~\" \"/\")) " +		// other users
+	    "((\"#shared/\" \"/\")" +		// shared
+		"(\"#public/\" \"/\")" +
+		"(\"#ftp/\" \"/\")" +
+		"(\"#news.\" \".\"))");
+	Namespaces ns = new Namespaces(response);
+	assertEquals(1, ns.personal.length);
+	assertEquals("", ns.personal[0].prefix);
+	assertEquals('/', ns.personal[0].delimiter);
+	assertEquals(1, ns.otherUsers.length);
+	assertEquals("~", ns.otherUsers[0].prefix);
+	assertEquals('/', ns.otherUsers[0].delimiter);
+	assertEquals(4, ns.shared.length);
+	assertEquals("#shared/", ns.shared[0].prefix);
+	assertEquals('/', ns.shared[0].delimiter);
+	assertEquals("#public/", ns.shared[1].prefix);
+	assertEquals('/', ns.shared[1].delimiter);
+	assertEquals("#ftp/", ns.shared[2].prefix);
+	assertEquals('/', ns.shared[2].delimiter);
+	assertEquals("#news.", ns.shared[3].prefix);
+	assertEquals('.', ns.shared[3].delimiter);
     }
 
     /**
-     * Test that spaces in the response don't confuse it.
+     * Test an example NAMESPACE response with unnecessary spaces.
      */
     @Test
     public void testSpaces() throws Exception {
 	IMAPResponse response = new IMAPResponse(
-	    "* STATUS  test  ( MESSAGES  231  UIDNEXT  44292 )");
-	Status s = new Status(response);
-	assertEquals("test", s.mbox);
-	assertEquals(231, s.total);
-	assertEquals(44292, s.uidnext);
-    }
-
-    /**
-     * Test that a bad response throws a ParsingException
-     */
-    @Test(expected = ParsingException.class)
-    public void testBadResponseNoAttrList() throws Exception {
-	String mbox = "test";
-	IMAPResponse response = new IMAPResponse("* STATUS test ");
-	Status s = new Status(response);
-    }
-
-    /**
-     * Test that a bad response throws a ParsingException
-     */
-    @Test(expected = ParsingException.class)
-    public void testBadResponseNoAttrs() throws Exception {
-	String mbox = "test";
-	IMAPResponse response = new IMAPResponse("* STATUS test (");
-	Status s = new Status(response);
+	    "* NAMESPACE ((\"\" \"/\")) " +	// personal
+	    "( ( \"~\" \"/\" ) ) " +		// other users
+	    "(( \"#shared/\" \"/\" )" +		// shared
+		"( \"#public/\" \"/\" )" +
+		"( \"#ftp/\" \"/\" )" +
+		" (\"#news.\" \".\" ))");
+	Namespaces ns = new Namespaces(response);
+	assertEquals(1, ns.personal.length);
+	assertEquals("", ns.personal[0].prefix);
+	assertEquals('/', ns.personal[0].delimiter);
+	assertEquals(1, ns.otherUsers.length);
+	assertEquals("~", ns.otherUsers[0].prefix);
+	assertEquals('/', ns.otherUsers[0].delimiter);
+	assertEquals(4, ns.shared.length);
+	assertEquals("#shared/", ns.shared[0].prefix);
+	assertEquals('/', ns.shared[0].delimiter);
+	assertEquals("#public/", ns.shared[1].prefix);
+	assertEquals('/', ns.shared[1].delimiter);
+	assertEquals("#ftp/", ns.shared[2].prefix);
+	assertEquals('/', ns.shared[2].delimiter);
+	assertEquals("#news.", ns.shared[3].prefix);
+	assertEquals('.', ns.shared[3].delimiter);
     }
 }

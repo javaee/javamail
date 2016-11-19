@@ -2911,7 +2911,7 @@ public class IMAPProtocol extends Protocol {
 	    throw new ParsingException("parse error in QUOTA");
 
 	List<Quota.Resource> v = new ArrayList<>();
-	while (r.peekByte() != ')') {
+	while (!r.isNextNonSpace(')')) {
 	    // quota_resource ::= atom SP number SP number
 	    String name = r.readAtom();
 	    if (name != null) {
@@ -2921,7 +2921,6 @@ public class IMAPProtocol extends Protocol {
 		v.add(res);
 	    }
 	}
-	r.readByte();
 	q.resources = v.toArray(new Quota.Resource[v.size()]);
 	return q;
     }

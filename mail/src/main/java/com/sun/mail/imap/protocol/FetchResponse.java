@@ -196,15 +196,14 @@ public class FetchResponse extends IMAPResponse {
     private final static char[] TEXT = {'.','T','E','X','T'};
 
     private void parse() throws ParsingException {
-	skipSpaces();
-	if (buffer[index] != '(')
+	if (!isNextNonSpace('('))
 	    throw new ParsingException(
 		"error in FETCH parsing, missing '(' at index " + index);
 
 	List<Item> v = new ArrayList<>();
 	Item i = null;
+	skipSpaces();
 	do {
-	    index++; // skip '(', or SPACE
 
 	    if (index >= size)
 		throw new ParsingException(
@@ -217,9 +216,8 @@ public class FetchResponse extends IMAPResponse {
 		throw new ParsingException(
 		    "error in FETCH parsing, unrecognized item at index " +
 		    index + ", starts with \"" + next20() + "\"");
-	} while (buffer[index] != ')');
+	} while (!isNextNonSpace(')'));
 
-	index++; // skip ')'
 	items = v.toArray(new Item[v.size()]);
     }
 
