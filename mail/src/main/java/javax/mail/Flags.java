@@ -153,7 +153,7 @@ public class Flags implements Cloneable, Serializable {
 
 	/**
 	 * This message is seen. This flag is implicitly set by the 
-	 * implementation when the this Message's content is returned 
+	 * implementation when this Message's content is returned 
 	 * to the client in some form. The <code>getInputStream</code>
 	 * and <code>getContent</code> methods on Message cause this
 	 * flag to be set. <p>
