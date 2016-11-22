@@ -263,7 +263,8 @@ public class MimeMultipart extends Multipart {
      * boundary and creates MimeBodyParts for each part of the stream.
      *
      * @param	ds	DataSource, can be a MultipartDataSource
-     * @exception	MessagingException for failures
+     * @exception	ParseException for failures parsing the message
+     * @exception	MessagingException for other failures
      */
     public MimeMultipart(DataSource ds) throws MessagingException {
 	super();
@@ -575,7 +576,8 @@ public class MimeMultipart extends Multipart {
      * The {@link #initializeProperties} method is called before
      * parsing the data.
      *
-     * @exception	MessagingException for failures
+     * @exception	ParseException for failures parsing the message
+     * @exception	MessagingException for other failures
      * @since	JavaMail 1.2
      */
     protected synchronized void parse() throws MessagingException {
@@ -609,7 +611,7 @@ public class MimeMultipart extends Multipart {
 	}
 	if (boundary == null && !ignoreMissingBoundaryParameter &&
 		!ignoreExistingBoundaryParameter)
-	    throw new MessagingException("Missing boundary parameter");
+	    throw new ParseException("Missing boundary parameter");
 
 	try {
 	    // Skip and save the preamble
@@ -686,7 +688,7 @@ public class MimeMultipart extends Multipart {
 		if (allowEmpty)
 		    return;
 		else
-		    throw new MessagingException("Missing start boundary");
+		    throw new ParseException("Missing start boundary");
 	    }
 
 	    // save individual boundary bytes for comparison later
@@ -738,7 +740,7 @@ public class MimeMultipart extends Multipart {
 			;
 		    if (line == null) {
 			if (!ignoreMissingEndBoundary)
-			    throw new MessagingException(
+			    throw new ParseException(
 					"missing multipart end boundary");
 			// assume there's just a missing end boundary
 			complete = false;
@@ -786,7 +788,7 @@ public class MimeMultipart extends Multipart {
 		    if (inSize < bl) {
 			// hit EOF
 			if (!ignoreMissingEndBoundary)
-			    throw new MessagingException(
+			    throw new ParseException(
 					"missing multipart end boundary");
 			if (sin != null)
 			    end = sin.getPosition();
