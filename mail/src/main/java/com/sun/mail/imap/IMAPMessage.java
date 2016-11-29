@@ -783,10 +783,15 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 	    }
 	}
 
-	if (is == null)
-	    throw new MessagingException("No content");
-	else
-	    return is;
+	if (is == null) {
+	    forceCheckExpunged();	// may throw MessageRemovedException
+	    // nope, the server doesn't think it's expunged.
+	    // can't tell the difference between the server returning NIL
+	    // and some other error that caused null to be returned above,
+	    // so we'll just assume it was empty content.
+	    is = new ByteArrayInputStream(new byte[0]);
+	}
+	return is;
     }
 
     /**
@@ -882,9 +887,11 @@ public class IMAPMessage extends MimeMessage implements ReadableMime {
 
 	if (is == null) {
 	    forceCheckExpunged();	// may throw MessageRemovedException
-	    // nope, the server doesn't think it's expunged,
-	    // something else is wrong
-	    throw new MessagingException("No content");
+	    // nope, the server doesn't think it's expunged.
+	    // can't tell the difference between the server returning NIL
+	    // and some other error that caused null to be returned above,
+	    // so we'll just assume it was empty content.
+	    is = new ByteArrayInputStream(new byte[0]);
 	}
 	return is;
     }

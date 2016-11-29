@@ -164,7 +164,11 @@ public class IMAPInputStream extends InputStream {
 
 	    if (b == null || ((ba = b.getByteArray()) == null)) {
 		forceCheckExpunged();
-		throw new IOException("No content");
+		// nope, the server doesn't think it's expunged.
+		// can't tell the difference between the server returning NIL
+		// and some other error that caused null to be returned above,
+		// so we'll just assume it was empty content.
+		ba = new ByteArray(0);
 	    }
 	}
 

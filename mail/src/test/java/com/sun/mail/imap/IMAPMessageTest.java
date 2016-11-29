@@ -50,6 +50,8 @@ import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.Message;
+import javax.mail.Multipart;
+import javax.mail.BodyPart;
 import javax.mail.MessagingException;
 
 import com.sun.mail.test.TestServer;
@@ -80,9 +82,10 @@ public final class IMAPMessageTest {
 	"((NIL NIL \"testuser\" \"example.com\")) NIL NIL NIL " +
 	"\"<40D98512.9040803@example.com>\")";
 
-    public static interface IMAPTest {
-	public void test(Folder folder, IMAPHandlerMessage handler)
-				    throws MessagingException;
+    public static abstract class IMAPTest {
+	public void init(Properties props) { };
+	public abstract void test(Folder folder, IMAPHandlerMessage handler)
+				    throws Exception;
     }
 
     /**
@@ -127,7 +130,85 @@ public final class IMAPMessageTest {
 	    });
     }
 
-    public void testWithHandler(IMAPTest test, IMAPHandlerMessage handler) {
+    /**
+     * Test that returning NIL instead of an empty string for the content
+     * of the message works correctly.
+     */
+    @Test
+    public void testEmptyBody() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty("mail.imap.partialfetch","false");
+		}
+
+		@Override
+		public void test(Folder folder, IMAPHandlerMessage handler)
+				    throws MessagingException, IOException {
+		    Message m = folder.getMessage(1);
+		    String t = (String)m.getContent();
+		    assertEquals("", t);
+		}
+	    },
+	    new IMAPHandlerMessage() {
+		@Override
+		public void fetch(String line) throws IOException {
+		    if (line.indexOf("BODYSTRUCTURE") >= 0)
+			untagged("1 FETCH (BODYSTRUCTURE " +
+			    "(\"text\" \"plain\" (\"charset\" \"us-ascii\") " +
+				"NIL NIL \"7bit\" 0 0 NIL NIL NIL NIL)" +
+			    ")");
+		    else if (line.indexOf("BODY[TEXT]") >= 0)
+			untagged("1 FETCH (BODY[TEXT] NIL " +
+				    "FLAGS (\\Seen \\Recent))");
+		    ok();
+		}
+	    });
+    }
+
+    /**
+     * Test that returning NIL instead of an empty string for the content
+     * of an empty body part works correctly.
+     */
+    @Test
+    public void testEmptyBodyAttachment() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty("mail.imap.partialfetch","false");
+		}
+
+		@Override
+		public void test(Folder folder, IMAPHandlerMessage handler)
+				    throws MessagingException, IOException {
+		    Message m = folder.getMessage(1);
+		    Multipart mp = (Multipart)m.getContent();
+		    BodyPart bp = mp.getBodyPart(1);
+		    String t = (String)bp.getContent();
+		    assertEquals("", t);
+		}
+	    },
+	    new IMAPHandlerMessage() {
+		@Override
+		public void fetch(String line) throws IOException {
+		    if (line.indexOf("BODYSTRUCTURE") >= 0)
+			untagged("1 FETCH (BODYSTRUCTURE (" +
+			    "(\"text\" \"plain\" (\"charset\" \"us-ascii\") " +
+				"NIL NIL \"7bit\" 4 0 NIL NIL NIL NIL)" +
+			    "(\"text\" \"plain\" (\"charset\" \"us-ascii\") " +
+				"NIL NIL \"7bit\" 0 0 NIL NIL NIL NIL)" +
+			    " \"mixed\" (\"boundary\" \"----=_x\") NIL NIL))");
+		    else if (line.indexOf("BODY[2]") >= 0)
+			untagged("1 FETCH (BODY[2] NIL " +
+				    "FLAGS (\\Seen \\Recent))");
+		    ok();
+		}
+	    });
+    }
+
+    private void testWithHandler(IMAPTest test, IMAPHandlerMessage handler) {
         TestServer server = null;
         try {
             server = new TestServer(handler);
@@ -136,6 +217,7 @@ public final class IMAPMessageTest {
             final Properties properties = new Properties();
             properties.setProperty("mail.imap.host", "localhost");
             properties.setProperty("mail.imap.port", "" + server.getPort());
+	    test.init(properties);
             final Session session = Session.getInstance(properties);
             //session.setDebug(true);
 
