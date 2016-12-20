@@ -58,7 +58,23 @@ public class StatusTest {
 	IMAPResponse response = new IMAPResponse(
 	    "* STATUS " +
 	    BASE64MailboxEncoder.encode(mbox) +
-	    " (MESSAGES 231 UIDNEXT 44292)");
+	    " (MESSAGES 231 UIDNEXT 44292)", false);
+	Status s = new Status(response);
+	assertEquals(mbox, s.mbox);
+	assertEquals(231, s.total);
+	assertEquals(44292, s.uidnext);
+    }
+
+    /**
+     * Test that the returned mailbox name is correct when using UTF-8.
+     */
+    @Test
+    public void testMailboxUtf8() throws Exception {
+	String mbox = "Entw\u00fcrfe";
+	IMAPResponse response = new IMAPResponse(
+	    "* STATUS " +
+	    mbox +
+	    " (MESSAGES 231 UIDNEXT 44292)", true);
 	Status s = new Status(response);
 	assertEquals(mbox, s.mbox);
 	assertEquals(231, s.total);

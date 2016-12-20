@@ -283,10 +283,10 @@ public class Response {
 	if (index >= size) // already at end of response
 	    return null;
 
-	byte b;
+	int b;
 	int start = index;
-	while (index < size && ((b = buffer[index]) > ' ') &&
-	       delim.indexOf((char)b) < 0 && b >= ' ' && b != 0x7f)
+	while (index < size && ((b = (((int)buffer[index])&0xff)) >= ' ') &&
+	       delim.indexOf((char)b) < 0 && b != 0x7f)
 	    index++;
 
 	return toString(buffer, start, index);
