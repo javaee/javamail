@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.util;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class is to support writing out Strings as a sequence of bytes
@@ -51,9 +52,12 @@ import java.io.*;
  * stream. <p>
  *
  * @author John Mani
+ * @author Bill Shannon
  */
 
 public class LineOutputStream extends FilterOutputStream {
+    private boolean allowutf8;
+
     private static byte[] newline;
 
     static {
@@ -63,11 +67,23 @@ public class LineOutputStream extends FilterOutputStream {
     }
 
     public LineOutputStream(OutputStream out) {
+	this(out, false);
+    }
+
+    /**
+     * @since	JavaMail 1.6
+     */
+    public LineOutputStream(OutputStream out, boolean allowutf8) {
 	super(out);
+	this.allowutf8 = allowutf8;
     }
 
     public void writeln(String s) throws IOException {
-	byte[] bytes = ASCIIUtility.getBytes(s);
+	byte[] bytes;
+	if (allowutf8)
+	    bytes = s.getBytes(StandardCharsets.UTF_8);
+	else
+	    bytes = ASCIIUtility.getBytes(s);
 	out.write(bytes);
 	out.write(newline);
     }

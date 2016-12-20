@@ -212,9 +212,9 @@ public final class IMAPFetchProfileTest {
 	protected static Set<String> saw = new HashSet<>();
 
 	@Override
-        public void select() throws IOException {
+        public void select(String line) throws IOException {
 	    numberOfMessages = 1;
-	    super.select();
+	    super.select(line);
 	}
 
 	public boolean saw(String item) {

@@ -138,9 +138,9 @@ public final class IMAPIdleUntaggedResponseTest {
 	private static CountDownLatch latch = new CountDownLatch(1);
 
 	@Override
-        public void examine() throws IOException {
+        public void examine(String line) throws IOException {
 	    numberOfMessages = 1;
-	    super.examine();
+	    super.examine(line);
 	}
 
 	@Override

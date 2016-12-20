@@ -81,7 +81,9 @@ public class Namespaces {
 		throw new ProtocolException(
 					"Missing '(' at start of Namespace");
 	    // first, the prefix
-	    prefix = BASE64MailboxDecoder.decode(r.readString());
+	    prefix = r.readString();
+	    if (!r.supportsUtf8())
+		prefix = BASE64MailboxDecoder.decode(prefix);
 	    r.skipSpaces();
 	    // delimiter is a quoted character or NIL
 	    if (r.peekByte() == '"') {

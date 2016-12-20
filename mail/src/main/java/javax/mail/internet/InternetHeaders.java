@@ -354,8 +354,30 @@ public class InternetHeaders {
      * @exception	MessagingException for any I/O error reading the stream
      */
     public InternetHeaders(InputStream is) throws MessagingException {
+	this(is, false);
+    }
+
+    /**
+     * Read and parse the given RFC822 message stream till the 
+     * blank line separating the header from the body. The input 
+     * stream is left positioned at the start of the body. The 
+     * header lines are stored internally. <p>
+     *
+     * For efficiency, wrap a BufferedInputStream around the actual
+     * input stream and pass it as the parameter. <p>
+     *
+     * No placeholder entries are inserted; the original order of
+     * the headers is preserved.
+     *
+     * @param	is 	RFC822 input stream
+     * @param	allowutf8 	if UTF-8 encoded headers are allowed
+     * @exception	MessagingException for any I/O error reading the stream
+     * @since		JavaMail 1.6
+     */
+    public InternetHeaders(InputStream is, boolean allowutf8)
+				throws MessagingException {
    	headers = new ArrayList<>(40); 
-	load(is);
+	load(is, allowutf8);
     }
 
     /**
@@ -373,10 +395,31 @@ public class InternetHeaders {
      * @exception	MessagingException for any I/O error reading the stream
      */
     public void load(InputStream is) throws MessagingException {
+	load(is, false);
+    }
+
+    /**
+     * Read and parse the given RFC822 message stream till the
+     * blank line separating the header from the body. Store the
+     * header lines inside this InternetHeaders object. The order
+     * of header lines is preserved. <p>
+     *
+     * Note that the header lines are added into this InternetHeaders
+     * object, so any existing headers in this object will not be
+     * affected.  Headers are added to the end of the existing list
+     * of headers, in order.
+     *
+     * @param	is 	RFC822 input stream
+     * @param	allowutf8 	if UTF-8 encoded headers are allowed
+     * @exception	MessagingException for any I/O error reading the stream
+     * @since		JavaMail 1.6
+     */
+    public void load(InputStream is, boolean allowutf8)
+				throws MessagingException {
 	// Read header lines until a blank line. It is valid
 	// to have BodyParts with no header lines.
 	String line;
-	LineInputStream lis = new LineInputStream(is);
+	LineInputStream lis = new LineInputStream(is, allowutf8);
 	String prevline = null;	// the previous header line, as a string
 	// a buffer to accumulate the header in, when we know it's needed
 	StringBuffer lineBuffer = new StringBuffer();

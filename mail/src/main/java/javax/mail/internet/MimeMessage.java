@@ -178,6 +178,8 @@ public class MimeMessage extends Message implements MimePart {
 
     // Should addresses in headers be parsed in "strict" mode?
     private boolean strict = true;
+    // Is UTF-8 allowed in headers?
+    private boolean allowutf8 = false;
 
     /**
      * Default constructor. An empty message object is created.
@@ -316,9 +318,12 @@ public class MimeMessage extends Message implements MimePart {
      * Set the strict flag based on property.
      */
     private void initStrict() {
-	if (session != null)
+	if (session != null) {
 	    strict = PropUtil.getBooleanSessionProperty(session,
 				    "mail.mime.address.strict", true);
+	    allowutf8 = PropUtil.getBooleanSessionProperty(session,
+				    "mail.mime.allowutf8", false);
+	}
     }
 
     /**
@@ -748,7 +753,11 @@ public class MimeMessage extends Message implements MimePart {
     // Convenience method to set addresses
     private void setAddressHeader(String name, Address[] addresses)
 			throws MessagingException {
-	String s = InternetAddress.toString(addresses, name.length() + 2);
+	String s;
+	if (allowutf8)
+	    s = InternetAddress.toUnicodeString(addresses, name.length() + 2);
+	else
+	    s = InternetAddress.toString(addresses, name.length() + 2);
 	if (s == null)
 	    removeHeader(name);
 	else
@@ -768,7 +777,11 @@ public class MimeMessage extends Message implements MimePart {
 	    System.arraycopy(a, 0, anew, 0, a.length);
 	    System.arraycopy(addresses, 0, anew, a.length, addresses.length);
 	}
-	String s = InternetAddress.toString(anew, name.length() + 2);
+	String s;
+	if (allowutf8)
+	    s = InternetAddress.toUnicodeString(anew, name.length() + 2);
+	else
+	    s = InternetAddress.toString(anew, name.length() + 2);
 	if (s == null)
 	    return;
 	setHeader(name, s);
@@ -1897,7 +1910,7 @@ public class MimeMessage extends Message implements MimePart {
 	// Else, the content is untouched, so we can just output it
 	// First, write out the header
 	Enumeration<String> hdrLines = getNonMatchingHeaderLines(ignoreList);
-	LineOutputStream los = new LineOutputStream(os);
+	LineOutputStream los = new LineOutputStream(os, allowutf8);
 	while (hdrLines.hasMoreElements())
 	    los.writeln(hdrLines.nextElement());
 
@@ -2281,7 +2294,7 @@ public class MimeMessage extends Message implements MimePart {
      */
     protected InternetHeaders createInternetHeaders(InputStream is)
 				throws MessagingException {
-	return new InternetHeaders(is);
+	return new InternetHeaders(is, allowutf8);
     }
 
     /**

@@ -841,6 +841,11 @@ public class IMAPStore extends Store
 		p.compress();
 	    }
 	}
+
+	// if server supports UTF-8, enable it for client use
+	// note that this is safe to enable even if mail.mime.allowutf8=false
+	if (p.hasCapability("UTF8=ACCEPT") || p.hasCapability("UTF8=ONLY"))
+	    p.enable("UTF8=ACCEPT");
     }
 
     /**

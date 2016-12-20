@@ -559,6 +559,17 @@ public class Protocol {
     }
 
     /**
+     * Does the server support UTF-8?
+     * This implementation returns false.
+     * Subclasses should override as appropriate.
+     *
+     * @since JavaMail 1.6.0
+     */
+    public boolean supportsUtf8() {
+	return false;
+    }
+
+    /**
      * Disconnect.
      */
     protected synchronized void disconnect() {

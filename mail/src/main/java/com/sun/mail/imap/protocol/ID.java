@@ -112,7 +112,7 @@ public class ID {
 	Argument list = new Argument();
 	// add params to list
 	for (Map.Entry<String, String> e : clientParams.entrySet()) {
-	    list.writeNString(e.getKey());
+	    list.writeNString(e.getKey());	// assume these are ASCII only
 	    list.writeNString(e.getValue());
 	}
 	arg.writeArgument(list);

@@ -80,12 +80,12 @@ public final class SMTPIOExceptionTest {
         try {
 	    SMTPHandler handler = new SMTPHandler() {
 		@Override
-		public void rcpt() throws IOException {
+		public void rcpt(String line) throws IOException {
 		    try {
 			// delay long enough to cause timeout
 			Thread.sleep(2 * TIMEOUT);
 		    } catch (Exception ex) { }
-		    super.rcpt();
+		    super.rcpt(line);
 		}
 	    };
             server = new TestServer(handler);

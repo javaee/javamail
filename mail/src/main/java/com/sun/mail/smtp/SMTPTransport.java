@@ -45,6 +45,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.lang.reflect.*;
+import java.nio.charset.StandardCharsets;
 import javax.net.ssl.SSLSocket;
 
 import javax.mail.*;
@@ -140,6 +141,7 @@ public class SMTPTransport extends Transport {
     private boolean noauthdebug = true;	// hide auth info in debug output
     private boolean debugusername;	// include username in debug output?
     private boolean debugpassword;	// include password in debug output?
+    private boolean allowutf8;		// allow UTF-8 usernames and passwords?
 
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
@@ -224,6 +226,11 @@ public class SMTPTransport extends Transport {
 	    "mail." + name + ".sasl.usecanonicalhostname", false);
 	if (useCanonicalHostName)
 	    logger.config("use canonical host name");
+
+	allowutf8 = PropUtil.getBooleanSessionProperty(session,
+	    "mail.mime.allowutf8", false);
+	if (allowutf8)
+	    logger.config("allow UTF-8");
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -738,6 +745,10 @@ public class SMTPTransport extends Transport {
 		}
 	    }
 
+	    if (allowutf8 && !supportsExtension("SMTPUTF8"))
+		logger.log(Level.INFO, "mail.mime.allowutf8 set " +
+			    "but server doesn't advertise SMTPUTF8 support");
+
 	    if ((useAuth || (user != null && password != null)) &&
 		  (supportsExtension("AUTH") ||
 		   supportsExtension("AUTH=LOGIN"))) {
@@ -962,12 +973,11 @@ public class SMTPTransport extends Transport {
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    // send username
-	    resp = simpleCommand(
-		BASE64EncoderStream.encode(ASCIIUtility.getBytes(user)));
+	    resp = simpleCommand(BASE64EncoderStream.encode(toBytes(user)));
 	    if (resp == 334) {
 		// send passwd
 		resp = simpleCommand(
-		    BASE64EncoderStream.encode(ASCIIUtility.getBytes(passwd)));
+			    BASE64EncoderStream.encode(toBytes(passwd)));
 	    }
 	}
     }
@@ -988,11 +998,11 @@ public class SMTPTransport extends Transport {
 	    OutputStream b64os =
 			new BASE64EncoderStream(bos, Integer.MAX_VALUE);
 	    if (authzid != null)
-		b64os.write(ASCIIUtility.getBytes(authzid));
+		b64os.write(toBytes(authzid));
 	    b64os.write(0);
-	    b64os.write(ASCIIUtility.getBytes(user));
+	    b64os.write(toBytes(user));
 	    b64os.write(0);
-	    b64os.write(ASCIIUtility.getBytes(passwd));
+	    b64os.write(toBytes(passwd));
 	    b64os.flush(); 	// complete the encoding
 
 	    return ASCIIUtility.toString(bos.toByteArray());
@@ -1093,7 +1103,7 @@ public class SMTPTransport extends Transport {
 		String passwd) throws MessagingException, IOException {
 	    String resp = "user=" + user + "\001auth=Bearer " +
 			    passwd + "\001\001";
-	    byte[] b = BASE64EncoderStream.encode(ASCIIUtility.getBytes(resp));
+	    byte[] b = BASE64EncoderStream.encode(toBytes(resp));
 	    return ASCIIUtility.toString(b);
 	}
 
@@ -1721,6 +1731,9 @@ public class SMTPTransport extends Transport {
 
 	String cmd = "MAIL FROM:" + normalizeAddress(from);
 
+	if (allowutf8 && supportsExtension("SMTPUTF8"))
+	    cmd += " SMTPUTF8";
+
 	// request delivery status notification?
 	if (supportsExtension("DSN")) {
 	    String ret = null;
@@ -1747,7 +1760,8 @@ public class SMTPTransport extends Transport {
 	    // XXX - check for legal syntax?
 	    if (submitter != null) {
 		try {
-		    String s = xtext(submitter);
+		    String s = xtext(submitter,
+				    allowutf8 && supportsExtension("SMTPUTF8"));
 		    cmd += " AUTH=" + s;
 		} catch (IllegalArgumentException ex) {
 		    if (logger.isLoggable(Level.FINE))
@@ -2322,7 +2336,7 @@ public class SMTPTransport extends Transport {
      * @since JavaMail 1.4.1
      */
     protected void sendCommand(String cmd) throws MessagingException {
-	sendCommand(ASCIIUtility.getBytes(cmd));
+	sendCommand(toBytes(cmd));
     }
 
     private void sendCommand(byte[] cmdBytes) throws MessagingException {
@@ -2533,14 +2547,33 @@ public class SMTPTransport extends Transport {
      * @return	the xtext format string
      * @since JavaMail 1.4.1
      */
+    // XXX - keeping this around only for compatibility
     protected static String xtext(String s) {
+	return xtext(s, false);
+    }
+
+    /**
+     * Like xtext(s), but allow UTF-8 strings.
+     *
+     * @param	s	the string to convert
+     * @param	utf8	convert string to UTF-8 first?
+     * @return	the xtext format string
+     * @since JavaMail 1.6.0
+     */
+    protected static String xtext(String s, boolean utf8) {
 	StringBuffer sb = null;
-	for (int i = 0; i < s.length(); i++) {
-	    char c = s.charAt(i);
-	    if (c >= 128)	// not ASCII
+	byte[] bytes;
+	if (utf8)
+	    bytes = s.getBytes(StandardCharsets.UTF_8);
+	else
+	    bytes = ASCIIUtility.getBytes(s);
+	for (int i = 0; i < bytes.length; i++) {
+	    char c = (char)(((int)bytes[i])&0xff);
+	    if (!utf8 && c >= 128)	// not ASCII
 		throw new IllegalArgumentException(
-		    "Non-ASCII character in SMTP submitter: " + s);
-	    if (c < '!' || c > '~' || c == '+' || c == '=') {
+			    "Non-ASCII character in SMTP submitter: " + s);
+	    if (c < '!' || c > '~' || c == '+' || c == '=' ||
+		    c >= 128) {	// not ASCII
 		if (sb == null) {
 		    sb = new StringBuffer(s.length() + 4);
 		    sb.append(s.substring(0, i));
@@ -2563,6 +2596,18 @@ public class SMTPTransport extends Transport {
     private String tracePassword(String password) {
 	return debugpassword ? password :
 				(password == null ? "<null>" : "<non-null>");
+    }
+
+    /**
+     * Convert the String to either ASCII or UTF-8 bytes
+     * depending on allowutf8.
+     */
+    private byte[] toBytes(String s) {
+	if (allowutf8)
+	    return s.getBytes(StandardCharsets.UTF_8);
+	else
+	    // don't use StandardCharsets.US_ASCII because it rejects non-ASCII
+	    return ASCIIUtility.getBytes(s);
     }
 
     /*

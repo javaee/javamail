@@ -471,9 +471,9 @@ public final class IMAPUidExpungeTest {
 	private static int seqnum;
 
 	@Override
-        public void select() throws IOException {
+        public void select(String line) throws IOException {
 	    numberOfMessages = 4;
-	    super.select();
+	    super.select(line);
 	}
 
 	@Override

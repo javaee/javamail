@@ -40,12 +40,16 @@
 
 package com.sun.mail.test;
 
-import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
+import java.io.PushbackInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import javax.net.ssl.SSLException;
@@ -72,8 +76,8 @@ public abstract class ProtocolHandler implements Runnable, Cloneable {
     /** Writer to socket. */
     protected PrintWriter writer;
 
-    /** Reader from socket. */
-    protected BufferedReader reader;
+    /** Input from socket. */
+    protected InputStream in;
 
     /**
      * Sets the client socket.
@@ -83,9 +87,9 @@ public abstract class ProtocolHandler implements Runnable, Cloneable {
     public final void setClientSocket(final Socket clientSocket)
 				throws IOException {
         this.clientSocket = clientSocket;
-	writer = new PrintWriter(clientSocket.getOutputStream());
-	reader = new BufferedReader(
-	    new InputStreamReader(clientSocket.getInputStream()));
+	writer = new PrintWriter(new OutputStreamWriter(
+		    clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+	in = new BufferedInputStream(clientSocket.getInputStream());
     }
 
     /**
@@ -98,6 +102,44 @@ public abstract class ProtocolHandler implements Runnable, Cloneable {
      * Read and process a single command.
      */
     public abstract void handleCommand() throws IOException;
+
+    /**
+     * Read a single line terminated by newline or CRLF.
+     * Convert the UTF-8 bytes in the line (minus the line terminator)
+     * to a String.
+     */
+    protected String readLine() throws IOException {
+        byte[] buf = new byte[128];
+
+        int room = buf.length;
+        int offset = 0;
+        int c;
+
+	while ((c = in.read()) != -1) {
+	    if (c == '\n') {
+		break;
+	    } else if (c == '\r') {
+		int c2 = in.read();
+		if ((c2 != '\n') && (c2 != -1)) {
+		    if (!(in instanceof PushbackInputStream))
+			this.in = new PushbackInputStream(in);
+		    ((PushbackInputStream)in).unread(c2);
+		}
+		break;
+	    } else {
+		if (--room < 0) {
+		    byte[] nbuf = new byte[offset + 128];
+		    room = nbuf.length - offset - 1;
+		    System.arraycopy(buf, 0, nbuf, 0, offset);
+		    buf = nbuf;
+		}
+		buf[offset++] = (byte)c;
+	    }
+	}
+	if ((c == -1) && (offset == 0))
+	    return null;
+	return new String(buf, 0, offset, StandardCharsets.UTF_8);
+    }
 
     /**
      * {@inheritDoc}

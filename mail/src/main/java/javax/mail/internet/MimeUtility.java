@@ -158,6 +158,8 @@ public class MimeUtility {
     private static final boolean ignoreUnknownEncoding =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.ignoreunknownencoding", false);
+    private static final boolean allowUtf8 =
+	PropUtil.getBooleanSystemProperty("mail.mime.allowutf8", false);
     /*
      * The following two properties allow disabling the fold()
      * and unfold() methods and reverting to the previous behavior.
@@ -1024,7 +1026,8 @@ public class MimeUtility {
 		}
 		sb.append('"');
 		return sb.toString();
-	    } else if (c < 040 || c >= 0177 || specials.indexOf(c) >= 0)
+	    } else if (c < 040 || (c >= 0177 && !allowUtf8) ||
+		    specials.indexOf(c) >= 0)
 		// These characters cause the string to be quoted
 		needQuoting = true;
 	}

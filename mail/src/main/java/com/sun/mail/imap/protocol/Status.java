@@ -68,7 +68,9 @@ public class Status {
 
     public Status(Response r) throws ParsingException {
 	// mailbox := astring
-	mbox = BASE64MailboxDecoder.decode(r.readAtomString());
+	mbox = r.readAtomString();
+	if (!r.supportsUtf8())
+	    mbox = BASE64MailboxDecoder.decode(mbox);
 
 	// Workaround buggy IMAP servers that don't quote folder names
 	// with spaces.

@@ -44,6 +44,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.security.*;
+import java.nio.charset.StandardCharsets;
 
 import com.sun.mail.util.*;
 
@@ -113,6 +114,10 @@ public class DigestMD5 {
 	// server challenge random value
 	String nonce = map.get("nonce");
 
+	// Does server support UTF-8 usernames and passwords?
+	String charset = map.get("charset");
+	boolean utf8 = charset != null && charset.equalsIgnoreCase("utf-8");
+
 	random.nextBytes(bytes);
 	b64os.write(bytes);
 	b64os.flush();
@@ -122,7 +127,11 @@ public class DigestMD5 {
 	bos.reset();
 
 	// DIGEST-MD5 computation, common portion (order critical)
-	md5.update(md5.digest(
+	if (utf8) {
+	    String up = user + ":" + realm + ":" + passwd;
+	    md5.update(md5.digest(up.getBytes(StandardCharsets.UTF_8)));
+	} else
+	    md5.update(md5.digest(
 		ASCIIUtility.getBytes(user + ":" + realm + ":" + passwd)));
 	md5.update(ASCIIUtility.getBytes(":" + nonce + ":" + cnonce));
 	clientResponse = toHex(md5.digest())
@@ -140,6 +149,8 @@ public class DigestMD5 {
 	result.append(",nonce=\"" + nonce + "\"");
 	result.append(",cnonce=\"" + cnonce + "\"");
 	result.append(",digest-uri=\"" + uri + "\"");
+	if (utf8)
+	    result.append(",charset=\"utf-8\"");
 	result.append(",response=" + toHex(md5.digest()));
 
 	if (logger.isLoggable(Level.FINE))

@@ -488,3 +488,100 @@ existing constructor and method:
 	 * @since	JavaMail 1.2
 	 */
 	protected synchronized void parse() throws MessagingException
+
+
+===================================================================
+
+9. Support addressing i18n via RFC 6530/6531/6532 (6216)
+--------------------------------------------------------
+
+To enable support for UTF-8 email addresses, the following methods
+are added to InternetAddress:
+
+	/**
+	 * Convert the given array of InternetAddress objects into
+	 * a comma separated sequence of address strings. The
+	 * resulting string contains Unicode characters. <p>
+	 *
+	 * @param addresses	array of InternetAddress objects
+	 * @exception 	ClassCastException if any address object in the 
+	 *			given array is not an InternetAddress object.
+	 *			Note that this is a RuntimeException.
+	 * @return		comma separated string of addresses
+	 * @since		JavaMail 1.6
+	 */
+	public static String toUnicodeString(Address[] addresses)
+
+	/**
+	 * Convert the given array of InternetAddress objects into
+	 * a comma separated sequence of address strings. The
+	 * resulting string contains Unicode characters. <p>
+	 *
+	 * The 'used' parameter specifies the number of character positions
+	 * already taken up in the field into which the resulting address 
+	 * sequence string is to be inserted. It is used to determine the 
+	 * line-break positions in the resulting address sequence string.
+	 *
+	 * @param addresses	array of InternetAddress objects
+	 * @param used	number of character positions already used, in
+	 *			the field into which the address string is to
+	 *			be inserted.
+	 * @exception 	ClassCastException if any address object in the 
+	 *			given array is not an InternetAddress object.
+	 *			Note that this is a RuntimeException.
+	 * @return		comma separated string of addresses
+	 * @since		JavaMail 1.6
+	 */
+	public static String toUnicodeString(Address[] addresses, int used)
+
+
+The following constructor and method are added to InternetHeaders:
+
+	/**
+	 * Read and parse the given RFC822 message stream till the 
+	 * blank line separating the header from the body. The input 
+	 * stream is left positioned at the start of the body. The 
+	 * header lines are stored internally. <p>
+	 *
+	 * For efficiency, wrap a BufferedInputStream around the actual
+	 * input stream and pass it as the parameter. <p>
+	 *
+	 * No placeholder entries are inserted; the original order of
+	 * the headers is preserved.
+	 *
+	 * @param	is 	RFC822 input stream
+	 * @param	allowutf8 	if UTF-8 encoded headers are allowed
+	 * @exception	MessagingException for any I/O error reading the stream
+	 * @since		JavaMail 1.6
+	 */
+	public InternetHeaders(InputStream is, boolean allowutf8)
+				    throws MessagingException
+
+
+	/**
+	 * Read and parse the given RFC822 message stream till the
+	 * blank line separating the header from the body. Store the
+	 * header lines inside this InternetHeaders object. The order
+	 * of header lines is preserved. <p>
+	 *
+	 * Note that the header lines are added into this InternetHeaders
+	 * object, so any existing headers in this object will not be
+	 * affected.  Headers are added to the end of the existing list
+	 * of headers, in order.
+	 *
+	 * @param	is 	RFC822 input stream
+	 * @param	allowutf8 	if UTF-8 encoded headers are allowed
+	 * @exception	MessagingException for any I/O error reading the stream
+	 * @since		JavaMail 1.6
+	 */
+	public void load(InputStream is, boolean allowutf8)
+				    throws MessagingException
+
+The following Session property can be set to enable implicit use of
+these new methods:
+
+mail.mime.allowutf8:
+
+  If set to "true", UTF-8 strings are allowed in message headers,
+  e.g., in addresses.  This should only be set if the mail server also
+  supports UTF-8.

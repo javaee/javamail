@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
+import java.nio.charset.StandardCharsets;
 
 import com.sun.mail.util.BASE64EncoderStream;
 
@@ -188,7 +189,7 @@ public class IMAPHandler extends ProtocolHandler {
      */
     @Override
     public void handleCommand() throws IOException {
-        currentLine = reader.readLine();
+        currentLine = super.readLine();
 
         if (currentLine == null) {
 	    // probably just EOF because the socket was closed
@@ -231,9 +232,9 @@ public class IMAPHandler extends ProtocolHandler {
         } else if (commandName.equals("NOOP")) {
             noop();
         } else if (commandName.equals("SELECT")) {
-            select();
+            select(currentLine);
         } else if (commandName.equals("EXAMINE")) {
-            examine();
+            examine(currentLine);
         } else if (commandName.equals("LIST")) {
             list(currentLine);
         } else if (commandName.equals("IDLE")) {
@@ -263,6 +264,14 @@ public class IMAPHandler extends ProtocolHandler {
 	    }
         } else if (commandName.equals("ID")) {
 	    id(currentLine);
+        } else if (commandName.equals("ENABLE")) {
+            enable(currentLine);
+        } else if (commandName.equals("CREATE")) {
+            create(currentLine);
+        } else if (commandName.equals("DELETE")) {
+            delete(currentLine);
+        } else if (commandName.equals("STATUS")) {
+            status(currentLine);
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}",
 							escape(currentLine));
@@ -336,7 +345,7 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to read/write to socket
      */
-    public void select() throws IOException {
+    public void select(String line) throws IOException {
 	untagged(numberOfMessages + " EXISTS");
 	untagged(numberOfRecentMessages + " RECENT");
         ok();
@@ -347,7 +356,7 @@ public class IMAPHandler extends ProtocolHandler {
      *
      * @throws IOException unable to read/write to socket
      */
-    public void examine() throws IOException {
+    public void examine(String line) throws IOException {
 	untagged(numberOfMessages + " EXISTS");
 	untagged(numberOfRecentMessages + " RECENT");
         ok();
@@ -373,8 +382,9 @@ public class IMAPHandler extends ProtocolHandler {
 	ok();
     }
 
+    @Override
     protected String readLine() throws IOException {
-        currentLine = reader.readLine();
+        currentLine = super.readLine();
         if (currentLine == null) {
             LOGGER.severe("Current line is null!");
             exit();
@@ -463,27 +473,63 @@ public class IMAPHandler extends ProtocolHandler {
     }
 
     /**
-     * Collect "bytes" worth of data for the message being appended.
+     * ENABLE command.
+     *
+     * @throws IOException unable to read/write to socket
      */
-    protected void collectMessage(int bytes) throws IOException {
-	// should be bytes, but simpler to assume chars == bytes with ASCII
-	char[] data = new char[bytes];
-	readFully(reader, data);	// read the data and throw it away
-	reader.readLine();	// data followed by a newline
+    public void enable(String line) throws IOException {
+        no("can't enable");
     }
 
     /**
-     * Read data from "r" into "data" until it's full.
+     * CREATE command.
+     *
+     * @throws IOException unable to read/write to socket
      */
-    protected int readFully(Reader r, char[] data) throws IOException {
+    public void create(String line) throws IOException {
+        no("can't create");
+    }
+
+    /**
+     * DELETE command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void delete(String line) throws IOException {
+        no("can't delete");
+    }
+
+    /**
+     * STATUS command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void status(String line) throws IOException {
+        no("can't get status");
+    }
+
+    /**
+     * Collect "bytes" worth of data for the message being appended.
+     */
+    protected void collectMessage(int bytes) throws IOException {
+	readLiteral(bytes);	// read the data and throw it away
+	super.readLine();	// data followed by a newline
+    }
+
+    /**
+     * Read a literal of "bytes" bytes and return it as a UTF-8 string.
+     */
+    protected String readLiteral(int bytes) throws IOException {
+	println("+");
+	byte[] data = new byte[bytes];
 	int len = data.length;
 	int off = 0;
 	int n;
-	while ((n = r.read(data, off, len)) > 0) {
+	while (len > 0 && (n = in.read(data, off, len)) > 0) {
 	    off += n;
 	    len -= n;
 	}
-	return off;
+	return new String(data, StandardCharsets.UTF_8);
     }
 
     /**

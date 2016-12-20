@@ -96,7 +96,8 @@ public class ListInfo {
 	r.skipSpaces();
 	name = r.readAtomString();
 
-	// decode the name (using RFC2060's modified UTF7)
-	name = BASE64MailboxDecoder.decode(name);
+	if (!r.supportsUtf8())
+	    // decode the name (using RFC2060's modified UTF7)
+	    name = BASE64MailboxDecoder.decode(name);
     }
 }

@@ -119,10 +119,10 @@ public final class IMAPMessageNumberOutOfRangeTest {
     private static final class IMAPHandlerBad extends IMAPHandler {
 
 	@Override
-        public void examine() throws IOException {
+        public void examine(String line) throws IOException {
 	    numberOfMessages = 1;
 	    numberOfRecentMessages = 1;
-	    super.examine();
+	    super.examine(line);
 	}
 
 	@Override

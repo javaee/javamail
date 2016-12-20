@@ -49,6 +49,9 @@ import org.junit.Test;
  * Test the Namespaces class.
  */
 public class NamespacesTest {
+    private static final String utf8Folder = "#public\u03b1/";
+    private static final String utf7Folder = "#public&A7E-/";
+
     /**
      * Test an example NAMESPACE response.
      */
@@ -102,6 +105,68 @@ public class NamespacesTest {
 	assertEquals("#shared/", ns.shared[0].prefix);
 	assertEquals('/', ns.shared[0].delimiter);
 	assertEquals("#public/", ns.shared[1].prefix);
+	assertEquals('/', ns.shared[1].delimiter);
+	assertEquals("#ftp/", ns.shared[2].prefix);
+	assertEquals('/', ns.shared[2].delimiter);
+	assertEquals("#news.", ns.shared[3].prefix);
+	assertEquals('.', ns.shared[3].delimiter);
+    }
+
+    /**
+     * Test a NAMESPACE response with a UTF-7 folder name.
+     */
+    @Test
+    public void testUtf7() throws Exception {
+	IMAPResponse response = new IMAPResponse(
+	    "* NAMESPACE ((\"\" \"/\")) " +	// personal
+	    "((\"~\" \"/\")) " +		// other users
+	    "((\"#shared/\" \"/\")" +		// shared
+		"(\"" + utf7Folder + "\" \"/\")" +
+		"(\"#ftp/\" \"/\")" +
+		"(\"#news.\" \".\"))",
+	    false);
+	Namespaces ns = new Namespaces(response);
+	assertEquals(1, ns.personal.length);
+	assertEquals("", ns.personal[0].prefix);
+	assertEquals('/', ns.personal[0].delimiter);
+	assertEquals(1, ns.otherUsers.length);
+	assertEquals("~", ns.otherUsers[0].prefix);
+	assertEquals('/', ns.otherUsers[0].delimiter);
+	assertEquals(4, ns.shared.length);
+	assertEquals("#shared/", ns.shared[0].prefix);
+	assertEquals('/', ns.shared[0].delimiter);
+	assertEquals(utf8Folder, ns.shared[1].prefix);
+	assertEquals('/', ns.shared[1].delimiter);
+	assertEquals("#ftp/", ns.shared[2].prefix);
+	assertEquals('/', ns.shared[2].delimiter);
+	assertEquals("#news.", ns.shared[3].prefix);
+	assertEquals('.', ns.shared[3].delimiter);
+    }
+
+    /**
+     * Test a NAMESPACE response with a UTF-8 folder name.
+     */
+    @Test
+    public void testUtf8() throws Exception {
+	IMAPResponse response = new IMAPResponse(
+	    "* NAMESPACE ((\"\" \"/\")) " +	// personal
+	    "((\"~\" \"/\")) " +		// other users
+	    "((\"#shared/\" \"/\")" +		// shared
+		"(\"" + utf8Folder + "\" \"/\")" +
+		"(\"#ftp/\" \"/\")" +
+		"(\"#news.\" \".\"))",
+	    true);
+	Namespaces ns = new Namespaces(response);
+	assertEquals(1, ns.personal.length);
+	assertEquals("", ns.personal[0].prefix);
+	assertEquals('/', ns.personal[0].delimiter);
+	assertEquals(1, ns.otherUsers.length);
+	assertEquals("~", ns.otherUsers[0].prefix);
+	assertEquals('/', ns.otherUsers[0].delimiter);
+	assertEquals(4, ns.shared.length);
+	assertEquals("#shared/", ns.shared[0].prefix);
+	assertEquals('/', ns.shared[0].delimiter);
+	assertEquals(utf8Folder, ns.shared[1].prefix);
 	assertEquals('/', ns.shared[1].delimiter);
 	assertEquals("#ftp/", ns.shared[2].prefix);
 	assertEquals('/', ns.shared[2].delimiter);

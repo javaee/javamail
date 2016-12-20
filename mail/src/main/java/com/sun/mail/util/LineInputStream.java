@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.util;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * This class is to support reading CRLF terminated lines that
@@ -53,15 +54,25 @@ import java.io.*;
  * this class around any input stream and read bytes from this filter.
  * 
  * @author John Mani
+ * @author Bill Shannon
  */
 
 public class LineInputStream extends FilterInputStream {
 
-    private char[] lineBuffer = null; // reusable byte buffer
+    private boolean allowutf8;
+    private byte[] lineBuffer = null; // reusable byte buffer
     private static int MAX_INCR = 1024*1024;	// 1MB
 
     public LineInputStream(InputStream in) {
+	this(in, false);
+    }
+
+    /**
+     * @since	JavaMail 1.6
+     */
+    public LineInputStream(InputStream in, boolean allowutf8) {
 	super(in);
+	this.allowutf8 = allowutf8;
     }
 
     /**
@@ -78,12 +89,13 @@ public class LineInputStream extends FilterInputStream {
      * @return		the line
      * @exception	IOException	for I/O errors
      */
+    @SuppressWarnings("deprecation")	// for old String constructor
     public String readLine() throws IOException {
 	//InputStream in = this.in;
-	char[] buf = lineBuffer;
+	byte[] buf = lineBuffer;
 
 	if (buf == null)
-	    buf = lineBuffer = new char[128];
+	    buf = lineBuffer = new byte[128];
 
 	int c1;
 	int room = buf.length;
@@ -132,19 +144,22 @@ public class LineInputStream extends FilterInputStream {
 	    // .. Insert the byte into our byte buffer
 	    if (--room < 0) { // No room, need to grow.
 		if (buf.length < MAX_INCR)
-		    buf = new char[buf.length * 2];
+		    buf = new byte[buf.length * 2];
 		else
-		    buf = new char[buf.length + MAX_INCR];
+		    buf = new byte[buf.length + MAX_INCR];
 		room = buf.length - offset - 1;
 		System.arraycopy(lineBuffer, 0, buf, 0, offset);
 		lineBuffer = buf;
 	    }
-	    buf[offset++] = (char)c1;
+	    buf[offset++] = (byte)c1;
 	}
 
 	if ((c1 == -1) && (offset == 0))
 	    return null;
-	
-	return String.copyValueOf(buf, 0, offset);
+
+	if (allowutf8)
+	    return new String(buf, 0, offset, StandardCharsets.UTF_8);
+	else
+	    return new String(buf, 0, 0, offset);
     }
 }

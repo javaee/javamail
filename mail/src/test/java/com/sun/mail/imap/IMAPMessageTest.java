@@ -257,9 +257,9 @@ public final class IMAPMessageTest {
 	long size = 0;
 
 	@Override
-        public void examine() throws IOException {
+        public void examine(String line) throws IOException {
 	    numberOfMessages = 1;
-	    super.examine();
+	    super.examine(line);
 	}
 
 	@Override

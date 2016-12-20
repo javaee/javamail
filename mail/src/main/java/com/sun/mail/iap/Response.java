@@ -42,13 +42,16 @@ package com.sun.mail.iap;
 
 import java.io.*;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
+
 import com.sun.mail.util.*;
 
 /**
  * This class represents a response obtained from the input stream
  * of an IMAP server.
  *
- * @author  John Mani
+ * @author John Mani
+ * @author Bill Shannon
  */
 
 public class Response {
@@ -60,6 +63,8 @@ public class Response {
     protected String tag = null;
     /** @since JavaMail 1.5.4 */
     protected Exception ex;
+
+    private boolean utf8;
 
     private static final int increment = 100;
 
@@ -96,8 +101,21 @@ public class Response {
     private static String ASTRING_CHAR_DELIM = " (){%*\"\\";
 
     public Response(String s) {
-	buffer = ASCIIUtility.getBytes(s);
+	this(s, true);
+    }
+
+    /**
+     * Constructor for testing.
+     *
+     * @since	JavaMail 1.6.0
+     */
+    public Response(String s, boolean supportsUtf8) {
+	if (supportsUtf8)
+	    buffer = s.getBytes(StandardCharsets.UTF_8);
+	else
+	    buffer = s.getBytes(StandardCharsets.US_ASCII);
 	size = buffer.length;
+	utf8 = supportsUtf8;
 	parse();
     }
 
@@ -114,6 +132,7 @@ public class Response {
 	ByteArray response = p.getInputStream().readResponse(ba);
 	buffer = response.getBytes();
 	size = response.getCount() - 2; // Skip the terminating CRLF
+	utf8 = p.supportsUtf8();
 
 	parse();
     }
@@ -145,6 +164,15 @@ public class Response {
 	r.type |= SYNTHETIC;
 	r.ex = ex;
 	return r;
+    }
+
+    /**
+     * Does the server support UTF-8?
+     *
+     * @since	JavaMail 1.6.0
+     */
+    public boolean supportsUtf8() {
+	return utf8;
     }
 
     private void parse() {
@@ -261,7 +289,7 @@ public class Response {
 	       delim.indexOf((char)b) < 0 && b >= ' ' && b != 0x7f)
 	    index++;
 
-	return ASCIIUtility.toString(buffer, start, index);
+	return toString(buffer, start, index);
     }
 
     /**
@@ -282,7 +310,7 @@ public class Response {
 	while (index < size && buffer[index] != delim)
 	    index++;
 
-	return ASCIIUtility.toString(buffer, start, index);
+	return toString(buffer, start, index);
     }
 
     public String[] readStringList() {
@@ -458,7 +486,7 @@ public class Response {
 		index++; // skip past the terminating quote
 
 	    if (returnString) 
-		return ASCIIUtility.toString(buffer, start, copyto);
+		return toString(buffer, start, copyto);
 	    else
 		return new ByteArray(buffer, start, copyto-start);
 	} else if (b == '{') { // Literal
@@ -479,7 +507,7 @@ public class Response {
 	    index = start + count; // position index to beyond the literal
 
 	    if (returnString) // return as String
-		return ASCIIUtility.toString(buffer, start, start + count);
+		return toString(buffer, start, start + count);
 	    else
 	    	return new ByteArray(buffer, start, count);
 	} else if (parseAtoms) { // parse as ASTRING-CHARs
@@ -495,6 +523,12 @@ public class Response {
 	    return null;
 	}
 	return null; // Error
+    }
+
+    private String toString(byte[] buffer, int start, int end) {
+	return utf8 ?
+		new String(buffer, start, end - start, StandardCharsets.UTF_8) :
+		ASCIIUtility.toString(buffer, start, end);
     }
 
     public int getType() {
@@ -550,7 +584,7 @@ public class Response {
      */
     public String getRest() {
 	skipSpaces();
-	return ASCIIUtility.toString(buffer, index, size);
+	return toString(buffer, index, size);
     }
 
     /**
@@ -572,7 +606,7 @@ public class Response {
 
     @Override
     public String toString() {
-	return ASCIIUtility.toString(buffer, 0, size);
+	return toString(buffer, 0, size);
     }
 
 }

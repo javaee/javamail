@@ -43,6 +43,7 @@ package com.sun.mail.iap;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.*;
+import java.nio.charset.Charset;
 import com.sun.mail.util.*;
 
 /**
@@ -107,6 +108,23 @@ public class Argument {
     }
 
     /**
+     * Convert the given string into bytes in the specified
+     * charset, and write the bytes out as an ASTRING
+     *
+     * @param	s	String to write out
+     * @param	charset	the charset
+     * @return		this
+     * @since	JavaMail 1.6.0
+     */
+    public Argument writeString(String s, Charset charset) {
+	if (charset == null) // convenience
+	    writeString(s);
+	else
+	    items.add(new AString(s.getBytes(charset)));
+	return this;
+    }
+
+    /**
      * Write out given string as an NSTRING, depending on the type
      * of the characters inside the string. The string should
      * contain only ASCII characters. <p>
@@ -135,6 +153,25 @@ public class Argument {
      */
     public Argument writeNString(String s, String charset)
 		throws UnsupportedEncodingException {
+	if (s == null)
+	    items.add(new NString(null));
+	else if (charset == null) // convenience
+	    writeString(s);
+	else
+	    items.add(new NString(s.getBytes(charset)));
+	return this;
+    }
+
+    /**
+     * Convert the given string into bytes in the specified
+     * charset, and write the bytes out as an NSTRING
+     *
+     * @param	s	String to write out
+     * @param	charset	the charset
+     * @return		this
+     * @since	JavaMail 1.6.0
+     */
+    public Argument writeNString(String s, Charset charset) {
 	if (s == null)
 	    items.add(new NString(null));
 	else if (charset == null) // convenience
@@ -286,17 +323,20 @@ public class Argument {
         // if 0 length, send as quoted-string
         boolean quote = len == 0 ? true : doQuote;
 	boolean escape = false;
- 	
+	boolean utf8 = protocol.supportsUtf8();
+
 	byte b;
 	for (int i = 0; i < len; i++) {
 	    b = bytes[i];
-	    if (b == '\0' || b == '\r' || b == '\n' || ((b & 0xff) > 0177)) {
+	    if (b == '\0' || b == '\r' || b == '\n' ||
+		    (!utf8 && ((b & 0xff) > 0177))) {
 		// NUL, CR or LF means the bytes need to be sent as literals
 		literal(bytes, protocol);
 		return;
 	    }
 	    if (b == '*' || b == '%' || b == '(' || b == ')' || b == '{' ||
-		b == '"' || b == '\\' || ((b & 0xff) <= ' ')) {
+		    b == '"' || b == '\\' ||
+		    ((b & 0xff) <= ' ') || ((b & 0xff) > 0177)) {
 		quote = true;
 		if (b == '"' || b == '\\') // need to escape these characters
 		    escape = true;

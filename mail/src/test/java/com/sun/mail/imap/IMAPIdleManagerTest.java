@@ -245,9 +245,9 @@ public final class IMAPIdleManagerTest {
      */
     private static abstract class IMAPHandlerIdle extends IMAPHandler {
 	@Override
-        public void select() throws IOException {
+        public void select(String line) throws IOException {
 	    numberOfMessages = 1;
-	    super.select();
+	    super.select(line);
 	}
 
 	public abstract void waitForIdle() throws InterruptedException;

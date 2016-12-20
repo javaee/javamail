@@ -93,15 +93,31 @@ public class IMAPResponse extends Response {
      * @exception	ProtocolException	for protocol failures
      */
     public IMAPResponse(String r) throws IOException, ProtocolException {
-	super(r);
+	this(r, true);
+    }
+
+    /**
+     * For testing.
+     *
+     * @param	r	the response string
+     * @param	utf8	UTF-8 allowed?
+     * @exception	IOException	for I/O errors
+     * @exception	ProtocolException	for protocol failures
+     * @since	JavaMail 1.6.0
+     */
+    public IMAPResponse(String r, boolean utf8)
+				throws IOException, ProtocolException {
+	super(r, utf8);
 	init();
     }
 
     /**
-     * Read a list of space-separated "flag_extension" sequences and 
+     * Read a list of space-separated "flag-extension" sequences and 
      * return the list as a array of Strings. An empty list is returned
-     * as null.  This is an IMAP-ism, and perhaps this method should 
-     * moved into the IMAP layer.
+     * as null.  Each item is expected to be an atom, possibly preceeded
+     * by a backslash, but we aren't that strict; we just look for strings
+     * separated by spaces and terminated by a right paren.  We assume items
+     * are always ASCII.
      *
      * @return	the list items as a String array
      */

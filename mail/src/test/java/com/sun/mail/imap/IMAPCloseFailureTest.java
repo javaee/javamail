@@ -63,11 +63,11 @@ public final class IMAPCloseFailureTest {
 	static boolean first = true;
 
 	@Override
-	public void examine() throws IOException {
+	public void examine(String line) throws IOException {
 	    if (first)
 		no("mailbox gone");
 	    else
-		super.examine();
+		super.examine(line);
 	    first = false;
 	}
     }
@@ -76,11 +76,11 @@ public final class IMAPCloseFailureTest {
 	static boolean first = true;
 
 	@Override
-	public void examine() throws IOException {
+	public void examine(String line) throws IOException {
 	    if (first)
 		bad("mailbox gone");
 	    else
-		super.examine();
+		super.examine(line);
 	    first = false;
 	}
     }

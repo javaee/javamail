@@ -45,6 +45,7 @@ import java.util.*;
 import java.text.*;
 import java.lang.reflect.*;
 import java.util.logging.Level;
+import java.nio.charset.StandardCharsets;
 
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -91,6 +92,7 @@ public class IMAPProtocol extends Protocol {
     private List<String> authmechs;
     // WARNING: authmechs may be initialized as a result of superclass
     //		constructor, don't initialize it here.
+    private boolean utf8;		// UTF-8 support enabled?
 
     protected SearchSequence searchSequence;
     protected String[] searchCharsets; 	// array of search charsets
@@ -440,6 +442,15 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * Does the server support UTF-8?
+     *
+     * @since JavaMail 1.6.0
+     */
+    public boolean supportsUtf8() {
+	return utf8;
+    }
+
+    /**
      * Close socket connection.
      *
      * This method just makes the Protocol.disconnect() method
@@ -586,7 +597,7 @@ public class IMAPProtocol extends Protocol {
 			s = p;
 		    
 		    // obtain b64 encoded bytes
-		    b64os.write(ASCIIUtility.getBytes(s));
+		    b64os.write(toBytes(s));
 		    b64os.flush(); 	// complete the encoding
 
 		    bos.write(CRLF); 	// CRLF termination
@@ -701,7 +712,7 @@ public class IMAPProtocol extends Protocol {
 				    nullByte + u + nullByte + p;
 
 		    // obtain b64 encoded bytes
-		    b64os.write(ASCIIUtility.getBytes(s));
+		    b64os.write(toBytes(s));
 		    b64os.flush(); 	// complete the encoding
 
 		    bos.write(CRLF); 	// CRLF termination
@@ -807,7 +818,7 @@ public class IMAPProtocol extends Protocol {
 			s = ntlm.generateType3Msg(r.getRest());
 		    }
  
-		    os.write(ASCIIUtility.getBytes(s));
+		    os.write(toBytes(s));
 		    os.write(CRLF); 	// CRLF termination
 		    os.flush(); 	// flush the stream
 		} else if (r.isTagged() && r.getTag().equals(tag))
@@ -882,8 +893,7 @@ public class IMAPProtocol extends Protocol {
 	    args.writeAtom("XOAUTH2");
 	    if (hasCapability("SASL-IR")) {
 		String resp = "user=" + u + "\001auth=Bearer " + p + "\001\001";
-		byte[] ba = BASE64EncoderStream.encode(
-						ASCIIUtility.getBytes(resp));
+		byte[] ba = BASE64EncoderStream.encode(toBytes(resp));
 		String irs = ASCIIUtility.toString(ba, 0, ba.length);
 		args.writeAtom(irs);
 	    }
@@ -903,8 +913,7 @@ public class IMAPProtocol extends Protocol {
 		    // Server challenge ..
 		    String resp = "user=" + u + "\001auth=Bearer " +
 				    p + "\001\001";
-		    byte[] b = BASE64EncoderStream.encode(
-						ASCIIUtility.getBytes(resp));
+		    byte[] b = BASE64EncoderStream.encode(toBytes(resp));
 		    os.write(b);	// write out response
 		    os.write(CRLF); 	// CRLF termination
 		    os.flush(); 	// flush the stream
@@ -1159,6 +1168,21 @@ public class IMAPProtocol extends Protocol {
     }
 
     /**
+     * Encode a mailbox name appropriately depending on whether or not
+     * the server supports UTF-8, and add the encoded name to the
+     * Argument.
+     *
+     * @since	JavaMail 1.6.0
+     */
+    protected void writeMailboxName(Argument args, String name) {
+	if (utf8)
+	    args.writeString(name, StandardCharsets.UTF_8);
+	else
+	    // encode the mbox as per RFC2060
+	    args.writeString(BASE64MailboxEncoder.encode(name));
+    }
+
+    /**
      * SELECT Command.
      *
      * @param	mbox	the mailbox name
@@ -1183,11 +1207,8 @@ public class IMAPProtocol extends Protocol {
      */
     public MailboxInfo select(String mbox, ResyncData rd)
 				throws ProtocolException {
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	if (rd != null) {
 	    if (rd == ResyncData.CONDSTORE) {
@@ -1248,11 +1269,8 @@ public class IMAPProtocol extends Protocol {
      */
     public MailboxInfo examine(String mbox, ResyncData rd)
 				throws ProtocolException {
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	if (rd != null) {
 	    if (rd == ResyncData.CONDSTORE) {
@@ -1313,6 +1331,9 @@ public class IMAPProtocol extends Protocol {
 	if (enabled == null)
 	    enabled = new HashSet<>();
 	enabled.add(cap.toUpperCase(Locale.ENGLISH));
+
+	// update the utf8 flag
+	utf8 = isEnabled("UTF8=ACCEPT");
     }
 
     /**
@@ -1359,11 +1380,8 @@ public class IMAPProtocol extends Protocol {
 	    // does support this.
 	    throw new BadCommandException("STATUS not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Argument itemArgs = new Argument();
 	if (items == null)
@@ -1409,11 +1427,8 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.3.3"
      */
     public void create(String mbox) throws ProtocolException {
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	simpleCommand("CREATE", args);
     }
@@ -1426,11 +1441,8 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.3.4"
      */
     public void delete(String mbox) throws ProtocolException {
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	simpleCommand("DELETE", args);
     }
@@ -1444,13 +1456,9 @@ public class IMAPProtocol extends Protocol {
      * @see "RFC2060, section 6.3.5"
      */
     public void rename(String o, String n) throws ProtocolException {
-	// encode the mbox as per RFC2060
-	o = BASE64MailboxEncoder.encode(o);
-	n = BASE64MailboxEncoder.encode(n);
-
 	Argument args = new Argument();	
-	args.writeString(o);
-	args.writeString(n);
+	writeMailboxName(args, o);
+	writeMailboxName(args, n);
 
 	simpleCommand("RENAME", args);
     }
@@ -1464,9 +1472,7 @@ public class IMAPProtocol extends Protocol {
      */
     public void subscribe(String mbox) throws ProtocolException {
 	Argument args = new Argument();	
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	simpleCommand("SUBSCRIBE", args);
     }
@@ -1480,9 +1486,7 @@ public class IMAPProtocol extends Protocol {
      */
     public void unsubscribe(String mbox) throws ProtocolException {
 	Argument args = new Argument();	
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	simpleCommand("UNSUBSCRIBE", args);
     }
@@ -1528,13 +1532,9 @@ public class IMAPProtocol extends Protocol {
      */
     protected ListInfo[] doList(String cmd, String ref, String pat)
 			throws ProtocolException {
-	// encode the mbox as per RFC2060
-	ref = BASE64MailboxEncoder.encode(ref);
-	pat = BASE64MailboxEncoder.encode(pat);
-
 	Argument args = new Argument();	
-	args.writeString(ref);
-	args.writeString(pat);
+	writeMailboxName(args, ref);
+	writeMailboxName(args, pat);
 
 	Response[] r = command(cmd, args);
 
@@ -1597,11 +1597,8 @@ public class IMAPProtocol extends Protocol {
 
     public AppendUID appenduid(String mbox, Flags f, Date d,
 			Literal data, boolean uid) throws ProtocolException {
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	if (f != null) { // set Flags in appended message
 	    // can't set the \Recent flag in APPEND
@@ -2212,12 +2209,10 @@ public class IMAPProtocol extends Protocol {
 				throws ProtocolException {
 	if (uid && !hasCapability("UIDPLUS")) 
 	    throw new BadCommandException("UIDPLUS not supported");
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
 
 	Argument args = new Argument();	
 	args.writeAtom(msgSequence);
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Response[] r = command("COPY", args);
 
@@ -2310,12 +2305,10 @@ public class IMAPProtocol extends Protocol {
 	    throw new BadCommandException("MOVE not supported");
 	if (uid && !hasCapability("UIDPLUS")) 
 	    throw new BadCommandException("UIDPLUS not supported");
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
 
 	Argument args = new Argument();	
 	args.writeAtom(msgSequence);
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Response[] r = command("MOVE", args);
 
@@ -2737,11 +2730,8 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("QUOTA")) 
 	    throw new BadCommandException("GETQUOTAROOT not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Response[] r = command("GETQUOTAROOT", args);
 
@@ -2810,7 +2800,7 @@ public class IMAPProtocol extends Protocol {
 	    throw new BadCommandException("QUOTA not supported");
 
 	Argument args = new Argument();	
-	args.writeString(root);
+	args.writeString(root);		// XXX - could be UTF-8?
 
 	Response[] r = command("GETQUOTA", args);
 
@@ -2853,7 +2843,7 @@ public class IMAPProtocol extends Protocol {
 	    throw new BadCommandException("QUOTA not supported");
 
 	Argument args = new Argument();	
-	args.writeString(quota.quotaRoot);
+	args.writeString(quota.quotaRoot);	// XXX - could be UTF-8?
 	Argument qargs = new Argument();	
 	if (quota.resources != null) {
 	    for (int i = 0; i < quota.resources.length; i++) {
@@ -2940,11 +2930,8 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("ACL")) 
 	    throw new BadCommandException("ACL not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 	args.writeString(acl.getName());
 	String rights = acl.getRights().toString();
 	if (modifier == '+' || modifier == '-')
@@ -2971,12 +2958,9 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("ACL")) 
 	    throw new BadCommandException("ACL not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
-	args.writeString(user);
+	writeMailboxName(args, mbox);
+	args.writeString(user);		// XXX - could be UTF-8?
 
 	Response[] r = command("DELETEACL", args);
 	Response response = r[r.length-1];
@@ -2998,11 +2982,8 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("ACL")) 
 	    throw new BadCommandException("ACL not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Response[] r = command("GETACL", args);
 	Response response = r[r.length-1];
@@ -3053,12 +3034,9 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("ACL")) 
 	    throw new BadCommandException("ACL not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
-	args.writeString(user);
+	writeMailboxName(args, mbox);
+	args.writeString(user);		// XXX - could be UTF-8?
 
 	Response[] r = command("LISTRIGHTS", args);
 	Response response = r[r.length-1];
@@ -3104,11 +3082,8 @@ public class IMAPProtocol extends Protocol {
 	if (!hasCapability("ACL")) 
 	    throw new BadCommandException("ACL not supported");
 
-	// encode the mbox as per RFC2060
-	mbox = BASE64MailboxEncoder.encode(mbox);
-
 	Argument args = new Argument();	
-	args.writeString(mbox);
+	writeMailboxName(args, mbox);
 
 	Response[] r = command("MYRIGHTS", args);
 	Response response = r[r.length-1];
@@ -3326,5 +3301,17 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 	handleResult(response);
 	return id == null ? null : id.getServerParams();
+    }
+
+    /**
+     * Convert the String to either ASCII or UTF-8 bytes
+     * depending on the utf8 flag.
+     */
+    private byte[] toBytes(String s) {
+	if (utf8)
+	    return s.getBytes(StandardCharsets.UTF_8);
+	else
+	    // don't use StandardCharsets.US_ASCII because it rejects non-ASCII
+	    return ASCIIUtility.getBytes(s);
     }
 }

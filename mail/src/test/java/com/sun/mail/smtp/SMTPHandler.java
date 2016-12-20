@@ -90,7 +90,7 @@ public class SMTPHandler extends ProtocolHandler {
      */
     @Override
     public void handleCommand() throws IOException {
-        currentLine = reader.readLine();
+        currentLine = readLine();
 
         if (currentLine == null) {
 	    // XXX - often happens when shutting down
@@ -101,7 +101,6 @@ public class SMTPHandler extends ProtocolHandler {
 
         final StringTokenizer st = new StringTokenizer(currentLine, " ");
         final String commandName = st.nextToken().toUpperCase();
-        final String arg = st.hasMoreTokens() ? st.nextToken() : null;
         if (commandName == null) {
             LOGGER.severe("Command name is empty!");
             exit();
@@ -113,9 +112,9 @@ public class SMTPHandler extends ProtocolHandler {
         } else if (commandName.equals("EHLO")) {
             ehlo();
         } else if (commandName.equals("MAIL")) {
-            mail(arg);
+            mail(currentLine);
         } else if (commandName.equals("RCPT")) {
-            rcpt();
+            rcpt(currentLine);
         } else if (commandName.equals("DATA")) {
             data();
         } else if (commandName.equals("NOOP")) {
@@ -133,7 +132,7 @@ public class SMTPHandler extends ProtocolHandler {
     }
 
     protected String readLine() throws IOException {
-        currentLine = reader.readLine();
+        currentLine = super.readLine();
 
         if (currentLine == null) {
             LOGGER.severe("Current line is null!");
@@ -169,7 +168,7 @@ public class SMTPHandler extends ProtocolHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
-    public void mail(String arg) throws IOException {
+    public void mail(String line) throws IOException {
 	ok();
     }
 
@@ -179,7 +178,7 @@ public class SMTPHandler extends ProtocolHandler {
      * @throws IOException
      *             unable to read/write to socket
      */
-    public void rcpt() throws IOException {
+    public void rcpt(String line) throws IOException {
 	ok();
     }
 
@@ -200,7 +199,7 @@ public class SMTPHandler extends ProtocolHandler {
      */
     protected void readMessage() throws IOException {
 	String line;
-	while ((line = reader.readLine()) != null) {
+	while ((line = super.readLine()) != null) {
 	    if (line.equals("."))
 		break;
 	}

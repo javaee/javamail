@@ -121,7 +121,7 @@ public class POP3Handler extends ProtocolHandler {
      */
     @Override
     public void handleCommand() throws IOException {
-        this.currentLine = this.reader.readLine();
+        this.currentLine = readLine();
 
         if (this.currentLine == null) {
 	    // probably just EOF because the socket was closed

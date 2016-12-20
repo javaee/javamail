@@ -97,6 +97,8 @@ public class MimeBodyPart extends BodyPart implements MimePart {
     private static final boolean ignoreMultipartEncoding =
 	PropUtil.getBooleanSystemProperty(
 	    "mail.mime.ignoremultipartencoding", true);
+    private static final boolean allowutf8 =
+	PropUtil.getBooleanSystemProperty("mail.mime.allowutf8", true);
 
     // Paranoia:
     // allow this last minute change to be disabled if it causes problems
@@ -1643,7 +1645,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 	if (os instanceof LineOutputStream) {
 	    los = (LineOutputStream) os;
 	} else {
-	    los = new LineOutputStream(os);
+	    los = new LineOutputStream(os, allowutf8);
 	}
 
 	// First, write out the header

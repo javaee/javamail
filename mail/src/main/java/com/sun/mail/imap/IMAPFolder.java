@@ -2538,6 +2538,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
             releaseStoreProtocol(p);
         }
 
+	if (status == null)
+	    throw new MessagingException("Cannot obtain UIDValidity");
 	return status.uidvalidity;
     }
 
@@ -2583,6 +2585,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
             releaseStoreProtocol(p);
         }
 
+	if (status == null)
+	    throw new MessagingException("Cannot obtain UIDNext");
 	return status.uidnext;
     }
 
@@ -2816,6 +2820,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
             releaseStoreProtocol(p);
         }
 
+	if (status == null)
+	    throw new MessagingException("Cannot obtain HIGHESTMODSEQ");
 	return status.highestmodseq;
     }
 
@@ -3431,7 +3437,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 		p = getStoreProtocol();	// XXX
 		String[] items = { item };
 		status = p.status(fullName, items);
-		return status.getItem(item);
+		return status != null ? status.getItem(item) : -1;
 	    } catch (BadCommandException bex) {
 		// doesn't support STATUS, probably vanilla IMAP4 ..
 		// Could EXAMINE, SEARCH for UNREAD messages and

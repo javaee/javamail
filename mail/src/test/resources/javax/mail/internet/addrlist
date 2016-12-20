@@ -441,8 +441,6 @@ Cc: webmail.hinet.net@nwkea-mail-1.sun.com (中華網頁郵件),
 Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``webmail.hinet.net@nwkea-mail-1.sun.com (?????????l??),
    www.adslexpress.com.tw--?????q?H?[?o??-0@nwkea-mail-1.sun.com,
    www.cityfamily.com.tw---?????P???|-0@nwkea-mail-1.sun.com'' at position 181
-From: 愛家中心@patan.sun.com
-Expect: Exception javax.mail.internet.AddressException: Local address contains control or whitespace in string ``?R?a????@patan.sun.com''
 To: www.adslexpress.com.tw--中華電信加油站-0@patan.sun.com
 Expect: Exception javax.mail.internet.AddressException: Missing ']' in string ``www.adslexpress.com.tw--?????q?H?[?o??-0@patan.sun.com'' at position 54
 To: Giant.White.Beans;Great.Northern.Beans;Lima.Beans;Navy.Beans@4email-03;;;;;;;;;;;;;;;;;;
