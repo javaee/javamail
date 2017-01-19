@@ -585,3 +585,55 @@ mail.mime.allowutf8:
   If set to "true", UTF-8 strings are allowed in message headers,
   e.g., in addresses.  This should only be set if the mail server also
   supports UTF-8.
+
+
+===================================================================
+
+10. Look for resource files in <java.home>/conf on JDK 1.9 (8748)
+-----------------------------------------------------------------
+
+JDK 1.9 adds a new <java.home>/conf directory to hold configuration
+files that were previously stored in <java.home>/lib.  When using
+JavaMail on JDK 1.9, it should look for its (optional) configuration
+files in the <java.home>/conf directory.
+
+The specification of the Session class is changed as follows:
+
+	/**
+	 * The Session class represents a mail session and is not subclassed.
+	 * It collects together properties and defaults used by the mail API's.
+	 * A single default session can be shared by multiple applications on
+	 * the desktop.  Unshared sessions can also be created. <p>
+	 *
+	 * The Session class provides access to the protocol providers that
+	 * implement the <code>Store</code>, <code>Transport</code>, and related
+	 * classes.  The protocol providers are configured using the following
+	 * files:
+	 * <ul>
+	 *  <li> <code>javamail.providers</code> and
+	 *      <code>javamail.default.providers</code> </li>
+	 *  <li> <code>javamail.address.map</code> and
+	 *      <code>javamail.default.address.map</code> </li>
+	 * </ul>
+	 * <p>
+	 * Each <code>javamail.</code><i>X</i> resource file is searched for
+	 * using three methods in the following order:
+	 * <ol>
+	 *  <li> <code><i>java.home</i>/<i>conf</i>/javamail.</code><i>X</i> </li>
+	 *  <li> <code>META-INF/javamail.</code><i>X</i> </li>
+	 *  <li> <code>META-INF/javamail.default.</code><i>X</i> </li>
+	 * </ol>
+	 * <p>
+	 * (Where <i>java.home</i> is the value of the "java.home" System
+	 * property and <i>conf</i> is the directory named "conf" if it exists,
+	 * otherwise the directory named "lib"; the "conf" directory was
+	 * introduced in JDK 1.9.)
+	 * <p>
+	 * The first method allows the user to include their own version of the
+	 * resource file by placing it in the <i>conf</i> directory where the
+	 * <code>java.home</code> property points.  The second method allows an
+	 * application that uses the JavaMail APIs to include their own resource
+	 * files in their application's or jar file's <code>META-INF</code>
+	 * directory.  The <code>javamail.default.</code><i>X</i> default files
+	 * are part of the JavaMail <code>mail.jar</code> file and should not be
+	 * supplied by users. <p>

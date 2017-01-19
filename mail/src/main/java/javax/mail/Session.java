@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,18 +77,24 @@ import java.util.List;
  * Each <code>javamail.</code><i>X</i> resource file is searched for using
  * three methods in the following order:
  * <ol>
- *  <li> <code>java.home/lib/javamail.</code><i>X</i> </li>
+ *  <li> <code><i>java.home</i>/<i>conf</i>/javamail.</code><i>X</i> </li>
  *  <li> <code>META-INF/javamail.</code><i>X</i> </li>
  *  <li> <code>META-INF/javamail.default.</code><i>X</i> </li>
  * </ol>
  * <p>
+ * (Where <i>java.home</i> is the value of the "java.home" System property
+ * and <i>conf</i> is the directory named "conf" if it exists,
+ * otherwise the directory named "lib"; the "conf" directory was
+ * introduced in JDK 1.9.)
+ * <p>
  * The first method allows the user to include their own version of the
- * resource file by placing it in the <code>lib</code> directory where the
+ * resource file by placing it in the <i>conf</i> directory where the
  * <code>java.home</code> property points.  The second method allows an
  * application that uses the JavaMail APIs to include their own resource
  * files in their application's or jar file's <code>META-INF</code>
  * directory.  The <code>javamail.default.</code><i>X</i> default files
- * are part of the JavaMail <code>mail.jar</code> file. <p>
+ * are part of the JavaMail <code>mail.jar</code> file and should not be
+ * supplied by users. <p>
  *
  * File location depends upon how the <code>ClassLoader</code> method
  * <code>getResource</code> is implemented.  Usually, the
@@ -202,6 +208,24 @@ public final class Session {
 
     // The default session.
     private static Session defaultSession = null;
+
+    private static final String confDir;
+
+    static {
+	String dir = null;
+	try {
+	    String home = System.getProperty("java.home");
+	    String newdir = home + File.separator + "conf";
+	    File conf = new File(newdir);
+	    if (conf.exists())
+		dir = newdir + File.separator;
+	    else
+		dir = home + File.separator + "lib" + File.separator;
+	} catch (Exception ex) {
+	    // ignore any exceptions
+	}
+	confDir = dir;
+    }
 
     // Constructor is not public
     private Session(Properties props, Authenticator authenticator) {
@@ -921,21 +945,16 @@ public final class Session {
 	    }
 	};
 
-	// load system-wide javamail.providers from the <java.home>/lib dir
-	try {
-	    String res = System.getProperty("java.home") + 
-				File.separator + "lib" + 
-				File.separator + "javamail.providers";
-	    loadFile(res, loader);
-	} catch (SecurityException sex) {
-	    logger.log(Level.CONFIG, "can't get java.home", sex);
-	}
+	// load system-wide javamail.providers from the
+	// <java.home>/{conf,lib} directory
+	if (confDir != null)
+	    loadFile(confDir + "javamail.providers", loader);
 
 	// load the META-INF/javamail.providers file supplied by an application
 	loadAllResources("META-INF/javamail.providers", cl, loader);
 
 	// load default META-INF/javamail.default.providers from mail.jar file
-	loadResource("/META-INF/javamail.default.providers", cl, loader);
+	loadResource("/META-INF/javamail.default.providers", cl, loader, true);
 
 	if (providers.size() == 0) {
 	    logger.config("failed to load any providers, using defaults");
@@ -1051,20 +1070,15 @@ public final class Session {
 	};
 
 	// load default META-INF/javamail.default.address.map from mail.jar
-	loadResource("/META-INF/javamail.default.address.map", cl, loader);
+	loadResource("/META-INF/javamail.default.address.map", cl, loader, true);
 
 	// load the META-INF/javamail.address.map file supplied by an app
 	loadAllResources("META-INF/javamail.address.map", cl, loader);
 
-	// load system-wide javamail.address.map from the <java.home>/lib dir
-	try {
-	    String res = System.getProperty("java.home") + 
-				File.separator + "lib" + 
-				File.separator + "javamail.address.map";
-	    loadFile(res, loader);
-	} catch (SecurityException sex) {
-	    logger.log(Level.CONFIG, "can't get java.home", sex);
-	}
+	// load system-wide javamail.address.map from the
+	// <java.home>/{conf,lib} directory
+	if (confDir != null)
+	    loadFile(confDir + "javamail.address.map", loader);
 
 	if (addressMap.isEmpty()) {
 	    logger.config("failed to load address map, using defaults");
@@ -1119,7 +1133,8 @@ public final class Session {
     /**
      * Load from the named resource.
      */
-    private void loadResource(String name, Class<?> cl, StreamLoader loader) {
+    private void loadResource(String name, Class<?> cl, StreamLoader loader,
+				boolean expected) {
 	InputStream clis = null;
 	try {
 	    clis = getResourceAsStream(cl, name);
@@ -1128,9 +1143,9 @@ public final class Session {
 		logger.log(Level.CONFIG, "successfully loaded resource: {0}",
 					    name);
 	    } else {
-		/*
-		logger.log(Level.CONFIG, "not loading resource: {0}", name);
-		*/
+		if (expected)
+		    logger.log(Level.WARNING,
+				    "expected resource not found: {0}", name);
 	    }
 	} catch (IOException e) {
 	    logger.log(Level.CONFIG, "Exception loading resource", e);
@@ -1202,7 +1217,7 @@ public final class Session {
 	    /*
 	    logger.config("!anyLoaded");
 	    */
-	    loadResource("/" + name, cl, loader);
+	    loadResource("/" + name, cl, loader, false);
 	}
     }
 
