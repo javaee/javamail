@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -1000,9 +1000,9 @@ public class MimeMessage extends Message implements MimePart {
      * @exception	MessagingException for failures
      */  
     @Override
-     public int getLineCount() throws MessagingException {
+    public int getLineCount() throws MessagingException {
 	return -1;
-     }
+    }
 
     /**
      * Returns the value of the RFC 822 "Content-Type" header field. 
