@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -100,6 +100,8 @@ import java.util.*;
 public class Flags implements Cloneable, Serializable {
 
     private int system_flags = 0;
+    // used as a case-independent Set that preserves the original case,
+    // the key is the lowercase flag name and the value is the original
     private Hashtable<String, String> user_flags = null;
 
     private final static int ANSWERED_BIT 	= 0x01;
@@ -298,6 +300,45 @@ public class Flags implements Cloneable, Serializable {
     }
 
     /**
+     * Remove any flags <strong>not</strong> in the given Flags object.
+     * Useful for clearing flags not supported by a server.  If the
+     * given Flags object includes the Flags.Flag.USER flag, all user
+     * flags in this Flags object are retained.
+     *
+     * @param	f	the flags to keep
+     * @return		true if this Flags object changed
+     * @since		JavaMail 1.6
+     */
+    public boolean retainAll(Flags f) {
+	boolean changed = false;
+	int sf = system_flags & f.system_flags;
+	if (system_flags != sf) {
+	    system_flags = sf;
+	    changed = true;
+	}
+
+	// if we have user flags, and the USER flag is not set in "f",
+	// determine which user flags to clear
+	if (user_flags != null && (f.system_flags & USER_BIT) == 0) {
+	    if (f.user_flags != null) {
+		Enumeration<String> e = user_flags.keys();
+		while (e.hasMoreElements()) {
+		    String key = e.nextElement();
+		    if (!f.user_flags.containsKey(key)) {
+			user_flags.remove(key);
+			changed = true;
+		    }
+		}
+	    } else {
+		// if anything in user_flags, throw them away
+		changed = user_flags.size() > 0;
+		user_flags = null;
+	    }
+	}
+	return changed;
+    }
+
+    /**
      * Check whether the specified system flag is present in this Flags object.
      *
      * @param	flag	the flag to test
@@ -366,18 +407,12 @@ public class Flags implements Cloneable, Serializable {
 	    return false;
 
 	// Check user flags
-	if (f.user_flags == null && this.user_flags == null)
+	int size = this.user_flags == null ? 0 : this.user_flags.size();
+	int fsize = f.user_flags == null ? 0 : f.user_flags.size();
+	if (size == 0 && fsize == 0)
 	    return true;
-	if (f.user_flags != null && this.user_flags != null &&
-		f.user_flags.size() == this.user_flags.size()) {
-	    Enumeration<String> e = f.user_flags.keys();
-
-	    while (e.hasMoreElements()) {
-		if (!this.user_flags.containsKey(e.nextElement()))
-		    return false;
-	    }
-	    return true;
-	}
+	if (f.user_flags != null && this.user_flags != null && fsize == size)
+	    return user_flags.keySet().equals(f.user_flags.keySet());
 
 	return false;
     }
@@ -447,6 +482,24 @@ public class Flags implements Cloneable, Serializable {
     }
 
     /**
+     * Clear all of the system flags.
+     *
+     * @since	JavaMail 1.6
+     */
+    public void clearSystemFlags() {
+	system_flags = 0;
+    }
+
+    /**
+     * Clear all of the user flags.
+     *
+     * @since	JavaMail 1.6
+     */
+    public void clearUserFlags() {
+	user_flags = null;
+    }
+
+    /**
      * Returns a clone of this Flags object.
      */
     @SuppressWarnings("unchecked")
@@ -461,6 +514,47 @@ public class Flags implements Cloneable, Serializable {
 	if (this.user_flags != null)
 	    f.user_flags = (Hashtable)this.user_flags.clone();
 	return f;
+    }
+
+    /**
+     * Return a string representation of this Flags object.
+     * Note that the exact format of the string is subject to change.
+     */
+    public String toString() {
+	StringBuilder sb = new StringBuilder();
+
+	if ((system_flags & ANSWERED_BIT) != 0)
+	    sb.append("\\Answered ");
+	if ((system_flags & DELETED_BIT) != 0)
+	    sb.append("\\Deleted ");
+	if ((system_flags & DRAFT_BIT) != 0)
+	    sb.append("\\Draft ");
+	if ((system_flags & FLAGGED_BIT) != 0)
+	    sb.append("\\Flagged ");
+	if ((system_flags & RECENT_BIT) != 0)
+	    sb.append("\\Recent ");
+	if ((system_flags & SEEN_BIT) != 0)
+	    sb.append("\\Seen ");
+	if ((system_flags & USER_BIT) != 0)
+	    sb.append("\\* ");
+
+	boolean first = true;
+	if (user_flags != null) {
+	    Enumeration<String> e = user_flags.elements();
+
+	    while (e.hasMoreElements()) {
+		if (first)
+		    first = false;
+		else
+		    sb.append(' ');
+		sb.append(e.nextElement());
+	    }
+	}
+
+	if (first && sb.length() > 0)
+	    sb.setLength(sb.length() - 1);	// smash trailing space
+
+	return sb.toString();
     }
 
     /*****

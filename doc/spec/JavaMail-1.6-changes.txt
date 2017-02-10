@@ -637,3 +637,41 @@ The specification of the Session class is changed as follows:
 	 * directory.  The <code>javamail.default.</code><i>X</i> default files
 	 * are part of the JavaMail <code>mail.jar</code> file and should not be
 	 * supplied by users. <p>
+
+
+===================================================================
+
+11. Flags convenience methods (8822)
+------------------------------------
+
+When copying messages from one server to another, it's sometimes necessary
+to adjust the message flags based on the capabilities of the target server.
+It would be convenient if the Flags class had methods to clear any flags
+not supported by the target server, to clear all user flags, and to clear
+all system flags.
+
+	/**
+	 * Remove any flags <strong>not</strong> in the given Flags object.
+	 * Useful for clearing flags not supported by a server.  If the
+	 * given Flags object includes the Flags.Flag.USER flag, all user
+	 * flags in this Flags object are retained.
+	 *
+	 * @param	f	the flags to keep
+	 * @return		true if this Flags object changed
+	 * @since		JavaMail 1.6
+	 */
+	public boolean retainAll(Flags f)
+
+	/**
+	 * Clear all of the system flags.
+	 *
+	 * @since	JavaMail 1.6
+	 */
+	public void clearSystemFlags()
+
+	/**
+	 * Clear all of the user flags.
+	 *
+	 * @since	JavaMail 1.6
+	 */
+	public void clearUserFlags()
