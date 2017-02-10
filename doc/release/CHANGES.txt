@@ -46,6 +46,7 @@ K  8550	use of YoungerTerm/OlderTerm on server without WITHIN support fails
 K  8568	The UIDFolder interface should have a MAXUID constant
 K  8583	java.io.IOException: No content when reading msg with empty attachment
 K  8748	look for resource files in <java.home>/conf on JDK 1.9
+K  8810	MimeUtility should treat GB2312 as one of the supersets GBK or GB18030
 K  8822	Flags convenience methods
 
 

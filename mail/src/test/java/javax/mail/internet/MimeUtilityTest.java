@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -170,5 +170,24 @@ public class MimeUtilityTest {
 	    String decoded = MimeUtility.decodeText(encoded);
 	    assertEquals(decoded, test);
 	}
+    }
+
+    /**
+     * Test that encoded words with the wrong Chinese charset still
+     * decode correctly.
+     */
+    @Test
+    public void testBadChineseCharsets() throws Exception {
+	String badgb2312 = "=?gb2312?B?xbfUqqLjIChFVVIpttK7u4EwhDYgKENOWSk=?=";
+	String badgbk = "=?gbk?B?xbfUqqLjIChFVVIpttK7u4EwhDYgKENOWSk=?=";
+	String badms936 = "=?ms936?B?xbfUqqLjIChFVVIpttK7u4EwhDYgKENOWSk=?=";
+	String badcp936 = "=?cp936?B?xbfUqqLjIChFVVIpttK7u4EwhDYgKENOWSk=?=";
+	String good = "=?gb18030?B?xbfUqqLjIChFVVIpttK7u4EwhDYgKENOWSk=?=";
+	String goodDecoded = MimeUtility.decodeWord(good);
+
+	assertEquals("gb2312", goodDecoded, MimeUtility.decodeWord(badgb2312));
+	assertEquals("gbk", goodDecoded, MimeUtility.decodeWord(badgbk));
+	assertEquals("ms936", goodDecoded, MimeUtility.decodeWord(badms936));
+	assertEquals("cp936", goodDecoded, MimeUtility.decodeWord(badcp936));
     }
 }

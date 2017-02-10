@@ -65,3 +65,13 @@ euckr           KSC5601
 # in JDK 1.1.6 we will no longer need the "us-ascii" convert
 us-ascii        ISO-8859-1
 x-us-ascii      ISO-8859-1
+
+# Chinese charsets are a mess and widely misrepresented.
+# gb18030 is a superset of gbk, which is a supserset of cp936/ms936,
+# which is a superset of gb2312.
+# https://bugzilla.gnome.org/show_bug.cgi?id=446783
+# map all of these to gb18030.
+gb2312		GB18030
+cp936		GB18030
+ms936		GB18030
+gbk		GB18030

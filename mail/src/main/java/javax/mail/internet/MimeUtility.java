@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,6 +45,7 @@ import javax.mail.EncodingAware;
 import javax.activation.*;
 import java.util.*;
 import java.io.*;
+import java.nio.charset.Charset;
 import com.sun.mail.util.*;
 
 /**
@@ -1242,6 +1243,14 @@ public class MimeUtility {
 	    return charset;
 
 	String alias = mime2java.get(charset.toLowerCase(Locale.ENGLISH));
+	if (alias != null) {
+	    // verify that the mapped name is valid before trying to use it
+	    try {
+		Charset.forName(alias);
+	    } catch (Exception ex) {
+		alias = null;	// charset alias not valid, use original name
+	    }
+	}
 	return alias == null ? charset : alias;
     }
 
@@ -1338,7 +1347,7 @@ public class MimeUtility {
 
     static {
 	java2mime = new HashMap<>(40);
-	mime2java = new HashMap<>(10);
+	mime2java = new HashMap<>(14);
 
 	try {
 	    // Use this class's classloader to load the mapping file
@@ -1426,6 +1435,10 @@ public class MimeUtility {
 	    mime2java.put("euckr", "KSC5601");
 	    mime2java.put("us-ascii", "ISO-8859-1");
 	    mime2java.put("x-us-ascii", "ISO-8859-1");
+	    mime2java.put("gb2312", "GB18030");
+	    mime2java.put("cp936", "GB18030");
+	    mime2java.put("ms936", "GB18030");
+	    mime2java.put("gbk", "GB18030");
 	}
     }
 
