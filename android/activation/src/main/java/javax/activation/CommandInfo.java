@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,7 +41,10 @@
 package javax.activation;
 
 import java.io.*;
-import java.beans.Beans;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 /**
  * The CommandInfo class is used by CommandMap implementations to
@@ -97,8 +100,14 @@ public class CommandInfo {
     /**
      * Return the instantiated JavaBean component.
      * <p>
-     * Begin by instantiating the component with
-     * <code>Beans.instantiate()</code>.
+     * If the current runtime environment supports
+     * {@link java.beans.Beans#instantiate Beans.instantiate},
+     * use it to instantiate the JavaBeans component.  Otherwise, use
+     * {@link java.lang.Class#forName Class.forName}.
+     * <p>
+     * The component class needs to be public.
+     * On Java SE 9 and newer, if the component class is in a named module,
+     * it needs to be in an exported package.
      * <p>
      * If the bean implements the <code>javax.activation.CommandObject</code>
      * interface, call its <code>setCommandContext</code> method.
@@ -121,6 +130,9 @@ public class CommandInfo {
      *			passed to the command.
      * @param loader	The ClassLoader to be used to instantiate the bean.
      * @return The bean
+     * @exception	IOException	for failures reading data
+     * @exception	ClassNotFoundException	if command object class can't
+     *						be found
      * @see java.beans.Beans#instantiate
      * @see javax.activation.CommandObject
      */
@@ -129,30 +141,7 @@ public class CommandInfo {
 	Object new_bean = null;
 
 	// try to instantiate the bean
-	Class<?> beans = null;
-	try {
-	    beans = Class.forName("java.beans.Beans", true, loader);
-	} catch (Exception ex) { }
-
-	try {
-	    if (beans != null) {
-		// invoke via reflection:
-		//   new_bean = java.beans.Beans.instantiate(loader, className);
-		java.lang.reflect.Method m = beans.getMethod("instantiate",
-					    ClassLoader.class, String.class);
-		new_bean = m.invoke(null, loader, className);
-	    } else {
-		new_bean = Class.forName(className, true, loader).newInstance();
-	    }
-	} catch (java.lang.reflect.InvocationTargetException ex) {
-	    // ignore it
-	} catch (InstantiationException ex) {
-	    // ignore it
-	} catch (NoSuchMethodException ex) {
-	    // ignore it
-	} catch (IllegalAccessException ex) {
-	    // ignore it
-	}
+	new_bean = Beans.instantiate(loader, className);
 
 	// if we got one and it is a CommandObject
 	if (new_bean != null) {
@@ -170,5 +159,87 @@ public class CommandInfo {
 	}
 
 	return new_bean;
+    }
+
+    /**
+     * Helper class to invoke Beans.instantiate reflectively or the equivalent
+     * with core reflection when module java.desktop is not readable.
+     */
+    private static final class Beans {
+        static final Method instantiateMethod;
+
+        static {
+            Method m;
+            try {
+                Class<?> c = Class.forName("java.beans.Beans");
+                m = c.getDeclaredMethod("instantiate", ClassLoader.class, String.class);
+            } catch (ClassNotFoundException e) {
+                m = null;
+            } catch (NoSuchMethodException e) {
+                m = null;
+            }
+            instantiateMethod = m;
+        }
+
+        /**
+         * Equivalent to invoking java.beans.Beans.instantiate(loader, cn)
+         */
+        static Object instantiate(ClassLoader loader, String cn)
+                throws IOException, ClassNotFoundException {
+
+            Exception exception;
+
+            if (instantiateMethod != null) {
+
+                // invoke Beans.instantiate
+                try {
+                    return instantiateMethod.invoke(null, loader, cn);
+                } catch (InvocationTargetException e) {
+                    exception = e;
+                } catch (IllegalAccessException e) {
+                    exception = e;
+                }
+
+            } else {
+
+		SecurityManager security = System.getSecurityManager();
+		if (security != null) {
+		    // if it's ok with the SecurityManager, it's ok with me.
+		    String cname = cn.replace('/', '.');
+		    if (cname.startsWith("[")) {
+			int b = cname.lastIndexOf('[') + 2;
+			if (b > 1 && b < cname.length()) {
+			    cname = cname.substring(b);
+			}
+		    }
+		    int i = cname.lastIndexOf('.');
+		    if (i != -1) {
+			security.checkPackageAccess(cname.substring(0, i));
+		    }
+		}
+
+                // Beans.instantiate specified to use SCL when loader is null
+                if (loader == null) {
+                    loader = (ClassLoader)
+		        AccessController.doPrivileged(new PrivilegedAction() {
+			    public Object run() {
+				ClassLoader cl = null;
+				try {
+				    cl = ClassLoader.getSystemClassLoader();
+				} catch (SecurityException ex) { }
+				return cl;
+			    }
+			});
+                }
+                Class<?> beanClass = Class.forName(cn, true, loader);
+                try {
+                    return beanClass.newInstance();
+                } catch (Exception ex) {
+                    throw new ClassNotFoundException(beanClass + ": " + ex, ex);
+                }
+
+            }
+            return null;
+        }
     }
 }

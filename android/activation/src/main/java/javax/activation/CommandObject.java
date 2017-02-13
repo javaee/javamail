@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,7 +49,7 @@ import java.io.IOException;
  * data they should operate on.  JavaBeans that don't implement
  * this interface may be used as well.  Such commands may obtain
  * the data using the Externalizable interface, or using an
- * application-specific method.<p>
+ * application-specific method.
  */
 public interface CommandObject {
 
@@ -61,6 +61,7 @@ public interface CommandObject {
      *
      * @param verb The Command Verb this object refers to.
      * @param dh The DataHandler.
+     * @exception	IOException	for failures accessing data
      */
     public void setCommandContext(String verb, DataHandler dh)
 						throws IOException;
