@@ -48,6 +48,7 @@ K  8583	java.io.IOException: No content when reading msg with empty attachment
 K  8748	look for resource files in <java.home>/conf on JDK 1.9
 K  8810	MimeUtility should treat GB2312 as one of the supersets GBK or GB18030
 K  8822	Flags convenience methods
+K  8833	SMTP support for the CHUNKING extension of RFC 3030
 
 
 		  CHANGES IN THE 1.5.6 RELEASE

@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -162,6 +162,15 @@ FEATURES!!!</strong>  You will need to read the appropriate RFCs mentioned above
 to understand what these features do and how to use them.  Don't just
 start setting properties and then complain to us when it doesn't work
 like you expect it to work.  <strong>READ THE RFCs FIRST!!!</strong>
+<P>
+The SMTP protocol provider supports the CHUNKING extension defined in
+<A HREF="http://www.ietf.org/rfc/rfc3030.txt" TARGET="_top">RFC 3030</A>.
+Set the <code>mail.smtp.chunksize</code> property to the desired chunk
+size in bytes.
+If the server supports the CHUNKING extension, the BDAT command will be
+used to send the message in chunksize pieces.  Note that no pipelining is
+done so this will be slower than sending the message in one piece.
+Note also that the BINARYMIME extension described in RFC 3030 is NOT supported.
 <P>
 <A NAME="properties">
 <H4>Properties</H4>

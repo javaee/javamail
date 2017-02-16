@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -142,6 +142,7 @@ public class SMTPTransport extends Transport {
     private boolean debugusername;	// include username in debug output?
     private boolean debugpassword;	// include password in debug output?
     private boolean allowutf8;		// allow UTF-8 usernames and passwords?
+    private int chunkSize;		// chunk size if CHUNKING supported
 
     /** Headers that should not be included when sending */
     private static final String[] ignoreList = { "Bcc", "Content-Length" };
@@ -231,6 +232,11 @@ public class SMTPTransport extends Transport {
 	    "mail.mime.allowutf8", false);
 	if (allowutf8)
 	    logger.config("allow UTF-8");
+
+	chunkSize = PropUtil.getIntSessionProperty(session,
+	    "mail." + name + ".chunksize", -1);
+	if (chunkSize > 0 && logger.isLoggable(Level.CONFIG))
+	    logger.config("chunk size " + chunkSize);
 
 	// created here, because they're inner classes that reference "this"
 	Authenticator[] a = new Authenticator[] {
@@ -1276,8 +1282,22 @@ public class SMTPTransport extends Transport {
 	try {
 	    mailFrom();
 	    rcptTo();
-	    this.message.writeTo(data(), ignoreList);
-	    finishData();
+	    if (chunkSize > 0 && supportsExtension("CHUNKING")) {
+		/*
+		 * Use BDAT to send the data in chunks.
+		 * Note that even though the BDAT command is able to send
+		 * messages that contain binary data, we can't use it to
+		 * do that because a) we still need to canonicalize the
+		 * line terminators for text data, which we can't tell apart
+		 * from the message content, and b) the message content is
+		 * encoded before we even know that we can use BDAT.
+		 */
+		this.message.writeTo(bdat(), ignoreList);
+		finishBdat();
+	    } else {
+		this.message.writeTo(data(), ignoreList);
+		finishData();
+	    }
 	    if (sendPartiallyFailed) {
 		// throw the exception,
 		// fire TransportEvent.MESSAGE_PARTIALLY_DELIVERED event
@@ -2074,6 +2094,32 @@ public class SMTPTransport extends Transport {
     }
 
     /**
+     * Return a stream that will use the SMTP BDAT command to send data.
+     *
+     * @return		the stream to write to
+     * @exception	MessagingException for failures
+     * @since JavaMail 1.6.0
+     */
+    protected OutputStream bdat() throws MessagingException {
+	assert Thread.holdsLock(this);
+	dataStream = new BDATOutputStream(serverOutput, chunkSize);
+	return dataStream;
+    }
+
+    /**
+     * Terminate the sent data.
+     *
+     * @exception	IOException for I/O errors
+     * @exception	MessagingException for other failures
+     * @since JavaMail 1.6.0
+     */
+    protected void finishBdat() throws IOException, MessagingException {
+	assert Thread.holdsLock(this);
+	dataStream.ensureAtBOL();
+	dataStream.close();	// doesn't close underlying socket
+    }
+
+    /**
      * Issue the <code>STARTTLS</code> command and switch the socket to
      * TLS mode if it succeeds.
      *
@@ -2615,4 +2661,138 @@ public class SMTPTransport extends Transport {
      */
     private void sendMessageStart(String subject) { }
     private void sendMessageEnd() { }
+
+
+    /**
+     * An SMTPOutputStream that wraps a ChunkedOutputStream.
+     */
+    private class BDATOutputStream extends SMTPOutputStream {
+
+	/**
+	 * Create a BDATOutputStream that wraps a ChunkedOutputStream
+	 * of the given size and built on top of the specified
+	 * underlying output stream.
+	 *
+	 * @param	out	the underlying output stream
+	 * @param	size	the chunk size
+	 */
+	public BDATOutputStream(OutputStream out, int size) {
+	    super(new ChunkedOutputStream(out, size));
+	}
+
+	/**
+	 * Close this output stream.
+	 *
+	 * @exception	IOException	for I/O errors
+	 */
+	@Override
+	public void close() throws IOException {
+	    out.close();
+	}
+    }
+
+    /**
+     * An OutputStream that buffers data in chunks and uses the
+     * RFC 3030 BDAT SMTP command to send each chunk.
+     */
+    private class ChunkedOutputStream extends OutputStream {
+	private final OutputStream out;
+	private final byte[] buf;
+	private int count = 0;
+
+	/**
+	 * Create a ChunkedOutputStream built on top of the specified
+	 * underlying output stream.
+	 *
+	 * @param	out	the underlying output stream
+	 * @param	size	the chunk size
+	 */
+	public ChunkedOutputStream(OutputStream out, int size) {
+	    this.out = out;
+	    buf = new byte[size];
+	}
+
+	/**
+	 * Writes the specified <code>byte</code> to this output stream.
+	 *
+	 * @param	b	the byte to write
+	 * @exception	IOException	for I/O errors
+	 */
+	@Override
+	public void write(int b) throws IOException {
+	    buf[count++] = (byte)b;
+	    if (count >= buf.length)
+		flush();
+	}
+		
+	/**
+	 * Writes len bytes to this output stream starting at off.
+	 *
+	 * @param	b	bytes to write
+	 * @param	off	offset in array
+	 * @param	len	number of bytes to write
+	 * @exception	IOException	for I/O errors
+	 */
+	@Override
+	public void write(byte b[], int off, int len) throws IOException {
+	    while (len > 0) {
+		int size = Math.min(buf.length - count, len);
+		if (size == buf.length) {
+		    // avoid the copy
+		    bdat(b, off, size, false);
+		} else {
+		    System.arraycopy(b, off, buf, count, size);
+		    count += size;
+		}
+		off += size;
+		len -= size;
+		if (count >= buf.length)
+		    flush();
+	    }
+	}
+
+	/**
+	 * Flush this output stream.
+	 *
+	 * @exception	IOException	for I/O errors
+	 */
+	@Override
+	public void flush() throws IOException {
+	    bdat(buf, 0, count, false);
+	    count = 0;
+	}
+
+	/**
+	 * Close this output stream.
+	 *
+	 * @exception	IOException	for I/O errors
+	 */
+	@Override
+	public void close() throws IOException {
+	    bdat(buf, 0, count, true);
+	    count = 0;
+	}
+
+	/**
+	 * Send the specified bytes using the BDAT command.
+	 */
+	private void bdat(byte[] b, int off, int len, boolean last)
+				throws IOException {
+	    if (len > 0 || last) {
+		try {
+		    if (last)
+			sendCommand("BDAT " + len + " LAST");
+		    else
+			sendCommand("BDAT " + len);
+		    out.write(b, off, len);
+		    out.flush();
+		    int ret = readServerResponse();
+		    if (ret != 250)
+			throw new IOException(lastServerResponse);
+		} catch (MessagingException mex) {
+		    throw new IOException("BDAT write exception", mex);
+		}
+	    }
+	}
+    }
 }

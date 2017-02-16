@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,8 +40,10 @@
 
 package com.sun.mail.smtp;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.StringTokenizer;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -56,6 +58,12 @@ public class SMTPHandler extends ProtocolHandler {
 
     /** Current line. */
     private String currentLine;
+
+    /** A message being accumulated. */
+    private ByteArrayOutputStream messageStream;
+
+    /** SMTP extensions supported. */
+    protected Set<String> extensions = new HashSet<String>();
 
     /**
      * Send greetings.
@@ -92,12 +100,8 @@ public class SMTPHandler extends ProtocolHandler {
     public void handleCommand() throws IOException {
         currentLine = readLine();
 
-        if (currentLine == null) {
-	    // XXX - often happens when shutting down
-            //LOGGER.severe("Current line is null!");
-            exit();
+        if (currentLine == null)
             return;
-        }
 
         final StringTokenizer st = new StringTokenizer(currentLine, " ");
         final String commandName = st.nextToken().toUpperCase();
@@ -117,6 +121,8 @@ public class SMTPHandler extends ProtocolHandler {
             rcpt(currentLine);
         } else if (commandName.equals("DATA")) {
             data();
+        } else if (commandName.equals("BDAT")) {
+            bdat(currentLine);
         } else if (commandName.equals("NOOP")) {
             noop();
         } else if (commandName.equals("RSET")) {
@@ -135,7 +141,8 @@ public class SMTPHandler extends ProtocolHandler {
         currentLine = super.readLine();
 
         if (currentLine == null) {
-            LOGGER.severe("Current line is null!");
+	    // XXX - often happens when shutting down
+            //LOGGER.severe("Current line is null!");
             exit();
         }
 	return currentLine;
@@ -159,6 +166,8 @@ public class SMTPHandler extends ProtocolHandler {
      */
     public void ehlo() throws IOException {
         println("250-hello");
+	for (String ext : extensions)
+	    println("250-" + ext);
         println("250 AUTH PLAIN");	// PLAIN is simplest to fake
     }
 
@@ -195,13 +204,65 @@ public class SMTPHandler extends ProtocolHandler {
     }
 
     /**
-     * For now, just consume the message and throw it away.
+     * BDAT command.
+     *
+     * @throws IOException
+     *             unable to read/write to socket
+     */
+    public void bdat(String line) throws IOException {
+        StringTokenizer st = new StringTokenizer(line, " ");
+        String commandName = st.nextToken();
+	int bytes = Integer.parseInt(st.nextToken());
+	boolean last = st.hasMoreTokens() &&
+			st.nextToken().equalsIgnoreCase("LAST");
+	readBdatMessage(bytes, last);
+	ok();
+    }
+
+    /**
+     * Allow subclasses to override to save the message.
+     */
+    protected void setMessage(byte[] msg) {
+    }
+
+    /**
+     * Consume the message and save it.
      */
     protected void readMessage() throws IOException {
+	ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	PrintWriter pw = new PrintWriter(new OutputStreamWriter(bos, "utf-8"));
 	String line;
 	while ((line = super.readLine()) != null) {
 	    if (line.equals("."))
 		break;
+	    if (line.startsWith("."))
+		line = line.substring(1);
+	    pw.print(line);
+	    pw.print("\r\n");
+	}
+	pw.close();
+	setMessage(bos.toByteArray());
+    }
+
+    /**
+     * Consume a chunk of the message and save it.
+     * Save the entire message when the last chunk is received.
+     */
+    protected void readBdatMessage(int bytes, boolean last) throws IOException {
+	byte[] data = new byte[bytes];
+	int len = data.length;
+	int off = 0;
+	int n;
+	while (len > 0 && (n = in.read(data, off, len)) > 0) {
+	    off += n;
+	    len -= n;
+	}
+	if (messageStream == null)
+	    messageStream = new ByteArrayOutputStream();
+	messageStream.write(data);
+	if (last) {
+	    setMessage(messageStream.toByteArray());
+	    messageStream = null;
 	}
     }
 
