@@ -43,6 +43,8 @@ package javax.activation;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import com.sun.activation.registries.MimeTypeFile;
 import com.sun.activation.registries.LogSupport;
 
@@ -97,13 +99,18 @@ public class MimetypesFileTypeMap extends FileTypeMap {
     static {
 	String dir = null;
 	try {
-	    String home = System.getProperty("java.home");
-	    String newdir = home + File.separator + "conf";
-	    File conf = new File(newdir);
-	    if (conf.exists())
-		dir = newdir + File.separator;
-	    else
-		dir = home + File.separator + "lib" + File.separator;
+	    dir = (String)AccessController.doPrivileged(
+		new PrivilegedAction() {
+		    public Object run() {
+			String home = System.getProperty("java.home");
+			String newdir = home + File.separator + "conf";
+			File conf = new File(newdir);
+			if (conf.exists())
+			    return newdir + File.separator;
+			else
+			    return home + File.separator + "lib" + File.separator;
+		    }
+		});
 	} catch (Exception ex) {
 	    // ignore any exceptions
 	}
@@ -131,12 +138,14 @@ public class MimetypesFileTypeMap extends FileTypeMap {
 	} catch (SecurityException ex) {}
 
 	LogSupport.log("MimetypesFileTypeMap: load SYS");
-	if (confDir != null) {
+	try {
 	    // check system's home
-	    mf = loadFile(confDir + "mime.types");
-	    if (mf != null)
-		dbv.addElement(mf);
-	}
+	    if (confDir != null) {
+		mf = loadFile(confDir + "mime.types");
+		if (mf != null)
+		    dbv.addElement(mf);
+	    }
+	} catch (SecurityException ex) {}
 
 	LogSupport.log("MimetypesFileTypeMap: load JAR");
 	// load from the app's jar file
