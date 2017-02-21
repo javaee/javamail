@@ -1164,40 +1164,35 @@ public class MimeUtility {
 	int i;
 	while ((i = indexOfAny(s, "\r\n")) >= 0) {
 	    int start = i;
-	    int l = s.length();
+	    int slen = s.length();
 	    i++;		// skip CR or NL
-	    if (i < l && s.charAt(i - 1) == '\r' && s.charAt(i) == '\n')
+	    if (i < slen && s.charAt(i - 1) == '\r' && s.charAt(i) == '\n')
 		i++;	// skip LF
-	    if (start == 0 || s.charAt(start - 1) != '\\') {
-		char c;
-		// if next line starts with whitespace, skip all of it
-		// XXX - always has to be true?
-		if (i < l && ((c = s.charAt(i)) == ' ' || c == '\t')) {
-		    i++;	// skip whitespace
-		    while (i < l && ((c = s.charAt(i)) == ' ' || c == '\t'))
-			i++;
-		    if (sb == null)
-			sb = new StringBuffer(s.length());
-		    if (start != 0) {
-			sb.append(s.substring(0, start));
-			sb.append(' ');
-		    }
-		    s = s.substring(i);
-		    continue;
-		}
-		// it's not a continuation line, just leave it in
-		if (sb == null)
-		    sb = new StringBuffer(s.length());
-		sb.append(s.substring(0, i));
-		s = s.substring(i);
-	    } else {
-		// there's a backslash at "start - 1"
+	    if (start > 0 && s.charAt(start - 1) == '\\') {
+		// there's a backslash before the line break
 		// strip it out, but leave in the line break
 		if (sb == null)
 		    sb = new StringBuffer(s.length());
 		sb.append(s.substring(0, start - 1));
 		sb.append(s.substring(start, i));
 		s = s.substring(i);
+	    } else {
+		char c;
+		// if next line starts with whitespace,
+		// or at the end of the string, remove the line break
+		// XXX - next line should always start with whitespace
+		if (i >= slen || (c = s.charAt(i)) == ' ' || c == '\t') {
+		    if (sb == null)
+			sb = new StringBuffer(s.length());
+		    sb.append(s.substring(0, start));
+		    s = s.substring(i);
+		} else {
+		    // it's not a continuation line, just leave in the newline
+		    if (sb == null)
+			sb = new StringBuffer(s.length());
+		    sb.append(s.substring(0, i));
+		    s = s.substring(i);
+		}
 	    }
 	}
 	if (sb != null) {

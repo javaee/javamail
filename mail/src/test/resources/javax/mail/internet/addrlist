@@ -2,7 +2,7 @@ Comment:
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -321,7 +321,7 @@ To: "John
 	Smith" <jsmith@
 	crappy-email-archiving-company.com>
 Expect: 1
-	jsmith@ crappy-email-archiving-company.com
+	jsmith@	crappy-email-archiving-company.com
 Header: false
 To: (Test) <djoe@zimbra.com>,djoe@zimbra.com (Test) 
 Expect: 2
@@ -749,7 +749,7 @@ Cc: 55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,
         streetwalker!from, streetwalker!id, streetwalker!oak.sunecd.com,
         streetwalker!root, streetwalker!rr, streetwalker!streetwalker.sun.com
 Expect: 24
-	55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5, streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>, streetwalker!AA00159;
+	55:55@07, 57:18@07, 36:39@10, 36:42@10, streetwalker!1987, streetwalker!5,        streetwalker!87, <8710051455.AA08484@oak.sunecd.com>, <oak!kinnear>,        streetwalker!AA00159;
 	streetwalker!AA08484
 	streetwalker!AA16178
 	streetwalker!Date:
