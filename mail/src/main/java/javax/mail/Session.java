@@ -1000,6 +1000,8 @@ public final class Session {
 
 		if (currLine.startsWith("#"))
 		    continue;
+		if (currLine.trim().length() == 0)
+		    continue;	// skip blank line
 		Provider.Type type = null;
 		String protocol = null, className = null;
 		String vendor = null, version = null;
