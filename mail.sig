@@ -73,13 +73,17 @@ meth public boolean contains(java.lang.String)
 meth public boolean contains(javax.mail.Flags$Flag)
 meth public boolean contains(javax.mail.Flags)
 meth public boolean equals(java.lang.Object)
+meth public boolean retainAll(javax.mail.Flags)
 meth public int hashCode()
 meth public java.lang.Object clone()
+meth public java.lang.String toString()
 meth public java.lang.String[] getUserFlags()
 meth public javax.mail.Flags$Flag[] getSystemFlags()
 meth public void add(java.lang.String)
 meth public void add(javax.mail.Flags$Flag)
 meth public void add(javax.mail.Flags)
+meth public void clearSystemFlags()
+meth public void clearUserFlags()
 meth public void remove(java.lang.String)
 meth public void remove(javax.mail.Flags$Flag)
 meth public void remove(javax.mail.Flags)
@@ -496,7 +500,7 @@ meth public void setPasswordAuthentication(javax.mail.URLName,javax.mail.Passwor
 meth public void setProtocolForAddress(java.lang.String,java.lang.String)
 meth public void setProvider(javax.mail.Provider) throws javax.mail.NoSuchProviderException
 supr java.lang.Object
-hfds addressMap,authTable,authenticator,debug,defaultSession,logger,out,props,providers,providersByClassName,providersByProtocol,q
+hfds addressMap,authTable,authenticator,confDir,debug,defaultSession,logger,out,props,providers,providersByClassName,providersByProtocol,q
 
 CLSS public abstract javax.mail.Store
 cons protected <init>(javax.mail.Session,javax.mail.URLName)
@@ -539,6 +543,7 @@ hfds transportListeners
 
 CLSS public abstract interface javax.mail.UIDFolder
 fld public final static long LASTUID = -1
+fld public final static long MAXUID = 4294967295
 innr public static FetchProfileItem
 meth public abstract javax.mail.Message getMessageByUID(long) throws javax.mail.MessagingException
 meth public abstract javax.mail.Message[] getMessagesByUID(long,long) throws javax.mail.MessagingException
@@ -820,6 +825,8 @@ meth public java.lang.String toUnicodeString()
 meth public javax.mail.internet.InternetAddress[] getGroup(boolean) throws javax.mail.internet.AddressException
 meth public static java.lang.String toString(javax.mail.Address[])
 meth public static java.lang.String toString(javax.mail.Address[],int)
+meth public static java.lang.String toUnicodeString(javax.mail.Address[])
+meth public static java.lang.String toUnicodeString(javax.mail.Address[],int)
 meth public static javax.mail.internet.InternetAddress getLocalAddress(javax.mail.Session)
 meth public static javax.mail.internet.InternetAddress[] parse(java.lang.String) throws javax.mail.internet.AddressException
 meth public static javax.mail.internet.InternetAddress[] parse(java.lang.String,boolean) throws javax.mail.internet.AddressException
@@ -829,11 +836,12 @@ meth public void setPersonal(java.lang.String) throws java.io.UnsupportedEncodin
 meth public void setPersonal(java.lang.String,java.lang.String) throws java.io.UnsupportedEncodingException
 meth public void validate() throws javax.mail.internet.AddressException
 supr javax.mail.Address
-hfds ignoreBogusGroupName,rfc822phrase,serialVersionUID,specialsNoDot,specialsNoDotNoAt,useCanonicalHostName
+hfds allowUtf8,ignoreBogusGroupName,rfc822phrase,serialVersionUID,specialsNoDot,specialsNoDotNoAt,useCanonicalHostName
 
 CLSS public javax.mail.internet.InternetHeaders
 cons public <init>()
 cons public <init>(java.io.InputStream) throws javax.mail.MessagingException
+cons public <init>(java.io.InputStream,boolean) throws javax.mail.MessagingException
 fld protected java.util.List<javax.mail.internet.InternetHeaders$InternetHeader> headers
 innr protected final static InternetHeader
 meth public java.lang.String getHeader(java.lang.String,java.lang.String)
@@ -847,6 +855,7 @@ meth public java.util.Enumeration<javax.mail.Header> getNonMatchingHeaders(java.
 meth public void addHeader(java.lang.String,java.lang.String)
 meth public void addHeaderLine(java.lang.String)
 meth public void load(java.io.InputStream) throws javax.mail.MessagingException
+meth public void load(java.io.InputStream,boolean) throws javax.mail.MessagingException
 meth public void removeHeader(java.lang.String)
 meth public void setHeader(java.lang.String,java.lang.String)
 supr java.lang.Object
@@ -937,7 +946,7 @@ meth public void setText(java.lang.String,java.lang.String) throws javax.mail.Me
 meth public void setText(java.lang.String,java.lang.String,java.lang.String) throws javax.mail.MessagingException
 meth public void writeTo(java.io.OutputStream) throws java.io.IOException,javax.mail.MessagingException
 supr javax.mail.BodyPart
-hfds cacheMultipart,decodeFileName,encodeFileName,ignoreMultipartEncoding,setContentTypeFileName,setDefaultTextCharset
+hfds allowutf8,cacheMultipart,decodeFileName,encodeFileName,ignoreMultipartEncoding,setContentTypeFileName,setDefaultTextCharset
 hcls EncodedFileDataSource,MimePartDataHandler
 
 CLSS public javax.mail.internet.MimeMessage
@@ -1034,7 +1043,7 @@ meth public void setText(java.lang.String,java.lang.String,java.lang.String) thr
 meth public void writeTo(java.io.OutputStream) throws java.io.IOException,javax.mail.MessagingException
 meth public void writeTo(java.io.OutputStream,java.lang.String[]) throws java.io.IOException,javax.mail.MessagingException
 supr javax.mail.Message
-hfds answeredFlag,mailDateFormat,strict
+hfds allowutf8,answeredFlag,mailDateFormat,strict
 
 CLSS public static javax.mail.internet.MimeMessage$RecipientType
  outer javax.mail.internet.MimeMessage
@@ -1128,7 +1137,7 @@ meth public static java.lang.String mimeCharset(java.lang.String)
 meth public static java.lang.String quote(java.lang.String,java.lang.String)
 meth public static java.lang.String unfold(java.lang.String)
 supr java.lang.Object
-hfds ALL_ASCII,MOSTLY_ASCII,MOSTLY_NONASCII,decodeStrict,defaultJavaCharset,defaultMIMECharset,encodeEolStrict,foldEncodedWords,foldText,ignoreUnknownEncoding,java2mime,mime2java,nonAsciiCharsetMap
+hfds ALL_ASCII,MOSTLY_ASCII,MOSTLY_NONASCII,allowUtf8,decodeStrict,defaultJavaCharset,defaultMIMECharset,encodeEolStrict,foldEncodedWords,foldText,ignoreUnknownEncoding,java2mime,mime2java,nonAsciiCharsetMap
 
 CLSS public javax.mail.internet.NewsAddress
 cons public <init>()
