@@ -214,13 +214,20 @@ public final class Session {
     static {
 	String dir = null;
 	try {
-	    String home = System.getProperty("java.home");
-	    String newdir = home + File.separator + "conf";
-	    File conf = new File(newdir);
-	    if (conf.exists())
-		dir = newdir + File.separator;
-	    else
-		dir = home + File.separator + "lib" + File.separator;
+	    dir = AccessController.doPrivileged(
+		new PrivilegedAction<String>() {
+		    @Override
+		    public String run() {
+			String home = System.getProperty("java.home");
+			String newdir = home + File.separator + "conf";
+			File conf = new File(newdir);
+			if (conf.exists())
+			    return newdir + File.separator;
+			else
+			    return home + File.separator +
+				    "lib" + File.separator;
+		    }
+		});
 	} catch (Exception ex) {
 	    // ignore any exceptions
 	}
@@ -947,8 +954,10 @@ public final class Session {
 
 	// load system-wide javamail.providers from the
 	// <java.home>/{conf,lib} directory
-	if (confDir != null)
-	    loadFile(confDir + "javamail.providers", loader);
+	try {
+	    if (confDir != null)
+		loadFile(confDir + "javamail.providers", loader);
+	} catch (SecurityException ex) {}
 
 	// load the META-INF/javamail.providers file supplied by an application
 	loadAllResources("META-INF/javamail.providers", cl, loader);
@@ -1079,8 +1088,10 @@ public final class Session {
 
 	// load system-wide javamail.address.map from the
 	// <java.home>/{conf,lib} directory
-	if (confDir != null)
-	    loadFile(confDir + "javamail.address.map", loader);
+	try {
+	    if (confDir != null)
+		loadFile(confDir + "javamail.address.map", loader);
+	} catch (SecurityException ex) {}
 
 	if (addressMap.isEmpty()) {
 	    logger.config("failed to load address map, using defaults");
