@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2014-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -200,8 +200,13 @@ public class IdleManager {
 	    throw new MessagingException("Can only watch IMAP folders");
 	IMAPFolder ifolder = (IMAPFolder)folder;
 	SocketChannel sc = ifolder.getChannel();
-	if (sc == null)
-	    throw new MessagingException("Folder is not using SocketChannels");
+	if (sc == null) {
+	    if (folder.isOpen())
+		throw new MessagingException(
+					"Folder is not using SocketChannels");
+	    else
+		throw new MessagingException("Folder is not open");
+	}
 	if (logger.isLoggable(Level.FINEST))
 	    logger.log(Level.FINEST, "IdleManager watching {0}",
 							folderName(ifolder));

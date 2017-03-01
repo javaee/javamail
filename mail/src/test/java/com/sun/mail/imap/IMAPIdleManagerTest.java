@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -217,6 +217,110 @@ public final class IMAPIdleManagerTest {
 
 		fail("No exception");
 	    } catch (MessagingException mex) {
+		// success!
+	    } catch (Exception ex) {
+		System.out.println("Failed with exception: " + ex);
+		ex.printStackTrace();
+		fail(ex.toString());
+            } finally {
+		try {
+		    folder.close(false);
+		} catch (Exception ex2) { }
+                store.close();
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+	    if (idleManager != null)
+		idleManager.stop();
+            if (server != null) {
+                server.quit();
+            }
+        }
+    }
+
+    @Test
+    public void testNotOpened() {
+        TestServer server = null;
+	IdleManager idleManager = null;
+        try {
+            server = new TestServer(new IMAPHandler());
+            server.start();
+
+            final Properties properties = new Properties();
+            properties.setProperty("mail.imap.host", "localhost");
+            properties.setProperty("mail.imap.port", "" + server.getPort());
+            properties.setProperty("mail.imap.usesocketchannels", "true");
+            final Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+	    ExecutorService executor = Executors.newCachedThreadPool();
+	    idleManager = new IdleManager(session, executor);
+
+            final IMAPStore store = (IMAPStore)session.getStore("imap");
+	    Folder folder = null;
+            try {
+                store.connect("test", "test");
+		folder = store.getFolder("INBOX");
+		idleManager.watch(folder);
+
+		fail("No exception");
+	    } catch (MessagingException mex) {
+		// make sure we get the expected exception
+		assertTrue(mex.getMessage().contains("open"));
+		// success!
+	    } catch (Exception ex) {
+		System.out.println("Failed with exception: " + ex);
+		ex.printStackTrace();
+		fail(ex.toString());
+            } finally {
+		try {
+		    folder.close(false);
+		} catch (Exception ex2) { }
+                store.close();
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+	    if (idleManager != null)
+		idleManager.stop();
+            if (server != null) {
+                server.quit();
+            }
+        }
+    }
+
+    @Test
+    public void testNoSocketChannel() {
+        TestServer server = null;
+	IdleManager idleManager = null;
+        try {
+            server = new TestServer(new IMAPHandler());
+            server.start();
+
+            final Properties properties = new Properties();
+            properties.setProperty("mail.imap.host", "localhost");
+            properties.setProperty("mail.imap.port", "" + server.getPort());
+            final Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+	    ExecutorService executor = Executors.newCachedThreadPool();
+	    idleManager = new IdleManager(session, executor);
+
+            final IMAPStore store = (IMAPStore)session.getStore("imap");
+	    Folder folder = null;
+            try {
+                store.connect("test", "test");
+		folder = store.getFolder("INBOX");
+		folder.open(Folder.READ_WRITE);
+		idleManager.watch(folder);
+
+		fail("No exception");
+	    } catch (MessagingException mex) {
+		// make sure we get the expected exception
+		assertTrue(!mex.getMessage().contains("open"));
 		// success!
 	    } catch (Exception ex) {
 		System.out.println("Failed with exception: " + ex);
