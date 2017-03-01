@@ -2618,8 +2618,8 @@ public class SMTPTransport extends Transport {
 	    if (!utf8 && c >= 128)	// not ASCII
 		throw new IllegalArgumentException(
 			    "Non-ASCII character in SMTP submitter: " + s);
-	    if (c < '!' || c > '~' || c == '+' || c == '=' ||
-		    c >= 128) {	// not ASCII
+	    if (c < '!' || c > '~' || c == '+' || c == '=') {
+		// not printable ASCII
 		if (sb == null) {
 		    sb = new StringBuffer(s.length() + 4);
 		    sb.append(s.substring(0, i));
