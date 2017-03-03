@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2009-2014 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2014 Jason Mehrens. All Rights Reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Jason Mehrens. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -126,12 +126,9 @@ public class FileErrorManager extends ErrorManager {
         if (isRawEmail(msg)) {
             try {
                 storeEmail(msg);
-            } catch (final IOException IOE) {
+            } catch (final IOException | RuntimeException IOE) {
                 next.error(msg, ex, code);
                 super.error(emailStore.toString(), IOE, ErrorManager.GENERIC_FAILURE);
-            } catch (final RuntimeException RE) {
-                next.error(msg, ex, code);
-                super.error(emailStore.toString(), RE, ErrorManager.GENERIC_FAILURE);
             }
         } else {
             next.error(msg, ex, code);
@@ -223,12 +220,10 @@ public class FileErrorManager extends ErrorManager {
             }
         }
 
-        try { //Raw email is ASCII.
-            PrintStream ps = new PrintStream(wrap(out), false, "US-ASCII");
+        try (PrintStream ps = new PrintStream(wrap(out), false, "UTF-8")) {
             ps.print(email);
             ps.flush();
             tmp = null; //Don't delete 'tmp' if all bytes were written.
-            ps.close();
         } finally {
             close(out);
             delete(tmp); //Only deletes if not null.
@@ -289,6 +284,7 @@ public class FileErrorManager extends ErrorManager {
         if (dir == null) {
             dir = AccessController.doPrivileged(new PrivilegedAction<String>() {
 
+                @Override
                 public String run() {
                     return System.getProperty("java.io.tmpdir", ".");
                 }
@@ -303,6 +299,7 @@ public class FileErrorManager extends ErrorManager {
      * @param out the stream to wrap.
      * @return the original or wrapped output stream.
      */
+    @SuppressWarnings("UseSpecificCatch")
     private OutputStream wrap(OutputStream out) {
         assert out != null;
         Class<?> k;

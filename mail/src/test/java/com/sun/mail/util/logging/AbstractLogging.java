@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2016 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2016 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2016-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2017 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -285,6 +286,36 @@ abstract class AbstractLogging {
     }
 
     /**
+     * Checks that the given class is not dependent on the
+     * {@code javax.annotation} classes as they are not present in all
+     * environments.
+     *
+     * @param k the class to inspect.
+     * @throws Exception if there is a problem.
+     */
+    final void testNoDependencyOnJavaxAnnotations(Class<?> k) throws Exception {
+        for (Method m : k.getDeclaredMethods()) {
+            testNoJavaxAnnotation(m);
+        }
+
+        for (Field f : k.getDeclaredFields()) {
+            testNoJavaxAnnotation(f);
+        }
+
+        for (Constructor<?> c : k.getDeclaredConstructors()) {
+            testNoJavaxAnnotation(c);
+        }
+
+        for (Class<?> i : k.getInterfaces()) {
+            testNoJavaxAnnotation(i);
+        }
+
+        for (Class<?> d : k.getDeclaredClasses()) {
+            testNoDependencyOnJavaxAnnotations(d);
+        }
+    }
+
+    /**
      * WebappClassLoader.clearReferencesStaticFinal() method will ignore fields
      * that have type names that start with 'java.' or 'javax.'. This test
      * checks that the given class conforms to this rule so it doesn't become a
@@ -369,5 +400,18 @@ abstract class AbstractLogging {
             }
         }
         return false;
+    }
+
+    private void testNoJavaxAnnotation(AccessibleObject fm) throws Exception {
+        for (Annotation a : fm.getAnnotations()) {
+            testNoJavaxAnnotation(a.annotationType());
+        }
+    }
+
+    private void testNoJavaxAnnotation(Class<?> k) throws Exception {
+        for (; k != null; k = k.getSuperclass()) {
+            assertFalse(k.toString(),
+                    k.getName().startsWith("javax.annotation"));
+        }
     }
 }

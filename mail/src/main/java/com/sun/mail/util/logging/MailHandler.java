@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2016 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -4086,8 +4086,8 @@ public class MailHandler extends Handler {
             try {  //JDK-8025251
                 int nbytes = Math.max(msg.getSize() + MIN_HEADER_SIZE, MIN_HEADER_SIZE);
                 ByteArrayOutputStream out = new ByteArrayOutputStream(nbytes);
-                msg.writeTo(out);
-                return out.toString("US-ASCII"); //Raw message is always ASCII.
+                msg.writeTo(out);  //Headers can be UTF-8 or US-ASCII.
+                return out.toString("UTF-8");
             } finally {
                 getAndSetContextClassLoader(ccl);
             }

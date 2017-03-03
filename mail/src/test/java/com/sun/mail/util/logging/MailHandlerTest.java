@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
- * Copyright (c) 2009-2016 Jason Mehrens. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -45,6 +45,7 @@ import java.lang.management.CompilationMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.*;
 import java.util.*;
@@ -562,6 +563,47 @@ public class MailHandlerTest extends AbstractLogging {
         instance.preDestroy();
         instance.push(); //Trigger an error if data is present here.
         instance.close();
+    }
+
+    @Test
+    public void testReflectiveLifeCycleAccess() throws Exception {
+        final Class<?> k = MailHandler.class;
+        final Method construct = k.getDeclaredMethod("postConstruct");
+        final Method destory = k.getDeclaredMethod("preDestroy");
+        testLifeCycleProtypes(construct);
+        testLifeCycleProtypes(destory);
+
+        MailHandler h = new MailHandler();
+        try {
+            h.setMailProperties(createInitProperties(""));
+            InternalErrorManager em = new InternalErrorManager();
+            h.setErrorManager(em);
+
+            construct.invoke(h);
+            destory.invoke(h);
+
+            for (Throwable t : em.exceptions) {
+                dump(t);
+            }
+            assertEquals(true, em.exceptions.isEmpty());
+        } finally {
+            h.close();
+        }
+    }
+
+    private void testLifeCycleProtypes(Method m) throws Exception {
+        final String s = m.toString();
+        assertTrue(s, MailHandler.class.equals(m.getDeclaringClass()));
+        assertTrue(s, Modifier.isPublic(m.getModifiers()));
+        assertFalse(s, Modifier.isStatic(m.getModifiers()));
+        assertTrue(s, Void.TYPE.equals(m.getReturnType()));
+        assertTrue(s, m.getParameterCount() == 0);
+        assertTrue(s, m.getExceptionTypes().length == 0);
+    }
+
+    @Test
+    public void testNoDependencyOnJavaxAnnotations() throws Exception {
+        testNoDependencyOnJavaxAnnotations(MailHandler.class);
     }
 
     @Test
@@ -2673,6 +2715,12 @@ public class MailHandlerTest extends AbstractLogging {
         assertEquals(expected, type);
     }
 
+    private ErrorManager getSuperErrorManager(MailHandler h) throws Exception {
+        Method hem = MailHandler.class.getDeclaredMethod("defaultErrorManager");
+        hem.setAccessible(true);
+        return (ErrorManager) hem.invoke(h);
+    }
+
     private String getInlineContentType(Formatter f) throws Exception {
         final String[] value = new String[1];
         MailHandler instance = new MailHandler(createInitProperties(""));
@@ -4469,11 +4517,52 @@ public class MailHandlerTest extends AbstractLogging {
     }
 
     @Test
+    public void testReportErrorUtf8Addresses() throws Exception {
+        final String test = "test\u03b1";
+        final String saddr = test + '@' + UNKNOWN_HOST;
+        final String sender = test + saddr;
+        Properties props = createInitProperties("");
+        props.put("mail.to", saddr);
+        props.put("mail.cc", saddr);
+        props.put("mail.bcc", saddr);
+        props.put("mail.from", saddr);
+        props.put("mail.sender", sender);
+        props.put("mail.mime.allowutf8",  "true");
+        MailHandler instance = new MailHandler(props);
+        instance.setEncoding("UTF-8");
+        instance.setFormatter(new SimpleFormatter());
+        instance.setErrorManager(new MessageErrorManager(instance.getMailProperties()) {
+
+            @Override
+            protected void error(MimeMessage message, Throwable t, int code) {
+                try {
+                    assertEquals(saddr, toString(message.getFrom()[0]));
+                    assertEquals(saddr, toString(message.getRecipients(Message.RecipientType.TO)[0]));
+                    assertEquals(saddr, toString(message.getRecipients(Message.RecipientType.CC)[0]));
+                    assertEquals(saddr, toString(message.getRecipients(Message.RecipientType.BCC)[0]));
+
+                    assertEquals(sender, toString(message.getSender()));
+                    assertTrue(String.valueOf(message.getContent()).contains(sender));
+
+                    message.saveChanges();
+                } catch (MessagingException | IOException E) {
+                    fail(E.toString());
+                }
+            }
+
+            private String toString(Address o) {
+                return ((InternetAddress)o).toUnicodeString();
+            }
+        });
+        instance.publish(new LogRecord(Level.SEVERE, sender));
+        instance.close();
+    }
+
+    @Test
     public void testReportErrorSuper() throws Exception {
+        assertNull(System.getSecurityManager());
         Field mhem = MailHandler.class.getDeclaredField("errorManager");
         mhem.setAccessible(true);
-        Field hem = Handler.class.getDeclaredField("errorManager");
-        hem.setAccessible(true);
 
         InternalErrorManager superEm = new InternalErrorManager();
         InternalErrorManager em = new InternalErrorManager();
@@ -4481,15 +4570,16 @@ public class MailHandlerTest extends AbstractLogging {
         try {
             Exception tester = new Exception();
             synchronized (h) {
-                assertSame(h.getErrorManager(), hem.get(h));
+                assertSame(h.getErrorManager(), getSuperErrorManager(h));
 
                 h.setErrorManager(superEm);
-                assertSame(superEm, hem.get(h));
+                assertSame(superEm, getSuperErrorManager(h));
                 assertSame(superEm, mhem.get(h));
 
                 mhem.set(h, em);
                 assertSame(em, h.getErrorManager());
-                assertSame(superEm, hem.get(h));
+                assertSame(superEm, getSuperErrorManager(h));
+                assertNotSame(h.getErrorManager(), getSuperErrorManager(h));
                 h.reportError("", tester, ErrorManager.GENERIC_FAILURE);
             }
 
@@ -4506,8 +4596,6 @@ public class MailHandlerTest extends AbstractLogging {
     public void testGaeReportErrorSuper() throws Exception {
         Field mhem = MailHandler.class.getDeclaredField("errorManager");
         mhem.setAccessible(true);
-        Field hem = Handler.class.getDeclaredField("errorManager");
-        hem.setAccessible(true);
 
         InternalErrorManager em = new InternalErrorManager();
         GaeSecurityManager sm = new GaeSecurityManager();
@@ -4518,12 +4606,21 @@ public class MailHandlerTest extends AbstractLogging {
             try {
                 Exception tester = new Exception();
                 synchronized (h) {
-                    final Object def = hem.get(h);
+                    sm.secure = false;
+                    final Object def = getSuperErrorManager(h);
+                    assertSame(def, getSuperErrorManager(h));
+                    sm.secure = true;
+
                     assertEquals(h.getErrorManager().getClass(), def.getClass());
                     assertNotSame(h.getErrorManager(), def);
 
                     h.setErrorManager(em);
-                    assertSame(def, hem.get(h));
+                    sm.secure = false;
+                    final Object sem = getSuperErrorManager(h);
+                    sm.secure = true;
+                    assertSame(def, sem);
+                    assertNotSame(h.getErrorManager(), def);
+                    assertNotSame(h.getErrorManager(), sem);
                     assertSame(h.getErrorManager(), em);
 
                     h.reportError("", tester, ErrorManager.GENERIC_FAILURE);
@@ -7005,8 +7102,8 @@ public class MailHandlerTest extends AbstractLogging {
             if (msg != null && msg.length() > 0
                     && !msg.startsWith(Level.SEVERE.getName())) {
                 MimeMessage message;
-                try { //Raw message is ascii.
-                    byte[] b = msg.getBytes("US-ASCII");
+                try { //Headers can be UTF-8 or US-ASCII.
+                    byte[] b = msg.getBytes("UTF-8");
                     assertTrue(b.length > 0);
 
                     ByteArrayInputStream in = new ByteArrayInputStream(b);
