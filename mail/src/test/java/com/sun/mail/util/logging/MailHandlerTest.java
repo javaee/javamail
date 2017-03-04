@@ -597,7 +597,7 @@ public class MailHandlerTest extends AbstractLogging {
         assertTrue(s, Modifier.isPublic(m.getModifiers()));
         assertFalse(s, Modifier.isStatic(m.getModifiers()));
         assertTrue(s, Void.TYPE.equals(m.getReturnType()));
-        assertTrue(s, m.getParameterCount() == 0);
+        assertTrue(s, m.getParameterTypes().length == 0);
         assertTrue(s, m.getExceptionTypes().length == 0);
     }
 
