@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -51,7 +51,7 @@ import com.sun.mail.util.BASE64DecoderStream;
 import com.sun.mail.util.ASCIIUtility;
 
 /**
- * Handle connection with LOGIN authentication.
+ * Handle connection with LOGIN or PLAIN authentication.
  *
  * @author Bill Shannon
  */
@@ -70,7 +70,7 @@ public class SMTPLoginHandler extends SMTPHandler {
         println("250-hello");
         println("250-SMTPUTF8");
         println("250-8BITMIME");
-        println("250 AUTH LOGIN");
+        println("250 AUTH PLAIN LOGIN");
     }
 
     /**
@@ -90,7 +90,18 @@ public class SMTPLoginHandler extends SMTPHandler {
 
 	if (LOGGER.isLoggable(Level.FINE))
 	    LOGGER.fine(line);
+	if (mech.equalsIgnoreCase("PLAIN"))
+	    plain(ir);
+	else if (mech.equalsIgnoreCase("LOGIN"))
+	    login(ir);
+	else
+	    println("501 bad AUTH mechanism");
+    }
 
+    /**
+     * AUTH LOGIN
+     */
+    private void login(String ir) throws IOException {
 	println("334");
 	// read user name
 	String resp = readLine();
@@ -123,6 +134,24 @@ public class SMTPLoginHandler extends SMTPHandler {
 	    return;
 	}
 
+	println("235 Authenticated");
+    }
+
+    /**
+     * AUTH PLAIN
+     */
+    private void plain(String ir) throws IOException {
+	String auth = new String(BASE64DecoderStream.decode(
+				    ir.getBytes(StandardCharsets.US_ASCII)),
+				StandardCharsets.UTF_8);
+	String[] ap = auth.split("\000");
+	String u = ap[1];
+	String p = ap[2];
+	//System.out.printf("USER: %s, PASSWORD: %s%n", u, p);
+	if (!u.equals(username) || !p.equals(password)) {
+	    println("535 authentication failed");
+	    return;
+	}
 	println("235 Authenticated");
     }
 

@@ -1004,11 +1004,11 @@ public class SMTPTransport extends Transport {
 	    OutputStream b64os =
 			new BASE64EncoderStream(bos, Integer.MAX_VALUE);
 	    if (authzid != null)
-		b64os.write(toBytes(authzid));
+		b64os.write(authzid.getBytes(StandardCharsets.UTF_8));
 	    b64os.write(0);
-	    b64os.write(toBytes(user));
+	    b64os.write(user.getBytes(StandardCharsets.UTF_8));
 	    b64os.write(0);
-	    b64os.write(toBytes(passwd));
+	    b64os.write(passwd.getBytes(StandardCharsets.UTF_8));
 	    b64os.flush(); 	// complete the encoding
 
 	    return ASCIIUtility.toString(bos.toByteArray());

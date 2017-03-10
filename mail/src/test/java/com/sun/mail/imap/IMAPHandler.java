@@ -272,6 +272,8 @@ public class IMAPHandler extends ProtocolHandler {
             delete(currentLine);
         } else if (commandName.equals("STATUS")) {
             status(currentLine);
+        } else if (commandName.equals("NAMESPACE")) {
+            namespace();
         } else {
             LOGGER.log(Level.SEVERE, "ERROR command unknown: {0}",
 							escape(currentLine));
@@ -506,6 +508,15 @@ public class IMAPHandler extends ProtocolHandler {
      */
     public void status(String line) throws IOException {
         no("can't get status");
+    }
+
+    /**
+     * NAMESPACE command.
+     *
+     * @throws IOException unable to read/write to socket
+     */
+    public void namespace() throws IOException {
+        no("no namespaces");
     }
 
     /**

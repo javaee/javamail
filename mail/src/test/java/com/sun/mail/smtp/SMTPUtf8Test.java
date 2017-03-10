@@ -84,6 +84,7 @@ public class SMTPUtf8Test {
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
             properties.setProperty("mail.smtp.port", "" + server.getPort());
+            properties.setProperty("mail.smtp.auth.mechanisms", "LOGIN");
 	    properties.setProperty("mail.mime.allowutf8",  "true");
             //properties.setProperty("mail.debug.auth", "true");
             Session session = Session.getInstance(properties);
@@ -130,6 +131,7 @@ public class SMTPUtf8Test {
             Properties properties = new Properties();
             properties.setProperty("mail.smtp.host", "localhost");
             properties.setProperty("mail.smtp.port", "" + server.getPort());
+            properties.setProperty("mail.smtp.auth.mechanisms", "LOGIN");
             //properties.setProperty("mail.debug.auth", "true");
             Session session = Session.getInstance(properties);
             //session.setDebug(true);
@@ -139,6 +141,52 @@ public class SMTPUtf8Test {
                 t.connect(user, user);
 		fail("Authentication DID NOT fail");
 	    } catch (AuthenticationFailedException ex) {
+		// success!
+	    } catch (Exception ex) {
+		fail(ex.toString());
+            } finally {
+                t.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+		server.interrupt();
+            }
+        }
+    }
+
+    /**
+     * Test using UTF-8 user name and PLAIN but without mail.mime.allowutf8.
+     */
+    @Test
+    public void testUtf8UserNamePlain() {
+        TestServer server = null;
+	final String user = "test\u03b1";
+        try {
+            server = new TestServer(new SMTPLoginHandler() {
+		@Override
+		public void auth(String line) throws IOException {
+		    username = user;
+		    password = user;
+		    super.auth(line);
+		}
+	    });
+            server.start();
+
+            Properties properties = new Properties();
+            properties.setProperty("mail.smtp.host", "localhost");
+            properties.setProperty("mail.smtp.port", "" + server.getPort());
+            properties.setProperty("mail.smtp.auth.mechanisms", "PLAIN");
+            //properties.setProperty("mail.debug.auth", "true");
+            Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            Transport t = session.getTransport("smtp");
+            try {
+                t.connect(user, user);
 		// success!
 	    } catch (Exception ex) {
 		fail(ex.toString());

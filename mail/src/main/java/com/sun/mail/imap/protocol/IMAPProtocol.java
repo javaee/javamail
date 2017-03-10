@@ -712,7 +712,7 @@ public class IMAPProtocol extends Protocol {
 				    nullByte + u + nullByte + p;
 
 		    // obtain b64 encoded bytes
-		    b64os.write(toBytes(s));
+		    b64os.write(s.getBytes(StandardCharsets.UTF_8));
 		    b64os.flush(); 	// complete the encoding
 
 		    bos.write(CRLF); 	// CRLF termination
