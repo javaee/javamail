@@ -275,10 +275,29 @@ public class SocketFetcher {
 		", connection timeout " + cto + ", timeout " + to +
 		", socket factory " + sf + ", useSSL " + useSSL);
 		
-	String socksHost = props.getProperty(prefix + ".socks.host", null);
+	String proxyHost = props.getProperty(prefix + ".proxy.host", null);
+	int proxyPort = 80;
+	String socksHost = null;
 	int socksPort = 1080;
 	String err = null;
-	if (socksHost != null) {
+
+	if (proxyHost != null) {
+	    int i = proxyHost.indexOf(':');
+	    if (i >= 0) {
+		proxyHost = proxyHost.substring(0, i);
+		try {
+		    proxyPort = Integer.parseInt(proxyHost.substring(i + 1));
+		} catch (NumberFormatException ex) {
+		    // ignore it
+		}
+	    }
+	    proxyPort = PropUtil.getIntProperty(props,
+					prefix + ".proxy.port", proxyPort);
+	    err = "Using web proxy host, port: " + proxyHost + ", " + proxyPort;
+	    if (logger.isLoggable(Level.FINER))
+		logger.finer("web proxy host " + proxyHost + ", port " + proxyPort);
+	} else if ((socksHost =
+		    props.getProperty(prefix + ".socks.host", null)) != null) {
 	    int i = socksHost.indexOf(':');
 	    if (i >= 0) {
 		socksHost = socksHost.substring(0, i);
@@ -325,7 +344,9 @@ public class SocketFetcher {
 	    socket.bind(new InetSocketAddress(localaddr, localport));
 	try {
 	    logger.finest("connecting...");
-	    if (cto >= 0)
+	    if (proxyHost != null)
+		proxyConnect(socket, proxyHost, proxyPort, host, port, cto);
+	    else if (cto >= 0)
 		socket.connect(new InetSocketAddress(host, port), cto);
 	    else
 		socket.connect(new InetSocketAddress(host, port));
@@ -779,6 +800,65 @@ public class SocketFetcher {
 		    server.regionMatches(true, off, tail, 0, tail.length());
 	} else
 	    return server.equalsIgnoreCase(name);
+    }
+
+    /**
+     * Use the HTTP CONNECT protocol to connect to a
+     * site through an HTTP proxy server. <p>
+     *
+     * Protocol is roughly:
+     * <pre>
+     * CONNECT <host>:<port> HTTP/1.0
+     * <blank line>
+     *
+     * HTTP/1.0 200 Connect established
+     * <headers>
+     * <blank line>
+     * </pre>
+     */
+    private static void proxyConnect(Socket socket,
+				String proxyHost, int proxyPort,
+				String host, int port, int cto)
+				throws IOException {
+	if (logger.isLoggable(Level.FINE))
+	    logger.fine("connecting through proxy " +
+			proxyHost + ":" + proxyPort + " to " +
+			host + ":" + port);
+	if (cto >= 0)
+	    socket.connect(new InetSocketAddress(proxyHost, proxyPort), cto);
+	else
+	    socket.connect(new InetSocketAddress(proxyHost, proxyPort));
+	PrintStream os = new PrintStream(socket.getOutputStream());
+	os.print("CONNECT " + host + ":" + port + " HTTP/1.0\r\n\r\n");
+	os.flush();
+	BufferedReader r = new BufferedReader(new InputStreamReader(
+						socket.getInputStream()));
+	String line;
+	boolean first = true;
+	while ((line = r.readLine()) != null) {
+	    logger.finest(line);
+	    if (line.length() == 0)
+		break;
+	    if (first) {
+		StringTokenizer st = new StringTokenizer(line);
+		String http = st.nextToken();
+		String code = st.nextToken();
+		if (!code.equals("200")) {
+		    try {
+			socket.close();
+		    } catch (IOException ioex) {
+			// ignored
+		    }
+		    ConnectException ex = new ConnectException(
+			"connection through proxy " +
+			proxyHost + ":" + proxyPort + " to " +
+			host + ":" + port + " failed: " + line);
+		    logger.log(Level.FINE, "connect failed", ex);
+		    throw ex;
+		}
+		first = false;
+	    }
+	}
     }
 
     /**

@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -757,6 +757,26 @@ Defaults to false.
 </TD>
 </TR>
 
+<A NAME="mail.imap.proxy.host"></A>
+<TR id="mail.imap.proxy.host">
+<TD>mail.imap.proxy.host</TD>
+<TD>string</TD>
+<TD>
+Specifies the host name of an HTTP web proxy server that will be used for
+connections to the mail server.
+</TD>
+</TR>
+
+<A NAME="mail.imap.proxy.port"></A>
+<TR id="mail.imap.proxy.port">
+<TD>mail.imap.proxy.port</TD>
+<TD>string</TD>
+<TD>
+Specifies the port number for the HTTP web proxy server.
+Defaults to port 80.
+</TD>
+</TR>
+
 <A NAME="mail.imap.socks.host"></A>
 <TR id="mail.imap.socks.host">
 <TD>mail.imap.socks.host</TD>
@@ -764,7 +784,6 @@ Defaults to false.
 <TD>
 Specifies the host name of a SOCKS5 proxy server that will be used for
 connections to the mail server.
-(Note that this only works on JDK 1.5 or newer.)
 </TD>
 </TR>
 
