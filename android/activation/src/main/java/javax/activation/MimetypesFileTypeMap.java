@@ -60,16 +60,18 @@ import com.sun.activation.registries.LogSupport;
  * <ol>
  * <li> Programmatically added entries to the MimetypesFileTypeMap instance.
  * <li> The file <code>.mime.types</code> in the user's home directory.
- * <li> The file <code><i>java.home</i>/<i>conf</i>/mime.types</code>.
+ * <li> The file <code>mime.types</code> in the Java runtime.
  * <li> The file or resources named <code>META-INF/mime.types</code>.
  * <li> The file or resource named <code>META-INF/mimetypes.default</code>
  * (usually found only in the <code>activation.jar</code> file).
  * </ol>
  * <p>
- * (Where <i>java.home</i> is the value of the "java.home" System property
- * and <i>conf</i> is the directory named "conf" if it exists,
- * otherwise the directory named "lib"; the "conf" directory was
- * introduced in JDK 1.9.)
+ * (The current implementation looks for the <code>mime.types</code> file
+ * in the Java runtime in the directory <code><i>java.home</i>/conf</code>
+ * if it exists, and otherwise in the directory
+ * <code><i>java.home</i>/lib</code>, where <i>java.home</i> is the value
+ * of the "java.home" System property.  Note that the "conf" directory was
+ * introduced in JDK 9.)
  * <p>
  * <b>MIME types file format:</b><p>
  *
