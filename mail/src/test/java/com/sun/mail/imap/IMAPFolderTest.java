@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -399,6 +399,56 @@ public final class IMAPFolderTest {
 			ok();
 		    } else
 			no("wrong name");
+		}
+	    });
+    }
+
+    /**
+     * Test that UIDNOTSTICKY is false in the formal case.
+     */
+    @Test
+    public void testUidNotStickyFalse() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Store store, IMAPHandler handler)
+				    throws MessagingException, IOException {
+		    Folder test = store.getFolder("test");
+		    try {
+			test.open(Folder.READ_WRITE);
+			assertFalse(((IMAPFolder)test).getUIDNotSticky());
+		    } finally {
+			test.close();
+		    }
+		}
+	    },
+	    new IMAPHandler());
+    }
+
+    /**
+     * Test that UIDNOTSTICKY is true when the untagged response is included.
+     */
+    @Test
+    public void testUidNotStickyTrue() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Store store, IMAPHandler handler)
+				    throws MessagingException, IOException {
+		    Folder test = store.getFolder("test");
+		    try {
+			test.open(Folder.READ_WRITE);
+			assertTrue(((IMAPFolder)test).getUIDNotSticky());
+		    } finally {
+			test.close();
+		    }
+		}
+	    },
+	    new IMAPHandler() {
+		@Override
+		public void select(String line) throws IOException {
+		    untagged("NO [UIDNOTSTICKY]");
+		    super.select(line);
 		}
 	    });
     }

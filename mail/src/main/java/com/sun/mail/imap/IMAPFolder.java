@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -276,6 +276,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     					// the server
     private long uidvalidity = -1;	// UIDValidity
     private long uidnext = -1;		// UIDNext
+    private boolean uidNotSticky = false;	// RFC 4315
     private volatile long highestmodseq = -1;	// RFC 4551 - CONDSTORE
     private boolean doExpungeNotification = true; // used in expunge handler
 
@@ -1108,6 +1109,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    recent = mi.recent;
 	    uidvalidity = mi.uidvalidity;
 	    uidnext = mi.uidnext;
+	    uidNotSticky = mi.uidNotSticky;
 	    highestmodseq = mi.highestmodseq;
 
 	    // Create the message cache of appropriate size
@@ -2765,6 +2767,24 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	}
 
 	return uid;
+    }
+
+    /**
+     * Servers that support the UIDPLUS extension
+     * (<A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>)
+     * may indicate that this folder does not support persistent UIDs;
+     * that is, UIDVALIDITY will be different each time the folder is
+     * opened.  Only valid when the folder is open.
+     *
+     * @return	true if UIDs are not sticky
+     * @exception	MessagingException for failures
+     * @exception	IllegalStateException	if the folder isn't open
+     * @see "RFC 4315"
+     * @since	JavaMail 1.6.0
+     */
+    public synchronized boolean getUIDNotSticky() throws MessagingException {
+	checkOpened();
+	return uidNotSticky;
     }
 
     /**

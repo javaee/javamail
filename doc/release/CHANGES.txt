@@ -52,6 +52,7 @@ K  8833	SMTP support for the CHUNKING extension of RFC 3030
 K  8846	MimeUtility.unfold squashes multiple spaces
 K  9169	JavaMail PLAIN authentication should implement RFC 4616
 K  9418	Support connecting through web proxy servers
+K 19563	support UIDPLUS UIDNOTSTICKY response code
 
 
 		  CHANGES IN THE 1.5.6 RELEASE

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -69,6 +69,8 @@ public class MailboxInfo {
     public long uidvalidity = -1;
     /** The next UID value to be assigned. */
     public long uidnext = -1;
+    /** UIDs are not sticky. */
+    public boolean uidNotSticky = false;	// RFC 4315
     /** The highest MODSEQ value. */
     public long highestmodseq = -1;	// RFC 4551 - CONDSTORE
     /** Folder.READ_WRITE or Folder.READ_ONLY, set by IMAPProtocol. */
@@ -137,6 +139,29 @@ public class MailboxInfo {
 		    uidnext = ir.readLong();
 		else if (s.equalsIgnoreCase("HIGHESTMODSEQ"))
 		    highestmodseq = ir.readLong();
+		else
+		    handled = false;	// possibly an ALERT
+
+		if (handled)
+		    r[i] = null; // remove this response
+		else
+		    ir.reset();	// so ALERT can be read
+	    } else if (ir.isUnTagged() && ir.isNO()) {
+		/*
+		 * should be one of:
+		 * 	* NO [UIDNOTSTICKY]
+		 */
+		ir.skipSpaces();
+
+		if (ir.readByte() != '[') {	// huh ???
+		    ir.reset();
+		    continue;
+		}
+
+		boolean handled = true;
+		String s = ir.readAtom();
+		if (s.equalsIgnoreCase("UIDNOTSTICKY"))
+		    uidNotSticky = true;
 		else
 		    handled = false;	// possibly an ALERT
 
