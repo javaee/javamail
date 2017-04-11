@@ -2,7 +2,7 @@
 #
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 #
-# Copyright (c) 2010-2012 Oracle and/or its affiliates. All rights reserved.
+# Copyright (c) 2010-2017 Oracle and/or its affiliates. All rights reserved.
 #
 # The contents of this file are subject to the terms of either the GNU
 # General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,8 @@
 #
 new=$1
 # find the second version string in pom.xml, which is the old version
+# this is almost the same as "mvn versions:set -DnewVersion=$1"
+# except that misses mbox/native/pom.xml and oldmail/pom.xml
 old=`grep '<version>.*</version>' pom.xml | sed -n 2p | \
 	sed -e 's:.*<version>\(.*\)</version>.*:\1:'`
 for file in `find . -name 'pom.xml' `
