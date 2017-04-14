@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.imap;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Set;
@@ -53,6 +54,7 @@ import javax.mail.Message;
 import javax.mail.Multipart;
 import javax.mail.BodyPart;
 import javax.mail.MessagingException;
+import javax.mail.internet.MimeUtility;
 
 import com.sun.mail.test.TestServer;
 
@@ -74,13 +76,21 @@ public final class IMAPMessageTest {
     public Timeout deadlockTimeout = Timeout.seconds(20);
 
     private static final String RDATE = "23-Jun-2004 06:26:26 -0700";
-    private static final String ENVELOPE =
-	"(\"Wed, 23 Jun 2004 18:56:42 +0530\" \"test\" " +
+    private static final String ENV_DATE =
+	"\"Wed, 23 Jun 2004 18:56:42 +0530\"";
+    private static final String ENV_SUBJECT = "\"test\"";
+    private static final String ENV_UTF8_ENCODED_SUBJECT =
+      "=?UTF-8?B?VVRGOCB0ZXN0OiDgsqzgsr4g4LKH4LKy4LON4LKy4LK/IOCyuOCygg==?= " +
+      "=?UTF-8?B?4LKt4LK14LK/4LK44LOBIOCyh+CyguCypuCzhuCyqA==?= " +
+      "=?UTF-8?B?4LON4LKoIOCyueCzg+CypuCyr+CypuCysuCyvyA=?=";
+    private static final String ENV_ADDRS =
 	"((\"JavaMail\" NIL \"testuser\" \"example.com\")) " +
 	"((\"JavaMail\" NIL \"testuser\" \"example.com\")) " +
 	"((\"JavaMail\" NIL \"testuser\" \"example.com\")) " +
 	"((NIL NIL \"testuser\" \"example.com\")) NIL NIL NIL " +
-	"\"<40D98512.9040803@example.com>\")";
+	"\"<40D98512.9040803@example.com>\"";
+    private static final String ENVELOPE =
+	"(" + ENV_DATE + " " + ENV_SUBJECT + " " + ENV_ADDRS + ")";
 
     public static abstract class IMAPTest {
 	public void init(Properties props) { };
@@ -203,6 +213,71 @@ public final class IMAPMessageTest {
 		    else if (line.indexOf("BODY[2]") >= 0)
 			untagged("1 FETCH (BODY[2] NIL " +
 				    "FLAGS (\\Seen \\Recent))");
+		    ok();
+		}
+	    });
+    }
+
+    /**
+     * Test that a UTF-8 encoded Subject is decoded properly.
+     */
+    @Test
+    public void testUtf8SubjectEncoded() {
+	String s = null;
+	try {
+	    s = MimeUtility.decodeText(ENV_UTF8_ENCODED_SUBJECT);
+	} catch (UnsupportedEncodingException ex) {
+	}
+	final String subject = s;
+
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Folder folder, IMAPHandlerMessage handler)
+				    throws MessagingException {
+		    Message m = folder.getMessage(1);
+		    assertEquals(subject, m.getSubject());
+		}
+	    },
+	    new IMAPHandlerMessage() {
+		{{
+		    envelope = "(" + ENV_DATE + " \"" +
+				ENV_UTF8_ENCODED_SUBJECT + "\" " +
+				ENV_ADDRS + ")";
+		}}
+	    });
+    }
+
+    /**
+     * Test that a UTF-8 Subject is decoded properly.
+     */
+    @Test
+    public void testUtf8Subject() {
+	String s = null;
+	try {
+	    s = MimeUtility.decodeText(ENV_UTF8_ENCODED_SUBJECT);
+	} catch (UnsupportedEncodingException ex) {
+	}
+	final String subject = s;
+
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Folder folder, IMAPHandlerMessage handler)
+				    throws MessagingException {
+		    Message m = folder.getMessage(1);
+		    assertEquals(subject, m.getSubject());
+		}
+	    },
+	    new IMAPHandlerMessage() {
+		{{
+		    envelope = "(" + ENV_DATE + " \"" + subject + "\" " +
+				    ENV_ADDRS + ")";
+		    capabilities += " ENABLE UTF8=ACCEPT";
+		}}
+
+		@Override
+		public void enable(String line) throws IOException {
 		    ok();
 		}
 	    });
