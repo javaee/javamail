@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css?' | relative_url }}" media="screen" type="text/css">
+    <link rel="stylesheet" href="{{ '/assets/css/print.css' | relative_url }}" media="print" type="text/css">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>{{ site.title | default: site.github.repository_name }}</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <a href="{{ '/' | absolute_url }}">
+          <h1>{{ site.title | default: site.github.repository_name }}</h1>
+        </a>
+        <h2>{{ site.description | default: site.github.project_tagline }}</h2>
+        {% if site.github.is_project_page %}
+        <a href="{{ '/' | absolute_url }}" class="button"></a>
+        {% endif %}
+        {% if site.github.is_user_page %}
+          <a href="{{ site.github.repository_url }}" class="button"><small>Follow me on</small> GitHub</a>
+        {% endif %}
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          {{ content }}
+        </section>
+
+        <aside id="sidebar">
+          
+          <hr/>
+
+          <div class="moveright">
+          {% if site.links.source %}
+             <h2><a href="{{ site.links.source }}"><p>Sources</p></a></h2>
+          {% endif %}
+          
+          {% if site.links.javadocs %}
+             <h2><a href="{{ site.links.javadocs }}"><p>APIs</p></a></h2>
+          {% endif %}
+          
+          {% if site.links.download %}
+             <h2><a href="{{ site.links.download }}"><p>Download</p></a></h2>
+          {% endif %}
+
+          {% if site.links.issuetracker %}
+             <h2><a href="{{ site.links.issuetracker }}"><p>Issue Tracker</p></a></h2>
+          {% endif %}
+
+          {% if site.links.mailinglist %}
+             <h2><a href="{{ site.links.mailinglist }}"><p>Mailing List</p></a></h2>
+          {% endif %}
+          
+          <!--h2>
+          <a href="{{ site.github.zip_url }}">
+            Source code
+          </a>
+          </h2-->
+
+          {% if site.links.contribute %}
+             <h2><a href="{{ site.links.contribute }}"><p>Contribute</p></a></h2>
+          {% endif %}
+ 
+          {% if site.links.faq %}
+             <h2><a href="{{ site.links.faq }}"><p>FAQ</p></a></h2>
+          {% endif %}
+ 
+          <h2>
+          <a href="{{ site.links.license }}">
+            <p>License</p>
+          </a>
+          </h2>
+          
+          </div>
+          
+          <hr/>
+          
+          <div class="moveright30">
+          <div class="sponsor">Sponsored by </div>
+          <div class="sponsor">
+            <a href="http://www.oracle.com"><img width="80" src="assets/images/Oracle-logo.png"/></a>
+          </div>
+          </div>
+          
+
+            
+          {% if site.show_downloads %}
+            <a href="{{ site.github.zip_url }}" class="button">
+              <small>Download</small>
+              .zip file
+            </a>
+            <a href="{{ site.github.tar_url }}" class="button">
+              <small>Download</small>
+              .tar.gz file
+            </a>
+          {% endif %}
+
+        </aside>
+      </div>
+    </div>
+
+    {% if site.google_analytics %}
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+      </script>
+      <script type="text/javascript">
+        try {
+          var pageTracker = _gat._getTracker("{{ site.google_analytics }}");
+        pageTracker._trackPageview();
+        } catch(err) {}
+      </script>
+    {% endif %}
+  </body>
+</html>

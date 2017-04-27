@@ -1,0 +1,135 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+a {
+  font-weight: bold;
+  color: #474747;
+}
+
+p {
+  font-weight: 300;
+  font-size: 1.2em;
+}
+
+.highlight { 
+  background-color: #ffffff;
+}
+
+.sponsor {
+  float: left;
+  padding-top: 15px;
+}
+
+.moveright30{
+  padding-left: 30px;
+}
+
+.moveright{
+  padding-left: 40px;
+}
+
+header {
+  padding-top: 35px;
+  padding-bottom: 10px;
+}
+
+header a.button {
+  background: transparent url(../images/logo.png) 0 0 no-repeat;
+}
+
+
+h1 {
+  font-size: 24px;
+  font-weight: light;
+}
+
+header h1 {
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: #FFFFFF;
+  letter-spacing: 0px;
+  //letter-spacing: -1px;
+}
+
+header h2 {
+  width: 540px;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.3;
+  //color: #9ddcff;
+  color: #ec7D11; // blueish
+  letter-spacing: 0;
+}
+
+
+aside#sidebar {
+  padding-top: 60px;
+  line-height: 1.3;
+}
+
+hr {
+  border:none;
+  height: 10px;
+ 	width: 75%;
+	height: 50px;
+	margin-top: 0;
+	border-bottom: 1px solid #cccccc;
+	box-shadow: 0 20px 20px -20px #aaa;
+  margin: -50px auto 10px; 
+}
+
+#main-content h1 {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: Arial;
+  font-size: 2em;
+  font-weight: 500;
+  color: #474747;
+  text-indent: 6px;
+  letter-spacing: -1px;
+}
+
+#main-content h1:before {
+  padding-right: 0.3em;
+  margin-left: -0.9em;
+  //color: #093B4F;
+  //color: #E0E0E0;
+  //color: #ec7D11; // orangeish
+  color: #3c657b; // blue
+  content: "//";
+  font-weight: 500;
+}
+
+#main-content h2 {
+  margin-bottom: 8px;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, serif;
+  font-size: 20px;
+  font-weight: 500;
+  //color: #474747;
+  color: #3c657b; // blue
+  text-indent: 4px;
+}
+
+#main-content h2:before {
+  padding-right: 1.3em;
+  //margin-left: -1.5em;
+  content: "";
+  color: #E0E0E0;
+  font-weight: 400;
+}
+
+
+header {
+  padding-top: 40px;
+  padding-bottom: 30px;
+  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, serif;
+  background: url(../images/header-bkg.jpg) 0 0 repeat-x;
+  border-bottom: solid 1px #E0E0E0;  
+}
+
+td, th { text-align: left; padding: 2px; border: 1px solid #ebebeb; }

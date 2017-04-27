@@ -1,0 +1,3559 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+<!--
+
+    DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+    Copyright (c) 2010-2017 Oracle and/or its affiliates. All rights reserved.
+
+    The contents of this file are subject to the terms of either the GNU
+    General Public License Version 2 only ("GPL") or the Common Development
+    and Distribution License("CDDL") (collectively, the "License").  You
+    may not use this file except in compliance with the License.  You can
+    obtain a copy of the License at
+    https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
+    or packager/legal/LICENSE.txt.  See the License for the specific
+    language governing permissions and limitations under the License.
+
+    When distributing the software, include this License Header Notice in each
+    file and include the License file at packager/legal/LICENSE.txt.
+
+    GPL Classpath Exception:
+    Oracle designates this particular file as subject to the "Classpath"
+    exception as provided by Oracle in the GPL Version 2 section of the License
+    file that accompanied this code.
+
+    Modifications:
+    If applicable, add the following below the License Header, with the fields
+    enclosed by brackets [] replaced by your own identifying information:
+    "Portions Copyright [year] [name of copyright owner]"
+
+    Contributor(s):
+    If you wish your version of this file to be governed by only the CDDL or
+    only the GPL Version 2, indicate your decision by adding "[Contributor]
+    elects to include this software in this distribution under the [CDDL or GPL
+    Version 2] license."  If you don't indicate a single choice of license, a
+    recipient has the option to distribute your version of this file under
+    either the CDDL, the GPL Version 2 or to extend the choice of license to
+    its licensees as provided above.  However, if you add GPL Version 2 code
+    and therefore, elected the GPL Version 2 license, then the option applies
+    only if the new code is made subject to such option by the copyright
+    holder.
+
+-->
+
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="/test/assets/css/style.css" media="screen" type="text/css">
+    <link rel="stylesheet" href="/test/assets/css/print.css" media="print" type="text/css">
+    <!-- fix ugliness from inherited style -->
+    <style>
+	#main-content { width: 100%; }
+	ol { padding-left: 20px; }
+    </style>
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>JavaMail FAQ</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <a href="https://javaee.github.io/javamail/">
+          <h1>JavaMail</h1>
+        </a>
+        <h2>JavaMail Reference Implementation</h2>
+ 
+        <a href="https://javaee.github.io/javamail/" class="button"></a>
+ 
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+
+<h1>Frequently Asked Questions</h1>
+<!-- content goes here -->
+
+<!-- BEGIN INDEX -->
+<H2><STRONG>General</STRONG></H2>
+<UL>
+    <LI><A HREF="#1">What is the JavaMail API?</A><BR>
+    <LI><A HREF="#getJM">How do I get an implementation of the JavaMail API?</A><BR>
+    <LI><A HREF="#feedback">How do I send feedback or comments?</A>
+<BR>
+    <LI><A HREF="#JAF">Where is <code>javax.activation</code>?</A><BR>
+    <LI><A HREF="#JDK">What JDK does the JavaMail API need?</A><BR>
+    <LI><A HREF="#ossup">Where can I find a version of JavaMail for my favorite
+operating system?</A>
+<BR>
+    <LI><A HREF="#browsers">Do the JavaMail APIs work in web browsers?</A><BR>
+    <LI><A HREF="#webmail">Can I use JavaMail to read mail from my web mail account
+(such as Yahoo or Hotmail)?
+</A>
+<BR>
+    <LI><A HREF="#imap">What is IMAP?</A><BR>
+    <LI><A HREF="#smtp">What is SMTP?</A><BR>
+    <LI><A HREF="#mime">What is MIME?</A><BR>
+    <LI><A HREF="#pop3q">What is POP3?</A><BR>
+    <LI><A HREF="#otherprovs">What about support for MAPI, NNTP, Lotus Notes,
+and other service providers?</A><BR>
+    <LI><A HREF="#localprovs">How do I store mail messages on my local disk?</A>
+<BR>
+    <LI><A HREF="#sundocs">Where do I find documentation on the protocol providers?</A>
+<BR>
+    <LI><A HREF="#free">Is the JavaMail API implementation completely free?
+Can I ship it along with my product?</A><BR>
+    <LI><A HREF="#source">Can I get the source code for the JavaMail API
+implementation?</A>
+<BR>
+    <LI><A HREF="#y2k">Is JavaMail Y2K compliant?</A><BR>
+    <LI><A HREF="#more">The answer to my question isn't here, where else should I look?
+</A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>Installation and Configuration</STRONG></H2>
+<UL>
+    <LI><A HREF="#install">How do I install the JavaMail API implementation?</A>
+<BR>
+    <LI><A HREF="#classpath">I get a ClassNotFoundException when I run my program.</A>
+<BR>
+    <LI><A HREF="#classpathwin">How do I set my CLASSPATH on Windows?
+</A>
+<BR>
+    <LI><A HREF="#libnetbeans">How do I add the JavaMail library to my NetBeans Java Project?
+</A>
+<BR>
+    <LI><A HREF="#libeclipse">How do I add the JavaMail library to my Eclipse Java Project?
+</A>
+<BR>
+    <LI><A HREF="#incservers">Does JavaMail include all the necessary mail servers? </A>
+<BR>
+    <LI><A HREF="#servers">Where can I get the necessary mail servers?</A>
+<BR>
+    <LI><A HREF="#whichserver">What host name, user name, or password should I use?</A>
+<BR>
+    <LI><A HREF="#proxy">How do I configure JavaMail to work through my proxy server?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 1/27/2015">
+<BR>
+    <LI><A HREF="#installcert">When connecting to my mail server over SSL I get an exception like
+"unable to find valid certification path to requested target".
+</A>
+<BR>
+    <LI><A HREF="#linuxzip">While trying to run my program on Linux I get a very strange
+error message and the program fails.  What did I do wrong?</A><BR>
+    <LI><A HREF="#securityManager">How do I use JavaMail in an application run under a SecurityManager;
+what permissions must I grant to the application and to JavaMail?
+</A>
+<BR>
+    <LI><A HREF="#tomcatconfig">How do I configure Tomcat to allow me to use JavaMail in my
+web application?
+</A>
+<BR>
+    <LI><A HREF="#servletcp">When using JavaMail in my servlet, it is unable to find any of
+the JavaMail classes.  I've added mail.jar to the server's CLASSPATH.
+</A>
+<BR>
+    <LI><A HREF="#dupcp">I'm sure I've set my CLASSPATH correctly, but I'm still getting
+complaints about classes that can't be found, such as <code>com.sun.mail</code>
+classes.
+</A>
+<BR>
+    <LI><A HREF="#servletSecurityManager">My servlet can find the JavaMail classes, but JavaMail complains
+that it can't find a service provider for "smtp" or "imap" or address
+type "rfc822".
+</A>
+<BR>
+    <LI><A HREF="#gmail">How do I access Gmail with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+    <LI><A HREF="#gmailauth">Why do I get AuthenticationFailedException when
+accessing Gmail? </A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 4/23/2015">
+<BR>
+    <LI><A HREF="#gmailsettings">Why don't I see all my messages when accessing Gmail with POP3? </A>
+<BR>
+    <LI><A HREF="#gmailsearch">Why doesn't search find all the messages I expect when accessing
+Gmail with IMAP? </A>
+<BR>
+    <LI><A HREF="#gmaildelete">How do I delete a message in Gmail?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 9/21/2016">
+<BR>
+    <LI><A HREF="#yahoomail">How do I access Yahoo! Mail with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+    <LI><A HREF="#hotmail">How do I access Hotmail (Windows Live mail) with JavaMail? </A>
+<BR>
+    <LI><A HREF="#outlook">How do I access Outlook.com with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>Programming</STRONG></H2>
+<UL>
+    <LI><A HREF="#basics">Where can I learn the basics about Internet email that
+I'll need to know to program JavaMail effectively? </A>
+<BR>
+    <LI><A HREF="#examples">Where can I find some example programs that show how to use JavaMail? </A>
+<BR>
+    <LI><A HREF="#commonmistakes">What are some of the most common mistakes people make
+when using JavaMail? </A>
+<BR>
+    <LI><A HREF="#attach">How do I send a message with an attachment?</A>
+<BR>
+    <LI><A HREF="#hasattach">How do I tell if a message has attachments?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 12/18/2014">
+<BR>
+    <LI><A HREF="#readattach">How do I read a message with an attachment and save the
+attachment?</A>
+<BR>
+    <LI><A HREF="#mainbody">How do I find the main message body in a message that has
+attachments? </A>
+<BR>
+    <LI><A HREF="#attachments">How do I find the attachments in a message? </A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 6/9/2016">
+<BR>
+    <LI><A HREF="#getunread">How do I get all the unread messages in a folder? </A>
+<BR>
+    <LI><A HREF="#ismimetype">Should I use the <code>isMimeType</code> method,
+or should I use <code>instanceof</code> on the object returned by the
+<code>getContent</code> method, when deciding how to process a message
+part? </A>
+<BR>
+    <LI><A HREF="#castmultipart">When reading a multipart message, why is the getContent
+method returning an IMAPInputStream (or SharedByteArrayInputStream) instead
+of a MimeMultipart object? </A>
+<BR>
+    <LI><A HREF="#filetype">When I attach a file it gets a MIME type of
+<code>application/octet-stream</code> instead of the correct MIME type. </A>
+<BR>
+    <LI><A HREF="#overridefiletype">How do I manually set the MIME type for an attached file,
+for example in the case where the filename doesn't have an obvious extension?
+</A>
+<BR>
+    <LI><A HREF="#anytype">How do I create a multipart message with a part of any
+MIME type I choose?</A>
+<BR>
+    <LI><A HREF="#readofficedoc">Can I read or send a Microsoft Office document using
+JavaMail? </A>
+<BR>
+    <LI><A HREF="#ical">How do I create or process calendar appointments?</A>
+<BR>
+    <LI><A HREF="#getdefaultinstance">When should I use <code>Session.getDefaultInstance</code>
+and when should I use <code>Session.getInstance</code>? </A>
+<BR>
+    <LI><A HREF="#disco">What is "disconnected support"?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 5/11/2015">
+<BR>
+    <LI><A HREF="#whendisco">How do I support disconnected operation using the
+JavaMail APIs?</A><BR>
+    <LI><A HREF="#security">How do I send secure email using the JavaMail APIs?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+    <LI><A HREF="#repres">The <code>writeTo()</code> method generates message text
+with lines that are neither the canonical MIME representation of the data
+(i.e., using CRLF to terminate lines), nor using the canonical line
+separator of my platform (e.g., "\n" on UNIX).  How do I get either
+of these representations if I need them?</A><BR>
+    <LI><A HREF="#javamailserver">Can I use the JavaMail APIs to implement a
+mail server?</A><BR>
+    <LI><A HREF="#newusers">Can I use the JavaMail APIs to add new user accounts to my
+mail server, remove user accounts from my mail server, or change the passwords
+for user accounts on my mail server?</A>
+<BR>
+    <LI><A HREF="#addressbook">Can I use the JavaMail APIs to access my address book
+on my mail server?</A>
+<BR>
+    <LI><A HREF="#serialize">Why doesn't the MimeMessage class implement Serializable
+so that I can serialize a message to disk and read it back later?
+</A>
+<BR>
+    <LI><A HREF="#myservprov">How do I write a Service Provider?</A><BR>
+    <LI><A HREF="#Exchange-login">I'm having trouble logging into my Microsoft Exchange server,
+even though I'm sure I'm using the correct username and password, what
+could I be doing wrong?
+</A>
+<BR>
+    <LI><A HREF="#encodebinary">How do I encode a binary file before sending it and how do I
+decode it when I receive it?
+</A>
+<BR>
+    <LI><A HREF="#whenencode">If I don't need to encode and decode attachments myself,
+when should I use the <code>MimeUtility</code> methods?
+</A>
+<BR>
+    <LI><A HREF="#preencoded">I have data that's already encoded in (e.g.) base64, how do I
+tell JavaMail to send this data without re-encoding it?
+</A>
+<BR>
+    <LI><A HREF="#howencode">Even though JavaMail does all the encoding and decoding for me,
+I need to manually control the encoding for some body parts.
+</A>
+<BR>
+    <LI><A HREF="#encodefilename">Why doesn't JavaMail properly encode and decode filenames in
+non-ASCII character sets?
+</A>
+<BR>
+    <LI><A HREF="#ipv6perm">Why do I get an error such as
+<code>java.net.SocketException: Permission denied: connect</code>
+when connecting to my mail server using JDK7?</A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>Debugging</STRONG></H2>
+<UL>
+    <LI><A HREF="#debug">How do I debug my application that uses JavaMail APIs?</A><BR>
+    <LI><A HREF="#condebug">How do I debug problems connecting to my mail server?</A>
+<BR>
+    <LI><A HREF="#ssldebug">How do I debug problems connecting to my mail server using SSL?</A>
+<BR>
+    <LI><A HREF="#permdebug">How do I debug problems with Java security permissions? </A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>Reading mail, IMAP</STRONG></H2>
+<UL>
+    <LI><A HREF="#error">I tried running your demos against my IMAP server,
+but I get an error.</A>
+<BR>
+    <LI><A HREF="#imapserverbug">I can read messages from my IMAP server with other mail clients,
+but even though I can connect to the server using JavaMail, when I use
+JavaMail to read some messages it fails.  Doesn't that mean there's a bug
+in JavaMail?
+</A>
+<BR>
+    <LI><A HREF="#fetch">The IMAP provider seems to lose data when I fetch messages with large
+attachments.</A><BR>
+    <LI><A HREF="#cache">Does the IMAP provider cache the retrieved data?</A><BR>
+    <LI><A HREF="#mvmsg">I want to move messages between folders. Should I use 
+<code>appendMessages()</code> or <code>copyMessages()</code>?</A><BR>
+    <LI><A HREF="#lgmsg">Retrieving large message bodies seems inefficient at times.</A><BR>
+    <LI><A HREF="#lgbin">I get OutOfMemory errors when loading this large binary attachement.
+</A><BR>
+    <LI><A HREF="#getContent">Why do I get the UnsupportedDataTypeException when I invoke
+<code>getContent()</code> on a bodypart?</A><BR>
+    <LI><A HREF="#unsupen">Why do I get the UnsupportedEncodingException when I invoke
+<code>getContent()</code> on a bodypart that contains text data?</A>
+<BR>
+    <LI><A HREF="#addlistener">How do I process all the messages in an IMAP folder
+and add a listener to wait for the arrival of new messages?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 3/2/2017">
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>Sending mail, SMTP</STRONG></H2>
+<UL>
+    <LI><A HREF="#reply">How do I reply to a message?
+</A>
+<BR>
+    <LI><A HREF="#forward">How do I forward a message?
+</A>
+<BR>
+    <LI><A HREF="#sendhtml">How do I send HTML mail?</A><BR>
+    <LI><A HREF="#sendrich">How do I send mail with formatted text using different fonts
+and colors?</A>
+<BR>
+    <LI><A HREF="#sendmpa">How do I send mail with both plain text as well as HTML text
+so that each mail reader can choose the format appropriate for it? </A>
+<BR>
+    <LI><A HREF="#sendmpr">How do I send HTML mail that includes images? </A>
+<BR>
+    <LI><A HREF="#send">What's the difference between the Transport methods
+<code>send</code> and <code>sendMessage</code>?
+</A>
+<BR>
+    <LI><A HREF="#smtpauth">When I try to send a message I get an error like
+<code>SMTPSendFailedException: 530, Address requires authentication</code>.
+</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 9/21/2016">
+<BR>
+    <LI><A HREF="#smtpssl">How do I use SSL or TLS when connecting to my mail server?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 9/21/2016">
+<BR>
+    <LI><A HREF="#connectsend">I need to authenticate to my SMTP server so I call
+<code>trans.connect(host, user, password)</code> and then
+<code>trans.send(msg)</code> to send the message, but it's not working.
+</A>
+<BR>
+    <LI><A HREF="#hdrs">I modified this message, but the headers do not reflect the changes.
+</A><BR>
+    <LI><A HREF="#msgid">I set a particular value for the Message-ID header of my
+new message, but when I send this message that header is rewritten.
+</A>
+<BR>
+    <LI><A HREF="#unsup">Why do I get an UnsupportedDataTypeException when sending this
+new message that I created?</A><BR>
+    <LI><A HREF="#smtpfrom">How can I explicitly set the SMTP FROM: attribute when sending a
+message?</A>
+<BR>
+    <LI><A HREF="#rptsend">I want to repeatedly send messages, to a different set of
+recipients each time. But invoking <code>Transport.send(Message)</code> causes
+a new Transport session to be established each time. This is
+suboptimal in this case, so how do I get around this?</A><BR>
+    <LI><A HREF="#helo">I get "MessagingException: 501 HELO requires domain address"
+when trying to send a message.</A>
+<BR>
+    <LI><A HREF="#starttls">I get "Must issue a STARTTLS command first"
+when trying to send a message.</A>
+<BR>
+    <LI><A HREF="#badaddr">If I send a message to a bad address, why don't I get a
+SendFailedException or TransportEvent indicating that the address is
+bad?</A><BR>
+    <LI><A HREF="#bounce">When a message can't be delivered, a failure message is returned.
+How can I detect these "bounced" messages?</A>
+<BR>
+    <LI><A HREF="#legaladdress">When I construct an InternetAddress object, why don't I get an
+exception if the address is illegal?
+</A>
+<BR>
+    <LI><A HREF="#norelay">When I try to send a message, why do I get
+<CODE>javax.mail.SendFailedException: 550 Unable to relay for
+<I>my-address</I></CODE>?</A>
+<BR>
+    <LI><A HREF="#connectionrefused">When I try to send a message to (for example) Yahoo,
+why do I get an error that says "connection refused"?</A>
+<BR>
+    <LI><A HREF="#checkpop3first">When sending mail, why does it fail with an exception that includes a
+message something like
+<code>553 To send mail, first check your mail with a valid POP account</code>?
+</A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>POP3</STRONG></H2>
+<UL>
+    <LI><A HREF="#delpop3">I want to delete messages on a POP3 server. I set the
+<code>DELETED</code> flag
+on those messages. Then I call the <code>expunge()</code> method, but I get a
+MethodNotSupportedException.
+How do I delete messages when I use the POP3 provider?</A><BR>
+    <LI><A HREF="#uilds">How can I retrieve POP3 UIDLs in messages obtained from the POP3
+provider?</A><BR>
+    <LI><A HREF="#newmsgs">How can I tell which messages are new with POP3?</A><BR>
+    <LI><A HREF="#newmsgs2">Why does <code>hasNewMessages()</code> always return false when using
+POP3?</A><BR>
+    <LI><A HREF="#newmsgs3">I set up a <code>MessageCountListener</code> (as demonstrated in the
+<CODE>monitor</CODE> program) but I'm never notified
+of new mail in my POP3 INBOX.</A><BR>
+    <LI><A HREF="#rcvdate">Why does <code>getReceivedDate()</code> return null when using
+POP3?</A><BR>
+    <LI><A HREF="#pop3111">When using POP3 I get complaints about the SocketFetcher class.
+</A>
+<BR>
+    <LI><A HREF="#pop312">When using POP3 I get complaints about the contentStream field.
+</A>
+<BR>
+    <LI><A HREF="#pop3folder">How do I access or create folders other than INBOX on my POP3 server?
+</A>
+<BR>
+    <LI><A HREF="#pop3size">Why does the <code>getSize</code> method return a negative number
+when using POP3?
+</A>
+<BR>
+    <LI><A HREF="#msexpopbug">I'm having problems using POP3 with Microsoft Exchange.
+</A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>JavaMail in servlets</STRONG></H2>
+<UL>
+    <LI><A HREF="#servlethow">Can I use JavaMail in servlets?
+</A>
+<BR>
+    <LI><A HREF="#fileupload">My web application uses JavaMail to attach and send a file that
+the user specifies, but my application can't find the file.
+</A>
+<BR>
+</UL>
+<BR>
+<BR>
+<H2><STRONG>JavaMail in applets</STRONG></H2>
+<UL>
+    <LI><A HREF="#applets">Can I use JavaMail in applets?
+</A>
+<BR>
+    <LI><A HREF="#appletsecurity">What are the security implications of using JavaMail in an applet?
+</A>
+<BR>
+    <LI><A HREF="#appletalt">Ok, maybe I really don't want to use an applet, what should I
+do instead?
+</A>
+<BR>
+</UL>
+<!-- END INDEX -->
+</P>
+
+<hr/>
+
+<P>
+<BR>
+<BR>
+<H2><STRONG>General</STRONG></H2>
+<BR />
+<BR />
+<P>
+<A NAME="1">
+<strong>Q:</strong> What is the JavaMail API?</A><BR>
+<strong>A:</strong> The JavaMail API is a set of 
+abstract APIs that model a mail system.
+The API provides a platform independent and protocol independent framework
+to build Java technology based email client applications.
+The JavaMail API provides facilities for reading and sending email.
+Service providers implement particular protocols.
+Several service providers are included with the JavaMail API package;
+others are available separately.
+The JavaMail API is implemented as a Java optional package that can be
+used on JDK 1.4 and later on any operating system.
+The JavaMail API is also a required part of the
+<A HREF="http://www.oracle.com/technetwork/java/javaee/overview/javaee-135128.html">
+Java Platform,
+Enterprise Edition (Java EE)</A>.
+</P>
+
+<P>
+<A NAME="getJM">
+<strong>Q:</strong> How do I get an implementation of the JavaMail API?</A><BR>
+<strong>A:</strong> Oracle provides a royalty-free reference 
+implementation, in binary form, that developers may use and ship.
+The reference implementation 
+includes the core JavaMail packages and IMAP, POP3, and SMTP service providers. 
+The reference implementation may be downloaded
+<A href="http://javamail.java.net/">here</A>.
+</P>
+
+<P>
+<A NAME="feedback">
+<strong>Q:</strong> How do I send feedback or comments?</A>
+<BR>
+<strong>A:</strong> Send email to <A href="mailto:javamail_ww@oracle.com">
+javamail_ww@oracle.com</A>.
+</P>
+
+<P>
+<A NAME="JAF">
+<strong>Q:</strong> Where is <code>javax.activation</code>?</A><BR>
+<strong>A:</strong> <code>javax.activation</code> is part of the JavaBeans
+Activation Framework (JAF).  JAF is part of the
+<A href="http://www.oracle.com/technetwork/java/javase/index-jsp-136939.html">JavaBeans "Glasgow" specification</A>
+and is included in Java SE 6.
+The JavaMail API uses JAF for data content handling.
+</P>
+
+<P>
+<A NAME="JDK">
+<strong>Q:</strong> What JDK does the JavaMail API need?</A><BR>
+<strong>A:</strong> The JavaMail API requires JDK/JRE 1.4 or higher.
+The JavaMail API is a Java
+optional package, it is not part of the core
+<A HREF="http://www.oracle.com/technetwork/java/javamail/faq/ssLINK/141415">Java SE</A>
+but <strong>is</strong> included in
+<A HREF="http://www.oracle.com/technetwork/java/javaee/overview/javaee-135128.html">Java EE</A>.
+</P>
+
+<P>
+<A NAME="ossup">
+<strong>Q:</strong> Where can I find a version of JavaMail for my favorite
+operating system?</A>
+<BR>
+<strong>A:</strong> JavaMail is completely written in Java and will run on
+any operating system that supports the required version of the JDK.
+No special version is needed for different operating systems.
+</P>
+
+<P>
+<A NAME="browsers">
+<strong>Q:</strong> Do the JavaMail APIs work in web browsers?</A><BR>
+<strong>A:</strong> JavaMail will work in any browser that supports the
+required JDK version.
+The <A HREF="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/applet/a
+pplet_dev_guide.html">
+Java Plug-in</A> may be required to provide such support.
+</P>
+
+<P>
+<A NAME="webmail">
+<strong>Q:</strong> Can I use JavaMail to read mail from my web mail account
+(such as Yahoo or Hotmail)?
+</A>
+<BR>
+<strong>A:</strong> It depends.  Many web-based email services provide access only
+using a browser with HTTP.  These services cannot be accessed using JavaMail.
+If the service also provides POP3 or IMAP access, JavaMail can probably
+be used to access it.
+Contact your web email service provider for details.
+Another helpful tool is MrPostman, a proxy server that provides POP3 access
+to Hotmail and Yahoo! Mail, available at
+<A HREF="http://sourceforge.net/projects/mrpostman/">http://sourceforge.net/projects/mrpostman/</A>
+</P>
+
+<P>
+<A NAME="imap">
+<strong>Q:</strong> What is IMAP?</A><BR>
+<strong>A:</strong> IMAP stands for Internet Message Access Protocol. It is a 
+method of accessing electronic mail messages stored on a (possibly shared) 
+mail server. In other words, it permits a "client" email program to 
+access remote message stores as if they were local. IMAP is defined
+by <A href="http://www.ietf.org/rfc/rfc2060.txt">RFC2060</A>.
+</P>
+
+<P>
+<A NAME="smtp">
+<strong>Q:</strong> What is SMTP?</A><BR>
+<strong>A:</strong> SMTP stands for Simple Mail Transfer Protocol. It is used
+to transfer RFC822-style messages between different mail hosts as
+well as to submit new messages to a host for delivery. SMTP is in
+very wide use (it originated in 1982) and is defined by 
+<A href="http://www.ietf.org/rfc/rfc821.txt">RFC821</A>.
+</P>
+
+<P>
+<A NAME="mime">
+<strong>Q:</strong> What is MIME?</A><BR>
+<strong>A:</strong> MIME and <A href="http://www.imc.org/rfc822">RFC822</A>
+are the standards  for describing email
+messages that are sent across the Internet. The javax.mail.internet
+subpackage (which is part of the JavaMail APIs) provides a complete
+implementation of these two packages. MIME is specified by the
+following RFCs: <A href="http://www.ietf.org/rfc/rfc2045.txt">RFC2045</A>, 
+<A href="http://www.ietf.org/rfc/rfc2046.txt">RFC2046</A>, 
+<A href="http://www.ietf.org/rfc/rfc2047.txt">RFC2047</A>.
+</P>
+
+<P>
+<A NAME="pop3q">
+<strong>Q:</strong> What is POP3?</A><BR>
+<strong>A:</strong> POP3 stands for Post Office Protocol version 3.
+POP3 is a very limited protocol for accessing a single mailbox.
+It is much less capable than IMAP.
+POP3 is very widely used and is defined by 
+<A href="http://www.ietf.org/rfc/rfc1939.txt">RFC1939</A>.
+</P>
+
+<P>
+<A NAME="otherprovs">
+<strong>Q:</strong> What about support for MAPI, NNTP, Lotus Notes,
+and other service providers?</A><BR>
+<strong>A:</strong> We have no current plans to implement any of these
+providers. However, the architecture of the JavaMail APIs provides
+for being able to easily plug-in third-party service providers. It is
+our hope that third-parties will embrace the JavaMail APIs by writing
+providers for other standard and proprietary protocols.
+See our <A HREF="http://www.oracle.com/technetwork/java/javamail/third-party-136965.html">Third Party Products</A> page
+for the latest list of such providers.
+</P>
+
+<P>
+<A NAME="localprovs">
+<strong>Q:</strong> How do I store mail messages on my local disk?</A>
+<BR>
+<strong>A:</strong> A "local store provider" can be used to store mail messages
+on a local disk.  The JavaMail API download does not include such a provider
+but a provider that supports the Unix mbox format is available in the JavaMail
+source repository that you can build yourself.  See
+<A HREF="http://java.net/projects/javamail/pages/MboxStore">this page</A>
+for details.
+In addition, several local store providers are available from third parties
+for different local store formats such as MH and Mbox.
+See our <A HREF="http://www.oracle.com/technetwork/java/javamail/third-party-136965.html">Third Party Products</A> page
+for the latest list of such providers.
+</P>
+
+<P>
+<A NAME="sundocs">
+<strong>Q:</strong> Where do I find documentation on the protocol providers?</A>
+<BR>
+<strong>A:</strong> The protocol providers for IMAP, POP3, and SMTP support
+many features that are not part of the JavaMail API specification.  The
+documentation for these protocol providers is included in the JavaMail
+javadocs.  The package level documentation for each protocol provider
+package describes the properties that are supported by the protocol
+proivder.  In addition, the protocol providers include some classes and
+methods that applications can use to take advantage of
+provider-specific features.  Note that use of these properties,
+classes, and methods renders a program <b>non-portable</b>; it may
+only work with Oracle's implementation of the JavaMail API.
+See the
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/imap/package-summary.html">IMAP</A>,
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/pop3/package-summary.html">POP3</A>, and
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/smtp/package-summary.html">SMTP</A> package
+javadocs for details.
+</P>
+
+<P>
+<A NAME="free">
+<strong>Q:</strong> Is the JavaMail API implementation completely free?
+Can I ship it along with my product?</A><BR>
+<strong>A:</strong> Yes. The JavaMail API implementation
+is completely free and open source and you can include it in your product.
+This release includes IMAP, POP3, and SMTP providers as well. Please do
+read the license and ensure that you understand it.
+The JavaMail license is described
+<A HREF="https://java.net/projects/javamail/pages/License">here</A>.
+</P>
+
+<P>
+<A NAME="source">
+<strong>Q:</strong> Can I get the source code for the JavaMail API
+implementation?</A>
+<BR>
+<strong>A:</strong> Starting with JavaMail 1.4.2, the source code for the
+JavaMail API
+Reference Implementation is available under the CDDL or GPL open source licenses
+in the <A HREF="http://java.net/projects/javamail">JavaMail project</A>
+at <A HREF="http://java.net/">java.net</A>.
+You'll need <A HREF="http://www.selenic.com/mercurial/wiki/">Mercurial</A>
+to check out the source code.
+</P>
+
+<P>
+<A NAME="y2k">
+<strong>Q:</strong> Is JavaMail Y2K compliant?</A><BR>
+<strong>A:</strong> Yes. Oracle's JavaMail implementation is Option-3 Y2K compliant. Please
+see the <A HREF="http://javamail.java.net/docs/NOTES.txt">NOTES.txt</A>
+file in the JavaMail package for more information.
+</P>
+
+<P>
+<A NAME="more">
+<strong>Q:</strong> The answer to my question isn't here, where else should I look?
+</A>
+<BR>
+<strong>A:</strong> In addition to the JavaMail API spec and javadocs
+(available from
+<A HREF="http://javamail.java.net/"">our main web page</A>),
+don't forget to check the
+<A HREF="http://javamail.java.net/docs/README.txt">README.txt</A> and
+<A HREF="http://javamail.java.net/docs/NOTES.txt">NOTES.txt</A> files
+for additional important information.
+</P>
+<P>
+You can reach the JavaMail team directly at
+<A HREF="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</A>.
+You can use this address to report bugs.
+Bugs can also be reported using the Issue Tracker at the
+<A HREF="http://java.net/projects/javamail">JavaMail project</A>.
+</P>
+<P>
+The Oracle Technology Network maintains a JavaMail forum, see the
+<A HREF="http://forums.oracle.com/forums/forum.jspa?forumID=975">
+JavaMail Forum</A>.
+</P>
+<P>
+jGuru also maintains a JavaMail FAQ, which you'll find at
+<A HREF="http://www.jguru.com/faq/JavaMail">
+http://www.jguru.com/faq/JavaMail</A>,
+although it hasn't been updated in several years.
+</P>
+
+<BR>
+<BR>
+<H2><STRONG>Installation and Configuration</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="install">
+<strong>Q:</strong> How do I install the JavaMail API implementation?</A>
+<BR>
+<strong>A:</strong> Unzip the distribution zip file and edit your CLASSPATH
+environment variable to include the mail.jar file that was included with the
+JavaMail API distribution.  You will also need an implementation of the 
+JavaBeans Activation Framework (see below) unless you're using JDK 1.6
+or newer (which includes JAF).
+See the <A HREF="http://javamail.java.net/docs/README.txt">README.txt</A> file
+(also included in the download package) for additional details and examples,
+as well as the following <A HREF="#classpath">FAQ entry</A>.
+</P>
+
+<P>
+<A NAME="classpath">
+<strong>Q:</strong> I get a ClassNotFoundException when I run my program.</A>
+<BR>
+<strong>A:</strong> You haven't set CLASSPATH properly.  See
+<A HREF="http://docs.oracle.com/javase/7/docs/technotes/tools/windows/classpath.html">
+Setting the class path (Windows)</A> or
+<A HREF="http://docs.oracle.com/javase/7/docs/technotes/tools/solaris/classpath.html">
+Setting the class path (Solaris/Linux)</A> in the JDK documentation.
+Note that if you're running your program using "java -jar", the CLASSPATH
+environment variable setting is ignored.  In that case you'll need to
+add the "-classpath" argument to the java command, or add the
+<CODE>Class-Path</CODE> header to the manifest file of your jar file.
+See the
+<A HREF="http://docs.oracle.com/javase/tutorial/deployment/jar/">Java Tutorial</A>
+and this
+<A HREF="http://en.wikipedia.org/wiki/Classpath_(Java)">Wikipedia article</A>
+for more information.
+</P>
+
+<P>
+<A NAME="classpathwin">
+<strong>Q:</strong> How do I set my CLASSPATH on Windows?
+</A>
+<BR>
+<strong>A:</strong> Detailed instructions are available
+<A HREF="docs/classpath-NT.html">here</A>
+</P>
+
+<P>
+<A NAME="libnetbeans">
+<strong>Q:</strong> How do I add the JavaMail library to my NetBeans Java Project?
+</A>
+<BR>
+<strong>A:</strong>
+Use the Library Manager to create a library and add a reference to that library
+to your project.
+<OL>
+<LI>Inside Netbeans, open the Library Manager (Tools &gt; Libraries from the
+    main menu bar).</LI>
+<LI>Select &lt;New Library...&gt;</LI>
+<LI>Enter a library name, e.g., "JavaMail", and hit &lt;OK&gt;.  Do not
+    check server library.</LI>
+<LI>Make sure the new library is selected under "Libraries" on the left.</LI>
+<LI>Select the "Classpath" tab on the right and choose
+    &lt;Add Jar/Folder...&gt;</LI>
+<LI>Using the file browser, select mail.jar from your JavaMail installation
+    (e.g. .../javamail-1.4.3/mail.jar), and hit &lt;Add Jar/Folder&gt; to
+    accept.</LI>
+<LI>Select the "Javadoc" tab and choose &lt;Add ZIP/Folder...&gt;</LI>
+<LI>Using the file browser, select the folder where the JavaMail javadoc
+    index files are (e.g. .../javamail-1.4.3/docs/javadocs"), and hit
+    &lt;Add ZIP/Folder&gt; to accept.</LI>
+<LI>If you downloaded the <A href="#source">JavaMail source code</A>, you
+    can set the source code reference on the "Sources" tab.  This can be helpful
+    for debugging. Using the file browser, select the source root for the
+    JavaMail sources (".../javamail-1.4.3/mail/src/main/java" for 1.4.3)
+    and hit &lt;Add Jar/Folder&gt; to
+    accept.</LI>
+</OL>
+</P>
+<P>
+Note: If you are using JDK 1.5.0 or earlier you will need to add the
+<A href="http://www.oracle.com/technetwork/java/javase/index-jsp-136939.html">
+JavaBeans Activation Framework</A>
+library as well.  You can create a separate library in a manner similar to
+the above, or just add activation.jar (and javadoc/source references
+if desired) to this library definition.
+</P>
+<P>Now add a reference to this library to your project.
+</P>
+<OL>
+<LI>Open your project in NetBeans and make sure the "Projects" tab is
+    visible.</LI>
+<LI>Right click your project in the project explorer and select
+    "Properties"</LI>
+<LI>In the Properties dialog, select "Libraries" in the tree on the left
+    and make sure the "Compile" tab is selected.</LI>
+<LI>Click &lt;Add Library...&gt;</LI>
+<LI>Locate and select the library you created above and
+    click "Add Library".  It should be added to the list of compile-time
+    libraries.</LI>
+<LI>Click "OK" and you're done.</LI>
+</OL>
+</P>
+
+<P>
+<A NAME="libeclipse">
+<strong>Q:</strong> How do I add the JavaMail library to my Eclipse Java Project?
+</A>
+<BR>
+<strong>A:</strong>
+Create a "user library" for JavaMail and add a reference to that library to
+your project.
+<OL>
+<LI>From the Eclipse main menu, open Window &gt; Preferences</LI>
+<LI>Open the tree to Java &gt; Build Path &gt; User Libraries and select
+    the &lt;User Libraries&gt; node.</LI>
+<LI>Choose &lt;New...&gt; from the panel on the right</LI>
+<LI>In the new library dialog, enter a user library name, e.g. "JavaMail",
+    and hit &lt;OK&gt;.  Do not check system library.</LI>
+<LI>Make sure the new library is selected and choose &lt;Add Jars...&gt;</LI>
+<LI>Browse to where JavaMail is installed and select mail.jar</LI>
+<LI>Select &lt;Javadoc location: (None)&gt; and hit &lt;Edit...&gt; to
+    add a reference to the javadoc location.  This can be found at docs/javadocs
+    under the same folder where you installed JavaMail.</LI>
+<LI>You can also set the source code reference here if you downloaded the
+    <A href="#source">JavaMail source code</A>. Use
+    ".../javamail-1.4.2/mail/src/main/java" as the source root for 1.4.2 or
+    ".../glassfish/mail/src/java" as the source root for 1.4.1.</LI>
+<LI>Choose &lt;OK&gt; to close the Preferences dialog.  JavaMail is now
+    installed as a Library in Eclipse.</LI>
+</OL>
+</P>
+<P>
+Note: If you are using JDK 1.5.0 or earlier you will need to add the
+<A href="http://www.oracle.com/technetwork/java/javase/index-jsp-136939.html">
+JavaBeans Activation Framework</A>
+library as well.  You can create a separate library in a manner similar to
+the above, or just add activation.jar (and javadoc/source references
+if desired) to this library definition.
+</P>
+<P>Now use the JavaMail library in your Eclipse Java Project (Eclipse 3.4)
+</P>
+<OL>
+<LI>Open your project in Eclipse and be in the Java Perspective</LI>
+<LI>Right click your project in the project explorer and select
+    "Build Path &gt; Configure Build Path..."</LI>
+<LI>In the Properties dialog that opens, ensure Java Build Path is selected
+    in the tree on the left and select the Libraries tab on the right</LI>
+<LI>Click &lt;Add Library...&gt;</LI>
+<LI>Select "User Library", then click &lt;Next&gt;</LI>
+<LI>Locate and select the JavaMail library added in the previous step,
+    click "Finish", and you're done.</LI>
+</OL>
+</P>
+<P>
+<A HREF="http://stackoverflow.com/questions/16212026/how-to-add-javamail-api-source-code-in-eclise-project">
+This article</A>
+explains how to make the JavaMail source code available to your Eclipse project.
+</P>
+
+<P>
+<A NAME="incservers">
+<strong>Q:</strong> Does JavaMail include all the necessary mail servers? </A>
+<BR>
+<strong>A:</strong> No, the JavaMail API package does not include any mail servers.
+To use the JavaMail API package, you'll need to have access to an IMAP
+or POP3 mail server (for reading mail) and/or an SMTP mail server (for
+sending mail).
+These mail servers are usually provided by your Internet Service Provider
+or are a part of your organization's networking infrastructure.
+If you don't have access to such a mail server, see below.
+</P>
+
+<P>
+<A NAME="servers">
+<strong>Q:</strong> Where can I get the necessary mail servers?</A>
+<BR>
+<strong>A:</strong>
+The University of Washington IMAP server supports multiple platforms 
+(UNIX,  Windows 32bit, etc).
+Get the source code from
+<A href="ftp://ftp.cac.washington.edu/imap/imap.tar.Z">
+ftp://ftp.cac.washington.edu/imap/imap.tar.Z</A>.
+There are several free, all Java mail servers available, including
+<A HREF="http://james.apache.org/">Apache James</A> and
+<A HREF="http://www.ericdaugherty.com/java/mailserver/">Java Email Server</A>.
+<A HREF="http://sendmail.com/">Sendmail</A> is a popular (non-Java) SMTP server.
+<A HREF="http://subethasmtp.tigris.org/">SubEthaSMTP</A>
+is a Java library for implementing SMTP server functionality;
+their web page also references other mail servers.
+Many other vendors provide mail servers supporting Internet standards.
+There are also many free, public mail servers that support the required
+mail protocols such as Gmail, Yahoo! Mail, Hotmail, etc.
+</P>
+
+<P>
+<A NAME="whichserver">
+<strong>Q:</strong> What host name, user name, or password should I use?</A>
+<BR>
+<strong>A:</strong> We do not provide a mail server for you to use.  You must use your
+own mail server, or one provided by your Internet Service Provider
+or the company you work for.  Your network administrator can give you
+the information necessary to configure JavaMail to work with your mail server.
+</P>
+
+<P>
+<A NAME="proxy">
+<strong>Q:</strong> How do I configure JavaMail to work through my proxy server?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 1/27/2015">
+<BR>
+<strong>A:</strong> JavaMail does not currently support accessing mail servers
+through a web proxy server.
+One of the major reasons for using a proxy server is to allow HTTP
+requests from within a corporate network to pass through a corporate
+firewall.  The firewall will typically block most access to the Internet,
+but will allow requests from the proxy server to pass through.  In addition,
+a mail server inside the corporate network will perform a similar function
+for email, accepting messages via SMTP and forwarding them to their ultimate
+destination on the Internet, and accepting incoming messages and sending
+them to the appropriate internal mail server.
+</P>
+<P>
+If your proxy server supports the SOCKS V4 or V5 protocol
+(<A HREF="http://www.socks.nec.com/aboutsocks.html">http://www.socks.nec.com/aboutsocks.html</A>,
+<A HREF="http://www.ietf.org/rfc/rfc1928.txt">RFC1928</A>)
+and allows anonymous connections, and
+you're using JDK 1.5 or newer and JavaMail 1.4.5 or newer, you can
+configure a SOCKS proxy on a per-session, per-protocol basis by setting the
+"mail.smtp.socks.host" property as described in the javadocs for the
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/smtp/package-summary.html">
+com.sun.mail.smtp package</A>.
+Similar properties exist for the "imap" and "pop3" protocols.
+</P>
+<P>
+If you're using older versions of the JDK or JavaMail, you can tell the Java
+runtime to direct all TCP socket connections to the SOCKS server.
+See the <A HREF="http://docs.oracle.com/javase/7/docs/technotes/guides/net/properties.html">
+Networking Properties guide</A>
+for the latest documentation of the <code>socksProxyHost</code> and
+<code>socksProxyPort</code> properties.  These are system-level properties,
+not JavaMail session properties.  They can be set from the command line
+when the application is invoked, for example:
+<code>java -DsocksProxyHost=myproxy ...</code>.
+This facility can be used to direct the SMTP, IMAP, and POP3
+communication from JavaMail to the SOCKS proxy server.  Note that
+setting these properties directs <b>all</b> TCP sockets to the SOCKS
+proxy, which may have negative impact on other aspects of your
+application.
+</P>
+<P>
+Without such a SOCKS server, if you want to use JavaMail to access mail servers
+outside the firewall indirectly, you might be able to use a program such as
+<A HREF="http://en.wikipedia.org/wiki/Corkscrew_%28program%29">Corkscrew</A> or
+<A HREF="https://bitbucket.org/gotoh/connect/wiki/Home">connect</A>
+to tunnel TCP connections through an HTTP proxy server.
+JavaMail does not support direct access through an HTTP proxy web server.
+</P>
+
+<P>
+<A NAME="installcert">
+<strong>Q:</strong> When connecting to my mail server over SSL I get an exception like
+"unable to find valid certification path to requested target".
+</A>
+<BR>
+<strong>A:</strong> Your server is probably using a test certificate or self-signed
+certificate instead of a certificate signed by a commercial Certificate
+Authority.
+You'll need to install the server's certificate into your trust store.
+The <A HREF="http://java.net/projects/javamail/pages/InstallCert">
+InstallCert</A> program will help.
+</P>
+<P>
+Alternatively, you can set the "mail.<i>protocol</i>.ssl.trust" property
+to the host name of your mail server.  See the javadocs for the protocol
+provider packages for details.
+</P>
+<P>
+Other common causes of this problem are:
+<UL>
+<LI>There's a firewall or anti-virus program intercepting your request.</LI>
+<LI>There's something wrong in your JDK installation preventing it from finding
+the certificates for the trusted certificate authorities.</LI>
+<LI>You're running in an application server that has overridden the JDK's list
+of trusted certificate authorities.</LI>
+</UL>
+</P>
+<P>
+<A NAME="linuxzip">
+<strong>Q:</strong> While trying to run my program on Linux I get a very strange
+error message and the program fails.  What did I do wrong?</A><BR>
+<strong>A:</strong> The error message often looks something like this:
+</P>
+<P>
+<PRE>
+Exception in thread "main"
+java.lang.VerifyError:(Class:com/sun/mail/pop3/POP3Store,
+method: finalize Signature :()V)
+Illegal use of nonvirtual function call
+</PRE>
+<br/>
+</P>
+<P>
+The problem is due to a buggy version of the unzip command used to unzip
+the JavaMail download package on Linux.  The unzip command corrupts the
+mail.jar file.  Get a newer version of the unzip command, or use the
+JDK's jar command to unzip the package.
+</P>
+
+<P>
+<A NAME="securityManager">
+<strong>Q:</strong> How do I use JavaMail in an application run under a SecurityManager;
+what permissions must I grant to the application and to JavaMail?
+</A>
+<BR>
+<strong>A:</strong> When using JavaMail in an environment with a
+SecurityManager, JavaMail will sometimes fail to read the configuration
+files in the mail.jar file.  The JavaBeans Activation Framework may
+have the same problem reading configuration files from the activation.jar
+file.  These default configuration files are stored as "resource" files
+in the META-INF directory in the jar file.
+</P>
+<P>
+There are a number of debugging techniques that can be used to determine
+if this is the problem.  Setting the Session property "mail.debug" to
+true (or calling <code>session.setDebug(true)</code>) will cause JavaMail
+to print debugging messages as it attempts to load each configuration
+file.  A message of the form "DEBUG: can't load default providers file"
+indicates that this problem might exist.  Similarly, setting the System
+property "javax.activation.debug" to "true" (e.g., by running the
+program using "java -Djavax.activation.debug=true ...") will cause JAF
+to print debugging messages as it attempts to load each resource file.
+Finally, the JDK can produce helpful debugging output by setting the
+system property "java.security.debug" to "access:failure" (e.g., by
+running the program using "java -Djava.security.debug=access:failure ...").
+The command <code>java -Djava.security.debug=help</code> will display
+other security debugging options.
+</P>
+<P>
+In addition to the permissions necessary to read the configuration files,
+the application (and JavaMail) will also need permission to connect to the
+mail servers it uses.  If the application uses System properties to
+configure JavaMail (e.g., by passing the Properties object returned from
+<code>System.getProperties()</code> to the Session constructor, as many
+of the JavaMail demo programs do), it will also need permission to use
+the System Properties object.  Alternatively, the application can use
+its own Properties object and be sure to set the "mail.from" property
+or the "mail.user" and "mail.host" properties (see the
+InternetAddress.getLocalAddress() method).
+</P>
+<P>
+To allow an application to use JavaMail under a SecurityManager,
+the application, JavaMail, and JAF will need permissions such as the
+following (be sure to replace the host and path names with appropriate
+values); add these to the security policy file used by the application:
+</P>
+<P>
+
+<PRE>
+grant {
+    // following two permissions allow
+    // access to default config files
+    permission java.io.FilePermission
+		"/path/to/mail.jar", "read";
+    permission java.io.FilePermission
+		"/path/to/activation.jar", "read";
+    // following to use SMTP
+    permission java.net.SocketPermission
+		"SMTPHOST:25", "connect,resolve";
+    // following to use IMAP
+    permission java.net.SocketPermission
+		"IMAPHOST:143", "connect,resolve";
+    // following to use POP3
+    permission java.net.SocketPermission
+		"POP3HOST:110", "connect,resolve";
+    // following needed if System.getProperties() is used
+    permission java.util.PropertyPermission
+		"*", "read,write";
+};
+</PRE>
+<br/>
+<br/>
+</P>
+<P>
+If you don't want to give the application read/write permission to
+System properties, but you still want to be able to use System properties
+to configure the application, you can give the application only "read"
+permission to System properties and use the following approach:
+</P>
+<P>
+
+<PRE>
+    Properties props = (Properties)System.getProperties().clone();
+    props.put("mail.smtp.host", "whatever");
+    // set as properties as needed
+    Session session = Session.getInstance(props, null);
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="tomcatconfig">
+<strong>Q:</strong> How do I configure Tomcat to allow me to use JavaMail in my
+web application?
+</A>
+<BR>
+<strong>A:</strong> 
+To run a web application using JavaMail, you can add the JavaMail
+javax.mail.jar file and, if you're not using JDK 1.6 or newer, the JavaBeans
+Activation Framework javax.activation.jar file to the lib directory under the
+directory in which you installed Tomcat.  This will cause Tomcat to
+include these jar files in its classpath automatically.
+For details, see
+<A HREF="http://tomcat.apache.org/tomcat-6.0-doc/jndi-resources-howto.html">
+JNDI Resources HOW-TO</A> in the Tomcat documentation.
+</P>
+<P>
+Alternatively, you can package the mail.jar file and activation.jar files
+in the lib directory of your web application package (war file).
+</P>
+
+<P>
+<A NAME="servletcp">
+<strong>Q:</strong> When using JavaMail in my servlet, it is unable to find any of
+the JavaMail classes.  I've added mail.jar to the server's CLASSPATH.
+</A>
+<BR>
+<strong>A:</strong> It is often necessary to completely restart the web server
+when changing the CLASSPATH.
+</P>
+
+<P>
+<A NAME="dupcp">
+<strong>Q:</strong> I'm sure I've set my CLASSPATH correctly, but I'm still getting
+complaints about classes that can't be found, such as <code>com.sun.mail</code>
+classes.
+</A>
+<BR>
+<strong>A:</strong> The most common cause of problems like this is having more than
+one copy of mail.jar in your CLASSPATH or available to your application.
+In addition to checking your CLASSPATH setting, also look for copies in
+the <code>jre/lib/ext</code> directory of your JDK installation.
+If you're running in a web server or application server, it may be
+providing its own version of mail.jar in one of its directories.
+You should only have one version of mail.jar available to your application.
+</P>
+
+<P>
+<A NAME="servletSecurityManager">
+<strong>Q:</strong> My servlet can find the JavaMail classes, but JavaMail complains
+that it can't find a service provider for "smtp" or "imap" or address
+type "rfc822".
+</A>
+<BR>
+<strong>A:</strong> Usually this is because JavaMail can't access the configuration
+files in mail.jar, possibly because of a security permission problem;
+see <A HREF="#securityManager">this item</A> for more details.
+Also, make sure that you haven't extracted the mail.jar contents;
+you should include the unmodified mail.jar file in the server's CLASSPATH.
+</P>
+
+<P>
+<A NAME="gmail">
+<strong>Q:</strong> How do I access Gmail with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+<strong>A:</strong> 
+JavaMail is capable of sending and reading messages using Gmail.
+All that's required is to properly configure JavaMail.  I'll
+illustrate the proper configuration using the
+<A HREF="#examples">demo programs</A> that come with JavaMail -
+<code>msgshow.java</code> and <code>smtpsend.java</code>.
+You can use these programs for basic testing to ensure that
+your networking is working properly, that you can connect to
+the servers, that your username and password are correct, etc.
+This is important when debugging problems to determine whether
+the bug is in your code or is elsewhere.
+</P>
+<P>
+Note that you'll need to configure your Gmail account to
+<A HREF="https://www.google.com/settings/security/lesssecureapps">
+enable less secure apps</A>, or you'll need to use
+<A HREF="https://java.net/projects/javamail/pages/OAuth2">
+OAuth2 authentication</A>
+(which is somewhat more complex).
+</P>
+<P>
+Let's assume your Gmail username is "user@gmail.com" and your
+password is "passwd".
+</P>
+<P>
+To read mail from your Gmail Inbox, invoke msgshow as follows:
+</P>
+<P>
+<PRE>
+java msgshow -D -T imaps -H imap.gmail.com -U user -P passwd
+</PRE>
+</P>
+<P>
+By reading the <code>msgshow.java</code> source code, you can see how these
+command line arguments are used in the JavaMail API.  You should
+first try using msgshow as shown above, and once that's working
+move on to writing and configuring your own program to use Gmail.
+The following code fragment shows a simple way to incorporate the
+needed configuration in your application:
+<PRE>
+    String host = "imap.gmail.com";
+    String username = "user";
+    String password = "passwd";
+    Properties props = new Properties();
+    props.setProperty("mail.imap.ssl.enable", "true");
+    // set any other needed mail.imap.* properties here
+    Session session = Session.getInstance(props);
+    Store store = session.getStore("imap");
+    store.connect(host, username, password);
+</PRE>
+<br/>
+<br/>
+</P>
+<P>
+To connect to Gmail using the POP3 protocol instead of the IMAP protocol,
+simply change the host name "imap.gmail.com" to "pop.gmail.com" and change
+"imap" to "pop3" in the property name and protocol name in the above
+instructions.
+</P>
+<P>
+To send a message through Gmail, invoke smtpsend as follows:
+</P>
+<P>
+<PRE>
+java smtpsend -d -S -A -M smtp.gmail.com -U user -P passwd someone@example.com
+</PRE>
+<br/>
+</P>
+<P>
+The smtpsend program will prompt for a subject and message body text.
+End the message body with ^D on UNIX or ^Z on Windows.
+</P>
+<P>
+Again, you can read the <code>smtpsend.java</code> source code to see how the
+command line arguments are used in the JavaMail API.
+The following code fragment shows a simple way to incorporate the
+needed configuration in your application:
+<PRE>
+    String host = "smtp.gmail.com";
+    String username = "user";
+    String password = "passwd";
+    Properties props = new Properties();
+    props.setProperty("mail.smtp.ssl.enable", "true");
+    // set any other needed mail.smtp.* properties here
+    Session session = Session.getInstance(props);
+    MimeMessage msg = new MimeMessage(session);
+    // set the message content here
+    Transport.send(msg, username, password);
+</PRE>
+<br/>
+</P>
+<P>
+There is, of course, more than one way to use the JavaMail API to accomplish
+the same goal.  This should help you understand the essential
+configuration parameters necessary to use Gmail.
+</P>
+
+<P>
+<A NAME="gmailauth">
+<strong>Q:</strong> Why do I get AuthenticationFailedException when
+accessing Gmail? </A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 4/23/2015">
+<BR>
+<strong>A:</strong> 
+Most likely you failed to
+<A HREF="https://www.google.com/settings/security/lesssecureapps">
+enable less secure apps</A>.
+</P>
+
+<P>
+<A NAME="gmailsettings">
+<strong>Q:</strong> Why don't I see all my messages when accessing Gmail with POP3? </A>
+<BR>
+<strong>A:</strong> 
+Gmail has settings that control which of your messages are available via
+the POP3 protocol.  See the
+<A HREF="http://mail.google.com/mail/?shva=1#settings/fwdandpop">
+Gmail settings page</A> to change the configuration of your Gmail account.
+</P>
+
+<P>
+<A NAME="gmailsearch">
+<strong>Q:</strong> Why doesn't search find all the messages I expect when accessing
+Gmail with IMAP? </A>
+<BR>
+<strong>A:</strong> 
+Gmail does not fully support all IMAP features.  For details see
+<A HREF="https://mail.google.com/support/bin/answer.py?hl=en&answer=78761">
+this Gmail Help page</A>.
+</P>
+
+<P>
+<A NAME="gmaildelete">
+<strong>Q:</strong> How do I delete a message in Gmail?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 9/21/2016">
+<BR>
+<strong>A:</strong> 
+Gmail does not follow the normal IMAP conventions for deleting messages.
+Marking a message as deleted and then expunging the folder simply removes
+the current folder's "label" from the message.  The message will still
+appear in the "[Gmail]/All Mail" folder.
+To delete a message, copy the message to the "[Gmail]/Trash" folder,
+which will immediately remove the message from the current folder.
+To permanently remove a message, open the "[Gmail]/Trash" folder,
+mark the message deleted (<code>msg.setFlag(Flags.Flag.DELETED, true);</code>),
+and expunge the folder (<code>folder.close(true);</code>).
+</P>
+
+<P>
+<A NAME="yahoomail">
+<strong>Q:</strong> How do I access Yahoo! Mail with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+<strong>A:</strong> 
+JavaMail is capable of sending and reading messages using Yahoo! Mail.
+All that's required is to properly configure JavaMail.  I'll
+illustrate the proper configuration using the
+<A HREF="#examples">demo programs</A> that come with JavaMail -
+<code>msgshow.java</code> and <code>smtpsend.java</code>.
+</P>
+<P>
+Let's assume your Yahoo! Mail username is "user@yahoo.com" and your
+password is "passwd".
+</P>
+<P>
+To read mail from your Yahoo! Mail Inbox, invoke msgshow as follows:
+</P>
+<P>
+<PRE>
+java msgshow -D -T imaps -H imap.mail.yahoo.com -U user@yahoo.com -P passwd
+</PRE>
+<br/>
+</P>
+<P>
+By reading the <code>msgshow.java</code> source code, you can see how these
+command line arguments are used in the JavaMail API.  You should
+first try using msgshow as shown above, and once that's working
+move on to writing and configuring your own program to use Yahoo! Mail.
+The code fragment shown above for connecting to Gmail will also work for
+connecting to Yahoo! Mail by simply changing the host name.
+</P>
+<P>
+To send a message through Yahoo! Mail, invoke smtpsend as follows:
+</P>
+<P>
+<PRE>
+java smtpsend -d -S -A -M smtp.mail.yahoo.com -U user@yahoo.com -P passwd someone@example.com
+</PRE>
+<br/>
+</P>
+<P>
+The smtpsend program will prompt for a subject and message body text.
+End the message body with ^D on UNIX or ^Z on Windows.
+</P>
+<P>
+Again, you can read the <code>smtpsend.java</code> source code to see how the
+command line arguments are used in the JavaMail API.  The code fragment shown
+above for connecting to Gmail will also work for connecting to Yahoo! Mail
+by simply changing the host name.
+There is, of course, more than one way to use the JavaMail API to accomplish
+the same goal.  This should help you understand the essential
+configuration parameters necessary to use Yahoo! Mail.
+</P>
+<P>
+Also see the Yahoo! Mail help page
+<A HREF="https://help.yahoo.com/kb/pop-server-settings-sln4724.html">
+POP server settings for Yahoo Mail</A>
+</P>
+
+<P>
+<A NAME="hotmail">
+<strong>Q:</strong> How do I access Hotmail (Windows Live mail) with JavaMail? </A>
+<BR>
+<strong>A:</strong> 
+JavaMail is capable of sending and reading messages using Hotmail.
+All that's required is to properly configure JavaMail.  I'll
+illustrate the proper configuration using the
+<A HREF="#examples">demo programs</A> that come with JavaMail -
+<code>msgshow.java</code> and <code>smtpsend.java</code>.
+</P>
+<P>
+Let's assume your Hotmail username is "user@hotmail.com" and your
+password is "passwd".
+</P>
+<P>
+To read mail from your Hotmail Inbox, invoke msgshow as follows:
+</P>
+<P>
+<PRE>
+java msgshow -D -T pop3s -H pop3.live.com -U user@hotmail.com -P passwd
+</PRE>
+<br/>
+</P>
+<P>
+By reading the <code>msgshow.java</code> source code, you can see how these
+command line arguments are used in the JavaMail API.  You should
+first try using msgshow as shown above, and once that's working
+move on to writing and configuring your own program to use Hotmail.
+The code fragment shown above for connecting to Gmail will also work for
+connecting to Hotmail by simply changing the host name.
+</P>
+<P>
+To send a message through Hotmail, invoke smtpsend as follows:
+</P>
+<P>
+<PRE>
+java -Dmail.smtp.starttls.enable=true -Dmail.smtp.port=587
+	smtpsend -d -A -M smtp.live.com
+	-U user@hotmail.com -P passwd someone@example.com
+</PRE>
+<br/>
+</P>
+<P>
+(Note that I split the command over three lines for display, but you
+should type it on one line.)
+</P>
+<P>
+The smtpsend program uses the System properties
+when creating the JavaMail Session, so the properties set on the
+command line will be available to the JavaMail Session.
+</P>
+<P>
+The smtpsend program will prompt for a subject and message body text.
+End the message body with ^D on UNIX or ^Z on Windows.
+</P>
+<P>
+Again, you can read the <code>smtpsend.java</code> source code to see how the
+command line arguments are used in the JavaMail API.  The code fragment shown
+above for connecting to Gmail will also work for connecting to Hotmail
+by simply changing the host name and changing the connect call to
+<code>t.connect(host, 587, username, password)</code>.
+There is, of course, more than one way to use the JavaMail API to accomplish
+the same goal.  This should help you understand the essential
+configuration parameters necessary to use Hotmail.
+</P>
+<P>
+For more details, search
+<A HREF="http://help.live.com/help.aspx?mkt=en-us&project=MailClassic">
+Windows Live Hotmail help</A> for "POP3".
+</P>
+
+<P>
+<A NAME="outlook">
+<strong>Q:</strong> How do I access Outlook.com with JavaMail? </A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+<strong>A:</strong> 
+JavaMail is capable of sending and reading messages using Outlook.com.
+All that's required is to properly configure JavaMail.  I'll
+illustrate the proper configuration using the
+<A HREF="#examples">demo programs</A> that come with JavaMail -
+<code>msgshow.java</code> and <code>smtpsend.java</code>.
+</P>
+<P>
+Let's assume your Outlook.com username is "user@outlook.com" and your
+password is "passwd".
+</P>
+<P>
+To read mail from your Outlook.com Inbox, invoke msgshow as follows:
+</P>
+<P>
+<PRE>
+java msgshow -D -T imaps -H imap-mail.outlook.com -U user@outlook.com -P passwd
+</PRE>
+<br/>
+</P>
+<P>
+By reading the <code>msgshow.java</code> source code, you can see how these
+command line arguments are used in the JavaMail API.  You should
+first try using msgshow as shown above, and once that's working
+move on to writing and configuring your own program to use Outlook.com.
+The code fragment shown above for connecting to Gmail will also work for
+connecting to Outlook.com by simply changing the host name.
+</P>
+<P>
+To connect to Outlook.com using the POP3 protocol instead of the IMAP protocol,
+simply change the host name "imap-mail.outlook.com" to "pop-mail.outlook.com"
+and change the protocol name "imaps" to "pop3s" in the above instructions.
+</P>
+<P>
+To send a message through Outlook.com, invoke smtpsend as follows:
+</P>
+<P>
+<PRE>
+java -Dmail.smtp.starttls.enable=true
+	smtpsend -d -A -M smtp-mail.outlook.com
+	-U user@outlook.com -P passwd someone@example.com
+</PRE>
+<br/>
+</P>
+<P>
+(Note that I split the command over three lines for display, but you
+should type it on one line.)
+</P>
+<P>
+The smtpsend program uses the System properties
+when creating the JavaMail Session, so the properties set on the
+command line will be available to the JavaMail Session.
+</P>
+<P>
+The smtpsend program will prompt for a subject and message body text.
+End the message body with ^D on UNIX or ^Z on Windows.
+</P>
+<P>
+Again, you can read the <code>smtpsend.java</code> source code to see how the
+command line arguments are used in the JavaMail API.
+The following code fragment shows a simple way to incorporate the
+needed configuration in your application:
+<PRE>
+    String host = "smtp-mail.outlook.com";
+    String username = "user@outlook.com";
+    String password = "passwd";
+    Properties props = new Properties();
+    props.put("mail.smtp.starttls.enable", "true");
+    Session session = Session.getInstance(props);
+    MimeMessage msg = new MimeMessage(session);
+    // set the message content here
+    Transport.send(msg, username, password);
+</PRE>
+<br/>
+</P>
+<P>
+There is, of course, more than one way to use the JavaMail API to accomplish
+the same goal.  This should help you understand the essential
+configuration parameters necessary to use Outlook.com.
+For more details, see the
+<A HREF="http://blogs.office.com/b/microsoft-outlook/archive/2013/09/12/outlook-com-now-with-imap.aspx
+">
+Outlook Blog</A>.
+</P>
+
+<BR>
+<BR>
+<H2><STRONG>Programming</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="basics">
+<strong>Q:</strong> Where can I learn the basics about Internet email that
+I'll need to know to program JavaMail effectively? </A>
+<BR>
+<strong>A:</strong> See one of the
+<A HREF="community/books/index.html">books</A>
+referenced on our web page for a good background on Internet email, MIME,
+SMTP, IMAP, POP3, etc.
+</P>
+
+<P>
+<A NAME="examples">
+<strong>Q:</strong> Where can I find some example programs that show how to use JavaMail? </A>
+<BR>
+<strong>A:</strong> There are many example programs available for download
+on the
+<A HREF="http://javamail.java.net/">JavaMail project page</A>,
+including simple command line programs illustrating various aspects of
+the JavaMail API, a Swing-based GUI application, a simple servlet-based
+application, and a complete web application using JSP pages and a tag
+library.
+</P>
+
+<P>
+<A NAME="commonmistakes">
+<strong>Q:</strong> What are some of the most common mistakes people make
+when using JavaMail? </A>
+<BR>
+<strong>A:</strong> Unfortunately, the internet is full of copy and paste
+programmers who don't understand the code they're using, which has resulted
+in a lot of unnecessarily complex and often incorrect examples.
+The most common mistakes are:
+<UL>
+<LI>
+Use of <code>Session.getDefaultInstance</code>.
+Almost all code should use <code>Session.getInstance</code> instead,
+as described <A HREF="#getdefaultinstance">below</A>
+</LI>
+<LI>
+Calling the <code>send</code> method on a Transport instance variable.
+As described <A HREF="#send">below</A>, <code>send</code> is a static
+method and ignores the Transport instance you use to call it.
+</LI>
+<LI>
+Setting various <code>socketFactory</code> properties.
+Long, long ago JavaMail didn't have built in support for SSL connections,
+so it was necessary to set these properties to use SSL.
+This hasn't been the case for years; remove these properties and simplify
+your code.
+The easiest way to enable SSL support in current versions of JavaMail is
+to set the property "mail.smtp.ssl.enable" to "true".
+(Replace "smtp" with "imap" or "pop3" as appropriate.)
+</LI>
+<LI>
+Using an Authenticator just to supply a username and password.
+There's really nothing wrong with using an Authenticator, it's just
+unnecessarily complex.
+A more straightforward approach is to call the <code>connect</code>
+method that takes a username and password when connecting to a Store.
+When sending a message, use the static <code>Transport.send</code> method
+that takes a username and password.
+</LI>
+</UL>
+</P>
+
+<P>
+<A NAME="attach">
+<strong>Q:</strong> How do I send a message with an attachment?</A>
+<BR>
+<strong>A:</strong> A message with attachments is represented as a
+MIME multipart message where the first part is the main body of the
+message and the other parts are the attachments.
+There are numerous examples showing how to construct such a message
+in the demo programs included in the JavaMail download package.
+To attach a file use the
+<code>attachFile</code> method of <code>MimeBodyPart</code>.
+</P>
+
+<P>
+<A NAME="hasattach">
+<strong>Q:</strong> How do I tell if a message has attachments?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 12/18/2014">
+<BR>
+<strong>A:</strong> In the simplest case, a message of MIME type
+<code>multipart/mixed</code> with more than one body part is likely
+a message with attachments.  As described above, there are more complex
+cases to consider as well.  In particular, messages may have arbitrary
+nesting of <code>multipart/mixed</code> and <code>multipart/alternative</code>
+parts and may include <code>multipart/related</code> parts for embedded
+HTML and <code>multipart/signed</code> and/or <code>multipart/encrypted</code>
+parts for secure messages.  It's up to you to decide how many of these
+cases you want to handle in your application before deciding that a
+message has an attachment.  Most applications take a very simple approach
+to this and handle only a few of the most commonly seen cases.
+</P>
+<P>
+Note that while it's recommended that attachments have a Content-Disposition
+of "ATTACHMENT", and will usually have a file name, these are not requirements.
+Some messages with attachments will have only one or none of these.  Looking
+for attachments by looking for a body part with these set will fail in some
+cases.
+</P>
+<P>
+In the simplest case, here's how to tell if a message has attachments:
+<PRE>
+    boolean hasAttachments(Message msg) throws MessagingException {
+	if (msg.isMimeType("multipart/mixed")) {
+	    Multipart mp = (Multipart)msg.getContent();
+	    if (mp.getCount() > 1)
+		return true;
+	}
+	return false;
+    }
+</PRE>
+<br/>
+</P>
+
+<P>
+<A NAME="readattach">
+<strong>Q:</strong> How do I read a message with an attachment and save the
+attachment?</A>
+<BR>
+<strong>A:</strong> As described above, a message with an attachment is
+represented in
+MIME as a multipart message.  In the simple case, the results of the
+<code>Message</code> object's <code>getContent</code> method will be a
+<code>MimeMultipart</code> object.  The first body part of the multipart
+object wil be the main text of the message.  The other body parts will
+be attachments.  The <code>msgshow.java</code> demo program shows how
+to traverse all the multipart objects in a message and extract the data
+of each of the body parts.  The <code>getDisposition</code> method will
+give you a hint as to whether the body part should be displayed inline
+or should be considered an attachment (but note that not all mailers
+provide this information).  So to save the contents of a body part in a file,
+use the <code>saveFile</code> method of <code>MimeBodyPart</code>.
+</P>
+<P>
+To save the data in a body part into a file (for example), use the
+<code>getInputStream</code> method to access the attachment content and
+copy the data to a <code>FileOutputStream</code>.
+Note that when copying the data you can <em>not</em> use the
+<code>available</code> method to determine how much data is in the
+attachment.  Instead, you must read the data until EOF.
+The <code>saveFile</code> method of <code>MimeBodyPart</code> will
+do this for you.
+However, you should not use the results of the <code>getFileName</code>
+method directly to name the file to be saved; doing so could cause you
+to overwrite files unintentionally, including system files.
+</P>
+<P>
+Note that there are also more complicated cases to be handled as well.
+For example, some mailers send the main body as both plain text and
+html.  This will typically appear as a <code>multipart/alternative</code>
+content (and a <code>MimeMultipart</code> object) in place of a simple
+text body part.  Also, messages that are digitally signed or encrypted
+are even more complex.  Handling all these cases can be challenging.
+Please refer to the various MIME specifications and other
+<A HREF="community/links/index.html">resources</A> listed on our main page.
+</P>
+
+<P>
+<A NAME="mainbody">
+<strong>Q:</strong> How do I find the main message body in a message that has
+attachments? </A>
+<BR>
+<strong>A:</strong> The following approach will handle the most common cases.
+Handling improperly formatted messages, messages with unknown charsets,
+and signed or encrypted messages, can make this much more complex.
+</P>
+<P>
+
+<PRE>
+    private boolean textIsHtml = false;
+
+    /**
+     * Return the primary text content of the message.
+     */
+    private String getText(Part p) throws
+                MessagingException, IOException {
+        if (p.isMimeType("text/*")) {
+            String s = (String)p.getContent();
+            textIsHtml = p.isMimeType("text/html");
+            return s;
+        }
+
+        if (p.isMimeType("multipart/alternative")) {
+            // prefer html text over plain text
+            Multipart mp = (Multipart)p.getContent();
+            String text = null;
+            for (int i = 0; i < mp.getCount(); i++) {
+                Part bp = mp.getBodyPart(i);
+                if (bp.isMimeType("text/plain")) {
+                    if (text == null)
+                        text = getText(bp);
+                    continue;
+                } else if (bp.isMimeType("text/html")) {
+                    String s = getText(bp);
+                    if (s != null)
+                        return s;
+                } else {
+                    return getText(bp);
+                }
+            }
+            return text;
+        } else if (p.isMimeType("multipart/*")) {
+            Multipart mp = (Multipart)p.getContent();
+            for (int i = 0; i < mp.getCount(); i++) {
+                String s = getText(mp.getBodyPart(i));
+                if (s != null)
+                    return s;
+            }
+        }
+
+        return null;
+    }
+</PRE>
+<br/>
+<br/>
+</P>
+<P>
+You can call the <code>getText</code> method with a <code>Message</code>
+object (which is a <code>Part</code>).
+</P>
+
+<P>
+<A NAME="attachments">
+<strong>Q:</strong> How do I find the attachments in a message? </A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 6/9/2016">
+<BR>
+<strong>A:</strong>
+There's a wide variety of possible MIME structures for email.  A general
+solution can be quite complex since it would need to take into account
+signed and encrypted messages, among other issues.  Different mailers
+will use different MIME structure, and of course some mailers will have
+bugs in how they use MIME.  You need to decide which cases you need to
+support.
+</P>
+<P>
+In general, multipart/alternative is used to contain different versions
+of the main message body, and so can be skipped because it doesn't
+contain any attachments.  Typically, a message with attachments will
+have a top level multipart/mixed content with the first body part
+containing the main message body.  The first part may be a simple text
+part, a multipart/alternative with text/plain and text/html parts, or a
+multipart/related with a text/html part and associated images.
+</P>
+<P>
+Attachments will usually, but not always, have a Content-Disposition of
+attachment.  Attachments will usually, but not always, have a file
+name.
+</P>
+<P>
+So, a good approach to start with is to only consider messages with a
+top level multipart/mixed content and then consider the parts after the
+first part to be attachments whether they say so or not.  And as I said
+above, signed and encrypted messages will make this more complex.
+</P>
+
+<P>
+<A NAME="getunread">
+<strong>Q:</strong> How do I get all the unread messages in a folder? </A>
+<BR>
+<strong>A:</strong> Search for all messages with the SEEN flag not set:
+<P>
+
+<PRE>
+	Message[] unreadMessages = folder.search(
+		new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="ismimetype">
+<strong>Q:</strong> Should I use the <code>isMimeType</code> method,
+or should I use <code>instanceof</code> on the object returned by the
+<code>getContent</code> method, when deciding how to process a message
+part? </A>
+<BR>
+<strong>A:</strong> It is almost always more efficient to use the
+<code>isMimeType</code> method.
+The <code>msgshow.java</code> demo program shows how to use the
+<code>isMimeType</code> method when traversing the parts of a message.
+</P>
+
+<P>
+<A NAME="castmultipart">
+<strong>Q:</strong> When reading a multipart message, why is the getContent
+method returning an IMAPInputStream (or SharedByteArrayInputStream) instead
+of a MimeMultipart object? </A>
+<BR>
+<strong>A:</strong> This usually happens because the JavaBeans Activation
+Framework (JAF) can't find the mailcap configuration file included in the
+mail.jar file.
+JAF uses the thread's context class loader to look for the configuration file.
+If the context class loader is not set properly, this can fail.
+Most application servers should set the context class loader properly, but
+at least some versions of Tomcat do not.
+One workaround is to put the mail.jar file in Tomcat's lib directory instead
+of including it in the war file.
+Another workaround is to add code such as the following to the beginning of
+your application:
+
+<PRE>
+Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+</PRE>
+<br/>
+
+</P>
+<P>
+And of course you should always make sure the message you're dealing with is
+a multipart message before calling the getContent method, using something like
+<code>if (msg.isMimeType("multipart/*"))</code>, as described
+<A HREF="#ismimetype">above</A> and in <A HREF="#mainbody">this example</A>.
+</P>
+
+<P>
+<A NAME="filetype">
+<strong>Q:</strong> When I attach a file it gets a MIME type of
+<code>application/octet-stream</code> instead of the correct MIME type. </A>
+<BR>
+<strong>A:</strong> The <code>FileDataSource</code> class uses the JavaBeans Activation
+Framework (JAF) class <code>MimetypesFileTypeMap</code> to determine the
+MIME type of a file based on the extension of the filename.
+The default mapping knows about only a few extensions.
+You can add support for more extensions either programmatically
+or by adding a <code>META-INF/mime.types</code> configuration file
+to your application.
+For example, to map the <code>.doc</code> extension to the MIME type
+<code>application/msword</code>, create a <code>META-INF/mime.types</code>
+file with the single line:
+</P>
+<P>
+
+<PRE>
+application/msword doc
+</PRE>
+
+<br/>
+</P>
+<P>
+See the javadocs for the <code>MimetypesFileTypeMap</code> class for details.
+</P>
+
+<P>
+<A NAME="overridefiletype">
+<strong>Q:</strong> How do I manually set the MIME type for an attached file,
+for example in the case where the filename doesn't have an obvious extension?
+</A>
+<BR>
+<strong>A:</strong> Subclass the <code>FileDataSource</code> class and override
+the <code>getContentType</code> method.
+(Note that with this approach you can't use the <code>attachFile</code> method.)
+</P>
+<P>
+
+<PRE>
+    File file = new File("filename");
+    DataSource ds = new FileDataSource(file) {
+	public String getContentType() {
+	    return "mytype/mysubtype";
+	}
+    };
+    MimeBodyPart mbp = new MimeBodyPart();
+    mbp.setDataHandler(new DataHandler(ds));
+    mbp.setFileName(file.getName());
+    mbp.setDisposition(Part.ATTACHMENT);
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="anytype">
+<strong>Q:</strong> How do I create a multipart message with a part of any
+MIME type I choose?</A>
+<BR>
+<strong>A:</strong> The JavaMail API includes builtin support for the most
+common MIME types, but to create a message that includes data in
+a MIME type that JavaMail does not already understand, you'll
+need to supply that data to JavaMail in a byte stream format.
+The <code>ByteArrayDataSource</code> class in the <code>javax.mail.util</code>
+pacakge in JavaMail 1.4 and later, or included in source code in the demo
+directory of older versions of the JavaMail download package, can help.
+This class
+will take a <code>String</code>, byte array, or <code>InputStream</code>
+and create a <code>DataSource</code> object that you can use as follows:
+</P>
+<P>
+
+<PRE>
+    MimeBodyPart mbp = new MimeBodyPart();
+    String data = "any ASCII data";
+    DataSource ds = new ByteArrayDataSource(data, "application/x-any");
+    mbp.setDataHandler(new DataHandler(ds));
+</PRE>
+<br/>
+<br/>
+</P>
+<P>
+You can specify any MIME type that you want.  The <code>MimeBodyPart</code>
+object can then be added to a <code>MimeMultipart</code> object in the
+usual way.
+</P>
+<P>
+Note that if you create a <code>ByteArrayDataSource</code> with an
+<code>InputStream</code>, it first copies all of the data in the stream
+into memory.  This is necessary because a <code>DataSource</code> needs
+to be able to supply multiple <code>InputStream</code> objects so that
+JavaMail can read the data once to determine what
+Content-Transfer-Encoding is appropriate, and then read the data again
+to include the data in the message.
+</P>
+
+<P>
+<A NAME="readofficedoc">
+<strong>Q:</strong> Can I read or send a Microsoft Office document using
+JavaMail? </A>
+<BR>
+<strong>A:</strong> JavaMail can read a Microsoft Office document as an
+attachment and save that document in a file.  Likewise, JavaMail can attach a
+Microsoft Office document to a message and send it as an attachment.
+Use the <A href="">MimeBodyPart</A>
+<A href="">saveFile</A> and 
+<A href="">attachFile</A> methods.
+To process the content of a Microsoft Office document you'll need a
+separate library such as
+<A href="http://poi.apache.org/">Apache POI</A>.
+</P>
+
+<P>
+<A NAME="ical">
+<strong>Q:</strong> How do I create or process calendar appointments?</A>
+<BR>
+<strong>A:</strong> The <A HREF="http://ical4j.sourceforge.net/">iCal4j project</A>
+provides an API that might be useful.
+More information about how different products, such as Microsoft Outlook,
+support calendar appointments is available
+<A HREF="http://microformats.org/wiki/icalendar-implementations">here</A>.
+This <A HREF="http://valermicle.blogspot.com/2009/02/i-was-searching-for-documentations-on.html">blog entry</A> might also be helpful.
+</P>
+
+<P>
+<A NAME="getdefaultinstance">
+<strong>Q:</strong> When should I use <code>Session.getDefaultInstance</code>
+and when should I use <code>Session.getInstance</code>? </A>
+<BR>
+<strong>A:</strong> Almost all code should use <code>Session.getInstance</code>.
+The <code>Session.getDefaultInstance</code> method creates a new Session the
+first time it's called, using the Properties that are passed.
+Subsequent calls will return that original Session and <strong>ignore any
+Properties you pass in</strong>.
+If you want to create different Sessions with different properties,
+<code>Session.getDefaultInstance</code> won't do that.
+If some other code in the same JVM (e.g., in the same app server) has already
+created the default Session with their properties, you may end up using their
+Session and your properties will be ignored.
+This often explains why your property settings seem to be ignored.
+Always use <code>Session.getInstance</code> to avoid this problem.
+</P>
+
+<P>
+<A NAME="disco">
+<strong>Q:</strong> What is "disconnected support"?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 5/11/2015">
+<BR>
+<strong>A:</strong> A mail client supporting disconnected operation will allow
+the user to access messages in a remote message store (e.g.,
+IMAP), cache (parts of) some of those messages locally, and
+break the connection to the server.  While in this disconnected
+state, the mail client can access the messages that have been
+cached, possibly deleting them or saving them to other folders.
+When the mail client next connects to the remote message store,
+the changes made locally will be synchronized with the remote
+store. Similarly, disconnected support may allow the client
+to "send" messages when there is no connection to the server, with
+the messages being queued until a connection to the server is
+available.  See also
+<A href="http://www.ietf.org/rfc/rfc1733.txt">RFC 1733</A> and
+<A href="http://www.ietf.org/rfc/rfc4549.txt">RFC 4549</A>.
+</P>
+
+<P>
+<A NAME="whendisco">
+<strong>Q:</strong> How do I support disconnected operation using the
+JavaMail APIs?</A><BR>
+<strong>A:</strong> The JavaMail API specification defines interfaces that can
+be used by a mail client to support disconnected operation.
+Our IMAP provider implements these interfaces (the UIDFolder interfaces).
+</P>
+
+<P>
+<A NAME="security">
+<strong>Q:</strong> How do I send secure email using the JavaMail APIs?</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
+<BR>
+<strong>A:</strong> The JavaMail APIs currently have no support for sending
+or receiving secure email.  The architecture of the
+JavaMail APIs allows such support to be easily added later,
+by us or by third parties. Information on the current Email
+security standards (S/MIME and PGP) can be found at
+<A href="http://www.imc.org/smime-pgpmime.html">
+http://www.imc.org/smime-pgpmime.html</A>.
+Please browse our
+<A HREF="http://www.oracle.com/technetwork/java/javamail/third-party-136965.html">Third Party Products</A>
+page for solutions from other vendors.
+The most popular third party solution is the
+<A HREF="https://www.bouncycastle.org/java.html">Bouncy Castle library</A>.
+</P>
+
+<P>
+<A NAME="repres">
+<strong>Q:</strong> The <code>writeTo()</code> method generates message text
+with lines that are neither the canonical MIME representation of the data
+(i.e., using CRLF to terminate lines), nor using the canonical line
+separator of my platform (e.g., "\n" on UNIX).  How do I get either
+of these representations if I need them?</A><BR>
+<strong>A:</strong> In either case you'll need to create an appropriate
+FilterOutputStream to hand to <code>writeTo()</code>.  The
+FilterOutputStream will need to accept lines with any of the common
+line terminators and write out lines with only the desired line
+terminator.  The following are examples of such filters.
+<A href="http://java.net/projects/javamail/sources/mercurial/content/demo/src/main/java/NewlineOutputStream.java?raw=true"><code>NewlineOutputStream</code></A>
+converts to the local platform's line terminator and is useful when
+writing a message to a file.
+<A href="http://java.net/projects/javamail/sources/mercurial/content/demo/src/main/java/CRLFOutputStream.java?raw=true"><code>CRLFOutputStream</code></A>
+converts to the MIME canonical CRLF line terminator and is useful
+when the canonical MIME format is needed (e.g., to compute a digital
+signature).
+</P>
+
+<P>
+<A NAME="javamailserver">
+<strong>Q:</strong> Can I use the JavaMail APIs to implement a
+mail server?</A><BR>
+<strong>A:</strong> The JavaMail APIs were not intended to help you implement a
+mail server.
+Nonetheless, some of the utility classes, such as the MIME
+message parsing classes, might be of use to you.
+In general you'll find that the JavaMail API errs on the side
+of "simple" instead of "robust".  That's appropriate for a mail
+client, but a mail server would likely make different tradeoffs.
+</P>
+
+<P>
+<A NAME="newusers">
+<strong>Q:</strong> Can I use the JavaMail APIs to add new user accounts to my
+mail server, remove user accounts from my mail server, or change the passwords
+for user accounts on my mail server?</A>
+<BR>
+<strong>A:</strong> The JavaMail API does not include any facilities for adding,
+removing, or changing user accounts.  There are no standards in this area;
+every mail server handles this differently.
+</P>
+
+<P>
+<A NAME="addressbook">
+<strong>Q:</strong> Can I use the JavaMail APIs to access my address book
+on my mail server?</A>
+<BR>
+<strong>A:</strong> The JavaMail API does not include any facilities for accessing
+an address book.  There are no standards in this area;
+every mail server handles this differently.
+If you can figure out how <em>your</em> server does it, you might be able
+to find a Java API to access it.  For example, if your server stores
+address books in LDAP, you could use the JNDI API to access it.
+</P>
+
+<P>
+<A NAME="serialize">
+<strong>Q:</strong> Why doesn't the MimeMessage class implement Serializable
+so that I can serialize a message to disk and read it back later?
+</A>
+<BR>
+<strong>A:</strong> 
+The JavaMail API was designed to layer on top of existing email systems,
+using existing message formats.  The ability to use Java serialization
+was neither essential nor useful for such implementations, and thus was
+not considered a goal of the JavaMail API.
+</P>
+<P>
+The hard part about serializing a Message is retaining the pointers to
+the Folder, Store, and Session.  If you only want to save the content
+of the message, and not the object itself, the <CODE>writeTo</CODE>
+method of a message gives you everything you need.
+If you want to create an entire email system based on serialized messages,
+you should be able to subclass Message et. al. and implement Serializable
+in your subclass.
+</P>
+<P>
+If you want to serialize other objects of your own that reference
+MimeMessages, the <CODE>writeObject</CODE> method of your object can use the
+<CODE>writeTo</CODE> method of MimeMessage, and the <CODE>readObject</CODE>
+method of your object can use the MimeMessage constructor that takes an
+InputStream.  Your class will need to provide a Session when constructing
+the MimeMessage.
+</P>
+
+<P>
+<A NAME="myservprov">
+<strong>Q:</strong> How do I write a Service Provider?</A><BR>
+<strong>A:</strong> Please read the Service Provider documentation for details.
+In general, if you want to write a Store provider, you subclass 
+<code>javax.mail.Store</code>, <code>javax.mail.Folder</code>, possibly
+<code>javax.mail.Message</code> and a few others. For a Transport
+provider, you subclass <code>javax.mail.Transport</code>, possibly
+<code>javax.mail.Message</code> and a few others. Then you add
+the entry describing your provider to the <code>javamail.providers</code>
+registry. If you're interested in writing a service provider for a protocol 
+or messaging system not currently supported by the JavaMail API 
+implementation, please contact us at <A href="mailto:javamail_ww@oracle.com">
+javamail_ww@oracle.com</A>.
+</P>
+
+<P>
+<A NAME="Exchange-login">
+<strong>Q:</strong> I'm having trouble logging into my Microsoft Exchange server,
+even though I'm sure I'm using the correct username and password, what
+could I be doing wrong?
+</A>
+<BR>
+<strong>A:</strong> When logging in to Exchange you need to use a username that's
+more than your simple login name.  For example, if your email address
+is "J.User@server.com", your Windows NT login name is "juser", your
+NT domain name is "dom", and your Exchange mailbox name is "Joe User",
+then you would need to use a username of "dom\juser\J.User" when logging
+in using JavaMail.
+</P>
+<P>
+Note also that there's a bug in Exchange 2007.  The Exchange server
+advertises that it supports AUTH=PLAIN, even though
+<A HREF="http://technet.microsoft.com/en-us/library/cc540463.aspx">
+this Exchange documentation</A> claims that it's not supported.
+This causes JavaMail to choose PLAIN authentication, which will always fail.
+To work around this Exchange bug, set the session property
+"mail.imap.auth.plain.disable" to "true".  (Change "imap" to "imaps" if
+you're using the "imaps" protocol.)
+</P>
+
+<P>
+<A NAME="encodebinary">
+<strong>Q:</strong> How do I encode a binary file before sending it and how do I
+decode it when I receive it?
+</A>
+<BR>
+<strong>A:</strong> You don't need to!  JavaMail will automatically determine an
+appropriate encoding to use for your message parts before sending the
+message, and will automatically decode message parts when reading them.
+The <code>getInputStream</code> method will return the <strong>decoded</strong>
+data.
+</P>
+
+<P>
+<A NAME="whenencode">
+<strong>Q:</strong> If I don't need to encode and decode attachments myself,
+when should I use the <code>MimeUtility</code> methods?
+</A>
+<BR>
+<strong>A:</strong> The <code>MimeUtility</code> methods are useful in cases that
+JavaMail doesn't handle automatically for you.  One such case that
+occurs frequently is encoding of filenames.  The base MIME spec does not
+allow header parameter values (such as the filename parameter) to be
+encoded in the same way that (e.g.) the Subject header may be encoded.
+This restricts parameter values, and thus filenames, to ASCII.  However,
+some mailers actually do encode non-ASCII filenames using the MIME text
+encoding.  Applications that wish to interoperate with such non-standard
+mailers can use the <code>encodeText</code> method to encode filenames
+before calling the <code>MimeBodyPart</code><code>setFileName</code> method,
+and can use the <code>decodeText</code> method to decode returned filenames.
+See also <A href="encodefilename">this entry</A> below if you need to
+encode filenames.
+</P>
+
+<P>
+<A NAME="preencoded">
+<strong>Q:</strong> I have data that's already encoded in (e.g.) base64, how do I
+tell JavaMail to send this data without re-encoding it?
+</A>
+<BR>
+<strong>A:</strong> Use the <code>PreencodedMimeBodyPart</code> class,
+new in JavaMail 1.4.
+</P>
+
+<P>
+<A NAME="howencode">
+<strong>Q:</strong> Even though JavaMail does all the encoding and decoding for me,
+I need to manually control the encoding for some body parts.
+</A>
+<BR>
+<strong>A:</strong> In the rare case that you need to control the encoding, there
+are several ways to override JavaMail's default behavior.  A simple
+approach is as follows.  After creating the entire message, call
+<code>msg.saveChanges()</code> and then use something like
+<code>mbp.setHeader("Content-Transfer-Encoding", "base64")</code>
+to force base64 encoding for the given body part.
+</P>
+<P>
+Another approach is to subclass <code>MimeBodyPart</code> and override
+the <code>updateHeaders</code> method so that it first calls
+<code>super.updateHeaders()</code> and then sets the
+<code>Content-Transfer-Encoding</code> header as above.
+</P>
+
+<P>
+<A NAME="encodefilename">
+<strong>Q:</strong> Why doesn't JavaMail properly encode and decode filenames in
+non-ASCII character sets?
+</A>
+<BR>
+<strong>A:</strong> The filename is stored as a parameter in MIME headers.
+Encoded filenames of the form <CODE>=?ISO-8859-15?B?5OTkLUluZm8ucGRm?=</CODE>
+are <strong>not</strong> part of the MIME spec.  A filename of
+the form <CODE>=?A?B?C?=</CODE> is a perfectly valid filename,
+not an incorrectly encoded filename.  JavaMail does
+not encode and decode filenames by default because <strong>doing so
+would violate the MIME spec</strong>.
+</P>
+<P>
+The base MIME spec does not allow for encoding parameters.
+RFC 2231 defines a new way to include encoded paramters,
+including filenames, in MIME headers.  It is <strong>not</strong>
+compatible with the de facto way that many older applications
+illegally encode filenames.  Even though JavaMail supports RFC 2231, that
+alone does not allow JavaMail to interoperate with these older
+programs.  Most recent email programs support RFC 2231 and JavaMail
+enables support for it by default starting in JavaMail 1.5.
+To enable RFC 2231 support in older JavaMail releases for encoded parameters,
+set the System properties "mail.mime.encodeparameters" and
+"mail.mime.decodeparameters" to "true".
+</P>
+<P>
+If you choose to violate the MIME spec, in order to
+interoperate with other programs that also violate the
+MIME spec, JavaMail gives you all the tools you need to
+do so.  Starting with JavaMail 1.4, setting the System properties
+"mail.mime.encodefilename" and "mail.mime.decodefilename" to "true"
+will cause JavaMail to encode and decode the filename parameter
+using the non-RFC 2231 MIME encoding.
+</P>
+<P>
+Applications using earlier versions of JavaMail can use the following
+workaround to encode a filename:
+</P>
+<P>
+<CODE>mbp.setFileName(MimeUtility.encodeText(filename));</CODE>
+</P>
+<P>
+The workaround for decoding a filename is equally simple:
+</P>
+<P>
+<CODE>String filename = MimeUtility.decodeText(part.getFileName());</CODE>
+</P>
+<P>
+Again, this is primarily for applications using old versions of JavaMail.
+Most applications should <strong>never</strong> need to use these methods.
+</P>
+
+<P>
+<A NAME="ipv6perm">
+<strong>Q:</strong> Why do I get an error such as
+<code>java.net.SocketException: Permission denied: connect</code>
+when connecting to my mail server using JDK7?</A>
+<BR>
+<strong>A:</strong> You may be running into
+<A HREF="http://www.java.net/node/703177">this issue with support for IPv6</A>.
+You can work around this problem by setting the System property
+"java.net.preferIPv4Stack" to "true".
+You can do this when starting your program using
+"java -Djava.net.preferIPv4Stack=true ..."
+</P>
+
+
+<BR>
+<BR>
+<H2><STRONG>Debugging</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="debug">
+<strong>Q:</strong> How do I debug my application that uses JavaMail APIs?</A><BR>
+<strong>A:</strong> Turn on session debugging by invoking the method
+<code>setDebug(true)</code>
+on the Session object in your code. That will cause debug information to
+be printed to the console, including a protocol trace.
+If you passed the System properties to the Session when you created it,
+you can simply run your program with <code>java -Dmail.debug=true ...</code>
+<BR>
+If you think that you found a bug in JavaMail,
+send us this trace along with a test case that reproduces the problem,
+the platform you are using, the version of the JDK you are using, and
+the name and version of the mail servers (IMAP, SMTP) that you are using.
+</P>
+
+<P>
+<A NAME="condebug">
+<strong>Q:</strong> How do I debug problems connecting to my mail server?</A>
+<BR>
+<strong>A:</strong> The first thing to do when debugging such problems is to
+determine whether it's a Java problem or a networking problem.
+Use telnet to try to connect to the remote system.  For
+example, if you're having trouble connecting to the POP3 server named
+<code>mail.example.com</code>, you would use:
+</P>
+<P>
+<CODE>telnet mail.example.com 110</CODE>
+</P>
+<P>
+If you're trying to connect to an SMTP server, use 25 instead of 110
+for the port number.  If you're trying to connect to an IMAP server
+use 143 for the port number.
+</P>
+<P>
+If you get a greeting banner you can simply disconnect.
+If this works, your
+networking, name service, firewall, etc. are all set up
+correctly and your problem is most likely in your Java
+program.
+</P>
+<P>
+If it doesn't work, you'll need to check your networking
+configuration or talk to your network administrator for help.
+Sometimes a firewall installed on your local machine or on
+your network will prevent you from connecting to the server.
+If telnet complains that it doesn't know the host name that
+you're using, most likely your name service (e.g., DNS) isn't
+properly configured to resolve internet host names.
+None of these problems are JavaMail or Java problems.
+</P>
+<P>
+Usually, when you get a low level SocketException
+when connecting, the problem is due to your networking
+configuration.  Usually it's not a Java problem.
+</P>
+<P>
+If you've succeeded in connecting with telnet, the next thing
+to do is to turn on Session debugging and get the protocol
+trace when JavaMail tries to connect to the remote machine,
+as described <A href="#debug">above</A>.
+This will often include more detailed error messages from the
+server that will indicate the real source of the problem.
+</P>
+
+<P>
+<A NAME="ssldebug">
+<strong>Q:</strong> How do I debug problems connecting to my mail server using SSL?</A>
+<BR>
+<strong>A:</strong> Debugging SSL problems, and in particular certificate problems,
+can be difficult.  The file
+<A HREF="http://javamail.java.net/docs/SSLNOTES.txt">SSLNOTES.txt</A>
+includes some useful information.  JavaMail uses the JDK's JSSE
+API to provide SSL support.  You can find information about debugging
+JSSE problems in the
+<A HREF=" /j2se/5.0/docs/guide/security/jsse/JSSERefGuide.html#Debug">
+JSSE Reference Guide</A>.
+</P>
+
+<P>
+<A NAME="permdebug">
+<strong>Q:</strong> How do I debug problems with Java security permissions? </A>
+<BR>
+<strong>A:</strong> You can set the <code>java.security.debug</code> System property
+to debug problems with Java security permissions.
+To get the possible values for setting that property, the following command
+will print a help message: <code>java -Djava.security.debug=help MyClass</code>
+</P>
+
+
+<BR>
+<BR>
+<H2><STRONG>Reading mail, IMAP</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="error">
+<strong>Q:</strong> I tried running your demos against my IMAP server,
+but I get an error.</A>
+<BR>
+<strong>A:</strong> First verify that you indeed have an email account on the IMAP
+server. Check with your system administrator about it.
+Turn debug mode on, by invoking the method setDebug(true) on
+the session object in your code. This will cause the IMAP
+protocol trace to be dumped on your screen. Send us this trace.
+The trace will be very useful to us for identifying the problem.
+If you can, please send us vendor information about your IMAP
+server.
+</P>
+
+<P>
+<A NAME="imapserverbug">
+<strong>Q:</strong> I can read messages from my IMAP server with other mail clients,
+but even though I can connect to the server using JavaMail, when I use
+JavaMail to read some messages it fails.  Doesn't that mean there's a bug
+in JavaMail?
+</A>
+<BR>
+<strong>A:</strong> No, not usually.  Most other mail clients make very little
+use of the rich IMAP protocol.  They use the IMAP protocol as little
+more than a variant of the POP3 protocol, typically downloading the
+entire message to the client and parsing it in the client.  This allows
+them to avoid all sorts of parsing and protocol bugs in many IMAP
+servers, but of course it comes at the cost of being less efficient
+because they don't take advantage of the IMAP protocol's ability to
+fetch only the parts of the message that are needed.  These server bugs
+often manifest themselves as the following exception on the client:
+<code>javax.mail.MessagingException: Unable to load BODYSTRUCTURE</code>
+</P>
+<P>
+The best approach when running into server bugs of this sort is to contact
+the vendor of the server and get them to fix their product.  Contact
+<A HREF="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</A> and we'll help you
+pinpoint the problem so that you can report it to the server vendor.
+If you can't get a fix from the server vendor, the following technique
+will often allow you to work around these server bugs:
+
+<PRE>
+    // Get the message object from the folder in the
+    // usual way, for example:
+    MimeMessage msg = (MimeMessage)folder.getMessage(n);
+
+    // Use the MimeMessage copy constructor to make a copy
+    // of the entire message, which will fetch the entire
+    // message from the server and parse it on the client:
+    MimeMessage cmsg = new MimeMessage(msg);
+
+    // The cmsg object is disconnected from the server so
+    // setFlags will have no effect (for example).  Use
+    // the original msg object for such operations.  Use
+    // the cmsg object to access the content of the message.
+</PRE>
+<br/>
+</P>
+<P>
+In some cases, the server may be so badly broken that loading the envelope
+data is not possible, which can cause the above workaround to fail because
+internally it first fetches the message flags and message size from the server.
+In that case, the following approach will usually work:
+
+<PRE>
+    // Get the message object from the folder in the
+    // usual way, for example:
+    MimeMessage msg = (MimeMessage)folder.getMessage(n);
+
+    // Copy the message by writing into a byte array and
+    // creating a new MimeMessage object based on the contents
+    // of the byte array:
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    msg.writeTo(bos);
+    bos.close();
+    SharedByteArrayInputStream bis =
+		    new SharedByteArrayInputStream(bos.toByteArray());
+    MimeMessage cmsg = new MimeMessage(session, bis);
+    bis.close();
+
+    // The cmsg object is disconnected from the server so
+    // setFlags will have no effect (for example).  Use
+    // the original msg object for such operations.  Use
+    // the cmsg object to access the content of the message.
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="fetch">
+<strong>Q:</strong> The IMAP provider seems to lose data when I fetch messages with large
+attachments.</A><BR>
+<strong>A:</strong> This is due to bugs in the partial fetch implementation of your
+IMAP server.  To workaround this server bug, set the
+"mail.imap.partialfetch" property to "false".
+Refer to <A HREF="http://javamail.java.net/docs/NOTES.txt">NOTES.txt</A> from
+the JavaMail package for more information.
+</P>
+
+<P>
+<A NAME="cache">
+<strong>Q:</strong> Does the IMAP provider cache the retrieved data?</A><BR>
+<strong>A:</strong> The IMAP provider fetches the data for a message from the server only
+when necessary. (The <code>javax.mail.FetchProfile</code> can be used
+to optimize this).
+The header and bodystructure information, once fetched, is always
+cached within the Message object. However, the content of a bodypart
+is <strong>not</strong> cached. So each time the content is
+requested by the client (either using <code>getContent()</code> or
+using <code>getInputStream()</code>), a new FETCH request is issued
+to the server.
+The reason for this is that the content of a message could be
+potentially large, and if we cache this content for a large number
+of messages, there is the possibility that the system may
+run out of memory soon since the garbage collector cannot free
+the referenced objects.
+Clients should be aware of this and must hold on to the retrieved
+content themselves if needed.
+</P>
+
+<P>
+<A NAME="mvmsg">
+<strong>Q:</strong> I want to move messages between folders. Should I use 
+<code>appendMessages()</code> or <code>copyMessages()</code>?</A><BR>
+<strong>A:</strong> Use <code>copyMessages()</code> if the messages to be copied/moved
+belong to the folder on which this method is being invoked. This is because
+some implementations can optimize this operation if the source
+and destination folder belong to the same backend Store.
+Otherwise, use <code>appendMessages()</code>.
+</P>
+
+<P>
+<A NAME="lgmsg">
+<strong>Q:</strong> Retrieving large message bodies seems inefficient at times.</A><BR>
+<strong>A:</strong> If you are using the IMAP provider, you could try increasing
+the <code>mail.imap.fetchsize</code> property (the current default is 16k).
+This will cause data to be fetched from the server in larger chunks.
+Note that you risk the possibility of the JVM running out of memory
+when you do this.
+</P>
+
+<P>
+<A NAME="lgbin">
+<strong>Q:</strong> I get OutOfMemory errors when loading this large binary attachement.
+</A><BR>
+<strong>A:</strong> Increase the maximum JVM heapsize at startup. Use the "-mx" option
+if using the standard JVM from Oracle.
+Don't keep references to the "content" of messages not being used.
+In certain cases, you could try streaming the message content
+(using <code>getInputStream()</code>) as raw bytes, use and then discard the
+used data chunks.
+</P>
+
+<P>
+<A NAME="getContent">
+<strong>Q:</strong> Why do I get the UnsupportedDataTypeException when I invoke
+<code>getContent()</code> on a bodypart?</A><BR>
+<strong>A:</strong> The <code>getContent()</code> method returns a Java object that
+represents
+the bodypart content. For this to work, a JAF <code>DataContentHandler</code>
+corresponding to the content's MIME type must be registered. Otherwise, the
+UnsupportedDataTypeException will be thrown. In this case, you
+can use the <code>getInputStream()</code> method to retrieve the content as
+a stream of bytes. See the JAF docs for details on how to create
+and register your own DataContentHandlers.
+</P>
+
+<P>
+<A NAME="unsupen">
+<strong>Q:</strong> Why do I get the UnsupportedEncodingException when I invoke
+<code>getContent()</code> on a bodypart that contains text data?</A>
+<BR>
+<strong>A:</strong> Textual bodyparts (i.e., bodyparts whose type is "text/plain",
+"text/html", or "text/xml")
+return Unicode String objects when <code>getContent()</code> is used.
+Typically,
+such bodyparts internally hold their textual data in some non Unicode
+charset. JavaMail (through the corresponding DataContentHandler)
+attempts to convert that data into a Unicode string.
+The underlying JDK's charset converters are used to do this.
+If the JDK does not support a particular charset, then the
+UnsupportedEncodingException is thrown.
+In this case, you can use the <code>getInputStream()</code> method to retrieve
+the content as a stream of bytes.
+For example:
+
+<PRE>
+    String s;
+    if (part.isMimeType("text/plain")) {
+	try {
+	    s = part.getContent();
+	} catch (UnsupportedEncodingException uex) {
+	    InputStream is = part.getInputStream();
+	    /*
+	     * Read the input stream into a byte array.
+	     * Choose a charset in some heuristic manner, use
+	     * that charset in the java.lang.String constructor
+	     * to convert the byte array into a String.
+	     */
+	    s = convert_to_string(is);
+	} catch (Exception ex) {
+	    // Handle other exceptions appropriately
+	}
+    }
+</PRE>
+<br/>
+</P>
+<P>
+There are some commonly used charsets that the JDK does not yet support.
+You can find support for some of these additional charsets in the JCharset
+package at
+<A HREF="http://www.freeutils.net/source/jcharset/">
+http://www.freeutils.net/source/jcharset/</A>.
+</P>
+<P>
+You can also add an alias for an existing charset already supported
+by the JDK so that it will be known by an additional name.
+You can create
+a charset provider for the "bad" charset name that simply redirects to
+an existing charset provider; see the following code.
+Create an appropriate CharsetProvider subclass and include it along with the
+META-INF/services file and the JDK will find it.
+Obviously you could get significantly more clever and redirect all
+unknown charsets to "us-ascii", for instance.
+
+<PRE>
+==&gt; UnknownCharsetProvider.java &lt;==
+import java.nio.charset.*;
+import java.nio.charset.spi.*;
+import java.util.*;
+
+public class UnknownCharsetProvider extends CharsetProvider {
+     private static final String badCharset = "x-unknown";
+     private static final String goodCharset = "iso-8859-1";
+
+     public Charset charsetForName(String charset) {
+         if (charset.equalsIgnoreCase(badCharset))
+             return Charset.forName(goodCharset);
+         return null;
+     }
+
+     public Iterator&lt;Charset&gt; charsets() {
+         return Collections.emptyIterator();
+     }
+}
+
+==&gt; META-INF/services/java.nio.charset.spi.CharsetProvider &lt;==
+UnknownCharsetProvider
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="addlistener">
+<strong>Q:</strong> How do I process all the messages in an IMAP folder
+and add a listener to wait for the arrival of new messages?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 3/2/2017">
+<BR>
+<strong>A:</strong> 
+Open the folder, process all the messages in the folder, and check
+whether new messages have arrived (the message count has increased).
+If so, loop.  If not, add the listener, then wait for new messages
+(e.g., by calling the idle method).
+</P>
+<P>
+Part of the key to understanding how this works is understanding when
+the server is allowed to notify the client of new messages, and when
+JavaMail will see those notifications.  Between getting the number of
+messages and adding the listener, JavaMail won't see any notifications
+of new messages.  By the time you do an operation that will allow
+JavaMail to see the notification, the listener will be in place.
+</P>
+<P>
+The following code illustrates the general approach.  Many details have
+been omitted.
+
+<PRE>
+    folder.open(Folder.READ_WRITE); // or READ_ONLY
+
+    // first batch of messages
+    int start = 1;
+    int end = folder.getMessageCount();
+    while (start <= end) {
+	Message[] msgs = folder.getMessages(start, end);
+	for (Message msg : msgs)
+	    processMessage(msg);
+	// new messages that have arrived
+	start = end + 1;
+	end = folder.getMessageCount();
+    }
+    // processed all messages
+
+    // add MessageCountListener to listen for new messages
+    folder.addMessageCountListener(new MessageCountAdapter() {
+	public void messagesAdded(MessageCountEvent ev) {
+	    Message[] msgs = ev.getMessages();
+	    for (Message msg : msgs)
+		processMessage(msg);
+	}
+    });
+
+    // wait for new messages
+    for (;;)
+	((IMAPFolder)folder).idle();
+</PRE>
+</P>
+
+
+<BR>
+<BR>
+<H2><STRONG>Sending mail, SMTP</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="reply">
+<strong>Q:</strong> How do I reply to a message?
+</A>
+<BR>
+<strong>A:</strong> To reply to a message, use the <CODE>reply</CODE> method
+on the Message object.  This method will return a new object with the
+headers set appropriately for a reply.  You'll need to supply the content
+of the message yourself.
+If you have the content of the original message as a String, you can use
+a simple method such as the following to create the prototypical reply
+text, which inserts "> " in front of each line:
+<PRE>
+    String text = (String)msg.getContent();
+    Message reply = msg.reply();
+    String replyText = text.replaceAll("(?m)^", "> ");
+    // allow user to edit replyText,
+    // e.g., using a Swing GUI or a web form
+    reply.setText(replyText);
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="forward">
+<strong>Q:</strong> How do I forward a message?
+</A>
+<BR>
+<strong>A:</strong> The approach used to forward a message depends on how you want
+to present the forwarded message.
+It's straightforward to create a new MimeMessage, address it appropriately,
+and attach an existing message as an attachment to the new message.
+To attach the original message to the new message, use code such as:
+<PRE>
+    MimeMessage msg = new MimeMessage(session);
+    // set To, From, Subject, Date, etc.
+    MimeMultipart mp = new MimeMultipart();
+    // create a body part to contain whatever text you want to include
+    MimeBodyPart mbp = new MimeBodyPart();
+    mbp.setText("Here's the forwarded message\n");
+    mp.addPart(mbp);
+    // create another body part to contain the message to be forwarded
+    MimeBodyPart fmbp = new MimeBodyPart();
+    // forwardedMsg is the MimeMessage object you want to forward
+    // as an attachment
+    fmbp.setContent(forwardedMsg, "message/rfc822");
+    fmbp.setDisposition(Part.ATTACHMENT);
+    mp.addPart(fmbp);
+    msg.setContent(mp);
+</PRE>
+<br/>
+</P>
+<P>
+If instead you want to create the new message with the text of the
+original message included in the new message, to forward the message
+"inline", you can use an approach such as the following:
+<PRE>
+    String text = (String)forwardedMsg.getContent();
+    String forwardedText = String.format(
+	"\n\n-------- Original Message --------\n" +
+	"Subject: %s\nDate: %s\nFrom: %s\nTo: %s\n",
+	forwardedMsg.getSubject(),
+	forwardedMsg.getSentDate(),
+	forwardedMsg.getFrom()[0],
+	formatAddressList(
+	  forwardedMsg.getRecipients(Message.RecipientType.TO)));
+    // allow user to edit forwardedText,
+    // e.g., using a Swing GUI or a web form
+    msg.setText(forwardedText);
+</PRE>
+<br/>
+</P>
+<P>
+(You'll have to write the <code>formatAddressList</code> method using
+the <code>toUnicodeString</code> method of <code>InternetAddress</code>.
+You'll also want to include appropriate error checking and test for null
+values.)
+</P>
+
+<P>
+<A NAME="sendhtml">
+<strong>Q:</strong> How do I send HTML mail?</A><BR>
+<strong>A:</strong> There are a number of demo programs included with the 
+distribution that show how to send HTML mail. If you want to
+send a simple message that has HTML instead of plain text, see
+the <code>sendhtml.java</code> program in the demo directory.
+If you want to send an HTML file as an attachment, see the
+<code>sendfile.java</code> example that shows how to send any file
+as an attachment.
+</P>
+
+<P>
+<A NAME="sendrich">
+<strong>Q:</strong> How do I send mail with formatted text using different fonts
+and colors?</A>
+<BR>
+<strong>A:</strong> The simplest approach is to send a message using HTML text.
+See <A HREF="#sendhtml">above</A>.
+</P>
+
+<P>
+<A NAME="sendmpa">
+<strong>Q:</strong> How do I send mail with both plain text as well as HTML text
+so that each mail reader can choose the format appropriate for it? </A>
+<BR>
+<strong>A:</strong> You'll want to send a MIME <code>multipart/alternative</code>
+message.  You construct such a message essentially the same way you
+construct a <code>multipart/mixed</code> message, using a MimeMultipart
+object constructed using <code>new MimeMultipart("alternative")</code>.
+You then insert the <code>text/plain</code> body part as the first part
+in the multpart and insert the <code>text/html</code> body part as the
+second part in the multipart.
+You'll need to construct the plain and html parts yourself to have
+appropriate content.
+See <A HREF="http://www.ietf.org/rfc/rfc2046.txt">RFC2046</A>
+for details of the structure of such a message.
+</P>
+
+<P>
+<A NAME="sendmpr">
+<strong>Q:</strong> How do I send HTML mail that includes images? </A>
+<BR>
+<strong>A:</strong> The simplest approach is to send HTML text with image tags
+that reference images on a public web site.  In this approach the
+images aren't actually included in the message, and so won't be visible
+if the user is not connected to the Internet when they read the message.
+Note also that some mailers will refuse to display images that are on
+remote sites.
+</P>
+<P>
+Alternatively, you can construct a MIME <code>multipart/related</code>
+message.  See <A HREF="http://www.ietf.org/rfc/rfc2387.txt">RFC2387</A>
+for details of the structure of such a message.
+A simple example follows:
+<PRE>
+        Multipart multipart = new MimeMultipart("related");
+
+        MimeBodyPart htmlPart = new MimeBodyPart();
+        // messageBody contains html that references image
+        // using something like &lt;img src="cid:XXX"&gt; where
+        // "XXX" is an identifier that you make up to refer
+        // to the image
+        htmlPart.setText(messageBody, "utf-8", "html");
+        multipart.addBodyPart(htmlPart);
+
+        MimeBodyPart imgPart = new MimeBodyPart();
+        // imageFile is the file containing the image
+        imgPart.attachFile(imageFile);
+        // or, if the image is in a byte array in memory, use
+        // imgPart.setDataHandler(new DataHandler(
+        //      new ByteArrayDataSource(bytes, "image/whatever")));
+
+        // "XXX" below matches "XXX" above in html code
+        imgPart.setContentID("&lt;XXX&gt;");
+        multipart.addBodyPart(imgPart);
+
+        message.setContent(multipart);
+</PRE>
+<br/>
+</P>
+
+<P>
+<A NAME="send">
+<strong>Q:</strong> What's the difference between the Transport methods
+<code>send</code> and <code>sendMessage</code>?
+</A>
+<BR>
+<strong>A:</strong> The <code>send()</code> method is a static method and can be
+used without needing an instance of a Transport object.  It is intended
+for the common, simple case of sending a single message using the
+default transport.  Internally, the <code>send()</code> method will
+first call the <code>saveChanges()</code> method on the message.
+It will then create an appropriate new Transport object, call the Transport's
+<code>connect()</code> method, call the Transport's <code>sendMessage()</code>
+method to actually send the message, call the Transport's <code>close()</code>
+method, and finally abandon the new instance of the Transport object to be
+collected by the garbage collector.
+(Actually, it's rather more complicated than that, but that's the general
+idea.)
+</P>
+<P>
+As you can see, the static <code>send()</code> convenience method is
+built on the more general per-instance <code>sendMessage()</code>
+method.  There are a number of reasons for an application to use the
+<code>sendMessage()</code> method directly.  The most common reasons are
+to improve performance by sending more than one message during a single
+connection, or to manually manage the connection so as to provide
+authentication information.
+</P>
+
+<P>
+<A NAME="smtpauth">
+<strong>Q:</strong> When I try to send a message I get an error like
+<code>SMTPSendFailedException: 530, Address requires authentication</code>.
+</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 9/21/2016">
+<BR>
+<strong>A:</strong> You need to authenticate to your SMTP server.  The package
+javadocs for the
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/smtp/package-summary.html">
+com.sun.mail.smtp package</A> describe several methods to do this.
+The easiest is to replace the call <code>Transport.send(msg);</code> with
+<code>Transport.send(msg, username, password);</code>.
+</P>
+<P>
+You'll have to supply the appropriate username and password
+needed by your mail server.
+</P>
+
+<P>
+<A NAME="smtpssl">
+<strong>Q:</strong> How do I use SSL or TLS when connecting to my mail server?
+</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 9/21/2016">
+<BR>
+<strong>A:</strong>
+To use SMTP over SSL, set the <code>mail.smtp.ssl.enable</code> property
+in the Session properties.
+To use the STARTTLS command set the <code>mail.smtp.starttls.enable</code>
+property in the Session properties.
+For example:
+<PRE>
+    Properties props = new Properties();
+    props.put("mail.smtp.ssl.enable", "true");
+    // or: props.put("mail.smtp.starttls.enable", "true");
+    Session session = Session.getInstance(props);
+    MimeMessage msg = new MimeMessage(session);
+    // set message content here
+    Transport.send(msg, username, password);
+</PRE>
+<br/>
+</P>
+
+<P>
+<A NAME="connectsend">
+<strong>Q:</strong> I need to authenticate to my SMTP server so I call
+<code>trans.connect(host, user, password)</code> and then
+<code>trans.send(msg)</code> to send the message, but it's not working.
+</A>
+<BR>
+<strong>A:</strong> You should call
+<code>trans.sendMessage(msg, addrs)</code> to send the message.  As described
+<A HREF="#send">above</A>, the <code>send</code> method is a static
+convenience method that acquires its own Transport object and creates
+its own connection to use for sending; it does not use the connection
+associated with any Transport object through which it is invoked.
+</P>
+
+<P>
+<A NAME="hdrs">
+<strong>Q:</strong> I modified this message, but the headers do not reflect the changes.
+</A><BR>
+<strong>A:</strong> You should call <code>saveChanges()</code> after you create a 
+new message or modify an existing message. This will cause the headers to be
+reset and reflect your changes.
+Note that the <code>Transport.send(Message)</code> method calls this implicitly.
+So if all you are doing is sending the modified message, you can
+skip calling <code>saveChanges()</code> yourself.
+<code>saveChanges()</code> is a potentially expensive operation (especially for
+large or deeply nested messages), so call it only when needed.
+</P>
+
+<P>
+<A NAME="msgid">
+<strong>Q:</strong> I set a particular value for the Message-ID header of my
+new message, but when I send this message that header is rewritten.
+</A>
+<BR>
+<strong>A:</strong>
+A new value for the Message-ID field is set when the <code>saveChanges</code>
+method is called (usually implicitly when a message is sent),
+overwriting any value you set yourself. If you need
+to set your own Message-ID and have it retained, you will have to create 
+your own MimeMessage subclass, override the <code>updateMessageID</code> method
+and use an instance of this subclass.
+
+<PRE>
+class MyMessage extends MimeMessage {
+    ...
+
+    protected void updateMessageID() throws MessagingException {
+	setHeader("Message-ID", "my-message-id");
+    }
+    ...
+}
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="unsup">
+<strong>Q:</strong> Why do I get an UnsupportedDataTypeException when sending this
+new message that I created?</A><BR>
+<strong>A:</strong> You probably set some content for your message using the
+<code>setContent(Object o, String type)</code> method. For this to work, there
+must be a JAF <code>DataContentHandler</code> registered for the given "type".
+If not, you will get the UnsupportedDataTypeException. See the
+<A href="http://www.oracle.com/technetwork/java/javase/index-jsp-136939.html">
+JAF documents </A>
+for more information.
+In most cases the simplest workaround is to use a
+<code>ByteArrayDataSource</code> as described
+<A HREF="#anytype">above</A>.
+</P>
+
+<P>
+<A NAME="smtpfrom">
+<strong>Q:</strong> How can I explicitly set the SMTP FROM: attribute when sending a
+message?</A>
+<BR>
+<strong>A:</strong> The <code>mail.smtp.from</code> property can be used to set the
+SMTP FROM: attribute. If this property if absent, the message's From
+attribute is used.
+If multiple threads need to send mail simultaneously, and each needs
+to set the From attribute, each thread should use its own Session object
+with its own Properties object.  The <code>mail.smtp.from</code> property
+can then be set on each Properties object for each Session (and thus
+each thread) independently.
+Alternatively, each thread can use the <code>com.sun.mail.SMTPMessage</code>
+class.  The <code>setEnvelopeFrom</code> method on that class can be used
+to set this value.  With this approach, all threads can use the same Session.
+</P>
+
+<P>
+<A NAME="rptsend">
+<strong>Q:</strong> I want to repeatedly send messages, to a different set of
+recipients each time. But invoking <code>Transport.send(Message)</code> causes
+a new Transport session to be established each time. This is
+suboptimal in this case, so how do I get around this?</A><BR>
+<strong>A:</strong> Create an instance of the appropriate Transport object, connect
+to it and invoke the <code>sendMessage()</code> method repeatedly. For example:
+
+<PRE>
+    MimeMessage msg = ...;
+    // construct message
+    msg.saveChanges();
+    Transport t = session.getTransport("smtp");
+    t.connect();
+
+    for (int i = 0; .....) {
+	t.sendMessage(msg, new Address[] { recipients[i] });
+    }
+
+    t.close();
+</PRE>
+<br/>
+<br/>
+</P>
+
+<P>
+<A NAME="helo">
+<strong>Q:</strong> I get "MessagingException: 501 HELO requires domain address"
+when trying to send a message.</A>
+<BR>
+<strong>A:</strong> The SMTP provider uses the results of
+<code>InetAddress.getLocalHost().getHostName()</code>
+in the SMTP HELO command.  If that call fails to return any data, no
+name is sent in the HELO command.  Check your JDK and name server
+configuration to ensure that that call returns the correct data.
+You may also set the "mail.smtp.localhost"
+property to the name you want to use for the HELO command.
+</P>
+
+<P>
+<A NAME="starttls">
+<strong>Q:</strong> I get "Must issue a STARTTLS command first"
+when trying to send a message.</A>
+<BR>
+<strong>A:</strong> Your SMTP server wants you to switch from a plain text connection
+to a secure connection using the STARTTLS command.
+You can enable use of this command by setting the Session property
+"mail.smtp.starttls.enable" to "true".
+This will cause the SMTP protocol provider to issue the STARTTLS
+command after connecting to the server.
+See the file
+<A HREF="http://javamail.java.net/docs/SSLNOTES.txt">SSLNOTES.txt</A>
+for additional information.
+Also, the javadocs for the
+<A HREF="http://javamail.java.net/nonav/javadocs/com/sun/mail/smtp/package-summary.html">com.sun.mail.smtp</A>
+package has more information on the properties that can be set.
+</P>
+<P>
+Note that your server is most likely also going to want you to authenticate,
+as described in <A HREF="#smtpauth">this</A> entry.
+</P>
+
+<P>
+<A NAME="badaddr">
+<strong>Q:</strong> If I send a message to a bad address, why don't I get a
+SendFailedException or TransportEvent indicating that the address is
+bad?</A><BR>
+<strong>A:</strong> There is no end-to-end address verification on the Internet.
+Often a message will need to be forwarded to several mail servers before
+reaching one that can determine whether or not it can deliver the message.
+If a failure occurs in one of these later steps, the message will
+typically be returned to the sender as undeliverable.  A successful
+"send" indicates only that the mail server has accepted the message
+and will try to deliver it.
+</P>
+
+<P>
+<A NAME="bounce">
+<strong>Q:</strong> When a message can't be delivered, a failure message is returned.
+How can I detect these "bounced" messages?</A>
+<BR>
+<strong>A:</strong> While there is an Internet standard for reporting such errors
+(the multipart/report MIME type, see
+<A href="http://www.imc.org/rfc1892">RFC1892</A>),
+it is not widely implemented yet.
+<A href="http://www.imc.org/rfc1211">RFC1211</A>
+discusses this problem in depth, including numerous examples.
+</P>
+<P>
+In Internet email, the existence of a particular mailbox or user
+name can only be determined by the ultimate server that would deliver the
+message.  The message may pass through several relay servers (that are not
+able to detect the error) before reaching the end server.  Typically, when
+the end server detects such an error, it will return a message indicating
+the reason for the failure to the sender of the original message.  There
+are many Internet standards covering such Delivery Status Notifications
+but a large number of servers don't support these new standards, instead
+using ad hoc techniques for returning such failure messages.  This makes
+it very difficult to correlate a "bounced" message with the original message
+that caused the problem.  (Note that this problem is completely independent
+of JavaMail.)
+JavaMail now includes support for parsing Delivery Status Notifications;
+see the <A HREF="http://javamail.java.net/docs/NOTES.txt">NOTES.txt</A>
+file in the JavaMail package for details.
+</P>
+<P>
+There are a number of techniques and heuristics for dealing with this
+problem - none of them perfect.  One technique is Variable Envelope
+Return Paths, described at
+<A HREF="http://cr.yp.to/proto/verp.txt">http://cr.yp.to/proto/verp.txt</A>.
+The use of VERP with JavaMail and Apache James is described
+<A HREF="http://cephas.net/blog/2006/06/09/using-apache-james-and-javamail-to-implement-variable-envelope-return-paths/">here</A>.
+</P>
+
+<P>
+<A NAME="legaladdress">
+<strong>Q:</strong> When I construct an InternetAddress object, why don't I get an
+exception if the address is illegal?
+</A>
+<BR>
+<strong>A:</strong> The InternetAddress class only checks the syntax of the address.
+As discussed <A HREF="#bounce">above</A>, the InternetAddress class is not
+able to determine whether the address actually exists as a legal address.
+It is not even possible to verify the host name if the application is
+running behind a firewall or isn't currently connected to the Internet.
+</P>
+
+<P>
+<A NAME="norelay">
+<strong>Q:</strong> When I try to send a message, why do I get
+<CODE>javax.mail.SendFailedException: 550 Unable to relay for
+<I>my-address</I></CODE>?</A>
+<BR>
+<strong>A:</strong> This is not a JavaMail problem.  This is an error reply from
+your SMTP mail server.  It indicates that your mail server is not
+configured to allow you to send mail through it.  Typically, mail servers
+for an organization will be configured to allow mail from within the
+organization to be sent to other addresses within the organization,
+or to addresses external to the organization.  It will also typically allow
+mail coming from an address external to an organization to be sent to
+addresses within the orgnaization.  What it will typically <EM>not</EM>
+allow is mail coming from an address external to the organization to be
+sent (relayed) to another address also external to the organization.
+The configuration of the mail server determines whether such relaying is
+allowed, and which addresses are considered internal vs. external.
+Often mail servers will require you to
+<A HREF="#smtpauth">authenticate</A> before they will
+relay messages.
+</P>
+
+<P>
+<A NAME="connectionrefused">
+<strong>Q:</strong> When I try to send a message to (for example) Yahoo,
+why do I get an error that says "connection refused"?</A>
+<BR>
+<strong>A:</strong> The host you're trying to connect to is most likely not
+running a mail server.  If you're trying to connect to a web mail
+service such as Yahoo, you can't usually use the web host name
+(e.g., "yahoo.com") since this host doesn't run the required
+mail server.  Instead, you'll need to learn the name of the host
+running the required mail server; contact your web mail provider for
+this information.  You can find this information for Yahoo at
+<A HREF="http://help.yahoo.com/help/us/mail/pop/pop-02.html">
+http://help.yahoo.com/help/us/mail/pop/pop-02.html</A>.
+Note that some web mail providers don't offer this service, instead
+allowing you to access your mail only through a browser.
+</P>
+<P>
+If you're not trying to connect to a web mail account, but instead are
+trying to connect to a host on your local network, then most likely the
+host you're trying to connect to is not running a mail server.  Sometimes
+this will occur if you forget to set (for example) the "mail.smtp.host"
+property, which will cause you to try to connect to "localhost".  Most
+Windows machines do not run a mail server, although many UNIX (Solaris,
+Linux, etc.) machines do.  Thus, attempts to connect to "localhost" on
+Windows machines will usually fail with a "connection refused" error.
+</P>
+
+<P>
+<A NAME="checkpop3first">
+<strong>Q:</strong> When sending mail, why does it fail with an exception that includes a
+message something like
+<code>553 To send mail, first check your mail with a valid POP account</code>?
+</A>
+<BR>
+<strong>A:</strong> In order to prevent their use to send spam, some mail servers
+will require you to have a valid POP3 account and require you to login
+to that account before they'll let you send mail through that mail server.
+This is simple to handle in JavaMail.  When you know that you're dealing
+with such a mail server, make sure you connect to your POP3 Store on that
+mail server before sending mail.
+</P>
+
+<BR>
+<BR>
+<H2><STRONG>POP3</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="delpop3">
+<strong>Q:</strong> I want to delete messages on a POP3 server. I set the
+<code>DELETED</code> flag
+on those messages. Then I call the <code>expunge()</code> method, but I get a
+MethodNotSupportedException.
+How do I delete messages when I use the POP3 provider?</A><BR>
+<strong>A:</strong> The <code>expunge()</code> method is not supported by the
+POP3 provider.  Instead, after marking the messages to be deleted
+by setting the DELETED flag on those messages, close the folder with
+the expunge flag set to true. That is, invoke <code>folder.close(true)</code>.
+</P>
+
+<P>
+<A NAME="uilds">
+<strong>Q:</strong> How can I retrieve POP3 UIDLs in messages obtained from the POP3
+provider?</A><BR>
+<strong>A:</strong> This is possible with the POP3 provider. See
+the <CODE>com.sun.mail.pop3</CODE> package documentation for details.
+</P>
+
+<P>
+<A NAME="newmsgs">
+<strong>Q:</strong> How can I tell which messages are new with POP3?</A><BR>
+<strong>A:</strong> The POP3 protocol doesn't provide support for any permanent flags
+so the RECENT flag is of no use.  The <CODE>com.sun.mail.pop3</CODE> package
+documentation discusses several strategies for dealing with this problem.
+</P>
+
+<P>
+<A NAME="newmsgs2">
+<strong>Q:</strong> Why does <code>hasNewMessages()</code> always return false when using
+POP3?</A><BR>
+<strong>A:</strong> The POP3 protocol provides no way to determine whether a folder
+has new messages.
+</P>
+
+<P>
+<A NAME="newmsgs3">
+<strong>Q:</strong> I set up a <code>MessageCountListener</code> (as demonstrated in the
+<CODE>monitor</CODE> program) but I'm never notified
+of new mail in my POP3 INBOX.</A><BR>
+<strong>A:</strong> The POP3 protocol does not allow the client to see new messages
+delivered to the INBOX while the INBOX is open.
+The application must close the INBOX and reopen it in order to see any
+new messages.  You will never be notified of new mail using the
+<code>MessageCountListener</code> interface with POP3.  See the
+<code>com.sun.mail.pop3</code> package documentation
+for more information.
+</P>
+
+<P>
+<A NAME="rcvdate">
+<strong>Q:</strong> Why does <code>getReceivedDate()</code> return null when using
+POP3?</A><BR>
+<strong>A:</strong> The POP3 protocol does not provide information about when a
+message was received.  It may be possible to guess at the received date
+by looking at some message headers such as the <code>Received</code>
+header, but this is not very reliable.
+</P>
+
+<P>
+<A NAME="pop3111">
+<strong>Q:</strong> When using POP3 I get complaints about the SocketFetcher class.
+</A>
+<BR>
+<strong>A:</strong> Most likely you
+have more than one version of pop3.jar or mail.jar in your CLASSPATH.
+Check the setting of CLASSPATH and
+check the "jre/lib/ext" directory in the JDK.
+</P>
+
+<P>
+<A NAME="pop312">
+<strong>Q:</strong> When using POP3 I get complaints about the contentStream field.
+</A>
+<BR>
+<strong>A:</strong> The error usually looks like:
+</P>
+<P>
+<pre>
+java.lang.NoSuchFieldError: contentStream at
+com.sun.mail.pop3.POP3Message.getContentStream(POP3Message.java:115)
+</pre>
+<br/>
+</P>
+<P>
+As <A HREF="#pop3111">above</A>, you've mixed versions of the POP3
+provider and mail.jar.  You probably have an older version of mail.jar
+in your CLASSPATH before the newer version that includes the POP3
+provider.
+</P>
+
+<P>
+<A NAME="pop3folder">
+<strong>Q:</strong> How do I access or create folders other than INBOX on my POP3 server?
+</A>
+<BR>
+<strong>A:</strong> You can't.  POP3 servers only support a single mailbox per user.
+Most mail readers that use POP3 also maintain a local message store into
+which they copy incoming messages (from the POP3 INBOX) and allow you to
+file messages in other folders.  See <A HREF="#localprovs">this item</A>
+for more information about local store providers.
+</P>
+
+<P>
+<A NAME="pop3size">
+<strong>Q:</strong> Why does the <code>getSize</code> method return a negative number
+when using POP3?
+</A>
+<BR>
+<strong>A:</strong> Your POP3 server is broken.  The POP3 provider uses the
+<code>TOP</code> command to fetch the headers for the message
+and the <code>LIST</code> command to determine the size of the
+entire message.  It then subtracts the two values to determine
+the size of the message body.  If the server reports the size of
+the entire message incorrectly, you may get a negative number.
+You can set the property "mail.pop3.disabletop" to "true" to
+disable the use of the <code>TOP</code> command, but note that
+this will cause any access to the message headers to fetch the
+entire message.
+</P>
+
+<P>
+<A NAME="msexpopbug">
+<strong>Q:</strong> I'm having problems using POP3 with Microsoft Exchange.
+</A>
+<BR>
+<strong>A:</strong> Some versions of Microsoft Exchange do not implement the
+POP3 protocol properly.  They return different headers from the
+<code>TOP</code> command than they do from the <code>RETR</code>
+command.  This can cause all sorts of strange failures in JavaMail.
+One solution is to disable use of the <code>TOP</code> command,
+as described <A href="#pop3size">above</A>.  Another approach
+that works in some cases os to tell JavaMail to forget about the
+headers it retrieved using the <code>TOP</code> command after
+retrieving the entire message using the <code>RETR</code> command.
+To do this, set the property "mail.pop3.forgettopheaders" to "true".
+</P>
+
+<BR>
+<BR>
+<H2><STRONG>JavaMail in servlets</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="servlethow">
+<strong>Q:</strong> Can I use JavaMail in servlets?
+</A>
+<BR>
+<strong>A:</strong> 
+Yes, see the Installation and Configuration section above for more details.
+The JavaMail API is also a required part of the
+<A HREF="http://www.oracle.com/technetwork/java/javaee/overview/javaee-135128.html">
+Java Platform, Enterprise Edition (Java EE)</A>.
+No installation or configuration is necessary when using JavaMail
+in a Java EE product, <EM>it's just there</EM>!
+</P>
+
+<P>
+<A NAME="fileupload">
+<strong>Q:</strong> My web application uses JavaMail to attach and send a file that
+the user specifies, but my application can't find the file.
+</A>
+<BR>
+<strong>A:</strong> If the user species the filename in an HTML form in the browser,
+the filename is normally the name of a file on the user's machine, not on
+the server.  The file will need to be uploaded to the server before
+JavaMail can access it.
+The <A HREF="http://jakarta.apache.org/commons/fileupload/">
+Apache Jakarta Commons FileUpload package</A> can help.
+</P>
+
+<BR>
+<BR>
+<H2><STRONG>JavaMail in applets</STRONG></H2>
+<BR />
+<BR />
+
+<P>
+<A NAME="applets">
+<strong>Q:</strong> Can I use JavaMail in applets?
+</A>
+<BR>
+<strong>A:</strong> 
+Yes, JavaMail will work in applets in browsers that support the
+required JDK version.
+The <A HREF="http://docs.oracle.com/javase/7/docs/technotes/guides/jweb/applet/applet_dev_guide.html">
+Java Plug-in</A> may be required to provide such support.
+</P>
+
+<P>
+<A NAME="appletsecurity">
+<strong>Q:</strong> What are the security implications of using JavaMail in an applet?
+</A>
+<BR>
+<strong>A:</strong> One of the biggest
+issues with using JavaMail in applets is the default applet security
+restrictions.  These restrictions only allow applets to connect to the
+host from which they were loaded.  Thus, for such applets to use JavaMail,
+the mail server will need to be located on the same machine as the web
+server from which the applet is loaded.  You can find more information
+on the applet security model
+<A HREF="http://docs.oracle.com/javase/tutorial/deployment/applet/security.html">
+here</A>.
+</P>
+
+<P>
+<A NAME="appletalt">
+<strong>Q:</strong> Ok, maybe I really don't want to use an applet, what should I
+do instead?
+</A>
+<BR>
+<strong>A:</strong> In general, we recommend use of a web application to collect
+a mail message and send it using JavaMail.  The demo servlet included in
+the JavaMail download package illustrates this approach.  The
+<A HREF="http://www.oracle.com/technetwork/articles/javase/emailapps-141091.html">
+Email Web Application demo program</A> on the Oracle Technology Network
+illustrates another approach using JavaServer Pages.
+</P>	
+
+        </section>
+      </div>
+    </div>
+
+    
+  </body>
+</html>
