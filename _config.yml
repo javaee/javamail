@@ -3,14 +3,10 @@ theme: jekyll-theme-architect
 title: [JavaMail]
 description: [JavaMail Reference Implementation]
 
-show_downloads: false
-
 links:
   source: https://github.com/javaee/javamail
   javadocs: docs/api/
   download: https://github.com/javaee/javamail/releases
   issuetracker: https://github.com/javaee/javamail/issues
   mailinglist: https://javaee.groups.io/g/javamail
-  contribute: Contributions.html
   faq: FAQ.html
-  license: https://oss.oracle.com/licenses/CDDL+GPL-1.1

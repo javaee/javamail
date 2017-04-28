@@ -20,23 +20,7 @@ Please print this form out, fill in all the necessary detail, scan it,
 and return it via e-mail: <oracle-ca_us@oracle.com> You may also want
 to read the [Contributor agreement FAQ](http://oss.oracle.com/oca-faq.pdf).
 
-For all project Submissions other than source code Submissions
-contributed to this Project, the following also applies: The sponsors
-do not claim ownership of Your Submissions.  However, in order to
-fulfill the purposes of this project, You must give the Sponsors and
-all Users the right to post, access, discuss, use, publish, disseminate
-and refine Your Submissions.  In legalese:
-*You hereby grant to the Sponsors and all Users a royalty-free,
-perpetual, irrevocable, worldwide, non-exclusive and fully
-sub-licensable right and license under Your intellectual property
-rights to reproduce, modify, adapt, publish, translate, create
-derivative works from, distribute, perform, display and use Your
-Submissions (in whole or part) and to incorporate or implement them in
-other works in any form, media, or technology now known or later
-developed, all subject to the obligation to retain any copyright
-notices included in Your Submissions.  All Users, the Hosts, and their
-sublicensees are responsible for any modifications they make to the
-Submissions of others.*
+See [CONTRIBUTING](CONTRIBUTING) for the legal details.
 
 ## Coding Style
 

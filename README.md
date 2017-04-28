@@ -1,17 +1,37 @@
-JavaMail API
-============
+The JavaMail API provides a platform-independent and
+protocol-independent framework to build mail and messaging
+applications.
+The JavaMail API is available as an optional package for use with the
+[Java SE platform](http://www.oracle.com/technetwork/java/javase/index.html)
+and is also included in the
+[Java EE platform](http://www.oracle.com/technetwork/java/javaee/index.html).
 
-Welcome to the JavaMail API project! This project hosts the downloads
-and source code for the JavaMail API reference implementation. The
-JavaMail reference implementation is licensed under the
+# Table of Contents
+* [Latest News](#Latest_News)
+* [Download JavaMail Release](#Download_JavaMail_Release)
+* [API Documentation](#API_Documentation)
+* [Samples](#Samples)
+* [Help](#Help)
+* [Bugs](#Bugs)
+* [Development Releases](#Development_Releases)
+* [JavaMail for Android](#JavaMail_for_Android)
+* [Project Documentation](#Project_Documentation)
+
+# <a name="Latest_News"></a>Latest News
+
+## April 28, 2017 - JavaMail moves to GitHub! ##
+
+Welcome to the new home of the JavaMail API project on GitHub!
+This project hosts the downloads and source code for the JavaMail API
+reference implementation. The JavaMail reference implementation is
+licensed under the
 [Common Development and Distribution License (CDDL) v1.1 and GNU General Public
 License (GPL) v2 with Classpath Exception](https://oss.oracle.com/licenses/CDDL+GPL-1.1).
 
 By contributing to this project, you agree to these additional terms of
-use, described in [Contributions](Contributions).
+use, described in [CONTRIBUTING](CONTRIBUTING).
 
-Download JavaMail Release
--------------------------
+# <a name="Download_JavaMail_Release"></a>Download JavaMail Release
 
 The latest release of JavaMail is 1.5.6.
 
@@ -20,7 +40,7 @@ people will only need the main JavaMail reference implementation in the
 javax.mail.jar file.
 
 |Item|Description|
-|----|-----------|
+|:---|:----------|
 |[javax.mail.jar](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_5_6/javax.mail.jar)|The JavaMail reference implementation, including the SMTP, IMAP, and POP3 protocol providers|
 |[README.txt](docs/README.txt)|Overview of the release|
 |[NOTES.txt](docs/NOTES.txt)|Additional notes about using JavaMail|
@@ -34,7 +54,7 @@ In addition, the JavaMail jar files are published to the Maven repository. You c
 
 
 |jar file|groupId|artifactId|Description|
-|--------|-------|----------|-----------|
+|:-------|:------|:---------|:----------|
 |[javax.mail.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.5.6/javax.mail-1.5.6.jar)|com.sun.mail|javax.mail|The JavaMail reference implementation jar file, including the SMTP, IMAP, and POP3 protocol providers|
 |[javax.mail-api.jar](https://maven.java.net/content/repositories/releases/javax/mail/javax.mail-api/1.5.6/javax.mail-api-1.5.6.jar)|javax.mail|javax.mail-api|The JavaMail API definitions only, suitable for compiling against|
 |[mailapi.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/mailapi/1.5.6/mailapi-1.5.6.jar)|com.sun.mail|mailapi|The JavaMail reference implementation with no protocol providers; use with one of the following providers|
@@ -45,8 +65,7 @@ In addition, the JavaMail jar files are published to the Maven repository. You c
 |[dsn.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/dsn/1.5.6/dsn-1.5.6.jar)|com.sun.mail|dsn|Support for parsing and creating messages containing Delivery Status Notifications|
 |[logging-mailhandler.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/logging-mailhandler/1.5.6/logging-mailhandler-1.5.6.jar)|com.sun.mail|logging-mailhandler|A java.util.logging handler that uses JavaMail, suitable for use in Google App Engine.|
 
-API Documentation
------------------
+# <a name="API_Documentation"></a>API Documentation
 
 The JavaMail API is defined through the Java Community Process as
 [JSR 919](http://jcp.org/en/jsr/detail?id=919).
@@ -63,14 +82,12 @@ the JavaMail API specification:
 -   [JavaMail 1.2](docs/JavaMail-1.2-changes.txt)
 -   [JavaMail 1.1](docs/JavaMail-1.1-changes.txt)
 
-Samples
--------
+# <a name="Samples"></a>Samples
 
 Some sample programs showing how to use the JavaMail APIs are available
 [here](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_5_6/javamail-samples.zip).
 
-Help
-----
+# <a name="Help"></a>Help
 
 Please read the
 [JavaMail FAQ](FAQ.html)!
@@ -82,14 +99,12 @@ You can also subscribe to the
 [mailing list](https://javaee.groups.io/g/javamail).
 Or, send mail directly to the JavaMail team at <javamail_ww@oracle.com>.
 
-Bugs
-----
+# <a name="Bugs"></a>Bugs
 
 JavaMail bugs are tracked in the
 [GitHub JavaMail project issue tracker](https://github.com/javaee/javamail/issues).
 
-Development Releases
---------------------
+# <a name="Development_Releases"></a>Development Releases
 
 From time to time snapshot releases of the next version of JavaMail
 under development are published to the
@@ -109,14 +124,12 @@ is now available. This is a non-final development release of JavaMail
 encouraged. The final release of JavaMail 1.6.0 is expected this
 summer.
 
-JavaMail for Android
---------------------
+# <a name="JavaMail_for_Android"></a>JavaMail for Android
 
 The latest release includes support for JavaMail on Android.
 See the [Android](Android) page for details.
 
-Project Documentation
----------------------
+# <a name="Project_Documentation"></a>Project Documentation
 
 You'll find more information about the protocol providers supported by
 JavaMail on the following pages:
