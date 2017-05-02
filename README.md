@@ -97,7 +97,12 @@ You can search for and post questions to the
 [JavaMail OTN forum](https://forums.oracle.com/forums/forum.jspa?forumID=975).
 You can also subscribe to the
 [mailing list](https://javaee.groups.io/g/javamail).
-Or, send mail directly to the JavaMail team at <javamail_ww@oracle.com>.
+
+Or, post a question on [Stack Overflow](http://stackoverflow.com/) using the
+[javamail](http://stackoverflow.com/questions/tagged/javamail) tag.
+
+Finally, you can send mail directly to the JavaMail team at
+<javamail_ww@oracle.com>.
 
 # <a name="Bugs"></a>Bugs
 
