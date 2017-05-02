@@ -7,6 +7,5 @@ links:
   source: https://github.com/javaee/javamail
   javadocs: docs/api/
   download: https://github.com/javaee/javamail/releases
-  issuetracker: https://github.com/javaee/javamail/issues
   mailinglist: https://javaee.groups.io/g/javamail
-  faq: FAQ.html
+  faq: FAQ

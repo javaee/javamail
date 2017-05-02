@@ -84,6 +84,8 @@ a.oraclelogo {
   background-size: 100% ;
   width: 96px;
   height: 62px;
+  padding-top: 2px;
+  padding-right: 20px;
 }
 
 aside#sidebar {
@@ -204,9 +206,18 @@ ul {
   //padding: 1rem;
   padding-top: 4px;
   padding-bottom: 14px;
-  font-size: 12px;
-  font-weight: 400;
+  font-size: 0.8em;
   text-align: center;
+}
+
+.oracle {
+  color: #666;
+  font-weight: 400;
+}
+
+.oracle:hover { 
+  text-decoration: none;
+  color: #FF0000;
 }
 
 .fullpage {
