@@ -39,7 +39,7 @@ The most important points are summarized below:
 -   Braces should be at the end of the line they apply to, rather than
     all alone at the beginning of the next line, i.e.,
 
-```
+```java
        if (foo instanceof bar) {  
            foobar();  
            barfoo();  
@@ -48,7 +48,7 @@ The most important points are summarized below:
 
 -   Methods should have doc comments of the form:
 
-```
+```java
         \/**
          \* comments here
          \*/
@@ -70,7 +70,7 @@ The most important points are summarized below:
 -   In method signatures, start with the access-control keyword, then
     the return-type, i.e.,
 
-```
+```java
        public int foobar() {
            ...
        }
