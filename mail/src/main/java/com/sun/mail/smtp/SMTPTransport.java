@@ -979,11 +979,12 @@ public class SMTPTransport extends Transport {
 	void doAuth(String host, String authzid, String user, String passwd)
 				    throws MessagingException, IOException {
 	    // send username
-	    resp = simpleCommand(BASE64EncoderStream.encode(toBytes(user)));
+	    resp = simpleCommand(BASE64EncoderStream.encode(
+				user.getBytes(StandardCharsets.UTF_8)));
 	    if (resp == 334) {
 		// send passwd
-		resp = simpleCommand(
-			    BASE64EncoderStream.encode(toBytes(passwd)));
+		resp = simpleCommand(BASE64EncoderStream.encode(
+				passwd.getBytes(StandardCharsets.UTF_8)));
 	    }
 	}
     }
@@ -1109,7 +1110,8 @@ public class SMTPTransport extends Transport {
 		String passwd) throws MessagingException, IOException {
 	    String resp = "user=" + user + "\001auth=Bearer " +
 			    passwd + "\001\001";
-	    byte[] b = BASE64EncoderStream.encode(toBytes(resp));
+	    byte[] b = BASE64EncoderStream.encode(
+					resp.getBytes(StandardCharsets.UTF_8));
 	    return ASCIIUtility.toString(b);
 	}
 

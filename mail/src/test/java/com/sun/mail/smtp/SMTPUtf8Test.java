@@ -114,7 +114,7 @@ public class SMTPUtf8Test {
      * Test using UTF-8 user name but without mail.mime.allowutf8.
      */
     @Test
-    public void testUtf8UserNameFail() {
+    public void testUtf8UserNameNoAllowUtf8() {
         TestServer server = null;
 	final String user = "test\u03b1";
         try {
@@ -139,8 +139,6 @@ public class SMTPUtf8Test {
             Transport t = session.getTransport("smtp");
             try {
                 t.connect(user, user);
-		fail("Authentication DID NOT fail");
-	    } catch (AuthenticationFailedException ex) {
 		// success!
 	    } catch (Exception ex) {
 		fail(ex.toString());

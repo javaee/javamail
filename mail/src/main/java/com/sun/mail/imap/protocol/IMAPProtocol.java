@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -597,7 +597,7 @@ public class IMAPProtocol extends Protocol {
 			s = p;
 		    
 		    // obtain b64 encoded bytes
-		    b64os.write(toBytes(s));
+		    b64os.write(s.getBytes(StandardCharsets.UTF_8));
 		    b64os.flush(); 	// complete the encoding
 
 		    bos.write(CRLF); 	// CRLF termination
@@ -818,7 +818,7 @@ public class IMAPProtocol extends Protocol {
 			s = ntlm.generateType3Msg(r.getRest());
 		    }
  
-		    os.write(toBytes(s));
+		    os.write(s.getBytes(StandardCharsets.UTF_8));
 		    os.write(CRLF); 	// CRLF termination
 		    os.flush(); 	// flush the stream
 		} else if (r.isTagged() && r.getTag().equals(tag))
@@ -893,7 +893,8 @@ public class IMAPProtocol extends Protocol {
 	    args.writeAtom("XOAUTH2");
 	    if (hasCapability("SASL-IR")) {
 		String resp = "user=" + u + "\001auth=Bearer " + p + "\001\001";
-		byte[] ba = BASE64EncoderStream.encode(toBytes(resp));
+		byte[] ba = BASE64EncoderStream.encode(
+				    resp.getBytes(StandardCharsets.UTF_8));
 		String irs = ASCIIUtility.toString(ba, 0, ba.length);
 		args.writeAtom(irs);
 	    }
@@ -913,7 +914,8 @@ public class IMAPProtocol extends Protocol {
 		    // Server challenge ..
 		    String resp = "user=" + u + "\001auth=Bearer " +
 				    p + "\001\001";
-		    byte[] b = BASE64EncoderStream.encode(toBytes(resp));
+		    byte[] b = BASE64EncoderStream.encode(
+				    resp.getBytes(StandardCharsets.UTF_8));
 		    os.write(b);	// write out response
 		    os.write(CRLF); 	// CRLF termination
 		    os.flush(); 	// flush the stream
@@ -3301,17 +3303,5 @@ public class IMAPProtocol extends Protocol {
 	notifyResponseHandlers(r);
 	handleResult(response);
 	return id == null ? null : id.getServerParams();
-    }
-
-    /**
-     * Convert the String to either ASCII or UTF-8 bytes
-     * depending on the utf8 flag.
-     */
-    private byte[] toBytes(String s) {
-	if (utf8)
-	    return s.getBytes(StandardCharsets.UTF_8);
-	else
-	    // don't use StandardCharsets.US_ASCII because it rejects non-ASCII
-	    return ASCIIUtility.getBytes(s);
     }
 }

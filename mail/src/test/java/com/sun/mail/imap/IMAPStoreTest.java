@@ -77,10 +77,34 @@ public final class IMAPStoreTest {
     }
 
     /**
+     * Test that UTF-8 user name works with LOGIN authentication.
+     */
+    @Test
+    public void testUtf8UsernameLogin() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Store store, IMAPHandler handler)
+				    throws MessagingException, IOException {
+		    store.connect(utf8Folder, utf8Folder);
+		}
+	    },
+	    new IMAPLoginHandler() {
+		@Override
+		public void authlogin(String ir)
+					throws IOException {
+		    username = utf8Folder;
+		    password = utf8Folder;
+		    super.authlogin(ir);
+		}
+	    });
+    }
+
+    /**
      * Test that UTF-8 user name works with PLAIN authentication.
      */
     @Test
-    public void testUtf8Username() {
+    public void testUtf8UsernamePlain() {
 	testWithHandler(
 	    new IMAPTest() {
 		@Override
