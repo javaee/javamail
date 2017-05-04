@@ -118,6 +118,21 @@ td {
 
 ul {
   font-size: 1em;
+  margin-left: 12px;
+}
+
+ol {
+    list-style-position: inside;
+    list-style: decimal;
+    margin-left: 26px;
+}
+
+blockquote {
+    padding: 0 0 0 10px;
+    margin-left: 14px;
+    margin-bottom: 2px;
+    font-size: 1em;
+    border-left: 4px solid #ddd;
 }
 
 #main-content h1 {

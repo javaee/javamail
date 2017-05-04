@@ -61,7 +61,9 @@
                <h2><a href="{{ site.links.download }}"><p>Download</p></a></h2>
             {% endif %}
 
+            {% if site.links.hide_issuetracker != true %}
             <h2><a href="{{ site.github.issues_url }}"><p>Issue Tracker</p></a></h2>
+            {% endif %}
 
             {% if site.links.mailinglist %}
                <h2><a href="{{ site.links.mailinglist }}"><p>Mailing List</p></a></h2>
