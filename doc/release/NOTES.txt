@@ -9,7 +9,7 @@ Welcome to the ${mail.version} release of the JavaMail API implementation.
 Please refer to CHANGES.txt for a list of the changes since the 
 previous release.
 
-Please see the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
+Please see the FAQ at https://javaee.github.io/javamail/FAQ
 
 Protocol Providers
 ------------------
@@ -137,7 +137,7 @@ Your problem:	How do I create a message with an attachment?
 Our response:	Create a message with a MimeMultipart content.  See the
 		sendfile.html and msgmultisendsample.java demo programs.
 
-Please check the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
+Please check the FAQ at https://javaee.github.io/javamail/FAQ
 before submitting bug reports.
 
 Send your bug reports to:

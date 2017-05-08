@@ -9,7 +9,7 @@ versions of the JavaMail API implementation, IMAP, SMTP, and POP3
 service providers, some examples, and documentation for the JavaMail
 API.
 
-Please see the FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
+Please see the FAQ at https://javaee.github.io/javamail/FAQ
 
 JDK Version notes
 -----------------
@@ -162,7 +162,7 @@ Installation
 Problems?
 ---------
 
-The JavaMail FAQ at http://www.oracle.com/technetwork/java/javamail/faq/
+The JavaMail FAQ at https://javaee.github.io/javamail/FAQ
 includes information on protocols supported, installation problems,
 debugging tips, etc.
 
