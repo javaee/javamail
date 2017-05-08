@@ -174,4 +174,9 @@ If you're interested in contributing to JavaMail, see the
 You can find a list of products related to JavaMail on the
 [ThirdPartyProducts](Third Party Products) page.
 
+Please see our page of
+[links to additional information about JavaMail and Internet email](Links)
+and our list of
+[books about JavaMail and Internet email](Books).
+
 To understand the JavaMail license, see the [License](JavaMail-License) page.
