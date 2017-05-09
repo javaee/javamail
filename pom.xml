@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2016 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -57,23 +57,23 @@
     <version>1.6.0-SNAPSHOT</version>
     <name>JavaMail API distribution</name>
     <description>${project.name}</description>
-    <url>http://javamail.java.net</url>
+    <url>http://javaee.github.io/javamail</url>
 
     <scm>
-	<connection>scm:hg:http://java.net/hg/javamail~mercurial</connection>
-	<developerConnection>scm:hg:https://java.net/hg/javamail~mercurial</developerConnection>
-	<url>http://java.net/hg/javamail~mercurial</url>
+	<connection>scm:git:https://github.com/javaee/javamail.git</connection>
+	<developerConnection>scm:git:git@github.com:javaee/javamail.git</developerConnection>
+	<url>https://github.com/javaee/javamail</url>
     </scm>
 
     <issueManagement>
-	<system>Bugzilla</system>
-	<url>http://kenai.com/bugzilla</url>
+	<system>GitHub</system>
+	<url>https://github.com/javaee/javamail/issues</url>
     </issueManagement>
 
     <licenses>
       <license>
 	<name>CDDL/GPLv2+CE</name>
-	<url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</url>
+	<url>https://javaee.github.io/javamail/LICENSE</url>
 	<distribution>repo</distribution>
 	<comments>CDDL or GPL version 2 plus the Classpath Exception</comments>
       </license>
