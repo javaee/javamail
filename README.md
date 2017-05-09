@@ -172,7 +172,7 @@ If you're interested in contributing to JavaMail, see the
 [Contributions](Contributions) page.
 
 You can find a list of products related to JavaMail on the
-[ThirdPartyProducts](Third Party Products) page.
+[Third Party Products](ThirdPartyProducts) page.
 
 Please see our page of
 [links to additional information about JavaMail and Internet email](Links)
