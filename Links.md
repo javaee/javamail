@@ -22,29 +22,6 @@ href="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</a>.
 * <a href="http://www.oracle.com/technetwork/articles/javaee/emailapps-141091.html">
   Email Web Application using JSP Tag Libraries</a>
 
-<!-- gone 5/8/2017
-* <a href="/technetwork/articles/javase/icemail-136147.html">
-  The Java Technologies Behind ICEMail: An Open-Source Project</a>
--->
-
-<!-- gone 5/8/2017
-* Fundamentals of the JavaMail API, a Short Course by
-  <a href="http://www.jguru.com">jGuru</a>
--->
-
-<!-- gone 5/8/2017
-* <a href="http://www.jspinsider.com/tutorials/jsp/javamail/jspjavamail_intro.view">
-  JSP and JavaMail</a>, by <a href="mailto:Jayson@jspinsider.com">Jayson Falkner</a>
--->
-
-<!-- gone 5/8/2017
-* <a href="http://www.imc.org">The Internet Mail Consortium</a>
--->
-
-<!-- gone 5/8/2017
-* <a href="http://www.imap.org">The IMAP Connection</a>
--->
-
 * <a href="http://hunnysoft.com/mime">The MIME Information Page</a>
 
 * <a href="http://www.lifewithqmail.org/lwq.html#how-mail-works">
@@ -64,12 +41,6 @@ href="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</a>.
 * <a href="http://www.webopedia.com/quick_ref/e_mail.asp">
   Deciphering Internet E-mail</a> in Webopedia
 
-<!-- gone 5/8/2017
-* <a href="http://www.javacommerce.com/articles/sendingmail.htm">
-  Sending Email From Your Application Using Java Mail</a>, by
-  <a href="mailto:sudhir@javacommerce.com">Sudhir Ancha</a>
--->
-
 * <a href="http://www.jguru.com/faq/JavaMail">jGuru JavaMail FAQ</a>
 
 * JavaMail, by <a href="mailto:imoraes@yahoo.com">Ian Moraes</a>, in
@@ -79,26 +50,6 @@ href="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</a>.
 * What Is JavaMail?, by <a href="mailto:rmg@silentq.com">Rachel Gollub</a>, in
   <a href="http://pdf.sys-con.com/Java/javamail.pdf">
   Java Developer's Journal, October 1999</a> (Registration required.)
-
-<!-- gone 5/8/2017
-* Introduction to the JavaMail API, in
-  <a href="http://www.waplinks.com/samplechap/prowap/contents.htm">
-  Professional WAP</a>
--->
-
-<!-- gone 5/8/2017
-* <a href="http://softwaredev.earthweb.com/java/sdjjavase/article/0,,12395_618471,00.html">
-  WebMail in Java: Sending E-mail (part 1)</a>, by
-  <a href="http://www.marchal.com">Beno&icirc;t Marchal</a>
-
-* <a href="http://softwaredev.earthweb.com/java/sdjjavase/article/0,,12395_618481,00.html">
-  WebMail in Java: Reading E-mail (part 2)</a>, by
-  <a href="http://www.marchal.com">Beno&icirc;t Marchal</a>
-
-* <a href="http://softwaredev.earthweb.com/java/sdjjavase/article/0,,12395_606531,00.html">
-  Java meets e-mail</a> by
-  <a href="http://www.marchal.com">Beno&icirc;t Marchal</a>
--->
 
 * <a href="https://www.ibm.com/developerworks/java/library/x-xmlist1/">
   Managing e-zines with JavaMail and XSLT, Part 1</a> by
