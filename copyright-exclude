@@ -7,6 +7,8 @@ copyright-exclude
 doc/release/
 doc/spec/
 /LICENSE.txt
+CONTRIBUTING.md
+LICENSE.md
 .hgtags
 .hgignore
 client/src/main/java/simple.mailcap
@@ -17,9 +19,13 @@ webapp/build.bat
 webapp/webapp.README.txt
 logging/src/main/java/
 mail/src/main/java/com/sun/mail/util/logging/
+mail/src/main/resources/META-INF/hk2-locator/default
 mail/src/test/java/com/sun/mail/util/logging/
 mail/src/test/resources/javax/mail/internet/paramdata
 mail/src/test/resources/javax/mail/internet/paramdatanostrict
 mail/src/test/resources/javax/mail/internet/tokenlist
 mail/src/test/resources/javax/mail/internet/addrlist
+mail/src/test/resources/javax/mail/internet/MailDateFormat_old.ser
+mail/src/test/resources/javax/mail/internet/MailDateFormat_new.ser
 mail/src/main/java/doc-files/speclicense.html
+android/activation/src/main/resources/META-INF/mimetypes.default
