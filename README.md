@@ -149,6 +149,10 @@ If you're interested in writing your own protocol provider (most people
 won't need to), you can find more documentation on protocol providers
 [here](docs/Providers.pdf).
 
+The use of
+[OAuth2 authentication](https://developers.google.com/gmail/xoauth2_protocol)
+with JavaMail is described [here](OAuth2).
+
 The following pages provide hints and tips for using particular mail servers:
 
 -   [Gmail](Gmail)

@@ -48,7 +48,7 @@ imap-mail.outlook.com, but the access token will need to be acquired as
 described on the Outlook.com page.
 
 OAuth2 is also supported with SMTP; change "imap" to "smtp" in the
-property names.
+property names.  OAuth2 is **not** supported for pop3.
 
 Please send feedback to <javamail_ww@oracle.com>.
 
