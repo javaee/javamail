@@ -9,7 +9,7 @@ API introduced in JavaMail 1.6.  The numbers in parentheses
 are bug numbers; you can find more information about the
 bug reports at:
 
-    https://kenai.com/bugzilla/
+    https://github.com/javaee/javamail/issues/<bug number>
 
 Please send comments and feedback to javamail_ww@oracle.com.
 
@@ -18,8 +18,8 @@ JavaMail 1.6 will also require at least Java SE 7.
 
 ===================================================================
 
-1. MailSessionDefinition should use Repeatable annotation for Java EE 8 (8398)
-------------------------------------------------------------------------------
+1. MailSessionDefinition should use Repeatable annotation for Java EE 8 (226)
+-----------------------------------------------------------------------------
 
 The MailSessionDefinition annotation now includes the Repeatable annotation:
 
@@ -36,8 +36,8 @@ The Repeatable annotation is not known to Java SE 7 and will be ignored
 
 ===================================================================
 
-2. MimeMessage.updateHeaders should set Date header if not already set (6074)
------------------------------------------------------------------------------
+2. MimeMessage.updateHeaders should set Date header if not already set (77)
+---------------------------------------------------------------------------
 
 RFC 2822 requires a Date header.  The MimeMessage.updateHeaders method
 now sets the Date header if it's not already set:
@@ -71,8 +71,8 @@ now sets the Date header if it's not already set:
 
 ===================================================================
 
-3. Update public API to use generics (8415)
--------------------------------------------
+3. Update public API to use generics (232)
+------------------------------------------
 
 Methods on the following APIs have been updated to use generics
 when appropriate:
@@ -89,14 +89,14 @@ when appropriate:
 Details follow:
 
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Multipart.java
---- a/mail/src/main/java/javax/mail/Multipart.java
+- a/mail/src/main/java/javax/mail/Multipart.java
 +++ b/mail/src/main/java/javax/mail/Multipart.java
 @@ -72,2 +72,1 @@
 -    @SuppressWarnings("rawtypes")
 -    protected Vector parts = new Vector(); // Holds BodyParts
 +    protected Vector<BodyPart> parts = new Vector<>(); // Holds BodyParts
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Part.java
---- a/mail/src/main/java/javax/mail/Part.java
+- a/mail/src/main/java/javax/mail/Part.java
 +++ b/mail/src/main/java/javax/mail/Part.java
 @@ -452,2 +452,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -111,7 +111,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Part.java
 -    public Enumeration getNonMatchingHeaders(String[] header_names) 
 +    public Enumeration<Header> getNonMatchingHeaders(String[] header_names) 
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Service.java
---- a/mail/src/main/java/javax/mail/Service.java
+- a/mail/src/main/java/javax/mail/Service.java
 +++ b/mail/src/main/java/javax/mail/Service.java
 @@ -640,2 +640,2 @@
 -    @SuppressWarnings("rawtypes")
@@ -119,7 +119,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Service.java
 +    protected void queueEvent(MailEvent event,
 +	    Vector<? extends EventListener> vector) {
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/InternetHeaders.java
---- a/mail/src/main/java/javax/mail/internet/InternetHeaders.java
+- a/mail/src/main/java/javax/mail/internet/InternetHeaders.java
 +++ b/mail/src/main/java/javax/mail/internet/InternetHeaders.java
 @@ -300,2 +300,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -150,7 +150,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/InternetHeaders.java
 -    public Enumeration getNonMatchingHeaderLines(String[] names) {
 +    public Enumeration<String> getNonMatchingHeaderLines(String[] names) {
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeBodyPart.java
---- a/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
+- a/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
 +++ b/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
 @@ -1036,2 +1036,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -177,7 +177,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeBodyPart.java
 -    public Enumeration getNonMatchingHeaderLines(String[] names)  
 +    public Enumeration<String> getNonMatchingHeaderLines(String[] names)  
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeMessage.java
---- a/mail/src/main/java/javax/mail/internet/MimeMessage.java
+- a/mail/src/main/java/javax/mail/internet/MimeMessage.java
 +++ b/mail/src/main/java/javax/mail/internet/MimeMessage.java
 @@ -1992,2 +1991,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -204,7 +204,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeMessage.java
 -    public Enumeration getNonMatchingHeaderLines(String[] names)
 +    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimePart.java
---- a/mail/src/main/java/javax/mail/internet/MimePart.java
+- a/mail/src/main/java/javax/mail/internet/MimePart.java
 +++ b/mail/src/main/java/javax/mail/internet/MimePart.java
 @@ -111,2 +111,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -219,7 +219,7 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimePart.java
 -    public Enumeration getNonMatchingHeaderLines(String[] names)
 +    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
 diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/ParameterList.java
---- a/mail/src/main/java/javax/mail/internet/ParameterList.java
+- a/mail/src/main/java/javax/mail/internet/ParameterList.java
 +++ b/mail/src/main/java/javax/mail/internet/ParameterList.java
 @@ -627,2 +627,1 @@
 -    @SuppressWarnings("rawtypes")
@@ -229,8 +229,8 @@ diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/ParameterList.java
 
 ===================================================================
 
-4. MailDateFormat changes for version 1.6 (6949)
-------------------------------------------------
+4. MailDateFormat changes for version 1.6 (174)
+-----------------------------------------------
 
 The parse(String) method currently returns null for invalid dates,
 which violates the contract of DateFormat.  It should throw ParseException.
@@ -324,8 +324,8 @@ MailDateFormat should include a proper clone method:
 
 ===================================================================
 
-5. Store, Transport, and Folder should implement AutoCloseable (6823)
----------------------------------------------------------------------
+5. Store, Transport, and Folder should implement AutoCloseable (159)
+--------------------------------------------------------------------
 
 To enable use in a try-with-resources block, the Store, Transport,
 and Folder classes should implement the java.lang.AutoCloseable interface.
@@ -369,8 +369,8 @@ that behaves the same as close(true), and have Folder implement AutoCloseable.
 
 ===================================================================
 
-6. The UIDFolder interface should have a getter for UIDNEXT (6281)
-------------------------------------------------------------------
+6. The UIDFolder interface should have a getter for UIDNEXT (104)
+-----------------------------------------------------------------
 
 The UIDFolder interface models the UID support in the IMAP protocol.
 After UIDFolder was originally created, the IMAP protocol added
@@ -407,8 +407,8 @@ is extremely unlikely to cause a problem in practice.
 
 ===================================================================
 
-7. The UIDFolder interface should have a MAXUID constant (8568)
----------------------------------------------------------------
+7. The UIDFolder interface should have a MAXUID constant (244)
+--------------------------------------------------------------
 
 An IMAP UID is a 32-bit unsigned integer and is represented as a Java long.
 A new constant indicates the maximum value of a UID:
@@ -433,8 +433,8 @@ A new constant indicates the maximum value of a UID:
 
 ===================================================================
 
-8. MimeMultipart should throw ParseException for parsing errors (6069)
-----------------------------------------------------------------------
+8. MimeMultipart should throw ParseException for parsing errors (75)
+--------------------------------------------------------------------
 
 ParseException indicates an error parsing MIME messages.  In addition
 to applying to MIME headers, it seems reasonable to expand it to cover
@@ -492,8 +492,8 @@ existing constructor and method:
 
 ===================================================================
 
-9. Support addressing i18n via RFC 6530/6531/6532 (6216)
---------------------------------------------------------
+9. Support addressing i18n via RFC 6530/6531/6532 (93)
+------------------------------------------------------
 
 To enable support for UTF-8 email addresses, the following methods
 are added to InternetAddress:
@@ -589,8 +589,8 @@ mail.mime.allowutf8:
 
 ===================================================================
 
-10. Look for resource files in <java.home>/conf on JDK 1.9 (8748)
------------------------------------------------------------------
+10. Look for resource files in <java.home>/conf on JDK 1.9 (247)
+----------------------------------------------------------------
 
 JDK 1.9 adds a new <java.home>/conf directory to hold configuration
 files that were previously stored in <java.home>/lib.  When using
@@ -641,8 +641,8 @@ The specification of the Session class is changed as follows:
 
 ===================================================================
 
-11. Flags convenience methods (8822)
-------------------------------------
+11. Flags convenience methods (249)
+-----------------------------------
 
 When copying messages from one server to another, it's sometimes necessary
 to adjust the message flags based on the capabilities of the target server.

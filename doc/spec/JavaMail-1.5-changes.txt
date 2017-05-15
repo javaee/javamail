@@ -9,7 +9,7 @@ API introduced in JavaMail 1.5.  The numbers in parentheses
 are bug numbers; you can find more information about the
 bug reports at:
 
-    https://kenai.com/bugzilla/
+    https://github.com/javaee/javamail/issues/<bug number>
 
 Please send comments and feedback to javamail_ww@oracle.com.
 
@@ -19,8 +19,8 @@ JavaMail to take advantage of features of more modern Java SE releases.
 
 ===================================================================
 
-1. Add FetchProfile.Item.SIZE (5682)
-------------------------------------
+1. Add FetchProfile.Item.SIZE (37)
+----------------------------------
 
 The FetchProfile.Item.SIZE item allows prefetching the size of
 a message.  Previously this was an IMAP-specific fetch item.
@@ -38,8 +38,8 @@ a message.  Previously this was an IMAP-specific fetch item.
 
 ===================================================================
 
-2. Fix protected fields in final classes in javax.mail.search (5683)
---------------------------------------------------------------------
+2. Fix protected fields in final classes in javax.mail.search (38)
+------------------------------------------------------------------
 
 Several final classes in the javax.mail.search package contain
 protected fields.  Since the classes are final, they can't be
@@ -69,8 +69,8 @@ javax.mail.search.RecipientTerm:
 
 ===================================================================
 
-3. Add MimeMultipart(String subtype, BodyPart... bps) constructor (5684)
-------------------------------------------------------------------------
+3. Add MimeMultipart(String subtype, BodyPart... bps) constructor (39)
+----------------------------------------------------------------------
 
 These convenience constructors create a MimeMultipart object given an
 array or varargs list of BodyParts.
@@ -95,8 +95,8 @@ array or varargs list of BodyParts.
 
 ===================================================================
 
-4. Exceptions should support exception chaining (5685)
-------------------------------------------------------
+4. Exceptions should support exception chaining (40)
+----------------------------------------------------
 
 javax.mail.MessagingException was designed before exception chainging
 was added to Java SE, but it does support a similar concept itself,
@@ -217,8 +217,8 @@ javax.mail.StoreClosedException:
 
 ===================================================================
 
-5. ParameterList needs to support use by IMAP (5686)
-----------------------------------------------------
+5. ParameterList needs to support use by IMAP (41)
+--------------------------------------------------
 
 The IMAP provider has special needs when processing multi-segment
 parameters defined by RFC 2231.  This new method supports such use
@@ -243,8 +243,8 @@ by the IMAP provider.
 
 ===================================================================
 
-6. ContentType and ContentDisposition toString should never return null (5687)
-------------------------------------------------------------------------------
+6. ContentType and ContentDisposition toString should never return null (42)
+----------------------------------------------------------------------------
 
 The general contract of Object.toString is that it never returns null.
 The toString methods of ContentType and ContentDisposition were defined
@@ -278,8 +278,8 @@ javax.mail.internet.ContentDisposition:
 
 ===================================================================
 
-7. Add Transport.send(msg, username, password) method (5689)
-------------------------------------------------------------
+7. Add Transport.send(msg, username, password) method (44)
+----------------------------------------------------------
 
 It's now very common that email servers require authentication before
 sending a message, so we add these new convenience methods.
@@ -335,8 +335,8 @@ sending a message, so we add these new convenience methods.
 
 ===================================================================
 
-8. Add MimeMessage.setFrom(String) method (5690)
-------------------------------------------------
+8. Add MimeMessage.setFrom(String) method (45)
+----------------------------------------------
 
 This new convenience method allows the From header to be set using a String.
 
@@ -359,8 +359,8 @@ This new convenience method allows the From header to be set using a String.
 
 ===================================================================
 
-9. Add Message.getSesssion() method (5691)
-------------------------------------------
+9. Add Message.getSesssion() method (46)
+----------------------------------------
 
 Alow access to the Session used when the Message was created.
 
@@ -375,8 +375,8 @@ Alow access to the Session used when the Message was created.
 
 ===================================================================
 
-10. MimeBodyPart.attachFile should set the disposition to ATTACHMENT (5692)
----------------------------------------------------------------------------
+10. MimeBodyPart.attachFile should set the disposition to ATTACHMENT (47)
+-------------------------------------------------------------------------
 
 An oversight when these methods were originally added.  Clearly attachments
 should set the disposition to ATTACHMENT.
@@ -413,8 +413,8 @@ should set the disposition to ATTACHMENT.
 
 ===================================================================
 
-11. Add MimeMessage.reply(replyToAll, setAnswered) method (5693)
-----------------------------------------------------------------
+11. Add MimeMessage.reply(replyToAll, setAnswered) method (48)
+--------------------------------------------------------------
 
 Add a method to control whether the ANSWERED flag is set in the original
 message when creating a reply message.
@@ -459,8 +459,8 @@ message when creating a reply message.
 
 ===================================================================
 
-12. Add additional "next" methods to HeaderTokenizer (5694)
------------------------------------------------------------
+12. Add additional "next" methods to HeaderTokenizer (49)
+---------------------------------------------------------
 
 These additional "next" methods make it easier to parse headers that don't
 obey the MIME syntax requirements.
@@ -500,8 +500,8 @@ obey the MIME syntax requirements.
 
 ===================================================================
 
-13. Add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7 (5743)
--------------------------------------------------------------------------------
+13. Add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7 (51)
+-----------------------------------------------------------------------------
 
 These new annotations support configuring JavaMail Session resources in
 Java EE 7 application servers.
@@ -597,8 +597,8 @@ public @interface MailSessionDefinitions {
 
 ===================================================================
 
-14. Make cachedContent field protected in MimeMessage and MimeBodyPart (5769)
------------------------------------------------------------------------------
+14. Make cachedContent field protected in MimeMessage and MimeBodyPart (52)
+---------------------------------------------------------------------------
 
 Exposing this previously private field makes it easier to subclass these
 classes.
@@ -620,8 +620,8 @@ classes.
 
 ===================================================================
 
-15. Make MimeMultipart fields protected to allow subclassing (5770)
--------------------------------------------------------------------
+15. Make MimeMultipart fields protected to allow subclassing (53)
+-----------------------------------------------------------------
 
 Most of these fields control how the MimeMultipart class parses messages
 that don't conform to the MIME spec.  The new initializeProperties method
@@ -720,8 +720,8 @@ mail.mime.multipart.allowempty:
 
 ===================================================================
 
-16. Need simple way to override MIME type and encoding of attachment (5818)
----------------------------------------------------------------------------
+16. Need simple way to override MIME type and encoding of attachment (55)
+-------------------------------------------------------------------------
 
 First, we define an interface that allows a DataSource to specify the
 Content-Transfer-Encoding to use:
@@ -811,8 +811,8 @@ Then we add new methods to MimeBodyPart:
 
 ===================================================================
 
-17. Enable RFC 2231 support by default (5819)
----------------------------------------------
+17. Enable RFC 2231 support by default (56)
+-------------------------------------------
 
 RFC 2231 support for encoded parameter values is now widely implemented,
 it's time to change the default to support this standard.  Given the
