@@ -5,7 +5,8 @@ JavaMail 1.5.5 and later
 ------------------------
 
 Starting with JavaMail 1.5.5, support for
-[OAuth2 authentication](https://developers.google.com/gmail/xoauth2_protocol)
+[OAuth2 authentication](https://tools.ietf.org/html/rfc6749)
+[as used for email](https://developers.google.com/gmail/xoauth2_protocol)
 is built-in and no longer requires SASL (although the SASL OAuth2
 support continues to work).
 
@@ -35,6 +36,12 @@ generate a Refresh Token, from which you can generate an Access Token.
 encoded first; the XOAUTH2 provider will do that. Note also that the
 Google OAuth2 provider at the link above is **not** needed, only the
 oauth2.py program to generate an access token.)
+
+The use of OAuth2 with Yahoo services is described
+[here](https://developer.yahoo.com/oauth2/guide/openid_connect/getting_started.html),
+although
+[it's not clear that this still works](http://stackoverflow.com/questions/36058534/how-can-yahoo-mail-be-accessed-by-imap-using-oauth-or-oauth2-authentication)
+since Yahoo will no longer allow you to create an app with Mail permissions.
 
 To connect to Outlook.com using OAuth2, see
 [this page](http://technet.microsoft.com/en-ca/dn440163)
