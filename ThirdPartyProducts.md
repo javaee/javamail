@@ -7,7 +7,7 @@ a note at <A HREF="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</A>
 if you want your product listed here.
 
 * simple-java-mail is a very simple Java mailing API for sending simple
-  to complex emails.  It's a wrapper for the javaMail smtp support.
+  to complex emails.  It's a wrapper for the JavaMail smtp support.
   simple-java-mail is available at
   <A HREF="https://github.com/bbottema/simple-java-mail/">
   https://github.com/bbottema/simple-java-mail/</A>
