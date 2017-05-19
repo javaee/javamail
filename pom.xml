@@ -131,6 +131,7 @@
 	    true
 	</findbugs.skip>
 	<findbugs.exclude/>
+        <copyright-plugin.version>1.42</copyright-plugin.version>
     </properties>
 
     <developers>
@@ -647,12 +648,24 @@
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-war-plugin</artifactId>
 		    <version>2.2</version>
-		 </plugin>
+		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-project-info-reports-plugin</artifactId>
 		    <version>2.7</version>
-		 </plugin>
+		</plugin>
+		<plugin>
+		    <groupId>org.glassfish.copyright</groupId>
+		    <artifactId>glassfish-copyright-maven-plugin</artifactId>
+		    <version>${copyright-plugin.version}</version>
+		    <configuration>
+			<scm>git</scm>
+			<scmOnly>true</scmOnly> 
+			<excludeFile>
+			    copyright-exclude
+			</excludeFile>
+		    </configuration>
+		</plugin>
 	    </plugins>
 	</pluginManagement>
     </build>
