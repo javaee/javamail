@@ -80,6 +80,9 @@ from your Exchange server administrator.
 [This article](http://social.technet.microsoft.com/Forums/bg-BG/exchangesvrgeneral/thread/8c8b4605-efae-49eb-a118-54aa418de6c2)
 has more information.
 
+Here's another article that discusses
+[the use of shared mailboxes with Exchange 2013/2016](https://ingogegenwarth.wordpress.com/2016/04/11/exchange-20132016-imapews-and-service-accounts/).
+
 In Exchange 2007 Microsoft removed the ability to access public
 folders, and they have no plans to restore it.
 
