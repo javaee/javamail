@@ -123,7 +123,7 @@ For example, you can download the javax.mail.jar file from the JavaMail
 Be sure to scroll to the bottom and choose the jar file with the most
 recent time stamp.
 
-A [Release Candidate version of JavaMail 1.6.0](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.6.0-rc1/javax.mail-1.6.0-rc1.jar)
+A [Release Candidate version of JavaMail 1.6.0](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.6.0-rc2/javax.mail-1.6.0-rc2.jar)
 is now available. This is a non-final development release of JavaMail
 1.6.0 suitable for testing. Your feedback on this release is
 encouraged. The final release of JavaMail 1.6.0 is expected this
