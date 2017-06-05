@@ -5,13 +5,12 @@ Here's the structure of the JavaMail workspace, showing the different
 maven modules I needed to create to allow JavaMail to be built by
 maven.
 
-First, the main maven module, including the assembly descriptor used to
-build the distribution zip file.
+First, the main maven module.
 
-    assembly.xml
     pom.xml
 
 Then, some files left over from the ant build.
+These are no longer used or maintained.
 
     ant-common.xml
     build.properties
@@ -49,9 +48,7 @@ into mail.jar.
 
 Several modules containing demo source code. They're buildable to make
 sure they do build before shipping them, but they're shipped only as
-source code. Note the embedded README.txt files. Where should they
-really come from? I can put them in another location, but that would
-just complicate the assembly descriptor.
+source code. Note the embedded README.txt files
 
     demo/pom.xml
     demo/src/main/java/CRLFOutputStream.java
@@ -121,6 +118,14 @@ just complicate the assembly descriptor.
     taglib/src/main/java/demo/MessageTag.java
     taglib/src/main/java/demo/SendTag.java
     taglib/src/main/resources/META-INF/taglib.tld
+    logging/pom.xml
+    logging/src/main/java/MailHandlerDemo.java
+    logging/src/main/java/maildemo.properties
+    logging/src/main/java/maildemo.policy
+    logging/src/main/java/SummaryFormatter.java
+    logging/src/main/java/FileErrorManager.java
+    logging/src/main/java/README.txt
+
 
 Several modules that extract subsets of the mail.jar file to build
 other jar files. The source code for each of these jar files could be
@@ -139,6 +144,7 @@ all the source code in one place, but it's probably less maven-like.
     smtp/src/main/resources/META-INF/MANIFEST.MF
     smtp/src/main/resources/META-INF/javamail.address.map
     smtp/src/main/resources/META-INF/javamail.providers
+    mailhandler/pom.xml
 
 A module to act as parent of the imap, pop3, and smtp modules to allow
 sharing of some common rules.
@@ -163,10 +169,7 @@ mail.jar.
 The mbox protocol provider module. Again, source code moved here
 because none of this appears in mail.jar. Also includes a submodule to
 build the native code (even though the native source code is in the
-upper module; is that too weird?), and a submodule to build a
-distribution zip file containing all of the mbox provider. Possibly
-this should be inverted so that the distribution module is the top
-level module and the java and native modules are submodules.
+upper module; is that too weird?)
 
     mbox/pom.xml
     mbox/src/main/cpp/com/sun/mail/mbox/UNIXFile.c
@@ -181,29 +184,26 @@ level module and the java and native modules are submodules.
     mbox/src/main/resources/META-INF/MANIFEST.MF
     mbox/src/main/resources/META-INF/javamail.providers
     mbox/native/pom.xml
-    mbox/dist/assembly.xml
-    mbox/dist/pom.xml
 
 A module just for building the javadocs. Putting these rules in the
 parent pom.xml just didn't work so I moved them here.
 
     javadoc/pom.xml
 
-Finally, the documentation. Not a module, but most of it is included in
-the distribution zip file.
+Finally, the documentation. Not a module. Most of it is copied to the
+website gh-pages branch when a release is published.
 
     doc/release/ApacheJServ.html
-    doc/release/BLURB
     doc/release/CHANGES.txt
     doc/release/COMPAT.txt
+    doc/release/IssueMap.txt
     doc/release/JavaWebServer.html
-    doc/release/LICENSE.txt
     doc/release/NOTES.txt
+    doc/release/NTLMNOTES.txt
     doc/release/README.txt
     doc/release/SSLNOTES.txt
     doc/release/Tomcat.html
     doc/release/classpath-NT.html
-    doc/release/distributionREADME.txt
     doc/release/iPlanet.html
     doc/release/images/direct-classpath.jpg
     doc/release/images/indirect-classpath.jpg
@@ -211,3 +211,5 @@ the distribution zip file.
     doc/spec/JavaMail-1.2-changes.txt
     doc/spec/JavaMail-1.3-changes.txt
     doc/spec/JavaMail-1.4-changes.txt
+    doc/spec/JavaMail-1.5-changes.txt
+    doc/spec/JavaMail-1.6-changes.txt
