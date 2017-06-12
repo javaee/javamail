@@ -2042,7 +2042,7 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
-     * Copy the specified messages from this folder, to the
+     * Move the specified messages from this folder, to the
      * specified destination.
      *
      * Depends on the MOVE extension
@@ -2060,14 +2060,14 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
     }
 
     /**
-     * Copy the specified messages from this folder, to the
+     * Move the specified messages from this folder, to the
      * specified destination.
      * Return array of AppendUID objects containing
      * UIDs of these messages in the destination folder.
      * Each element of the returned array corresponds to
      * an element of the <code>msgs</code> array.  A null
      * element means the server didn't return UID information
-     * for the copied message.  <p>
+     * for the moved message.  <p>
      *
      * Depends on the MOVE extension
      * (<A HREF="http://www.ietf.org/rfc/rfc6851.txt">RFC 6851</A>)
@@ -2075,8 +2075,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
      * UIDPLUS extension
      * (<A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>).
      *
-     * @param	msgs	the messages to copy
-     * @param	folder	the folder to copy the messages to
+     * @param	msgs	the messages to move
+     * @param	folder	the folder to move the messages to
      * @return		array of AppendUID objects
      * @exception	MessagingException for failures
      * @since	JavaMail 1.5.4
