@@ -43,6 +43,7 @@ package com.sun.mail.mbox;
 import java.io.*;
 import java.util.StringTokenizer;
 import java.util.Date;
+import java.text.SimpleDateFormat;
 import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -153,6 +154,27 @@ public class MboxMessage extends MimeMessage {
 	}
 	return unix_from_user != null ?
 		(InternetAddress)unix_from_user.clone() : null;
+    }
+
+    private String getUnixFromLine() {
+	if (unix_from != null)
+	    return unix_from;
+	String from = "unknown";
+	try {
+	    Address[] froma = getFrom();
+	    if (froma != null && froma.length > 0 &&
+		    froma[0] instanceof InternetAddress)
+		from = ((InternetAddress)froma[0]).getAddress();
+	} catch (MessagingException ex) { }
+	Date d = null;
+	try {
+	    d = getSentDate();
+	} catch (MessagingException ex) { }
+	if (d == null)
+	    d = new Date();
+	// From shannon Mon Jun 10 12:06:52 2002
+	SimpleDateFormat fmt = new SimpleDateFormat("EEE LLL dd HH:mm:ss yyyy");
+	return "From " + from + " " + fmt.format(d);
     }
 
     /**
@@ -485,7 +507,7 @@ public class MboxMessage extends MimeMessage {
 	    os = new NewlineOutputStream(os, true);
 	    PrintStream pos = new PrintStream(os, false, "iso-8859-1");
 
-	    pos.println(unix_from);
+	    pos.println(getUnixFromLine());
 	    super.writeTo(pos, null);
 	    pos.flush();
 	} catch (MessagingException e) {
