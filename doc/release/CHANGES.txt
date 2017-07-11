@@ -54,6 +54,7 @@ GH  252	JavaMail PLAIN authentication should implement RFC 4616
 GH  253	Support connecting through web proxy servers
 GH  256	support UIDPLUS UIDNOTSTICKY response code
 GH  257	SASL authentication should always allow UTF-8 username and password
+GH  258	android-activation MANIFEST has empty Bundle-SymbolicName
 
 
 		  CHANGES IN THE 1.5.6 RELEASE

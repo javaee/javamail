@@ -77,6 +77,9 @@
 	<activation.implementationTitle>
 	    javax.activation
 	</activation.implementationTitle>
+	<activation.bundle.symbolicName>
+	    ${project.groupId}.${project.artifactId}
+	</activation.bundle.symbolicName>
 	<activation.packages.export>
 	    javax.activation.*; version=${activation.spec.version},
 	    com.sun.activation.*; version=${activation.osgiversion}
