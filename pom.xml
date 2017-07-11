@@ -102,9 +102,6 @@
 	<mail.bundle.symbolicName>
 	    ${project.groupId}.${project.artifactId}
 	</mail.bundle.symbolicName>
-	<mail.bundle.symbolicName>
-	    ${project.groupId}.${project.artifactId}
-	</mail.bundle.symbolicName>
 	<mail.packages.export>
 	    javax.mail.*; version=${mail.spec.version}
 	</mail.packages.export>
