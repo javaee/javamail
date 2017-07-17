@@ -296,13 +296,19 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">Flags.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Flags.html#retainAll-javax.mail.Flags-">retainAll</a></span>(<a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;f)</code>
+<div class="block">Remove any flags <strong>not</strong> in the given Flags object.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>abstract void</code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#setFlags-javax.mail.Flags-boolean-">setFlags</a></span>(<a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
         boolean&nbsp;set)</code>
 <div class="block">Set the specified flags on this message to the specified value.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#setFlags-int:A-javax.mail.Flags-boolean-">setFlags</a></span>(int[]&nbsp;msgnums,
         <a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
@@ -311,7 +317,7 @@ provides classes that model a mail system.</div>
  are in the array.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#setFlags-int-int-javax.mail.Flags-boolean-">setFlags</a></span>(int&nbsp;start,
         int&nbsp;end,
@@ -321,7 +327,7 @@ provides classes that model a mail system.</div>
  through end, both start and end inclusive.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#setFlags-javax.mail.Message:A-javax.mail.Flags-boolean-">setFlags</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
         <a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
@@ -482,6 +488,6 @@ provides classes that model a mail system.</div>
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -97,6 +97,13 @@ that provides access to a POP3 message store.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><a href="#javax.mail">javax.mail</a></td>
+<td class="colLast">
+<div class="block">The JavaMail<sup><font size="-2">TM</font></sup> API
+provides classes that model a mail system.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><a href="#javax.mail.internet">javax.mail.internet</a></td>
 <td class="colLast">
 <div class="block">Classes specific to Internet mail systems.</div>
@@ -174,6 +181,41 @@ that provides access to a POP3 message store.</div>
 </tbody>
 </table>
 </li>
+<li class="blockList"><a name="javax.mail">
+<!--   -->
+</a>
+<h3>Uses of <a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a> in <a href="../../../javax/mail/package-summary.html">javax.mail</a></h3>
+<table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../javax/mail/package-summary.html">javax.mail</a> that return types with arguments of type <a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getAllHeaders--">getAllHeaders</a></span>()</code>
+<div class="block">Return all the headers from this part as an Enumeration of
+ Header objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;header_names)</code>
+<div class="block">Return matching headers from this part as an Enumeration of
+ Header objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;header_names)</code>
+<div class="block">Return non-matching headers from this envelope as an Enumeration
+ of Header objects.</div>
+</td>
+</tr>
+</tbody>
+</table>
+</li>
 <li class="blockList"><a name="javax.mail.internet">
 <!--   -->
 </a>
@@ -189,6 +231,76 @@ that provides access to a POP3 message store.</div>
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.InternetHeader.html" title="class in javax.mail.internet">InternetHeaders.InternetHeader</a></span></code>
 <div class="block">An individual internet header.</div>
+</td>
+</tr>
+</tbody>
+</table>
+<table class="useSummary" border="0" cellpadding="3" cellspacing="0" summary="Use table, listing methods, and an explanation">
+<caption><span>Methods in <a href="../../../javax/mail/internet/package-summary.html">javax.mail.internet</a> that return types with arguments of type <a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a></span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colLast" scope="col">Method and Description</th>
+</tr>
+<tbody>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getAllHeaders--">getAllHeaders</a></span>()</code>
+<div class="block">Return all the headers from this Message as an enumeration
+ of Header objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getAllHeaders--">getAllHeaders</a></span>()</code>
+<div class="block">Return all the headers from this Message as an Enumeration of
+ Header objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">InternetHeaders.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getAllHeaders--">getAllHeaders</a></span>()</code>
+<div class="block">Return all the headers as an Enumeration of
+ <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return matching headers from this Message as an Enumeration of
+ Header objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return matching headers from this Message as an Enumeration of
+ Header objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">InternetHeaders.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return all matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return non-matching headers from this Message as an
+ Enumeration of Header objects.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return non-matching headers from this Message as an
+ Enumeration of Header objects.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
+<td class="colLast"><span class="typeNameLabel">InternetHeaders.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
+<div class="block">Return all non-matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 </td>
 </tr>
 </tbody>
@@ -245,6 +357,6 @@ that provides access to a POP3 message store.</div>
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10,"i9":9,"i10":9,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":9,"i17":9,"i18":10,"i19":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10,"i9":9,"i10":9,"i11":9,"i12":10,"i13":10,"i14":10,"i15":10,"i16":9,"i17":9,"i18":10,"i19":9,"i20":9,"i21":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -346,6 +346,21 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 </td>
 </tr>
 <tr id="i19" class="rowColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetAddress.html#toUnicodeString-javax.mail.Address:A-">toUnicodeString</a></span>(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses)</code>
+<div class="block">Convert the given array of InternetAddress objects into
+ a comma separated sequence of address strings.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
+<td class="colFirst"><code>static <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetAddress.html#toUnicodeString-javax.mail.Address:A-int-">toUnicodeString</a></span>(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses,
+               int&nbsp;used)</code>
+<div class="block">Convert the given array of InternetAddress objects into
+ a comma separated sequence of address strings.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetAddress.html#validate--">validate</a></span>()</code>
 <div class="block">Validate that this address conforms to the syntax rules of
@@ -744,6 +759,30 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 </dl>
 </li>
 </ul>
+<a name="toUnicodeString-javax.mail.Address:A-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toUnicodeString</h4>
+<pre>public static&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;toUnicodeString(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses)</pre>
+<div class="block">Convert the given array of InternetAddress objects into
+ a comma separated sequence of address strings. The
+ resulting string contains Unicode characters. <p></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>addresses</code> - array of InternetAddress objects</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>comma separated string of addresses</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang">ClassCastException</a></code> - if any address object in the 
+                        given array is not an InternetAddress object. Note
+                        that this is a RuntimeException.</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
 <a name="toString-javax.mail.Address:A-int-">
 <!--   -->
 </a>
@@ -773,6 +812,39 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang">ClassCastException</a></code> - if any address object in the 
                         given array is not an InternetAddress object. Note
                         that this is a RuntimeException.</dd>
+</dl>
+</li>
+</ul>
+<a name="toUnicodeString-javax.mail.Address:A-int-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toUnicodeString</h4>
+<pre>public static&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;toUnicodeString(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses,
+                                     int&nbsp;used)</pre>
+<div class="block">Convert the given array of InternetAddress objects into
+ a comma separated sequence of address strings. The
+ resulting string contains Unicode characters. <p>
+
+ The 'used' parameter specifies the number of character positions
+ already taken up in the field into which the resulting address 
+ sequence string is to be inserted. It is used to determine the 
+ line-break positions in the resulting address sequence string.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>addresses</code> - array of InternetAddress objects</dd>
+<dd><code>used</code> - number of character positions already used, in
+                        the field into which the address string is to
+                        be inserted.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>comma separated string of addresses</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/ClassCastException.html?is-external=true" title="class or interface in java.lang">ClassCastException</a></code> - if any address object in the 
+                        given array is not an InternetAddress object. Note
+                        that this is a RuntimeException.</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 </dl>
 </li>
 </ul>
@@ -1018,6 +1090,6 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

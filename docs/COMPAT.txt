@@ -1,17 +1,76 @@
 			COMPATIBILITY NOTES
 			===================
 
-		    JavaMail(TM) API 1.5.6 release
+		    JavaMail(TM) API 1.6.0 release
 		    ------------------------------
 
-The JavaMail 1.5 specification is fully compatible with the JavaMail
-1.4 specification, with the exceptions listed below.
+The JavaMail 1.6 specification is fully compatible with the JavaMail
+1.5 specification, with the exceptions listed below.
 
 In addition, changes in the implementation may impact
 applications that depend on behavior beyond what is defined by the
 JavaMail specification, or that use features specific to the reference
 implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
+
+
+-- JavaMail 1.6 --
+
+- Public API updated to use generics
+
+	Methods in the following classes have been updated to use generics.
+	This change should be binary compatible but may require source
+	code changes in applications.
+
+		javax.mail.Multipart
+		javax.mail.Part
+		javax.mail.Service
+		javax.mail.internet.InternetHeaders
+		javax.mail.internet.MimeBodyPart
+		javax.mail.internet.MimeMessage
+		javax.mail.internet.MimePart
+		javax.mail.internet.ParameterList
+
+- JDK 1.7 or newer required
+
+	The JavaMail reference implementation now requires JDK 1.7
+	or newer.  It is expected that the large majority of users
+	are already using JDK 1.7 or newer.
+
+- MailDateFormat changes
+
+	The following changes to MailDateFormat may impact applications:
+
+	* parse(String) now throws a ParseException on invalid input instead
+	  of returning null, to conform to the DateFormat contract
+	* the following methods now throw UnsupportedOperationException
+	  to prevent tampering with MailDateFormat's internals:
+
+		get2DigitYearStart
+		applyLocalizedPattern
+		applyPattern
+		set2DigitYearStart
+		setDateFormatSymbols
+
+- method added to UIDFolder interface
+
+	The UIDFolder interface has a new getUIDNext() method.  Any
+	classes implementing the UIDFolder interface will need to add
+	this method.  The IMAPFolder class implements the UIDFolder
+	interface and has provided this method for some time.
+
+- YoungerTerm, OlderTerm, and ModifiedSinceTerm fall back to local searching
+
+	In general, SearchTerms that are not understood by the IMAP
+	provider or not supported by the IMAP server fall back to doing
+	local searching.  The IMAP-specific YoungerTerm, OlderTerm, and
+	ModifiedSinceTerm were instead throwing an exception if the server
+	didn't support the extension that the search term depended on.
+	This has been fixed to fall back to doing the search locally.
+	This behavior can be changed by setting the property
+	"mail.imap.throwsearchexception" to "true" to cause an exception
+	to be thrown if the server can't perform the search.
+
 
 
 -- JavaMail 1.5.6 --

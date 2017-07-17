@@ -121,10 +121,10 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  separator and newline characters. Only specified fields support an
  <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#toAlternate-java.lang.String-">alternate</a> fixed width format.
  <p>
- By default each <tt>CompactFormatter</tt> is initialized using the
- following LogManager configuration properties where
+ By default each <tt>CompactFormatter</tt> is initialized using the following
+ LogManager configuration properties where
  <tt>&lt;formatter-name&gt;</tt> refers to the fully qualified class name or
- the fully qualified derived class name of the formatter.  If properties are
+ the fully qualified derived class name of the formatter. If properties are
  not defined, or contain invalid values, then the specified default values are
  used.
  <ul>
@@ -333,13 +333,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  &lt;formatter-name&gt;.format property or the format that was given when
  this formatter was created.</li>
  <li><code>date</code> - if the log record supports nanoseconds then a
-     ZonedDateTime object representing the event time of the log record in
-     the system time zone. Otherwise, a <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a> object
-     representing <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getMillis--" title="class or interface in java.util.logging">event time</a> of the log
-     record.</li>
+ ZonedDateTime object representing the event time of the log record in the
+ system time zone. Otherwise, a <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a> object representing
+ <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getMillis--" title="class or interface in java.util.logging">event time</a> of the log record.</li>
  <li><code>source</code> - a string representing the caller, if available;
  otherwise, the logger's name.</li>
  <li><code>logger</code> - the logger's
+ <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Class.html?is-external=true#getSimpleName--" title="class or interface in java.lang">simple</a>
  <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getLoggerName--" title="class or interface in java.util.logging">name</a>.</li>
  <li><code>level</code> - the
  <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true#getLocalizedName--" title="class or interface in java.util.logging">log level</a>.</li>
@@ -359,16 +359,17 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getSequenceNumber--" title="class or interface in java.util.logging">sequence number</a> if the given
  log record.</li>
  <li><code>thread id</code> the <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getThreadID--" title="class or interface in java.util.logging">thread id</a>
- of the given log record.  By default this is formatted as a <code>long</code>
+ of the given log record. By default this is formatted as a <code>long</code>
  by an unsigned conversion.</li>
- <li><code>error</code> the throwable simple class name and
- <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#formatError-java.util.logging.LogRecord-">error message</a> without any
- stack trace.</li>
- <li><code>message|error</code> The message and error properties joined as
- one parameter. This parameter supports
+ <li><code>error</code> the throwable
+ <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Class.html?is-external=true#getSimpleName--" title="class or interface in java.lang">simple class name</a> and
+ <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#formatError-java.util.logging.LogRecord-">error message</a> without any stack
+ trace.</li>
+ <li><code>message|error</code> The message and error properties joined as one
+ parameter. This parameter supports
  <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#toAlternate-java.lang.String-">alternate</a> form.</li>
- <li><code>error|message</code> The error and message properties joined as
- one parameter. This parameter supports
+ <li><code>error|message</code> The error and message properties joined as one
+ parameter. This parameter supports
  <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#toAlternate-java.lang.String-">alternate</a> form.</li>
  <li><code>backtrace</code> only the
  <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#formatBackTrace-java.util.logging.LogRecord-">stack trace</a> of the given
@@ -395,10 +396,10 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <li><code>com.sun.mail.util.logging.CompactFormatter.format=%7$#.20s%n</code>
  <p>
  This prints only 20 characters of the message|thrown (<code>7$</code>) using
- the <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#toAlternate-java.lang.String-">alternate</a> form.  This
- will perform a weighted truncation of both the message and thrown
- properties of the log record.  The separator is not included as part of
- the total width.
+ the <a href="../../../../../com/sun/mail/util/logging/CompactFormatter.html#toAlternate-java.lang.String-">alternate</a> form. This will
+ perform a weighted truncation of both the message and thrown properties
+ of the log record. The separator is not included as part of the total
+ width.
  <pre>
  Encoding|NullPointerE
  </pre>
@@ -424,8 +425,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 
  <li><code>com.sun.mail.util.logging.CompactFormatter.format=[%9$d][%1$tT][%10$d][%2$s] %5$s%n%6$s%n</code>
  <p>
- This prints the sequence (<code>9$</code>), event time (<code>1$</code>) as
- 24 hour time, thread id (<code>10$</code>), source (<code>2$</code>), log message
+ This prints the sequence (<code>9$</code>), event time (<code>1$</code>) as 24 hour
+ time, thread id (<code>10$</code>), source (<code>2$</code>), log message
  (<code>5$</code>), and the throwable with back trace (<code>6$</code>).
  <pre>
  [125][14:11:42][38][MyClass fatal] Unable to send notification.
@@ -472,8 +473,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <h4>formatMessage</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;formatMessage(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t)</pre>
 <div class="block">Formats the message from the thrown property of the log record. This
- method removes any fully qualified throwable class names from the message
- cause chain.</div>
+ method replaces fully qualified throwable class names from the message
+ cause chain with simple class names.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>t</code> - the throwable to format or null.</dd>
@@ -544,7 +545,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <li class="blockList">
 <h4>formatThreadID</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Number.html?is-external=true" title="class or interface in java.lang">Number</a>&nbsp;formatThreadID(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</pre>
-<div class="block">Formats the thread id property of the given log record.  By default this
+<div class="block">Formats the thread id property of the given log record. By default this
  is formatted as a <code>long</code> by an unsigned conversion.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -673,7 +674,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <li class="blockList">
 <h4>toAlternate</h4>
 <pre>protected&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;toAlternate(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;s)</pre>
-<div class="block">Defines the alternate format.  This implementation removes all control
+<div class="block">Defines the alternate format. This implementation removes all control
  characters from the given string.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -752,6 +753,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,7 +183,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <th class="colLast" scope="col">Field and Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/List.html?is-external=true" title="class or interface in java.util">List</a></code></td>
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../javax/mail/internet/InternetHeaders.InternetHeader.html" title="class in javax.mail.internet">InternetHeaders.InternetHeader</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#headers">headers</a></span></code>
 <div class="block">The actual list of Headers, including placeholder entries.</div>
 </td>
@@ -209,6 +209,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 </tr>
 <tr class="rowColor">
 <td class="colOne"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#InternetHeaders-java.io.InputStream-">InternetHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is)</code>
+<div class="block">Read and parse the given RFC822 message stream till the 
+ blank line separating the header from the body.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#InternetHeaders-java.io.InputStream-boolean-">InternetHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+               boolean&nbsp;allowutf8)</code>
 <div class="block">Read and parse the given RFC822 message stream till the 
  blank line separating the header from the body.</div>
 </td>
@@ -242,13 +249,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getAllHeaderLines--">getAllHeaderLines</a></span>()</code>
 <div class="block">Return all the header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getAllHeaders--">getAllHeaders</a></span>()</code>
 <div class="block">Return all the headers as an Enumeration of
  <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
@@ -269,25 +276,25 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getMatchingHeaderLines-java.lang.String:A-">getMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return all matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return all matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getNonMatchingHeaderLines-java.lang.String:A-">getNonMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return all non-matching header lines</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return all non-matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 </td>
@@ -301,11 +308,19 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#load-java.io.InputStream-boolean-">load</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+    boolean&nbsp;allowutf8)</code>
+<div class="block">Read and parse the given RFC822 message stream till the
+ blank line separating the header from the body.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#removeHeader-java.lang.String-">removeHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Remove all header entries that match the given name</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#setHeader-java.lang.String-java.lang.String-">setHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
          <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</code>
@@ -342,7 +357,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockListLast">
 <li class="blockList">
 <h4>headers</h4>
-<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/List.html?is-external=true" title="class or interface in java.util">List</a> headers</pre>
+<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/List.html?is-external=true" title="class or interface in java.util">List</a>&lt;<a href="../../../javax/mail/internet/InternetHeaders.InternetHeader.html" title="class in javax.mail.internet">InternetHeaders.InternetHeader</a>&gt; headers</pre>
 <div class="block">The actual list of Headers, including placeholder entries.
  Placeholder entries are Headers with a null value and
  are never seen by clients of the InternetHeaders class.
@@ -382,7 +397,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <a name="InternetHeaders-java.io.InputStream-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>InternetHeaders</h4>
 <pre>public&nbsp;InternetHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is)
@@ -402,6 +417,36 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <dd><code>is</code> - RFC822 input stream</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for any I/O error reading the stream</dd>
+</dl>
+</li>
+</ul>
+<a name="InternetHeaders-java.io.InputStream-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>InternetHeaders</h4>
+<pre>public&nbsp;InternetHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+                       boolean&nbsp;allowutf8)
+                throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Read and parse the given RFC822 message stream till the 
+ blank line separating the header from the body. The input 
+ stream is left positioned at the start of the body. The 
+ header lines are stored internally. <p>
+
+ For efficiency, wrap a BufferedInputStream around the actual
+ input stream and pass it as the parameter. <p>
+
+ No placeholder entries are inserted; the original order of
+ the headers is preserved.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>is</code> - RFC822 input stream</dd>
+<dd><code>allowutf8</code> - if UTF-8 encoded headers are allowed</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for any I/O error reading the stream</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 </dl>
 </li>
 </ul>
@@ -435,6 +480,35 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <dd><code>is</code> - RFC822 input stream</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for any I/O error reading the stream</dd>
+</dl>
+</li>
+</ul>
+<a name="load-java.io.InputStream-boolean-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>load</h4>
+<pre>public&nbsp;void&nbsp;load(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+                 boolean&nbsp;allowutf8)
+          throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Read and parse the given RFC822 message stream till the
+ blank line separating the header from the body. Store the
+ header lines inside this InternetHeaders object. The order
+ of header lines is preserved. <p>
+
+ Note that the header lines are added into this InternetHeaders
+ object, so any existing headers in this object will not be
+ affected.  Headers are added to the end of the existing list
+ of headers, in order.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>is</code> - RFC822 input stream</dd>
+<dd><code>allowutf8</code> - if UTF-8 encoded headers are allowed</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for any I/O error reading the stream</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 </dl>
 </li>
 </ul>
@@ -544,7 +618,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockList">
 <li class="blockList">
 <h4>getAllHeaders</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getAllHeaders()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;&nbsp;getAllHeaders()</pre>
 <div class="block">Return all the headers as an Enumeration of
  <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 <dl>
@@ -559,7 +633,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockList">
 <li class="blockList">
 <h4>getMatchingHeaders</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getMatchingHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;&nbsp;getMatchingHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
 <div class="block">Return all matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -575,7 +649,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockList">
 <li class="blockList">
 <h4>getNonMatchingHeaders</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getNonMatchingHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;&nbsp;getNonMatchingHeaders(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
 <div class="block">Return all non-matching <a href="../../../javax/mail/Header.html" title="class in javax.mail"><code>Header</code></a> objects.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -610,7 +684,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockList">
 <li class="blockList">
 <h4>getAllHeaderLines</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getAllHeaderLines()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getAllHeaderLines()</pre>
 <div class="block">Return all the header lines as an Enumeration of Strings.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -624,7 +698,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockList">
 <li class="blockList">
 <h4>getMatchingHeaderLines</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
 <div class="block">Return all matching header lines as an Enumeration of Strings.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -640,7 +714,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getNonMatchingHeaderLines</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getNonMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getNonMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</pre>
 <div class="block">Return all non-matching header lines</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -719,6 +793,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

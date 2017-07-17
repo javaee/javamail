@@ -1,0 +1,677 @@
+
+		JavaMail 1.6
+		============
+
+		(Updated August 28, 2017)
+
+Following is a description of the changes to the JavaMail
+API introduced in JavaMail 1.6.  The numbers in parentheses
+are bug numbers; you can find more information about the
+bug reports at:
+
+    https://github.com/javaee/javamail/issues/<bug number>
+
+Please send comments and feedback to javamail_ww@oracle.com.
+
+JavaMail 1.6 will also require at least Java SE 7.
+
+
+===================================================================
+
+1. MailSessionDefinition should use Repeatable annotation for Java EE 8 (226)
+-----------------------------------------------------------------------------
+
+The MailSessionDefinition annotation now includes the Repeatable annotation:
+
+	@Target({ElementType.TYPE})
+	@Retention(RetentionPolicy.RUNTIME)
+	@Repeatable(MailSessionDefinitions.class)
+	public @interface MailSessionDefinition {
+	    ...
+	}
+
+The Repeatable annotation is not known to Java SE 7 and will be ignored
+(as expected) when JavaMail 1.6 is used on Java SE 7.
+
+
+===================================================================
+
+2. MimeMessage.updateHeaders should set Date header if not already set (77)
+---------------------------------------------------------------------------
+
+RFC 2822 requires a Date header.  The MimeMessage.updateHeaders method
+now sets the Date header if it's not already set:
+
+	/**
+	 * Called by the <code>saveChanges</code> method to actually
+	 * update the MIME headers.  The implementation here sets the
+	 * <code>Content-Transfer-Encoding</code> header (if needed
+	 * and not already set), the <code>Date</code> header (if
+	 * not already set), the <code>MIME-Version</code> header
+	 * and the <code>Message-ID</code> header. Also, if the content
+	 * of this message is a <code>MimeMultipart</code>, its
+	 * <code>updateHeaders</code> method is called. <p>
+	 *
+	 * If the {@link #cachedContent} field is not null (that is,
+	 * it references a Multipart or Message object), then
+	 * that object is used to set a new DataHandler, any
+	 * stream data used to create this object is discarded,
+	 * and the {@link #cachedContent} field is cleared.
+	 *
+	 * @exception       IllegalWriteException if the underlying
+	 *                  implementation does not support modification
+	 * @exception       IllegalStateException if this message is
+	 *                  obtained from a READ_ONLY folder.
+	 * @exception       MessagingException for other failures
+	 */
+	protected synchronized void updateHeaders() throws MessagingException {
+	    ...
+	}
+
+
+===================================================================
+
+3. Update public API to use generics (232)
+------------------------------------------
+
+Methods on the following APIs have been updated to use generics
+when appropriate:
+
+	javax.mail.Multipart
+	javax.mail.Part
+	javax.mail.Service
+	javax.mail.internet.InternetHeaders
+	javax.mail.internet.MimeBodyPart
+	javax.mail.internet.MimeMessage
+	javax.mail.internet.MimePart
+	javax.mail.internet.ParameterList
+
+Details follow:
+
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Multipart.java
+- a/mail/src/main/java/javax/mail/Multipart.java
++++ b/mail/src/main/java/javax/mail/Multipart.java
+@@ -72,2 +72,1 @@
+-    @SuppressWarnings("rawtypes")
+-    protected Vector parts = new Vector(); // Holds BodyParts
++    protected Vector<BodyPart> parts = new Vector<>(); // Holds BodyParts
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Part.java
+- a/mail/src/main/java/javax/mail/Part.java
++++ b/mail/src/main/java/javax/mail/Part.java
+@@ -452,2 +452,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException;
++    public Enumeration<Header> getAllHeaders() throws MessagingException;
+@@ -463,2 +462,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] header_names)
++    public Enumeration<Header> getMatchingHeaders(String[] header_names)
+@@ -475,2 +473,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] header_names) 
++    public Enumeration<Header> getNonMatchingHeaders(String[] header_names) 
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/Service.java
+- a/mail/src/main/java/javax/mail/Service.java
++++ b/mail/src/main/java/javax/mail/Service.java
+@@ -640,2 +640,2 @@
+-    @SuppressWarnings("rawtypes")
+-    protected void queueEvent(MailEvent event, Vector vector) {
++    protected void queueEvent(MailEvent event,
++	    Vector<? extends EventListener> vector) {
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/InternetHeaders.java
+- a/mail/src/main/java/javax/mail/internet/InternetHeaders.java
++++ b/mail/src/main/java/javax/mail/internet/InternetHeaders.java
+@@ -300,2 +300,1 @@
+-    @SuppressWarnings("rawtypes")
+-    protected List headers;
++    protected List<InternetHeader> headers;
+@@ -589,2 +585,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getAllHeaders() {
++    public Enumeration<Header> getAllHeaders() {
+@@ -600,2 +595,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getMatchingHeaders(String[] names) {
++    public Enumeration<Header> getMatchingHeaders(String[] names) {
+@@ -611,2 +605,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getNonMatchingHeaders(String[] names) {
++    public Enumeration<Header> getNonMatchingHeaders(String[] names) {
+@@ -649,2 +640,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() { 
++    public Enumeration<String> getAllHeaderLines() { 
+@@ -660,2 +650,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getMatchingHeaderLines(String[] names) {
++    public Enumeration<String> getMatchingHeaderLines(String[] names) {
+@@ -671,2 +660,1 @@
+-    @SuppressWarnings({"rawtypes", "unchecked"})
+-    public Enumeration getNonMatchingHeaderLines(String[] names) {
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names) {
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeBodyPart.java
+- a/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
++++ b/mail/src/main/java/javax/mail/internet/MimeBodyPart.java
+@@ -1036,2 +1036,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException {
++    public Enumeration<Header> getAllHeaders() throws MessagingException {
+@@ -1045,2 +1044,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] names)
++    public Enumeration<Header> getMatchingHeaders(String[] names)
+@@ -1055,2 +1053,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] names)
++    public Enumeration<Header> getNonMatchingHeaders(String[] names)
+@@ -1073,2 +1070,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException {
++    public Enumeration<String> getAllHeaderLines() throws MessagingException {
+@@ -1083,2 +1079,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -1094,2 +1089,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)  
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)  
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimeMessage.java
+- a/mail/src/main/java/javax/mail/internet/MimeMessage.java
++++ b/mail/src/main/java/javax/mail/internet/MimeMessage.java
+@@ -1992,2 +1991,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaders() throws MessagingException {
++    public Enumeration<Header> getAllHeaders() throws MessagingException {
+@@ -2004,2 +2002,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaders(String[] names)
++    public Enumeration<Header> getMatchingHeaders(String[] names)
+@@ -2017,2 +2014,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaders(String[] names)
++    public Enumeration<Header> getNonMatchingHeaders(String[] names)
+@@ -2043,2 +2039,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException {
++    public Enumeration<String> getAllHeaderLines() throws MessagingException {
+@@ -2055,2 +2050,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -2068,2 +2062,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/MimePart.java
+- a/mail/src/main/java/javax/mail/internet/MimePart.java
++++ b/mail/src/main/java/javax/mail/internet/MimePart.java
+@@ -111,2 +111,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getAllHeaderLines() throws MessagingException;
++    public Enumeration<String> getAllHeaderLines() throws MessagingException;
+@@ -123,2 +122,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getMatchingHeaderLines(String[] names)
++    public Enumeration<String> getMatchingHeaderLines(String[] names)
+@@ -136,2 +134,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNonMatchingHeaderLines(String[] names)
++    public Enumeration<String> getNonMatchingHeaderLines(String[] names)
+diff -r 1f6b2c17e291 mail/src/main/java/javax/mail/internet/ParameterList.java
+- a/mail/src/main/java/javax/mail/internet/ParameterList.java
++++ b/mail/src/main/java/javax/mail/internet/ParameterList.java
+@@ -627,2 +627,1 @@
+-    @SuppressWarnings("rawtypes")
+-    public Enumeration getNames() {
++    public Enumeration<String> getNames() {
+
+
+===================================================================
+
+4. MailDateFormat changes for version 1.6 (174)
+-----------------------------------------------
+
+The parse(String) method currently returns null for invalid dates,
+which violates the contract of DateFormat.  It should throw ParseException.
+
+Some methods of MailDateFormat throw UnsupportedOperationException.
+The following methods should also do so:
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates a specific pattern.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void applyLocalizedPattern(String pattern) {
+	    throw new UnsupportedOperationException("Method "
+		    + "applyLocalizedPattern() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates a specific pattern.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void applyPattern(String pattern) {
+	    throw new UnsupportedOperationException("Method "
+		    + "applyPattern() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates another strategy
+	 * for interpreting 2-digits years.
+	 *
+	 * @return the start of the 100-year period into which two digit
+	 * years are parsed
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public Date get2DigitYearStart() {
+	    throw new UnsupportedOperationException("Method "
+		    + "get2DigitYearStart() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates another strategy
+	 * for interpreting 2-digits years.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void set2DigitYearStart(Date startDate) {
+	    throw new UnsupportedOperationException("Method "
+		    + "set2DigitYearStart() shouldn't be called");
+	}
+
+	/**
+	 * This method always throws an UnsupportedOperationException and
+	 * should not be used because RFC 2822 mandates specific date
+	 * format symbols.
+	 *
+	 * @throws UnsupportedOperationException if this method is invoked
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public void setDateFormatSymbols(DateFormatSymbols newFormatSymbols) {
+	    throw new UnsupportedOperationException("Method "
+		    + "setDateFormatSymbols() shouldn't be called");
+	}
+
+MailDateFormat should include a proper clone method:
+
+	/**
+	 * Overrides Cloneable.
+	 *
+	 * @return a clone of this instance
+	 * @since JavaMail 1.6
+	 */
+	@Override
+	public MailDateFormat clone() {
+	    return (MailDateFormat) super.clone();
+	}
+
+
+===================================================================
+
+5. Store, Transport, and Folder should implement AutoCloseable (159)
+--------------------------------------------------------------------
+
+To enable use in a try-with-resources block, the Store, Transport,
+and Folder classes should implement the java.lang.AutoCloseable interface.
+Store and Transport are subclasses of Service, which already has the
+required close() method, so having Service implement AutoCloseable is
+sufficient.  The Folder class includes a close method with a required
+"expunge" parameter so we add a new close() method with no parameter
+that behaves the same as close(true), and have Folder implement AutoCloseable.
+
+	public abstract class Service implements AutoCloseable {
+	    ...
+	}
+
+	public abstract class Folder implements AutoCloseable {
+	    ...
+ 
+	    /**
+	     * Close this Folder and expunge deleted messages. <p>
+	     *
+	     * A CLOSED ConnectionEvent is delivered to any ConnectionListeners
+	     * registered on this Folder. Note that the folder is closed even
+	     * if this method terminates abnormally by throwing a
+	     * MessagingException. <p>
+	     *
+	     * This method supports the {@link java.lang.AutoCloseable AutoCloseable}
+	     * interface. <p>
+	     *
+	     * This implementation calls <code>close(true)</code>.
+	     *
+	     * @exception	IllegalStateException if this folder is not opened
+	     * @exception       MessagingException for other failures
+	     * @see 		javax.mail.event.ConnectionEvent
+	     * @since		JavaMail 1.6
+	     */
+	    @Override
+	    public void close() throws MessagingException {
+		close(true);
+	    }
+	}
+
+
+===================================================================
+
+6. The UIDFolder interface should have a getter for UIDNEXT (104)
+-----------------------------------------------------------------
+
+The UIDFolder interface models the UID support in the IMAP protocol.
+After UIDFolder was originally created, the IMAP protocol added
+support for getting the value of the next UID that will be assigned.
+The IMAP provider in JavaMail has supported this for quite some time;
+it should be added to the UIDFolder interface:
+
+	/**
+	 * Returns the predicted UID that will be assigned to the
+	 * next message that is appended to this folder.
+	 * Messages might be appended to the folder after this value
+	 * is retrieved, causing this value to be out of date.
+	 * This value might only be updated when a folder is first opened.
+	 * Note that messages may have been appended to the folder
+	 * while it was open and thus this value may be out of
+	 * date. <p>
+	 *
+	 * If the value is unknown, -1 is returned.  <p>
+	 *
+	 * @return  the UIDNEXT value, or -1 if unknown
+	 * @exception       MessagingException for failures
+	 * @since   JavaMail 1.6
+	 */
+	public long getUIDNext() throws MessagingException;
+
+Ideally this new method added to the interface would include a default
+implementation to provide compatibility with existing classes that
+implement this method.  However, since the JavaMail 1.6 reference
+implementation targets Java SE 7, this is not possible.  It's very
+likely that the only class implementing this interface is the IMAPFolder
+class in the JavaMail reference implementation, thus this incompatibility
+is extremely unlikely to cause a problem in practice.
+
+
+===================================================================
+
+7. The UIDFolder interface should have a MAXUID constant (244)
+--------------------------------------------------------------
+
+An IMAP UID is a 32-bit unsigned integer and is represented as a Java long.
+A new constant indicates the maximum value of a UID:
+
+	/**
+	 * The largest value possible for a UID, a 32-bit unsigned integer.
+	 * This can be used to fetch all new messages by keeping track of the
+	 * last UID that was seen and using:
+	 * <blockquote><pre>
+	 *
+	 * 	Folder f = store.getFolder("whatever");
+	 *	UIDFolder uf = (UIDFolder)f;
+	 *	Message[] newMsgs =
+	 *		uf.getMessagesByUID(lastSeenUID + 1, UIDFolder.MAXUID);
+	 *
+	 * </pre></blockquote><p>
+	 *
+	 * @since JavaMail 1.6
+	 */
+	public static final long MAXUID = 0xffffffffL;
+
+
+===================================================================
+
+8. MimeMultipart should throw ParseException for parsing errors (75)
+--------------------------------------------------------------------
+
+ParseException indicates an error parsing MIME messages.  In addition
+to applying to MIME headers, it seems reasonable to expand it to cover
+multipart message parsing.  Since ParseException is a subclass of
+MessagingException, it merely reports more precisely the cause of the
+error.
+
+The description of ParseException is changed to:
+
+	  * The exception thrown due to an error in parsing RFC822 
+	  * or MIME headers, including multipart bodies.
+
+MimeMultipart documents that ParseException can be thrown from an
+existing constructor and method:
+
+	/**
+	 * Constructs a MimeMultipart object and its bodyparts from the 
+	 * given DataSource. <p>
+	 *
+	 * This constructor handles as a special case the situation where the
+	 * given DataSource is a MultipartDataSource object.  In this case, this
+	 * method just invokes the superclass (i.e., Multipart) constructor
+	 * that takes a MultipartDataSource object. <p>
+	 *
+	 * Otherwise, the DataSource is assumed to provide a MIME multipart 
+	 * byte stream.  The <code>parsed</code> flag is set to false.  When
+	 * the data for the body parts are needed, the parser extracts the
+	 * "boundary" parameter from the content type of this DataSource,
+	 * skips the 'preamble' and reads bytes till the terminating
+	 * boundary and creates MimeBodyParts for each part of the stream.
+	 *
+	 * @param	ds	DataSource, can be a MultipartDataSource
+	 * @exception	ParseException for failures parsing the message
+	 * @exception	MessagingException for other failures
+	 */
+	public MimeMultipart(DataSource ds) throws MessagingException
+
+	...
+
+	/**
+	 * Parse the InputStream from our DataSource, constructing the
+	 * appropriate MimeBodyParts.  The <code>parsed</code> flag is
+	 * set to true, and if true on entry nothing is done.  This
+	 * method is called by all other methods that need data for
+	 * the body parts, to make sure the data has been parsed.
+	 * The {@link #initializeProperties} method is called before
+	 * parsing the data.
+	 *
+	 * @exception	ParseException for failures parsing the message
+	 * @exception	MessagingException for other failures
+	 * @since	JavaMail 1.2
+	 */
+	protected synchronized void parse() throws MessagingException
+
+
+===================================================================
+
+9. Support addressing i18n via RFC 6530/6531/6532 (93)
+------------------------------------------------------
+
+To enable support for UTF-8 email addresses, the following methods
+are added to InternetAddress:
+
+	/**
+	 * Convert the given array of InternetAddress objects into
+	 * a comma separated sequence of address strings. The
+	 * resulting string contains Unicode characters. <p>
+	 *
+	 * @param addresses	array of InternetAddress objects
+	 * @exception 	ClassCastException if any address object in the 
+	 *			given array is not an InternetAddress object.
+	 *			Note that this is a RuntimeException.
+	 * @return		comma separated string of addresses
+	 * @since		JavaMail 1.6
+	 */
+	public static String toUnicodeString(Address[] addresses)
+
+	/**
+	 * Convert the given array of InternetAddress objects into
+	 * a comma separated sequence of address strings. The
+	 * resulting string contains Unicode characters. <p>
+	 *
+	 * The 'used' parameter specifies the number of character positions
+	 * already taken up in the field into which the resulting address 
+	 * sequence string is to be inserted. It is used to determine the 
+	 * line-break positions in the resulting address sequence string.
+	 *
+	 * @param addresses	array of InternetAddress objects
+	 * @param used	number of character positions already used, in
+	 *			the field into which the address string is to
+	 *			be inserted.
+	 * @exception 	ClassCastException if any address object in the 
+	 *			given array is not an InternetAddress object.
+	 *			Note that this is a RuntimeException.
+	 * @return		comma separated string of addresses
+	 * @since		JavaMail 1.6
+	 */
+	public static String toUnicodeString(Address[] addresses, int used)
+
+
+The following constructor and method are added to InternetHeaders:
+
+	/**
+	 * Read and parse the given RFC822 message stream till the 
+	 * blank line separating the header from the body. The input 
+	 * stream is left positioned at the start of the body. The 
+	 * header lines are stored internally. <p>
+	 *
+	 * For efficiency, wrap a BufferedInputStream around the actual
+	 * input stream and pass it as the parameter. <p>
+	 *
+	 * No placeholder entries are inserted; the original order of
+	 * the headers is preserved.
+	 *
+	 * @param	is 	RFC822 input stream
+	 * @param	allowutf8 	if UTF-8 encoded headers are allowed
+	 * @exception	MessagingException for any I/O error reading the stream
+	 * @since		JavaMail 1.6
+	 */
+	public InternetHeaders(InputStream is, boolean allowutf8)
+				    throws MessagingException
+
+
+	/**
+	 * Read and parse the given RFC822 message stream till the
+	 * blank line separating the header from the body. Store the
+	 * header lines inside this InternetHeaders object. The order
+	 * of header lines is preserved. <p>
+	 *
+	 * Note that the header lines are added into this InternetHeaders
+	 * object, so any existing headers in this object will not be
+	 * affected.  Headers are added to the end of the existing list
+	 * of headers, in order.
+	 *
+	 * @param	is 	RFC822 input stream
+	 * @param	allowutf8 	if UTF-8 encoded headers are allowed
+	 * @exception	MessagingException for any I/O error reading the stream
+	 * @since		JavaMail 1.6
+	 */
+	public void load(InputStream is, boolean allowutf8)
+				    throws MessagingException
+
+The following Session property can be set to enable implicit use of
+these new methods:
+
+mail.mime.allowutf8:
+
+  If set to "true", UTF-8 strings are allowed in message headers,
+  e.g., in addresses.  This should only be set if the mail server also
+  supports UTF-8.
+
+
+===================================================================
+
+10. Look for resource files in <java.home>/conf on JDK 1.9 (247)
+----------------------------------------------------------------
+
+JDK 1.9 adds a new <java.home>/conf directory to hold configuration
+files that were previously stored in <java.home>/lib.  When using
+JavaMail on JDK 1.9, it should look for its (optional) configuration
+files in the <java.home>/conf directory.
+
+The specification of the Session class is changed as follows:
+
+	/**
+	 * The Session class represents a mail session and is not subclassed.
+	 * It collects together properties and defaults used by the mail API's.
+	 * A single default session can be shared by multiple applications on
+	 * the desktop.  Unshared sessions can also be created. <p>
+	 *
+	 * The Session class provides access to the protocol providers that
+	 * implement the <code>Store</code>, <code>Transport</code>, and related
+	 * classes.  The protocol providers are configured using the following
+	 * files:
+	 * <ul>
+	 *  <li> <code>javamail.providers</code> and
+	 *      <code>javamail.default.providers</code> </li>
+	 *  <li> <code>javamail.address.map</code> and
+	 *      <code>javamail.default.address.map</code> </li>
+	 * </ul>
+	 * <p>
+	 * Each <code>javamail.</code><i>X</i> resource file is searched for
+	 * using three methods in the following order:
+	 * <ol>
+	 *  <li> <code><i>java.home</i>/<i>conf</i>/javamail.</code><i>X</i> </li>
+	 *  <li> <code>META-INF/javamail.</code><i>X</i> </li>
+	 *  <li> <code>META-INF/javamail.default.</code><i>X</i> </li>
+	 * </ol>
+	 * <p>
+	 * (Where <i>java.home</i> is the value of the "java.home" System
+	 * property and <i>conf</i> is the directory named "conf" if it exists,
+	 * otherwise the directory named "lib"; the "conf" directory was
+	 * introduced in JDK 1.9.)
+	 * <p>
+	 * The first method allows the user to include their own version of the
+	 * resource file by placing it in the <i>conf</i> directory where the
+	 * <code>java.home</code> property points.  The second method allows an
+	 * application that uses the JavaMail APIs to include their own resource
+	 * files in their application's or jar file's <code>META-INF</code>
+	 * directory.  The <code>javamail.default.</code><i>X</i> default files
+	 * are part of the JavaMail <code>mail.jar</code> file and should not be
+	 * supplied by users. <p>
+
+
+===================================================================
+
+11. Flags convenience methods (249)
+-----------------------------------
+
+When copying messages from one server to another, it's sometimes necessary
+to adjust the message flags based on the capabilities of the target server.
+It would be convenient if the Flags class had methods to clear any flags
+not supported by the target server, to clear all user flags, and to clear
+all system flags.
+
+	/**
+	 * Remove any flags <strong>not</strong> in the given Flags object.
+	 * Useful for clearing flags not supported by a server.  If the
+	 * given Flags object includes the Flags.Flag.USER flag, all user
+	 * flags in this Flags object are retained.
+	 *
+	 * @param	f	the flags to keep
+	 * @return		true if this Flags object changed
+	 * @since		JavaMail 1.6
+	 */
+	public boolean retainAll(Flags f)
+
+	/**
+	 * Clear all of the system flags.
+	 *
+	 * @since	JavaMail 1.6
+	 */
+	public void clearSystemFlags()
+
+	/**
+	 * Clear all of the user flags.
+	 *
+	 * @since	JavaMail 1.6
+	 */
+	public void clearUserFlags()

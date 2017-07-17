@@ -1,219 +1,262 @@
 You can find more information about each bug number by visiting the
-Bug Database and looking up each bug you're interested in.
+Issue Tracker and looking up each bug you're interested in.
 
-Bug IDs that start with "K" can be found in the Kenai Bugzilla
-(after removing the "K"):
+Bug IDs that start with "GH" can be found in the GitHub Issue Tracker
+(after removing the "GH"):
 
-	https://kenai.com/bugzilla/
+	https://github.com/javaee/javamail/issues/<bug-number>
 
 Bug IDs that start with "G" can be found in the GlassFish Issue Tracker
 (after removing the "G"):
 
-	https://java.net/jira/browse/GLASSFISH
+	https://github.com/javaee/glassfish/issues/<bug-number>
 
 Seven digit bug numbers are from the old Sun bug database, which is no
 longer available.
+
+
+		  CHANGES IN THE 1.6.0 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.6.0 release.
+
+GH   75	MimeMultipart should throw ParseException for parsing errors
+GH   77	MimeMessage.updateHeaders should set the Date header if not already set
+GH   93	Support addressing i18n via RFC 6530/6531/6532
+GH  104	The UIDFolder interface should have a getter for UIDNEXT
+GH  135	MailHandler should choose a better default subject formatter.
+GH  159	Store, Transport, and Folder should implement AutoCloseable
+GH  174	MailDateFormat changes for version 1.6
+GH  183	Fix javac warnings
+GH  209	fails to parse some fetch response that has space before final ')'
+GH  214	IMAP doesn't handle illegal CAPABILITY response after LOGIN/AUTHENTICATE
+GH  226	MailSessionDefinition should use the Repeatable annotation for Java EE 8
+GH  227	IdleManager fails on Android
+GH  228	Test fails: javax.mail.internet.GetLocalAddressTest
+GH  229	Tests fail: com.sun.mail.util.WriteTimeoutSocketTest
+GH  230	MboxFolder.expunge can corrupt mailbox file
+GH  231	CompactFormatter should handle overridden Throwable.toString methods
+GH  232	Update public API to use generics
+GH  233	Malformed IMAP FETCH response throws the wrong exception
+GH  234	RFC822.SIZE > 2GB isn't handled
+GH  237	Protocol#command method call readResponse after IOException is thrown
+GH  238	Possible NPE in Status.<init> line 96
+GH  239	MailHandler should support 'login' verify type.
+GH  240	MailHandler support for non-multipart messages
+GH  241	use of YoungerTerm/OlderTerm on server without WITHIN support fails
+GH  244	The UIDFolder interface should have a MAXUID constant
+GH  245	java.io.IOException: No content when reading msg with empty attachment
+GH  247	look for resource files in <java.home>/conf on JDK 1.9
+GH  248	MimeUtility should treat GB2312 as one of the supersets GBK or GB18030
+GH  249	Flags convenience methods
+GH  250	SMTP support for the CHUNKING extension of RFC 3030
+GH  251	MimeUtility.unfold squashes multiple spaces
+GH  252	JavaMail PLAIN authentication should implement RFC 4616
+GH  253	Support connecting through web proxy servers
+GH  256	support UIDPLUS UIDNOTSTICKY response code
+GH  257	SASL authentication should always allow UTF-8 username and password
+GH  258	android-activation MANIFEST has empty Bundle-SymbolicName
 
 
 		  CHANGES IN THE 1.5.6 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.6 release.
 
-K  7091	Support LogRecord.setMillis being deprecated in JDK 9
-K  7092	Logging should support LogRecord.getInstant
-K  7097	Create common super class for logging tests
-K  7140	NPE by APOP detection when no greeting banner
-K  7150	Make IMAPProtocol.handleLoginResult protected
-K  7151	InternetAddress.parse fails for valid domain literal address
-K  7238	unsolicited FETCH response *must* invalidate X-GM-LABELS in cache
-K  7332	MimeBodyPart.isMimeType returns false if type header can't be parsed
-K  7356	NPE in Tomcat ClassLoader causes Session.getInstance to fail
-K  7378	Deadlock in IMAPFolder.doProtocolCommand()
-K  7471	InternetAddress.getLocalAddress should use
+GH  199	Support LogRecord.setMillis being deprecated in JDK 9
+GH  200	Logging should support LogRecord.getInstant
+GH  202	Create common super class for logging tests
+GH  205	NPE by APOP detection when no greeting banner
+GH  206	Make IMAPProtocol.handleLoginResult protected
+GH  207	InternetAddress.parse fails for valid domain literal address
+GH  210	unsolicited FETCH response *must* invalidate X-GM-LABELS in cache
+GH  211	MimeBodyPart.isMimeType returns false if type header can't be parsed
+GH  213	NPE in Tomcat ClassLoader causes Session.getInstance to fail
+GH  215	Deadlock in IMAPFolder.doProtocolCommand()
+GH  216	InternetAddress.getLocalAddress should use
 	InetAddress.getCanonicalHostName
-K  7472	Store finalizers should not talk to server
-K  7506	MailHandler verify should load additional content handlers
-K  7512	NullPointerException if SASL is enabled on Android
-K  7513	write timeouts don't work with SSL on Android
-K  7529	JavaMail allows injection of unwanted headers
-K  7536	Message.setRecipient(type, null) should remove recipients
+GH  217	Store finalizers should not talk to server
+GH  219	MailHandler verify should load additional content handlers
+GH  220	NullPointerException if SASL is enabled on Android
+GH  221	write timeouts don't work with SSL on Android
+GH  222	JavaMail allows injection of unwanted headers
+GH  223	Message.setRecipient(type, null) should remove recipients
 
 
 		  CHANGES IN THE 1.5.5 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.5 release.
 
-K  6886	add support for setting GMail labels on messages
-K  6905	Add spam filter for use with MailHandler.
-K  6907	Address MailDateFormat issues
-K  6938	Typo in "mail.stmp.sendpartial"
-K  6943	mail.mime.encodefilename property should override RFC 2231 encoding
-K  6964	IMAP should support a mail.imap.auth.mechanisms property like SMTP
-K  6965	setting mail.<protocol>.auth.mechanisms should override
+GH  168	add support for setting GMail labels on messages
+GH  169	Add spam filter for use with MailHandler.
+GH  170	Address MailDateFormat issues
+GH  172	Typo in "mail.stmp.sendpartial"
+GH  173	mail.mime.encodefilename property should override RFC 2231 encoding
+GH  176	IMAP should support a mail.imap.auth.mechanisms property like SMTP
+GH  177	setting mail.<protocol>.auth.mechanisms should override
 	mail.<protocol>.auth.<mechanism>.disable
-K  6966	add support for OAuth 2.0 without SASL
-K  6973	capability() command doesn't properly transform errors
-K  6989	MailHandler needs better support for stateful filters.
-K  6997	add support for IMAP login referrals (RFC 2221)
-K  7009	whitespace line at beginning confuses InternetHeaders
-K  7014	IndexOutOfBoundsException reading IMAP literal when connection fails
-K  7019	IdleManager dies with CancelledKeyException
-K  7026	IdleManager can deadlock when not busy
-K  7027	IMAP Folder methods throw runtime exceptions when connection drops
-K  7028	InternetAddress doesn't detect some illegal newlines
-K  7030	Status class doesn't decode mailbox name
-K  7035	add support for IMAP COMPRESS extension (RFC 4978)
-K  7052	Empty Gmail X-GM-LABELS list is misparsed
-K  7075	IMAPMessage.getReceivedDate should check if receivedDate is present
+GH  178	add support for OAuth 2.0 without SASL
+GH  179	capability() command doesn't properly transform errors
+GH  180	MailHandler needs better support for stateful filters.
+GH  181	add support for IMAP login referrals (RFC 2221)
+GH  182	whitespace line at beginning confuses InternetHeaders
+GH  184	Eliminate legacy classes
+GH  185	IndexOutOfBoundsException reading IMAP literal when connection fails
+GH  186	IdleManager dies with CancelledKeyException
+GH  187	IdleManager can deadlock when not busy
+GH  188	IMAP Folder methods throw runtime exceptions when connection drops
+GH  189	InternetAddress doesn't detect some illegal newlines
+GH  190	Status class doesn't decode mailbox name
+GH  191	add support for IMAP COMPRESS extension (RFC 4978)
+GH  194	Empty Gmail X-GM-LABELS list is misparsed
+GH  195	IMAPMessage.getReceivedDate should check if receivedDate is present
 	before loading envelope
-K  7083	CollectorFormatter descending order data race
-K  7090	off-by-1 error in Response.readStringList causes early termination of
+GH  196	CollectorFormatter descending order data race
+GH  198	off-by-1 error in Response.readStringList causes early termination of
 	parsing FETCH response
-K  7094	INTERNALDATE FetchProfile Item
-K  7104	Exchange returns NIL instead of "" for empty parameter, causing NPE
+GH  201	INTERNALDATE FetchProfile Item
+GH  203	Exchange returns NIL instead of "" for empty parameter, causing NPE
 
 
 		  CHANGES IN THE 1.5.4 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.4 release.
 
-K  6719	Include elapsed time, thread id, and sequence for logging formatters.
-K  6767	MailHandlerTest does not check field is static or final
-K  6804	IdleManager can deadlock with frequent notifications
-K  6817	IdleManager can deadlock when connection fails
-K  6824	IMAP provider should support the MOVE extension (RFC 6851)
-K  6840	MODSEQ should be stored in IMAPMessage if CONDSTORE is enabled
-K  6844	Space character lost from end of quoted-printable body parts
-K  6850	GmailMessage extensions are not cached after implicit FETCH
-K  6852	IMAP message sets should be sorted in cases where order doesn't matter
-K  6860	ID command shouldn't escape NIL value
-K  6863	Make IMAPProtocol class extendable
+GH  149	Include elapsed time, thread id, and sequence for logging formatters.
+GH  153	MailHandlerTest does not check field is static or final
+GH  157	IdleManager can deadlock with frequent notifications
+GH  158	IdleManager can deadlock when connection fails
+GH  160	IMAP provider should support the MOVE extension (RFC 6851)
+GH  162	MODSEQ should be stored in IMAPMessage if CONDSTORE is enabled
+GH  163	Space character lost from end of quoted-printable body parts
+GH  164	GmailMessage extensions are not cached after implicit FETCH
+GH  165	IMAP message sets should be sorted in cases where order doesn't matter
+GH  166	ID command shouldn't escape NIL value
+GH  167	Make IMAPProtocol class extendable
 
 
 		  CHANGES IN THE 1.5.3 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.3 release.
 
-K  6379	Make constructor of POP3Folder protected to allow subclassing
-K  6407	calling IdleManager.watch twice on same folder fails
-K  6430	NPE in IMAPFolder.copyUIDMessages when COPYUID not returned
-K  6496	Message-Id leaks current user/hostname of the Java process (security)
-K  6498	IMAP idle breaks interrupt flag
-K  6526	Date search terms result in wrong greater-than SEARCH commands for IMAP
-K  6535	address similar to (x)<y>(z) will throw StringIndexOutOfBoundsException
-K  6551	Update logging demos to use the new 1.5.2 features
-K  6552	Use classloader ergonomics in the MailHandler
-K  6585	ArrayIndexOutOfBoundsException in IMAPFolder.copyUIDMessages
-K  6638	attachment filenames aren't being encoded by default
-K  6644	Include javadoc example formats for logging.
-K  6657	SharedFileInputStream has problems with 2GB+ files
-K  6667	MimeBodyPart with copied DataHandler doesn't always set encoding
-K  6668	skip unusable Store and Transport classes
-K  6687	long parameter values should be split using RFC 2231
-K  6703	javax.mail.Authenticator thread safety
-K  6718	Modify MailHandler to support Google App Engine.
-K  6755	EXPUNGE response during UID FETCH breaks UID->seqnum mapping
-K  6762	ArrayIndexOutOfBoundsException caused by out-of-range IMAP responses
-K  6772	write timeouts don't work with a custom SSL socket factory
-K  6778	SMTP SASL DIGEST-MD5 fails on postfix since the last reply sent is "*"
+GH  122	Make constructor of POP3Folder protected to allow subclassing
+GH  123	calling IdleManager.watch twice on same folder fails
+GH  124	NPE in IMAPFolder.copyUIDMessages when COPYUID not returned
+GH  127	Message-Id leaks current user/hostname of the Java process (security)
+GH  128	IMAP idle breaks interrupt flag
+GH  129	Date search terms result in wrong greater-than SEARCH commands for IMAP
+GH  131	address similar to (x)<y>(z) will throw StringIndexOutOfBoundsException
+GH  132	Update logging demos to use the new 1.5.2 features
+GH  133	Use classloader ergonomics in the MailHandler
+GH  137	ArrayIndexOutOfBoundsException in IMAPFolder.copyUIDMessages
+GH  138	attachment filenames aren't being encoded by default
+GH  139	Include javadoc example formats for logging.
+GH  141	SharedFileInputStream has problems with 2GB+ files
+GH  143	MimeBodyPart with copied DataHandler doesn't always set encoding
+GH  144	skip unusable Store and Transport classes
+GH  145	long parameter values should be split using RFC 2231
+GH  146	javax.mail.Authenticator thread safety
+GH  148	Modify MailHandler to support Google App Engine.
+GH  150	EXPUNGE response during UID FETCH breaks UID->seqnum mapping
+GH  151	ArrayIndexOutOfBoundsException caused by out-of-range IMAP responses
+GH  154	write timeouts don't work with a custom SSL socket factory
+GH  155	SMTP SASL DIGEST-MD5 fails on postfix since the last reply sent is "*"
 
 
 		  CHANGES IN THE 1.5.2 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.2 release.
 
-K  5820	allow IMAP search to throw SearchException when search is too complex
-K  6181	NullPointerException at IMAPFolder#getMessagesByUID if msg not found
-K  6201	add option to use canonical host name for SASL
-K  6203	IMAP astring parsing incorrect
-K  6207	SMTP SASL support doesn't handle authentication failure properly
-K  6208	SASL authentication failures should not try other methods
-K  6238	add OAuth2 support to JavaMail
-K  6260	IMAP failures during close can leave connection unusable
-K  6261	need way to monitor IMAP responses
-K  6274	MimeUtility.encodeText() does not work with Unicode surrogate pairs
-K  6283	IMAP alerts and notifications are not sent during authentication
-K  6324	add ability to fetch and cache entire IMAP message
-K  6325	add ability to return server-specific STATUS responses
-K  6326	add ability to set "peek" flag for all IMAP messages
-K  6327	add ability to specify scope of event queue
-K  6328	add ability to specify an Executor to process events
-K  6336	handle multiple IMAP BODY elements in a single FETCH response
-K  6352	add more efficient way to monitor multiple folders for new messages
-K  6353	Include a subject formatter for the logging package
-K  6365	Broken equals in URLName, NewsAddress
-K  6366	NullPointerException in ContentType.match
-K  6367	hashCode of two equals instances does not match for ModifiedSinceTerm,
+GH   57	allow IMAP search to throw SearchException when search is too complex
+GH   88	NullPointerException at IMAPFolder#getMessagesByUID if msg not found
+GH   89	add option to use canonical host name for SASL
+GH   90	IMAP astring parsing incorrect
+GH   91	SMTP SASL support doesn't handle authentication failure properly
+GH   92	SASL authentication failures should not try other methods
+GH   94	add OAuth2 support to JavaMail
+GH   95	IMAP failures during close can leave connection unusable
+GH   96	need way to monitor IMAP responses
+GH   97	MimeUtility.encodeText() does not work with Unicode surrogate pairs
+GH  105	IMAP alerts and notifications are not sent during authentication
+GH  106	add ability to fetch and cache entire IMAP message
+GH  107	add ability to return server-specific STATUS responses
+GH  108	add ability to set "peek" flag for all IMAP messages
+GH  109	add ability to specify scope of event queue
+GH  110	add ability to specify an Executor to process events
+GH  113	handle multiple IMAP BODY elements in a single FETCH response
+GH  115	add more efficient way to monitor multiple folders for new messages
+GH  116	Include a subject formatter for the logging package
+GH  118	Broken equals in URLName, NewsAddress
+GH  119	NullPointerException in ContentType.match
+GH  120	hashCode of two equals instances does not match for ModifiedSinceTerm,
 	YoungerTerm, OlderTerm
-K  6368	NullPointerException in InternetAddress
+GH  121	NullPointerException in InternetAddress
 
 
 		  CHANGES IN THE 1.5.1 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.1 release.
 
-K  5901	Wrong "source" version in build.properties
-K  5924	IMAP provider should support the QRESYNC extension (RFC 5162)
-K  5925	IMAP provider should support the WITHIN search extension (RFC 5032)
-K  5933	JavaMail does not handle write timeouts
-K  5934	method fill() isn't synchronized correctly in SharedFileInputStream
-K  5978	NullPointerException in MimeUtility#quote()
-K  5987	support RFC 2359 COPYUID response code
-K  5989	Empty FROM Field causes Exception
-K  6004	Filename isn't parsed correctly if charset is not set
-K  6072	copying a DataHandler from a parsed message to a new message fails
-K  6102	MimeMessage does not unfold address headers before parsing them
-K  6108	When using XGWTRUSTEDAPP mechanism, LOGIN should not be issued if no
+GH   66	Wrong "source" version in build.properties
+GH   67	IMAP provider should support the QRESYNC extension (RFC 5162)
+GH   68	IMAP provider should support the WITHIN search extension (RFC 5032)
+GH   69	JavaMail does not handle write timeouts
+GH   70	method fill() isn't synchronized correctly in SharedFileInputStream
+GH   71	NullPointerException in MimeUtility#quote()
+GH   72	support RFC 2359 COPYUID response code
+GH   73	Empty FROM Field causes Exception
+GH   74	Filename isn't parsed correctly if charset is not set
+GH   76	copying a DataHandler from a parsed message to a new message fails
+GH   78	MimeMessage does not unfold address headers before parsing them
+GH   80	When using XGWTRUSTEDAPP mechanism, LOGIN should not be issued if no
 	authzid is specified
-K  6125	support empty IMAP ENVELOPE address list instead of NIL
-K  6137	JavaMail should support the IMAP ID extension
-K  6141	Typo: "mechansims"
-K  6160	Exchange returns out of range message numbers for SEARCH
-K  6161	require extra permission to create default Session with SecurityManager
+GH   82	support empty IMAP ENVELOPE address list instead of NIL
+GH   83	JavaMail should support the IMAP ID extension
+GH   84	Typo: "mechansims"
+GH   86	Exchange returns out of range message numbers for SEARCH
+GH   87	require extra permission to create default Session with SecurityManager
 
 
 		  CHANGES IN THE 1.5.0 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.5.0 release.
 
-K  5682	add FetchProfile.Item.SIZE
-K  5683	fix protected fields in final classes in javax.mail.search
-K  5684	add MimeMultipart(String subtype, BodyPart... bps) constructor
-K  5685	exceptions should support exception chaining
-K  5686	ParameterList needs to support use by IMAP
-K  5687	ContentType.toString & ContentDisposition.toString shouldn't return null
-K  5689	add Transport.send(msg, username, password) method
-K  5690	add MimeMessage.setFrom(String) method
-K  5691	add Message.getSession() method
-K  5692	MimeBodyPart.attachFile should set the disposition to ATTACHMENT
-K  5693	add MimeMessage.reply(replyToAll, setAnswered) method
-K  5694	add "next" methods to HeaderTokenizer to help parsing bad headers
-K  5743	add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7
-K  5769	make cachedContent field protected in MimeMessage and MimeBodyPart
-K  5770	make MimeMultipart fields protected to allow subclassing
-K  5818	need simple way to override MIME type and encoding of attachment
-K  5819	enable RFC 2231 support by default
-K  5847	Exception when parsing bad address with unclosed quote in mail header
-K  5861	when failing to connect to a server, provide more detail in exception
+GH   37	add FetchProfile.Item.SIZE
+GH   38	fix protected fields in final classes in javax.mail.search
+GH   39	add MimeMultipart(String subtype, BodyPart... bps) constructor
+GH   40	exceptions should support exception chaining
+GH   41	ParameterList needs to support use by IMAP
+GH   42	ContentType.toString & ContentDisposition.toString shouldn't return null
+GH   44	add Transport.send(msg, username, password) method
+GH   45	add MimeMessage.setFrom(String) method
+GH   46	add Message.getSession() method
+GH   47	MimeBodyPart.attachFile should set the disposition to ATTACHMENT
+GH   48	add MimeMessage.reply(replyToAll, setAnswered) method
+GH   49	add "next" methods to HeaderTokenizer to help parsing bad headers
+GH   51	add @MailSessionDefinition and @MailSessionDefinitions for Java EE 7
+GH   52	make cachedContent field protected in MimeMessage and MimeBodyPart
+GH   53	make MimeMultipart fields protected to allow subclassing
+GH   55	need simple way to override MIME type and encoding of attachment
+GH   56	enable RFC 2231 support by default
+GH   62	Exception when parsing bad address with unclosed quote in mail header
+GH   64	when failing to connect to a server, provide more detail in exception
 
 
 		  CHANGES IN THE 1.4.7 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.7 release.
 
-K  5829	NullPointerException when accessing the content of a message attachment
-K  5830	IMAPProtocol.sasllogin uses old constructor for IMAPSaslAuthenticator
+GH   60	NullPointerException when accessing the content of a message attachment
+GH   61	IMAPProtocol.sasllogin uses old constructor for IMAPSaslAuthenticator
 
 
 		  CHANGES IN THE 1.4.6 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.4.6 release.
 
-K  4906	IMAP Store socket leak on connect with ProtocolException
-K  5086	STARTTLS when already using SSL may cause connection to fail
-K  5090	Yahoo: Error reading emails containing "undisclosed recipients"
-K  5233	Infinite loop if Quota information is not correctly reported by server
-K  5816	Issue in decoding filename with charset iso-2022-jp from Mime header
+GH   28	IMAP Store socket leak on connect with ProtocolException
+GH   29	STARTTLS when already using SSL may cause connection to fail
+GH   30	Yahoo: Error reading emails containing "undisclosed recipients"
+GH   32	Infinite loop if Quota information is not correctly reported by server
+GH   54	Issue in decoding filename with charset iso-2022-jp from Mime header
 	based on rfc 2231
 <no id>	add mail.imap.ignorebodystructuresize to work around server bugs
 <no id>	add "gimap" EXPERIMENTAL Gmail IMAP provider
@@ -227,13 +270,13 @@ K  5816	Issue in decoding filename with charset iso-2022-jp from Mime header
 The following bugs have been fixed in the 1.4.5 release.
 
 7021190	MimeMessage.setRecipients(type, String) does not accept null address
-K  3815	ArrayIndexOutOfBoundsException for some IMAP protocol errors
-K  4002	MultipartReport.setReport and setDeliveryStatus are broken
-K  4065	Wrong representation of CR/LF are appended to the attachment
-K  4296	SSL Re-Negotiation Problem with checkserveridentity=true
-K  4511	Thread safety in javax.mail.PasswordAuthentication
-K  4583	Add SOCKS5 support
-K  4753	wrong message accessed when another client expunges and adds messages
+GH   15	ArrayIndexOutOfBoundsException for some IMAP protocol errors
+GH   17	MultipartReport.setReport and setDeliveryStatus are broken
+GH   18	Wrong representation of CR/LF are appended to the attachment
+GH   19	SSL Re-Negotiation Problem with checkserveridentity=true
+GH   22	Thread safety in javax.mail.PasswordAuthentication
+GH   25	Add SOCKS5 support
+GH   27	wrong message accessed when another client expunges and adds messages
 <no id>	properly handle timeouts during SSL negotiation
 <no id>	free MIME headers in IMAPMessage.invalidateHeaders
 <no id>	fix exception in POP3Message when reading file cached content twice
@@ -255,9 +298,9 @@ The following bugs have been fixed in the 1.4.4 release.
 6928566	Header violates RFC 2822 for multiple calls of addRecipient(s)
 6995537	work around this JDK bug that causes iso-2022-jp decoding problems
 G 11069	update the mail.jar manifest to include DynamicImport-Package
-K  3442	make sure socket is closed if SMTP connect fails
-K  3539	Multiparts do not parse correctly in presence of legacy Mac line endings
-K  3566	InputStreams are not closed in MimeMultipart
+GH   10	make sure socket is closed if SMTP connect fails
+GH   12	Multiparts do not parse correctly in presence of legacy Mac line endings
+GH   14	InputStreams are not closed in MimeMultipart
 <no id>	add mail.mime.windowsfilenames System property to handle IE6 breakage
 <no id>	properly disable TOP if POP3 CAPA response doesn't include it
 <no id>	add mail.pop3.disablecapa property to disable use of the CAPA command
@@ -294,8 +337,8 @@ The following bugs have been fixed in the 1.4.3 release.
 6875367	LineOutputStream wraps IOException instead of throwing it directly
 6890265	SMTPTransport does not close socket if STARTTLS is req'd but not sup'd
 G  9941	SMTPTransport violates RFC 2821 in HELO command
-K   202	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
-K  1207	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
+GH    2	InternetAddress verifies domain per RFC1034 instead of RFC822 in strict
+GH    4	added NTLM authentication support for SMTP and IMAP, see NTLMNOTES.txt
 <no id>	add starttls support to POP3
 <no id>	add mail.transport.protocol.<address-type> property
 <no id>	fail POP3Folder.open if STAT command fails

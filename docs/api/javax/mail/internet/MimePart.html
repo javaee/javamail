@@ -176,7 +176,7 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getAllHeaderLines--">getAllHeaderLines</a></span>()</code>
 <div class="block">Get all header lines as an Enumeration of Strings.</div>
 </td>
@@ -216,13 +216,13 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getMatchingHeaderLines-java.lang.String:A-">getMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getNonMatchingHeaderLines-java.lang.String:A-">getNonMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get non-matching header lines as an Enumeration of Strings.</div>
 </td>
@@ -339,8 +339,8 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 <ul class="blockList">
 <li class="blockList">
 <h4>getAllHeaderLines</h4>
-<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getAllHeaderLines()
-                       throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getAllHeaderLines()
+                               throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
 <div class="block">Get all header lines as an Enumeration of Strings. A Header
  line is a raw RFC822 header-line, containing both the "name" 
  and "value" field.</div>
@@ -358,8 +358,8 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 <ul class="blockList">
 <li class="blockList">
 <h4>getMatchingHeaderLines</h4>
-<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)
-                            throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)
+                                    throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
 <div class="block">Get matching header lines as an Enumeration of Strings. 
  A Header line is a raw RFC822 header-line, containing both 
  the "name" and "value" field.</div>
@@ -379,8 +379,8 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 <ul class="blockList">
 <li class="blockList">
 <h4>getNonMatchingHeaderLines</h4>
-<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&nbsp;getNonMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)
-                               throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<pre><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;&nbsp;getNonMatchingHeaderLines(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)
+                                       throws <a href="../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
 <div class="block">Get non-matching header lines as an Enumeration of Strings. 
  A Header line is a raw RFC822 header-line, containing both 
  the "name"  and "value" field.</div>
@@ -661,6 +661,6 @@ extends <a href="../../../javax/mail/Part.html" title="interface in javax.mail">
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

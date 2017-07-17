@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":9};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":9,"i53":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -117,6 +117,10 @@ var activeTableTab = "activeTableTab";
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></dd>
+</dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
 <dd><a href="../../../../com/sun/mail/smtp/SMTPSSLTransport.html" title="class in com.sun.mail.smtp">SMTPSSLTransport</a></dd>
@@ -217,94 +221,106 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#bdat--">bdat</a></span>()</code>
+<div class="block">Return a stream that will use the SMTP BDAT command to send data.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#checkConnected--">checkConnected</a></span>()</code>
 <div class="block">Check if we're in the connected state.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#close--">close</a></span>()</code>
 <div class="block">Close the Transport and terminate the connection to the server.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#connect-java.net.Socket-">connect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/net/Socket.html?is-external=true" title="class or interface in java.net">Socket</a>&nbsp;socket)</code>
 <div class="block">Start the SMTP protocol on the given socket, which was already
  connected by the caller.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#data--">data</a></span>()</code>
 <div class="block">Send the <code>DATA</code> command to the SMTP host and return
  an OutputStream to which the data is to be written.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#ehlo-java.lang.String-">ehlo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;domain)</code>
 <div class="block">Issue the <code>EHLO</code> command.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#finalize--">finalize</a></span>()</code>
 <div class="block">Stop the event dispatcher thread so the queue can be garbage collected.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#finishBdat--">finishBdat</a></span>()</code>
+<div class="block">Terminate the sent data.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#finishData--">finishData</a></span>()</code>
 <div class="block">Terminate the sent data.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getAuthorizationId--">getAuthorizationId</a></span>()</code>
 <div class="block">Gets the authorization ID to be used for authentication.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getExtensionParameter-java.lang.String-">getExtensionParameter</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;ext)</code>
 <div class="block">Return the parameter the server provided for the specified
  service extension, or null if the extension isn't supported.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getLastReturnCode--">getLastReturnCode</a></span>()</code>
 <div class="block">Return the return code from the last response we got from the server.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getLastServerResponse--">getLastServerResponse</a></span>()</code>
 <div class="block">Return the last response we got from the server.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getLocalHost--">getLocalHost</a></span>()</code>
 <div class="block">Get the name of the local host, for use in the EHLO and HELO commands.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getNoopStrict--">getNoopStrict</a></span>()</code>
 <div class="block">Is the NOOP command required to return a response code
  of 250 to indicate success?</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getNTLMDomain--">getNTLMDomain</a></span>()</code>
 <div class="block">Gets the NTLM domain to be used for NTLM authentication.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getReportSuccess--">getReportSuccess</a></span>()</code>
 <div class="block">Should we report even successful sends by throwing an exception?
@@ -314,83 +330,83 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
  <a href="../../../../com/sun/mail/smtp/SMTPAddressFailedException.html" title="class in com.sun.mail.smtp"><code>SMTPAddressFailedException</code></a> for each unsuccessful address.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getRequireStartTLS--">getRequireStartTLS</a></span>()</code>
 <div class="block">Should we require the STARTTLS command to secure the connection?</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getSASLEnabled--">getSASLEnabled</a></span>()</code>
 <div class="block">Is SASL authentication enabled?</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getSASLMechanisms--">getSASLMechanisms</a></span>()</code>
 <div class="block">Get the list of SASL mechanisms to consider if SASL authentication
  is enabled.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getSASLRealm--">getSASLRealm</a></span>()</code>
 <div class="block">Gets the SASL realm to be used for DIGEST-MD5 authentication.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getStartTLS--">getStartTLS</a></span>()</code>
 <div class="block">Should we use the STARTTLS command to secure the connection
  if the server supports it?</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getUseCanonicalHostName--">getUseCanonicalHostName</a></span>()</code>
 <div class="block">Should SASL use the canonical host name?</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#getUseRset--">getUseRset</a></span>()</code>
 <div class="block">Should we use the RSET command instead of the NOOP command
  in the @{link #isConnected isConnected} method?</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#helo-java.lang.String-">helo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;domain)</code>
 <div class="block">Issue the <code>HELO</code> command.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#isConnected--">isConnected</a></span>()</code>
 <div class="block">Check whether the transport is connected.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#isSSL--">isSSL</a></span>()</code>
 <div class="block">Is this Transport using SSL to connect to the server?</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#issueCommand-java.lang.String-int-">issueCommand</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;cmd,
             int&nbsp;expect)</code>
 <div class="block">Send the command to the server.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#mailFrom--">mailFrom</a></span>()</code>
 <div class="block">Issue the <code>MAIL FROM:</code> command to start sending a message.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#notifyTransportListeners-int-javax.mail.Address:A-javax.mail.Address:A-javax.mail.Address:A-javax.mail.Message-">notifyTransportListeners</a></span>(int&nbsp;type,
                         <a href="../../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;validSent,
@@ -400,7 +416,7 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <div class="block">Notify all TransportListeners.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#protocolConnect-java.lang.String-int-java.lang.String-java.lang.String-">protocolConnect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;host,
                int&nbsp;port,
@@ -409,7 +425,7 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <div class="block">Performs the actual protocol-specific connection attempt.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#rcptTo--">rcptTo</a></span>()</code>
 <div class="block">Sends each address to the SMTP host using the <code>RCPT TO:</code>
@@ -417,125 +433,125 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
  the validSentAddr or invalidAddr arrays.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#readServerResponse--">readServerResponse</a></span>()</code>
 <div class="block">Reads server reponse returning the <code>returnCode</code>
  as the number.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#sendCommand-java.lang.String-">sendCommand</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;cmd)</code>
 <div class="block">Sends command <code>cmd</code> to the server terminating
  it with <code>CRLF</code>.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#sendMessage-javax.mail.Message-javax.mail.Address:A-">sendMessage</a></span>(<a href="../../../../javax/mail/Message.html" title="class in javax.mail">Message</a>&nbsp;message,
            <a href="../../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses)</code>
 <div class="block">Send the Message to the specified list of addresses.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setAuthorizationID-java.lang.String-">setAuthorizationID</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;authzid)</code>
 <div class="block">Sets the authorization ID to be used for authentication.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setLocalHost-java.lang.String-">setLocalHost</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;localhost)</code>
 <div class="block">Set the name of the local host, for use in the EHLO and HELO commands.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setNoopStrict-boolean-">setNoopStrict</a></span>(boolean&nbsp;noopStrict)</code>
 <div class="block">Set whether the NOOP command is required to return a response code
  of 250 to indicate success.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setNTLMDomain-java.lang.String-">setNTLMDomain</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;ntlmDomain)</code>
 <div class="block">Sets the NTLM domain to be used for NTLM authentication.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setReportSuccess-boolean-">setReportSuccess</a></span>(boolean&nbsp;reportSuccess)</code>
 <div class="block">Set whether successful sends should be reported by throwing
  an exception.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setRequireStartTLS-boolean-">setRequireStartTLS</a></span>(boolean&nbsp;requireStartTLS)</code>
 <div class="block">Set whether the STARTTLS command should be required.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setSASLEnabled-boolean-">setSASLEnabled</a></span>(boolean&nbsp;enableSASL)</code>
 <div class="block">Set whether SASL authentication is enabled.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setSASLMechanisms-java.lang.String:A-">setSASLMechanisms</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;mechanisms)</code>
 <div class="block">Set the list of SASL mechanisms to consider if SASL authentication
  is enabled.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setSASLRealm-java.lang.String-">setSASLRealm</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;saslRealm)</code>
 <div class="block">Sets the SASL realm to be used for DIGEST-MD5 authentication.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setStartTLS-boolean-">setStartTLS</a></span>(boolean&nbsp;useStartTLS)</code>
 <div class="block">Set whether the STARTTLS command should be used.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setUseCanonicalHostName-boolean-">setUseCanonicalHostName</a></span>(boolean&nbsp;useCanonicalHostName)</code>
 <div class="block">Set whether SASL should use the canonical host name.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#setUseRset-boolean-">setUseRset</a></span>(boolean&nbsp;useRset)</code>
 <div class="block">Set whether the RSET command should be used instead of the
  NOOP command in the @{link #isConnected isConnected} method.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#simpleCommand-byte:A-">simpleCommand</a></span>(byte[]&nbsp;cmd)</code>
 <div class="block">Send the command to the server and return the response code
  from the server.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#simpleCommand-java.lang.String-">simpleCommand</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;cmd)</code>
 <div class="block">Send the command to the server and return the response code
  from the server.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#startTLS--">startTLS</a></span>()</code>
 <div class="block">Issue the <code>STARTTLS</code> command and switch the socket to
  TLS mode if it succeeds.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#supportsAuthentication-java.lang.String-">supportsAuthentication</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;auth)</code>
 <div class="block">Does the server we're connected to support the specified
@@ -543,17 +559,24 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
  returned by the server from the EHLO command.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#supportsExtension-java.lang.String-">supportsExtension</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;ext)</code>
 <div class="block">Return true if the SMTP server supports the specified service
  extension.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>protected static <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#xtext-java.lang.String-">xtext</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;s)</code>
 <div class="block">Convert a string to RFC 1891 xtext format.</div>
+</td>
+</tr>
+<tr id="i53" class="rowColor">
+<td class="colFirst"><code>protected static <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../com/sun/mail/smtp/SMTPTransport.html#xtext-java.lang.String-boolean-">xtext</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;s,
+     boolean&nbsp;utf8)</code>
+<div class="block">Like xtext(s), but allow UTF-8 strings.</div>
 </td>
 </tr>
 </table>
@@ -1208,6 +1231,8 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
            throws <a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
 <div class="block">Close the Transport and terminate the connection to the server.</div>
 <dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true#close--" title="class or interface in java.lang">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../../../../javax/mail/Service.html#close--">close</a></code>&nbsp;in class&nbsp;<code><a href="../../../../javax/mail/Service.html" title="class in javax.mail">Service</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1403,6 +1428,44 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <dd><code><a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for other failures</dd>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>JavaMail 1.4.1</dd>
+</dl>
+</li>
+</ul>
+<a name="bdat--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bdat</h4>
+<pre>protected&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;bdat()
+                     throws <a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Return a stream that will use the SMTP BDAT command to send data.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the stream to write to</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for failures</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6.0</dd>
+</dl>
+</li>
+</ul>
+<a name="finishBdat--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>finishBdat</h4>
+<pre>protected&nbsp;void&nbsp;finishBdat()
+                   throws <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a>,
+                          <a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Terminate the sent data.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/IOException.html?is-external=true" title="class or interface in java.io">IOException</a></code> - for I/O errors</dd>
+<dd><code><a href="../../../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for other failures</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6.0</dd>
 </dl>
 </li>
 </ul>
@@ -1612,7 +1675,7 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <a name="xtext-java.lang.String-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>xtext</h4>
 <pre>protected static&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;xtext(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;s)</pre>
@@ -1637,6 +1700,26 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <dd>the xtext format string</dd>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>JavaMail 1.4.1</dd>
+</dl>
+</li>
+</ul>
+<a name="xtext-java.lang.String-boolean-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>xtext</h4>
+<pre>protected static&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;xtext(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;s,
+                              boolean&nbsp;utf8)</pre>
+<div class="block">Like xtext(s), but allow UTF-8 strings.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>s</code> - the string to convert</dd>
+<dd><code>utf8</code> - convert string to UTF-8 first?</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the xtext format string</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6.0</dd>
 </dl>
 </li>
 </ul>
@@ -1709,6 +1792,6 @@ extends <a href="../../../../javax/mail/Transport.html" title="class in javax.ma
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

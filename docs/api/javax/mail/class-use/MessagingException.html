@@ -493,7 +493,7 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
+<td class="colFirst"><code><a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#appendUIDMessages-javax.mail.Message:A-">appendUIDMessages</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs)</code>
 <div class="block">Append the given messages into this folder.</div>
 </td>
@@ -527,7 +527,7 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
+<td class="colFirst"><code><a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#copyUIDMessages-javax.mail.Message:A-javax.mail.Folder-">copyUIDMessages</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
                <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
 <div class="block">Copy the specified messages from this folder, to the
@@ -588,7 +588,7 @@ provides classes that model a mail system.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
-<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#fetchItem-com.sun.mail.imap.protocol.FetchItem-">fetchItem</a></span>(<a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/protocol/FetchItem.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">FetchItem</a>&nbsp;fitem)</code>
+<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#fetchItem-com.sun.mail.imap.protocol.FetchItem-">fetchItem</a></span>(<a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/protocol/FetchItem.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">FetchItem</a>&nbsp;fitem)</code>
 <div class="block">Fetch an individual item for the current message.</div>
 </td>
 </tr>
@@ -753,7 +753,7 @@ provides classes that model a mail system.</div>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
-<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#getItem-com.sun.mail.imap.protocol.FetchItem-">getItem</a></span>(<a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/protocol/FetchItem.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">FetchItem</a>&nbsp;fitem)</code>
+<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#getItem-com.sun.mail.imap.protocol.FetchItem-">getItem</a></span>(<a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/protocol/FetchItem.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">FetchItem</a>&nbsp;fitem)</code>
 <div class="block">Return the data associated with the FetchItem.</div>
 </td>
 </tr>
@@ -932,47 +932,63 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#getSizeLong--">getSizeLong</a></span>()</code>
+<div class="block">Get the message size as a long.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getSortedMessages-com.sun.mail.imap.SortTerm:A-">getSortedMessages</a></span>(<a href="../../../com/sun/mail/imap/SortTerm.html" title="class in com.sun.mail.imap">SortTerm</a>[]&nbsp;term)</code>
 <div class="block">Sort the messages in the folder according to the sort criteria.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getSortedMessages-com.sun.mail.imap.SortTerm:A-javax.mail.search.SearchTerm-">getSortedMessages</a></span>(<a href="../../../com/sun/mail/imap/SortTerm.html" title="class in com.sun.mail.imap">SortTerm</a>[]&nbsp;term,
                  <a href="../../../javax/mail/search/SearchTerm.html" title="class in javax.mail.search">SearchTerm</a>&nbsp;sterm)</code>
 <div class="block">Sort the messages in the folder according to the sort criteria.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getStatusItem-java.lang.String-">getStatusItem</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;item)</code>
 <div class="block">Use the IMAP STATUS command to get the indicated item.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#getSubject--">getSubject</a></span>()</code>
 <div class="block">Get the decoded subject.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getType--">getType</a></span>()</code>
 <div class="block">Get the type of this folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getUID-javax.mail.Message-">getUID</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>&nbsp;message)</code>
 <div class="block">Get the UID for the specified message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getUIDNext--">getUIDNext</a></span>()</code>
 <div class="block">Returns the predicted UID that will be assigned to the
  next message that is appended to this folder.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#getUIDNotSticky--">getUIDNotSticky</a></span>()</code>
+<div class="block">Servers that support the UIDPLUS extension
+ (<A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>)
+ may indicate that this folder does not support persistent UIDs;
+ that is, UIDVALIDITY will be different each time the folder is
+ opened.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -996,7 +1012,7 @@ provides classes that model a mail system.</div>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
-<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#handleFetchItem-com.sun.mail.imap.protocol.Item-java.lang.String:A-boolean-">handleFetchItem</a></span>(<a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/protocol/Item.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">Item</a>&nbsp;item,
+<td class="colLast"><span class="typeNameLabel">IMAPMessage.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPMessage.html#handleFetchItem-com.sun.mail.imap.protocol.Item-java.lang.String:A-boolean-">handleFetchItem</a></span>(<a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/protocol/Item.html?is-external=true" title="class or interface in com.sun.mail.imap.protocol">Item</a>&nbsp;item,
                <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;hdrs,
                boolean&nbsp;allHeaders)</code>
 <div class="block">Apply the data in the FETCH item to this message.</div>
@@ -1084,15 +1100,15 @@ provides classes that model a mail system.</div>
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#moveMessages-javax.mail.Message:A-javax.mail.Folder-">moveMessages</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
             <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
-<div class="block">Copy the specified messages from this folder, to the
+<div class="block">Move the specified messages from this folder, to the
  specified destination.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://javamail.java.net/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
+<td class="colFirst"><code><a href="http://javaee.github.io/javamail/javax.mail/apidocs/com/sun/mail/imap/AppendUID.html?is-external=true" title="class or interface in com.sun.mail.imap">AppendUID</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">IMAPFolder.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/imap/IMAPFolder.html#moveUIDMessages-javax.mail.Message:A-javax.mail.Folder-">moveUIDMessages</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
                <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
-<div class="block">Copy the specified messages from this folder, to the
+<div class="block">Move the specified messages from this folder, to the
  specified destination.</div>
 </td>
 </tr>
@@ -1639,29 +1655,41 @@ provides classes that model a mail system.</div>
 </tr>
 <tbody>
 <tr class="altColor">
+<td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a></code></td>
+<td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#bdat--">bdat</a></span>()</code>
+<div class="block">Return a stream that will use the SMTP BDAT command to send data.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#close--">close</a></span>()</code>
 <div class="block">Close the Transport and terminate the connection to the server.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#connect-java.net.Socket-">connect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/net/Socket.html?is-external=true" title="class or interface in java.net">Socket</a>&nbsp;socket)</code>
 <div class="block">Start the SMTP protocol on the given socket, which was already
  connected by the caller.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a></code></td>
 <td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#data--">data</a></span>()</code>
 <div class="block">Send the <code>DATA</code> command to the SMTP host and return
  an OutputStream to which the data is to be written.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#ehlo-java.lang.String-">ehlo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;domain)</code>
 <div class="block">Issue the <code>EHLO</code> command.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<td class="colLast"><span class="typeNameLabel">SMTPTransport.</span><code><span class="memberNameLink"><a href="../../../com/sun/mail/smtp/SMTPTransport.html#finishBdat--">finishBdat</a></span>()</code>
+<div class="block">Terminate the sent data.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -1950,18 +1978,24 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#close--">close</a></span>()</code>
+<div class="block">Close this Folder and expunge deleted messages.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>abstract void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#close-boolean-">close</a></span>(boolean&nbsp;expunge)</code>
 <div class="block">Close this Folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Service.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Service.html#connect--">connect</a></span>()</code>
 <div class="block">A generic connect method that takes no parameters.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Service.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Service.html#connect-java.lang.String-int-java.lang.String-java.lang.String-">connect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;host,
        int&nbsp;port,
@@ -1971,7 +2005,7 @@ provides classes that model a mail system.</div>
  can be specified.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Service.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Service.html#connect-java.lang.String-java.lang.String-">connect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;user,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;password)</code>
@@ -1979,7 +2013,7 @@ provides classes that model a mail system.</div>
  and password.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Service.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Service.html#connect-java.lang.String-java.lang.String-java.lang.String-">connect</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;host,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;user,
@@ -1987,7 +2021,7 @@ provides classes that model a mail system.</div>
 <div class="block">Connect to the specified address.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#copyMessages-javax.mail.Message:A-javax.mail.Folder-">copyMessages</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
             <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
@@ -1995,31 +2029,31 @@ provides classes that model a mail system.</div>
  Folder.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#create-int-">create</a></span>(int&nbsp;type)</code>
 <div class="block">Create this folder on the Store.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#delete-boolean-">delete</a></span>(boolean&nbsp;recurse)</code>
 <div class="block">Delete this Folder.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#exists--">exists</a></span>()</code>
 <div class="block">Tests if this folder physically exists on the Store.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#expunge--">expunge</a></span>()</code>
 <div class="block">Expunge (permanently remove) messages marked DELETED.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#fetch-javax.mail.Message:A-javax.mail.FetchProfile-">fetch</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
      <a href="../../../javax/mail/FetchProfile.html" title="class in javax.mail">FetchProfile</a>&nbsp;fp)</code>
@@ -2027,182 +2061,182 @@ provides classes that model a mail system.</div>
  given Messages.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getAllHeaders--">getAllHeaders</a></span>()</code>
 <div class="block">Return all the headers from this part as an Enumeration of
  Header objects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getAllRecipients--">getAllRecipients</a></span>()</code>
 <div class="block">Get all the recipient addresses for the message.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/BodyPart.html" title="class in javax.mail">BodyPart</a></code></td>
 <td class="colLast"><span class="typeNameLabel">MultipartDataSource.</span><code><span class="memberNameLink"><a href="../../../javax/mail/MultipartDataSource.html#getBodyPart-int-">getBodyPart</a></span>(int&nbsp;index)</code>
 <div class="block">Get the specified Part.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/BodyPart.html" title="class in javax.mail">BodyPart</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Multipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Multipart.html#getBodyPart-int-">getBodyPart</a></span>(int&nbsp;index)</code>
 <div class="block">Get the specified Part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getContent--">getContent</a></span>()</code>
 <div class="block">Return the content as a Java object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getContentType--">getContentType</a></span>()</code>
 <div class="block">Returns the Content-Type of the content of this part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">Multipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Multipart.html#getCount--">getCount</a></span>()</code>
 <div class="block">Return the number of enclosed BodyPart objects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/DataHandler.html?is-external=true" title="class or interface in javax.activation">DataHandler</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getDataHandler--">getDataHandler</a></span>()</code>
 <div class="block">Return a DataHandler for the content within this part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Store.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Store.html#getDefaultFolder--">getDefaultFolder</a></span>()</code>
 <div class="block">Returns a Folder object that represents the 'root' of
  the default namespace presented to the user by the Store.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getDeletedMessageCount--">getDeletedMessageCount</a></span>()</code>
 <div class="block">Get the number of deleted messages in this Folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getDescription--">getDescription</a></span>()</code>
 <div class="block">Return a description String for this part.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getDisposition--">getDisposition</a></span>()</code>
 <div class="block">Return the disposition of this part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getFileName--">getFileName</a></span>()</code>
 <div class="block">Get the filename associated with this part, if possible.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getFlags--">getFlags</a></span>()</code>
 <div class="block">Returns a <code>Flags</code> object containing the flags for 
  this message.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Store.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Store.html#getFolder-java.lang.String-">getFolder</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Return the Folder object corresponding to the given name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getFolder-java.lang.String-">getFolder</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Return the Folder object corresponding to the given name.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Store.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Store.html#getFolder-javax.mail.URLName-">getFolder</a></span>(<a href="../../../javax/mail/URLName.html" title="class in javax.mail">URLName</a>&nbsp;url)</code>
 <div class="block">Return a closed Folder object, corresponding to the given 
  URLName.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Session.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Session.html#getFolder-javax.mail.URLName-">getFolder</a></span>(<a href="../../../javax/mail/URLName.html" title="class in javax.mail">URLName</a>&nbsp;url)</code>
 <div class="block">Get a closed Folder object for the given URLName.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getFrom--">getFrom</a></span>()</code>
 <div class="block">Returns the "From" attribute.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getHeader-java.lang.String-">getHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;header_name)</code>
 <div class="block">Get all the headers for this header name.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getInputStream--">getInputStream</a></span>()</code>
 <div class="block">Return an input stream for this part's "content".</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getLineCount--">getLineCount</a></span>()</code>
 <div class="block">Return the number of lines in the content of this part.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;header_names)</code>
 <div class="block">Return matching headers from this part as an Enumeration of
  Header objects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getMessage-int-">getMessage</a></span>(int&nbsp;msgnum)</code>
 <div class="block">Get the Message object corresponding to the given message
  number.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a></code></td>
 <td class="colLast"><span class="typeNameLabel">UIDFolder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/UIDFolder.html#getMessageByUID-long-">getMessageByUID</a></span>(long&nbsp;uid)</code>
 <div class="block">Get the Message corresponding to the given UID.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getMessageCount--">getMessageCount</a></span>()</code>
 <div class="block">Get total number of messages in this Folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getMessages--">getMessages</a></span>()</code>
 <div class="block">Get all Message objects from this Folder.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getMessages-int:A-">getMessages</a></span>(int[]&nbsp;msgnums)</code>
 <div class="block">Get the Message objects for message numbers specified in
  the array.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getMessages-int-int-">getMessages</a></span>(int&nbsp;start,
            int&nbsp;end)</code>
@@ -2210,111 +2244,118 @@ provides classes that model a mail system.</div>
  through end, both start and end inclusive.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">UIDFolder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/UIDFolder.html#getMessagesByUID-long:A-">getMessagesByUID</a></span>(long[]&nbsp;uids)</code>
 <div class="block">Get the Messages specified by the given array of UIDs.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">UIDFolder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/UIDFolder.html#getMessagesByUID-long-long-">getMessagesByUID</a></span>(long&nbsp;start,
                 long&nbsp;end)</code>
 <div class="block">Get the Messages specified by the given range.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getNewMessageCount--">getNewMessageCount</a></span>()</code>
 <div class="block">Get the number of new messages in this Folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<tr class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;header_names)</code>
 <div class="block">Return non-matching headers from this envelope as an Enumeration
  of Header objects.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getParent--">getParent</a></span>()</code>
 <div class="block">Returns the parent folder of this folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Store.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Store.html#getPersonalNamespaces--">getPersonalNamespaces</a></span>()</code>
 <div class="block">Return a set of folders representing the <i>personal</i> namespaces
  for the current user.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Quota.html" title="class in javax.mail">Quota</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">QuotaAwareStore.</span><code><span class="memberNameLink"><a href="../../../javax/mail/QuotaAwareStore.html#getQuota-java.lang.String-">getQuota</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;folder)</code>
 <div class="block">Get the quotas for the named folder.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getReceivedDate--">getReceivedDate</a></span>()</code>
 <div class="block">Get the date this message was received.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getRecipients-javax.mail.Message.RecipientType-">getRecipients</a></span>(<a href="../../../javax/mail/Message.RecipientType.html" title="class in javax.mail">Message.RecipientType</a>&nbsp;type)</code>
 <div class="block">Get all the recipient addresses of the given type.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getReplyTo--">getReplyTo</a></span>()</code>
 <div class="block">Get the addresses to which replies should be directed.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getSentDate--">getSentDate</a></span>()</code>
 <div class="block">Get the date this message was sent.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract char</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getSeparator--">getSeparator</a></span>()</code>
 <div class="block">Return the delimiter character that separates this Folder's pathname
  from the names of immediate subfolders.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><span class="typeNameLabel">Store.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Store.html#getSharedNamespaces--">getSharedNamespaces</a></span>()</code>
 <div class="block">Return a set of folders representing the <i>shared</i> namespaces.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><span class="typeNameLabel">Part.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Part.html#getSize--">getSize</a></span>()</code>
 <div class="block">Return the size of the content of this part in bytes.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>abstract <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><span class="typeNameLabel">Message.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Message.html#getSubject--">getSubject</a></span>()</code>
 <div class="block">Get the subject of this message.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><span class="typeNameLabel">Folder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/Folder.html#getType--">getType</a></span>()</code>
 <div class="block">Returns the type of this Folder, that is, whether this folder can hold
  messages or subfolders or both.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <td class="colLast"><span class="typeNameLabel">UIDFolder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/UIDFolder.html#getUID-javax.mail.Message-">getUID</a></span>(<a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a>&nbsp;message)</code>
 <div class="block">Get the UID for the specified message.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>long</code></td>
+<td class="colLast"><span class="typeNameLabel">UIDFolder.</span><code><span class="memberNameLink"><a href="../../../javax/mail/UIDFolder.html#getUIDNext--">getUIDNext</a></span>()</code>
+<div class="block">Returns the predicted UID that will be assigned to the
+ next message that is appended to this folder.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -2698,7 +2739,7 @@ provides classes that model a mail system.</div>
 <td class="colFirst"><code>class&nbsp;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/ParseException.html" title="class in javax.mail.internet">ParseException</a></span></code>
 <div class="block">The exception thrown due to an error in parsing RFC822 
- or MIME headers</div>
+ or MIME headers, including multipart bodies.</div>
 </td>
 </tr>
 </tbody>
@@ -2863,32 +2904,32 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getAllHeaderLines--">getAllHeaderLines</a></span>()</code>
 <div class="block">Get all header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getAllHeaderLines--">getAllHeaderLines</a></span>()</code>
 <div class="block">Get all header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getAllHeaderLines--">getAllHeaderLines</a></span>()</code>
 <div class="block">Get all header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getAllHeaders--">getAllHeaders</a></span>()</code>
 <div class="block">Return all the headers from this Message as an enumeration
  of Header objects.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getAllHeaders--">getAllHeaders</a></span>()</code>
 <div class="block">Return all the headers from this Message as an Enumeration of
  Header objects.</div>
@@ -3163,32 +3204,32 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getMatchingHeaderLines-java.lang.String:A-">getMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getMatchingHeaderLines-java.lang.String:A-">getMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getMatchingHeaderLines-java.lang.String:A-">getMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return matching headers from this Message as an Enumeration of
  Header objects.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getMatchingHeaders-java.lang.String:A-">getMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return matching headers from this Message as an Enumeration of
  Header objects.</div>
@@ -3201,32 +3242,32 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#getNonMatchingHeaderLines-java.lang.String:A-">getNonMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get non-matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getNonMatchingHeaderLines-java.lang.String:A-">getNonMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get non-matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getNonMatchingHeaderLines-java.lang.String:A-">getNonMatchingHeaderLines</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Get non-matching header lines as an Enumeration of Strings.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return non-matching headers from this Message as an
  Enumeration of Header objects.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Enumeration.html?is-external=true" title="class or interface in java.util">Enumeration</a>&lt;<a href="../../../javax/mail/Header.html" title="class in javax.mail">Header</a>&gt;</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#getNonMatchingHeaders-java.lang.String:A-">getNonMatchingHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;names)</code>
 <div class="block">Return non-matching headers from this Message as an
  Enumeration of Header objects.</div>
@@ -3339,333 +3380,341 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><span class="typeNameLabel">InternetHeaders.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#load-java.io.InputStream-boolean-">load</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+    boolean&nbsp;allowutf8)</code>
+<div class="block">Read and parse the given RFC822 message stream till the
+ blank line separating the header from the body.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#parse--">parse</a></span>()</code>
 <div class="block">Parse the InputStream from our DataSource, constructing the
  appropriate MimeBodyParts.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#parse-java.io.InputStream-">parse</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is)</code>
 <div class="block">Parse the InputStream setting the <code>headers</code> and
  <code>content</code> fields appropriately.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#removeBodyPart-javax.mail.BodyPart-">removeBodyPart</a></span>(<a href="../../../javax/mail/BodyPart.html" title="class in javax.mail">BodyPart</a>&nbsp;part)</code>
 <div class="block">Remove the specified part from the multipart message.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#removeBodyPart-int-">removeBodyPart</a></span>(int&nbsp;index)</code>
 <div class="block">Remove the part at specified location (starting from 0).</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#removeHeader-java.lang.String-">removeHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Remove all headers with this name.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#removeHeader-java.lang.String-">removeHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Remove all headers with this name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a></code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#reply-boolean-">reply</a></span>(boolean&nbsp;replyToAll)</code>
 <div class="block">Get a new Message suitable for a reply to this message.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code><a href="../../../javax/mail/Message.html" title="class in javax.mail">Message</a></code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#reply-boolean-boolean-">reply</a></span>(boolean&nbsp;replyToAll,
      boolean&nbsp;setAnswered)</code>
 <div class="block">Get a new Message suitable for a reply to this message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#saveChanges--">saveChanges</a></span>()</code>
 <div class="block">Updates the appropriate header fields of this message to be
  consistent with the message's contents.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#saveFile-java.io.File-">saveFile</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/File.html?is-external=true" title="class or interface in java.io">File</a>&nbsp;file)</code>
 <div class="block">Save the contents of this part in the specified file.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#saveFile-java.lang.String-">saveFile</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;file)</code>
 <div class="block">Save the contents of this part in the specified file.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setContent-javax.mail.Multipart-">setContent</a></span>(<a href="../../../javax/mail/Multipart.html" title="class in javax.mail">Multipart</a>&nbsp;mp)</code>
 <div class="block">This method sets the Message's content to a Multipart object.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setContent-javax.mail.Multipart-">setContent</a></span>(<a href="../../../javax/mail/Multipart.html" title="class in javax.mail">Multipart</a>&nbsp;mp)</code>
 <div class="block">This method sets the body part's content to a Multipart object.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setContent-java.lang.Object-java.lang.String-">setContent</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o,
           <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;type)</code>
 <div class="block">A convenience method for setting this Message's content.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setContent-java.lang.Object-java.lang.String-">setContent</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o,
           <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;type)</code>
 <div class="block">A convenience method for setting this body part's content.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setContentID-java.lang.String-">setContentID</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;cid)</code>
 <div class="block">Set the "Content-ID" header field of this Message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setContentID-java.lang.String-">setContentID</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;cid)</code>
 <div class="block">Set the "Content-ID" header field of this body part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#setContentLanguage-java.lang.String:A-">setContentLanguage</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;languages)</code>
 <div class="block">Set the Content-Language header of this MimePart.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setContentLanguage-java.lang.String:A-">setContentLanguage</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;languages)</code>
 <div class="block">Set the "Content-Language" header of this MimePart.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setContentLanguage-java.lang.String:A-">setContentLanguage</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;languages)</code>
 <div class="block">Set the Content-Language header of this MimePart.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#setContentMD5-java.lang.String-">setContentMD5</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;md5)</code>
 <div class="block">Set the Content-MD5 of this part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setContentMD5-java.lang.String-">setContentMD5</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;md5)</code>
 <div class="block">Set the "Content-MD5" header field of this Message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setContentMD5-java.lang.String-">setContentMD5</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;md5)</code>
 <div class="block">Set the "Content-MD5" header field of this body part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setDataHandler-javax.activation.DataHandler-">setDataHandler</a></span>(<a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/DataHandler.html?is-external=true" title="class or interface in javax.activation">DataHandler</a>&nbsp;dh)</code>
 <div class="block">This method provides the mechanism to set this part's content.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setDataHandler-javax.activation.DataHandler-">setDataHandler</a></span>(<a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/DataHandler.html?is-external=true" title="class or interface in javax.activation">DataHandler</a>&nbsp;dh)</code>
 <div class="block">This method provides the mechanism to set this body part's content.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setDescription-java.lang.String-">setDescription</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;description)</code>
 <div class="block">Set the "Content-Description" header field for this Message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setDescription-java.lang.String-">setDescription</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;description)</code>
 <div class="block">Set the "Content-Description" header field for this body part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setDescription-java.lang.String-java.lang.String-">setDescription</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;description,
               <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
 <div class="block">Set the "Content-Description" header field for this Message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setDescription-java.lang.String-java.lang.String-">setDescription</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;description,
               <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
 <div class="block">Set the "Content-Description" header field for this body part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setDisposition-java.lang.String-">setDisposition</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;disposition)</code>
 <div class="block">Set the disposition in the "Content-Disposition" header field
  of this body part.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setDisposition-java.lang.String-">setDisposition</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;disposition)</code>
 <div class="block">Set the disposition in the "Content-Disposition" header field
  of this body part.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setFileName-java.lang.String-">setFileName</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;filename)</code>
 <div class="block">Set the filename associated with this part, if possible.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setFileName-java.lang.String-">setFileName</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;filename)</code>
 <div class="block">Set the filename associated with this body part, if possible.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setFlags-javax.mail.Flags-boolean-">setFlags</a></span>(<a href="../../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
         boolean&nbsp;set)</code>
 <div class="block">Set the flags for this message.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setFrom--">setFrom</a></span>()</code>
 <div class="block">Set the RFC 822 "From" header field using the value of the
  <code>InternetAddress.getLocalAddress</code> method.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setFrom-javax.mail.Address-">setFrom</a></span>(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>&nbsp;address)</code>
 <div class="block">Set the RFC 822 "From" header field.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setFrom-java.lang.String-">setFrom</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;address)</code>
 <div class="block">Set the RFC 822 "From" header field.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setHeader-java.lang.String-java.lang.String-">setHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
          <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</code>
 <div class="block">Set the value for this header_name.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setHeader-java.lang.String-java.lang.String-">setHeader</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name,
          <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;value)</code>
 <div class="block">Set the value for this header_name.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#setPreamble-java.lang.String-">setPreamble</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;preamble)</code>
 <div class="block">Set the preamble text to be included before the first
  body part.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setRecipients-javax.mail.Message.RecipientType-javax.mail.Address:A-">setRecipients</a></span>(<a href="../../../javax/mail/Message.RecipientType.html" title="class in javax.mail">Message.RecipientType</a>&nbsp;type,
              <a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses)</code>
 <div class="block">Set the specified recipient type to the given addresses.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setRecipients-javax.mail.Message.RecipientType-java.lang.String-">setRecipients</a></span>(<a href="../../../javax/mail/Message.RecipientType.html" title="class in javax.mail">Message.RecipientType</a>&nbsp;type,
              <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;addresses)</code>
 <div class="block">Set the specified recipient type to the given addresses.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setReplyTo-javax.mail.Address:A-">setReplyTo</a></span>(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>[]&nbsp;addresses)</code>
 <div class="block">Set the RFC 822 "Reply-To" header field.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setSender-javax.mail.Address-">setSender</a></span>(<a href="../../../javax/mail/Address.html" title="class in javax.mail">Address</a>&nbsp;address)</code>
 <div class="block">Set the RFC 822 "Sender" header field.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setSentDate-java.util.Date-">setSentDate</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;d)</code>
 <div class="block">Set the RFC 822 "Date" header field.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setSubject-java.lang.String-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</code>
 <div class="block">Set the "Subject" header field.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setSubject-java.lang.String-java.lang.String-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject,
           <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
 <div class="block">Set the "Subject" header field.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#setSubType-java.lang.String-">setSubType</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subtype)</code>
 <div class="block">Set the subtype.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#setText-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
 <div class="block">Convenience method that sets the given String as this
  part's content, with a MIME type of "text/plain".</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setText-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
 <div class="block">Convenience method that sets the given String as this
  part's content, with a MIME type of "text/plain".</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setText-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text)</code>
 <div class="block">Convenience method that sets the given String as this
  part's content, with a MIME type of "text/plain".</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#setText-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
@@ -3674,7 +3723,7 @@ provides classes that model a mail system.</div>
  charset.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setText-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
@@ -3683,7 +3732,7 @@ provides classes that model a mail system.</div>
  charset.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setText-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset)</code>
@@ -3692,7 +3741,7 @@ provides classes that model a mail system.</div>
  charset.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimePart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimePart.html#setText-java.lang.String-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset,
@@ -3702,7 +3751,7 @@ provides classes that model a mail system.</div>
  MIME subtype.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#setText-java.lang.String-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset,
@@ -3712,7 +3761,7 @@ provides classes that model a mail system.</div>
  MIME subtype.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#setText-java.lang.String-java.lang.String-java.lang.String-">setText</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;charset,
@@ -3722,65 +3771,65 @@ provides classes that model a mail system.</div>
  MIME subtype.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">PreencodedMimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/PreencodedMimeBodyPart.html#updateHeaders--">updateHeaders</a></span>()</code>
 <div class="block">Force the <code>Content-Transfer-Encoding</code> header to use
  the encoding that was specified when this object was created.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#updateHeaders--">updateHeaders</a></span>()</code>
 <div class="block">Update headers.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#updateHeaders--">updateHeaders</a></span>()</code>
 <div class="block">Called by the <code>saveChanges</code> method to actually
  update the MIME headers.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#updateHeaders--">updateHeaders</a></span>()</code>
 <div class="block">Examine the content of this body part and update the appropriate
  MIME headers.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#updateMessageID--">updateMessageID</a></span>()</code>
 <div class="block">Update the Message-ID header.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">PreencodedMimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/PreencodedMimeBodyPart.html#writeTo-java.io.OutputStream-">writeTo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;os)</code>
 <div class="block">Output the body part as an RFC 822 format stream.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMultipart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#writeTo-java.io.OutputStream-">writeTo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;os)</code>
 <div class="block">Iterates through all the parts and outputs each MIME part
  separated by a boundary.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#writeTo-java.io.OutputStream-">writeTo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;os)</code>
 <div class="block">Output the message as an RFC 822 format stream.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeBodyPart.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#writeTo-java.io.OutputStream-">writeTo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;os)</code>
 <div class="block">Output the body part as an RFC 822 format stream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><span class="typeNameLabel">MimeMessage.</span><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#writeTo-java.io.OutputStream-java.lang.String:A-">writeTo</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/OutputStream.html?is-external=true" title="class or interface in java.io">OutputStream</a>&nbsp;os,
        <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]&nbsp;ignoreList)</code>
@@ -3803,19 +3852,26 @@ provides classes that model a mail system.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/InternetHeaders.html#InternetHeaders-java.io.InputStream-boolean-">InternetHeaders</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
+               boolean&nbsp;allowutf8)</code>
+<div class="block">Read and parse the given RFC822 message stream till the 
+ blank line separating the header from the body.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#MimeBodyPart-java.io.InputStream-">MimeBodyPart</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is)</code>
 <div class="block">Constructs a MimeBodyPart by reading and parsing the data from
  the specified input stream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeBodyPart.html#MimeBodyPart-javax.mail.internet.InternetHeaders-byte:A-">MimeBodyPart</a></span>(<a href="../../../javax/mail/internet/InternetHeaders.html" title="class in javax.mail.internet">InternetHeaders</a>&nbsp;headers,
             byte[]&nbsp;content)</code>
 <div class="block">Constructs a MimeBodyPart using the given header and
  content bytes.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#MimeMessage-javax.mail.Folder-java.io.InputStream-int-">MimeMessage</a></span>(<a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder,
            <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is,
            int&nbsp;msgnum)</code>
@@ -3823,7 +3879,7 @@ provides classes that model a mail system.</div>
  specified MIME InputStream.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#MimeMessage-javax.mail.Folder-javax.mail.internet.InternetHeaders-byte:A-int-">MimeMessage</a></span>(<a href="../../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder,
            <a href="../../../javax/mail/internet/InternetHeaders.html" title="class in javax.mail.internet">InternetHeaders</a>&nbsp;headers,
            byte[]&nbsp;content,
@@ -3832,32 +3888,32 @@ provides classes that model a mail system.</div>
  and content.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#MimeMessage-javax.mail.internet.MimeMessage-">MimeMessage</a></span>(<a href="../../../javax/mail/internet/MimeMessage.html" title="class in javax.mail.internet">MimeMessage</a>&nbsp;source)</code>
 <div class="block">Constructs a new MimeMessage with content initialized from the
  <code>source</code> MimeMessage.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMessage.html#MimeMessage-javax.mail.Session-java.io.InputStream-">MimeMessage</a></span>(<a href="../../../javax/mail/Session.html" title="class in javax.mail">Session</a>&nbsp;session,
            <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/InputStream.html?is-external=true" title="class or interface in java.io">InputStream</a>&nbsp;is)</code>
 <div class="block">Constructs a MimeMessage by reading and parsing the data from the
  specified MIME InputStream.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#MimeMultipart-javax.mail.BodyPart...-">MimeMultipart</a></span>(<a href="../../../javax/mail/BodyPart.html" title="class in javax.mail">BodyPart</a>...&nbsp;parts)</code>
 <div class="block">Construct a MimeMultipart object of the default "mixed" subtype,
  and with the given body parts.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#MimeMultipart-javax.activation.DataSource-">MimeMultipart</a></span>(<a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/DataSource.html?is-external=true" title="class or interface in javax.activation">DataSource</a>&nbsp;ds)</code>
 <div class="block">Constructs a MimeMultipart object and its bodyparts from the 
  given DataSource.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MimeMultipart.html#MimeMultipart-java.lang.String-javax.mail.BodyPart...-">MimeMultipart</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subtype,
              <a href="../../../javax/mail/BodyPart.html" title="class in javax.mail">BodyPart</a>...&nbsp;parts)</code>
 <div class="block">Construct a MimeMultipart object of the given subtype
@@ -3938,6 +3994,6 @@ provides classes that model a mail system.</div>
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":6,"i6":10,"i7":6,"i8":6,"i9":6,"i10":6,"i11":10,"i12":10,"i13":10,"i14":6,"i15":6,"i16":6,"i17":6,"i18":10,"i19":10,"i20":10,"i21":10,"i22":6,"i23":10,"i24":6,"i25":6,"i26":6,"i27":10,"i28":6,"i29":10,"i30":10,"i31":6,"i32":6,"i33":10,"i34":10,"i35":6,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":6,"i45":10,"i46":10,"i47":10,"i48":10,"i49":6,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":6,"i7":10,"i8":6,"i9":6,"i10":6,"i11":6,"i12":10,"i13":10,"i14":10,"i15":6,"i16":6,"i17":6,"i18":6,"i19":10,"i20":10,"i21":10,"i22":10,"i23":6,"i24":10,"i25":6,"i26":6,"i27":6,"i28":10,"i29":6,"i30":10,"i31":10,"i32":6,"i33":6,"i34":10,"i35":10,"i36":6,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":6,"i46":10,"i47":10,"i48":10,"i49":10,"i50":6,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -108,13 +108,18 @@ var activeTableTab = "activeTableTab";
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></dd>
+</dl>
+<dl>
 <dt>Direct Known Subclasses:</dt>
 <dd><a href="../../com/sun/mail/imap/IMAPFolder.html" title="class in com.sun.mail.imap">IMAPFolder</a>, <a href="../../com/sun/mail/pop3/POP3Folder.html" title="class in com.sun.mail.pop3">POP3Folder</a></dd>
 </dl>
 <hr>
 <br>
 <pre>public abstract class <span class="typeNameLabel">Folder</span>
-extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></pre>
+extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></pre>
 <div class="block">Folder is an abstract class that represents a folder for mail
  messages. Subclasses implement protocol specific Folders.<p>
 
@@ -297,12 +302,18 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 </td>
 </tr>
 <tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#close--">close</a></span>()</code>
+<div class="block">Close this Folder and expunge deleted messages.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>abstract void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#close-boolean-">close</a></span>(boolean&nbsp;expunge)</code>
 <div class="block">Close this Folder.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#copyMessages-javax.mail.Message:A-javax.mail.Folder-">copyMessages</a></span>(<a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
             <a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
@@ -310,31 +321,31 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  Folder.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#create-int-">create</a></span>(int&nbsp;type)</code>
 <div class="block">Create this folder on the Store.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#delete-boolean-">delete</a></span>(boolean&nbsp;recurse)</code>
 <div class="block">Delete this Folder.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#exists--">exists</a></span>()</code>
 <div class="block">Tests if this folder physically exists on the Store.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#expunge--">expunge</a></span>()</code>
 <div class="block">Expunge (permanently remove) messages marked DELETED.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#fetch-javax.mail.Message:A-javax.mail.FetchProfile-">fetch</a></span>(<a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
      <a href="../../javax/mail/FetchProfile.html" title="class in javax.mail">FetchProfile</a>&nbsp;fp)</code>
@@ -342,55 +353,55 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  given Messages.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#finalize--">finalize</a></span>()</code>&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getDeletedMessageCount--">getDeletedMessageCount</a></span>()</code>
 <div class="block">Get the number of deleted messages in this Folder.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getFolder-java.lang.String-">getFolder</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;name)</code>
 <div class="block">Return the Folder object corresponding to the given name.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>abstract <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getFullName--">getFullName</a></span>()</code>
 <div class="block">Returns the full name of this Folder.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMessage-int-">getMessage</a></span>(int&nbsp;msgnum)</code>
 <div class="block">Get the Message object corresponding to the given message
  number.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMessageCount--">getMessageCount</a></span>()</code>
 <div class="block">Get total number of messages in this Folder.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMessages--">getMessages</a></span>()</code>
 <div class="block">Get all Message objects from this Folder.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMessages-int:A-">getMessages</a></span>(int[]&nbsp;msgnums)</code>
 <div class="block">Get the Message objects for message numbers specified in
  the array.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMessages-int-int-">getMessages</a></span>(int&nbsp;start,
            int&nbsp;end)</code>
@@ -398,150 +409,150 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  through end, both start and end inclusive.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getMode--">getMode</a></span>()</code>
 <div class="block">Return the open mode of this folder.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>abstract <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getName--">getName</a></span>()</code>
 <div class="block">Returns the name of this Folder.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getNewMessageCount--">getNewMessageCount</a></span>()</code>
 <div class="block">Get the number of new messages in this Folder.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getParent--">getParent</a></span>()</code>
 <div class="block">Returns the parent folder of this folder.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getPermanentFlags--">getPermanentFlags</a></span>()</code>
 <div class="block">Get the permanent flags supported by this Folder.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>abstract char</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getSeparator--">getSeparator</a></span>()</code>
 <div class="block">Return the delimiter character that separates this Folder's pathname
  from the names of immediate subfolders.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code><a href="../../javax/mail/Store.html" title="class in javax.mail">Store</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getStore--">getStore</a></span>()</code>
 <div class="block">Returns the Store that owns this Folder object.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>abstract int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getType--">getType</a></span>()</code>
 <div class="block">Returns the type of this Folder, that is, whether this folder can hold
  messages or subfolders or both.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getUnreadMessageCount--">getUnreadMessageCount</a></span>()</code>
 <div class="block">Get the total number of unread messages in this Folder.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/URLName.html" title="class in javax.mail">URLName</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#getURLName--">getURLName</a></span>()</code>
 <div class="block">Return a URLName representing this folder.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#hasNewMessages--">hasNewMessages</a></span>()</code>
 <div class="block">Returns true if this Folder has new messages since the last time
  this indication was reset.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#isOpen--">isOpen</a></span>()</code>
 <div class="block">Indicates whether this Folder is in the 'open' state.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#isSubscribed--">isSubscribed</a></span>()</code>
 <div class="block">Returns true if this Folder is subscribed.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#list--">list</a></span>()</code>
 <div class="block">Convenience method that returns the list of folders under this
  Folder.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>abstract <a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#list-java.lang.String-">list</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</code>
 <div class="block">Returns a list of Folders belonging to this Folder's namespace
  that match the specified pattern.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#listSubscribed--">listSubscribed</a></span>()</code>
 <div class="block">Convenience method that returns the list of subscribed folders 
  under this Folder.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code><a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#listSubscribed-java.lang.String-">listSubscribed</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</code>
 <div class="block">Returns a list of subscribed Folders belonging to this Folder's
  namespace that match the specified pattern.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyConnectionListeners-int-">notifyConnectionListeners</a></span>(int&nbsp;type)</code>
 <div class="block">Notify all ConnectionListeners.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyFolderListeners-int-">notifyFolderListeners</a></span>(int&nbsp;type)</code>
 <div class="block">Notify all FolderListeners registered on this Folder and
  this folder's Store.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyFolderRenamedListeners-javax.mail.Folder-">notifyFolderRenamedListeners</a></span>(<a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;folder)</code>
 <div class="block">Notify all FolderListeners registered on this Folder and
  this folder's Store about the renaming of this folder.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyMessageAddedListeners-javax.mail.Message:A-">notifyMessageAddedListeners</a></span>(<a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs)</code>
 <div class="block">Notify all MessageCountListeners about the addition of messages
  into this folder.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyMessageChangedListeners-int-javax.mail.Message-">notifyMessageChangedListeners</a></span>(int&nbsp;type,
                              <a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>&nbsp;msg)</code>
 <div class="block">Notify all MessageChangedListeners.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#notifyMessageRemovedListeners-boolean-javax.mail.Message:A-">notifyMessageRemovedListeners</a></span>(boolean&nbsp;removed,
                              <a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs)</code>
@@ -549,50 +560,50 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  from this Folder.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>abstract void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#open-int-">open</a></span>(int&nbsp;mode)</code>
 <div class="block">Open this Folder.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#removeConnectionListener-javax.mail.event.ConnectionListener-">removeConnectionListener</a></span>(<a href="../../javax/mail/event/ConnectionListener.html" title="interface in javax.mail.event">ConnectionListener</a>&nbsp;l)</code>
 <div class="block">Remove a Connection event listener.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#removeFolderListener-javax.mail.event.FolderListener-">removeFolderListener</a></span>(<a href="../../javax/mail/event/FolderListener.html" title="interface in javax.mail.event">FolderListener</a>&nbsp;l)</code>
 <div class="block">Remove a Folder event listener.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#removeMessageChangedListener-javax.mail.event.MessageChangedListener-">removeMessageChangedListener</a></span>(<a href="../../javax/mail/event/MessageChangedListener.html" title="interface in javax.mail.event">MessageChangedListener</a>&nbsp;l)</code>
 <div class="block">Remove a MessageChanged listener.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#removeMessageCountListener-javax.mail.event.MessageCountListener-">removeMessageCountListener</a></span>(<a href="../../javax/mail/event/MessageCountListener.html" title="interface in javax.mail.event">MessageCountListener</a>&nbsp;l)</code>
 <div class="block">Remove a MessageCount listener.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>abstract boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#renameTo-javax.mail.Folder-">renameTo</a></span>(<a href="../../javax/mail/Folder.html" title="class in javax.mail">Folder</a>&nbsp;f)</code>
 <div class="block">Rename this Folder.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code><a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#search-javax.mail.search.SearchTerm-">search</a></span>(<a href="../../javax/mail/search/SearchTerm.html" title="class in javax.mail.search">SearchTerm</a>&nbsp;term)</code>
 <div class="block">Search this Folder for messages matching the specified
  search criterion.</div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code><a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#search-javax.mail.search.SearchTerm-javax.mail.Message:A-">search</a></span>(<a href="../../javax/mail/search/SearchTerm.html" title="class in javax.mail.search">SearchTerm</a>&nbsp;term,
       <a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs)</code>
@@ -600,7 +611,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  specified search criterion.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#setFlags-int:A-javax.mail.Flags-boolean-">setFlags</a></span>(int[]&nbsp;msgnums,
         <a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
@@ -609,7 +620,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  are in the array.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#setFlags-int-int-javax.mail.Flags-boolean-">setFlags</a></span>(int&nbsp;start,
         int&nbsp;end,
@@ -619,7 +630,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  through end, both start and end inclusive.</div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#setFlags-javax.mail.Message:A-javax.mail.Flags-boolean-">setFlags</a></span>(<a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>[]&nbsp;msgs,
         <a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;flag,
@@ -627,13 +638,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <div class="block">Set the specified flags on the messages specified in the array.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#setSubscribed-boolean-">setSubscribed</a></span>(boolean&nbsp;subscribe)</code>
 <div class="block">Subscribe or unsubscribe this Folder.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Folder.html#toString--">toString</a></span>()</code>
 <div class="block">override the default toString(), it will return the String
@@ -1387,6 +1398,38 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this folder is not opened</dd>
 <dd><code><a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for other failures</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../javax/mail/event/ConnectionEvent.html" title="class in javax.mail.event"><code>ConnectionEvent</code></a></dd>
+</dl>
+</li>
+</ul>
+<a name="close--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>close</h4>
+<pre>public&nbsp;void&nbsp;close()
+           throws <a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Close this Folder and expunge deleted messages. <p>
+
+ A CLOSED ConnectionEvent is delivered to any ConnectionListeners
+ registered on this Folder. Note that the folder is closed even
+ if this method terminates abnormally by throwing a
+ MessagingException. <p>
+
+ This method supports the <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang"><code>AutoCloseable</code></a>
+ interface. <p>
+
+ This implementation calls <code>close(true)</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true#close--" title="class or interface in java.lang">close</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang">AutoCloseable</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if this folder is not opened</dd>
+<dd><code><a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for other failures</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../javax/mail/event/ConnectionEvent.html" title="class in javax.mail.event"><code>ConnectionEvent</code></a></dd>
 </dl>
@@ -2520,6 +2563,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

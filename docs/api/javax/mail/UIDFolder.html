@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
+var methods = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -184,6 +184,12 @@ var activeTableTab = "activeTableTab";
  UID of the last message in the folder.</div>
 </td>
 </tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/UIDFolder.html#MAXUID">MAXUID</a></span></code>
+<div class="block">The largest value possible for a UID, a 32-bit unsigned integer.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -226,6 +232,13 @@ var activeTableTab = "activeTableTab";
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/UIDFolder.html#getUIDNext--">getUIDNext</a></span>()</code>
+<div class="block">Returns the predicted UID that will be assigned to the
+ next message that is appended to this folder.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>long</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/UIDFolder.html#getUIDValidity--">getUIDValidity</a></span>()</code>
 <div class="block">Returns the UIDValidity value associated with this folder.</div>
 </td>
@@ -248,7 +261,7 @@ var activeTableTab = "activeTableTab";
 <a name="LASTUID">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>LASTUID</h4>
 <pre>static final&nbsp;long LASTUID</pre>
@@ -259,6 +272,32 @@ var activeTableTab = "activeTableTab";
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../javax/mail/UIDFolder.html#getMessagesByUID-long-long-"><code>getMessagesByUID(long, long)</code></a>, 
 <a href="../../constant-values.html#javax.mail.UIDFolder.LASTUID">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+<a name="MAXUID">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>MAXUID</h4>
+<pre>static final&nbsp;long MAXUID</pre>
+<div class="block">The largest value possible for a UID, a 32-bit unsigned integer.
+ This can be used to fetch all new messages by keeping track of the
+ last UID that was seen and using:
+ <blockquote><pre>
+
+        Folder f = store.getFolder("whatever");
+        UIDFolder uf = (UIDFolder)f;
+        Message[] newMsgs =
+                uf.getMessagesByUID(lastSeenUID + 1, UIDFolder.MAXUID);
+
+ </pre></blockquote><p></div>
+<dl>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../constant-values.html#javax.mail.UIDFolder.MAXUID">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -370,7 +409,7 @@ var activeTableTab = "activeTableTab";
 <a name="getUID-javax.mail.Message-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getUID</h4>
 <pre>long&nbsp;getUID(<a href="../../javax/mail/Message.html" title="class in javax.mail">Message</a>&nbsp;message)
@@ -387,6 +426,34 @@ var activeTableTab = "activeTableTab";
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/NoSuchElementException.html?is-external=true" title="class or interface in java.util">NoSuchElementException</a></code> - if the given Message
                         is not in this Folder.</dd>
 <dd><code><a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for other failures</dd>
+</dl>
+</li>
+</ul>
+<a name="getUIDNext--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getUIDNext</h4>
+<pre>long&nbsp;getUIDNext()
+         throws <a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></pre>
+<div class="block">Returns the predicted UID that will be assigned to the
+ next message that is appended to this folder.
+ Messages might be appended to the folder after this value
+ is retrieved, causing this value to be out of date.
+ This value might only be updated when a folder is first opened.
+ Note that messages may have been appended to the folder
+ while it was open and thus this value may be out of
+ date. <p>
+
+ If the value is unknown, -1 is returned.  <p></div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the UIDNEXT value, or -1 if unknown</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../../javax/mail/MessagingException.html" title="class in javax.mail">MessagingException</a></code> - for failures</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 </dl>
 </li>
 </ul>
@@ -459,6 +526,6 @@ var activeTableTab = "activeTableTab";
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

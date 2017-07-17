@@ -129,18 +129,24 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
  Each <code>javamail.</code><i>X</i> resource file is searched for using
  three methods in the following order:
  <ol>
-  <li> <code>java.home/lib/javamail.</code><i>X</i> </li>
+  <li> <code><i>java.home</i>/<i>conf</i>/javamail.</code><i>X</i> </li>
   <li> <code>META-INF/javamail.</code><i>X</i> </li>
   <li> <code>META-INF/javamail.default.</code><i>X</i> </li>
  </ol>
  <p>
+ (Where <i>java.home</i> is the value of the "java.home" System property
+ and <i>conf</i> is the directory named "conf" if it exists,
+ otherwise the directory named "lib"; the "conf" directory was
+ introduced in JDK 1.9.)
+ <p>
  The first method allows the user to include their own version of the
- resource file by placing it in the <code>lib</code> directory where the
+ resource file by placing it in the <i>conf</i> directory where the
  <code>java.home</code> property points.  The second method allows an
  application that uses the JavaMail APIs to include their own resource
  files in their application's or jar file's <code>META-INF</code>
  directory.  The <code>javamail.default.</code><i>X</i> default files
- are part of the JavaMail <code>mail.jar</code> file. <p>
+ are part of the JavaMail <code>mail.jar</code> file and should not be
+ supplied by users. <p>
 
  File location depends upon how the <code>ClassLoader</code> method
  <code>getResource</code> is implemented.  Usually, the
@@ -1183,6 +1189,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -181,8 +181,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  attachment. (default is no attachments)
 
  <li>&lt;handler-name&gt;.attachment.names a comma separated
- list of names or <tt>Formatter</tt> class names of each attachment.  The
- attachment file names must not contain any line breaks.
+ list of names or <tt>Formatter</tt> class names of each attachment.  All
+ control characters are removed from the attachment names.
  (default is <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>
  of the attachment formatter)
 
@@ -271,8 +271,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 
  <li>&lt;handler-name&gt;.subject the name of a
  <tt>Formatter</tt> class or string literal used to create the subject line.
- The empty string can be used to specify no subject.  The subject line must
- not contain any line breaks. (defaults to the empty string)
+ The empty string can be used to specify no subject.  All control characters
+ are removed from the subject line. (defaults to <a href="../../../../../com/sun/mail/util/logging/CollectorFormatter.html" title="class in com.sun.mail.util.logging">CollectorFormatter</a>.)
 
  <li>&lt;handler-name&gt;.pushFilter the name of a
  <tt>Filter</tt> class used to trigger an early push.
@@ -293,9 +293,12 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
       <li>If set to a value of <tt>resolve</tt>, the <tt>Handler</tt> will
       verify all local settings and try to resolve the remote host name with
       the domain name server.
+      <li>If set to a value of <tt>login</tt>, the <tt>Handler</tt> will
+      verify all local settings and try to establish a connection with
+      the email server.
       <li>If set to a value of <tt>remote</tt>, the <tt>Handler</tt> will
-      verify all local settings and try to establish a connection with the
-      email server.
+      verify all local settings, try to establish a connection with the
+      email server, and try to verify the envelope of the email message.
  </ul>
  If this <tt>Handler</tt> is only implicitly closed by the
  <tt>LogManager</tt>, then verification should be turned on.
@@ -350,17 +353,18 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 
  <p>
  <b>Attachments:</b>
- This <tt>Handler</tt> allows multiple attachments per each email.
- The attachment order maps directly to the array index order in this
- <tt>Handler</tt> with zero index being the first attachment.  The number of
- attachment formatters controls the number of attachments per email and
- the content type of each attachment.  The attachment filters determine if a
- <tt>LogRecord</tt> will be included in an attachment.  If an attachment
- filter is <tt>null</tt> then all records are included for that attachment.
- Attachments without content will be omitted from email message.  The
- attachment name formatters create the file name for an attachment.
- Custom attachment name formatters can be used to generate an attachment name
- based on the contents of the attachment.
+ This <tt>Handler</tt> allows multiple attachments per each email message.
+ The presence of an attachment formatter will change the content type of the
+ email message to a multi-part message.  The attachment order maps directly to
+ the array index order in this <tt>Handler</tt> with zero index being the
+ first attachment.  The number of attachment formatters controls the number of
+ attachments per email and the content type of each attachment.  The
+ attachment filters determine if a <tt>LogRecord</tt> will be included in an
+ attachment.  If an attachment filter is <tt>null</tt> then all records are
+ included for that attachment.  Attachments without content will be omitted
+ from email message.  The attachment name formatters create the file name for
+ an attachment.  Custom attachment name formatters can be used to generate an
+ attachment name based on the contents of the attachment.
 
  <p>
  <b>Push Level and Push Filter:</b>
@@ -1316,7 +1320,9 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <div class="block">Sets the <tt>Authenticator</tt> used to login to the email server.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>password</code> - a password or null if none is required.</dd>
+<dd><code>password</code> - a password, empty array can be used to only supply a
+ user name set by <tt>mail.user</tt> property, or null if no credentials
+ are required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
@@ -1468,8 +1474,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <li class="blockList">
 <h4>setAttachmentNames</h4>
 <pre>public final&nbsp;void&nbsp;setAttachmentNames(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;names)</pre>
-<div class="block">Sets the attachment file name for each attachment.  The caller must
- ensure that the attachment file names do not contain any line breaks.
+<div class="block">Sets the attachment file name for each attachment.  All control
+ characters are removed from the attachment names.
  This method will create a set of custom formatters.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1501,10 +1507,10 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  typically return an empty string. Instead of being used to format
  records, it is used to gather information about the contents of an
  attachment.  The <tt>getTail</tt> method should be used to construct the
- attachment file name and reset any formatter collected state.  The
- formatter must ensure that the attachment file name does not contain any
- line breaks.  The <tt>toString</tt> method of the given formatter should
- be overridden to provide a useful attachment file name, if possible.</div>
+ attachment file name and reset any formatter collected state.  All
+ control characters will be removed from the output of the formatter.  The
+ <tt>toString</tt> method of the given formatter should be overridden to
+ provide a useful attachment file name, if possible.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatters</code> - and array of attachment name formatters.</dd>
@@ -1544,8 +1550,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <li class="blockList">
 <h4>setSubject</h4>
 <pre>public final&nbsp;void&nbsp;setSubject(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</pre>
-<div class="block">Sets a literal string for the email subject.  The caller must ensure that
- the subject line does not contain any line breaks.</div>
+<div class="block">Sets a literal string for the email subject.  All control characters are
+ removed from the subject line.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>subject</code> - a non <tt>null</tt> string.</dd>
@@ -1573,8 +1579,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  empty string.  This formatter is used to gather information to create a
  summary about what information is contained in the email.  The
  <tt>getTail</tt> method should be used to construct the subject and reset
- any formatter collected state.  The formatter must ensure that the
- subject line does not contain any line breaks.  The <tt>toString</tt>
+ any formatter collected state.  All control characters
+ will be removed from the formatter output.  The <tt>toString</tt>
  method of the given formatter should be overridden to provide a useful
  subject, if possible.</div>
 <dl>
@@ -1684,6 +1690,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

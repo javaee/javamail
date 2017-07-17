@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -288,6 +288,26 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#applyLocalizedPattern-java.lang.String-">applyLocalizedPattern</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</code>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates a specific pattern.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#applyPattern-java.lang.String-">applyPattern</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</code>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates a specific pattern.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../../../javax/mail/internet/MailDateFormat.html" title="class in javax.mail.internet">MailDateFormat</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#clone--">clone</a></span>()</code>
+<div class="block">Overrides Cloneable.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/StringBuffer.html?is-external=true" title="class or interface in java.lang">StringBuffer</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#format-java.util.Date-java.lang.StringBuffer-java.text.FieldPosition-">format</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;date,
       <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/StringBuffer.html?is-external=true" title="class or interface in java.lang">StringBuffer</a>&nbsp;dateStrBuf,
@@ -296,7 +316,15 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
  RFC 2822 in the current TimeZone.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#get2DigitYearStart--">get2DigitYearStart</a></span>()</code>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates another strategy for interpreting
+ 2-digits years.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#parse-java.lang.String-java.text.ParsePosition-">parse</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;text,
      <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/ParsePosition.html?is-external=true" title="class or interface in java.text">ParsePosition</a>&nbsp;pos)</code>
@@ -304,14 +332,29 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
  RFC 2822.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#set2DigitYearStart-java.util.Date-">set2DigitYearStart</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;startDate)</code>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates another strategy for interpreting
+ 2-digits years.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#setCalendar-java.util.Calendar-">setCalendar</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Calendar.html?is-external=true" title="class or interface in java.util">Calendar</a>&nbsp;newCalendar)</code>
 <div class="block">This method always throws an UnsupportedOperationException and should not
  be used because RFC 2822 mandates a specific calendar.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#setDateFormatSymbols-java.text.DateFormatSymbols-">setDateFormatSymbols</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/DateFormatSymbols.html?is-external=true" title="class or interface in java.text">DateFormatSymbols</a>&nbsp;newFormatSymbols)</code>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates specific date format symbols.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../javax/mail/internet/MailDateFormat.html#setNumberFormat-java.text.NumberFormat-">setNumberFormat</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/NumberFormat.html?is-external=true" title="class or interface in java.text">NumberFormat</a>&nbsp;newNumberFormat)</code>
 <div class="block">This method always throws an UnsupportedOperationException and should not
@@ -324,7 +367,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.text.<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></h3>
-<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#applyLocalizedPattern-java.lang.String-" title="class or interface in java.text">applyLocalizedPattern</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#applyPattern-java.lang.String-" title="class or interface in java.text">applyPattern</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#clone--" title="class or interface in java.text">clone</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.text">equals</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#formatToCharacterIterator-java.lang.Object-" title="class or interface in java.text">formatToCharacterIterator</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#get2DigitYearStart--" title="class or interface in java.text">get2DigitYearStart</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#getDateFormatSymbols--" title="class or interface in java.text">getDateFormatSymbols</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#hashCode--" title="class or interface in java.text">hashCode</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#set2DigitYearStart-java.util.Date-" title="class or interface in java.text">set2DigitYearStart</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#setDateFormatSymbols-java.text.DateFormatSymbols-" title="class or interface in java.text">setDateFormatSymbols</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#toLocalizedPattern--" title="class or interface in java.text">toLocalizedPattern</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#toPattern--" title="class or interface in java.text">toPattern</a></code></li>
+<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.text">equals</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#formatToCharacterIterator-java.lang.Object-" title="class or interface in java.text">formatToCharacterIterator</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#getDateFormatSymbols--" title="class or interface in java.text">getDateFormatSymbols</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#hashCode--" title="class or interface in java.text">hashCode</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#toLocalizedPattern--" title="class or interface in java.text">toLocalizedPattern</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#toPattern--" title="class or interface in java.text">toPattern</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.text.DateFormat">
@@ -380,6 +423,24 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a name="clone--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clone</h4>
+<pre>public&nbsp;<a href="../../../javax/mail/internet/MailDateFormat.html" title="class in javax.mail.internet">MailDateFormat</a>&nbsp;clone()</pre>
+<div class="block">Overrides Cloneable.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#clone--" title="class or interface in java.text">clone</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>a clone of this instance</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
 <a name="format-java.util.Date-java.lang.StringBuffer-java.text.FieldPosition-">
 <!--   -->
 </a>
@@ -457,7 +518,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <a name="setNumberFormat-java.text.NumberFormat-">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>setNumberFormat</h4>
 <pre>public&nbsp;void&nbsp;setNumberFormat(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/NumberFormat.html?is-external=true" title="class or interface in java.text">NumberFormat</a>&nbsp;newNumberFormat)</pre>
@@ -468,6 +529,106 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/DateFormat.html?is-external=true#setNumberFormat-java.text.NumberFormat-" title="class or interface in java.text">setNumberFormat</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/DateFormat.html?is-external=true" title="class or interface in java.text">DateFormat</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+</dl>
+</li>
+</ul>
+<a name="applyLocalizedPattern-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applyLocalizedPattern</h4>
+<pre>public&nbsp;void&nbsp;applyLocalizedPattern(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</pre>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates a specific pattern.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#applyLocalizedPattern-java.lang.String-" title="class or interface in java.text">applyLocalizedPattern</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
+<a name="applyPattern-java.lang.String-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>applyPattern</h4>
+<pre>public&nbsp;void&nbsp;applyPattern(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;pattern)</pre>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates a specific pattern.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#applyPattern-java.lang.String-" title="class or interface in java.text">applyPattern</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
+<a name="get2DigitYearStart--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>get2DigitYearStart</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;get2DigitYearStart()</pre>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates another strategy for interpreting
+ 2-digits years.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#get2DigitYearStart--" title="class or interface in java.text">get2DigitYearStart</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the start of the 100-year period into which two digit years are
+ parsed</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
+<a name="set2DigitYearStart-java.util.Date-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>set2DigitYearStart</h4>
+<pre>public&nbsp;void&nbsp;set2DigitYearStart(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Date.html?is-external=true" title="class or interface in java.util">Date</a>&nbsp;startDate)</pre>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates another strategy for interpreting
+ 2-digits years.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#set2DigitYearStart-java.util.Date-" title="class or interface in java.text">set2DigitYearStart</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
+<a name="setDateFormatSymbols-java.text.DateFormatSymbols-">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>setDateFormatSymbols</h4>
+<pre>public&nbsp;void&nbsp;setDateFormatSymbols(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/DateFormatSymbols.html?is-external=true" title="class or interface in java.text">DateFormatSymbols</a>&nbsp;newFormatSymbols)</pre>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates specific date format symbols.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true#setDateFormatSymbols-java.text.DateFormatSymbols-" title="class or interface in java.text">setDateFormatSymbols</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/SimpleDateFormat.html?is-external=true" title="class or interface in java.text">SimpleDateFormat</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/UnsupportedOperationException.html?is-external=true" title="class or interface in java.lang">UnsupportedOperationException</a></code> - if this method is invoked</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
 </dl>
 </li>
 </ul>
@@ -540,6 +701,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/text/Simple
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

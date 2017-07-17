@@ -18,7 +18,7 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10};
+var methods = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -261,71 +261,95 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 </td>
 </tr>
 <tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#clearSystemFlags--">clearSystemFlags</a></span>()</code>
+<div class="block">Clear all of the system flags.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#clearUserFlags--">clearUserFlags</a></span>()</code>
+<div class="block">Clear all of the user flags.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#clone--">clone</a></span>()</code>
 <div class="block">Returns a clone of this Flags object.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#contains-javax.mail.Flags.Flag-">contains</a></span>(<a href="../../javax/mail/Flags.Flag.html" title="class in javax.mail">Flags.Flag</a>&nbsp;flag)</code>
 <div class="block">Check whether the specified system flag is present in this Flags object.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#contains-javax.mail.Flags-">contains</a></span>(<a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;f)</code>
 <div class="block">Check whether all the flags in the specified Flags object are
  present in this Flags object.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#contains-java.lang.String-">contains</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;flag)</code>
 <div class="block">Check whether the specified user flag is present in this Flags object.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#equals-java.lang.Object-">equals</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;obj)</code>
 <div class="block">Check whether the two Flags objects are equal.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="../../javax/mail/Flags.Flag.html" title="class in javax.mail">Flags.Flag</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#getSystemFlags--">getSystemFlags</a></span>()</code>
 <div class="block">Return all the system flags in this Flags object.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#getUserFlags--">getUserFlags</a></span>()</code>
 <div class="block">Return all the user flags in this Flags object.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#hashCode--">hashCode</a></span>()</code>
 <div class="block">Compute a hash code for this Flags object.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#remove-javax.mail.Flags.Flag-">remove</a></span>(<a href="../../javax/mail/Flags.Flag.html" title="class in javax.mail">Flags.Flag</a>&nbsp;flag)</code>
 <div class="block">Remove the specified system flag from this Flags object.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#remove-javax.mail.Flags-">remove</a></span>(<a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;f)</code>
 <div class="block">Remove all flags in the given Flags object from this 
  Flags object.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#remove-java.lang.String-">remove</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;flag)</code>
 <div class="block">Remove the specified user flag from this Flags object.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#retainAll-javax.mail.Flags-">retainAll</a></span>(<a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;f)</code>
+<div class="block">Remove any flags <strong>not</strong> in the given Flags object.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../javax/mail/Flags.html#toString--">toString</a></span>()</code>
+<div class="block">Return a string representation of this Flags object.</div>
 </td>
 </tr>
 </table>
@@ -334,7 +358,7 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -496,6 +520,27 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 </dl>
 </li>
 </ul>
+<a name="retainAll-javax.mail.Flags-">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>retainAll</h4>
+<pre>public&nbsp;boolean&nbsp;retainAll(<a href="../../javax/mail/Flags.html" title="class in javax.mail">Flags</a>&nbsp;f)</pre>
+<div class="block">Remove any flags <strong>not</strong> in the given Flags object.
+ Useful for clearing flags not supported by a server.  If the
+ given Flags object includes the Flags.Flag.USER flag, all user
+ flags in this Flags object are retained.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>f</code> - the flags to keep</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>true if this Flags object changed</dd>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
 <a name="contains-javax.mail.Flags.Flag-">
 <!--   -->
 </a>
@@ -608,10 +653,38 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 </dl>
 </li>
 </ul>
+<a name="clearSystemFlags--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearSystemFlags</h4>
+<pre>public&nbsp;void&nbsp;clearSystemFlags()</pre>
+<div class="block">Clear all of the system flags.</div>
+<dl>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
+<a name="clearUserFlags--">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>clearUserFlags</h4>
+<pre>public&nbsp;void&nbsp;clearUserFlags()</pre>
+<div class="block">Clear all of the user flags.</div>
+<dl>
+<dt><span class="simpleTagLabel">Since:</span></dt>
+<dd>JavaMail 1.6</dd>
+</dl>
+</li>
+</ul>
 <a name="clone--">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>clone</h4>
 <pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;clone()</pre>
@@ -619,6 +692,21 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a name="toString--">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toString</h4>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;toString()</pre>
+<div class="block">Return a string representation of this Flags object.
+ Note that the exact format of the string is subject to change.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -691,6 +779,6 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Clo
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

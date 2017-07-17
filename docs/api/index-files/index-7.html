@@ -80,6 +80,12 @@
 <dd>
 <div class="block">Returns the value of the specified parameter.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../javax/mail/internet/MailDateFormat.html#get2DigitYearStart--">get2DigitYearStart()</a></span> - Method in class javax.mail.internet.<a href="../javax/mail/internet/MailDateFormat.html" title="class in javax.mail.internet">MailDateFormat</a></dt>
+<dd>
+<div class="block">This method always throws an UnsupportedOperationException and should not
+ be used because RFC 2822 mandates another strategy for interpreting
+ 2-digits years.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="../com/sun/mail/imap/IMAPFolder.html#getACL--">getACL()</a></span> - Method in class com.sun.mail.imap.<a href="../com/sun/mail/imap/IMAPFolder.html" title="class in com.sun.mail.imap">IMAPFolder</a></dt>
 <dd>
 <div class="block">Get the access control list entries for this folder.</div>
@@ -1668,6 +1674,10 @@
 <dd>
 <div class="block">Return the size of the content of this part in bytes.</div>
 </dd>
+<dt><span class="memberNameLink"><a href="../com/sun/mail/imap/IMAPMessage.html#getSizeLong--">getSizeLong()</a></span> - Method in class com.sun.mail.imap.<a href="../com/sun/mail/imap/IMAPMessage.html" title="class in com.sun.mail.imap">IMAPMessage</a></dt>
+<dd>
+<div class="block">Get the message size as a long.</div>
+</dd>
 <dt><span class="memberNameLink"><a href="../com/sun/mail/pop3/POP3Folder.html#getSizes--">getSizes()</a></span> - Method in class com.sun.mail.pop3.<a href="../com/sun/mail/pop3/POP3Folder.html" title="class in com.sun.mail.pop3">POP3Folder</a></dt>
 <dd>
 <div class="block">Return the sizes of all messages in this folder, as returned
@@ -1887,6 +1897,19 @@
 <dd>
 <div class="block">Returns the predicted UID that will be assigned to the
  next message that is appended to this folder.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../javax/mail/UIDFolder.html#getUIDNext--">getUIDNext()</a></span> - Method in interface javax.mail.<a href="../javax/mail/UIDFolder.html" title="interface in javax.mail">UIDFolder</a></dt>
+<dd>
+<div class="block">Returns the predicted UID that will be assigned to the
+ next message that is appended to this folder.</div>
+</dd>
+<dt><span class="memberNameLink"><a href="../com/sun/mail/imap/IMAPFolder.html#getUIDNotSticky--">getUIDNotSticky()</a></span> - Method in class com.sun.mail.imap.<a href="../com/sun/mail/imap/IMAPFolder.html" title="class in com.sun.mail.imap">IMAPFolder</a></dt>
+<dd>
+<div class="block">Servers that support the UIDPLUS extension
+ (<A HREF="http://www.ietf.org/rfc/rfc4315.txt">RFC 4315</A>)
+ may indicate that this folder does not support persistent UIDs;
+ that is, UIDVALIDITY will be different each time the folder is
+ opened.</div>
 </dd>
 <dt><span class="memberNameLink"><a href="../com/sun/mail/imap/MessageVanishedEvent.html#getUIDs--">getUIDs()</a></span> - Method in class com.sun.mail.imap.<a href="../com/sun/mail/imap/MessageVanishedEvent.html" title="class in com.sun.mail.imap">MessageVanishedEvent</a></dt>
 <dd>
@@ -2121,6 +2144,6 @@
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2015,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>
