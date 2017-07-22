@@ -23,5 +23,5 @@ To simply build everything, use:
 
 You'll find the javax.mail.jar file in mail/target/javax.mail.jar.
 
-See [Workspace Structure](Workspace Structure) for a description of the
+See [Workspace Structure](Workspace-Structure) for a description of the
 workspace.
