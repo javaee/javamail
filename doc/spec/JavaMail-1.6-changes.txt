@@ -2,7 +2,7 @@
 		JavaMail 1.6
 		============
 
-		(Updated August 28, 2017)
+		(Updated July 17, 2017)
 
 Following is a description of the changes to the JavaMail
 API introduced in JavaMail 1.6.  The numbers in parentheses
