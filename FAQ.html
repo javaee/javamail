@@ -127,6 +127,10 @@ implementation?</A>
 <BR>
     <LI><A HREF="#classpath">I get a ClassNotFoundException when I run my program.</A>
 <BR>
+    <LI><A HREF="#jdk9-jaf">I get a ClassNotFoundException for a javax.activation class
+when I run my program on JDK 9.</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 7/31/2017">
+<BR>
     <LI><A HREF="#classpathwin">How do I set my CLASSPATH on Windows?
 </A>
 <BR>
@@ -798,6 +802,19 @@ See the
 and this
 <A HREF="http://en.wikipedia.org/wiki/Classpath_(Java)">Wikipedia article</A>
 for more information.
+</P>
+
+<P>
+<A NAME="jdk9-jaf">
+<strong>Q:</strong> I get a ClassNotFoundException for a javax.activation class
+when I run my program on JDK 9.</A>
+<IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 7/31/2017">
+<BR>
+<strong>A:</strong> JDK 9 hides many of the javax.* classes by default.
+You need to use the java command line option
+<code>--add-modules java.activation</code>
+to enable access the the javax.activation (JAF) classes.
+(Note that there's no "x" in the module name.)
 </P>
 
 <P>
