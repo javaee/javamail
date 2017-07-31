@@ -453,6 +453,38 @@ public final class IMAPFolderTest {
 	    });
     }
 
+    /**
+     * Test that EXPUNGE responses with out-of-range message numbers
+     * are ignored.
+     */
+    @Test
+    public void testExpungeOutOfRange() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Store store, IMAPHandler handler)
+				    throws MessagingException, IOException {
+		    Folder test = store.getFolder("test");
+		    try {
+			test.open(Folder.READ_WRITE);
+			// no way to force a noop without waiting so do this
+			assertEquals(0, test.getUnreadMessageCount());
+			assertEquals(0, test.getMessageCount());
+		    } finally {
+			test.close();
+		    }
+		}
+	    },
+	    new IMAPHandler() {
+		@Override
+		public void search(String line) throws IOException {
+		    untagged("1 EXPUNGE");
+		    untagged("0 EXISTS");
+		    super.search(line);
+		}
+	    });
+    }
+
     private void testWithHandler(IMAPTest test, IMAPHandler handler) {
         TestServer server = null;
         try {

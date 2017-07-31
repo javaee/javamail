@@ -3556,6 +3556,13 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    // EXPUNGE response.
 
 	    int seqnum = ir.getNumber();
+	    if (seqnum > realTotal) {
+		// A message was expunged that we never knew about.
+		// Exchange will do this.  Just ignore the notification.
+		// (Alternatively, we could simulate an EXISTS for the
+		// expunged message before expunging it.)
+		return;
+	    }
 	    Message[] msgs = null;
 	    if (doExpungeNotification && hasMessageCountListener) {
 		// save the Message object first; can't look it
