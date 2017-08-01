@@ -305,6 +305,31 @@
 			    </execution>
 			</executions>
 		    </plugin>
+		    <!--
+			Only require JDK 1.7.
+		    -->
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>enforce-version</id>
+				<goals>
+				    <goal>enforce</goal>
+				</goals>
+				<configuration>
+				    <rules>
+					<requireMavenVersion>
+					    <version>[3.0.3,)</version>
+					</requireMavenVersion>
+					<requireJavaVersion>
+					    <version>1.7</version>
+					</requireJavaVersion>
+				    </rules>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
 		</plugins>
 	    </build>
 	</profile>
