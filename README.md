@@ -81,7 +81,7 @@ The JavaMail API is defined through the Java Community Process as
 [JSR 919](http://jcp.org/en/jsr/detail?id=919).
 
 The JavaMail API documentation is available [here](docs/api/) and the
-JavaMail specification is available [here](docs/JavaMail-1.5.pdf).
+JavaMail specification is available [here](docs/JavaMail-1.6.pdf).
 
 The following documents summarize the API changes in each release of
 the JavaMail API specification:
