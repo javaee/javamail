@@ -203,9 +203,7 @@ javax:com.sun.mail.imap:com.sun.mail.pop3:com.sun.mail.smtp:com.sun.mail.dsn:com
 				      name if it doesn't end with "/".
 			    -->
 			    <links>
-				<link>http://docs.oracle.com/javase/1.5.0/docs/api/.</link>
-				<!-- following for javax.activation -->
-				<link>http://docs.oracle.com/javase/6/docs/api/.</link>
+				<link>http://docs.oracle.com/javase/7/docs/api/.</link>
 			    </links>
 			</configuration>
 		    </execution>
