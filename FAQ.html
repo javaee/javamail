@@ -1043,7 +1043,13 @@ JavaMail does not support direct access through an HTTP proxy web server.
 "unable to find valid certification path to requested target".
 </A>
 <BR>
-<strong>A:</strong> Your server is probably using a test certificate or self-signed
+<strong>A:</strong>
+The full exception might look like:
+<code>javax.net.ssl.SSLHandshakeException:
+sun.security.validator.ValidatorException: PKIX path building failed:
+sun.security.provider.certpath.SunCertPathBuilderException:
+unable to find valid certification path to requested target</code>.
+Your server is probably using a test certificate or self-signed
 certificate instead of a certificate signed by a commercial Certificate
 Authority.
 You'll need to install the server's certificate into your trust store.
