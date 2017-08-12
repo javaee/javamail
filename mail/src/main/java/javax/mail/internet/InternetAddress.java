@@ -104,12 +104,6 @@ public class InternetAddress extends Address implements Cloneable {
      * Parse the given string and create an InternetAddress.
      * See the <code>parse</code> method for details of the parsing.
      * The address is parsed using "strict" parsing.
-     * This constructor does <b>not</b> perform the additional
-     * syntax checks that the
-     * <code>InternetAddress(String address, boolean strict)</code>
-     * constructor does when <code>strict</code> is <code>true</code>.
-     * This constructor is equivalent to
-     * <code>InternetAddress(address, false)</code>.
      *
      * @param address	the address in RFC822 format
      * @exception	AddressException if the parse failed
@@ -146,10 +140,7 @@ public class InternetAddress extends Address implements Cloneable {
 						throws AddressException {
 	this(address);
 	if (strict) {
-	    if (isGroup())
-		getGroup(true);	// throw away the result
-	    else
-		checkAddress(this.address, true, true);
+	    validate();
 	}
     }
 
