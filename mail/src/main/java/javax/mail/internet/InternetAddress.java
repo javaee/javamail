@@ -140,10 +140,7 @@ public class InternetAddress extends Address implements Cloneable {
 						throws AddressException {
 	this(address);
 	if (strict) {
-	    if (isGroup())
-		getGroup(true);	// throw away the result
-	    else
-		checkAddress(this.address, true, true);
+	    validate();
 	}
     }
 
