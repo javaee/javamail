@@ -51,7 +51,7 @@ javax.mail.jar file.
 
 |Item|Description|
 |:---|:----------|
-|[javax.mail.jar](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1.6.0/javax.mail.jar)|The JavaMail reference implementation, including the SMTP, IMAP, and POP3 protocol providers|
+|[javax.mail.jar](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_0/javax.mail.jar)|The JavaMail reference implementation, including the SMTP, IMAP, and POP3 protocol providers|
 |[README.txt](docs/README.txt)|Overview of the release|
 |[NOTES.txt](docs/NOTES.txt)|Additional notes about using JavaMail|
 |[SSLNOTES.txt](docs/SSLNOTES.txt)|Notes on using SSL/TLS with JavaMail|
