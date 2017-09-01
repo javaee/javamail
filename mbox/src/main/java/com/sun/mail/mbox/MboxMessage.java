@@ -169,7 +169,9 @@ public class MboxMessage extends MimeMessage {
 	Date d = null;
 	try {
 	    d = getSentDate();
-	} catch (MessagingException ex) { }
+	} catch (MessagingException ex) {
+	    // ignore
+	}
 	if (d == null)
 	    d = new Date();
 	// From shannon Mon Jun 10 12:06:52 2002

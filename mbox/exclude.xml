@@ -89,4 +89,22 @@
 	<Field name="lockfileName"/>
 	<Bug pattern="SE_TRANSIENT_FIELD_NOT_RESTORED"/>
     </Match>
+
+    <!--
+	If close fails, what are we supposed to do?
+    -->
+    <Match>
+	<Class name="com.sun.mail.mbox.MboxFolder"/>
+	<Method name="appendMessages"/>
+	<Bug pattern="DE_MIGHT_IGNORE"/>
+    </Match>
+
+    <!--
+	If getSentDate fails, treat it the same as returning null.
+    -->
+    <Match>
+	<Class name="com.sun.mail.mbox.MboxMessage"/>
+	<Method name="getUnixFromLine"/>
+	<Bug pattern="DE_MIGHT_IGNORE"/>
+    </Match>
 </FindBugsFilter>

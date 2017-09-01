@@ -83,7 +83,7 @@ public class MboxFolder extends Folder {
      */
     static final class MessageMetadata {
 	public long start;	// offset in temp file of start of this message
-	public long end;	// offset in temp file of end of this message
+	// public long end;	// offset in temp file of end of this message
 	public long dataend;	// offset of end of message data, <= "end"
 	public MboxMessage message;	// the message itself
 	public boolean recent;	// message is recent?
@@ -748,7 +748,9 @@ e.printStackTrace();
 	    if (os != null)
 		try {
 		    os.close();
-		} catch (IOException e) {}
+		} catch (IOException e) {
+		    // ignored
+		}
 	    folder.unlock();
 	}
 	if (opened)

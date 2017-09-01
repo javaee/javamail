@@ -92,7 +92,8 @@ final class MessageLoader {
 		    // didn't find a Content-Length, skip the body
 		    start = skipBody();
 		    if (start < 0) {
-			md.end = md.dataend = -1;
+			// md.end = -1;
+			md.dataend = -1;
 			msgs.add(md);
 			loaded++;
 			break;
@@ -112,7 +113,8 @@ final class MessageLoader {
 		    if (b >= 0)
 			start--;	// back up one byte if not at EOF
 		}
-		md.end = prevend = start;
+		// md.end = start;
+		prevend = start;
 		msgs.add(md);
 		loaded++;
 	    }
