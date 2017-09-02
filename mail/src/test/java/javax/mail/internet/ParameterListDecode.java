@@ -142,7 +142,7 @@ public class ParameterListDecode {
 	 * concatenate them into a string and test that.
 	 */
 	if (optind < argv.length) {
-	    StringBuffer sb = new StringBuffer();
+	    StringBuilder sb = new StringBuilder();
 	    for (int i = optind; i < argv.length; i++) {
 		sb.append(argv[i]);
 		sb.append(" ");

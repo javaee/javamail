@@ -422,7 +422,7 @@ public class InternetHeaders {
 	LineInputStream lis = new LineInputStream(is, allowutf8);
 	String prevline = null;	// the previous header line, as a string
 	// a buffer to accumulate the header in, when we know it's needed
-	StringBuffer lineBuffer = new StringBuffer();
+	StringBuilder lineBuffer = new StringBuilder();
 
 	try {
 	    // if the first line being read is a continuation line,
@@ -521,7 +521,7 @@ public class InternetHeaders {
 	if ((s.length == 1) || delimiter == null)
 	    return s[0];
 	
-	StringBuffer r = new StringBuffer(s[0]);
+	StringBuilder r = new StringBuilder(s[0]);
 	for (int i = 1; i < s.length; i++) {
 	    r.append(delimiter);
 	    r.append(s[i]);

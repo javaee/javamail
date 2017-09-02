@@ -203,8 +203,8 @@ class IMAPAddress extends InternetAddress {
 		return;
 	    // Accumulate a group list.  The members of the group
 	    // are accumulated in a List and the corresponding string
-	    // representation of the group is accumulated in a StringBuffer.
-	    StringBuffer sb = new StringBuffer();
+	    // representation of the group is accumulated in a StringBuilder.
+	    StringBuilder sb = new StringBuilder();
 	    sb.append(groupname).append(':');
 	    List<InternetAddress> v = new ArrayList<>();
 	    while (r.peekByte() != ')') {

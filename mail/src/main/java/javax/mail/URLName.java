@@ -193,7 +193,7 @@ public class URLName {
     public String toString() {
 	if (fullURL == null) {
 	    // add the "protocol:"
-	    StringBuffer tempURL = new StringBuffer();
+	    StringBuilder tempURL = new StringBuilder();
 	    if (protocol != null) {
 		tempURL.append(protocol);
 		tempURL.append(":");
@@ -592,7 +592,7 @@ public class URLName {
 
     private static String _encode(String s) {
 	int maxBytesPerChar = 10;
-        StringBuffer out = new StringBuffer(s.length());
+        StringBuilder out = new StringBuilder(s.length());
 	ByteArrayOutputStream buf = new ByteArrayOutputStream(maxBytesPerChar);
 	OutputStreamWriter writer = new OutputStreamWriter(buf);
 
@@ -671,7 +671,7 @@ public class URLName {
 	if (indexOfAny(s, "+%") == -1)
 	    return s;		// the common case
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
             switch (c) {

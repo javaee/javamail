@@ -333,7 +333,7 @@ public class Rights implements Cloneable {
 
     @Override
     public String toString() {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 0; i < this.rights.length; i++)
 	    if (this.rights[i])
 		sb.append((char)i);

@@ -454,7 +454,7 @@ public class HeaderTokenizer {
      */
     private static String filterToken(String s, int start, int end,
 				boolean keepEscapes) {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	char c;
 	boolean gotEscape = false;
 	boolean gotCR = false;

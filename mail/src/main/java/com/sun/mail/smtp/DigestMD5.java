@@ -92,7 +92,7 @@ public class DigestMD5 {
 	    logger.log(Level.FINE, "NoSuchAlgorithmException", ex);
 	    throw new IOException(ex.toString());
 	}
-	StringBuffer result = new StringBuffer();
+	StringBuilder result = new StringBuilder();
 
 	uri = "smtp/" + host;
 	String nc = "00000001";

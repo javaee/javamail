@@ -424,7 +424,7 @@ public class SearchSequence {
     protected Calendar cal = new GregorianCalendar();
 
     protected String toIMAPDate(Date date) {
-	StringBuffer s = new StringBuffer();
+	StringBuilder s = new StringBuilder();
 
 	cal.setTime(date);
 

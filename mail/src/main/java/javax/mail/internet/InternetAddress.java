@@ -357,7 +357,7 @@ public class InternetAddress extends Address implements Cloneable {
             char c = phrase.charAt(i);
             if (c == '"' || c == '\\') { 
                 // need to escape them and then quote the whole string
-                StringBuffer sb = new StringBuffer(len + 3);
+                StringBuilder sb = new StringBuilder(len + 3);
                 sb.append('"');
                 for (int j = 0; j < len; j++) {
                     char cc = phrase.charAt(j);
@@ -375,7 +375,7 @@ public class InternetAddress extends Address implements Cloneable {
         }
 
         if (needQuoting) {
-            StringBuffer sb = new StringBuffer(len + 2);
+            StringBuilder sb = new StringBuilder(len + 2);
             sb.append('"').append(phrase).append('"');
             return sb.toString();
         } else
@@ -387,7 +387,7 @@ public class InternetAddress extends Address implements Cloneable {
 	    s = s.substring(1, s.length() - 1);
 	    // check for any escaped characters
 	    if (s.indexOf('\\') >= 0) {
-		StringBuffer sb = new StringBuffer(s.length());	// approx
+		StringBuilder sb = new StringBuilder(s.length());	// approx
 		for (int i = 0; i < s.length(); i++) {
 		    char c = s.charAt(i);
 		    if (c == '\\' && i < s.length() - 1)

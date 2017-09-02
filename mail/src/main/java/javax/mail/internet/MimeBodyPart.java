@@ -1398,7 +1398,7 @@ public class MimeBodyPart extends BodyPart implements MimePart {
 
     static void setContentLanguage(MimePart part, String[] languages)
 			throws MessagingException {
-	StringBuffer sb = new StringBuffer(languages[0]);
+	StringBuilder sb = new StringBuilder(languages[0]);
 	int len = "Content-Language".length() + 2 + languages[0].length();
 	for (int i = 1; i < languages.length; i++) {
 	    sb.append(',');

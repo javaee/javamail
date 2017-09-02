@@ -260,7 +260,7 @@ public class MailcapTokenizer {
 
     private static String fixEscapeSequences(String inputString) {
 	int inputLength = inputString.length();
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.ensureCapacity(inputLength);
 
 	for (int i = 0; i < inputLength; ++i) {

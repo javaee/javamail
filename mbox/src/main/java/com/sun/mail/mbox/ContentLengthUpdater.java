@@ -50,7 +50,7 @@ class ContentLengthUpdater extends FilterOutputStream {
     private boolean inHeader = true;
     private boolean sawContentLength = false;
     private int lastb1 = -1, lastb2 = -1;
-    private StringBuffer line = new StringBuffer();
+    private StringBuilder line = new StringBuilder();
 
     public ContentLengthUpdater(OutputStream os, long contentLength) {
 	super(os);

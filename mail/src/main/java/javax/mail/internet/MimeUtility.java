@@ -596,8 +596,8 @@ public class MimeUtility {
 	// Encoded words found. Start decoding ...
 
 	st = new StringTokenizer(etext, lwsp, true);
-	StringBuffer sb = new StringBuffer();  // decode buffer
-	StringBuffer wsb = new StringBuffer(); // white space buffer
+	StringBuilder sb = new StringBuilder();  // decode buffer
+	StringBuilder wsb = new StringBuilder(); // white space buffer
 	boolean prevWasEncoded = false;
 
 	while (st.hasMoreTokens()) {
@@ -757,7 +757,7 @@ public class MimeUtility {
 	    throw new UnsupportedEncodingException(
 			"Unknown transfer encoding: " + encoding);
 
-	StringBuffer outb = new StringBuffer(); // the output buffer
+	StringBuilder outb = new StringBuilder(); // the output buffer
 	doEncode(string, b64, jcharset, 
 		 // As per RFC 2047, size of an encoded string should not
 		 // exceed 75 bytes.
@@ -771,7 +771,7 @@ public class MimeUtility {
 
     private static void doEncode(String string, boolean b64, 
 		String jcharset, int avail, String prefix, 
-		boolean first, boolean encodingWord, StringBuffer buf) 
+		boolean first, boolean encodingWord, StringBuilder buf)
 			throws UnsupportedEncodingException {
 
 	// First find out what the length of the encoded version of
@@ -812,7 +812,7 @@ public class MimeUtility {
 
 	    byte[] encodedBytes = os.toByteArray(); // the encoded stuff
 	    // Now write out the encoded (all ASCII) bytes into our
-	    // StringBuffer
+	    // StringBuilder
 	    if (!first) // not the first line of this sequence
 		if (foldEncodedWords)
 		    buf.append("\r\n "); // start a continuation line
@@ -949,7 +949,7 @@ public class MimeUtility {
     private static String decodeInnerWords(String word)
 				throws UnsupportedEncodingException {
 	int start = 0, i;
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	while ((i = word.indexOf("=?", start)) >= 0) {
 	    buf.append(word.substring(start, i));
 	    // find first '?' after opening '=?' - end of charset
@@ -1010,7 +1010,7 @@ public class MimeUtility {
 	    char c = word.charAt(i);
 	    if (c == '"' || c == '\\' || c == '\r' || c == '\n') {
 		// need to escape them and then quote the whole string
-		StringBuffer sb = new StringBuffer(len + 3);
+		StringBuilder sb = new StringBuilder(len + 3);
 		sb.append('"');
 		sb.append(word.substring(0, i));
 		int lastc = 0;
@@ -1034,7 +1034,7 @@ public class MimeUtility {
 	}
 
 	if (needQuoting) {
-	    StringBuffer sb = new StringBuffer(len + 2);
+	    StringBuilder sb = new StringBuilder(len + 2);
 	    sb.append('"').append(word).append('"');
 	    return sb.toString();
 	} else 
@@ -1160,7 +1160,7 @@ public class MimeUtility {
 	if (!foldText)
 	    return s;
 
-	StringBuffer sb = null;
+	StringBuilder sb = null;
 	int i;
 	while ((i = indexOfAny(s, "\r\n")) >= 0) {
 	    int start = i;
@@ -1172,7 +1172,7 @@ public class MimeUtility {
 		// there's a backslash before the line break
 		// strip it out, but leave in the line break
 		if (sb == null)
-		    sb = new StringBuffer(s.length());
+		    sb = new StringBuilder(s.length());
 		sb.append(s.substring(0, start - 1));
 		sb.append(s.substring(start, i));
 		s = s.substring(i);
@@ -1183,13 +1183,13 @@ public class MimeUtility {
 		// XXX - next line should always start with whitespace
 		if (i >= slen || (c = s.charAt(i)) == ' ' || c == '\t') {
 		    if (sb == null)
-			sb = new StringBuffer(s.length());
+			sb = new StringBuilder(s.length());
 		    sb.append(s.substring(0, start));
 		    s = s.substring(i);
 		} else {
 		    // it's not a continuation line, just leave in the newline
 		    if (sb == null)
-			sb = new StringBuffer(s.length());
+			sb = new StringBuilder(s.length());
 		    sb.append(s.substring(0, i));
 		    s = s.substring(i);
 		}

@@ -2073,7 +2073,7 @@ public class IMAPProtocol extends Protocol {
      * @since	JavaMail 1.5.3
      */
     public void fetchSequenceNumbers(long[] uids) throws ProtocolException {
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 0; i < uids.length; i++) {
 	    if (i > 0)
 		sb.append(",");
@@ -2407,8 +2407,7 @@ public class IMAPProtocol extends Protocol {
      * @since	JavaMail 1.5.4
      */
     protected String createFlagList(Flags flags) {
-	StringBuffer sb = new StringBuffer();
-	sb.append("("); // start of flag_list
+	StringBuilder sb = new StringBuilder("("); // start of flag_list
 
 	Flags.Flag[] sf = flags.getSystemFlags(); // get the system flags
 	boolean first = true;
