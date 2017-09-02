@@ -220,7 +220,7 @@ public class ContentType {
 	if (primaryType == null || subType == null) // need both
 	    return "";
 
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	sb.append(primaryType).append('/').append(subType);
 	if (list != null)
             // append the parameter list 

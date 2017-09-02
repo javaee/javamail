@@ -414,7 +414,7 @@ public final class IMAPStoreTest {
 	    s = s.substring(1, s.length() - 1);
 	    // check for any escaped characters
 	    if (s.indexOf('\\') >= 0) {
-		StringBuffer sb = new StringBuffer(s.length());	// approx
+		StringBuilder sb = new StringBuilder(s.length());	// approx
 		for (int i = 0; i < s.length(); i++) {
 		    char c = s.charAt(i);
 		    if (c == '\\' && i < s.length() - 1)

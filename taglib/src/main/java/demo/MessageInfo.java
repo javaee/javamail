@@ -260,7 +260,7 @@ public class MessageInfo {
     private String formatAddresses(Address[] addrs) {
 	if (addrs == null)
 	    return "";
-	StringBuffer strBuf = new StringBuffer(getDisplayAddress(addrs[0]));
+	StringBuilder strBuf = new StringBuilder(getDisplayAddress(addrs[0]));
 	for (int i = 1; i < addrs.length; i++) {
 	    strBuf.append(", ").append(getDisplayAddress(addrs[i]));
 	}

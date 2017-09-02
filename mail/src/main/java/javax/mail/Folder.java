@@ -193,7 +193,7 @@ public abstract class Folder implements AutoCloseable {
     public URLName getURLName() throws MessagingException {
 	URLName storeURL = getStore().getURLName();
 	String fullname = getFullName();
-	StringBuffer encodedName = new StringBuffer();
+	StringBuilder encodedName = new StringBuilder();
 
 	if (fullname != null) {
 	    /*

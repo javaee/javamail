@@ -186,8 +186,8 @@ public class NewsAddress extends Address {
 	if (addresses == null || addresses.length == 0)
 	    return null;
 
-	StringBuffer s = 
-		new StringBuffer(((NewsAddress)addresses[0]).toString());
+	StringBuilder s =
+		new StringBuilder(((NewsAddress)addresses[0]).toString());
 	int used = s.length();
 	for (int i = 1; i < addresses.length; i++) {
 	    s.append(",");

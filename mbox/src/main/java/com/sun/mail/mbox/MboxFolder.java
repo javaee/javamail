@@ -918,7 +918,7 @@ e.printStackTrace();
 
 	char separator = getSeparator();
 	String fullname = getFullName();
-	StringBuffer encodedName = new StringBuffer();
+	StringBuilder encodedName = new StringBuilder();
 
 	// We need to encode each of the folder's names, and replace
 	// the store's separator char with the URL char '/'.

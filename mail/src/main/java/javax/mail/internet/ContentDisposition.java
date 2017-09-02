@@ -192,7 +192,7 @@ public class ContentDisposition {
 	if (list == null)
 	    return disposition;
 
-	StringBuffer sb = new StringBuffer(disposition);
+	StringBuilder sb = new StringBuilder(disposition);
 
         // append the parameter list  
         // use the length of the string buffer + the length of 

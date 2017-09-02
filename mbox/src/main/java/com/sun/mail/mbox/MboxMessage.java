@@ -386,7 +386,7 @@ public class MboxMessage extends MimeMessage {
     static void setHeadersFromFlags(MimeMessage msg) {
 	try {
 	    Flags flags = msg.getFlags();
-	    StringBuffer status = new StringBuffer();
+	    StringBuilder status = new StringBuilder();
 	    if (flags.contains(Flags.Flag.SEEN))
 		status.append('R');
 	    if (!flags.contains(Flags.Flag.RECENT))

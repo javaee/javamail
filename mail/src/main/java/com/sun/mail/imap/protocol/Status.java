@@ -74,7 +74,7 @@ public class Status {
 
 	// Workaround buggy IMAP servers that don't quote folder names
 	// with spaces.
-	final StringBuffer buffer = new StringBuffer();
+	final StringBuilder buffer = new StringBuilder();
 	boolean onlySpaces = true;
 
 	while (r.peekByte() != '(' && r.peekByte() != 0) {

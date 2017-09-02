@@ -246,7 +246,7 @@ public class SMTPTransport extends Transport {
 	    new NtlmAuthenticator(),
 	    new OAuth2Authenticator()
 	};
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	for (int i = 0; i < a.length; i++) {
 	    authenticators.put(a[i].getMechanism(), a[i]);
 	    sb.append(a[i].getMechanism()).append(' ');
@@ -2414,7 +2414,7 @@ public class SMTPTransport extends Transport {
 	assert Thread.holdsLock(this);
         String serverResponse = "";
         int returnCode = 0;
-	StringBuffer buf = new StringBuffer(100);
+	StringBuilder buf = new StringBuilder(100);
 
 	// read the server response line(s) and add them to the buffer
 	// that stores the response
@@ -2609,7 +2609,7 @@ public class SMTPTransport extends Transport {
      * @since JavaMail 1.6.0
      */
     protected static String xtext(String s, boolean utf8) {
-	StringBuffer sb = null;
+	StringBuilder sb = null;
 	byte[] bytes;
 	if (utf8)
 	    bytes = s.getBytes(StandardCharsets.UTF_8);
@@ -2623,7 +2623,7 @@ public class SMTPTransport extends Transport {
 	    if (c < '!' || c > '~' || c == '+' || c == '=') {
 		// not printable ASCII
 		if (sb == null) {
-		    sb = new StringBuffer(s.length() + 4);
+		    sb = new StringBuilder(s.length() + 4);
 		    sb.append(s.substring(0, i));
 		}
 		sb.append('+');

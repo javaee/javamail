@@ -186,7 +186,7 @@ public class SMTPMessage extends MimeMessage {
 	    return null;
 	if (notifyOptions == NOTIFY_NEVER)
 	    return "NEVER";
-	StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
 	if ((notifyOptions & NOTIFY_SUCCESS) != 0)
 	    sb.append("SUCCESS");
 	if ((notifyOptions & NOTIFY_FAILURE) != 0) {

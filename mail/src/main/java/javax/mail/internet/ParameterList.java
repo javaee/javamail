@@ -730,7 +730,7 @@ public class ParameterList {
      */
     private static class ToStringBuffer {
 	private int used;	// keep track of how much used on current line
-	private StringBuffer sb = new StringBuffer();
+	private StringBuilder sb = new StringBuilder();
 
 	public ToStringBuffer(int used) {
 	    this.used = used;

@@ -104,7 +104,7 @@ public class MessageSet {
 	    return null; 
 
 	int i = 0;  // msgset index
-	StringBuffer s = new StringBuffer();
+	StringBuilder s = new StringBuilder();
 	int size = msgsets.length;
 	int start, end;
 
