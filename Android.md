@@ -26,14 +26,15 @@ build.gradle file for your Android application:
     }
     
     dependencies {
-        compile 'com.sun.mail:android-mail:1.5.5'
-        compile 'com.sun.mail:android-activation:1.5.5'
+        // use whatever the current version is...
+        compile 'com.sun.mail:android-mail:1.6.0'
+        compile 'com.sun.mail:android-activation:1.6.0'
     }
 
 
 One of the standard Java features not supported on Android is SASL.  That means
 none of the "mail._protocol_.sasl.*" properties will have any effect.  One of
-the main uses of SASL was to enable OAuth2 support.  This latest version
+the main uses of SASL was to enable OAuth2 support.  The latest version
 of JavaMail includes built-in OAuth2 support that doesn't require SASL.
 See the [OAuth2](OAuth2) page for more details.
 
