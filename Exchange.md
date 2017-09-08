@@ -12,6 +12,10 @@ Office 365 and vice versa.
 Exchange
 --------
 
+Exchange 2016 returns incorrect BODYSTRUCTURE data for an S/MIME
+encrypted message.  Use the workaround described in the
+[JavaMail FAQ](FAQ.html#imapserverbug).
+
 Exchange fails to find an email address using FromTerm, FromStringTerm,
 RecipientTerm, or RecipientStringTerm.  As described in
 (this blog entry)[https://blogs.technet.microsoft.com/dkhrebin/2013/10/04/how-exchange-imap-search-in-message-header/],
@@ -20,7 +24,7 @@ Instead, use a HeaderTerm to search for the email address.
 
 Exchange 2010 has a bug where it returns NIL instead of "" for empty
 parameter values, causing a NullPointerException.  A
-[workaround](https://kenai.com/bugzilla/show_bug.cgi?id=7104)
+[workaround](https://github.com/javaee/javamail/issues/203)
 was added to JavaMail 1.5.5.
 
 Searching for an address in Exchange 2010 matches only the "personal
@@ -30,7 +34,7 @@ name" field of the address, not the email address itself.  (Reported
 Exchange 365 returns an incorrect BODYSTRUCTURE response for single
 part messages, failing to include the message disposition value in
 parentheses as required by the IMAP spec. See
-[this bug report](http://kenai.com/bugzilla/show_bug.cgi?id=5218).
+[this bug report](https://github.com/javaee/javamail/issues/31).
 This causes a MessagingException with the message "Unable to load
 BODYSTRUCTURE". Use the workaround described in the
 [JavaMail FAQ](FAQ.html#imapserverbug).
@@ -61,12 +65,10 @@ problem where both PLAIN and NTLM authentication fail for shared
 mailboxes (with user names of the form user1@domain.com/sharedMB), even
 though they work for regular user mailboxes. Disabling all
 authentication types and falling back to IMAP LOGIN support seemed to
-work. See
-[this thread](https://forums.oracle.com/forums/thread.jspa?forumID=975&threadID=2422055)
-for more details.
+work.
 
 Exchange 2007 through SP3 has a
-[bug](https://kenai.com/bugzilla/show_bug.cgi?id=6160)
+[bug](https://github.com/javaee/javamail/issues/86)
 where, at least in some circumstances, it will report a message as a
 result of an IMAP SEARCH command that it had not previously notified
 the client of via an EXISTS response, causing an exception such as
