@@ -302,7 +302,7 @@ class LineTokenizer {
 		    String s;
 
 		    if (filter) {
-			StringBuilder sb = new StringBuilder();
+			StringBuffer sb = new StringBuffer();
 			for (int i = start + 1; i < currentPosition - 1; i++) {
 			    c = str.charAt(i);
 			    if (c != '\\')
