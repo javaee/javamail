@@ -29,7 +29,7 @@ certificate, if you really want to.
 Basically, you want to add the server's certificate to the KeyStore
 with your trusted certificates. There are any number of ways to achieve
 that, but a simple solution is to compile and run
-[this program](http://code.google.com/p/java-use-examples/source/browse/trunk/src/com/aw/ad/util/InstallCert.java)
+[this program](InstallCert.java)
 as java InstallCert hostname, for example
 
     % java InstallCert ecc.fedora.redhat.com
