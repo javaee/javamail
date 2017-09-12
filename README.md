@@ -96,7 +96,7 @@ the JavaMail API specification:
 # <a name="Samples"></a>Samples
 
 Some sample programs showing how to use the JavaMail APIs are available
-[here](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1.6.0/javamail-samples.zip).
+[here](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_0/javamail-samples.zip).
 
 # <a name="Help"></a>Help
 
