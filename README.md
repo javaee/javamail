@@ -60,13 +60,27 @@ javax.mail.jar file.
 |[COMPAT.txt](docs/COMPAT.txt)|Important notes about compatibility|
 
 
-In addition, the JavaMail jar files are published to the Maven repository. You can find them in both the [java.net Maven repository](http://maven.java.net), and in [Maven Central](http://search.maven.org).
+In addition, the JavaMail jar files are published to the Maven repository.
+The main JavaMail jar file, which is all most applications will need,
+can be included using this Maven dependency:
+```
+        <dependencies>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.0</version>
+            </dependency>
+        </dependencies>
+```
+You can find all of the JavaMail jar files in both the
+[java.net Maven repository](http://maven.java.net), and in
+[Maven Central](http://search.maven.org).
 
 
 |jar file|groupId|artifactId|Description|
 |:-------|:------|:---------|:----------|
 |[javax.mail.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.6.0/javax.mail-1.6.0.jar)|com.sun.mail|javax.mail|The JavaMail reference implementation jar file, including the SMTP, IMAP, and POP3 protocol providers|
-|[javax.mail-api.jar](https://maven.java.net/content/repositories/releases/javax/mail/javax.mail-api/1.6.0/javax.mail-api-1.6.0.jar)|javax.mail|javax.mail-api|The JavaMail API definitions only, suitable for compiling against|
+|[javax.mail-api.jar](https://maven.java.net/content/repositories/releases/javax/mail/javax.mail-api/1.6.0/javax.mail-api-1.6.0.jar)|javax.mail|javax.mail-api|The JavaMail API definitions only, suitable for compiling against; use only with a Maven "provided" dependency scope|
 |[mailapi.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/mailapi/1.6.0/mailapi-1.6.0.jar)|com.sun.mail|mailapi|The JavaMail reference implementation with no protocol providers; use with one of the following providers|
 |[smtp.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/smtp/1.6.0/smtp-1.6.0.jar)|com.sun.mail|smtp|The SMTP protocol provider|
 |[imap.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/imap/1.6.0/imap-1.6.0.jar)|com.sun.mail|imap|The IMAP protocol provider|
