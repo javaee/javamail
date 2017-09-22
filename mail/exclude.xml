@@ -716,4 +716,21 @@
 	<Bug pattern="IS2_INCONSISTENT_SYNC"/>
     </Match>
 
+    <!--
+	Ignore failures to close connection.
+    -->
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport"/>
+	<Method name="protocolConnect"/>
+	<Bug pattern="DE_MIGHT_IGNORE"/>
+    </Match>
+
+    <!--
+	This inner class doesn't need "this", but it creates another
+	inner class that *does* need "this".
+    -->
+    <Match>
+	<Class name="com.sun.mail.smtp.SMTPTransport$BDATOutputStream"/>
+	<Bug pattern="SIC_INNER_SHOULD_BE_STATIC_NEEDS_THIS"/>
+    </Match>
 </FindBugsFilter>
