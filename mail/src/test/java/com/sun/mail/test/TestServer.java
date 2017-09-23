@@ -67,6 +67,8 @@ public final class TestServer extends Thread {
     /** Protocol handler. */
     private final ProtocolHandler handler;
 
+    private List<Thread> clients = new ArrayList<Thread>();
+
     /**
      * Test server.
      *
@@ -166,8 +168,9 @@ public final class TestServer extends Thread {
 	// don't return until server is really listening
 	// XXX - this might not be necessary
 	for (int tries = 0; tries < 10; tries++) {
-	    if (isListening(getPort()))
+	    if (isListening(getPort())) {
 		return;
+	    }
 	    try {
 		Thread.sleep(100);
 	    } catch (InterruptedException ex) { }
@@ -189,7 +192,11 @@ public final class TestServer extends Thread {
                     final ProtocolHandler pHandler =
 			(ProtocolHandler)handler.clone();
                     pHandler.setClientSocket(clientSocket);
-                    new Thread(pHandler).start();
+                    Thread t = new Thread(pHandler);
+		    synchronized (clients) {
+			clients.add(t);
+		    }
+		    t.start();
                 } catch (final IOException e) {
                     //e.printStackTrace();
                 }
@@ -199,7 +206,39 @@ public final class TestServer extends Thread {
         }
     }
 
-    private static boolean isListening(int port) {
+    /**
+     * Return number of clients ever created.
+     */
+    public int clientCount() {
+	synchronized (clients) {
+	    // isListening creates a client that we don't count
+	    return clients.size() - 1;
+	}
+    }
+
+    /**
+     * Wait for at least n clients to terminate.
+     */
+    public void waitForClients(int n) {
+	if (n > clientCount())
+	    throw new RuntimeException("not that many clients");
+	for (;;) {
+	    int num = -1;	// ignore isListening client
+	    synchronized (clients) {
+		for (Thread t : clients) {
+		    if (!t.isAlive()) {
+			if (++num >= n)
+			    return;
+		    }
+		}
+	    }
+	    try {
+		Thread.sleep(100);
+	    } catch (InterruptedException ex) { }
+	}
+    }
+
+    private boolean isListening(int port) {
 	try {
 	    Socket s = new Socket();
 	    s.connect(new InetSocketAddress("localhost", port), 100);

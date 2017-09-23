@@ -1617,65 +1617,11 @@ public class IMAPStore extends Store
      */
     @Override
     public synchronized void close() throws MessagingException {
-	if (!super.isConnected()) // Already closed.
-	    return;
-
-        IMAPProtocol protocol = null;
-	try {
-	    boolean isEmpty;
-	    synchronized (pool) {
-		// If there's no authenticated connections available
-		// don't create a new one
-		isEmpty = pool.authenticatedConnections.isEmpty();
-	    }
-	    /*
-	     * Have to drop the lock before calling cleanup.
-	     * Yes, there's a potential race here.  The pool could
-	     * become empty after we check, in which case we'll just
-	     * waste time getting a new connection and closing it.
-	     * Or, the pool could be empty now and not empty by the
-	     * time we get into cleanup, but that's ok because cleanup
-	     * will just close the connection.
-	     */
-	    if (isEmpty) {
-		pool.logger.fine("close() - no connections ");
-		cleanup();
-		return;
-	    }
-
-            protocol = getStoreProtocol();
-	    /*
-	     * We have to remove the protocol from the pool so that,
-	     * when our response handler processes the BYE response
-	     * and calls cleanup, which calls emptyConnection, that
-	     * we don't try to log out this connection twice.
-	     */
-	    synchronized (pool) {
-                pool.authenticatedConnections.removeElement(protocol);
-	    }
-
-	    /*
-	     * LOGOUT. 
-	     *
-	     * Note that protocol.logout() closes the server socket
-	     * connection, regardless of what happens ..
-	     *
-	     * Also note that protocol.logout() results in a BYE
-	     * response (As per RFC 3501, BYE is a *required* response
-	     * to LOGOUT). In fact, even if protocol.logout() fails
-	     * with an IOException (if the server connection is dead),
-	     * iap.Protocol.command() converts that exception into a 
-	     * BYE response. So, I depend on my BYE handler to set the
-	     * flag that causes releaseStoreProtocol to do the
-	     * Store cleanup.
-	     */
-	    protocol.logout();
-	} catch (ProtocolException pex) { 
-	    // Hmm .. will this ever happen ?
-	    throw new MessagingException(pex.getMessage(), pex);
-        } finally {
-            releaseStoreProtocol(protocol);
-        }
+	cleanup();
+	// do these again in case cleanup returned early
+	// because we were already closed due to a failure
+	closeAllFolders(false);
+	emptyConnectionPool(false);
     }
 
     @Override
@@ -1721,6 +1667,24 @@ public class IMAPStore extends Store
 	    logger.fine("IMAPStore cleanup, force " + force);
 
 	if (!force || closeFoldersOnStoreFailure) {
+	    closeAllFolders(force);
+	}
+
+	emptyConnectionPool(force);
+
+	// to set the state and send the closed connection event
+	try {
+	    super.close();
+	} catch (MessagingException mex) {
+	    // ignore it
+	}
+	logger.fine("IMAPStore cleanup done");
+    }
+
+    /**
+     * Close all open Folders.  If force is true, close them forcibly.
+     */
+    private void closeAllFolders(boolean force) {
         List<IMAPFolder> foldersCopy = null;
         boolean done = true;
 
@@ -1769,19 +1733,6 @@ public class IMAPStore extends Store
 	    }
 
 	}
-	}
-
-        synchronized (pool) {
-	    emptyConnectionPool(force);
-	}
-
-	// to set the state and send the closed connection event
-	try {
-	    super.close();
-	} catch (MessagingException mex) {
-	    // ignore it
-	}
-	logger.fine("IMAPStore cleanup done");
     }
 
     /**

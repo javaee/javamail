@@ -43,6 +43,7 @@ package com.sun.mail.imap;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.mail.Folder;
 import javax.mail.Session;
@@ -73,7 +74,7 @@ public final class IMAPStoreTest {
 
     public static abstract class IMAPTest {
 	public void init(Properties props) { };
-	public void test(Store store, IMAPHandler handler) throws Exception { };
+	public void test(Store store, TestServer server) throws Exception { };
     }
 
     /**
@@ -84,7 +85,7 @@ public final class IMAPStoreTest {
 	testWithHandler(
 	    new IMAPTest() {
 		@Override
-		public void test(Store store, IMAPHandler handler)
+		public void test(Store store, TestServer server)
 				    throws MessagingException, IOException {
 		    store.connect(utf8Folder, utf8Folder);
 		}
@@ -108,7 +109,7 @@ public final class IMAPStoreTest {
 	testWithHandler(
 	    new IMAPTest() {
 		@Override
-		public void test(Store store, IMAPHandler handler)
+		public void test(Store store, TestServer server)
 				    throws MessagingException, IOException {
 		    store.connect(utf8Folder, utf8Folder);
 		}
@@ -133,7 +134,7 @@ public final class IMAPStoreTest {
 	testWithHandler(
 	    new IMAPTest() {
 		@Override
-		public void test(Store store, IMAPHandler handler)
+		public void test(Store store, TestServer server)
 				    throws MessagingException, IOException {
 		    store.connect("test", "test");
 		    Folder[] pub = ((IMAPStore)store).getSharedNamespaces();
@@ -160,7 +161,7 @@ public final class IMAPStoreTest {
 	testWithHandler(
 	    new IMAPTest() {
 		@Override
-		public void test(Store store, IMAPHandler handler)
+		public void test(Store store, TestServer server)
 				    throws MessagingException, IOException {
 		    store.connect("test", "test");
 		    Folder test = store.getFolder(utf8Folder);
@@ -189,6 +190,192 @@ public final class IMAPStoreTest {
 	    });
     }
 
+    /**
+     * Test that Store.close also closes open Folders.
+     */
+    @Test
+    public void testCloseClosesFolder() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void test(Store store, TestServer server)
+				    throws MessagingException, IOException {
+		    store.connect("test", "test");
+		    Folder test = store.getFolder("INBOX");
+		    test.open(Folder.READ_ONLY);
+		    store.close();
+		    assertFalse(test.isOpen());
+		    assertEquals(1, server.clientCount());
+		    server.waitForClients(1);
+		    // test will timeout if clients don't terminate
+		}
+	    },
+	    new IMAPHandler() {
+	    });
+    }
+
+    /**
+     * Test that Store.close closes connections in the pool.
+     */
+    @Test
+    public void testCloseEmptiesPool() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty("mail.imap.connectionpoolsize", "2");
+		}
+
+		@Override
+		public void test(Store store, TestServer server)
+				    throws MessagingException, IOException {
+		    store.connect("test", "test");
+		    Folder test = store.getFolder("INBOX");
+		    test.open(Folder.READ_ONLY);
+		    Folder test2 = store.getFolder("INBOX");
+		    test2.open(Folder.READ_ONLY);
+		    test.close(false);
+		    test2.close(false);
+		    store.close();
+		    assertEquals(2, server.clientCount());
+		    server.waitForClients(2);
+		    // test will timeout if clients don't terminate
+		}
+	    },
+	    new IMAPHandler() {
+	    });
+    }
+
+    /**
+     * Test that Store failures don't close Folders.
+     */
+    @Test
+    public void testStoreFailureDoesNotCloseFolder() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty(
+			"mail.imap.closefoldersonstorefailure", "false");
+		}
+
+		@Override
+		public void test(Store store, TestServer server)
+				    throws MessagingException, IOException {
+		    store.connect("test", "test");
+		    Folder test = store.getFolder("INBOX");
+		    test.open(Folder.READ_ONLY);
+		    try {
+			((IMAPStore)store).getSharedNamespaces();
+			fail("MessagingException expected");
+		    } catch (MessagingException mex) {
+			// expected
+		    }
+		    assertTrue(test.isOpen());
+		    store.close();
+		    assertFalse(test.isOpen());
+		    assertEquals(2, server.clientCount());
+		    server.waitForClients(2);
+		    // test will timeout if clients don't terminate
+		}
+	    },
+	    new IMAPHandler() {
+		{{ capabilities += " NAMESPACE"; }}
+
+		@Override
+		public void namespace() throws IOException {
+		    exit();
+		}
+	    });
+    }
+
+    /**
+     * Test that Store.close after Store failure will close all Folders
+     * and empty the connectin pool.
+     */
+    @Test
+    public void testCloseAfterFailure() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty(
+			"mail.imap.closefoldersonstorefailure", "false");
+		}
+
+		@Override
+		public void test(Store store, TestServer server)
+				    throws MessagingException, IOException {
+		    store.connect("test", "test");
+		    Folder test = store.getFolder("INBOX");
+		    test.open(Folder.READ_ONLY);
+		    try {
+			((IMAPStore)store).getSharedNamespaces();
+			fail("MessagingException expected");
+		    } catch (MessagingException mex) {
+			// expected
+		    }
+		    assertTrue(test.isOpen());
+		    test.close();	// put it back in the pool
+		    store.close();
+		    assertEquals(2, server.clientCount());
+		    server.waitForClients(2);
+		    // test will timeout if clients don't terminate
+		}
+	    },
+	    new IMAPHandler() {
+		{{ capabilities += " NAMESPACE"; }}
+
+		@Override
+		public void namespace() throws IOException {
+		    exit();
+		}
+	    });
+    }
+
+    /**
+     * Test that Store failures do close Folders.
+     */
+    @Test
+    public void testStoreFailureDoesCloseFolder() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty(
+			// the default, but just to be sure...
+			"mail.imap.closefoldersonstorefailure", "true");
+		}
+
+		@Override
+		public void test(Store store, TestServer server)
+				    throws MessagingException, IOException {
+		    store.connect("test", "test");
+		    Folder test = store.getFolder("INBOX");
+		    test.open(Folder.READ_ONLY);
+		    try {
+			((IMAPStore)store).getSharedNamespaces();
+			fail("MessagingException expected");
+		    } catch (MessagingException mex) {
+			// expected
+		    }
+		    assertFalse(test.isOpen());
+		    store.close();
+		    assertEquals(2, server.clientCount());
+		    server.waitForClients(2);
+		    // test will timeout if clients don't terminate
+		}
+	    },
+	    new IMAPHandler() {
+		{{ capabilities += " NAMESPACE"; }}
+
+		@Override
+		public void namespace() throws IOException {
+		    exit();
+		}
+	    });
+    }
+
     private void testWithHandler(IMAPTest test, IMAPHandler handler) {
         TestServer server = null;
         try {
@@ -204,7 +391,7 @@ public final class IMAPStoreTest {
 
             final Store store = session.getStore("imap");
             try {
-		test.test(store, handler);
+		test.test(store, server);
 	    } catch (Exception ex) {
 		System.out.println(ex);
 		//ex.printStackTrace();
