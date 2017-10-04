@@ -38,5 +38,10 @@ the main uses of SASL was to enable OAuth2 support.  The latest version
 of JavaMail includes built-in OAuth2 support that doesn't require SASL.
 See the [OAuth2](OAuth2) page for more details.
 
+JavaMail for Android requires at least Android API level 19,
+which corresponds to
+[Android KitKat](https://en.wikipedia.org/wiki/Android_version_history#Android_4.4_KitKat_.28API_19.29),
+currently the oldest supported version of Android.
+
 If you discover problems, please report them to
 [javamail_ww@oracle.com](mailto:javamail_ww@oracle.com).
