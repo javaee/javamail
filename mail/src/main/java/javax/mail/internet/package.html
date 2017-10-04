@@ -290,6 +290,21 @@ The default value of this property is false.
 </TD>
 </TR>
 
+<A NAME="mail.mime.contentdisposition.strict"></A>
+<TR id="mail.mime.contentdisposition.strict">
+<TD>mail.mime.contentdisposition. strict</TD>
+<TD>boolean</TD>
+<TD>
+Normally, when parsing headers related to a MIME attachment
+the content-disposition is parsed as if well formed and an
+<code>ParseException</code> is thrown otherwise.  This System
+property maybe set to <code>false</code> to suppress the
+exception and continue parsing through the malformed
+content disposition.
+The default value of this property is true.
+</TD>
+</TR>
+
 </TABLE>
 
 

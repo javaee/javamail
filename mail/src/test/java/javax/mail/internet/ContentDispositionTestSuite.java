@@ -50,14 +50,10 @@ import com.sun.mail.test.ClassLoaderSuite.TestClass;
  * Suite of ParameterList tests that need to be run in a separate class loader.
  */
 @RunWith(ClassLoaderSuite.class)
-@TestClass(ParameterList.class)
+@TestClass(ContentDisposition.class)
 @SuiteClasses( {
-    ParameterListTests.class,
-    WindowsFileNames.class,
-    AppleFileNames.class,
-    NonAsciiFileNames.class,
-    DecodeParameters.class,
-    ParametersNoStrict.class
+    ContentDispositionNoStrict.class,
+    ContentDispositionStrict.class
 })
-public class ParameterListTestSuite {
+public class ContentDispositionTestSuite {
 }
