@@ -43,6 +43,7 @@ package javax.mail.internet;
 import javax.mail.*;
 import java.util.*;
 import java.io.*;
+import com.sun.mail.util.*;
 
 /**
  * This class represents a MIME ContentDisposition value. It provides
@@ -53,6 +54,9 @@ import java.io.*;
  */
 
 public class ContentDisposition {
+
+    private static final boolean contentDispositionStrict =
+        PropUtil.getBooleanSystemProperty("mail.mime.contentdisposition.strict", true);
 
     private String disposition; // disposition
     private ParameterList list;	// parameter list
@@ -89,10 +93,14 @@ public class ContentDisposition {
 
 	// First "disposition" ..
 	tk = h.next();
-	if (tk.getType() != HeaderTokenizer.Token.ATOM)
-	    throw new ParseException("Expected disposition, got " +
-					tk.getValue());
-	disposition = tk.getValue();
+	if (tk.getType() != HeaderTokenizer.Token.ATOM) {
+            if (contentDispositionStrict) {
+	        throw new ParseException("Expected disposition, got " +
+				    tk.getValue());
+            }
+        } else {
+	    disposition = tk.getValue();
+        }
 
 	// Then parameters ..
 	String rem = h.getRemainder();
