@@ -40,24 +40,33 @@
 
 package javax.mail.internet;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite.SuiteClasses;
-
-import com.sun.mail.test.ClassLoaderSuite;
-import com.sun.mail.test.ClassLoaderSuite.TestClass;
+import org.junit.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
- * Suite of ParameterList tests that need to be run in a separate class loader.
+ * Test the property that contols ContentDisposition non-strict mode
  */
-@RunWith(ClassLoaderSuite.class)
-@TestClass(ParameterList.class)
-@SuiteClasses( {
-    ParameterListTests.class,
-    WindowsFileNames.class,
-    AppleFileNames.class,
-    NonAsciiFileNames.class,
-    DecodeParameters.class,
-    ParametersNoStrict.class
-})
-public class ParameterListTestSuite {
+public class ContentDispositionStrict {
+
+    @BeforeClass
+    public static void before() {
+        System.setProperty("mail.mime.contentdisposition.strict", "true");
+    }
+
+    @Test
+    public void testDecode() throws Exception {
+        try {
+            ContentDisposition cd = new ContentDisposition("\"/non/standard/stuff/here.csv\"");
+            fail("ParseException should be thrown on malformed content disposition");
+        } catch (ParseException expected) {
+            // the exception is the expected outcome in this test
+        }
+    }
+
+    @AfterClass
+    public static void after() {
+        System.clearProperty("mail.mime.contentdisposition.strict");
+    }
 }
+
