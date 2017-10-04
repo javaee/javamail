@@ -64,7 +64,7 @@
     <properties>
 	<!--
 	    The minimum required Android API version.
-	    This corresponds to Android Gingerbread.
+	    This corresponds to Android KitKat.
 	    https://en.wikipedia.org/wiki/Android_version_history
 	    Older versions may also work but this seems old enough.
 	    See the Maven repository for exact versions available:
