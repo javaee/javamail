@@ -6,7 +6,20 @@ Gmail usage information can be found in the
 [JavaMail FAQ](FAQ.html#gmail).
 
 Gmail users might want to read the
-[IMAP Issues page in Gmail Help](http://support.google.com/mail/bin/topic.py?hl=en&topic=1668982&parent=1668981&ctx=topic).
+[Gmail Help page](https://support.google.com/mail/topic/7280141?hl=en).
+The IMAP features page in Gmail Help no longer exists.
+Previous versions (as viewable on the
+[Wayback Machine](https://web.archive.org/web/20140918045327/https://support.google.com/mail/answer/78761?hl=en&ref_topic=3397501))
+indicated that Gmail does not support the following IMAP features.
+(This list may no longer be accurate.)
+
+* \Recent flags on messages.
+* untagged FETCH responses.
+* Substring search. All searches are assumed to be words.
+* There is no SIEVE interface to Gmail filters.
+* Only AUTH=XOAUTH and plain-text LOGIN over SSL tunneled connections are supported.
+* ENVELOPE responses for email addresses in group syntax (RFC 5322 3.4)
+* The \Answered flag is not preserved when a message is moved or a label is added to the message.
 
 To send email using Gmail with a different address than the one you
 signed in with, see this
