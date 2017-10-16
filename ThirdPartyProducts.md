@@ -1,10 +1,15 @@
 # Third-Party Products
 
-<FONT SIZE="-1">(Last updated May 8, 2017)</FONT>
+<FONT SIZE="-1">(Last updated Oct 16, 2017)</FONT>
 
 Links to third-party products related to the JavaMail APIs. Send us
 a note at <A HREF="mailto:javamail_ww@oracle.com">javamail_ww@oracle.com</A>
 if you want your product listed here.
+
+* Sending emails in Java should be easier. Jodd provides some nice
+  classes for sending emails in an easier, practical way.
+  Jodd Email is available at
+  <A HREF="https://jodd.org/email/">https://jodd.org/email/</A>
 
 * simple-java-mail is a very simple Java mailing API for sending simple
   to complex emails.  It's a wrapper for the JavaMail smtp support.
