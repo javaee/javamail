@@ -1,6 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!--
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
@@ -43,9 +44,11 @@
 
 -->
 
+<TITLE>com.sun.mail.gimap package</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
+<P>
 An EXPERIMENTAL IMAP protocol provider that supports the
 <A HREF="https://developers.google.com/google-apps/gmail/imap_extensions"
 TARGET="_top">
@@ -60,6 +63,7 @@ Remember that this means that all properties should be named "mail.gimap.*",
 but that otherwise this provider supports all the same properties as the
 IMAP protocol provider.
 The Gmail IMAP provider defaults to using SSL to connect to "imap.gmail.com".
+</P>
 <P>
 In general, applications should not need to use the classes in this
 package directly.  Instead, they should use the APIs defined by the
@@ -69,11 +73,13 @@ never construct instances of <code>GmailStore</code> or
 <code>Session</code> method <code>getStore</code> to acquire an
 appropriate <code>Store</code> object, and from that acquire
 <code>Folder</code> objects.
+</P>
 <P>
 Message objects returned by this provider may be cast to GmailMessage
 to access Gmail-specific data, e.g., using the methods GmailMessage.getMsgId(),
 GmailMessage.getThrId(), and GmailMessage.getLabels().
 For example:
+</P>
 <PRE>
     GmailMessage gmsg = (GmailMessage)msg;
     System.out.println("Gmail message ID is " + gmsg.getMsgId());
@@ -85,6 +91,7 @@ For example:
 Gmail-specific data may be prefetched using the GmailFolder.FetchProfileItems
 MSGID, THRID, and LABELS.
 For example:
+</P>
 <PRE>
     FetchProfile fp = new FetchProfile();
     fp.add(GmailFolder.FetchProfileItem.MSGID);
@@ -94,6 +101,7 @@ For example:
 You can search using Gmail-specific data using the GmailMsgIdTerm,
 GmailThrIdTerm, and GmailRawSearchTerm search terms.
 For example:
+</P>
 <PRE>
     // find the message with this Gmail unique message ID
     long msgid = ...;
@@ -103,6 +111,7 @@ For example:
 You can access the Gmail extended attributes (returned by XLIST) for a
 folder using the IMAPFolder.getAttributes() method.
 For example:
+</P>
 <PRE>
     IMAPFolder ifolder = (IMAPFolder)folder;
     String[] attrs = ifolder.getAttributes();
@@ -114,6 +123,7 @@ For example:
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the
 current APIs.
+</P>
 
 </BODY>
 </HTML>

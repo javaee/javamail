@@ -1,6 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!--
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
@@ -43,22 +44,27 @@
 
 -->
 
+<TITLE>javax.mail package</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
-The JavaMail<sup><font size="-2">TM</font></sup> API
+<P>
+The JavaMail&trade; API
 provides classes that model a mail system.
 The <code>javax.mail</code> package defines classes that are common to
 all mail systems.
 The <code>javax.mail.internet</code> package defines classes that are specific
 to mail systems based on internet standards such as MIME, SMTP, POP3, and IMAP.
 The JavaMail API includes the <code>javax.mail</code> package and subpackages.
+</P>
 <P>
 For an overview of the JavaMail API, read the
 <A HREF="http://javamail.java.net/nonav/docs/JavaMail-1.5.pdf" TARGET="_top">
 JavaMail specification</A>.
+</P>
 <P>
 The code to send a plain text message can be as simple as the following:
+</P>
 <PRE>
     Properties props = new Properties();
     props.put("mail.smtp.host", "my-mail-server");
@@ -77,8 +83,10 @@ The code to send a plain text message can be as simple as the following:
 	System.out.println("send failed, exception: " + mex);
     }
 </PRE>
+<P>
 The JavaMail download bundle contains many more complete examples
 in the "demo" directory.
+</P>
 <P>
 Don't forget to see the
 <A HREF="http://www.oracle.com/technetwork/java/javamail/faq/" TARGET="_top">
@@ -87,30 +95,30 @@ for answers to the most common questions.
 The <A HREF="http://www.oracle.com/technetwork/java/javamail/" TARGET="_top">
 JavaMail web site</A>
 contains many additional resources.
+</P>
+<A NAME="properties"><STRONG>Properties</STRONG></A>
 <P>
-<A NAME="properties">
-<H4>Properties</H4>
-</A>
 The JavaMail API supports the following standard properties,
 which may be set in the <code>Session</code> object, or in the
 <code>Properties</code> object used to create the <code>Session</code> object.
 The properties are always set as strings; the Type column describes
 how the string is interpreted.  For example, use
+</P>
 <PRE>
 	props.put("mail.debug", "true");
 </PRE>
-to set the <code>mail.debug</code> property, which is of type boolean.
 <P>
-<TABLE BORDER>
+to set the <code>mail.debug</code> property, which is of type boolean.
+</P>
+<TABLE BORDER SUMMARY="JavaMail properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.debug"></A>
-<TR id="mail.debug">
-<TD>mail.debug</TD>
+<TR>
+<TD><A NAME="mail.debug">mail.debug</A></TD>
 <TD>boolean</TD>
 <TD>
 The initial debug mode.
@@ -118,9 +126,8 @@ Default is false.
 </TD>
 </TR>
 
-<A NAME="mail.from"></A>
-<TR id="mail.from">
-<TD>mail.from</TD>
+<TR>
+<TD><A NAME="mail.from">mail.from</A></TD>
 <TD>String</TD>
 <TD>
 The return email address of the current user, used by the
@@ -128,9 +135,8 @@ The return email address of the current user, used by the
 </TD>
 </TR>
 
-<A NAME="mail.mime.address.strict"></A>
-<TR id="mail.mime.address.strict">
-<TD>mail.mime.address.strict</TD>
+<TR>
+<TD><A NAME="mail.mime.address.strict">mail.mime.address.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 The MimeMessage class uses the <code>InternetAddress</code> method
@@ -140,9 +146,8 @@ method.  The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.host"></A>
-<TR id="mail.host">
-<TD>mail.host</TD>
+<TR>
+<TD><A NAME="mail.host">mail.host</A></TD>
 <TD>String</TD>
 <TD>
 The default host name of the mail server for both Stores and Transports.
@@ -150,9 +155,8 @@ Used if the <code>mail.<i>protocol</i>.host</code> property isn't set.
 </TD>
 </TR>
 
-<A NAME="mail.store.protocol"></A>
-<TR id="mail.store.protocol">
-<TD>mail.store.protocol</TD>
+<TR>
+<TD><A NAME="mail.store.protocol">mail.store.protocol</A></TD>
 <TD>String</TD>
 <TD>
 Specifies the default message access protocol.  The
@@ -162,9 +166,8 @@ provider in the configuration files is returned.
 </TD>
 </TR>
 
-<A NAME="mail.transport.protocol"></A>
-<TR id="mail.transport.protocol">
-<TD>mail.transport.protocol</TD>
+<TR>
+<TD><A NAME="mail.transport.protocol">mail.transport.protocol</A></TD>
 <TD>String</TD>
 <TD>
 Specifies the default message transport protocol.  The
@@ -174,9 +177,8 @@ provider in the configuration files is returned.
 </TD>
 </TR>
 
-<A NAME="mail.user"></A>
-<TR id="mail.user">
-<TD>mail.user</TD>
+<TR>
+<TD><A NAME="mail.user">mail.user</A></TD>
 <TD>String</TD>
 <TD>
 The default user name to use when connecting to the mail server.
@@ -184,9 +186,8 @@ Used if the <code>mail.<i>protocol</i>.user</code> property isn't set.
 </TD>
 </TR>
 
-<A NAME="mail.protocol.class"></A>
-<TR id="mail.protocol.class">
-<TD>mail.<i>protocol</i>.class</TD>
+<TR>
+<TD><A NAME="mail.protocol.class">mail.<i>protocol</i>.class</A></TD>
 <TD>String</TD>
 <TD>
 Specifies the fully qualified class name of the provider for the
@@ -197,9 +198,8 @@ in a configuration file.
 </TD>
 </TR>
 
-<A NAME="mail.protocol.host"></A>
-<TR id="mail.protocol.host">
-<TD>mail.<i>protocol</i>.host</TD>
+<TR>
+<TD><A NAME="mail.protocol.host">mail.<i>protocol</i>.host</A></TD>
 <TD>String</TD>
 <TD>
 The host name of the mail server for the specified protocol.
@@ -207,9 +207,8 @@ Overrides the <code>mail.host</code> property.
 </TD>
 </TR>
 
-<A NAME="mail.protocol.port"></A>
-<TR id="mail.protocol.port">
-<TD>mail.<i>protocol</i>.port</TD>
+<TR>
+<TD><A NAME="mail.protocol.port">mail.<i>protocol</i>.port</A></TD>
 <TD>int</TD>
 <TD>
 The port number of the mail server for the specified protocol.
@@ -217,9 +216,8 @@ If not specified the protocol's default port number is used.
 </TD>
 </TR>
 
-<A NAME="mail.protocol.user"></A>
-<TR id="mail.protocol.user">
-<TD>mail.<i>protocol</i>.user</TD>
+<TR>
+<TD><A NAME="mail.protocol.user">mail.<i>protocol</i>.user</A></TD>
 <TD>String</TD>
 <TD>
 The user name to use when connecting to mail servers
@@ -235,17 +233,16 @@ The following properties are supported by the reference implementation (RI) of
 JavaMail, but are not currently a required part of the specification.
 The names, types, defaults, and semantics of these properties may
 change in future releases.
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail RI properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.debug.auth"></A>
-<TR id="mail.debug.auth">
-<TD>mail.debug.auth</TD>
+<TR>
+<TD><A NAME="mail.debug.auth">mail.debug.auth</A></TD>
 <TD>boolean</TD>
 <TD>
 Include protocol authentication commands (including usernames and passwords)
@@ -254,9 +251,26 @@ Default is false.
 </TD>
 </TR>
 
-<A NAME="mail.transport.protocol.address-type"></A>
-<TR id="mail.transport.protocol.address-type">
-<TD>mail.transport.protocol.<i>address-type</i></TD>
+<TR>
+<TD><A NAME="mail.debug.auth.username">mail.debug.auth.username</A></TD>
+<TD>boolean</TD>
+<TD>
+Include the user name in non-protocol debug output.
+Default is true.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.debug.auth.password">mail.debug.auth.password</A></TD>
+<TD>boolean</TD>
+<TD>
+Include the password in non-protocol debug output.
+Default is false.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.transport.protocol.address-type">mail.transport.protocol.<i>address-type</i></A></TD>
 <TD>String</TD>
 <TD>
 Specifies the default message transport protocol for the specified address type.
@@ -272,9 +286,8 @@ protocol is used instead of the "smtp" protocol by setting the property
 </TD>
 </TR>
 
-<A NAME="mail.event.scope"></A>
-<TR id="mail.event.scope">
-<TD>mail.event.scope</TD>
+<TR>
+<TD><A NAME="mail.event.scope">mail.event.scope</A></TD>
 <TD>String</TD>
 <TD>
 Controls the scope of events.  (See the javax.mail.event package.)
@@ -288,9 +301,8 @@ event queue processed by a single thread for the current application.
 </TD>
 </TR>
 
-<A NAME="mail.event.executor"></A>
-<TR id="mail.event.executor">
-<TD>mail.event.executor</TD>
+<TR>
+<TD><A NAME="mail.event.executor">mail.event.executor</A></TD>
 <TD>java.util.concurrent.Executor</TD>
 <TD>
 By default, a new Thread is created for each event queue.
@@ -308,31 +320,34 @@ event queue is no longer in use.
 The JavaMail API also supports several System properties;
 see the {@link javax.mail.internet} package documentation
 for details.
-
+</P>
 <P>
 The JavaMail reference
 implementation includes protocol providers in subpackages of
 <code>com.sun.mail</code>.  Note that the APIs to these protocol
 providers are not part of the standard JavaMail API.  Portable
 programs will not use these APIs.
+</P>
 <P>
 Nonportable programs may use the APIs of the protocol providers
 by (for example) casting a returned <code>Folder</code> object to a
 <code>com.sun.mail.imap.IMAPFolder</code> object.  Similarly for
 <code>Store</code> and <code>Message</code> objects returned from the
 standard JavaMail APIs.
+</P>
 <P>
 The protocol providers also support properties that are specific to
 those providers.  The package documentation for the
 {@link com.sun.mail.imap IMAP}, {@link com.sun.mail.pop3 POP3},
 and {@link com.sun.mail.smtp SMTP} packages provide details.
+</P>
 <P>
 In addition to printing debugging output as controlled by the
 {@link javax.mail.Session Session} configuration, the current
 implementation of classes in this package log the same information using
 {@link java.util.logging.Logger} as described in the following table:
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail Loggers">
 <TR>
 <TH>Logger Name</TH>
 <TH>Logging Level</TH>

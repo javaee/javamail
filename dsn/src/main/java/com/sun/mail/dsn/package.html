@@ -1,6 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <HTML>
 <HEAD>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <!--
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
@@ -43,14 +44,17 @@
 
 -->
 
+<TITLE>com.sun.mail.dsn package</TITLE>
 </HEAD>
 <BODY BGCOLOR="white">
 
+<P>
 Support for creating and parsing Delivery Status Notifications.
 Refer to <A HREF="http://www.ietf.org/rfc/rfc3462.txt" TARGET="_top">
 RFC 3462</A>
 and <A HREF="http://www.ietf.org/rfc/rfc3464.txt" TARGET="_top">RFC 3464</A>
 for more information.
+</P>
 <P>
 A Delivery Status Notification is a MIME message with a Content-Type
 of <code>multipart/report</code>.
@@ -69,14 +73,16 @@ that is returned, represented by a
 {@link javax.mail.internet.MimeMessage MimeMessage} object, or
 just the headers of the original message, represented by a
 {@link com.sun.mail.dsn.MessageHeaders MessageHeaders} object.
+</P>
 <P>
 To use the classes in this package, include <code>dsn.jar</code>
 in your class path.
+</P>
 <P>
 Classes in this package log debugging information using
 {@link java.util.logging} as described in the following table:
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="com.sun.mail.dsn Loggers">
 <TR>
 <TH>Logger Name</TH>
 <TH>Logging Level</TH>
@@ -95,6 +101,7 @@ Classes in this package log debugging information using
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the
 current APIs.
+</P>
 
 </BODY>
 </HTML>
