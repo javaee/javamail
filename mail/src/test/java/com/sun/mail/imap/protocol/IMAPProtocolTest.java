@@ -78,10 +78,12 @@ public class IMAPProtocolTest {
      */
     @Test
     public void testMultipleBodyResponses() throws Exception {
+	Properties props = new Properties();
+	props.setProperty("mail.imap.reusetagprefix", "true");
 	IMAPProtocol p = new IMAPProtocol(
 	    new AsciiStringInputStream(response),
 	    new PrintStream(new ByteArrayOutputStream()),
-	    new Properties(),
+	    props,
 	    debug);
 	BODY b = p.fetchBody(1, "1.1");
 	assertEquals("section number", "1.1", b.getSection());
@@ -101,10 +103,12 @@ public class IMAPProtocolTest {
      */
     @Test
     public void testMultipleBodyResponses2() throws Exception {
+	Properties props = new Properties();
+	props.setProperty("mail.imap.reusetagprefix", "true");
 	IMAPProtocol p = new IMAPProtocol(
 	    new AsciiStringInputStream(response),
 	    new PrintStream(new ByteArrayOutputStream()),
-	    new Properties(),
+	    props,
 	    debug);
 	BODY b = p.fetchBody(1, "1.1", 0, content.length(), null);
 	assertEquals("section number", "1.1", b.getSection());

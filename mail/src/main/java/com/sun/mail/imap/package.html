@@ -910,6 +910,18 @@ See the {@link java.util.zip.Deflater Deflater} class for details.
 </TD>
 </TR>
 
+<TR>
+<TD><A NAME="mail.imap.reusetagprefix">mail.imap.compress.strategy</A></TD>
+<TD>boolean</TD>
+<TD>
+If true, always use "A" for the IMAP command tag prefix.
+If false, the IMAP command tag prefix is different for each connection,
+from "A" through "ZZZ" and then wrapping around to "A".
+Applications should never need to set this.
+Defaults to false.
+</TD>
+</TR>
+
 </TABLE>
 <P>
 In general, applications should not need to use the classes in this
