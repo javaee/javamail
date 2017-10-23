@@ -44,6 +44,7 @@ import javax.mail.internet.ParameterList;
 
 import com.sun.mail.iap.Response;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 /**
@@ -67,5 +68,27 @@ public class BODYSTRUCTURETest {
 	BODYSTRUCTURE bs = fr.getItem(BODYSTRUCTURE.class);
 	ParameterList p = bs.cParams;
 	assertNotNull(p.get("name"));
+    }
+
+    /**
+     * Test workaround for Exchange bug that returns the Content-Description
+     * header value instead of the Content-Disposition for some kinds of
+     * (formerly S/MIME encrypted?) messages.
+     */
+    @Test
+    public void testExchangeBadDisposition() throws Exception {
+	IMAPResponse response = new IMAPResponse(
+    "* 1 FETCH (BODYSTRUCTURE (" +
+	"(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" " +
+	    "21 0 NIL (\"inline\" NIL) NIL NIL)" +
+	"(\"application\" \"octet-stream\" (\"name\" \"private.txt\") " +
+	    "NIL NIL \"base64\" 690 NIL " +
+		"(\"attachment\" (\"filename\" \"private.txt\")) NIL NIL) " +
+    "\"mixed\" (\"boundary\" \"----=_Part_0_-1731707885.1504253815584\") " +
+	"\"S/MIME Encrypted Message\" NIL))");
+    //    ^^^^^^^ here's the string that should be the disposition
+	FetchResponse fr = new FetchResponse(response);
+	BODYSTRUCTURE bs = fr.getItem(BODYSTRUCTURE.class);
+	assertEquals("S/MIME Encrypted Message", bs.description);
     }
 }

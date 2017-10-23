@@ -20,6 +20,7 @@ longer available.
 The following bugs have been fixed in the 1.6.1 release.
 
 GH  262	Some IMAP servers send EXPUNGE responses for unknown messages
+GH  278	BODYSTRUCTURE Parser fails on specific IMAP Server response 
 GH  283	clean up connections when closing IMAPStore
 GH  287	Allow relaxed Content-Disposition parsing
 GH  289	use a different IMAP tag prefix for each connection

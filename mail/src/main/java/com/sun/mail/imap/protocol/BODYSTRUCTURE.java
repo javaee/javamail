@@ -143,10 +143,11 @@ public class BODYSTRUCTURE implements Item {
 	    }
 	    
 	    // Disposition
-	    byte b = r.readByte();
+	    byte b = r.peekByte();
 	    if (b == '(') {
 		if (parseDebug)
 		    System.out.println("DEBUG IMAP: parse disposition");
+		r.readByte();
 		disposition = r.readString();
 		if (parseDebug)
 		    System.out.println("DEBUG IMAP: disposition " +
@@ -161,12 +162,26 @@ public class BODYSTRUCTURE implements Item {
 	    } else if (b == 'N' || b == 'n') {
 		if (parseDebug)
 		    System.out.println("DEBUG IMAP: disposition NIL");
-		r.skip(2); // skip 'NIL'
+		r.skip(3); // skip 'NIL'
 	    } else {
+		/*
 		throw new ParsingException(
 		    "BODYSTRUCTURE parse error: " +
 		    type + "/" + subtype + ": " +
 		    "bad multipart disposition, b " + b);
+		*/
+		if (parseDebug)
+		    System.out.println("DEBUG IMAP: bad multipart disposition" +
+					", applying Exchange bug workaround");
+		description = r.readString();
+		if (parseDebug)
+		    System.out.println("DEBUG IMAP: multipart description " +
+					description);
+		// Throw away whatever comes after it, since we have no
+		// idea what it's supposed to be
+		while (r.readByte() == ' ')
+		    parseBodyExtension(r);
+		return;
 	    }
 
 	    // RFC3501 allows no body-fld-lang after body-fld-disp,
