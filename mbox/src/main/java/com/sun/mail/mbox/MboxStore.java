@@ -71,7 +71,8 @@ public class MboxStore extends Store {
 	String os = System.getProperty("os.name");
 	try {
 	    String cl = "com.sun.mail.mbox." + os + "Mailbox";
-	    mb = (Mailbox)Class.forName(cl).newInstance();
+	    mb = (Mailbox)Class.forName(cl).
+					getDeclaredConstructor().newInstance();
 	} catch (Exception e) {
 	    mb = new DefaultMailbox();
 	}

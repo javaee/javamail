@@ -41,6 +41,7 @@
 package com.sun.mail.mbox;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Convert the various newline conventions to the local platform's
@@ -62,8 +63,7 @@ public class NewlineOutputStream extends FilterOutputStream {
 	}
 	if (s == null || s.length() <= 0)
 	    s = "\n";
-	newline = new byte[s.length()];
-	s.getBytes(0, s.length(), newline, 0);
+	newline = s.getBytes(StandardCharsets.ISO_8859_1);
     }
 
     public NewlineOutputStream(OutputStream os) {

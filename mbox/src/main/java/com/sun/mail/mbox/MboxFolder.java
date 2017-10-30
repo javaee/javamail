@@ -46,6 +46,7 @@ import javax.mail.internet.*;
 import javax.mail.util.*;
 import java.io.*;
 import java.util.*;
+import com.sun.mail.util.LineInputStream;
 
 /**
  * This class represents a mailbox file containing RFC822 style email messages. 
@@ -60,7 +61,7 @@ public class MboxFolder extends Folder {
     private boolean is_inbox = false;
     private int total;		// total number of messages in mailbox
     private volatile boolean opened = false;
-    private List messages;
+    private List<MessageMetadata> messages;
     private TempFile temp;
     private MboxStore mstore;
     private MailFile folder;
@@ -151,14 +152,14 @@ public class MboxFolder extends Folder {
 	} else {
 	    realdir = mstore.mb.filename(mstore.user, refdir);
 	}
-	Vector flist = new Vector();
+	List<String> flist = new ArrayList<String>();
 	listWork(realdir, refdir, pattern, fromStore ? 0 : 1, flist);
 	if (Match.path("INBOX", pattern, '\0'))
-	    flist.addElement("INBOX");
+	    flist.add("INBOX");
 
 	Folder fl[] = new Folder[flist.size()];
 	for (i = 0; i < fl.length; i++) {
-	    fl[i] = createFolder(mstore, (String)flist.elementAt(i));
+	    fl[i] = createFolder(mstore, flist.get(i));
 	}
 	return fl;
     }
@@ -201,7 +202,7 @@ public class MboxFolder extends Folder {
     }
 
     public Flags getPermanentFlags() {
-	return mstore.permFlags;
+	return MboxStore.permFlags;
     }
 
     public synchronized boolean hasNewMessages() {
@@ -399,7 +400,7 @@ public class MboxFolder extends Folder {
 	}
 	if (!folder.lock("r"))
 	    throw new MessagingException("Failed to lock folder: " + name);
-	messages = new ArrayList();
+	messages = new ArrayList<MessageMetadata>();
 	total = 0;
 	Message[] msglist = null;
 	try {
@@ -457,8 +458,7 @@ public class MboxFolder extends Folder {
 	 */
 	int modified = 0, deleted = 0, recent = 0;
 	for (int msgno = 1; msgno <= total; msgno++) {
-	    MessageMetadata md =
-		(MessageMetadata)messages.get(messageIndexOf(msgno));
+	    MessageMetadata md = messages.get(messageIndexOf(msgno));
 	    MboxMessage msg = md.message;
 	    if (msg != null) {
 		Flags flags = msg.getFlags();
@@ -498,8 +498,7 @@ public class MboxFolder extends Folder {
 	    if (special_imap_message)
 		appendStream(getMessageStream(0), os);
 	    for (int msgno = 1; msgno <= total; msgno++) {
-		MessageMetadata md =
-		    (MessageMetadata)messages.get(messageIndexOf(msgno));
+		MessageMetadata md = messages.get(messageIndexOf(msgno));
 		MboxMessage msg = md.message;
 		if (msg != null) {
 		    if (expunge && msg.isSet(Flags.Flag.DELETED))
@@ -690,8 +689,7 @@ e.printStackTrace();
 	checkReadable();
 	checkRange(msgno);
 
-	MessageMetadata md =
-	    (MessageMetadata)messages.get(messageIndexOf(msgno));
+	MessageMetadata md = messages.get(messageIndexOf(msgno));
 	MboxMessage m = md.message;
 	if (m == null) {
 	    InputStream is = getMessageStream(msgno);
@@ -713,7 +711,7 @@ e.printStackTrace();
 
     private InputStream getMessageStream(int msgno) {
 	int index = messageIndexOf(msgno);
-	MessageMetadata md = (MessageMetadata)messages.get(index);
+	MessageMetadata md = messages.get(index);
 	return temp.newStream(md.start, md.dataend);
     }
 
@@ -782,8 +780,7 @@ e.printStackTrace();
 	Message[] msglist = new Message[total - wr];
 	int msgno = 1;
 	while (msgno <= total) {
-	    MessageMetadata md =
-		(MessageMetadata)messages.get(messageIndexOf(msgno));
+	    MessageMetadata md = messages.get(messageIndexOf(msgno));
 	    MboxMessage msg = md.message;
 	    if (msg != null) {
 		if (msg.isSet(Flags.Flag.DELETED)) {
@@ -833,7 +830,7 @@ e.printStackTrace();
 	     * IMAP server adds to the mailbox, remember that we've
 	     * seen it so it won't be shown to the user.
 	     */
-	    MessageMetadata md = (MessageMetadata)messages.get(0);
+	    MessageMetadata md = messages.get(0);
 	    if (md.imap) {
 		special_imap_message = true;
 		total--;
@@ -854,12 +851,11 @@ e.printStackTrace();
      */
     private MboxMessage loadMessage(InputStream is, int msgno,
 		boolean writable) throws MessagingException, IOException {
-	DataInputStream in = new DataInputStream(is);
+	LineInputStream in = new LineInputStream(is);
 
 	/*
 	 * Read lines until a UNIX From line,
 	 * skipping blank lines.
-	 * XXX - rewrite this to not need a DataInputStream.
 	 */
 	String line;
 	String unix_from = null;
@@ -1003,11 +999,11 @@ e.printStackTrace();
      * @param dir	user's name for realdir
      * @param pat	pattern to match against
      * @param level	level of the directory hierarchy we're in
-     * @param flist	vector to which to add folder names that match
+     * @param flist	list to which to add folder names that match
      */
     // Derived from the c-client listWork() function.
     private void listWork(String realdir, String dir, String pat,
-					int level, Vector flist) {
+					int level, List<String> flist) {
 	String sl[];
 	File fdir = new File(realdir);
 	try {
@@ -1018,7 +1014,7 @@ e.printStackTrace();
 
 	if (level == 0 && dir != null &&
 		Match.path(dir, pat, File.separatorChar))
-	    flist.addElement(dir);
+	    flist.add(dir);
 
 	if (sl == null)
 	    return;	// nothing return, we're done
@@ -1040,18 +1036,18 @@ e.printStackTrace();
 		name = sl[i];
 	    if (mf.isDirectory()) {
 		if (Match.path(name, pat, File.separatorChar)) {
-		    flist.addElement(name);
+		    flist.add(name);
 		    name += File.separator;
 		} else {
 		    name += File.separator;
 		    if (Match.path(name, pat, File.separatorChar))
-			flist.addElement(name);
+			flist.add(name);
 		}
 		if (Match.dir(name, pat, File.separatorChar))
 		    listWork(md, name, pat, level + 1, flist);
 	    } else {
 		if (Match.path(name, pat, File.separatorChar))
-		    flist.addElement(name);
+		    flist.add(name);
 	    }
 	}
     }

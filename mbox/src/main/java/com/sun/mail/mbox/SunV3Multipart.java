@@ -45,6 +45,7 @@ import javax.mail.internet.*;
 import javax.activation.*;
 import java.util.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import com.sun.mail.util.LineInputStream;
 
 /**
@@ -133,11 +134,10 @@ public class SunV3Multipart extends MimeMultipart {
 	    throw new MessagingException("No inputstream from datasource");
 	}
 
-	String line;
-	int bl = boundary.length();
-	byte[] bndbytes = new byte[bl];
-	boundary.getBytes(0, bl, bndbytes, 0);
+	byte[] bndbytes = boundary.getBytes(StandardCharsets.ISO_8859_1);
+	int bl = bndbytes.length;
 
+	String line;
 	parsing = true;
 	try {
 	    /*

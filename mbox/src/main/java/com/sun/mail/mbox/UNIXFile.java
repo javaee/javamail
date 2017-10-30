@@ -120,7 +120,8 @@ public class UNIXFile extends File {
 	return lastAccessed0(getPath());
     }
 
-    private static native void initIDs(Class fdClass, FileDescriptor stdin);
+    private static native void initIDs(Class<FileDescriptor> fdClass,
+					FileDescriptor stdin);
 
     /**
      * Lock the file referred to by fd.  The string mode is "r"

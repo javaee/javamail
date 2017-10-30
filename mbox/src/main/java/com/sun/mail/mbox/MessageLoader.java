@@ -50,7 +50,7 @@ import java.util.*;
 final class MessageLoader {
     private final TempFile temp;
     private FileInputStream fis = null;
-    private AppendStream fos = null;
+    private OutputStream fos = null;
     private int pos, len;	// position in and length of buffer
     private long off;		// current offset in temp file
     private long prevend;	// the end of the previous message in temp file
@@ -71,7 +71,8 @@ final class MessageLoader {
      * The data is assumed to be in UNIX mbox format, with newlines
      * only as the line terminators.
      */
-    public int load(FileDescriptor fd, long offset, List msgs)
+    public int load(FileDescriptor fd, long offset,
+				List<MboxFolder.MessageMetadata> msgs)
 				throws IOException {
 	// XXX - could allocate and deallocate buffers here
 	int loaded = 0;

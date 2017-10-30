@@ -48,6 +48,7 @@ import javax.activation.*;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.mail.event.MessageChangedEvent;
+import com.sun.mail.util.LineInputStream;
 
 /**
  * This class represents an RFC822 style email message that resides in a file.
@@ -84,7 +85,7 @@ public class MboxMessage extends MimeMessage {
 	    bis = (BufferedInputStream)is;
 	else
 	    bis = new BufferedInputStream(is);
-	DataInputStream dis = new DataInputStream(bis);
+	LineInputStream dis = new LineInputStream(bis);
 	bis.mark(1024);
 	String line = dis.readLine();
 	if (line != null && line.startsWith("From "))
@@ -185,6 +186,7 @@ public class MboxMessage extends MimeMessage {
      * @return          the date this message was received
      * @exception       MessagingException
      */
+    @SuppressWarnings("deprecation")	// for Date constructor
     public Date getReceivedDate() throws MessagingException {
 	if (rcvDate == null && unix_from != null) {
 	    int i;
