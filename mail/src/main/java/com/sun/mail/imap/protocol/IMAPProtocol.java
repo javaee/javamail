@@ -222,6 +222,8 @@ public class IMAPProtocol extends Protocol {
 
     /**
      * Handle any untagged CAPABILITY response in the Response array.
+     *
+     * @param	r	the responses
      */
     public void handleCapabilityResponse(Response[] r) {
 	boolean first = true;
@@ -1174,6 +1176,8 @@ public class IMAPProtocol extends Protocol {
      * the server supports UTF-8, and add the encoded name to the
      * Argument.
      *
+     * @param	args	the arguments
+     * @param	name	the name to encode
      * @since	JavaMail 1.6.0
      */
     protected void writeMailboxName(Argument args, String name) {

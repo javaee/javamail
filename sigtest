@@ -68,9 +68,17 @@ JAR="$1"
 SIG="$2"
 shift 2
 
+ver=$($JAVA_HOME/bin/java -version 2>&1 | sed -e 's/.*"\(.*\)".*/\1/;q')
+case "$ver" in
+1.[0-9]*)	xjimage=;
+		cp="${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jce.jar";;
+*)		xjimage="-xjimage ${JAVA_HOME}/bin/jimage";
+		cp="${JAVA_HOME}/lib/modules";;
+esac
+
 echo '*** Generate JDK signatures ***'
 ${JAVA_HOME}/bin/java -jar $SIGTEST_JAR setup \
-	-classpath "${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jce.jar" \
+	-classpath "$cp" $xjimage \
 	-filename "$PLATSIG" -package java -package javax -keepfile \
 	-verbose nowarn
 echo

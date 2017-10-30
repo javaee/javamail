@@ -57,10 +57,12 @@
     <name>JavaMail API</name>
 
     <properties>
-	<activation-api.version>1.1</activation-api.version>
 	<mail.extensionName>
 	    javax.mail
 	</mail.extensionName>
+	<mail.moduleName>
+	    java.mail
+	</mail.moduleName>
 	<mail.specificationTitle>
 	    JavaMail(TM) API Design Specification
 	</mail.specificationTitle>
@@ -112,7 +114,40 @@
 					<exclude>
 					  javax/mail/MailSessionDefinitions.java
 					</exclude>
+					<exclude>
+					  module-info.java
+					</exclude>
 				    </excludes>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
+
+	<!--
+	    A special profile for compiling with the real JDK 9 compiler.
+	-->
+	<profile>
+	    <id>9</id>
+	    <build>
+		<plugins>
+		    <plugin>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>default-compile</id>
+				<configuration>
+				    <compilerArgs>
+					<arg>-Xlint</arg>
+					<arg>-Xlint:-options</arg>
+					<arg>-Xlint:-path</arg>
+					<!--
+					    Too many finalize warnings.
+					<arg>-Werror</arg>
+					-->
+				    </compilerArgs>
 				</configuration>
 			    </execution>
 			</executions>
@@ -150,6 +185,11 @@
 		    </compilerArgs>
 		    <showDeprecation>true</showDeprecation>
 		    <showWarnings>true</showWarnings>
+		    <excludes>
+			<exclude>
+			  module-info.java
+			</exclude>
+		    </excludes>
 		</configuration>
 	    </plugin>
 
@@ -166,6 +206,22 @@
 		    </includes>
 		</configuration>
 	    </plugin>
+
+	    <!--
+		Add the Automatic-Module-Name manifest header for JDK 9.
+	    -->
+	    <plugin>
+		<artifactId>maven-jar-plugin</artifactId>
+		<configuration>
+		    <archive>
+			<manifestEntries>
+			    <Automatic-Module-Name>
+				${mail.moduleName}
+			    </Automatic-Module-Name>
+			</manifestEntries>
+		    </archive>
+		</configuration>
+	    </plugin>
 	</plugins>
     </build>
 
@@ -173,7 +229,6 @@
 	<dependency>
 	    <groupId>javax.activation</groupId>
 	    <artifactId>activation</artifactId>
-	    <version>${activation-api.version}</version>
 	</dependency>
 	<dependency>
 	    <groupId>junit</groupId>

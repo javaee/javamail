@@ -68,6 +68,8 @@ public class LineInputStream extends FilterInputStream {
     }
 
     /**
+     * @param	in	the InputStream
+     * @param	allowutf8	allow UTF-8 characters?
      * @since	JavaMail 1.6
      */
     public LineInputStream(InputStream in, boolean allowutf8) {

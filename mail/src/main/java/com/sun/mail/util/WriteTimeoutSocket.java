@@ -43,6 +43,8 @@ package com.sun.mail.util;
 import java.io.*;
 import java.net.*;
 import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.Set;
 import java.nio.channels.SocketChannel;
 import java.lang.reflect.*;
 
@@ -314,8 +316,34 @@ public class WriteTimeoutSocket extends Socket {
         return socket.isOutputShutdown();
     }
 
+    /*
+     * The following three methods were added to java.net.Socket in Java SE 9.
+     * Since they're not supported on Android, and since we know that we
+     * never use them in JavaMail, we just stub them out here.
+     */
+    //@Override
+    public <T> Socket setOption(SocketOption<T> so, T val) throws IOException {
+	// socket.setOption(so, val);
+	// return this;
+	throw new UnsupportedOperationException("WriteTimeoutSocket.setOption");
+    }
+
+    //@Override
+    public <T> T getOption(SocketOption<T> so) throws IOException {
+	// return socket.getOption(so);
+	throw new UnsupportedOperationException("WriteTimeoutSocket.getOption");
+    }
+
+    //@Override
+    public Set<SocketOption<?>> supportedOptions() {
+	// return socket.supportedOptions();
+	return Collections.emptySet();
+    }
+
     /**
      * KLUDGE for Android, which has this illegal non-Java Compatible method.
+     *
+     * @return	the FileDescriptor object
      */
     public FileDescriptor getFileDescriptor$() {
 	try {

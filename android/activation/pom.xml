@@ -109,8 +109,8 @@
 		    <execution>
 			<id>default-compile</id>
 			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
+			    <source>1.7</source>
+			    <target>1.7</target>
 			    <fork>true</fork>
 			    <!--
 				ignore some of the errors that are
@@ -130,8 +130,8 @@
 		    <execution>
 			<id>default-testCompile</id>
 			<configuration>
-			    <source>1.5</source>
-			    <target>1.5</target>
+			    <source>1.7</source>
+			    <target>1.7</target>
 			</configuration>
 		    </execution>
 		</executions>

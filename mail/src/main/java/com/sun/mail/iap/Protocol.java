@@ -578,6 +578,7 @@ public class Protocol {
      * This implementation returns false.
      * Subclasses should override as appropriate.
      *
+     * @return	true if the server supports UTF-8
      * @since JavaMail 1.6.0
      */
     public boolean supportsUtf8() {

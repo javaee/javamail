@@ -76,12 +76,32 @@
 	<android.version>4.4_r1</android.version>
     </properties>
 
+    <profiles>
+	<!--
+	    A special profile for compiling with JDK 9.
+	    Skip animal-sniffer until it works with JDK 9.
+	-->
+	<profile>
+	    <id>9</id>
+	    <build>
+		<plugins>
+		    <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>animal-sniffer-maven-plugin</artifactId>
+			<configuration>
+			    <skip>true</skip>
+			</configuration>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
+    </profiles>
+
     <build>
 	<plugins>
 	    <plugin>
 		<groupId>org.codehaus.mojo</groupId>
 		<artifactId>animal-sniffer-maven-plugin</artifactId>
-		<version>1.14</version>
 		<executions>
 		    <execution>
 			<id>check-sig</id>
@@ -100,6 +120,16 @@
 		</configuration>
 	    </plugin>
 	</plugins>
+
+	<pluginManagement>
+	    <plugins>
+		<plugin>
+		    <groupId>org.codehaus.mojo</groupId>
+		    <artifactId>animal-sniffer-maven-plugin</artifactId>
+		    <version>1.16</version>
+		</plugin>
+	    </plugins>
+	</pluginManagement>
     </build>
 
 </project>

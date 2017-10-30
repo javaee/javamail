@@ -52,12 +52,19 @@ public abstract class handler_base implements DataContentHandler {
     /**
      * Return an array of ActivationDataFlavors that we support.
      * Usually there will be only one.
+     *
+     * @return	array of ActivationDataFlavors that we support
      */
     protected abstract ActivationDataFlavor[] getDataFlavors();
 
     /**
      * Given the flavor that matched, return the appropriate type of object.
      * Usually there's only one flavor so just call getContent.
+     *
+     * @param	aFlavor	the ActivationDataFlavor
+     * @param	ds	DataSource containing the data
+     * @return	the object
+     * @exception	IOException	for errors reading the data
      */
     protected Object getData(ActivationDataFlavor aFlavor, DataSource ds)
 				throws IOException {
@@ -82,9 +89,10 @@ public abstract class handler_base implements DataContentHandler {
     /**
      * Return the Transfer Data of type DataFlavor from InputStream.
      *
-     * @param df The DataFlavor
-     * @param ds The DataSource corresponding to the data
-     * @return String object
+     * @param	df	The DataFlavor
+     * @param	ds	The DataSource corresponding to the data
+     * @return	the object
+     * @exception	IOException	for errors reading the data
      */
     @Override
     public Object getTransferData(DataFlavor df, DataSource ds) 

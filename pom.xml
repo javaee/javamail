@@ -89,6 +89,7 @@
 	<!-- like mail.version, but with underscores instead of dots -->
 	<mail.zipversion>1_6_1-SNAPSHOT</mail.zipversion>
 	<mail.spec.version>1.6</mail.spec.version>
+	<activation-api.version>1.1</activation-api.version>
 	<!-- defaults that are overridden in mail module -->
 	<mail.extensionName>
 	    ${project.groupId}.${project.artifactId}
@@ -128,7 +129,7 @@
 	    true
 	</findbugs.skip>
 	<findbugs.exclude/>
-        <copyright-plugin.version>1.42</copyright-plugin.version>
+        <copyright-plugin.version>1.46</copyright-plugin.version>
     </properties>
 
     <developers>
@@ -333,6 +334,54 @@
 		</plugins>
 	    </build>
 	</profile>
+
+	<!--
+	    A special profile for compiling with JDK 9.
+	-->
+	<profile>
+	    <id>9</id>
+	    <build>
+		<plugins>
+		    <plugin>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>default-compile</id>
+				<configuration>
+				    <source>9</source>
+				    <target>9</target>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		    <!--
+			Require JDK 9.
+		    -->
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>enforce-version</id>
+				<goals>
+				    <goal>enforce</goal>
+				</goals>
+				<configuration>
+				    <rules>
+					<requireMavenVersion>
+					    <version>[3.0.3,)</version>
+					</requireMavenVersion>
+					<requireJavaVersion>
+					    <version>9</version>
+					</requireJavaVersion>
+				    </rules>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
     </profiles>
 
     <build>
@@ -344,6 +393,7 @@
 	    <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-enforcer-plugin</artifactId>
+		    <version>3.0.0-M1</version>
 		<executions>
 		    <execution>
 			<id>enforce-version</id>
@@ -637,22 +687,22 @@
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-enforcer-plugin</artifactId>
-		    <version>1.0</version>
+		    <version>3.0.0-M1</version>
 		</plugin>
 		<plugin>
 		    <groupId>org.apache.felix</groupId>
 		    <artifactId>maven-bundle-plugin</artifactId>
-		    <version>2.1.0</version>
+		    <version>3.3.0</version>
 		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-source-plugin</artifactId>
 		    <version>2.1.2</version>
-		 </plugin>
+		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-javadoc-plugin</artifactId>
-		    <version>2.10</version>
+		    <version>3.0.0-M1</version>
 		    <configuration>
 			<!-- make all the APIs available for javadoc -->
 			<additionalDependencies>
@@ -668,7 +718,7 @@
 			    </additionalDependency>
 			</additionalDependencies>
 		    </configuration>
-		 </plugin>
+		</plugin>
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-war-plugin</artifactId>
@@ -697,6 +747,11 @@
 
     <dependencyManagement>
 	<dependencies>
+	    <dependency>
+		<groupId>javax.activation</groupId>
+		<artifactId>activation</artifactId>
+		<version>${activation-api.version}</version>
+	    </dependency>
 	    <dependency>
 		<groupId>com.sun.mail</groupId>
 		<artifactId>javax.mail</artifactId>
@@ -734,6 +789,13 @@
 	    </dependency>
 	</dependencies>
     </dependencyManagement>
+
+    <dependencies>
+	<dependency>
+	    <groupId>javax.activation</groupId>
+	    <artifactId>activation</artifactId>
+	</dependency>
+    </dependencies>
 
     <reporting>
 	<plugins>

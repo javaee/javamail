@@ -59,6 +59,14 @@ do
 done
 shift `expr $OPTIND - 1`
 
+ver=$($JAVA_HOME/bin/java -version 2>&1 | sed -e 's/.*"\(.*\)".*/\1/;q')
+case "$ver" in
+1.[0-9]*)	xjimage=;
+		cp="$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jce.jar";;
+*)		xjimage="-xjimage ${JAVA_HOME}/bin/jimage";
+		cp="$1:${JAVA_HOME}/lib/modules";;
+esac
+
 ${JAVA_HOME}/bin/java -jar $SIGTEST_JAR setup -static \
-	-classpath "$1:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/jre/lib/jse.jar" \
+	-classpath "$cp" $xjimage \
 	-filename "$2" -package "$PKG" -nonclosedfile

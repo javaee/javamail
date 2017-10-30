@@ -24,6 +24,7 @@ GH  278	BODYSTRUCTURE Parser fails on specific IMAP Server response
 GH  283	clean up connections when closing IMAPStore
 GH  287	Allow relaxed Content-Disposition parsing
 GH  289	use a different IMAP tag prefix for each connection
+GH  291	define JDK 9 module name for JavaMail
 
 
 		  CHANGES IN THE 1.6.0 RELEASE
