@@ -441,6 +441,7 @@
 			    *
 			</DynamicImport-Package>
 		    </instructions>
+		    <niceManifest>true</niceManifest>
 		</configuration>
 		<!--
 		    Since we don't change the packaging type to bundle, we
