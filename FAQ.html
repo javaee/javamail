@@ -147,7 +147,7 @@ when I run my program on JDK 9.</A>
     <LI><A HREF="#whichserver">What host name, user name, or password should I use?</A>
 <BR>
     <LI><A HREF="#proxy">How do I configure JavaMail to work through my proxy server?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 1/27/2015">
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 11/6/2017">
 <BR>
     <LI><A HREF="#installcert">When connecting to my mail server over SSL I get an exception like
 "unable to find valid certification path to requested target".
@@ -178,7 +178,6 @@ type "rfc822".
 </A>
 <BR>
     <LI><A HREF="#gmail">How do I access Gmail with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
     <LI><A HREF="#gmailauth">Why do I get AuthenticationFailedException when
 accessing Gmail? </A>
@@ -194,12 +193,10 @@ Gmail with IMAP? </A>
 <IMG SRC="assets/images/new.gif" ALT="[new!]" TITLE="New 9/21/2016">
 <BR>
     <LI><A HREF="#yahoomail">How do I access Yahoo! Mail with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
     <LI><A HREF="#hotmail">How do I access Hotmail (Windows Live mail) with JavaMail? </A>
 <BR>
     <LI><A HREF="#outlook">How do I access Outlook.com with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
 </UL>
 <BR>
@@ -217,7 +214,6 @@ when using JavaMail? </A>
     <LI><A HREF="#attach">How do I send a message with an attachment?</A>
 <BR>
     <LI><A HREF="#hasattach">How do I tell if a message has attachments?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 12/18/2014">
 <BR>
     <LI><A HREF="#readattach">How do I read a message with an attachment and save the
 attachment?</A>
@@ -258,12 +254,10 @@ JavaMail? </A>
 and when should I use <code>Session.getInstance</code>? </A>
 <BR>
     <LI><A HREF="#disco">What is "disconnected support"?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 5/11/2015">
 <BR>
     <LI><A HREF="#whendisco">How do I support disconnected operation using the
 JavaMail APIs?</A><BR>
     <LI><A HREF="#security">How do I send secure email using the JavaMail APIs?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
     <LI><A HREF="#repres">The <code>writeTo()</code> method generates message text
 with lines that are neither the canonical MIME representation of the data
@@ -987,21 +981,16 @@ the information necessary to configure JavaMail to work with your mail server.
 <P>
 <A NAME="proxy">
 <strong>Q:</strong> How do I configure JavaMail to work through my proxy server?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 1/27/2015">
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 11/6/2017">
 <BR>
-<strong>A:</strong> JavaMail does not currently support accessing mail servers
-through a web proxy server.
-One of the major reasons for using a proxy server is to allow HTTP
-requests from within a corporate network to pass through a corporate
-firewall.  The firewall will typically block most access to the Internet,
-but will allow requests from the proxy server to pass through.  In addition,
-a mail server inside the corporate network will perform a similar function
-for email, accepting messages via SMTP and forwarding them to their ultimate
-destination on the Internet, and accepting incoming messages and sending
-them to the appropriate internal mail server.
+<strong>A:</strong> Starting with JavaMail 1.6.0, JavaMail supports accessing
+mail servers through a web proxy server.
+Set the "mail.<i>protocol</i>.proxy.host" and "mail.<i>protocol</i>.proxy.port"
+properties for the proxy server.
+Note that proxy server authentication is not supported.
 </P>
 <P>
-If your proxy server supports the SOCKS V4 or V5 protocol
+In addition, if your proxy server supports the SOCKS V4 or V5 protocol
 (<A HREF="http://www.socks.nec.com/aboutsocks.html">http://www.socks.nec.com/aboutsocks.html</A>,
 <A HREF="http://www.ietf.org/rfc/rfc1928.txt">RFC1928</A>)
 and allows anonymous connections, and
@@ -1029,12 +1018,12 @@ proxy, which may have negative impact on other aspects of your
 application.
 </P>
 <P>
-Without such a SOCKS server, if you want to use JavaMail to access mail servers
+When using older versions of JavaMail, and without such a SOCKS server,
+if you want to use JavaMail to access mail servers
 outside the firewall indirectly, you might be able to use a program such as
-<A HREF="http://en.wikipedia.org/wiki/Corkscrew_%28program%29">Corkscrew</A> or
 <A HREF="https://bitbucket.org/gotoh/connect/wiki/Home">connect</A>
 to tunnel TCP connections through an HTTP proxy server.
-JavaMail does not support direct access through an HTTP proxy web server.
+Configure JavaMail to use the connect instance as the SOCKS server.
 </P>
 
 <P>
@@ -1252,7 +1241,6 @@ you should include the unmodified mail.jar file in the server's CLASSPATH.
 <P>
 <A NAME="gmail">
 <strong>Q:</strong> How do I access Gmail with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
 <strong>A:</strong> 
 JavaMail is capable of sending and reading messages using Gmail.
@@ -1406,7 +1394,6 @@ and expunge the folder (<code>folder.close(true);</code>).
 <P>
 <A NAME="yahoomail">
 <strong>Q:</strong> How do I access Yahoo! Mail with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
 <strong>A:</strong> 
 JavaMail is capable of sending and reading messages using Yahoo! Mail.
@@ -1539,7 +1526,6 @@ Windows Live Hotmail help</A> for "POP3".
 <P>
 <A NAME="outlook">
 <strong>Q:</strong> How do I access Outlook.com with JavaMail? </A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
 <strong>A:</strong> 
 JavaMail is capable of sending and reading messages using Outlook.com.
@@ -1714,7 +1700,6 @@ To attach a file use the
 <P>
 <A NAME="hasattach">
 <strong>Q:</strong> How do I tell if a message has attachments?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 12/18/2014">
 <BR>
 <strong>A:</strong> In the simplest case, a message of MIME type
 <code>multipart/mixed</code> with more than one body part is likely
@@ -2098,7 +2083,6 @@ Always use <code>Session.getInstance</code> to avoid this problem.
 <P>
 <A NAME="disco">
 <strong>Q:</strong> What is "disconnected support"?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 5/11/2015">
 <BR>
 <strong>A:</strong> A mail client supporting disconnected operation will allow
 the user to access messages in a remote message store (e.g.,
@@ -2128,7 +2112,6 @@ Our IMAP provider implements these interfaces (the UIDFolder interfaces).
 <P>
 <A NAME="security">
 <strong>Q:</strong> How do I send secure email using the JavaMail APIs?</A>
-<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 4/23/2015">
 <BR>
 <strong>A:</strong> The JavaMail APIs currently have no support for sending
 or receiving secure email.  The architecture of the
