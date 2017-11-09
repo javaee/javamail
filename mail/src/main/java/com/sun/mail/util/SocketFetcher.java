@@ -44,6 +44,7 @@ import java.security.*;
 import java.net.*;
 import java.io.*;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
@@ -828,11 +829,12 @@ public class SocketFetcher {
 	    socket.connect(new InetSocketAddress(proxyHost, proxyPort), cto);
 	else
 	    socket.connect(new InetSocketAddress(proxyHost, proxyPort));
-	PrintStream os = new PrintStream(socket.getOutputStream());
+	PrintStream os = new PrintStream(socket.getOutputStream(), false,
+					    StandardCharsets.UTF_8.name());
 	os.print("CONNECT " + host + ":" + port + " HTTP/1.0\r\n\r\n");
 	os.flush();
 	BufferedReader r = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
+			    socket.getInputStream(), StandardCharsets.UTF_8));
 	String line;
 	boolean first = true;
 	while ((line = r.readLine()) != null) {
