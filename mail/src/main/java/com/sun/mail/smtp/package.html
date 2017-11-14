@@ -514,6 +514,16 @@ for the response to the QUIT command.
 </TR>
 
 <TR>
+<TD><A NAME="mail.smtp.quitonsessionreject">mail.smtp.quitonsessionreject</A></TD>
+<TD>boolean</TD>
+<TD>
+If set to false (the default), on session initiation rejection the QUIT
+command is not sent sent and the connection is immediately closed.
+If set to true, causes the transport to send the QUIT command prior to close the connection.
+</TD>
+</TR>
+
+<TR>
 <TD><A NAME="mail.smtp.reportsuccess">mail.smtp.reportsuccess</A></TD>
 <TD>boolean</TD>
 <TD>

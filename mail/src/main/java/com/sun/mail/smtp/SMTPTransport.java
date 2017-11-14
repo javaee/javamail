@@ -114,6 +114,7 @@ public class SMTPTransport extends Transport {
     private String defaultAuthenticationMechanisms;	// set in constructor
 
     private boolean quitWait = false;	// true if we should wait
+    private boolean quitOnSessionReject = false;   // true if we should send quit when session initiation is rejected
 
     private String saslRealm = UNKNOWN;
     private String authorizationID = UNKNOWN;
@@ -196,6 +197,11 @@ public class SMTPTransport extends Transport {
 	// response from the QUIT command
 	quitWait = PropUtil.getBooleanSessionProperty(session,
 				"mail." + name + ".quitwait", true);
+
+        // setting mail.smtp.quitonsessionreject to false causes us to directly
+        // close the socket without sending a QUIT command
+        quitOnSessionReject = PropUtil.getBooleanSessionProperty(session,
+                                "mail." + name + ".quitonsessionreject", false);
 
 	// mail.smtp.reportsuccess causes us to throw an exception on success
 	reportSuccess = PropUtil.getBooleanSessionProperty(session,
@@ -2170,19 +2176,26 @@ public class SMTPTransport extends Transport {
 
 	    int r = -1;
 	    if ((r = readServerResponse()) != 220) {
-		serverSocket.close();
-		serverSocket = null;
-		serverOutput = null;
-		serverInput = null;
-		lineInputStream = null;
-		if (logger.isLoggable(Level.FINE))
-		    logger.fine("could not connect to host \"" +
-				    host + "\", port: " + port +
-				    ", response: " + r);
-		throw new MessagingException(
-			"Could not connect to SMTP host: " + host +
-				    ", port: " + port +
-				    ", response: " + r);
+		try {
+		    if (quitOnSessionReject) {
+			sendCommand("QUIT");
+			if (quitWait) {
+			    int resp = readServerResponse();
+			    if (resp != 221 && resp != -1 &&
+				logger.isLoggable(Level.FINE))
+				logger.fine("QUIT failed with " + resp);
+			}
+		    }
+		} catch (Exception e) {
+		    if (logger.isLoggable(Level.ALL))
+			logger.log(Level.ALL, "QUIT failed", e);
+		} finally {
+		    serverSocket.close();
+		    serverSocket = null;
+		    serverOutput = null;
+		    serverInput = null;
+		    lineInputStream = null;
+		}
 	    } else {
 		if (logger.isLoggable(Level.FINE))
 		    logger.fine("connected to host \"" +
@@ -2216,11 +2229,26 @@ public class SMTPTransport extends Transport {
 
 	    int r = -1;
 	    if ((r = readServerResponse()) != 220) {
-		serverSocket.close();
-		serverSocket = null;
-		serverOutput = null;
-		serverInput = null;
-		lineInputStream = null;
+		try {
+		    if (quitOnSessionReject) {
+			sendCommand("QUIT");
+			if (quitWait) {
+			    int resp = readServerResponse();
+			    if (resp != 221 && resp != -1 &&
+				logger.isLoggable(Level.FINE))
+				logger.fine("QUIT failed with " + resp);
+			}
+		    }
+		} catch (Exception e) {
+		    if (logger.isLoggable(Level.ALL))
+			logger.log(Level.ALL, "QUIT failed", e);
+		} finally {
+		    serverSocket.close();
+		    serverSocket = null;
+		    serverOutput = null;
+		    serverInput = null;
+		    lineInputStream = null;
+		}
 		if (logger.isLoggable(Level.FINE))
 		    logger.fine("got bad greeting from host \"" +
 				    host + "\", port: " + port +
