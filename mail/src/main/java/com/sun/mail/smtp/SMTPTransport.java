@@ -2187,8 +2187,8 @@ public class SMTPTransport extends Transport {
 			}
 		    }
 		} catch (Exception e) {
-		    if (logger.isLoggable(Level.ALL))
-			logger.log(Level.ALL, "QUIT failed", e);
+		    if (logger.isLoggable(Level.FINE))
+			logger.log(Level.FINE, "QUIT failed", e);
 		} finally {
 		    serverSocket.close();
 		    serverSocket = null;
@@ -2240,8 +2240,8 @@ public class SMTPTransport extends Transport {
 			}
 		    }
 		} catch (Exception e) {
-		    if (logger.isLoggable(Level.ALL))
-			logger.log(Level.ALL, "QUIT failed", e);
+		    if (logger.isLoggable(Level.FINE))
+			logger.log(Level.FINE, "QUIT failed", e);
 		} finally {
 		    serverSocket.close();
 		    serverSocket = null;
