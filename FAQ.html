@@ -369,7 +369,9 @@ and colors?</A>
     <LI><A HREF="#sendmpa">How do I send mail with both plain text as well as HTML text
 so that each mail reader can choose the format appropriate for it? </A>
 <BR>
-    <LI><A HREF="#sendmpr">How do I send HTML mail that includes images? </A>
+    <LI><A HREF="#sendmpr">How do I send HTML mail that includes images?
+</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 11/17/2017">
 <BR>
     <LI><A HREF="#send">What's the difference between the Transport methods
 <code>send</code> and <code>sendMessage</code>?
@@ -2929,7 +2931,9 @@ for details of the structure of such a message.
 
 <P>
 <A NAME="sendmpr">
-<strong>Q:</strong> How do I send HTML mail that includes images? </A>
+<strong>Q:</strong> How do I send HTML mail that includes images?
+</A>
+<IMG SRC="assets/images/updated.gif" ALT="[updated!]" TITLE="Updated 11/17/2017">
 <BR>
 <strong>A:</strong> The simplest approach is to send HTML text with image tags
 that reference images on a public web site.  In this approach the
@@ -2939,10 +2943,21 @@ Note also that some mailers will refuse to display images that are on
 remote sites.
 </P>
 <P>
+Another approach is to include the image data inline in the html content
+of the message, for example:
+</P>
+<PRE>
+	&lt;img src="data:image/jpeg;base64,base64-encoded-data-here" /&gt;
+</PRE>
+<P>
+This works best for relatively small images.
+</P>
+<P>
 Alternatively, you can construct a MIME <code>multipart/related</code>
 message.  See <A HREF="http://www.ietf.org/rfc/rfc2387.txt">RFC2387</A>
 for details of the structure of such a message.
 A simple example follows:
+</P>
 <PRE>
         Multipart multipart = new MimeMultipart("related");
 
@@ -2967,7 +2982,10 @@ A simple example follows:
 
         message.setContent(multipart);
 </PRE>
-<br/>
+<P>
+For more advice, see
+<A HREF="https://sendgrid.com/blog/embedding-images-emails-facts/">
+How to Embed Images in Your Emails: The Facts</A>
 </P>
 
 <P>
