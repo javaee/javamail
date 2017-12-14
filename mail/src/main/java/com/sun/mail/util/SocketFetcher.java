@@ -44,6 +44,7 @@ import java.security.*;
 import java.net.*;
 import java.io.*;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.regex.*;
@@ -808,10 +809,11 @@ public class SocketFetcher {
      *
      * Protocol is roughly:
      * <pre>
-     * CONNECT <host>:<port> HTTP/1.0
+     * CONNECT <host>:<port> HTTP/1.1
+     * Host: <host>:<port>
      * <blank line>
      *
-     * HTTP/1.0 200 Connect established
+     * HTTP/1.1 200 Connect established
      * <headers>
      * <blank line>
      * </pre>
@@ -828,17 +830,19 @@ public class SocketFetcher {
 	    socket.connect(new InetSocketAddress(proxyHost, proxyPort), cto);
 	else
 	    socket.connect(new InetSocketAddress(proxyHost, proxyPort));
-	PrintStream os = new PrintStream(socket.getOutputStream());
-	os.print("CONNECT " + host + ":" + port + " HTTP/1.0\r\n\r\n");
+	PrintStream os = new PrintStream(socket.getOutputStream(), false,
+					    StandardCharsets.UTF_8.name());
+	os.print("CONNECT " + host + ":" + port + " HTTP/1.1\r\n");
+	os.print("Host: " + host + ":" + port + "\r\n\r\n");
 	os.flush();
 	BufferedReader r = new BufferedReader(new InputStreamReader(
-						socket.getInputStream()));
+			    socket.getInputStream(), StandardCharsets.UTF_8));
 	String line;
 	boolean first = true;
 	while ((line = r.readLine()) != null) {
-	    logger.finest(line);
 	    if (line.length() == 0)
 		break;
+	    logger.finest(line);
 	    if (first) {
 		StringTokenizer st = new StringTokenizer(line);
 		String http = st.nextToken();
