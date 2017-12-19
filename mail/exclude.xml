@@ -563,6 +563,21 @@
     </Match>
 
     <!--
+	SpotBugs doesn't recognize the anonymous inner classes above.
+	https://github.com/spotbugs/discuss/issues/22
+	This regular expression version has the same effect, and
+	avoids the potential issue with the class names changing.
+    -->
+    <Match>
+	<Or>
+	    <Class name="~com\.sun\.mail\.imap\.DefaultFolder.*"/>
+	    <Class name="~com\.sun\.mail\.imap\.IMAPFolder.*"/>
+	    <Class name="~com\.sun\.mail\.imap\.IdleManager.*"/>
+	</Or>
+	<Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
+    </Match>
+
+    <!--
 	Even though only this array reference is volatile, the array is
 	used in such a way that it's safe.  The aray elements are created
 	and initialized before the array is assigned to this array
