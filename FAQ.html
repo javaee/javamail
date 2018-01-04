@@ -164,7 +164,7 @@ web application?
 </A>
 <BR>
     <LI><A HREF="#servletcp">When using JavaMail in my servlet, it is unable to find any of
-the JavaMail classes.  I've added mail.jar to the server's CLASSPATH.
+the JavaMail classes.  I've added javax.mail.jar to the server's CLASSPATH.
 </A>
 <BR>
     <LI><A HREF="#dupcp">I'm sure I've set my CLASSPATH correctly, but I'm still getting
@@ -770,13 +770,14 @@ although it hasn't been updated in several years.
 <A NAME="install">
 <strong>Q:</strong> How do I install the JavaMail API implementation?</A>
 <BR>
-<strong>A:</strong> Unzip the distribution zip file and edit your CLASSPATH
-environment variable to include the mail.jar file that was included with the
-JavaMail API distribution.  You will also need an implementation of the 
+<strong>A:</strong> Download the
+[JavaMail jar file](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_0/javax.mail.jar)
+and edit your CLASSPATH environment variable to include the javax.mail.jar file.
+You will also need an implementation of the 
 JavaBeans Activation Framework (see below) unless you're using JDK 1.6
 or newer (which includes JAF).
 See the <A HREF="https://javaee.github.io/javamail/docs/README.txt">README.txt</A> file
-(also included in the download package) for additional details and examples,
+for additional details and examples,
 as well as the following <A HREF="#classpath">FAQ entry</A>.
 </P>
 
@@ -839,19 +840,15 @@ to your project.
 <LI>Make sure the new library is selected under "Libraries" on the left.</LI>
 <LI>Select the "Classpath" tab on the right and choose
     &lt;Add Jar/Folder...&gt;</LI>
-<LI>Using the file browser, select mail.jar from your JavaMail installation
-    (e.g. .../javamail-1.4.3/mail.jar), and hit &lt;Add Jar/Folder&gt; to
-    accept.</LI>
+<LI>Using the file browser, select the javax.mail.jar that you downloaded,
+    and hit &lt;Add Jar/Folder&gt; to accept.</LI>
 <LI>Select the "Javadoc" tab and choose &lt;Add ZIP/Folder...&gt;</LI>
 <LI>Using the file browser, select the folder where the JavaMail javadoc
-    index files are (e.g. .../javamail-1.4.3/docs/javadocs"), and hit
-    &lt;Add ZIP/Folder&gt; to accept.</LI>
+    index files are, and hit &lt;Add ZIP/Folder&gt; to accept.</LI>
 <LI>If you downloaded the <A href="#source">JavaMail source code</A>, you
     can set the source code reference on the "Sources" tab.  This can be helpful
     for debugging. Using the file browser, select the source root for the
-    JavaMail sources (".../javamail-1.4.3/mail/src/main/java" for 1.4.3)
-    and hit &lt;Add Jar/Folder&gt; to
-    accept.</LI>
+    JavaMail sources and hit &lt;Add Jar/Folder&gt; to accept.</LI>
 </OL>
 </P>
 <P>
@@ -895,14 +892,13 @@ your project.
 <LI>In the new library dialog, enter a user library name, e.g. "JavaMail",
     and hit &lt;OK&gt;.  Do not check system library.</LI>
 <LI>Make sure the new library is selected and choose &lt;Add Jars...&gt;</LI>
-<LI>Browse to where JavaMail is installed and select mail.jar</LI>
+<LI>Browse to where JavaMail is installed and select javax.mail.jar</LI>
 <LI>Select &lt;Javadoc location: (None)&gt; and hit &lt;Edit...&gt; to
     add a reference to the javadoc location.  This can be found at docs/javadocs
     under the same folder where you installed JavaMail.</LI>
 <LI>You can also set the source code reference here if you downloaded the
     <A href="#source">JavaMail source code</A>. Use
-    ".../javamail-1.4.2/mail/src/main/java" as the source root for 1.4.2 or
-    ".../glassfish/mail/src/java" as the source root for 1.4.1.</LI>
+    ".../javamail-1.6.0/mail/src/main/java" as the source root for 1.6.0.</LI>
 <LI>Choose &lt;OK&gt; to close the Preferences dialog.  JavaMail is now
     installed as a Library in Eclipse.</LI>
 </OL>
@@ -1083,7 +1079,7 @@ Illegal use of nonvirtual function call
 <P>
 The problem is due to a buggy version of the unzip command used to unzip
 the JavaMail download package on Linux.  The unzip command corrupts the
-mail.jar file.  Get a newer version of the unzip command, or use the
+javax.mail.jar file.  Get a newer version of the unzip command, or use the
 JDK's jar command to unzip the package.
 </P>
 
@@ -1095,8 +1091,8 @@ what permissions must I grant to the application and to JavaMail?
 <BR>
 <strong>A:</strong> When using JavaMail in an environment with a
 SecurityManager, JavaMail will sometimes fail to read the configuration
-files in the mail.jar file.  The JavaBeans Activation Framework may
-have the same problem reading configuration files from the activation.jar
+files in the javax.mail.jar file.  The JavaBeans Activation Framework may
+have the same problem reading configuration files from the javax.activation.jar
 file.  These default configuration files are stored as "resource" files
 in the META-INF directory in the jar file.
 </P>
@@ -1141,7 +1137,7 @@ grant {
     // following two permissions allow
     // access to default config files
     permission java.io.FilePermission
-		"/path/to/mail.jar", "read";
+		"/path/to/javax.mail.jar", "read";
     permission java.io.FilePermission
 		"/path/to/activation.jar", "read";
     // following to use SMTP
@@ -1196,14 +1192,14 @@ For details, see
 JNDI Resources HOW-TO</A> in the Tomcat documentation.
 </P>
 <P>
-Alternatively, you can package the mail.jar file and activation.jar files
-in the lib directory of your web application package (war file).
+Alternatively, you can package the javax.mail.jar file and javax.activation.jar
+files in the lib directory of your web application package (war file).
 </P>
 
 <P>
 <A NAME="servletcp">
 <strong>Q:</strong> When using JavaMail in my servlet, it is unable to find any of
-the JavaMail classes.  I've added mail.jar to the server's CLASSPATH.
+the JavaMail classes.  I've added javax.mail.jar to the server's CLASSPATH.
 </A>
 <BR>
 <strong>A:</strong> It is often necessary to completely restart the web server
@@ -1218,12 +1214,13 @@ classes.
 </A>
 <BR>
 <strong>A:</strong> The most common cause of problems like this is having more than
-one copy of mail.jar in your CLASSPATH or available to your application.
+one copy of javax.mail.jar in your CLASSPATH or available to your application.
 In addition to checking your CLASSPATH setting, also look for copies in
 the <code>jre/lib/ext</code> directory of your JDK installation.
 If you're running in a web server or application server, it may be
-providing its own version of mail.jar in one of its directories.
-You should only have one version of mail.jar available to your application.
+providing its own version of javax.mail.jar in one of its directories.
+You should only have one version of javax.mail.jar available to your
+application.
 </P>
 
 <P>
@@ -1234,10 +1231,10 @@ type "rfc822".
 </A>
 <BR>
 <strong>A:</strong> Usually this is because JavaMail can't access the configuration
-files in mail.jar, possibly because of a security permission problem;
+files in javax.mail.jar, possibly because of a security permission problem;
 see <A HREF="#securityManager">this item</A> for more details.
-Also, make sure that you haven't extracted the mail.jar contents;
-you should include the unmodified mail.jar file in the server's CLASSPATH.
+Also, make sure that you haven't extracted the javax.mail.jar contents;
+you should include the unmodified javax.mail.jar file in the server's CLASSPATH.
 </P>
 
 <P>
@@ -1914,13 +1911,13 @@ of a MimeMultipart object? </A>
 <BR>
 <strong>A:</strong> This usually happens because the JavaBeans Activation
 Framework (JAF) can't find the mailcap configuration file included in the
-mail.jar file.
+javax.mail.jar file.
 JAF uses the thread's context class loader to look for the configuration file.
 If the context class loader is not set properly, this can fail.
 Most application servers should set the context class loader properly, but
 at least some versions of Tomcat do not.
-One workaround is to put the mail.jar file in Tomcat's lib directory instead
-of including it in the war file.
+One workaround is to put the javax.mail.jar file in Tomcat's lib directory
+instead of including it in the war file.
 Another workaround is to add code such as the following to the beginning of
 your application:
 
@@ -3418,7 +3415,7 @@ header, but this is not very reliable.
 </A>
 <BR>
 <strong>A:</strong> Most likely you
-have more than one version of pop3.jar or mail.jar in your CLASSPATH.
+have more than one version of pop3.jar or javax.mail.jar in your CLASSPATH.
 Check the setting of CLASSPATH and
 check the "jre/lib/ext" directory in the JDK.
 </P>
@@ -3439,9 +3436,9 @@ com.sun.mail.pop3.POP3Message.getContentStream(POP3Message.java:115)
 </P>
 <P>
 As <A HREF="#pop3111">above</A>, you've mixed versions of the POP3
-provider and mail.jar.  You probably have an older version of mail.jar
-in your CLASSPATH before the newer version that includes the POP3
-provider.
+provider and javax.mail.jar.  You probably have an older version of
+javax.mail.jar in your CLASSPATH before the newer version that includes
+the POP3 provider.
 </P>
 
 <P>
