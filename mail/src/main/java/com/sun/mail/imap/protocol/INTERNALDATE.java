@@ -87,9 +87,7 @@ public class INTERNALDATE implements Item {
 	if (s == null)
 	    throw new ParsingException("INTERNALDATE is NIL");
 	try {
-        synchronized (mailDateFormat) {
-            date = mailDateFormat.parse(s);
-        }
+		date = new MailDateFormat().parse(s);
 	} catch (ParseException pex) {
 	    throw new ParsingException("INTERNALDATE parse error");
 	}
@@ -98,13 +96,6 @@ public class INTERNALDATE implements Item {
     public Date getDate() {
 	return date;
     }
-
-    // INTERNALDATE formatter
-
-    private static SimpleDateFormat df = 
-	// Need Locale.US, the "MMM" field can produce unexpected values
-	// in non US locales !
-	new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss ", Locale.US);
 
     /**
      * Format given Date object into INTERNALDATE string
@@ -125,9 +116,11 @@ public class INTERNALDATE implements Item {
 	 * message that's being appended to a folder.
 	 */
 	StringBuffer sb = new StringBuffer();
-	synchronized (df) {
-	    df.format(d, sb, new FieldPosition(0));
-	}
+	// Need Locale.US, the "MMM" field can produce unexpected values
+	// in non US locales !
+	new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss ", Locale.US)
+			.format(d, sb, new FieldPosition(0));
+
 
 	// compute timezone offset string
 	TimeZone tz = TimeZone.getDefault();
