@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,8 +44,12 @@ import java.util.Properties;
 import java.io.*;
 import java.nio.channels.SocketChannel;
 import java.net.*;
-import java.util.logging.Level;
 import javax.net.ssl.SSLSocket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
@@ -53,11 +57,11 @@ import java.util.zip.InflaterInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
-import com.sun.mail.util.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
+import com.sun.mail.util.SocketFetcher;
+import com.sun.mail.util.TraceInputStream;
+import com.sun.mail.util.TraceOutputStream;
 
 /**
  * General protocol handling code for IMAP-like protocols. <p>

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -52,8 +52,17 @@ import javax.mail.*;
 import javax.mail.event.*;
 import javax.mail.internet.*;
 
-import com.sun.mail.util.*;
-import com.sun.mail.auth.*;
+import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.MailLogger;
+import com.sun.mail.util.ASCIIUtility;
+import com.sun.mail.util.SocketFetcher;
+import com.sun.mail.util.MailConnectException;
+import com.sun.mail.util.SocketConnectException;
+import com.sun.mail.util.BASE64EncoderStream;
+import com.sun.mail.util.LineInputStream;
+import com.sun.mail.util.TraceInputStream;
+import com.sun.mail.util.TraceOutputStream;
+import com.sun.mail.auth.Ntlm;
 
 /**
  * This class implements the Transport abstract class using SMTP for

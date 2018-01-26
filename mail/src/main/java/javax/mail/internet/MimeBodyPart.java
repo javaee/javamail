@@ -44,7 +44,12 @@ import javax.mail.*;
 import javax.activation.*;
 import java.io.*;
 import java.util.*;
-import com.sun.mail.util.*;
+import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.ASCIIUtility;
+import com.sun.mail.util.MimeUtil;
+import com.sun.mail.util.MessageRemovedIOException;
+import com.sun.mail.util.FolderClosedIOException;
+import com.sun.mail.util.LineOutputStream;
 
 /**
  * This class represents a MIME body part. It implements the 

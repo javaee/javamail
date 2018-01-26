@@ -46,7 +46,20 @@ import javax.activation.*;
 import java.util.*;
 import java.io.*;
 import java.nio.charset.Charset;
-import com.sun.mail.util.*;
+import com.sun.mail.util.PropUtil;
+import com.sun.mail.util.ASCIIUtility;
+import com.sun.mail.util.BASE64DecoderStream;
+import com.sun.mail.util.BASE64EncoderStream;
+import com.sun.mail.util.BEncoderStream;
+import com.sun.mail.util.LineInputStream;
+import com.sun.mail.util.LineOutputStream;
+import com.sun.mail.util.LogOutputStream;
+import com.sun.mail.util.QDecoderStream;
+import com.sun.mail.util.QEncoderStream;
+import com.sun.mail.util.QPDecoderStream;
+import com.sun.mail.util.QPEncoderStream;
+import com.sun.mail.util.UUDecoderStream;
+import com.sun.mail.util.UUEncoderStream;
 
 /**
  * This is a utility class that provides various MIME related
