@@ -324,9 +324,10 @@ public class MimeMessage extends Message implements MimePart {
      */
     private void initStrict() {
 	if (session != null) {
-	    strict = PropUtil.getBooleanSessionProperty(session,
+	    Properties props = session.getProperties();
+	    strict = PropUtil.getBooleanProperty(props,
 				    "mail.mime.address.strict", true);
-	    allowutf8 = PropUtil.getBooleanSessionProperty(session,
+	    allowutf8 = PropUtil.getBooleanProperty(props,
 				    "mail.mime.allowutf8", false);
 	}
     }
@@ -1751,7 +1752,8 @@ public class MimeMessage extends Message implements MimePart {
 	    String replyallccStr = null;
 	    boolean replyallcc = false;
 	    if (session != null)
-		replyallcc = PropUtil.getBooleanSessionProperty(session,
+		replyallcc = PropUtil.getBooleanProperty(
+						session.getProperties(),
 						"mail.replyallcc", false);
 	    // add the recipients from the To field so far
 	    eliminateDuplicates(v, a);

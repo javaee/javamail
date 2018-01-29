@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -107,11 +107,11 @@ public class POP3Store extends Store {
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
-	logger = new MailLogger(this.getClass(),
-				"DEBUG POP3", session);
+	logger = new MailLogger(this.getClass(), "DEBUG POP3",
+				session.getDebug(), session.getDebugOut());
 
 	if (!isSSL)
-	    isSSL = PropUtil.getBooleanSessionProperty(session,
+	    isSSL = PropUtil.getBooleanProperty(session.getProperties(),
 				"mail." + name + ".ssl.enable", false);
 	if (isSSL)
 	    this.defaultPort = 995;
@@ -174,7 +174,8 @@ public class POP3Store extends Store {
      */
     private final synchronized boolean getBoolProp(String prop) {
 	prop = "mail." + name + "." + prop;
-	boolean val = PropUtil.getBooleanSessionProperty(session, prop, false);
+	boolean val = PropUtil.getBooleanProperty(session.getProperties(),
+						    prop, false);
 	if (logger.isLoggable(Level.CONFIG))
 	    logger.config(prop + ": " + val);
 	return val;
@@ -198,7 +199,7 @@ public class POP3Store extends Store {
 	// if port is not specified, set it to value of mail.pop3.port
         // property if it exists, otherwise default to 110
         if (portNum == -1)
-	    portNum = PropUtil.getIntSessionProperty(session,
+	    portNum = PropUtil.getIntProperty(session.getProperties(),
 				"mail." + name + ".port", -1);
 
 	if (portNum == -1)

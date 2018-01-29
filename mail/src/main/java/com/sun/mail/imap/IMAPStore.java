@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -44,6 +44,7 @@ import java.lang.reflect.*;
 import java.util.Vector;
 import java.util.StringTokenizer;
 import java.util.Locale;
+import java.util.Properties;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -336,14 +337,15 @@ public class IMAPStore extends Store
 
 	ConnectionPool(String name, MailLogger plogger, Session session) {
 	    lastTimePruned = System.currentTimeMillis();
+	    Properties props = session.getProperties();
 
-	    boolean debug = PropUtil.getBooleanSessionProperty(session,
+	    boolean debug = PropUtil.getBooleanProperty(props,
 		"mail." + name + ".connectionpool.debug", false);
 	    logger = plogger.getSubLogger("connectionpool",
 					    "DEBUG IMAP CP", debug);
 
 	    // check if the default connection pool size is overridden
-	    int size = PropUtil.getIntSessionProperty(session,
+	    int size = PropUtil.getIntProperty(props,
 		"mail." + name + ".connectionpoolsize", -1);
 	    if (size > 0) {
 		poolSize = size;
@@ -353,7 +355,7 @@ public class IMAPStore extends Store
 		poolSize = 1;
 
 	    // check if the default client-side timeout value is overridden
-	    int connectionPoolTimeout = PropUtil.getIntSessionProperty(session,
+	    int connectionPoolTimeout = PropUtil.getIntProperty(props,
 		"mail." + name + ".connectionpooltimeout", -1);
 	    if (connectionPoolTimeout > 0) {
 		clientTimeoutInterval = connectionPoolTimeout;
@@ -364,7 +366,7 @@ public class IMAPStore extends Store
 		clientTimeoutInterval = 45 * 1000;	// 45 seconds
 
 	    // check if the default server-side timeout value is overridden
-	    int serverTimeout = PropUtil.getIntSessionProperty(session,
+	    int serverTimeout = PropUtil.getIntProperty(props,
 		"mail." + name + ".servertimeout", -1);
 	    if (serverTimeout > 0) {
 		serverTimeoutInterval = serverTimeout;
@@ -375,7 +377,7 @@ public class IMAPStore extends Store
 		serverTimeoutInterval = 30 * 60 * 1000;	// 30 minutes
 
 	    // check if the default server-side timeout value is overridden
-	    int pruning = PropUtil.getIntSessionProperty(session,
+	    int pruning = PropUtil.getIntProperty(props,
 		"mail." + name + ".pruninginterval", -1);
 	    if (pruning > 0) {
 		pruningInterval = pruning;
@@ -388,7 +390,7 @@ public class IMAPStore extends Store
 	    // check to see if we should use a separate (i.e. dedicated)
 	    // store connection
 	    separateStoreConnection =
-		PropUtil.getBooleanSessionProperty(session,
+		PropUtil.getBooleanProperty(props,
 		    "mail." + name + ".separatestoreconnection", false);
 	    if (separateStoreConnection)
 		logger.config("dedicate a store connection");
@@ -438,11 +440,13 @@ public class IMAPStore extends Store
     protected IMAPStore(Session session, URLName url,
 				String name, boolean isSSL) {
 	super(session, url); // call super constructor
+	Properties props = session.getProperties();
+
 	if (url != null)
 	    name = url.getProtocol();
 	this.name = name;
 	if (!isSSL)
-	    isSSL = PropUtil.getBooleanSessionProperty(session,
+	    isSSL = PropUtil.getBooleanProperty(props,
 				"mail." + name + ".ssl.enable", false);
 	if (isSSL)
 	    this.defaultPort = 993;
@@ -451,42 +455,43 @@ public class IMAPStore extends Store
 	this.isSSL = isSSL;
 
         debug = session.getDebug();
-	debugusername = PropUtil.getBooleanSessionProperty(session,
+	debugusername = PropUtil.getBooleanProperty(props,
 			"mail.debug.auth.username", true);
-	debugpassword = PropUtil.getBooleanSessionProperty(session,
+	debugpassword = PropUtil.getBooleanProperty(props,
 			"mail.debug.auth.password", false);
 	logger = new MailLogger(this.getClass(),
-			"DEBUG " + name.toUpperCase(Locale.ENGLISH), session);
+			"DEBUG " + name.toUpperCase(Locale.ENGLISH),
+			session.getDebug(), session.getDebugOut());
 
-	boolean partialFetch = PropUtil.getBooleanSessionProperty(session,
+	boolean partialFetch = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".partialfetch", true);
 	if (!partialFetch) {
 	    blksize = -1;
 	    logger.config("mail.imap.partialfetch: false");
 	} else {
-	    blksize = PropUtil.getIntSessionProperty(session,
+	    blksize = PropUtil.getIntProperty(props,
 		"mail." + name +".fetchsize", 1024 * 16);
 	    if (logger.isLoggable(Level.CONFIG))
 		logger.config("mail.imap.fetchsize: " + blksize);
 	}
 
-	ignoreSize = PropUtil.getBooleanSessionProperty(session,
+	ignoreSize = PropUtil.getBooleanProperty(props,
 	    "mail." + name +".ignorebodystructuresize", false);
 	if (logger.isLoggable(Level.CONFIG))
 	    logger.config("mail.imap.ignorebodystructuresize: " + ignoreSize);
 
-	statusCacheTimeout = PropUtil.getIntSessionProperty(session,
+	statusCacheTimeout = PropUtil.getIntProperty(props,
 	    "mail." + name + ".statuscachetimeout", 1000);
 	if (logger.isLoggable(Level.CONFIG))
 	    logger.config("mail.imap.statuscachetimeout: " +
 						statusCacheTimeout);
 
-	appendBufferSize = PropUtil.getIntSessionProperty(session,
+	appendBufferSize = PropUtil.getIntProperty(props,
 	    "mail." + name + ".appendbuffersize", -1);
 	if (logger.isLoggable(Level.CONFIG))
 	    logger.config("mail.imap.appendbuffersize: " + appendBufferSize);
 
-	minIdleTime = PropUtil.getIntSessionProperty(session,
+	minIdleTime = PropUtil.getIntProperty(props,
 	    "mail." + name + ".minidletime", 10);
 	if (logger.isLoggable(Level.CONFIG))
 	    logger.config("mail.imap.minidletime: " + minIdleTime);
@@ -500,19 +505,19 @@ public class IMAPStore extends Store
 	}
 
 	// check if STARTTLS is enabled
-	enableStartTLS = PropUtil.getBooleanSessionProperty(session,
+	enableStartTLS = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".starttls.enable", false);
 	if (enableStartTLS)
 	    logger.config("enable STARTTLS");
 
 	// check if STARTTLS is required
-	requireStartTLS = PropUtil.getBooleanSessionProperty(session,
+	requireStartTLS = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".starttls.required", false);
 	if (requireStartTLS)
 	    logger.config("require STARTTLS");
 
 	// check if SASL is enabled
-	enableSASL = PropUtil.getBooleanSessionProperty(session,
+	enableSASL = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".sasl.enable", false);
 	if (enableSASL)
 	    logger.config("enable SASL");
@@ -551,25 +556,25 @@ public class IMAPStore extends Store
 	}
 
 	// check if forcePasswordRefresh is enabled
-	forcePasswordRefresh = PropUtil.getBooleanSessionProperty(session,
+	forcePasswordRefresh = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".forcepasswordrefresh", false);
 	if (forcePasswordRefresh)
 	    logger.config("enable forcePasswordRefresh");
 
 	// check if enableimapevents is enabled
-	enableResponseEvents = PropUtil.getBooleanSessionProperty(session,
+	enableResponseEvents = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".enableresponseevents", false);
 	if (enableResponseEvents)
 	    logger.config("enable IMAP response events");
 
 	// check if enableresponseevents is enabled
-	enableImapEvents = PropUtil.getBooleanSessionProperty(session,
+	enableImapEvents = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".enableimapevents", false);
 	if (enableImapEvents)
 	    logger.config("enable IMAP IDLE events");
 
 	// check if message cache debugging set
-	messageCacheDebug = PropUtil.getBooleanSessionProperty(session,
+	messageCacheDebug = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".messagecache.debug", false);
 
 	guid = session.getProperty("mail." + name + ".yahoo.guid");
@@ -577,31 +582,31 @@ public class IMAPStore extends Store
 	    logger.log(Level.CONFIG, "mail.imap.yahoo.guid: {0}", guid);
 
 	// check if throwsearchexception is enabled
-	throwSearchException = PropUtil.getBooleanSessionProperty(session,
+	throwSearchException = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".throwsearchexception", false);
 	if (throwSearchException)
 	    logger.config("throw SearchException");
 
 	// check if peek is set
-	peek = PropUtil.getBooleanSessionProperty(session,
+	peek = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".peek", false);
 	if (peek)
 	    logger.config("peek");
 
 	// check if closeFoldersOnStoreFailure is set
-	closeFoldersOnStoreFailure = PropUtil.getBooleanSessionProperty(session,
+	closeFoldersOnStoreFailure = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".closefoldersonstorefailure", true);
 	if (closeFoldersOnStoreFailure)
 	    logger.config("closeFoldersOnStoreFailure");
 
 	// check if COMPRESS is enabled
-	enableCompress = PropUtil.getBooleanSessionProperty(session,
+	enableCompress = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".compress.enable", false);
 	if (enableCompress)
 	    logger.config("enable COMPRESS");
 
 	// check if finalizeCleanClose is enabled
-	finalizeCleanClose = PropUtil.getBooleanSessionProperty(session,
+	finalizeCleanClose = PropUtil.getBooleanProperty(props,
 	    "mail." + name + ".finalizecleanclose", false);
 	if (finalizeCleanClose)
 	    logger.config("close connection cleanly in finalize");
@@ -671,7 +676,7 @@ public class IMAPStore extends Store
 	if (pport != -1) {
 	    port = pport;
 	} else {
-	    port = PropUtil.getIntSessionProperty(session,
+	    port = PropUtil.getIntProperty(session.getProperties(),
 					"mail." + name + ".port", port);
 	} 
 	
@@ -888,8 +893,9 @@ public class IMAPStore extends Store
 	    if (mechs == defaultAuthenticationMechanisms) {
 		String dprop = "mail." + name + ".auth." +
 				    m.toLowerCase(Locale.ENGLISH) + ".disable";
-		boolean disabled = PropUtil.getBooleanSessionProperty(
-					session, dprop, m.equals("XOAUTH2"));
+		boolean disabled = PropUtil.getBooleanProperty(
+					session.getProperties(),
+					dprop, m.equals("XOAUTH2"));
 		if (disabled) {
 		    if (logger.isLoggable(Level.FINE))
 			logger.fine("mechanism " + m +
@@ -1257,7 +1263,7 @@ public class IMAPStore extends Store
      * do we allow the open to succeed?
      */
     boolean allowReadOnlySelect() {
-	return PropUtil.getBooleanSessionProperty(session,
+	return PropUtil.getBooleanProperty(session.getProperties(),
 	    "mail." + name + ".allowreadonlyselect", false);
     }
 

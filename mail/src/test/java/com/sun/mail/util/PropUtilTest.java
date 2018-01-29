@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,15 +56,13 @@ public class PropUtilTest {
     public void testInt() throws Exception {
 	Properties props = new Properties();
 	props.setProperty("test", "2");
-	Session sess = Session.getInstance(props, null);
-	assertEquals(PropUtil.getIntSessionProperty(sess, "test", 1), 2);
+	assertEquals(PropUtil.getIntProperty(props, "test", 1), 2);
     }
 
     @Test
     public void testIntDef() throws Exception {
 	Properties props = new Properties();
-	Session sess = Session.getInstance(props, null);
-	assertEquals(PropUtil.getIntSessionProperty(sess, "test", 1), 1);
+	assertEquals(PropUtil.getIntProperty(props, "test", 1), 1);
     }
 
     @Test
@@ -72,31 +70,27 @@ public class PropUtilTest {
 	Properties defprops = new Properties();
 	defprops.setProperty("test", "2");
 	Properties props = new Properties(defprops);
-	Session sess = Session.getInstance(props, null);
-	assertEquals(PropUtil.getIntSessionProperty(sess, "test", 1), 2);
+	assertEquals(PropUtil.getIntProperty(props, "test", 1), 2);
     }
 
     @Test
     public void testInteger() throws Exception {
 	Properties props = new Properties();
 	props.put("test", 2);
-	Session sess = Session.getInstance(props, null);
-	assertEquals(PropUtil.getIntSessionProperty(sess, "test", 1), 2);
+	assertEquals(PropUtil.getIntProperty(props, "test", 1), 2);
     }
 
     @Test
     public void testBool() throws Exception {
 	Properties props = new Properties();
 	props.setProperty("test", "true");
-	Session sess = Session.getInstance(props, null);
-	assertTrue(PropUtil.getBooleanSessionProperty(sess, "test", false));
+	assertTrue(PropUtil.getBooleanProperty(props, "test", false));
     }
 
     @Test
     public void testBoolDef() throws Exception {
 	Properties props = new Properties();
-	Session sess = Session.getInstance(props, null);
-	assertTrue(PropUtil.getBooleanSessionProperty(sess, "test", true));
+	assertTrue(PropUtil.getBooleanProperty(props, "test", true));
     }
 
     @Test
@@ -104,22 +98,21 @@ public class PropUtilTest {
 	Properties defprops = new Properties();
 	defprops.setProperty("test", "true");
 	Properties props = new Properties(defprops);
-	Session sess = Session.getInstance(props, null);
-	assertTrue(PropUtil.getBooleanSessionProperty(sess, "test", false));
+	assertTrue(PropUtil.getBooleanProperty(props, "test", false));
     }
 
     @Test
     public void testBoolean() throws Exception {
 	Properties props = new Properties();
 	props.put("test", true);
-	Session sess = Session.getInstance(props, null);
-	assertTrue(PropUtil.getBooleanSessionProperty(sess, "test", false));
+	assertTrue(PropUtil.getBooleanProperty(props, "test", false));
     }
 
 
     // the Session variants...
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionInt() throws Exception {
 	Properties props = new Properties();
 	props.setProperty("test", "2");
@@ -128,6 +121,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionIntDef() throws Exception {
 	Properties props = new Properties();
 	Session sess = Session.getInstance(props, null);
@@ -135,6 +129,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionIntDefProp() throws Exception {
 	Properties defprops = new Properties();
 	defprops.setProperty("test", "2");
@@ -144,6 +139,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionInteger() throws Exception {
 	Properties props = new Properties();
 	props.put("test", 2);
@@ -152,6 +148,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionBool() throws Exception {
 	Properties props = new Properties();
 	props.setProperty("test", "true");
@@ -160,6 +157,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionBoolDef() throws Exception {
 	Properties props = new Properties();
 	Session sess = Session.getInstance(props, null);
@@ -167,6 +165,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionBoolDefProp() throws Exception {
 	Properties defprops = new Properties();
 	defprops.setProperty("test", "true");
@@ -176,6 +175,7 @@ public class PropUtilTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testSessionBoolean() throws Exception {
 	Properties props = new Properties();
 	props.put("test", true);

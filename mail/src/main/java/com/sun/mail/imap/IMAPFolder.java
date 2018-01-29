@@ -396,8 +396,8 @@ public class IMAPFolder extends Folder implements UIDFolder, ResponseHandler {
 	    throw new NullPointerException("Folder name is null");
 	this.fullName = fullName;
 	this.separator = separator;
-	logger = new MailLogger(this.getClass(),
-				"DEBUG IMAP", store.getSession());
+	logger = new MailLogger(this.getClass(), "DEBUG IMAP",
+	    store.getSession().getDebug(), store.getSession().getDebugOut());
 	connectionPoolLogger = store.getConnectionPoolLogger();
 
 	/*

@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2012-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2012-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -147,6 +147,7 @@ public final class MailLogger {
      * @param	prefix	the prefix for debug output, or null for none
      * @param	session	where to get the debug flag and PrintStream
      */
+    @Deprecated
     public MailLogger(String name, String prefix, Session session) {
 	this(name, prefix, session.getDebug(), session.getDebugOut());
     }
@@ -161,6 +162,7 @@ public final class MailLogger {
      * @param	prefix	the prefix for debug output, or null for none
      * @param	session	where to get the debug flag and PrintStream
      */
+    @Deprecated
     public MailLogger(Class<?> clazz, String prefix, Session session) {
 	this(clazz, prefix, session.getDebug(), session.getDebugOut());
     }

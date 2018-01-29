@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -85,8 +85,8 @@ public class POP3Folder extends Folder {
 	this.store = store;
 	if (name.equalsIgnoreCase("INBOX"))
 	    exists = true;
-	logger = new MailLogger(this.getClass(),
-				"DEBUG POP3", store.getSession());
+	logger = new MailLogger(this.getClass(), "DEBUG POP3",
+	    store.getSession().getDebug(), store.getSession().getDebugOut());
     }
 
     @Override
