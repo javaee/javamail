@@ -65,13 +65,13 @@
     <build>
 	<plugins>
 	    <!--
-		Configure FindBugs to run with "mvn findbugs:findbugs"
+		Configure SpotBugs to run with "mvn findbugs:findbugs"
 		and generate XML output that can be used by the Hudson
 		FindBugs plugin.
 	    -->
 	    <plugin>
-		<groupId>org.codehaus.mojo</groupId>
-		<artifactId>findbugs-maven-plugin</artifactId>
+		<groupId>com.github.spotbugs</groupId>
+		<artifactId>spotbugs-maven-plugin</artifactId>
 		<configuration>
 		    <skip>false</skip>
 		    <threshold>${findbugs.threshold}</threshold>
@@ -103,7 +103,7 @@
     <reporting>
 	<plugins>
 	    <!--
-		Configure FindBugs to run with "mvn site" and
+		Configure SpotBugs to run with "mvn site" and
 		generate html output that can be viewed directly.
 	    -->
 	    <plugin>
