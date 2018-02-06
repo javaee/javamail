@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -127,10 +127,15 @@
 	</profile>
 
 	<!--
-	    A special profile for compiling with the real JDK 9 compiler.
+	    A special profile used when compiling with the real JDK 9 compiler.
+	    Override the release setting from the parent's "9" profile so
+	    that we produce JDK 1.7 compatible class files.
 	-->
 	<profile>
 	    <id>9</id>
+	    <activation>
+		<jdk>9</jdk>
+	    </activation>
 	    <build>
 		<plugins>
 		    <plugin>
@@ -139,15 +144,7 @@
 			    <execution>
 				<id>default-compile</id>
 				<configuration>
-				    <compilerArgs>
-					<arg>-Xlint</arg>
-					<arg>-Xlint:-options</arg>
-					<arg>-Xlint:-path</arg>
-					<!--
-					    Too many finalize warnings.
-					<arg>-Werror</arg>
-					-->
-				    </compilerArgs>
+				    <release combine.self="override"></release>
 				</configuration>
 			    </execution>
 			</executions>

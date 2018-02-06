@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -75,27 +75,6 @@
 	<android.api.level>19</android.api.level>
 	<android.version>4.4_r1</android.version>
     </properties>
-
-    <profiles>
-	<!--
-	    A special profile for compiling with JDK 9.
-	    Skip animal-sniffer until it works with JDK 9.
-	-->
-	<profile>
-	    <id>9</id>
-	    <build>
-		<plugins>
-		    <plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>animal-sniffer-maven-plugin</artifactId>
-			<configuration>
-			    <skip>true</skip>
-			</configuration>
-		    </plugin>
-		</plugins>
-	    </build>
-	</profile>
-    </profiles>
 
     <build>
 	<plugins>

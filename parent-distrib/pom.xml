@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -60,6 +60,72 @@
 	<mail.classes>com/sun/mail/${project.artifactId}/**</mail.classes>
     </properties>
 
+    <profiles>
+	<!--
+	    A special profile for compiling with JDK 9.
+	-->
+	<profile>
+	    <id>9</id>
+	    <activation>
+		<jdk>9</jdk>
+	    </activation>
+	    <build>
+		<plugins>
+		    <plugin>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>default-compile</id>
+				<configuration>
+				    <release>9</release>
+				    <source>9</source>
+				    <target>9</target>
+				    <compilerArgs>
+					<arg>-Xlint</arg>
+					<arg>-Xlint:-options</arg>
+					<arg>-Xlint:-path</arg>
+					<!--
+					    Too many finalize warnings.
+					<arg>-Werror</arg>
+					-->
+				    </compilerArgs>
+				    <!-- un-exclude module-info.java -->
+				    <excludes combine.self="override">
+				    </excludes>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		    <!--
+			Require JDK 9.
+		    -->
+		    <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-enforcer-plugin</artifactId>
+			<executions>
+			    <execution>
+				<id>enforce-version</id>
+				<goals>
+				    <goal>enforce</goal>
+				</goals>
+				<configuration>
+				    <rules>
+					<requireMavenVersion>
+					    <version>[3.0.3,)</version>
+					</requireMavenVersion>
+					<requireJavaVersion>
+					    <version>9</version>
+					</requireJavaVersion>
+				    </rules>
+				</configuration>
+			    </execution>
+			</executions>
+		    </plugin>
+		</plugins>
+	    </build>
+	</profile>
+    </profiles>
+
     <build>
         <plugins>
 	    <plugin>
@@ -68,7 +134,7 @@
 		    <execution>
 			<!-- download the binaries -->
 			<id>get-binaries</id>
-			<phase>compile</phase>
+			<phase>generate-sources</phase>
 			<goals>
 			    <goal>unpack</goal>
 			</goals>
@@ -76,7 +142,7 @@
 		    <execution>
 			<!-- download the sources -->
 			<id>get-sources</id>
-			<phase>compile</phase>
+			<phase>generate-sources</phase>
 			<goals>
 			    <goal>unpack</goal>
 			</goals>
@@ -115,4 +181,12 @@
 	    </plugin>
         </plugins>
     </build>
+
+    <dependencies>
+	<dependency>
+	    <groupId>com.sun.mail</groupId>
+	    <artifactId>mailapi</artifactId>
+	    <version>${mail.version}</version>
+	</dependency>
+    </dependencies>
 </project>

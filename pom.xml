@@ -340,6 +340,9 @@
 	-->
 	<profile>
 	    <id>9</id>
+	    <activation>
+		<jdk>9</jdk>
+	    </activation>
 	    <build>
 		<plugins>
 		    <plugin>
@@ -348,8 +351,15 @@
 			    <execution>
 				<id>default-compile</id>
 				<configuration>
-				    <source>9</source>
-				    <target>9</target>
+				    <compilerArgs>
+					<arg>-Xlint</arg>
+					<arg>-Xlint:-options</arg>
+					<arg>-Xlint:-path</arg>
+					<!--
+					    Too many finalize warnings.
+					<arg>-Werror</arg>
+					-->
+				    </compilerArgs>
 				</configuration>
 			    </execution>
 			</executions>
@@ -504,6 +514,11 @@
 				https://issues.apache.org/jira/browse/MCOMPILER-209
 			    -->
 			    <useIncrementalCompilation>false</useIncrementalCompilation>
+			    <excludes>
+				<exclude>
+				  module-info.java
+				</exclude>
+			    </excludes>
 			</configuration>
 		    </execution>
 		    <execution>
@@ -669,7 +684,7 @@
 		</plugin>
 		<plugin>
 		    <!--
-			By default, disable the FindBugs plugin for all modules.
+			By default, disable the SpotBugs plugin for all modules.
 			It's enabled in the modules where we actually want to
 			run it.
 		    -->
@@ -703,7 +718,7 @@
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-javadoc-plugin</artifactId>
-		    <version>3.0.0-M1</version>
+		    <version>3.0.0</version>
 		    <configuration>
 			<!-- make all the APIs available for javadoc -->
 			<additionalDependencies>
@@ -801,7 +816,7 @@
     <reporting>
 	<plugins>
 	    <!--
-		Configure FindBugs to run with "mvn site" and
+		Configure SpotBugs to run with "mvn site" and
 		generate html output that can be viewed directly.
 	    -->
 	    <plugin>
