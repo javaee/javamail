@@ -60,9 +60,9 @@
     <properties>
 	<mail.extraClasses>com/sun/mail/iap/**</mail.extraClasses>
 	<mail.packages.export>
-	    com.sun.mail.imap; version=${mail.version}
-	    com.sun.mail.imap.protocol; version=${mail.version}
-	    com.sun.mail.iap; version=${mail.version}
+	    com.sun.mail.imap; version=${mail.osgiversion},
+	    com.sun.mail.imap.protocol; version=${mail.osgiversion},
+	    com.sun.mail.iap; version=${mail.osgiversion}
 	</mail.packages.export>
     </properties>
 </project>

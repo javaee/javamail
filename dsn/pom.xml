@@ -58,7 +58,7 @@
 
     <properties>
 	<mail.packages.export>
-	    com.sun.mail.dsn; version=${mail.version}
+	    com.sun.mail.dsn; version=${mail.osgiversion}
 	</mail.packages.export>
     </properties>
 
