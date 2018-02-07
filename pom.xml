@@ -718,7 +718,7 @@
 		<plugin>
 		    <groupId>org.apache.maven.plugins</groupId>
 		    <artifactId>maven-javadoc-plugin</artifactId>
-		    <version>3.0.0</version>
+		    <version>3.0.0-M1</version>
 		    <configuration>
 			<!-- make all the APIs available for javadoc -->
 			<additionalDependencies>
@@ -733,6 +733,11 @@
 				<version>${mail.version}</version>
 			    </additionalDependency>
 			</additionalDependencies>
+			<sourceFileExcludes>
+			    <sourceFileExclude>
+				module-info.java
+			    </sourceFileExclude>
+			</sourceFileExcludes>
 		    </configuration>
 		</plugin>
 		<plugin>
