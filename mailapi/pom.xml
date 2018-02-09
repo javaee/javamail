@@ -229,7 +229,13 @@
 			com/sun/mail/handlers/**,
 			META-INF/*
 		    </includes>
+		    <!--
+			Have to exclude package.html because it links to
+			com.sun.mail.{imap,pop3,smtp} packages and jdk 9
+			javadoc fails that during deploy.
+		    -->
 		    <excludes>
+			javax/mail/package.html,
 			com/sun/mail/util/logging/**,
 			META-INF/javamail.default.*
 		    </excludes>
