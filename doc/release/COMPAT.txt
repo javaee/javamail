@@ -14,6 +14,16 @@ implementation.  This note summarizes potential compatibility issues
 with this release of the JavaMail API.
 
 
+-- JavaMail 1.6.1 --
+
+- com.sun.mail.util.logging no longer included in mailapi.jar.
+
+	If you're using mailapi.jar and depend on the com.sun.mail.util.logging
+	classes, you'll need to include the logging-mailhandler.jar file in
+	your application class path.
+
+
+
 -- JavaMail 1.6 --
 
 - Public API updated to use generics
