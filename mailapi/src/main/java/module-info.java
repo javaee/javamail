@@ -50,4 +50,7 @@ module java.mail {
 
     requires transitive java.activation;
     requires java.logging;
+    requires java.xml;		// for text/xml handler
+    requires java.desktop;	// for image/jpeg handler
+    requires java.security.sasl; // for OAuth2 support
 }
