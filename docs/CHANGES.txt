@@ -15,6 +15,19 @@ Seven digit bug numbers are from the old Sun bug database, which is no
 longer available.
 
 
+		  CHANGES IN THE 1.6.1 RELEASE
+		  ----------------------------
+The following bugs have been fixed in the 1.6.1 release.
+
+GH  262	Some IMAP servers send EXPUNGE responses for unknown messages
+GH  278	BODYSTRUCTURE Parser fails on specific IMAP Server response 
+GH  283	clean up connections when closing IMAPStore
+GH  287	Allow relaxed Content-Disposition parsing
+GH  289	use a different IMAP tag prefix for each connection
+GH  291	define JDK 9 module name for JavaMail
+GH  296	HTTP proxy support needs to use HTTP/1.1
+
+
 		  CHANGES IN THE 1.6.0 RELEASE
 		  ----------------------------
 The following bugs have been fixed in the 1.6.0 release.

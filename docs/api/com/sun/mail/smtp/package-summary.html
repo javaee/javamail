@@ -171,6 +171,7 @@ will be included in the list for each address that is successful.
 Note that this will cause a top level
 <a href="../../../../javax/mail/SendFailedException.html" title="class in javax.mail"><code>SendFailedException</code></a>
 to be thrown even though the send was successful.
+</P>
 <P>
 The SMTP provider also supports ESMTP
 (<A HREF="http://www.ietf.org/rfc/rfc1651.txt" TARGET="_top">RFC 1651</A>).
@@ -179,29 +180,35 @@ It can optionally use SMTP Authentication
 using the LOGIN, PLAIN, DIGEST-MD5, and NTLM mechanisms
 (<A HREF="http://www.ietf.org/rfc/rfc4616.txt" TARGET="_top">RFC 4616</A>
 and <A HREF="http://www.ietf.org/rfc/rfc2831.txt" TARGET="_top">RFC 2831</A>).
+</P>
 <P>
 To use SMTP authentication you'll need to set the <code>mail.smtp.auth</code>
 property (see below) or provide the SMTP Transport
 with a username and password when connecting to the SMTP server.  You
 can do this using one of the following approaches:
-<P>
+</P>
 <UL>
 <LI>
+<P>
 Provide an Authenticator object when creating your mail Session
 and provide the username and password information during the
 Authenticator callback.
+</P>
 <P>
 Note that the <code>mail.smtp.user</code> property can be set to provide a
 default username for the callback, but the password will still need to be
 supplied explicitly.
+</P>
 <P>
 This approach allows you to use the static Transport <code>send</code> method
 to send messages.
+</P>
 </LI>
-<P>
 <LI>
+<P>
 Call the Transport <code>connect</code> method explicitly with username and
 password arguments.
+</P>
 <P>
 This approach requires you to explicitly manage a Transport object
 and use the Transport <code>sendMessage</code> method to send the message.
@@ -209,7 +216,7 @@ The transport.java demo program demonstrates how to manage a Transport
 object.  The following is roughly equivalent to the static
 Transport <code>send</code> method, but supplies the needed username and
 password:
-<P>
+</P>
 <BLOCKQUOTE><PRE>
 Transport tr = session.getTransport("smtp");
 tr.connect(smtphost, username, password);
@@ -225,6 +232,7 @@ you'll also need to supply an appropriate realm;
 your mail server administrator can supply this information.
 You can set this using the <code>mail.smtp.sasl.realm</code> property,
 or the <code>setSASLRealm</code> method on <code>SMTPTransport</code>.
+</P>
 <P>
 The SMTP protocol provider can use SASL
 (<A HREF="http://www.ietf.org/rfc/rfc2222.txt" TARGET="_top">RFC 2222</A>)
@@ -238,6 +246,7 @@ schemes.  See the
 Java SASL API Programming and Deployment Guide</A> for details.
 Note that the current implementation doesn't support SASL mechanisms
 that provide their own integrity or confidentiality layer.
+</P>
 <P>
 Support for OAuth 2.0 authentication via the
 <A HREF="https://developers.google.com/gmail/xoauth2_protocol" TARGET="_top">
@@ -247,6 +256,7 @@ SMTP provider.
 The OAuth 2.0 Access Token should be passed as the password for this mechanism.
 See <A HREF="https://java.net/projects/javamail/pages/OAuth2" TARGET="_top">
 OAuth2 Support</A> for details.
+</P>
 <P>
 SMTP can also optionally request Delivery Status Notifications
 (<A HREF="http://www.ietf.org/rfc/rfc1891.txt" TARGET="_top">RFC 1891</A>).
@@ -256,18 +266,21 @@ a "multipart/report"
 message type with a "message/delivery-status"
 (<A HREF="http://www.ietf.org/rfc/rfc1894.txt" TARGET="_top">RFC 1894</A>)
 part.
-You can use the classes in the <a href="../../../../com/sun/mail/dsn/package-summary.html"><code>com.sun.mail.dsn</code></a> package to
+You can use the classes in the <code>com.sun.mail.dsn</code> package to
 handle these MIME types.
 Note that you'll need to include <code>dsn.jar</code> in your CLASSPATH
 as this support is not included in <code>mail.jar</code>.
+</P>
 <P>
 See below for the properties to enable these features.
+</P>
 <P>
 Note also that <strong>THERE IS NOT SUFFICIENT DOCUMENTATION HERE TO USE THESE
 FEATURES!!!</strong>  You will need to read the appropriate RFCs mentioned above
 to understand what these features do and how to use them.  Don't just
 start setting properties and then complain to us when it doesn't work
 like you expect it to work.  <strong>READ THE RFCs FIRST!!!</strong>
+</P>
 <P>
 The SMTP protocol provider supports the CHUNKING extension defined in
 <A HREF="http://www.ietf.org/rfc/rfc3030.txt" TARGET="_top">RFC 3030</A>.
@@ -277,72 +290,68 @@ If the server supports the CHUNKING extension, the BDAT command will be
 used to send the message in chunksize pieces.  Note that no pipelining is
 done so this will be slower than sending the message in one piece.
 Note also that the BINARYMIME extension described in RFC 3030 is NOT supported.
+</P>
+<A NAME="properties"><STRONG>Properties</STRONG></A>
 <P>
-<A NAME="properties">
-<H4>Properties</H4>
-</A>
 The SMTP protocol provider supports the following properties,
 which may be set in the JavaMail <code>Session</code> object.
 The properties are always set as strings; the Type column describes
 how the string is interpreted.  For example, use
+</P>
 <PRE>
         props.put("mail.smtp.port", "888");
 </PRE>
+<P>
 to set the <CODE>mail.smtp.port</CODE> property, which is of type int.
+</P>
 <P>
 Note that if you're using the "smtps" protocol to access SMTP over SSL,
 all the properties would be named "mail.smtps.*".
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="SMTP properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.smtp.user"></A>
-<TR id="mail.smtp.user">
-<TD>mail.smtp.user</TD>
+<TR>
+<TD><A NAME="mail.smtp.user">mail.smtp.user</A></TD>
 <TD>String</TD>
 <TD>Default user name for SMTP.</TD>
 </TR>
 
-<A NAME="mail.smtp.host"></A>
-<TR id="mail.smtp.host">
-<TD>mail.smtp.host</TD>
+<TR>
+<TD><A NAME="mail.smtp.host">mail.smtp.host</A></TD>
 <TD>String</TD>
 <TD>The SMTP server to connect to.</TD>
 </TR>
 
-<A NAME="mail.smtp.port"></A>
-<TR id="mail.smtp.port">
-<TD>mail.smtp.port</TD>
+<TR>
+<TD><A NAME="mail.smtp.port">mail.smtp.port</A></TD>
 <TD>int</TD>
 <TD>The SMTP server port to connect to, if the connect() method doesn't
 explicitly specify one. Defaults to 25.</TD>
 </TR>
 
-<A NAME="mail.smtp.connectiontimeout"></A>
-<TR id="mail.smtp.connectiontimeout">
-<TD>mail.smtp.connectiontimeout</TD>
+<TR>
+<TD><A NAME="mail.smtp.connectiontimeout">mail.smtp.connectiontimeout</A></TD>
 <TD>int</TD>
 <TD>Socket connection timeout value in milliseconds.
 This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<A NAME="mail.smtp.timeout"></A>
-<TR id="mail.smtp.timeout">
-<TD>mail.smtp.timeout</TD>
+<TR>
+<TD><A NAME="mail.smtp.timeout">mail.smtp.timeout</A></TD>
 <TD>int</TD>
 <TD>Socket read timeout value in milliseconds.
 This timeout is implemented by java.net.Socket.
 Default is infinite timeout.</TD>
 </TR>
 
-<A NAME="mail.smtp.writetimeout"></A>
-<TR id="mail.smtp.writetimeout">
-<TD>mail.smtp.writetimeout</TD>
+<TR>
+<TD><A NAME="mail.smtp.writetimeout">mail.smtp.writetimeout</A></TD>
 <TD>int</TD>
 <TD>Socket write timeout value in milliseconds.
 This timeout is implemented by using a
@@ -352,9 +361,8 @@ Thus, the overhead of using this timeout is one thread per connection.
 Default is infinite timeout.</TD>
 </TR>
 
-<A NAME="mail.smtp.from"></A>
-<TR id="mail.smtp.from">
-<TD>mail.smtp.from</TD>
+<TR>
+<TD><A NAME="mail.smtp.from">mail.smtp.from</A></TD>
 <TD>String</TD>
 <TD>
 Email address to use for SMTP MAIL command.  This sets the envelope
@@ -364,9 +372,8 @@ used for this.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.localhost"></A>
-<TR id="mail.smtp.localhost">
-<TD>mail.smtp.localhost</TD>
+<TR>
+<TD><A NAME="mail.smtp.localhost">mail.smtp.localhost</A></TD>
 <TD>String</TD>
 <TD>
 Local host name used in the SMTP HELO or EHLO command.
@@ -376,9 +383,8 @@ be set if your JDK and your name service are configured properly.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.localaddress"></A>
-<TR id="mail.smtp.localaddress">
-<TD>mail.smtp.localaddress</TD>
+<TR>
+<TD><A NAME="mail.smtp.localaddress">mail.smtp.localaddress</A></TD>
 <TD>String</TD>
 <TD>
 Local address (host name) to bind to when creating the SMTP socket.
@@ -388,9 +394,8 @@ where it's important to pick a particular local address to bind to.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.localport"></A>
-<TR id="mail.smtp.localport">
-<TD>mail.smtp.localport</TD>
+<TR>
+<TD><A NAME="mail.smtp.localport">mail.smtp.localport</A></TD>
 <TD>int</TD>
 <TD>
 Local port number to bind to when creating the SMTP socket.
@@ -398,9 +403,8 @@ Defaults to the port number picked by the Socket class.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ehlo"></A>
-<TR id="mail.smtp.ehlo">
-<TD>mail.smtp.ehlo</TD>
+<TR>
+<TD><A NAME="mail.smtp.ehlo">mail.smtp.ehlo</A></TD>
 <TD>boolean</TD>
 <TD>
 If false, do not attempt to sign on with the EHLO command.  Defaults to
@@ -410,17 +414,15 @@ properly or don't implement EHLO properly.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.auth"></A>
-<TR id="mail.smtp.auth">
-<TD>mail.smtp.auth</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth">mail.smtp.auth</A></TD>
 <TD>boolean</TD>
 <TD>If true, attempt to authenticate the user using the AUTH command.
 Defaults to false.</TD>
 </TR>
 
-<A NAME="mail.smtp.auth.mechanisms"></A>
-<TR id="mail.smtp.auth.mechanisms">
-<TD>mail.smtp.auth.mechanisms</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.mechanisms">mail.smtp.auth.mechanisms</A></TD>
 <TD>String</TD>
 <TD>
 If set, lists the authentication mechanisms to consider, and the order
@@ -432,50 +434,44 @@ except XOAUTH2.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.auth.login.disable"></A>
-<TR id="mail.smtp.auth.login.disable">
-<TD>mail.smtp.auth.login.disable</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.login.disable">mail.smtp.auth.login.disable</A></TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH LOGIN</code> command.
 Default is false.</TD>
 </TR>
 
-<A NAME="mail.smtp.auth.plain.disable"></A>
-<TR id="mail.smtp.auth.plain.disable">
-<TD>mail.smtp.auth.plain.disable</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.plain.disable">mail.smtp.auth.plain.disable</A></TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH PLAIN</code> command.
 Default is false.</TD>
 </TR>
 
-<A NAME="mail.smtp.auth.digest-md5.disable"></A>
-<TR id="mail.smtp.auth.digest-md5.disable">
-<TD>mail.smtp.auth.digest-md5.disable</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.digest-md5.disable">mail.smtp.auth.digest-md5.disable</A></TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH DIGEST-MD5</code> command.
 Default is false.</TD>
 </TR>
 
-<A NAME="mail.smtp.auth.ntlm.disable"></A>
-<TR id="mail.smtp.auth.ntlm.disable">
-<TD>mail.smtp.auth.ntlm.disable</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.ntlm.disable">mail.smtp.auth.ntlm.disable</A></TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTH NTLM</code> command.
 Default is false.</TD>
 </TR>
 
-<A NAME="mail.smtp.auth.ntlm.domain"></A>
-<TR id="mail.smtp.auth.ntlm.domain">
-<TD>mail.smtp.auth.ntlm.domain</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.ntlm.domain">mail.smtp.auth.ntlm.domain</A></TD>
 <TD>String</TD>
 <TD>
 The NTLM authentication domain.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.auth.ntlm.flags"></A>
-<TR id="mail.smtp.auth.ntlm.flags">
-<TD>mail.smtp.auth.ntlm.flags</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.ntlm.flags">mail.smtp.auth.ntlm.flags</A></TD>
 <TD>int</TD>
 <TD>
 NTLM protocol-specific flags.
@@ -485,9 +481,8 @@ http://curl.haxx.se/rfc/ntlm.html#theNtlmFlags</A> for details.
 </TR>
 
 <!--
-<A NAME="mail.smtp.auth.ntlm.unicode"></A>
-<TR id="mail.smtp.auth.ntlm.unicode">
-<TD>mail.smtp.auth.ntlm.unicode</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.ntlm.unicode">mail.smtp.auth.ntlm.unicode</A></TD>
 <TD>boolean</TD>
 <TD>
 Set this to "true" if the username or password may use
@@ -496,9 +491,8 @@ Currently has no effect.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.auth.ntlm.lmcompat"></A>
-<TR id="mail.smtp.auth.ntlm.lmcompat">
-<TD>mail.smtp.auth.ntlm.lmcompat</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.ntlm.lmcompat">mail.smtp.auth.ntlm.lmcompat</A></TD>
 <TD>int</TD>
 <TD>
 Sets the LM compatibility level, as described here:
@@ -509,9 +503,8 @@ Defaults to "3".  Currently not used.
 </TR>
 -->
 
-<A NAME="mail.smtp.auth.xoauth2.disable"></A>
-<TR id="mail.smtp.auth.xoauth2.disable">
-<TD>mail.smtp.auth.xoauth2.disable</TD>
+<TR>
+<TD><A NAME="mail.smtp.auth.xoauth2.disable">mail.smtp.auth.xoauth2.disable</A></TD>
 <TD>boolean</TD>
 <TD>If true, prevents use of the <code>AUTHENTICATE XOAUTH2</code> command.
 Because the OAuth 2.0 protocol requires a special access token instead of
@@ -520,9 +513,8 @@ setting this property to "false" or by setting the "mail.smtp.auth.mechanisms"
 property to "XOAUTH2".</TD>
 </TR>
 
-<A NAME="mail.smtp.submitter"></A>
-<TR id="mail.smtp.submitter">
-<TD>mail.smtp.submitter</TD>
+<TR>
+<TD><A NAME="mail.smtp.submitter">mail.smtp.submitter</A></TD>
 <TD>String</TD>
 <TD>The submitter to use in the AUTH tag in the MAIL FROM command.
 Typically used by a mail relay to pass along information about the
@@ -533,24 +525,21 @@ Mail clients typically do not use this.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.dsn.notify"></A>
-<TR id="mail.smtp.dsn.notify">
-<TD>mail.smtp.dsn.notify</TD>
+<TR>
+<TD><A NAME="mail.smtp.dsn.notify">mail.smtp.dsn.notify</A></TD>
 <TD>String</TD>
 <TD>The NOTIFY option to the RCPT command.  Either NEVER, or some
 combination of SUCCESS, FAILURE, and DELAY (separated by commas).</TD>
 </TR>
 
-<A NAME="mail.smtp.dsn.ret"></A>
-<TR id="mail.smtp.dsn.ret">
-<TD>mail.smtp.dsn.ret</TD>
+<TR>
+<TD><A NAME="mail.smtp.dsn.ret">mail.smtp.dsn.ret</A></TD>
 <TD>String</TD>
 <TD>The RET option to the MAIL command.  Either FULL or HDRS.</TD>
 </TR>
 
-<A NAME="mail.smtp.allow8bitmime"></A>
-<TR id="mail.smtp.allow8bitmime">
-<TD>mail.smtp.allow8bitmime</TD>
+<TR>
+<TD><A NAME="mail.smtp.allow8bitmime">mail.smtp.allow8bitmime</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, and the server supports the 8BITMIME extension, text
@@ -560,9 +549,8 @@ for 8bit text.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.sendpartial"></A>
-<TR id="mail.smtp.sendpartial">
-<TD>mail.smtp.sendpartial</TD>
+<TR>
+<TD><A NAME="mail.smtp.sendpartial">mail.smtp.sendpartial</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, and a message has some valid and some invalid
@@ -573,9 +561,8 @@ address.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.sasl.enable"></A>
-<TR id="mail.smtp.sasl.enable">
-<TD>mail.smtp.sasl.enable</TD>
+<TR>
+<TD><A NAME="mail.smtp.sasl.enable">mail.smtp.sasl.enable</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, attempt to use the javax.security.sasl package to
@@ -584,9 +571,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.sasl.mechanisms"></A>
-<TR id="mail.smtp.sasl.mechanisms">
-<TD>mail.smtp.sasl.mechanisms</TD>
+<TR>
+<TD><A NAME="mail.smtp.sasl.mechanisms">mail.smtp.sasl.mechanisms</A></TD>
 <TD>String</TD>
 <TD>
 A space or comma separated list of SASL mechanism names to try
@@ -594,9 +580,8 @@ to use.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.sasl.authorizationid"></A>
-<TR id="mail.smtp.sasl.authorizationid">
-<TD>mail.smtp.sasl.authorizationid</TD>
+<TR>
+<TD><A NAME="mail.smtp.sasl.authorizationid">mail.smtp.sasl.authorizationid</A></TD>
 <TD>String</TD>
 <TD>
 The authorization ID to use in the SASL authentication.
@@ -604,28 +589,25 @@ If not set, the authentication ID (user name) is used.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.sasl.realm"></A>
-<TR id="mail.smtp.sasl.realm">
-<TD>mail.smtp.sasl.realm</TD>
+<TR>
+<TD><A NAME="mail.smtp.sasl.realm">mail.smtp.sasl.realm</A></TD>
 <TD>String</TD>
 <TD>The realm to use with DIGEST-MD5 authentication.</TD>
 </TR>
 
-<A NAME="mail.smtp.sasl.usecanonicalhostname"></A>
-<TR id="mail.smtp.sasl.usecanonicalhostname">
-<TD>mail.smtp.sasl.usecanonicalhostname</TD>
+<TR>
+<TD><A NAME="mail.smtp.sasl.usecanonicalhostname">mail.smtp.sasl.usecanonicalhostname</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, the canonical host name returned by
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/net/InetAddress.html?is-external=true#getCanonicalHostName--" title="class or interface in java.net"><code>InetAddress.getCanonicalHostName</code></a>
+<a href="http://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html?is-external=true#getCanonicalHostName--" title="class or interface in java.net"><code>InetAddress.getCanonicalHostName</code></a>
 is passed to the SASL mechanism, instead of the host name used to connect.
 Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.quitwait"></A>
-<TR id="mail.smtp.quitwait">
-<TD>mail.smtp.quitwait</TD>
+<TR>
+<TD><A NAME="mail.smtp.quitwait">mail.smtp.quitwait</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to false, the QUIT command is sent
@@ -635,9 +617,8 @@ for the response to the QUIT command.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.reportsuccess"></A>
-<TR id="mail.smtp.reportsuccess">
-<TD>mail.smtp.reportsuccess</TD>
+<TR>
+<TD><A NAME="mail.smtp.reportsuccess">mail.smtp.reportsuccess</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, causes the transport to include an
@@ -654,9 +635,8 @@ successfully.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socketFactory"></A>
-<TR id="mail.smtp.socketFactory">
-<TD>mail.smtp.socketFactory</TD>
+<TR>
+<TD><A NAME="mail.smtp.socketFactory">mail.smtp.socketFactory</A></TD>
 <TD>SocketFactory</TD>
 <TD>
 If set to a class that implements the
@@ -667,9 +647,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socketFactory.class"></A>
-<TR id="mail.smtp.socketFactory.class">
-<TD>mail.smtp.socketFactory.class</TD>
+<TR>
+<TD><A NAME="mail.smtp.socketFactory.class">mail.smtp.socketFactory.class</A></TD>
 <TD>String</TD>
 <TD>
 If set, specifies the name of a class that implements the
@@ -678,9 +657,8 @@ will be used to create SMTP sockets.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socketFactory.fallback"></A>
-<TR id="mail.smtp.socketFactory.fallback">
-<TD>mail.smtp.socketFactory.fallback</TD>
+<TR>
+<TD><A NAME="mail.smtp.socketFactory.fallback">mail.smtp.socketFactory.fallback</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, failure to create a socket using the specified
@@ -690,9 +668,8 @@ Defaults to true.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socketFactory.port"></A>
-<TR id="mail.smtp.socketFactory.port">
-<TD>mail.smtp.socketFactory.port</TD>
+<TR>
+<TD><A NAME="mail.smtp.socketFactory.port">mail.smtp.socketFactory.port</A></TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket
@@ -701,9 +678,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.enable"></A>
-<TR id="mail.smtp.ssl.enable">
-<TD>mail.smtp.ssl.enable</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.enable">mail.smtp.ssl.enable</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, use SSL to connect and use the SSL port by default.
@@ -711,9 +687,8 @@ Defaults to false for the "smtp" protocol and true for the "smtps" protocol.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.checkserveridentity"></A>
-<TR id="mail.smtp.ssl.checkserveridentity">
-<TD>mail.smtp.ssl.checkserveridentity</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.checkserveridentity">mail.smtp.ssl.checkserveridentity</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, check the server identity as specified by
@@ -724,9 +699,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.trust"></A>
-<TR id="mail.smtp.ssl.trust">
-<TD>mail.smtp.ssl.trust</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.trust">mail.smtp.ssl.trust</A></TD>
 <TD>String</TD>
 <TD>
 If set, and a socket factory hasn't been specified, enables use of a
@@ -737,9 +711,8 @@ Otherwise, trust depends on the certificate the server presents.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.socketFactory"></A>
-<TR id="mail.smtp.ssl.socketFactory">
-<TD>mail.smtp.ssl.socketFactory</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.socketFactory">mail.smtp.ssl.socketFactory</A></TD>
 <TD>SSLSocketFactory</TD>
 <TD>
 If set to a class that extends the
@@ -750,9 +723,8 @@ instance of a class, not a name, and must be set using the
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.socketFactory.class"></A>
-<TR id="mail.smtp.ssl.socketFactory.class">
-<TD>mail.smtp.ssl.socketFactory.class</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.socketFactory.class">mail.smtp.ssl.socketFactory.class</A></TD>
 <TD>String</TD>
 <TD>
 If set, specifies the name of a class that extends the
@@ -761,9 +733,8 @@ will be used to create SMTP SSL sockets.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.socketFactory.port"></A>
-<TR id="mail.smtp.ssl.socketFactory.port">
-<TD>mail.smtp.ssl.socketFactory.port</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.socketFactory.port">mail.smtp.ssl.socketFactory.port</A></TD>
 <TD>int</TD>
 <TD>
 Specifies the port to connect to when using the specified socket
@@ -772,9 +743,8 @@ If not set, the default port will be used.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.protocols"></A>
-<TR id="mail.smtp.ssl.protocols">
-<TD>mail.smtp.ssl.protocols</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.protocols">mail.smtp.ssl.protocols</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the SSL protocols that will be enabled for SSL connections.
@@ -783,9 +753,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledProtocols</code> method.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.ssl.ciphersuites"></A>
-<TR id="mail.smtp.ssl.ciphersuites">
-<TD>mail.smtp.ssl.ciphersuites</TD>
+<TR>
+<TD><A NAME="mail.smtp.ssl.ciphersuites">mail.smtp.ssl.ciphersuites</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the SSL cipher suites that will be enabled for SSL connections.
@@ -794,9 +763,8 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.starttls.enable"></A>
-<TR id="mail.smtp.starttls.enable">
-<TD>mail.smtp.starttls.enable</TD>
+<TR>
+<TD><A NAME="mail.smtp.starttls.enable">mail.smtp.starttls.enable</A></TD>
 <TD>boolean</TD>
 <TD>
 If true, enables the use of the <code>STARTTLS</code> command (if
@@ -808,9 +776,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.starttls.required"></A>
-<TR id="mail.smtp.starttls.required">
-<TD>mail.smtp.starttls.required</TD>
+<TR>
+<TD><A NAME="mail.smtp.starttls.required">mail.smtp.starttls.required</A></TD>
 <TD>boolean</TD>
 <TD>
 If true, requires the use of the <code>STARTTLS</code> command.
@@ -820,9 +787,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.proxy.host"></A>
-<TR id="mail.smtp.proxy.host">
-<TD>mail.smtp.proxy.host</TD>
+<TR>
+<TD><A NAME="mail.smtp.proxy.host">mail.smtp.proxy.host</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the host name of an HTTP web proxy server that will be used for
@@ -830,9 +796,8 @@ connections to the mail server.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.proxy.port"></A>
-<TR id="mail.smtp.proxy.port">
-<TD>mail.smtp.proxy.port</TD>
+<TR>
+<TD><A NAME="mail.smtp.proxy.port">mail.smtp.proxy.port</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the port number for the HTTP web proxy server.
@@ -840,9 +805,8 @@ Defaults to port 80.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socks.host"></A>
-<TR id="mail.smtp.socks.host">
-<TD>mail.smtp.socks.host</TD>
+<TR>
+<TD><A NAME="mail.smtp.socks.host">mail.smtp.socks.host</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the host name of a SOCKS5 proxy server that will be used for
@@ -850,9 +814,8 @@ connections to the mail server.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.socks.port"></A>
-<TR id="mail.smtp.socks.port">
-<TD>mail.smtp.socks.port</TD>
+<TR>
+<TD><A NAME="mail.smtp.socks.port">mail.smtp.socks.port</A></TD>
 <TD>string</TD>
 <TD>
 Specifies the port number for the SOCKS5 proxy server.
@@ -861,9 +824,8 @@ the standard port number of 1080.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.mailextension"></A>
-<TR id="mail.smtp.mailextension">
-<TD>mail.smtp.mailextension</TD>
+<TR>
+<TD><A NAME="mail.smtp.mailextension">mail.smtp.mailextension</A></TD>
 <TD>String</TD>
 <TD>
 Extension string to append to the MAIL command.
@@ -878,9 +840,8 @@ and other RFCs that define specific extensions.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.userset"></A>
-<TR id="mail.smtp.userset">
-<TD>mail.smtp.userset</TD>
+<TR>
+<TD><A NAME="mail.smtp.userset">mail.smtp.userset</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true, use the RSET command instead of the NOOP command
@@ -891,9 +852,8 @@ Defaults to false.
 </TD>
 </TR>
 
-<A NAME="mail.smtp.noop.strict"></A>
-<TR id="mail.smtp.noop.strict">
-<TD>mail.smtp.noop.strict</TD>
+<TR>
+<TD><A NAME="mail.smtp.noop.strict">mail.smtp.noop.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to true (the default), insist on a 250 response code from the NOOP
@@ -923,13 +883,14 @@ never construct instances of <code>SMTPTransport</code> directly.
 Instead, they should use the
 <code>Session</code> method <code>getTransport</code> to acquire an
 appropriate <code>Transport</code> object.
+</P>
 <P>
 In addition to printing debugging output as controlled by the
 <a href="../../../../javax/mail/Session.html" title="class in javax.mail"><code>Session</code></a> configuration,
 the com.sun.mail.smtp provider logs the same information using
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Logger.html?is-external=true" title="class or interface in java.util.logging"><code>Logger</code></a> as described in the following table:
-<P>
-<TABLE BORDER>
+<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Logger.html?is-external=true" title="class or interface in java.util.logging"><code>Logger</code></a> as described in the following table:
+</P>
+<TABLE BORDER SUMMARY="SMTP Loggers">
 <TR>
 <TH>Logger Name</TH>
 <TH>Logging Level</TH>
@@ -954,12 +915,12 @@ the com.sun.mail.smtp provider logs the same information using
 <TD>Complete protocol trace</TD>
 </TR>
 </TABLE>
-
 <P>
 <strong>WARNING:</strong> The APIs unique to this package should be
 considered <strong>EXPERIMENTAL</strong>.  They may be changed in the
 future in ways that are incompatible with applications using the
-current APIs.</div>
+current APIs.
+</P></div>
 </div>
 <!-- ======= START OF BOTTOM NAVBAR ====== -->
 <div class="bottomNav"><a name="navbar.bottom">
@@ -1008,6 +969,6 @@ current APIs.</div>
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2018,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

@@ -72,7 +72,8 @@
 <div class="header">
 <h1 title="Package" class="title">Package&nbsp;javax.mail.internet</h1>
 <div class="docSummary">
-<div class="block">Classes specific to Internet mail systems.</div>
+<div class="block">
+Classes specific to Internet mail systems.</div>
 </div>
 <p>See:&nbsp;<a href="#package.description">Description</a></p>
 </div>
@@ -254,7 +255,8 @@
 <!--   -->
 </a>
 <h2 title="Package javax.mail.internet Description">Package javax.mail.internet Description</h2>
-<div class="block">Classes specific to Internet mail systems.
+<div class="block"><P>
+Classes specific to Internet mail systems.
 This package supports features that are specific to Internet mail systems
 based on the MIME standard
 (<A HREF="http://www.ietf.org/rfc/rfc2045.txt" TARGET="_top">RFC 2045</A>,
@@ -262,31 +264,31 @@ based on the MIME standard
 <A HREF="http://www.ietf.org/rfc/rfc2045.txt" TARGET="_top">RFC 2047</A>).
 The IMAP, SMTP, and POP3 protocols use
 <a href="../../../javax/mail/internet/MimeMessage.html" title="class in javax.mail.internet"><code>MimeMessages</code></a>.
+</P>
+<A NAME="properties"><STRONG>Properties</STRONG></A>
 <P>
-<A NAME="properties">
-<H4>Properties</H4>
-</A>
 The JavaMail API supports the following standard properties,
 which may be set in the <code>Session</code> object, or in the
 <code>Properties</code> object used to create the <code>Session</code> object.
 The properties are always set as strings; the Type column describes
 how the string is interpreted.  For example, use
+</P>
 <PRE>
         session.setProperty("mail.mime.address.strict", "false");
 </PRE>
+<P>
 to set the <CODE>mail.mime.address.strict</CODE> property,
 which is of type boolean.
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.mime.address.strict"></A>
-<TR id="mail.mime.address.strict">
-<TD>mail.mime.address.strict</TD>
+<TR>
+<TD><A NAME="mail.mime.address.strict">mail.mime.address.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 The <code>mail.mime.address.strict</code> session property controls
@@ -298,9 +300,8 @@ class for details.
 </TD>
 </TR>
 
-<A NAME="mail.mime.allowutf8"></A>
-<TR id="mail.mime.allowutf8">
-<TD>mail.mime.allowutf8</TD>
+<TR>
+<TD><A NAME="mail.mime.allowutf8">mail.mime.allowutf8</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, UTF-8 strings are allowed in message headers,
@@ -314,22 +315,23 @@ The JavaMail API specification requires support for the following properties,
 which must be set in the <code>System</code> properties.
 The properties are always set as strings; the Type column describes
 how the string is interpreted.  For example, use
+</P>
 <PRE>
         System.setProperty("mail.mime.decodetext.strict", "false");
 </PRE>
+<P>
 to set the <CODE>mail.mime.decodetext.strict</CODE> property,
 which is of type boolean.
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail System properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.mime.charset"></A>
-<TR id="mail.mime.charset">
-<TD>mail.mime.charset</TD>
+<TR>
+<TD><A NAME="mail.mime.charset">mail.mime.charset</A></TD>
 <TD>String</TD>
 <TD>
 The <code>mail.mime.charset</code> System property can
@@ -344,9 +346,8 @@ the system, this property should be set.
 </TD>
 </TR>
 
-<A NAME="mail.mime.decodetext.strict"></A>
-<TR id="mail.mime.decodetext.strict">
-<TD>mail.mime.decodetext.strict</TD>
+<TR>
+<TD><A NAME="mail.mime.decodetext.strict">mail.mime.decodetext.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 The <code>mail.mime.decodetext.strict</code> property controls
@@ -359,9 +360,8 @@ illegal encoded words. The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.encodeeol.strict"></A>
-<TR id="mail.mime.encodeeol.strict">
-<TD>mail.mime.encodeeol.strict</TD>
+<TR>
+<TD><A NAME="mail.mime.encodeeol.strict">mail.mime.encodeeol.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 The <code>mail.mime.encodeeol.strict</code> property controls the
@@ -376,9 +376,8 @@ be used when necessary.  The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.decodefilename"></A>
-<TR id="mail.mime.decodefilename">
-<TD>mail.mime.decodefilename</TD>
+<TR>
+<TD><A NAME="mail.mime.decodefilename">mail.mime.decodefilename</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, the <code>getFileName</code> method
@@ -391,9 +390,8 @@ The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.encodefilename"></A>
-<TR id="mail.mime.encodefilename">
-<TD>mail.mime.encodefilename</TD>
+<TR>
+<TD><A NAME="mail.mime.encodefilename">mail.mime.encodefilename</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, the <code>setFileName</code> method
@@ -406,9 +404,8 @@ The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.decodeparameters"></A>
-<TR id="mail.mime.decodeparameters">
-<TD>mail.mime.decodeparameters</TD>
+<TR>
+<TD><A NAME="mail.mime.decodeparameters">mail.mime.decodeparameters</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"false"</code>, non-ASCII parameters in a
@@ -419,9 +416,8 @@ The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.encodeparameters"></A>
-<TR id="mail.mime.encodeparameters">
-<TD>mail.mime.encodeparameters</TD>
+<TR>
+<TD><A NAME="mail.mime.encodeparameters">mail.mime.encodeparameters</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"false"</code>, non-ASCII parameters in a
@@ -432,9 +428,8 @@ The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.multipart.ignoremissingendboundary"></A>
-<TR id="mail.mime.multipart.ignoremissingendboundary">
-<TD>mail.mime.multipart. ignoremissingendboundary</TD>
+<TR>
+<TD><A NAME="mail.mime.multipart.ignoremissingendboundary">mail.mime.multipart. ignoremissingendboundary</A></TD>
 <TD>boolean</TD>
 <TD>
 Normally, when parsing a multipart MIME message, a message that is
@@ -448,9 +443,8 @@ message.
 </TD>
 </TR>
 
-<A NAME="mail.mime.multipart.ignoremissingboundaryparameter"></A>
-<TR id="mail.mime.multipart.ignoremissingboundaryparameter">
-<TD>mail.mime.multipart. ignoremissingboundaryparameter</TD>
+<TR>
+<TD><A NAME="mail.mime.multipart.ignoremissingboundaryparameter">mail.mime.multipart. ignoremissingboundaryparameter</A></TD>
 <TD>boolean</TD>
 <TD>
 If the Content-Type header for a multipart content does not have
@@ -464,9 +458,8 @@ The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.multipart.ignoreexistingboundaryparameter"></A>
-<TR id="mail.mime.multipart.ignoreexistingboundaryparameter">
-<TD>mail.mime.multipart. ignoreexistingboundaryparameter</TD>
+<TR>
+<TD><A NAME="mail.mime.multipart.ignoreexistingboundaryparameter">mail.mime.multipart. ignoreexistingboundaryparameter</A></TD>
 <TD>boolean</TD>
 <TD>
 Normally the boundary parameter in the Content-Type header of a multipart
@@ -481,9 +474,8 @@ The default value of this property is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.multipart.allowempty"></A>
-<TR id="mail.mime.multipart.allowempty">
-<TD>mail.mime.multipart. allowempty</TD>
+<TR>
+<TD><A NAME="mail.mime.multipart.allowempty">mail.mime.multipart. allowempty</A></TD>
 <TD>boolean</TD>
 <TD>
 Normally, when writing out a MimeMultipart that contains no body
@@ -507,17 +499,16 @@ JavaMail, but are not currently a required part of the specification.
 These must be set as <CODE>Session</CODE> properties.
 The names, types, defaults, and semantics of these properties may
 change in future releases.
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail RI properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.alternates"></A>
-<TR id="mail.alternates">
-<TD>mail.alternates</TD>
+<TR>
+<TD><A NAME="mail.alternates">mail.alternates</A></TD>
 <TD>String</TD>
 <TD>
 A string containing other email addresses that the current user is known by.
@@ -527,9 +518,8 @@ to avoid sending the reply back to the sender.
 </TD>
 </TR>
 
-<A NAME="mail.replyallcc"></A>
-<TR id="mail.replyallcc">
-<TD>mail.replyallcc</TD>
+<TR>
+<TD><A NAME="mail.replyallcc">mail.replyallcc</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, the <code>MimeMessage</code>
@@ -548,17 +538,16 @@ JavaMail, but are not currently a required part of the specification.
 These must be set as <CODE>System</CODE> properties.
 The names, types, defaults, and semantics of these properties may
 change in future releases.
-<P>
-<TABLE BORDER>
+</P>
+<TABLE BORDER SUMMARY="JavaMail RI System properties">
 <TR>
 <TH>Name</TH>
 <TH>Type</TH>
 <TH>Description</TH>
 </TR>
 
-<A NAME="mail.mime.base64.ignoreerrors"></A>
-<TR id="mail.mime.base64.ignoreerrors">
-<TD>mail.mime.base64.ignoreerrors</TD>
+<TR>
+<TD><A NAME="mail.mime.base64.ignoreerrors">mail.mime.base64.ignoreerrors</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, the BASE64 decoder will ignore errors
@@ -570,9 +559,8 @@ with extreme caution.  The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.foldtext"></A>
-<TR id="mail.mime.foldtext">
-<TD>mail.mime.foldtext</TD>
+<TR>
+<TD><A NAME="mail.mime.foldtext">mail.mime.foldtext</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, header fields containing just text
@@ -583,9 +571,8 @@ when set and unfolded when read.  The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.setcontenttypefilename"></A>
-<TR id="mail.mime.setcontenttypefilename">
-<TD>mail.mime.setcontenttypefilename</TD>
+<TR>
+<TD><A NAME="mail.mime.setcontenttypefilename">mail.mime.setcontenttypefilename</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, the <code>setFileName</code> method
@@ -595,9 +582,8 @@ some old mail clients.  The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.setdefaulttextcharset"></A>
-<TR id="mail.mime.setdefaulttextcharset">
-<TD>mail.mime.setdefaulttextcharset</TD>
+<TR>
+<TD><A NAME="mail.mime.setdefaulttextcharset">mail.mime.setdefaulttextcharset</A></TD>
 <TD>boolean</TD>
 <TD>
 When updating the headers of a message, a body
@@ -608,9 +594,8 @@ The default is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.parameters.strict"></A>
-<TR id="mail.mime.parameters.strict">
-<TD>mail.mime.parameters.strict</TD>
+<TR>
+<TD><A NAME="mail.mime.parameters.strict">mail.mime.parameters.strict</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to false, when reading a message, parameter values in header fields
@@ -623,9 +608,8 @@ or special characters.
 </TD>
 </TR>
 
-<A NAME="mail.mime.applefilenames"></A>
-<TR id="mail.mime.applefilenames">
-<TD>mail.mime.applefilenames</TD>
+<TR>
+<TD><A NAME="mail.mime.applefilenames">mail.mime.applefilenames</A></TD>
 <TD>boolean</TD>
 <TD>
 Apple Mail incorrectly encodes filenames that contain spaces,
@@ -639,9 +623,8 @@ This property will likely be removed in a future release.
 </TD>
 </TR>
 
-<A NAME="mail.mime.windowsfilenames"></A>
-<TR id="mail.mime.windowsfilenames">
-<TD>mail.mime.windowsfilenames</TD>
+<TR>
+<TD><A NAME="mail.mime.windowsfilenames">mail.mime.windowsfilenames</A></TD>
 <TD>boolean</TD>
 <TD>
 Internet Explorer 6 incorrectly includes a complete pathname
@@ -657,9 +640,8 @@ files sent by IE6.
 </TD>
 </TR>
 
-<A NAME="mail.mime.ignoreunknownencoding"></A>
-<TR id="mail.mime.ignoreunknownencoding">
-<TD>mail.mime. ignoreunknownencoding</TD>
+<TR>
+<TD><A NAME="mail.mime.ignoreunknownencoding">mail.mime. ignoreunknownencoding</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, an unknown value in the
@@ -670,9 +652,8 @@ unknown encoding value.  The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.uudecode.ignoreerrors"></A>
-<TR id="mail.mime.uudecode.ignoreerrors">
-<TD>mail.mime.uudecode. ignoreerrors</TD>
+<TR>
+<TD><A NAME="mail.mime.uudecode.ignoreerrors">mail.mime.uudecode. ignoreerrors</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, errors in the encoded format of a
@@ -682,9 +663,8 @@ incorrectly encoded message part.  The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.uudecode.ignoremissingbeginend"></A>
-<TR id="mail.mime.uudecode.ignoremissingbeginend">
-<TD>mail.mime.uudecode. ignoremissingbeginend</TD>
+<TR>
+<TD><A NAME="mail.mime.uudecode.ignoremissingbeginend">mail.mime.uudecode. ignoremissingbeginend</A></TD>
 <TD>boolean</TD>
 <TD>
 If set to <code>"true"</code>, a missing "being" or "end" line in a
@@ -695,9 +675,8 @@ The default is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.ignorewhitespacelines"></A>
-<TR id="mail.mime.ignorewhitespacelines">
-<TD>mail.mime. ignorewhitespacelines</TD>
+<TR>
+<TD><A NAME="mail.mime.ignorewhitespacelines">mail.mime. ignorewhitespacelines</A></TD>
 <TD>boolean</TD>
 <TD>
 Normally the header of a MIME part is separated from the body by an empty
@@ -707,9 +686,8 @@ line.  The default value of this property is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.ignoremultipartencoding"></A>
-<TR id="mail.mime.ignoremultipartencoding">
-<TD>mail.mime. ignoremultipartencoding</TD>
+<TR>
+<TD><A NAME="mail.mime.ignoremultipartencoding">mail.mime. ignoremultipartencoding</A></TD>
 <TD>boolean</TD>
 <TD>
 The MIME spec does not allow body parts of type multipart/* to be encoded.
@@ -721,9 +699,8 @@ The default value of this property is true.
 </TD>
 </TR>
 
-<A NAME="mail.mime.allowencodedmessages"></A>
-<TR id="mail.mime.allowencodedmessages">
-<TD>mail.mime.allowencodedmessages</TD>
+<TR>
+<TD><A NAME="mail.mime.allowencodedmessages">mail.mime.allowencodedmessages</A></TD>
 <TD>boolean</TD>
 <TD>
 The MIME spec does not allow body parts of type message/* to be encoded.
@@ -736,9 +713,8 @@ The default value of this property is false.
 </TD>
 </TR>
 
-<A NAME="mail.mime.contenttypehandler"></A>
-<TR id="mail.mime.contenttypehandler">
-<TD>mail.mime.contenttypehandler</TD>
+<TR>
+<TD><A NAME="mail.mime.contenttypehandler">mail.mime.contenttypehandler</A></TD>
 <TD>String</TD>
 <TD>
 In some cases JavaMail is unable to process messages with an invalid
@@ -761,20 +737,19 @@ Content-Type information.
 </TD>
 </TR>
 
-<A NAME="mail.mime.address.usecanonicalhostname"></A>
-<TR id="mail.mime.address.usecanonicalhostname">
-<TD>mail.mime.address.usecanonicalhostname</TD>
+<TR>
+<TD><A NAME="mail.mime.address.usecanonicalhostname">mail.mime.address.usecanonicalhostname</A></TD>
 <TD>boolean</TD>
 <TD>
 Use the
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/net/InetAddress.html?is-external=true#getCanonicalHostName--" title="class or interface in java.net"><code>InetAddress.getCanonicalHostName</code></a>
+<a href="http://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html?is-external=true#getCanonicalHostName--" title="class or interface in java.net"><code>InetAddress.getCanonicalHostName</code></a>
 method to determine the host name in the
 <a href="../../../javax/mail/internet/InternetAddress.html#getLocalAddress-javax.mail.Session-"><code>InternetAddress.getLocalAddress</code></a>
 method.
 With some network configurations, InetAddress.getCanonicalHostName may be
 slow or may return an address instead of a host name.
 In that case, setting this System property to false will cause the
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/net/InetAddress.html?is-external=true#getHostName--" title="class or interface in java.net"><code>InetAddress.getHostName</code></a>
+<a href="http://docs.oracle.com/javase/8/docs/api/java/net/InetAddress.html?is-external=true#getHostName--" title="class or interface in java.net"><code>InetAddress.getHostName</code></a>
 method to be used instead.
 The default is true.
 </TD>
@@ -784,9 +759,9 @@ The default is true.
 <P>
 The current
 implementation of classes in this package log debugging information using
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Logger.html?is-external=true" title="class or interface in java.util.logging"><code>Logger</code></a> as described in the following table:
-<P>
-<TABLE BORDER>
+<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Logger.html?is-external=true" title="class or interface in java.util.logging"><code>Logger</code></a> as described in the following table:
+</P>
+<TABLE BORDER SUMMARY="JavaMail Loggers">
 <TR>
 <TH>Logger Name</TH>
 <TH>Logging Level</TH>
@@ -847,6 +822,6 @@ implementation of classes in this package log debugging information using
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2018,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

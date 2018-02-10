@@ -19,15 +19,18 @@ and is also included in the
 
 # <a name="Latest_News"></a>Latest News
 
-## July 17, 2017 - JavaMail 1.6.0 Final Release ##
+## February 12, 2018 - JavaMail 1.6.1 Final Release ##
 
-The 1.6.0 release contains API improvements, bug fixes, and enhancements,
-including the following significant changes:
+The 1.6.1 release contains API improvements, bug fixes, and enhancements,
+including the following significant change:
 
-- Use of Java generics in most APIs
-- Support for internationalized email addresses (RFC 6530/6531/6532)
-- Support for SMTP CHUNKING (RFC 3030)
-- Support for connecting through web proxy servers
+- Define Java 9 module name - java.mail
+
+Note that the JavaMail project will be moving to the Eclipse Foundation
+as part of the
+[Eclipse Enterprise for Java](https://projects.eclipse.org/projects/ee4j)
+project over the next several weeks.
+Future releases will be done as part of the Eclipse project for JavaMail.
 
 ## April 28, 2017 - JavaMail moves to GitHub! ##
 
@@ -43,7 +46,7 @@ use, described in [CONTRIBUTING](CONTRIBUTING).
 
 # <a name="Download_JavaMail_Release"></a>Download JavaMail Release
 
-The latest release of JavaMail is 1.6.0.
+The latest release of JavaMail is 1.6.1.
 
 The following table provides easy access to the latest release. Most
 people will only need the main JavaMail reference implementation in the
@@ -51,7 +54,7 @@ javax.mail.jar file.
 
 |Item|Description|
 |:---|:----------|
-|[javax.mail.jar](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_0/javax.mail.jar)|The JavaMail reference implementation, including the SMTP, IMAP, and POP3 protocol providers|
+|[javax.mail.jar](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_1/javax.mail.jar)|The JavaMail reference implementation, including the SMTP, IMAP, and POP3 protocol providers|
 |[README.txt](docs/README.txt)|Overview of the release|
 |[NOTES.txt](docs/NOTES.txt)|Additional notes about using JavaMail|
 |[SSLNOTES.txt](docs/SSLNOTES.txt)|Notes on using SSL/TLS with JavaMail|
@@ -68,7 +71,7 @@ can be included using this Maven dependency:
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
-                <version>1.6.0</version>
+                <version>1.6.1</version>
             </dependency>
         </dependencies>
 ```
@@ -79,15 +82,15 @@ You can find all of the JavaMail jar files in both the
 
 |jar file|groupId|artifactId|Description|
 |:-------|:------|:---------|:----------|
-|[javax.mail.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.6.0/javax.mail-1.6.0.jar)|com.sun.mail|javax.mail|The JavaMail reference implementation jar file, including the SMTP, IMAP, and POP3 protocol providers|
-|[javax.mail-api.jar](https://maven.java.net/content/repositories/releases/javax/mail/javax.mail-api/1.6.0/javax.mail-api-1.6.0.jar)|javax.mail|javax.mail-api|The JavaMail API definitions only, suitable for compiling against; use only with a Maven "provided" dependency scope|
-|[mailapi.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/mailapi/1.6.0/mailapi-1.6.0.jar)|com.sun.mail|mailapi|The JavaMail reference implementation with no protocol providers; use with one of the following providers|
-|[smtp.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/smtp/1.6.0/smtp-1.6.0.jar)|com.sun.mail|smtp|The SMTP protocol provider|
-|[imap.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/imap/1.6.0/imap-1.6.0.jar)|com.sun.mail|imap|The IMAP protocol provider|
-|[pop3.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/pop3/1.6.0/pop3-1.6.0.jar)|com.sun.mail|pop3|The POP3 protocol provider|
-|[gimap.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/gimap/1.6.0/gimap-1.6.0.jar)|com.sun.mail|gimap|An EXPERIMENTAL Gmail IMAP protocol provider that supports Gmail-specific features|
-|[dsn.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/dsn/1.6.0/dsn-1.6.0.jar)|com.sun.mail|dsn|Support for parsing and creating messages containing Delivery Status Notifications|
-|[logging-mailhandler.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/logging-mailhandler/1.6.0/logging-mailhandler-1.6.0.jar)|com.sun.mail|logging-mailhandler|A java.util.logging handler that uses JavaMail, suitable for use in Google App Engine.|
+|[javax.mail.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/javax.mail/1.6.1/javax.mail-1.6.1.jar)|com.sun.mail|javax.mail|The JavaMail reference implementation jar file, including the SMTP, IMAP, and POP3 protocol providers|
+|[javax.mail-api.jar](https://maven.java.net/content/repositories/releases/javax/mail/javax.mail-api/1.6.1/javax.mail-api-1.6.1.jar)|javax.mail|javax.mail-api|The JavaMail API definitions only, suitable for compiling against; use only with a Maven "provided" dependency scope|
+|[mailapi.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/mailapi/1.6.1/mailapi-1.6.1.jar)|com.sun.mail|mailapi|The JavaMail reference implementation with no protocol providers; use with one of the following providers|
+|[smtp.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/smtp/1.6.1/smtp-1.6.1.jar)|com.sun.mail|smtp|The SMTP protocol provider|
+|[imap.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/imap/1.6.1/imap-1.6.1.jar)|com.sun.mail|imap|The IMAP protocol provider|
+|[pop3.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/pop3/1.6.1/pop3-1.6.1.jar)|com.sun.mail|pop3|The POP3 protocol provider|
+|[gimap.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/gimap/1.6.1/gimap-1.6.1.jar)|com.sun.mail|gimap|An EXPERIMENTAL Gmail IMAP protocol provider that supports Gmail-specific features|
+|[dsn.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/dsn/1.6.1/dsn-1.6.1.jar)|com.sun.mail|dsn|Support for parsing and creating messages containing Delivery Status Notifications|
+|[logging-mailhandler.jar](https://maven.java.net/content/repositories/releases/com/sun/mail/logging-mailhandler/1.6.1/logging-mailhandler-1.6.1.jar)|com.sun.mail|logging-mailhandler|A java.util.logging handler that uses JavaMail, suitable for use in Google App Engine.|
 
 # <a name="API_Documentation"></a>API Documentation
 
@@ -110,7 +113,7 @@ the JavaMail API specification:
 # <a name="Samples"></a>Samples
 
 Some sample programs showing how to use the JavaMail APIs are available
-[here](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_0/javamail-samples.zip).
+[here](https://github.com/javaee/javamail/releases/download/JAVAMAIL-1_6_1/javamail-samples.zip).
 
 # <a name="Help"></a>Help
 
@@ -143,8 +146,8 @@ These snapshot releases have received only minimal testing, but may
 provide previews of bug fixes or new features under development.
 
 For example, you can download the javax.mail.jar file from the JavaMail
-1.6.1-SNAPSHOT release
-[here](https://maven.java.net/content/repositories/snapshots/com/sun/mail/javax.mail/1.6.1-SNAPSHOT/).
+1.6.2-SNAPSHOT release
+[here](https://maven.java.net/content/repositories/snapshots/com/sun/mail/javax.mail/1.6.2-SNAPSHOT/).
 Be sure to scroll to the bottom and choose the jar file with the most
 recent time stamp.
 

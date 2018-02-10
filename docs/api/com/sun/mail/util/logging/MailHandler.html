@@ -97,10 +97,10 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
-<li><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">java.util.logging.Handler</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">java.util.logging.Handler</a></li>
 <li>
 <ul class="inheritance">
 <li>com.sun.mail.util.logging.MailHandler</li>
@@ -115,7 +115,7 @@ var activeTableTab = "activeTableTab";
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">MailHandler</span>
-extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></pre>
+extends <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></pre>
 <div class="block"><tt>Handler</tt> that formats log records as an email message.
 
  <p>
@@ -174,7 +174,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  separated list of <tt>Filter</tt> class names used to create each attachment.
  The literal <tt>null</tt> is reserved for attachments that do not require
  filtering. (defaults to the
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getFilter--" title="class or interface in java.util.logging">body</a> filter)
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getFilter--" title="class or interface in java.util.logging">body</a> filter)
 
  <li>&lt;handler-name&gt;.attachment.formatters a comma
  separated list of <tt>Formatter</tt> class names used to create each
@@ -183,7 +183,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <li>&lt;handler-name&gt;.attachment.names a comma separated
  list of names or <tt>Formatter</tt> class names of each attachment.  All
  control characters are removed from the attachment names.
- (default is <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>
+ (default is <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>
  of the attachment formatter)
 
  <li>&lt;handler-name&gt;.authenticator name of an
@@ -197,7 +197,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  (defaults to <tt>1000</tt>)
 
  <li>&lt;handler-name&gt;.comparator name of a
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a> class used to sort the published
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a> class used to sort the published
  <tt>LogRecord</tt> objects prior to all formatting.
  (defaults to <tt>null</tt> meaning records are unsorted).
 
@@ -206,7 +206,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <tt>false</tt> to retain the original order. (defaults to <tt>false</tt>)
 
  <li>&lt;handler-name&gt;.encoding the name of the Java
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/nio/charset/Charset.html?is-external=true#name--" title="class or interface in java.nio.charset">character set</a> to use for the
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/nio/charset/Charset.html?is-external=true#name--" title="class or interface in java.nio.charset">character set</a> to use for the
  email message. (defaults to <tt>null</tt>, the
  <a href="../../../../../javax/mail/internet/MimeUtility.html#getDefaultJavaCharset--">default</a>
  platform encoding).
@@ -315,8 +315,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  should <b>not</b> be interned then it is recommended to retain the identity
  equals and identity hashCode methods as the implementation.  For a filter or
  formatter to be interned the class must implement the
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>
- and <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a> methods.
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>
+ and <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a> methods.
  The recommended code to use for stateless filters and formatters is:
  <pre>
  public boolean equals(Object obj) {
@@ -345,8 +345,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <tt>getFilter()</tt> will be included in the message body.  The subject
  <tt>Formatter</tt> will see all <tt>LogRecord</tt> objects that were
  published regardless of the current <tt>Filter</tt>.  The MIME type of the
- message body can be <a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/FileTypeMap.html?is-external=true#setDefaultFileTypeMap-javax.activation.FileTypeMap-" title="class or interface in javax.activation">overridden</a>
- by adding a MIME <a href="http://docs.oracle.com/javase/6/docs/api/./javax/activation/MimetypesFileTypeMap.html?is-external=true" title="class or interface in javax.activation">entry</a> using the simple
+ message body can be <a href="http://docs.oracle.com/javase/8/docs/api/javax/activation/FileTypeMap.html?is-external=true#setDefaultFileTypeMap-javax.activation.FileTypeMap-" title="class or interface in javax.activation">overridden</a>
+ by adding a MIME <a href="http://docs.oracle.com/javase/8/docs/api/javax/activation/MimetypesFileTypeMap.html?is-external=true" title="class or interface in javax.activation">entry</a> using the simple
  class name of the body formatter as the file extension.  The MIME type of the
  attachments can be overridden by changing the attachment file name extension
  or by editing the default MIME entry for a specific file name extension.
@@ -381,16 +381,16 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  email.  Any published records can be sent before reaching capacity by
  explictly calling the <tt>flush</tt>, <tt>push</tt>, or <tt>close</tt>
  methods.  If a circular buffer is required then this handler can be wrapped
- with a <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/MemoryHandler.html?is-external=true" title="class or interface in java.util.logging">MemoryHandler</a> typically with an
+ with a <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/MemoryHandler.html?is-external=true" title="class or interface in java.util.logging">MemoryHandler</a> typically with an
  equivalent capacity, level, and push level.
 
  <p>
  <b>Error Handling:</b>
  If the transport of an email message fails, the email is converted to
  a <a href="../../../../../javax/mail/internet/MimeMessage.html#writeTo-java.io.OutputStream-">raw</a>
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/ByteArrayOutputStream.html?is-external=true#toString-java.lang.String-" title="class or interface in java.io">string</a>
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/io/ByteArrayOutputStream.html?is-external=true#toString-java.lang.String-" title="class or interface in java.io">string</a>
  and is then passed as the <tt>msg</tt> parameter to
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#reportError-java.lang.String-java.lang.Exception-int-" title="class or interface in java.util.logging">reportError</a> along with the exception
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#reportError-java.lang.String-java.lang.Exception-int-" title="class or interface in java.util.logging">reportError</a> along with the exception
  describing the cause of the failure.  This allows custom error managers to
  store, <a href="../../../../../javax/mail/internet/MimeMessage.html#MimeMessage-javax.mail.Session-java.io.InputStream-">reconstruct</a>, and resend the
  original MimeMessage.  The message parameter string is <b>not</b> a raw email
@@ -442,7 +442,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </td>
 </tr>
 <tr class="altColor">
-<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#MailHandler-java.util.Properties-">MailHandler</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</code>
+<td class="colOne"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#MailHandler-java.util.Properties-">MailHandler</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</code>
 <div class="block">Creates a mail handler with the given mail properties.</div>
 </td>
 </tr>
@@ -474,19 +474,19 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>[]</code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getAttachmentFilters--">getAttachmentFilters</a></span>()</code>
 <div class="block">Gets the attachment filters.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]</code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getAttachmentFormatters--">getAttachmentFormatters</a></span>()</code>
 <div class="block">Gets the attachment formatters.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]</code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getAttachmentNames--">getAttachmentNames</a></span>()</code>
 <div class="block">Gets the attachment name formatters.</div>
 </td>
@@ -504,70 +504,70 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getComparator--">getComparator</a></span>()</code>
 <div class="block">Gets the comparator used to order all <tt>LogRecord</tt> objects prior
  to formatting.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getEncoding--">getEncoding</a></span>()</code>
 <div class="block">Return the character encoding for this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getErrorManager--">getErrorManager</a></span>()</code>
 <div class="block">Retrieves the ErrorManager for this Handler.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getFilter--">getFilter</a></span>()</code>
 <div class="block">Get the current <tt>Filter</tt> for this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getFormatter--">getFormatter</a></span>()</code>
 <div class="block">Return the <tt>Formatter</tt> for this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getLevel--">getLevel</a></span>()</code>
 <div class="block">Get the log level specifying which messages will be logged by this
  <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getMailProperties--">getMailProperties</a></span>()</code>
 <div class="block">Gets a copy of the mail properties used for the session.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getPushFilter--">getPushFilter</a></span>()</code>
 <div class="block">Gets the push filter.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getPushLevel--">getPushLevel</a></span>()</code>
 <div class="block">Gets the push level.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a></code></td>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a></code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#getSubject--">getSubject</a></span>()</code>
 <div class="block">Gets the formatter used to create the subject line.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#isLoggable-java.util.logging.LogRecord-">isLoggable</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#isLoggable-java.util.logging.LogRecord-">isLoggable</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</code>
 <div class="block">Check if this <tt>Handler</tt> would actually log a given
  <tt>LogRecord</tt> into its internal buffer.</div>
 </td>
@@ -587,7 +587,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#publish-java.util.logging.LogRecord-">publish</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#publish-java.util.logging.LogRecord-">publish</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</code>
 <div class="block">Stores a <tt>LogRecord</tt> in the internal buffer.</div>
 </td>
 </tr>
@@ -600,8 +600,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#reportError-java.lang.String-java.lang.Exception-int-">reportError</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;msg,
-           <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;ex,
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#reportError-java.lang.String-java.lang.Exception-int-">reportError</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;msg,
+           <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;ex,
            int&nbsp;code)</code>
 <div class="block">Protected convenience method to report an error to this Handler's
  ErrorManager.</div>
@@ -609,25 +609,25 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentFilters-java.util.logging.Filter...-">setAttachmentFilters</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>...&nbsp;filters)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentFilters-java.util.logging.Filter...-">setAttachmentFilters</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>...&nbsp;filters)</code>
 <div class="block">Sets the attachment filters.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentFormatters-java.util.logging.Formatter...-">setAttachmentFormatters</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentFormatters-java.util.logging.Formatter...-">setAttachmentFormatters</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</code>
 <div class="block">Sets the attachment <tt>Formatter</tt> object for this handler.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentNames-java.util.logging.Formatter...-">setAttachmentNames</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentNames-java.util.logging.Formatter...-">setAttachmentNames</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</code>
 <div class="block">Sets the attachment file name formatters.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentNames-java.lang.String...-">setAttachmentNames</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;names)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setAttachmentNames-java.lang.String...-">setAttachmentNames</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;names)</code>
 <div class="block">Sets the attachment file name for each attachment.</div>
 </td>
 </tr>
@@ -645,69 +645,69 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setComparator-java.util.Comparator-">setComparator</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;c)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setComparator-java.util.Comparator-">setComparator</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;c)</code>
 <div class="block">Sets the comparator used to order all <tt>LogRecord</tt> objects prior
  to formatting.</div>
 </td>
 </tr>
 <tr id="i30" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setEncoding-java.lang.String-">setEncoding</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;encoding)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setEncoding-java.lang.String-">setEncoding</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;encoding)</code>
 <div class="block">Set the character encoding used by this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setErrorManager-java.util.logging.ErrorManager-">setErrorManager</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;em)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setErrorManager-java.util.logging.ErrorManager-">setErrorManager</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;em)</code>
 <div class="block">Define an ErrorManager for this Handler.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setFilter-java.util.logging.Filter-">setFilter</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;newFilter)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setFilter-java.util.logging.Filter-">setFilter</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;newFilter)</code>
 <div class="block">Set a <tt>Filter</tt> to control output on this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setFormatter-java.util.logging.Formatter-">setFormatter</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;newFormatter)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setFormatter-java.util.logging.Formatter-">setFormatter</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;newFormatter)</code>
 <div class="block">Set a <tt>Formatter</tt>.</div>
 </td>
 </tr>
 <tr id="i34" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setLevel-java.util.logging.Level-">setLevel</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;newLevel)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setLevel-java.util.logging.Level-">setLevel</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;newLevel)</code>
 <div class="block">Set the log level specifying which message levels will be
  logged by this <tt>Handler</tt>.</div>
 </td>
 </tr>
 <tr id="i35" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setMailProperties-java.util.Properties-">setMailProperties</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setMailProperties-java.util.Properties-">setMailProperties</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</code>
 <div class="block">Sets the mail properties used for the session.</div>
 </td>
 </tr>
 <tr id="i36" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setPushFilter-java.util.logging.Filter-">setPushFilter</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;filter)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setPushFilter-java.util.logging.Filter-">setPushFilter</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;filter)</code>
 <div class="block">Sets the push filter.</div>
 </td>
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setPushLevel-java.util.logging.Level-">setPushLevel</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;level)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setPushLevel-java.util.logging.Level-">setPushLevel</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;level)</code>
 <div class="block">Sets the push level.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setSubject-java.util.logging.Formatter-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;format)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setSubject-java.util.logging.Formatter-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;format)</code>
 <div class="block">Sets the subject formatter for email.</div>
 </td>
 </tr>
 <tr id="i39" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setSubject-java.lang.String-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#setSubject-java.lang.String-">setSubject</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</code>
 <div class="block">Sets a literal string for the email subject.</div>
 </td>
 </tr>
@@ -716,8 +716,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -744,7 +744,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <tt>LogManager</tt> configuration properties.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -763,8 +763,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>capacity</code> - of the internal buffer.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <tt>capacity</tt> less than one.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if <tt>capacity</tt> less than one.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -775,7 +775,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockListLast">
 <li class="blockList">
 <h4>MailHandler</h4>
-<pre>public&nbsp;MailHandler(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</pre>
+<pre>public&nbsp;MailHandler(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</pre>
 <div class="block">Creates a mail handler with the given mail properties.
  The key/value pairs are defined in the <tt>Java Mail API</tt>
  documentation.  This <tt>Handler</tt> will also search the
@@ -784,8 +784,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>props</code> - a non <tt>null</tt> properties object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>props</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>props</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -804,7 +804,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>isLoggable</h4>
-<pre>public&nbsp;boolean&nbsp;isLoggable(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</pre>
+<pre>public&nbsp;boolean&nbsp;isLoggable(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</pre>
 <div class="block">Check if this <tt>Handler</tt> would actually log a given
  <tt>LogRecord</tt> into its internal buffer.
  <p>
@@ -815,7 +815,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <p></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#isLoggable-java.util.logging.LogRecord-" title="class or interface in java.util.logging">isLoggable</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#isLoggable-java.util.logging.LogRecord-" title="class or interface in java.util.logging">isLoggable</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>record</code> - a <tt>LogRecord</tt></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -829,7 +829,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>publish</h4>
-<pre>public&nbsp;void&nbsp;publish(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</pre>
+<pre>public&nbsp;void&nbsp;publish(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;record)</pre>
 <div class="block">Stores a <tt>LogRecord</tt> in the internal buffer.
  <p>
  The <tt>isLoggable</tt> method is called to check if the given log record
@@ -842,7 +842,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  records are formatted into one email and sent to the server.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#publish-java.util.logging.LogRecord-" title="class or interface in java.util.logging">publish</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#publish-java.util.logging.LogRecord-" title="class or interface in java.util.logging">publish</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>record</code> - description of the log event.</dd>
 </dl>
@@ -914,7 +914,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  a push.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#flush--" title="class or interface in java.util.logging">flush</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#flush--" title="class or interface in java.util.logging">flush</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#push--"><code>push()</code></a></dd>
 </dl>
@@ -937,9 +937,9 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  turned on.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#close--" title="class or interface in java.util.logging">close</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#close--" title="class or interface in java.util.logging">close</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../com/sun/mail/util/logging/MailHandler.html#flush--"><code>flush()</code></a></dd>
@@ -952,18 +952,18 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setLevel</h4>
-<pre>public&nbsp;void&nbsp;setLevel(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;newLevel)</pre>
+<pre>public&nbsp;void&nbsp;setLevel(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;newLevel)</pre>
 <div class="block">Set the log level specifying which message levels will be
  logged by this <tt>Handler</tt>.  Message levels lower than this
  value will be discarded.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#setLevel-java.util.logging.Level-" title="class or interface in java.util.logging">setLevel</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#setLevel-java.util.logging.Level-" title="class or interface in java.util.logging">setLevel</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newLevel</code> - the new value for the log level</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>newLevel</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>newLevel</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and
           the caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -974,13 +974,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getLevel</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;getLevel()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;getLevel()</pre>
 <div class="block">Get the log level specifying which messages will be logged by this
  <tt>Handler</tt>.  Message levels lower than this level will be
  discarded.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getLevel--" title="class or interface in java.util.logging">getLevel</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getLevel--" title="class or interface in java.util.logging">getLevel</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the level of messages being logged.</dd>
 </dl>
@@ -992,15 +992,15 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getErrorManager</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;getErrorManager()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;getErrorManager()</pre>
 <div class="block">Retrieves the ErrorManager for this Handler.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getErrorManager--" title="class or interface in java.util.logging">getErrorManager</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getErrorManager--" title="class or interface in java.util.logging">getErrorManager</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the ErrorManager for this Handler</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
  does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -1011,20 +1011,20 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setErrorManager</h4>
-<pre>public&nbsp;void&nbsp;setErrorManager(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;em)</pre>
+<pre>public&nbsp;void&nbsp;setErrorManager(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/ErrorManager.html?is-external=true" title="class or interface in java.util.logging">ErrorManager</a>&nbsp;em)</pre>
 <div class="block">Define an ErrorManager for this Handler.
  <p>
  The ErrorManager's "error" method will be invoked if any errors occur
  while using this Handler.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#setErrorManager-java.util.logging.ErrorManager-" title="class or interface in java.util.logging">setErrorManager</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#setErrorManager-java.util.logging.ErrorManager-" title="class or interface in java.util.logging">setErrorManager</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>em</code> - the new ErrorManager</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given error manager is null.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given error manager is null.</dd>
 </dl>
 </li>
 </ul>
@@ -1034,11 +1034,11 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getFilter</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;getFilter()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;getFilter()</pre>
 <div class="block">Get the current <tt>Filter</tt> for this <tt>Handler</tt>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getFilter--" title="class or interface in java.util.logging">getFilter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getFilter--" title="class or interface in java.util.logging">getFilter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a <tt>Filter</tt> object (may be null)</dd>
 </dl>
@@ -1050,7 +1050,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setFilter</h4>
-<pre>public&nbsp;void&nbsp;setFilter(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;newFilter)</pre>
+<pre>public&nbsp;void&nbsp;setFilter(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;newFilter)</pre>
 <div class="block">Set a <tt>Filter</tt> to control output on this <tt>Handler</tt>.
  <P>
  For each call of <tt>publish</tt> the <tt>Handler</tt> will call this
@@ -1058,11 +1058,11 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  should be published or discarded.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#setFilter-java.util.logging.Filter-" title="class or interface in java.util.logging">setFilter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#setFilter-java.util.logging.Filter-" title="class or interface in java.util.logging">setFilter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newFilter</code> - a <tt>Filter</tt> object (may be null)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
  does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -1073,11 +1073,11 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getEncoding</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getEncoding()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;getEncoding()</pre>
 <div class="block">Return the character encoding for this <tt>Handler</tt>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getEncoding--" title="class or interface in java.util.logging">getEncoding</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getEncoding--" title="class or interface in java.util.logging">getEncoding</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The encoding name.  May be null, which indicates the default
  encoding should be used.</dd>
@@ -1090,22 +1090,22 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setEncoding</h4>
-<pre>public&nbsp;void&nbsp;setEncoding(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;encoding)
-                 throws <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/UnsupportedEncodingException.html?is-external=true" title="class or interface in java.io">UnsupportedEncodingException</a></pre>
+<pre>public&nbsp;void&nbsp;setEncoding(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;encoding)
+                 throws <a href="http://docs.oracle.com/javase/8/docs/api/java/io/UnsupportedEncodingException.html?is-external=true" title="class or interface in java.io">UnsupportedEncodingException</a></pre>
 <div class="block">Set the character encoding used by this <tt>Handler</tt>.
  <p>
  The encoding should be set before any <tt>LogRecords</tt> are written
  to the <tt>Handler</tt>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#setEncoding-java.lang.String-" title="class or interface in java.util.logging">setEncoding</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#setEncoding-java.lang.String-" title="class or interface in java.util.logging">setEncoding</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>encoding</code> - The name of a supported character encoding.  May be
  null, to indicate the default platform encoding.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
  does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/UnsupportedEncodingException.html?is-external=true" title="class or interface in java.io">UnsupportedEncodingException</a></code> - if the named encoding is not
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/io/UnsupportedEncodingException.html?is-external=true" title="class or interface in java.io">UnsupportedEncodingException</a></code> - if the named encoding is not
  supported.</dd>
 </dl>
 </li>
@@ -1116,11 +1116,11 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getFormatter</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;getFormatter()</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;getFormatter()</pre>
 <div class="block">Return the <tt>Formatter</tt> for this <tt>Handler</tt>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#getFormatter--" title="class or interface in java.util.logging">getFormatter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#getFormatter--" title="class or interface in java.util.logging">getFormatter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>the <tt>Formatter</tt> (may be null).</dd>
 </dl>
@@ -1132,8 +1132,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setFormatter</h4>
-<pre>public&nbsp;void&nbsp;setFormatter(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;newFormatter)
-                  throws <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></pre>
+<pre>public&nbsp;void&nbsp;setFormatter(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;newFormatter)
+                  throws <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></pre>
 <div class="block">Set a <tt>Formatter</tt>.  This <tt>Formatter</tt> will be used to format
  <tt>LogRecords</tt> for this <tt>Handler</tt>.
  <p>
@@ -1142,13 +1142,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  <p></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#setFormatter-java.util.logging.Formatter-" title="class or interface in java.util.logging">setFormatter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#setFormatter-java.util.logging.Formatter-" title="class or interface in java.util.logging">setFormatter</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>newFormatter</code> - the <tt>Formatter</tt> to use (may not be null)</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and if the caller
  does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given formatter is null.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given formatter is null.</dd>
 </dl>
 </li>
 </ul>
@@ -1158,7 +1158,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getPushLevel</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;getPushLevel()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;getPushLevel()</pre>
 <div class="block">Gets the push level.  The default is <tt>Level.OFF</tt> meaning that
  this <tt>Handler</tt> will only push when the internal buffer is full.</div>
 <dl>
@@ -1173,7 +1173,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setPushLevel</h4>
-<pre>public final&nbsp;void&nbsp;setPushLevel(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;level)</pre>
+<pre>public final&nbsp;void&nbsp;setPushLevel(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true" title="class or interface in java.util.logging">Level</a>&nbsp;level)</pre>
 <div class="block">Sets the push level.  This level is used to trigger a push so that
  all pending records are formatted and sent to the email server.  When
  the push level triggers a send, the resulting email is flagged as
@@ -1182,10 +1182,10 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>level</code> - Level object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>level</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>level</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1195,7 +1195,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getPushFilter</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;getPushFilter()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;getPushFilter()</pre>
 <div class="block">Gets the push filter.  The default is <tt>null</tt>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1209,7 +1209,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setPushFilter</h4>
-<pre>public final&nbsp;void&nbsp;setPushFilter(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;filter)</pre>
+<pre>public final&nbsp;void&nbsp;setPushFilter(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>&nbsp;filter)</pre>
 <div class="block">Sets the push filter.  This filter is only called if the given
  <tt>LogRecord</tt> level was greater than the push level.  If this
  filter returns <tt>true</tt>, all pending records are formatted and sent
@@ -1219,9 +1219,9 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>filter</code> - push filter or <tt>null</tt></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1231,7 +1231,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getComparator</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;getComparator()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;getComparator()</pre>
 <div class="block">Gets the comparator used to order all <tt>LogRecord</tt> objects prior
  to formatting.  If <tt>null</tt> then the order is unspecified.</div>
 <dl>
@@ -1246,16 +1246,16 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setComparator</h4>
-<pre>public final&nbsp;void&nbsp;setComparator(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;c)</pre>
+<pre>public final&nbsp;void&nbsp;setComparator(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;? super <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;&nbsp;c)</pre>
 <div class="block">Sets the comparator used to order all <tt>LogRecord</tt> objects prior
  to formatting.  If <tt>null</tt> then the order is unspecified.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>c</code> - the <tt>LogRecord</tt> comparator.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1287,7 +1287,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an <tt>Authenticator</tt> or <tt>null</tt> if none is required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -1304,9 +1304,9 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>auth</code> - an <tt>Authenticator</tt> object or null if none is required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1324,13 +1324,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  user name set by <tt>mail.user</tt> property, or null if no credentials
  are required.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 <dt><span class="simpleTagLabel">Since:</span></dt>
 <dd>JavaMail 1.4.6</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true#toCharArray--" title="class or interface in java.lang"><code>String.toCharArray()</code></a></dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true#toCharArray--" title="class or interface in java.lang"><code>String.toCharArray()</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1340,7 +1340,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setMailProperties</h4>
-<pre>public final&nbsp;void&nbsp;setMailProperties(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</pre>
+<pre>public final&nbsp;void&nbsp;setMailProperties(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;props)</pre>
 <div class="block">Sets the mail properties used for the session.  The key/value pairs
  are defined in the <tt>Java Mail API</tt> documentation.  This
  <tt>Handler</tt> will also search the <tt>LogManager</tt> for defaults
@@ -1349,10 +1349,10 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>props</code> - a non <tt>null</tt> properties object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>props</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>props</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1362,13 +1362,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getMailProperties</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;getMailProperties()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Properties.html?is-external=true" title="class or interface in java.util">Properties</a>&nbsp;getMailProperties()</pre>
 <div class="block">Gets a copy of the mail properties used for the session.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a non null properties object.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
 </dl>
 </li>
@@ -1379,7 +1379,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getAttachmentFilters</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>[]&nbsp;getAttachmentFilters()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>[]&nbsp;getAttachmentFilters()</pre>
 <div class="block">Gets the attachment filters.  If the attachment filter does not
  allow any <tt>LogRecord</tt> to be formatted, the attachment may
  be omitted from the email.</div>
@@ -1395,7 +1395,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setAttachmentFilters</h4>
-<pre>public final&nbsp;void&nbsp;setAttachmentFilters(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>...&nbsp;filters)</pre>
+<pre>public final&nbsp;void&nbsp;setAttachmentFilters(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Filter.html?is-external=true" title="class or interface in java.util.logging">Filter</a>...&nbsp;filters)</pre>
 <div class="block">Sets the attachment filters.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1403,12 +1403,12 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  index value is allowed.  A <tt>null</tt> value means that all
  records are allowed for the attachment at that index.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>filters</tt> is <tt>null</tt></dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>filters</tt> is <tt>null</tt></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
  name formatters do not match the number of attachment formatters.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1418,7 +1418,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getAttachmentFormatters</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]&nbsp;getAttachmentFormatters()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]&nbsp;getAttachmentFormatters()</pre>
 <div class="block">Gets the attachment formatters.  This <tt>Handler</tt> is using
  attachments only if the returned array length is non zero.</div>
 <dl>
@@ -1433,7 +1433,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setAttachmentFormatters</h4>
-<pre>public final&nbsp;void&nbsp;setAttachmentFormatters(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</pre>
+<pre>public final&nbsp;void&nbsp;setAttachmentFormatters(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</pre>
 <div class="block">Sets the attachment <tt>Formatter</tt> object for this handler.
  The number of formatters determines the number of attachments per
  email.  This method should be the first attachment method called.
@@ -1442,11 +1442,11 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatters</code> - a non null array of formatters.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given array or any array index is
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if the given array or any array index is
  <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 </dl>
 </li>
 </ul>
@@ -1456,7 +1456,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getAttachmentNames</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]&nbsp;getAttachmentNames()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>[]&nbsp;getAttachmentNames()</pre>
 <div class="block">Gets the attachment name formatters.
  If the attachment names were set using explicit names then
  the names can be returned by calling <tt>toString</tt> on each
@@ -1473,7 +1473,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setAttachmentNames</h4>
-<pre>public final&nbsp;void&nbsp;setAttachmentNames(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;names)</pre>
+<pre>public final&nbsp;void&nbsp;setAttachmentNames(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>...&nbsp;names)</pre>
 <div class="block">Sets the attachment file name for each attachment.  All control
  characters are removed from the attachment names.
  This method will create a set of custom formatters.</div>
@@ -1481,16 +1481,16 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>names</code> - an array of names.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
  names do not match the number of attachment formatters.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any name is empty.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if any given array or name is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalArgumentException.html?is-external=true" title="class or interface in java.lang">IllegalArgumentException</a></code> - if any name is empty.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if any given array or name is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
+<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1500,7 +1500,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setAttachmentNames</h4>
-<pre>public final&nbsp;void&nbsp;setAttachmentNames(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</pre>
+<pre>public final&nbsp;void&nbsp;setAttachmentNames(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>...&nbsp;formatters)</pre>
 <div class="block">Sets the attachment file name formatters.  The format method of each
  attachment formatter will see only the <tt>LogRecord</tt> objects that
  passed its attachment filter during formatting. The format method will
@@ -1515,15 +1515,15 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>formatters</code> - and array of attachment name formatters.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IndexOutOfBoundsException.html?is-external=true" title="class or interface in java.lang">IndexOutOfBoundsException</a></code> - if the number of attachment
  name formatters do not match the number of attachment formatters.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if any given array or name is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if any given array or name is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
+<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1533,7 +1533,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>getSubject</h4>
-<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;getSubject()</pre>
+<pre>public final&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;getSubject()</pre>
 <div class="block">Gets the formatter used to create the subject line.
  If the subject was created using a literal string then
  the <tt>toString</tt> method can be used to get the subject line.</div>
@@ -1549,20 +1549,20 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setSubject</h4>
-<pre>public final&nbsp;void&nbsp;setSubject(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</pre>
+<pre>public final&nbsp;void&nbsp;setSubject(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;subject)</pre>
 <div class="block">Sets a literal string for the email subject.  All control characters are
  removed from the subject line.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>subject</code> - a non <tt>null</tt> string.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>subject</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>subject</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
+<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1572,7 +1572,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockList">
 <li class="blockList">
 <h4>setSubject</h4>
-<pre>public final&nbsp;void&nbsp;setSubject(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;format)</pre>
+<pre>public final&nbsp;void&nbsp;setSubject(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Formatter.html?is-external=true" title="class or interface in java.util.logging">Formatter</a>&nbsp;format)</pre>
 <div class="block">Sets the subject formatter for email.  The format method of the subject
  formatter will see all <tt>LogRecord</tt> objects that were published to
  this <tt>Handler</tt> during formatting and will typically return an
@@ -1587,13 +1587,13 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - the subject formatter.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/SecurityException.html?is-external=true" title="class or interface in java.lang">SecurityException</a></code> - if a security manager exists and the
  caller does not have <tt>LoggingPermission("control")</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>format</tt> is <tt>null</tt>.</dd>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if <tt>format</tt> is <tt>null</tt>.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/IllegalStateException.html?is-external=true" title="class or interface in java.lang">IllegalStateException</a></code> - if called from inside a push.</dd>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
-<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-char-" title="class or interface in java.lang"><code>Character.isISOControl(char)</code></a>, 
+<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Character.html?is-external=true#isISOControl-int-" title="class or interface in java.lang"><code>Character.isISOControl(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -1603,8 +1603,8 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <ul class="blockListLast">
 <li class="blockList">
 <h4>reportError</h4>
-<pre>protected&nbsp;void&nbsp;reportError(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;msg,
-                           <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;ex,
+<pre>protected&nbsp;void&nbsp;reportError(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/String.html?is-external=true" title="class or interface in java.lang">String</a>&nbsp;msg,
+                           <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Exception.html?is-external=true" title="class or interface in java.lang">Exception</a>&nbsp;ex,
                            int&nbsp;code)</pre>
 <div class="block">Protected convenience method to report an error to this Handler's
  ErrorManager.  This method will prefix all non null error messages with
@@ -1613,7 +1613,7 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
  message or a raw email message.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true#reportError-java.lang.String-java.lang.Exception-int-" title="class or interface in java.util.logging">reportError</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true#reportError-java.lang.String-java.lang.Exception-int-" title="class or interface in java.util.logging">reportError</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Handler.html?is-external=true" title="class or interface in java.util.logging">Handler</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>msg</code> - a descriptive string (may be null)</dd>
 <dd><code>ex</code> - an exception (may be null)</dd>
@@ -1690,6 +1690,6 @@ extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/loggin
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2018,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>

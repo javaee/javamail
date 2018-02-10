@@ -97,7 +97,7 @@ var activeTableTab = "activeTableTab";
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
-<li><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
+<li><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">java.lang.Object</a></li>
 <li>
 <ul class="inheritance">
 <li>com.sun.mail.util.logging.SeverityComparator</li>
@@ -109,13 +109,13 @@ var activeTableTab = "activeTableTab";
 <li class="blockList">
 <dl>
 <dt>All Implemented Interfaces:</dt>
-<dd><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</dd>
+<dd><a href="http://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</dd>
 </dl>
 <hr>
 <br>
 <pre>public class <span class="typeNameLabel">SeverityComparator</span>
-extends <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
-implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a></pre>
+extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>
+implements <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;, <a href="http://docs.oracle.com/javase/8/docs/api/java/io/Serializable.html?is-external=true" title="class or interface in java.io">Serializable</a></pre>
 <div class="block">Orders log records by level, thrown, sequence, and time.
 
  This comparator orders LogRecords by how severely each is attributed to
@@ -129,8 +129,8 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
  The following LogRecord properties determine severity ordering:
  <ol>
  <li> The natural comparison of the LogRecord
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/Level.html?is-external=true#intValue--" title="class or interface in java.util.logging">level</a>.
- <li> The expected recovery order of <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getThrown--" title="class or interface in java.util.logging">thrown</a>
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/Level.html?is-external=true#intValue--" title="class or interface in java.util.logging">level</a>.
+ <li> The expected recovery order of <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true#getThrown--" title="class or interface in java.util.logging">thrown</a>
  property of a LogRecord and its cause chain. This ordering is derived from
  the JLS 11.1.1. The Kinds of Exceptions and JLS 11.5 The Exception Hierarchy.
  This is performed by <a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-">finding</a> the
@@ -151,9 +151,9 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
  <code>java.lang.Error</code> objects.
  </ul>
  <li> The natural comparison of the LogRecord
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getSequenceNumber--" title="class or interface in java.util.logging">sequence</a>.
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true#getSequenceNumber--" title="class or interface in java.util.logging">sequence</a>.
  <li> The natural comparison of the LogRecord
- <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true#getMillis--" title="class or interface in java.util.logging">millis</a>.
+ <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true#getMillis--" title="class or interface in java.util.logging">millis</a>.
  </ol></div>
 <dl>
 <dt><span class="simpleTagLabel">Since:</span></dt>
@@ -197,37 +197,37 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <th class="colLast" scope="col">Method and Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-">apply</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;chain)</code>
+<td class="colFirst"><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a></code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-">apply</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;chain)</code>
 <div class="block">Identifies a single throwable that best describes the given throwable and
- the entire <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang">cause</a> chain.</div>
+ the entire <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang">cause</a> chain.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#applyThenCompare-java.lang.Throwable-java.lang.Throwable-">applyThenCompare</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc1,
-                <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc2)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#applyThenCompare-java.lang.Throwable-java.lang.Throwable-">applyThenCompare</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc1,
+                <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc2)</code>
 <div class="block"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-"><code>Reduces</code></a> each throwable chain argument
  then compare each throwable result.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#compare-java.util.logging.LogRecord-java.util.logging.LogRecord-">compare</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o1,
-       <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o2)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#compare-java.util.logging.LogRecord-java.util.logging.LogRecord-">compare</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o1,
+       <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o2)</code>
 <div class="block">Compares two log records based on severity.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#compareThrowable-java.lang.Throwable-java.lang.Throwable-">compareThrowable</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t1,
-                <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t2)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#compareThrowable-java.lang.Throwable-java.lang.Throwable-">compareThrowable</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t1,
+                <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t2)</code>
 <div class="block">Compares two throwable objects or null.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#equals-java.lang.Object-">equals</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#equals-java.lang.Object-">equals</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</code>
 <div class="block">Determines if the given object is also a comparator and it imposes the
  same ordering as this comparator.</div>
 </td>
@@ -240,7 +240,7 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#isNormal-java.lang.Throwable-">isNormal</a></span>(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#isNormal-java.lang.Throwable-">isNormal</a></span>(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t)</code>
 <div class="block">Determines if the given throwable instance is "normal occurrence".</div>
 </td>
 </tr>
@@ -249,15 +249,15 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <li class="blockList"><a name="methods.inherited.from.class.java.lang.Object">
 <!--   -->
 </a>
-<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
-<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></h3>
+<code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#clone--" title="class or interface in java.lang">clone</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#finalize--" title="class or interface in java.lang">finalize</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#getClass--" title="class or interface in java.lang">getClass</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#notify--" title="class or interface in java.lang">notify</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#notifyAll--" title="class or interface in java.lang">notifyAll</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#toString--" title="class or interface in java.lang">toString</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait--" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait-long-" title="class or interface in java.lang">wait</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#wait-long-int-" title="class or interface in java.lang">wait</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a name="methods.inherited.from.class.java.util.Comparator">
 <!--   -->
 </a>
-<h3>Methods inherited from interface&nbsp;java.util.<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a></h3>
-<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-" title="class or interface in java.util">comparing</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">comparing</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#comparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">comparingDouble</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#comparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">comparingInt</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#comparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">comparingLong</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#naturalOrder--" title="class or interface in java.util">naturalOrder</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#nullsFirst-java.util.Comparator-" title="class or interface in java.util">nullsFirst</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#nullsLast-java.util.Comparator-" title="class or interface in java.util">nullsLast</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#reversed--" title="class or interface in java.util">reversed</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#reverseOrder--" title="class or interface in java.util">reverseOrder</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparing-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">thenComparingDouble</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">thenComparingInt</a>, <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#thenComparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">thenComparingLong</a></code></li>
+<h3>Methods inherited from interface&nbsp;java.util.<a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a></h3>
+<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-" title="class or interface in java.util">comparing</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#comparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">comparing</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#comparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">comparingDouble</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#comparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">comparingInt</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#comparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">comparingLong</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#naturalOrder--" title="class or interface in java.util">naturalOrder</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#nullsFirst-java.util.Comparator-" title="class or interface in java.util">nullsFirst</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#nullsLast-java.util.Comparator-" title="class or interface in java.util">nullsLast</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#reversed--" title="class or interface in java.util">reversed</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#reverseOrder--" title="class or interface in java.util">reverseOrder</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparing-java.util.function.Function-java.util.Comparator-" title="class or interface in java.util">thenComparing</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparingDouble-java.util.function.ToDoubleFunction-" title="class or interface in java.util">thenComparingDouble</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparingInt-java.util.function.ToIntFunction-" title="class or interface in java.util">thenComparingInt</a>, <a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#thenComparingLong-java.util.function.ToLongFunction-" title="class or interface in java.util">thenComparingLong</a></code></li>
 </ul>
 </li>
 </ul>
@@ -296,9 +296,9 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockList">
 <li class="blockList">
 <h4>apply</h4>
-<pre>public&nbsp;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;apply(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;chain)</pre>
+<pre>public&nbsp;<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;apply(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;chain)</pre>
 <div class="block">Identifies a single throwable that best describes the given throwable and
- the entire <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang">cause</a> chain. This method can
+ the entire <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true#getCause--" title="class or interface in java.lang">cause</a> chain. This method can
  be overridden to change the behavior of
  <a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#compare-java.util.logging.LogRecord-java.util.logging.LogRecord-"><code>compare(java.util.logging.LogRecord, java.util.logging.LogRecord)</code></a>.</div>
 <dl>
@@ -318,8 +318,8 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockList">
 <li class="blockList">
 <h4>applyThenCompare</h4>
-<pre>public final&nbsp;int&nbsp;applyThenCompare(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc1,
-                                  <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc2)</pre>
+<pre>public final&nbsp;int&nbsp;applyThenCompare(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc1,
+                                  <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;tc2)</pre>
 <div class="block"><a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-"><code>Reduces</code></a> each throwable chain argument
  then compare each throwable result.</div>
 <dl>
@@ -341,8 +341,8 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockList">
 <li class="blockList">
 <h4>compareThrowable</h4>
-<pre>public&nbsp;int&nbsp;compareThrowable(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t1,
-                            <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t2)</pre>
+<pre>public&nbsp;int&nbsp;compareThrowable(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t1,
+                            <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t2)</pre>
 <div class="block">Compares two throwable objects or null. This method does not
  <a href="../../../../../com/sun/mail/util/logging/SeverityComparator.html#apply-java.lang.Throwable-"><code>reduce</code></a> each argument before
  comparing. This is method can be overridden to change the behavior of
@@ -365,12 +365,12 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockList">
 <li class="blockList">
 <h4>compare</h4>
-<pre>public&nbsp;int&nbsp;compare(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o1,
-                   <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o2)</pre>
+<pre>public&nbsp;int&nbsp;compare(<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o1,
+                   <a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&nbsp;o2)</pre>
 <div class="block">Compares two log records based on severity.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#compare-T-T-" title="class or interface in java.util">compare</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#compare-T-T-" title="class or interface in java.util">compare</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>o1</code> - the first log record.</dd>
 <dd><code>o2</code> - the second log record.</dd>
@@ -378,7 +378,7 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <dd>a negative integer, zero, or a positive integer as the first
  argument is less than, equal to, or greater than the second.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if either argument is null.</dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/NullPointerException.html?is-external=true" title="class or interface in java.lang">NullPointerException</a></code> - if either argument is null.</dd>
 </dl>
 </li>
 </ul>
@@ -388,14 +388,14 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockList">
 <li class="blockList">
 <h4>equals</h4>
-<pre>public&nbsp;boolean&nbsp;equals(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</pre>
+<pre>public&nbsp;boolean&nbsp;equals(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a>&nbsp;o)</pre>
 <div class="block">Determines if the given object is also a comparator and it imposes the
  same ordering as this comparator.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.util">equals</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.util">equals</a></code>&nbsp;in interface&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/util/Comparator.html?is-external=true" title="class or interface in java.util">Comparator</a>&lt;<a href="http://docs.oracle.com/javase/8/docs/api/java/util/logging/LogRecord.html?is-external=true" title="class or interface in java.util.logging">LogRecord</a>&gt;</code></dd>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#equals-java.lang.Object-" title="class or interface in java.lang">equals</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>o</code> - the reference object with which to compare.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -413,7 +413,7 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <div class="block">Returns a hash code value for the object.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
-<dd><code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
+<dd><code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true#hashCode--" title="class or interface in java.lang">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?is-external=true" title="class or interface in java.lang">Object</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Returns a hash code value for the object.</dd>
 </dl>
@@ -425,7 +425,7 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <ul class="blockListLast">
 <li class="blockList">
 <h4>isNormal</h4>
-<pre>public&nbsp;boolean&nbsp;isNormal(<a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t)</pre>
+<pre>public&nbsp;boolean&nbsp;isNormal(<a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html?is-external=true" title="class or interface in java.lang">Throwable</a>&nbsp;t)</pre>
 <div class="block">Determines if the given throwable instance is "normal occurrence". This
  is any checked or unchecked exception with 'Interrupt' in the class name
  or ancestral class name. Any <code>java.lang.ThreadDeath</code> object or
@@ -510,6 +510,6 @@ implements <a href="http://docs.oracle.com/javase/1.5.0/docs/api/./java/util/Com
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>Copyright &#169; 1996-2017,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
+<p class="legalCopy"><small>Copyright &#169; 1996-2018,     <a href="http://www.oracle.com">Oracle</a>     and/or its affiliates. All Rights Reserved.     Use is subject to     <a href="../../../../../doc-files/speclicense.html" target="_top">license terms</a>.</small></p>
 </body>
 </html>
