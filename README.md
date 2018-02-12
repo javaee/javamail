@@ -21,7 +21,7 @@ and is also included in the
 
 ## February 12, 2018 - JavaMail 1.6.1 Final Release ##
 
-The 1.6.1 release contains API improvements, bug fixes, and enhancements,
+The 1.6.1 release contains bug fixes and enhancements,
 including the following significant change:
 
 - Define Java 9 module name - java.mail
