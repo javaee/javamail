@@ -26,6 +26,7 @@ GH  287	Allow relaxed Content-Disposition parsing
 GH  289	use a different IMAP tag prefix for each connection
 GH  291	define JDK 9 module name for JavaMail
 GH  296	HTTP proxy support needs to use HTTP/1.1
+GH  298 Allow adding/removing multiple headers in one method call
 
 
 		  CHANGES IN THE 1.6.0 RELEASE

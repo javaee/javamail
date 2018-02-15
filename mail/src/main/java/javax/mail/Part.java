@@ -42,6 +42,7 @@ package javax.mail;
 
 import java.io.*;
 import java.util.Enumeration;
+import java.util.List;
 import javax.activation.DataHandler;
 
 /**
@@ -414,33 +415,127 @@ public interface Part {
      */
     public void setHeader(String header_name, String header_value)
 				throws MessagingException;
+
+    /**
+     * Set the value for this header. Replaces all existing
+     * header values with this new value.
+     *
+     * @param header_to_set       the header to set
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
+     *				of existing values
+     * @exception		IllegalStateException if this Part is
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void setHeader(Header header_to_set)
+        throws MessagingException;
+
+    /**
+     * Add this header to the existing values.
+     *
+     * @param header_to_add       the header to add
+     * @exception		IllegalWriteException if the underlying 
+     *				implementation does not support modification 
+     *				of existing values
+     * @exception		IllegalStateException if this Part is 
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void addHeader(Header header_to_add)
+				throws MessagingException;
+
     /**
      * Add this value to the existing values for this header_name.
      *
      * @param header_name       the name of this header
      * @param header_value      the value for this header
-     * @exception		IllegalWriteException if the underlying 
-     *				implementation does not support modification 
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
      *				of existing values
-     * @exception		IllegalStateException if this Part is 
+     * @exception		IllegalStateException if this Part is
      *				obtained from a READ_ONLY folder
      * @exception       	MessagingException for other failures
      */
     public void addHeader(String header_name, String header_value)
-				throws MessagingException;
+        throws MessagingException;
+
+    /**
+     * Adds this list of header values to the existing values.
+     *
+     * @param headers       the list headers to add
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
+     *				of existing values
+     * @exception		IllegalStateException if this Part is
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void addHeaders(List<Header> headers)
+        throws MessagingException;
+
     /**
      * Remove all headers with this name.
      *
      * @param header_name       the name of this header
-     * @exception		IllegalWriteException if the underlying 
-     *				implementation does not support modification 
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
      *				of existing values
-     * @exception		IllegalStateException if this Part is 
+     * @exception		IllegalStateException if this Part is
      *				obtained from a READ_ONLY folder
      * @exception       	MessagingException for other failures
      */
+
     public void removeHeader(String header_name)
 				throws MessagingException;
+
+    /**
+     * Remove all headers matching this header's name.
+     *
+     * @param header_to_remove       the header to remove
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
+     *				of existing values
+     * @exception		IllegalStateException if this Part is
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void removeHeader(Header header_to_remove)
+        throws MessagingException;
+
+    /**
+     * Remove all headers matching the headers in this list.
+     *
+     * @param headers_to_remove       the list of headers to remove
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
+     *				of existing values
+     * @exception		IllegalStateException if this Part is
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void removeHeadersWithStringList(List<String> headers_to_remove)
+        throws MessagingException;
+
+    /**
+     * Remove all headers matching the headers in this list.
+     *
+     * @param headers_to_remove       the list of headers to remove
+     * @exception		IllegalWriteException if the underlying
+     *				implementation does not support modification
+     *				of existing values
+     * @exception		IllegalStateException if this Part is
+     *				obtained from a READ_ONLY folder
+     * @exception       	MessagingException for other failures
+     * @since 1.6.1
+     */
+    public void removeHeadersWithHeaderList(List<Header> headers_to_remove)
+        throws MessagingException;
 
     /**
      * Return all the headers from this part as an Enumeration of

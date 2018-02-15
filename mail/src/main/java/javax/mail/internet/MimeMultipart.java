@@ -72,7 +72,7 @@ import com.sun.mail.util.PropUtil;
  * all subtypes of MIME multipart data appear as MimeMultipart objects. <p>
  *
  * An application can directly construct a MIME multipart object of any
- * subtype by using the <code>MimeMultipart(String subtype)</code>
+ * subtype by using the {@link #MimeMultipart(String)}}
  * constructor.  For example, to create a "multipart/alternative" object,
  * use <code>new MimeMultipart("alternative")</code>. <p>
  *

@@ -555,6 +555,7 @@ public class InternetHeaders {
 		    }
 		    found = true;
 		} else {
+			// TODO: should this call nullLine(h) instead?
 		    headers.remove(i);
 		    i--;    // have to look at i again
 		}
@@ -565,6 +566,20 @@ public class InternetHeaders {
 	    addHeader(name, value);
 	}
     }
+
+	/**
+	 * Change the first header line that matches name
+	 * to have value, adding a new header if no existing header
+	 * matches. Remove all matching headers but the first. <p>
+	 *
+	 * Note that RFC822 headers can only contain US-ASCII characters
+	 *
+	 * @param	headerToSet	header to set
+	 * @since 1.6.1
+	 */
+	public void setHeader(Header headerToSet) {
+		setHeader(headerToSet.getName(), headerToSet.getValue());
+	}
 
     /**
      * Add a header with the specified name and value to the header list. <p>
@@ -605,20 +620,90 @@ public class InternetHeaders {
 	headers.add(pos, new InternetHeader(name, value));
     }
 
-    /**
-     * Remove all header entries that match the given name
-     * @param	name 	header name
-     */
-    public void removeHeader(String name) { 
-	for (int i = 0; i < headers.size(); i++) {
-	    InternetHeader h = headers.get(i);
-	    if (name.equalsIgnoreCase(h.getName())) {
-		h.line = null;
-		//headers.remove(i);
-		//i--;    // have to look at i again
-	    }
+	/**
+	 * Add a header to the header list.
+	 *
+	 * @param	headerToAdd	header to add
+	 * @see #addHeader(String, String)
+	 * @since 1.6.1
+	 */
+	public void addHeader(Header headerToAdd) {
+		addHeader(headerToAdd.getName(), headerToAdd.getValue());
 	}
-    }
+
+	/**
+	 * Add multiple headers to the header list.
+	 *
+	 * @param	headersToAdd	list of headers to add
+	 * @see  #addHeader(Header)
+	 * @since 1.6.1
+	 */
+	public void addHeaders(List<Header> headersToAdd) {
+		for (Header header : headersToAdd) {
+			addHeader(header);
+		}
+	}
+
+	/**
+	 * Remove all header entries that match those in given list.
+	 *
+	 * @param	headersToRemove 	list of headers to remove
+	 * @since 1.6.1
+	 */
+	public void removeHeadersWithStringList(List<String> headersToRemove) {
+		for (String header : headersToRemove) {
+			removeHeader(header);
+		}
+	}
+
+	/**
+	 * Remove all header entries that match those in given list.
+	 *
+	 * @param	headersToRemove 	list of headers to remove
+	 * @since 1.6.1
+	 */
+	public void removeHeadersWithHeaderList(List<Header> headersToRemove) {
+		for (Header header : headersToRemove) {
+			removeHeader(header);
+		}
+	}
+
+	/**
+	 * Remove all header entries that match the given header.
+	 *
+	 * @param	headerToRemove 	header to remove
+	 * @since 1.6.1
+	 */
+	public void removeHeader(Header headerToRemove) {
+			removeHeader(headerToRemove.getName());
+	}
+
+	/**
+	 * Remove all header entries that match the given name.
+	 *
+	 * @param	name 	header name
+	 */
+	public void removeHeader(String name) {
+
+		for (InternetHeader h : headers) {
+			if (name.equalsIgnoreCase(h.getName())) {
+				nullLine(h);
+			}
+		}
+    /*
+		for (int i = 0; i < headers.size(); i++) {
+			InternetHeader h = headers.get(i);
+			if (name.equalsIgnoreCase(h.getName())) {
+				headers.remove(i);
+				i--;    // have to look at i again
+			}
+		}
+		*/
+	}
+
+    private void nullLine(InternetHeader h) {
+			h.line = null;
+		}
 
     /**
      * Return all the headers as an Enumeration of
