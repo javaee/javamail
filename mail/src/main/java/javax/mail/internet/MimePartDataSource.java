@@ -105,7 +105,7 @@ public class MimePartDataSource implements DataSource, MessageAware {
 	    
 	    String encoding =
 		MimeBodyPart.restrictEncoding(part, part.getEncoding());
-	    if (encoding != null)
+	    if (encoding != null && encoding.length() > 0)
 		return MimeUtility.decode(is, encoding);
 	    else
 		return is;
