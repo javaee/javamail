@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,11 +43,17 @@ package com.sun.mail.iap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import org.junit.Test;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 
 /**
  * Test response parsing.
  */
 public class ResponseTest {
+    // timeout the test in case of infinite loop
+    @Rule
+    public Timeout timeout = Timeout.seconds(5);
+
     private static String[] atomTests = {
 	"atom", "atom ", "atom(", "atom)", "atom{", "atom*", "atom%",
 	"atom\"", "atom\\ ", "atom]", "atom\001", "atom\177"
@@ -171,5 +177,16 @@ public class ResponseTest {
 	Response r = new Response("* " + "() atom");
 	assertArrayEquals(new String[0], r.readAtomStringList());
 	assertEquals("atom", r.readAtomString());
+    }
+
+    /**
+     * Test readStringList
+     */
+    @Test
+    public void testBadStringList() throws Exception {
+	Response response = new Response(
+			    "* (\"name\", \"test\", \"version\", \"1.0\")");
+        String[] list = response.readStringList();
+	// anything other than an infinite loop timeout is considered success
     }
 }

@@ -340,8 +340,12 @@ public class Response {
 	// to handle buggy IMAP servers, we tolerate multiple spaces as
 	// well as spaces after the left paren or before the right paren
 	List<String> result = new ArrayList<>();
-	while (!isNextNonSpace(')'))
-	    result.add(atom ? readAtomString() : readString());
+	while (!isNextNonSpace(')')) {
+	    String s = atom ? readAtomString() : readString();
+	    if (s == null)	// not the expected string or atom
+		break;
+	    result.add(s);
+	}
 
 	return result.toArray(new String[result.size()]);
     }
