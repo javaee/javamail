@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,6 +41,7 @@
 package com.sun.mail.imap;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import java.util.StringTokenizer;
@@ -217,6 +218,55 @@ public final class IMAPMessageTest {
 		}
 	    });
     }
+
+    /**
+     * Test that returning NIL instead of an empty string for the content
+     * of an empty body part works correctly.
+     * This is a bug in office365.com.  Note the space in "base64 ".
+     */
+    @Test
+    public void testBadEncoding() {
+	testWithHandler(
+	    new IMAPTest() {
+		@Override
+		public void init(Properties props) {
+		    props.setProperty("mail.imap.partialfetch","false");
+		}
+
+		@Override
+		public void test(Folder folder, IMAPHandlerMessage handler)
+				    throws MessagingException, IOException {
+		    Message m = folder.getMessage(1);
+		    Multipart mp = (Multipart)m.getContent();
+		    BodyPart bp = mp.getBodyPart(1);
+		    StringBuilder sb = new StringBuilder();
+		    try (InputStream is = bp.getInputStream()) {
+			int c;
+			while ((c = is.read()) != -1)
+			    sb.append((char)c);
+		    }
+		    assertEquals("test", sb.toString());
+		}
+	    },
+	    new IMAPHandlerMessage() {
+		@Override
+		public void fetch(String line) throws IOException {
+		    if (line.indexOf("BODYSTRUCTURE") >= 0)
+			untagged("1 FETCH (BODYSTRUCTURE (" +
+			    "(\"text\" \"plain\" (\"charset\" \"us-ascii\") " +
+				"NIL NIL \"7bit\" 0 0 NIL NIL NIL NIL)" +
+			    "(\"application\" \"octet-stream\" " +
+				"(\"name\" \"test.txt\") NIL NIL \"base64 \" " +
+				"8 NIL NIL NIL NIL) " +
+			    "\"mixed\" (\"boundary\" \"=_x\") NIL NIL))");
+		    else if (line.indexOf("BODY[2]") >= 0)
+			untagged("1 FETCH (BODY[2] \"dGVzdA==\" " +
+				    "FLAGS (\\Seen \\Recent))");
+		    ok();
+		}
+	    });
+    }
+
 
     /**
      * Test that a UTF-8 encoded Subject is decoded properly.

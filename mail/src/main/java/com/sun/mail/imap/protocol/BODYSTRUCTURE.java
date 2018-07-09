@@ -271,6 +271,12 @@ public class BODYSTRUCTURE implements Item {
 					", applying Exchange bug workaround");
 		encoding = null;
 	    }
+	    /*
+	     * XXX - Work around bug in office365.com that returns
+	     *	     a string with a trailing space in some cases.
+	     */
+	    if (encoding != null)
+		encoding = encoding.trim();
 	    if (parseDebug)
 		System.out.println("DEBUG IMAP: encoding " + encoding);
 	    size = r.readNumber();
