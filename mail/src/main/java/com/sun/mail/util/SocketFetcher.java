@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -285,12 +285,12 @@ public class SocketFetcher {
 	if (proxyHost != null) {
 	    int i = proxyHost.indexOf(':');
 	    if (i >= 0) {
-		proxyHost = proxyHost.substring(0, i);
 		try {
 		    proxyPort = Integer.parseInt(proxyHost.substring(i + 1));
 		} catch (NumberFormatException ex) {
 		    // ignore it
 		}
+		proxyHost = proxyHost.substring(0, i);
 	    }
 	    proxyPort = PropUtil.getIntProperty(props,
 					prefix + ".proxy.port", proxyPort);
@@ -301,12 +301,12 @@ public class SocketFetcher {
 		    props.getProperty(prefix + ".socks.host", null)) != null) {
 	    int i = socksHost.indexOf(':');
 	    if (i >= 0) {
-		socksHost = socksHost.substring(0, i);
 		try {
 		    socksPort = Integer.parseInt(socksHost.substring(i + 1));
 		} catch (NumberFormatException ex) {
 		    // ignore it
 		}
+		socksHost = socksHost.substring(0, i);
 	    }
 	    socksPort = PropUtil.getIntProperty(props,
 					prefix + ".socks.port", socksPort);
