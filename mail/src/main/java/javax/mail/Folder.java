@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -104,7 +104,7 @@ import javax.mail.event.*;
  * Note that a Message's message number can change within a
  * session if the containing Folder is expunged using the expunge
  * method.  Clients that use message numbers as references to messages
- * should be aware of this and should be prepared to deal with 
+ * should be aware of this and should be prepared to deal with this
  * situation (probably by flushing out existing message number references
  * and reloading them). Because of this complexity, it is better for
  * clients to use Message objects as references to messages, rather than
