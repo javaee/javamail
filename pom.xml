@@ -811,12 +811,18 @@
 	</dependencies>
     </dependencyManagement>
 
+    <!--
+	I'm leaving this here but commented out to remind myself
+	NOT to add this back in because it breaks the Android
+	version of JavaMail.
+
     <dependencies>
 	<dependency>
 	    <groupId>javax.activation</groupId>
 	    <artifactId>activation</artifactId>
 	</dependency>
     </dependencies>
+    -->
 
     <reporting>
 	<plugins>
