@@ -24,6 +24,7 @@ GH  307	StringIndexOutOfBoundsException when *.proxy.host contains a colon
 GH  309	Multipart Content-Transfer-Encoding trailing space
 GH  310	Android app fails to build with JavaMail 1.6.1
 GH  314	InternetAddress fails to detect illegal square brackets in local part
+GH  315	empty Content-Transfer-Encoding header causes IOException
 
 
 		  CHANGES IN THE 1.6.1 RELEASE

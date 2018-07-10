@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2011-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,6 @@
 
 package javax.mail.internet;
 
-import com.sun.mail.test.AsciiStringInputStream;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.Properties;
@@ -48,6 +47,8 @@ import java.util.Properties;
 import javax.activation.DataHandler;
 
 import javax.mail.*;
+
+import com.sun.mail.test.AsciiStringInputStream;
 
 import org.junit.*;
 import static org.junit.Assert.assertTrue;
@@ -150,9 +151,7 @@ public class MimeBodyPartTest {
 	    "\n" +
 	    "\u0001\u0002\u0003" +
 	    "\n";
-	InputStream in = new ByteArrayInputStream(part.getBytes("iso-8859-1"));
-	MimeBodyPart mbp = new MimeBodyPart(in);
-	in.close();
+	MimeBodyPart mbp = new MimeBodyPart(new AsciiStringInputStream(part));
 	MimeBodyPart mbp2 = new MimeBodyPart() {
 	    @Override
 	    public void setDataHandler(DataHandler dh)
@@ -164,7 +163,7 @@ public class MimeBodyPartTest {
 	mbp2.setDataHandler(mbp.getDataHandler());
 	assertEquals("base64", mbp2.getEncoding());
 	// ensure the data is correct by reading the first byte
-	in = mbp2.getInputStream();
+	InputStream in = mbp2.getInputStream();
 	assertEquals(1, in.read());
 	in.close();
     }
@@ -179,12 +178,27 @@ public class MimeBodyPartTest {
 	    "Content-Type: application/x-test; type=a/b\n" +
 	    "\n" +
 	    "\n";
-	InputStream in = new ByteArrayInputStream(part.getBytes("iso-8859-1"));
-	MimeBodyPart mbp = new MimeBodyPart(in);
-	in.close();
+	MimeBodyPart mbp = new MimeBodyPart(new AsciiStringInputStream(part));
 	assertTrue("complete MIME type", mbp.isMimeType("application/x-test"));
 	assertTrue("pattern MIME type", mbp.isMimeType("application/*"));
 	assertFalse("wrong MIME type", mbp.isMimeType("application/test"));
+    }
+
+    /**
+     * Test that a Content-Transfer-Encoding header with no value doesn't
+     * cause an IOException.
+     */
+    @Test
+    public void testEmptyContentTransferEncoding() throws Exception {
+	String part = 
+	    "Content-Type: text/plain; charset=\"us-ascii\"\n" +
+	    "Content-Transfer-Encoding: \n" +
+	    "\n" +
+	    "test" +
+	    "\n";
+	MimeBodyPart mbp = new MimeBodyPart(new AsciiStringInputStream(part));
+	assertEquals("empty C-T-E value", null, mbp.getEncoding());
+	assertEquals("empty C-T-E data", "test\n", mbp.getContent());
     }
 
 
