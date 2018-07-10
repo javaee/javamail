@@ -23,6 +23,7 @@ GH  306	Infinite loop parsing invalid ID response
 GH  307	StringIndexOutOfBoundsException when *.proxy.host contains a colon
 GH  309	Multipart Content-Transfer-Encoding trailing space
 GH  310	Android app fails to build with JavaMail 1.6.1
+GH  314	InternetAddress fails to detect illegal square brackets in local part
 
 
 		  CHANGES IN THE 1.6.1 RELEASE

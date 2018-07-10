@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -986,8 +986,10 @@ public class InternetAddress extends Address implements Cloneable {
 		break;
 
 	    case '[':	// a domain-literal, probably
-		rfc822 = true;
 		int lindex = index;
+		rfc822 = true;
+		if (start == -1)
+		    start = index;
 	      outb:
 		for (index++; index < length; index++) {
 		    c = s.charAt(index);
