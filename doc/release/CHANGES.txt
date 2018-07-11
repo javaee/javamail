@@ -26,6 +26,7 @@ GH  310	Android app fails to build with JavaMail 1.6.1
 GH  314	InternetAddress fails to detect illegal square brackets in local part
 GH  315	empty Content-Transfer-Encoding header causes IOException
 GH  316	starttls.enable documentation should reference starttls.required prop
+GH  317	use System.lineSeparator() instead of System.getProperty(...)
 
 
 		  CHANGES IN THE 1.6.1 RELEASE

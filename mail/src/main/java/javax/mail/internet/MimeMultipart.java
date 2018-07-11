@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -618,7 +618,6 @@ public class MimeMultipart extends Multipart {
 	    LineInputStream lin = new LineInputStream(in);
 	    StringBuilder preamblesb = null;
 	    String line;
-	    String lineSeparator = null;
 	    while ((line = lin.readLine()) != null) {
 		/*
 		 * Strip trailing whitespace.  Can't use trim method
@@ -664,20 +663,10 @@ public class MimeMultipart extends Multipart {
 
 		// save the preamble after skipping blank lines
 		if (line.length() > 0) {
-		    // if we haven't figured out what the line separator
-		    // is, do it now
-		    if (lineSeparator == null) {
-			try {
-			    lineSeparator =
-				System.getProperty("line.separator", "\n");
-			} catch (SecurityException ex) {
-			    lineSeparator = "\n";
-			}
-		    }
 		    // accumulate the preamble
 		    if (preamblesb == null)
 			preamblesb = new StringBuilder(line.length() + 2);
-		    preamblesb.append(line).append(lineSeparator);
+		    preamblesb.append(line).append(System.lineSeparator());
 		}
 	    }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -46,7 +46,7 @@ public class NewlineOutputStream extends FilterOutputStream {
     public NewlineOutputStream(OutputStream os) {
 	super(os);
 	if (newline == null) {
-	    String s = System.getProperty("line.separator");
+	    String s = System.lineSeparator();
 	    if (s == null || s.length() <= 0)
 		s = "\n";
 	    try {

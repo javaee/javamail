@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2013-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013-2018 Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2013-2017 Jason Mehrens. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
@@ -74,7 +74,7 @@ public class CollectorFormatterTest extends AbstractLogging {
     /**
      * The line separator.
      */
-    private static final String LINE_SEP = System.getProperty("line.separator");
+    private static final String LINE_SEP = System.lineSeparator();
 
     private static void checkJVMOptions() throws Exception {
         assertTrue(CollectorFormatterTest.class.desiredAssertionStatus());
