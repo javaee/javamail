@@ -38,6 +38,8 @@
  * holder.
  */
 
+package javax.mail.internet;
+
 import java.util.*;
 import java.io.*;
 import javax.mail.*;
