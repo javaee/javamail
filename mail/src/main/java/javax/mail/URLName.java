@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -410,7 +410,13 @@ public class URLName {
      * @exception	MalformedURLException if the URL is malformed
      */
     public URL getURL() throws MalformedURLException {
-        return new URL(getProtocol(), getHost(), getPort(), getFile());
+	// URL expects the file to include the separating "/"
+	String f = getFile();
+	if (f == null)
+	    f = "";
+	else
+	    f = "/" + f;
+        return new URL(getProtocol(), getHost(), getPort(), f);
     }
 
     /**

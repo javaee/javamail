@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2014-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,8 @@
 
 package javax.mail;
 
+import java.net.URL;
+
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
 
@@ -56,5 +58,46 @@ public class URLNameTest {
 	assertEquals(u, u);	// bug 6365
 	u = new URLName("imap://test.com/INBOX");
 	assertEquals(u, u);
+    }
+
+    /**
+     * Test that the getFile method returns the file part *without*
+     * the separator character.  This behavior is different than the
+     * URL or URI classes but needs to be preserved for compatibility.
+     */
+    @Test
+    public void testFile() throws Exception {
+	URLName u = new URLName("http://host/file");
+	assertEquals("file", u.getFile());
+	u = new URLName("http://host:123/file");
+	assertEquals("file", u.getFile());
+	u = new URLName("http://host/");
+	assertEquals("", u.getFile());
+	u = new URLName("http://host");
+	assertEquals(null, u.getFile());
+	u = new URLName("http://host:123");
+	assertEquals(null, u.getFile());
+    }
+
+    /**
+     * Test that the getURL method returns a URL with the same value
+     * as the URLName.
+     */
+    @Test
+    public void testURL() throws Exception {
+	// Note: must use a protocol supported by the URL class
+	URLName u = new URLName("http://host/file");
+	assertEquals("file", u.getFile());
+	URL url = u.getURL();
+	assertEquals(u.toString(), url.toString());
+	u = new URLName("http://host:123/file");
+	url = u.getURL();
+	assertEquals(u.toString(), url.toString());
+	u = new URLName("http://host:123/");
+	url = u.getURL();
+	assertEquals(u.toString(), url.toString());
+	u = new URLName("http://host:123");
+	url = u.getURL();
+	assertEquals(u.toString(), url.toString());
     }
 }
