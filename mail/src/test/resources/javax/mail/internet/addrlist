@@ -395,6 +395,12 @@ To: a@com.
 Expect: Exception javax.mail.internet.AddressException: Domain ends with dot in string ``a@com.''
 To: a@b..com
 Expect: Exception javax.mail.internet.AddressException: Domain contains dot-dot in string ``a@b..com''
+To: .a@b.com
+Expect: Exception javax.mail.internet.AddressException: Local address starts with dot in string ``.a@b.com''
+To: a.@b.com
+Expect: Exception javax.mail.internet.AddressException: Local address ends with dot in string ``a.@b.com''
+To: a..b@b.com
+Expect: Exception javax.mail.internet.AddressException: Local address contains dot-dot in string ``a..b@b.com''
 To: a@com
 Expect: Exception javax.mail.internet.AddressException: Domain contains control or whitespace in string ``a@com''
 To: a@b.com

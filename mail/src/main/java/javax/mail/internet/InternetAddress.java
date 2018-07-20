@@ -1343,12 +1343,22 @@ public class InternetAddress extends Address implements Cloneable {
 		    throw new AddressException(
 		     "Quoted local address contains newline without whitespace",
 			addr);
+	    } else if (c == '.') {
+		if (i == start)
+		    throw new AddressException(
+			"Local address starts with dot", addr);
+		if (lastc == '.')
+		    throw new AddressException(
+			"Local address contains dot-dot", addr);
 	    }
 	    if (inquote)
 		continue;
 	    if (c == '@') {
 		if (i == 0)
 		    throw new AddressException("Missing local name", addr);
+		if (lastc == '.')
+		    throw new AddressException(
+			"Local address ends with dot", addr);
 		break;		// done with local part
 	    }
 	    if (c <= 040 || c == 0177)
