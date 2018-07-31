@@ -40,6 +40,8 @@
 
 module com.sun.mail.smtp {
     exports com.sun.mail.smtp;
+    provides javax.mail.Provider with
+	com.sun.mail.smtp.SMTPProvider, com.sun.mail.smtp.SMTPSSLProvider;
 
     requires java.mail;
     requires java.logging;

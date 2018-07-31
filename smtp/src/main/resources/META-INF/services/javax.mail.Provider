@@ -1,0 +1,2 @@
+com.sun.mail.smtp.SMTPTransport
+com.sun.mail.smtp.SMTPSSLTransport

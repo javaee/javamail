@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,14 +38,16 @@
  * holder.
  */
 
-module com.sun.mail.imap {
-    exports com.sun.mail.iap;
-    exports com.sun.mail.imap;
-    exports com.sun.mail.imap.protocol;
-    provides javax.mail.Provider with
-	com.sun.mail.imap.IMAPProvider, com.sun.mail.imap.IMAPSSLProvider;
+package com.sun.mail.imap;
 
-    requires java.mail;
-    requires java.logging;
-    requires java.security.sasl;
+import javax.mail.Provider;
+
+/**
+ * The IMAP protocol provider.
+ */
+public class IMAPProvider extends Provider {
+    public IMAPProvider() {
+	super(Provider.Type.STORE, "imap", IMAPStore.class.getName(),
+	    "Oracle", null);
+    }
 }
