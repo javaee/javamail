@@ -64,6 +64,16 @@ public class ContentDispositionNoStrict {
         }
     }
 
+    @Test
+    public void testDecodeWithParams() throws Exception {
+        try {
+            ContentDisposition cd = new ContentDisposition(" ; size=12345");
+            assertNull("Content disposition must parse to null in non-strict mode", cd.getDisposition());
+        } catch (ParseException px) {
+            fail("Exception must not be thrown in non-strict mode");
+        }
+    }
+
     @AfterClass
     public static void after() {
         System.clearProperty("mail.mime.contentdisposition.strict");
