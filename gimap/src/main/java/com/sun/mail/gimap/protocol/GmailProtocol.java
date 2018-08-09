@@ -195,8 +195,13 @@ public class GmailProtocol extends IMAPProtocol {
     private Argument createLabelList(String[] labels) {
 	Argument args = new Argument();	
 	Argument itemArgs = new Argument();
-	for (int i = 0, len = labels.length; i < len; i++)
-	    itemArgs.writeAtom(labels[i]);
+	for (int i = 0, len = labels.length; i < len; i++) {
+        try {
+            itemArgs.writeString(labels[i], "UTF-8");
+        } catch (UnsupportedEncodingException uex){
+            itemArgs.writeAtom(labels[i]);
+        }
+    }
 	args.writeArgument(itemArgs);
 	return args;
     }
