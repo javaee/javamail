@@ -47,7 +47,7 @@ import javax.mail.Provider;
  */
 public class GmailSSLProvider extends Provider {
     public GmailSSLProvider() {
-	super(Provider.Type.STORE, "gimap", GmailSSLStore.class.getName(),
+	super(Provider.Type.STORE, "gimaps", GmailSSLStore.class.getName(),
 	    "Oracle", null);
     }
 }
