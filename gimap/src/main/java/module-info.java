@@ -38,14 +38,14 @@
  * holder.
  */
 
-module com.sun.mail.imap {
-    exports com.sun.mail.iap;
-    exports com.sun.mail.imap;
-    exports com.sun.mail.imap.protocol;
+module com.sun.mail.gimap {
+    exports com.sun.mail.gimap;
+    exports com.sun.mail.gimap.protocol;
     provides javax.mail.Provider with
-	com.sun.mail.imap.IMAPProvider, com.sun.mail.imap.IMAPSSLProvider;
+	com.sun.mail.gimap.GmailProvider, com.sun.mail.gimap.GmailSSLProvider;
 
     requires java.mail;
     requires java.logging;
     requires java.security.sasl;
+    requires com.sun.mail.imap;
 }

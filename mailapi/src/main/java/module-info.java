@@ -53,4 +53,5 @@ module java.mail {
     requires java.xml;		// for text/xml handler
     requires java.desktop;	// for image/jpeg handler
     requires java.security.sasl; // for OAuth2 support
+    uses javax.mail.Provider;
 }

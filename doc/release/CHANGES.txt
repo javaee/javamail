@@ -29,6 +29,8 @@ GH  316	starttls.enable documentation should reference starttls.required prop
 GH  317	use System.lineSeparator() instead of System.getProperty(...)
 GH  321	URLName.getURL() returns incorrect url.
 GH  322	Dots in local part of emails not handled properly
+GH  323	Support loading protocol providers using ServiceLoader
+GH  326	Apply relaxed Content-Disposition parsing to Content-Disposition parameters
 
 
 		  CHANGES IN THE 1.6.1 RELEASE

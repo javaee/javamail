@@ -104,8 +104,15 @@ public class ContentDisposition {
 
 	// Then parameters ..
 	String rem = h.getRemainder();
-	if (rem != null)
-	    list = new ParameterList(rem);
+	if (rem != null) {
+            try {
+                list = new ParameterList(rem);
+            } catch (ParseException px) {
+                if (contentDispositionStrict) {
+                    throw px;
+                }
+            }
+        }
     }
 
     /**
