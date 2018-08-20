@@ -168,7 +168,7 @@ public class IMAPBodyPart extends MimeBodyPart implements ReadableMime {
 	String filename = null;
 	if (bs.dParams != null)
 	    filename = bs.dParams.get("filename");
-	if (filename == null && bs.cParams != null)
+	if ((filename == null || filename.isEmpty()) && bs.cParams != null)
 	    filename = bs.cParams.get("name");
 	if (decodeFileName && filename != null) {
 	    try {

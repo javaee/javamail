@@ -178,6 +178,33 @@ public final class IMAPMessageTest {
 	    });
     }
 
+    @Test
+    public void testAttachementFileName() {
+        testWithHandler(
+                new IMAPTest() {
+                    @Override
+                    public void test(Folder folder, IMAPHandlerMessage handler) throws MessagingException, IOException {
+                        Message m = folder.getMessage(1);
+                        Multipart mp = (Multipart)m.getContent();
+                        BodyPart bp = mp.getBodyPart(1);
+                        assertEquals("filename.csv", MimeUtility.decodeText(bp.getFileName()));
+                    }
+                },
+                new IMAPHandlerMessage() {
+                    @Override
+                    public void fetch(String line) throws IOException {
+                        untagged("1 FETCH (BODYSTRUCTURE (" +
+                                "(\"text\" \"html\" (\"charset\" \"utf-8\") NIL NIL \"base64\" 402 6 NIL NIL NIL NIL)" +
+                                "(\"application\" \"octet-stream\" (\"name\" \"=?utf-8?B?ZmlsZW5hbWU=?= =?utf-8?B?LmNzdg==?=\") NIL NIL \"base64\" 658 NIL " +
+                                "(\"attachment\" (\"filename\" \"\")) NIL NIL) \"mixed\" " +
+                                "(\"boundary\" \"--boundary_539_27806e16-2599-4612-b98a-69335bedd206\") NIL NIL NIL))"
+                        );
+                        ok();
+                    }
+                }
+        );
+    }
+
     /**
      * Test that returning NIL instead of an empty string for the content
      * of an empty body part works correctly.
