@@ -30,8 +30,9 @@ GH  317	use System.lineSeparator() instead of System.getProperty(...)
 GH  321	URLName.getURL() returns incorrect url.
 GH  322	Dots in local part of emails not handled properly
 GH  323	Support loading protocol providers using ServiceLoader
-GH  326	Apply relaxed Content-Disposition parsing to Content-Disposition parameters
+GH  326	Apply relaxed Content-Disposition parsing to Content-Disposition params
 GH  330	Attachment filename is ignored
+GH  332	http proxy support should support authenticating to the proxy server
 
 
 		  CHANGES IN THE 1.6.1 RELEASE

@@ -1,2 +1,2 @@
-com.sun.mail.smtp.SMTPTransport
-com.sun.mail.smtp.SMTPSSLTransport
+com.sun.mail.smtp.SMTPProvider
+com.sun.mail.smtp.SMTPSSLProvider

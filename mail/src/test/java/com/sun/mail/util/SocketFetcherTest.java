@@ -43,6 +43,7 @@ package com.sun.mail.util;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Properties;
+import java.nio.charset.StandardCharsets;
 
 import com.sun.mail.test.TestServer;
 import com.sun.mail.test.ProtocolHandler;
@@ -69,6 +70,15 @@ public final class SocketFetcherTest {
     @Test
     public void testProxyHostPort() {
 	assertTrue("proxy host, port", testProxy("proxy", "localhost", "PPPP"));
+    }
+
+    /**
+     * Test connecting with proxy host and port and user name and password.
+     */
+    @Test
+    public void testProxyHostPortUserPassword() {
+	assertTrue("proxy host, port, user, password",
+	    testProxyUserPassword("proxy", "localhost", "PPPP", "user", "pwd"));
     }
 
     /**
@@ -106,9 +116,16 @@ public final class SocketFetcherTest {
     /**
      */
     public boolean testProxy(String type, String host, String port) {
+	return testProxyUserPassword(type, host, port, null, null);
+    }
+
+    /**
+     */
+    public boolean testProxyUserPassword(String type, String host, String port,
+					String user, String pwd) {
 	TestServer server = null;
 	try {
-	    ProxyHandler handler = new ProxyHandler();
+	    ProxyHandler handler = new ProxyHandler(type.equals("proxy"));
 	    server = new TestServer(handler);
 	    server.start();
 	    String sport = "" + server.getPort();
@@ -122,6 +139,10 @@ public final class SocketFetcherTest {
 	    if (port != null)
 		properties.setProperty("mail.test." + type + ".port",
 				    port.replace("PPPP", sport));
+	    if (user != null)
+		properties.setProperty("mail.test." + type + ".user", user);
+	    if (pwd != null)
+		properties.setProperty("mail.test." + type + ".password", pwd);
 
 	    Socket s = null;
 	    try {
@@ -135,7 +156,12 @@ public final class SocketFetcherTest {
 		if (s != null)
 		    s.close();
 	    }
-	    return handler.getConnected();
+	    if (!handler.getConnected())
+		return false;
+	    if (user != null && pwd != null)
+		return (user + ":" + pwd).equals(handler.getUserPassword());
+	    else
+		return true;
 
 	} catch (final Exception e) {
 	    //e.printStackTrace();
@@ -149,28 +175,56 @@ public final class SocketFetcherTest {
     }
 
     /**
-     * Custom handler.  Remember whether any data was sent.
+     * Custom handler.  Remember whether any data was sent
+     * and save user/password string;
      */
     private static class ProxyHandler extends ProtocolHandler {
+	private boolean http;
+
 	// must be static because handler is cloned for each connection
 	private static volatile boolean connected;
+	private static volatile String userPassword;
 
-	public ProxyHandler() {
+	public ProxyHandler(boolean http) {
+	    this.http = http;
 	    connected = false;
 	}
 
 	@Override
 	public void handleCommand() throws IOException {
-	    int c = in.read();
-	    if (c >= 0) {
+	    if (!http) {
+		int c = in.read();
+		if (c >= 0) {
+		    // any data means a real client connected
+		    connected = true;
+		}
+		exit();
+	    }
+
+	    // else, http...
+	    String line;
+	    while ((line = readLine()) != null) {
 		// any data means a real client connected
 		connected = true;
+		if (line.length() == 0)
+		    break;
+		if (line.startsWith("Proxy-Authorization:")) {
+		    int i = line.indexOf("Basic ") + 6;
+		    String up = line.substring(i);
+		    userPassword = new String(BASE64DecoderStream.decode(
+				    up.getBytes(StandardCharsets.US_ASCII)),
+				    StandardCharsets.UTF_8);
+		}
 	    }
 	    exit();
 	}
 
 	public boolean getConnected() {
 	    return connected;
+	}
+
+	public String getUserPassword() {
+	    return userPassword;
 	}
     }
 }
