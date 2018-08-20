@@ -119,6 +119,10 @@ public final class SocketFetcherTest {
 	    properties.setProperty("mail.test.port", "2");
 	    properties.setProperty("mail.test." + type + ".host",
 				    host.replace("PPPP", sport));
+	    properties.setProperty("mail.test." + type + ".user",
+				    "proxy user");
+	    properties.setProperty("mail.test." + type + ".password",
+				    "proxy password");
 	    if (port != null)
 		properties.setProperty("mail.test." + type + ".port",
 				    port.replace("PPPP", sport));
