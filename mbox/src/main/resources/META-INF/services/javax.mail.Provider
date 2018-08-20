@@ -1,0 +1,2 @@
+com.sun.mail.mbox.MboxProvider
+com.sun.mail.remote.POP3RemoteProvider

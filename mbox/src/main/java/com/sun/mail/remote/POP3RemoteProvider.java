@@ -38,16 +38,16 @@
  * holder.
  */
 
-package com.sun.mail.gimap;
+package com.sun.mail.remote;
 
 import javax.mail.Provider;
 
 /**
- * The Gmail IMAP protocol provider.
+ * The POP3 remote protocol provider.
  */
-public class GmailSSLProvider extends Provider {
-    public GmailSSLProvider() {
-	super(Provider.Type.STORE, "gimaps", GmailSSLStore.class.getName(),
-	    "Oracle", null);
+public class POP3RemoteProvider extends Provider {
+    public POP3RemoteProvider() {
+	super(Provider.Type.STORE, "pop3remote",
+	    POP3RemoteStore.class.getName(), "Oracle", null);
     }
 }

@@ -38,16 +38,16 @@
  * holder.
  */
 
-package com.sun.mail.gimap;
+package com.sun.mail.mbox;
 
 import javax.mail.Provider;
 
 /**
- * The Gmail IMAP protocol provider.
+ * The Mbox protocol provider.
  */
-public class GmailSSLProvider extends Provider {
-    public GmailSSLProvider() {
-	super(Provider.Type.STORE, "gimaps", GmailSSLStore.class.getName(),
+public class MboxProvider extends Provider {
+    public MboxProvider() {
+	super(Provider.Type.STORE, "mbox", MboxStore.class.getName(),
 	    "Oracle", null);
     }
 }
