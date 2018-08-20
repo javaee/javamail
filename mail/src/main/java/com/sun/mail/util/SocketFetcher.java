@@ -52,7 +52,6 @@ import java.util.logging.Level;
 import java.security.cert.*;
 import javax.net.*;
 import javax.net.ssl.*;
-import javax.security.auth.x500.X500Principal;
 
 /**
  * This class is used to get Sockets. Depending on the arguments passed
@@ -275,8 +274,10 @@ public class SocketFetcher {
 		", host " + host + ", port " + port +
 		", connection timeout " + cto + ", timeout " + to +
 		", socket factory " + sf + ", useSSL " + useSSL);
-		
+
 	String proxyHost = props.getProperty(prefix + ".proxy.host", null);
+	String proxyUser = props.getProperty(prefix + ".proxy.user", null);
+	String proxyPassword = props.getProperty(prefix + ".proxy.password", null);
 	int proxyPort = 80;
 	String socksHost = null;
 	int socksPort = 1080;
@@ -295,8 +296,12 @@ public class SocketFetcher {
 	    proxyPort = PropUtil.getIntProperty(props,
 					prefix + ".proxy.port", proxyPort);
 	    err = "Using web proxy host, port: " + proxyHost + ", " + proxyPort;
-	    if (logger.isLoggable(Level.FINER))
+	    if (logger.isLoggable(Level.FINER)) {
 		logger.finer("web proxy host " + proxyHost + ", port " + proxyPort);
+		if (proxyUser != null)
+		    logger.finer("web proxy user " + proxyUser + ", password " +
+			(proxyPassword == null ? "<null>" : "<non-null>"));
+	    }
 	} else if ((socksHost =
 		    props.getProperty(prefix + ".socks.host", null)) != null) {
 	    int i = socksHost.indexOf(':');
@@ -346,7 +351,8 @@ public class SocketFetcher {
 	try {
 	    logger.finest("connecting...");
 	    if (proxyHost != null)
-		proxyConnect(socket, proxyHost, proxyPort, host, port, cto);
+		proxyConnect(socket, proxyHost, proxyPort,
+				proxyUser, proxyPassword, host, port, cto);
 	    else if (cto >= 0)
 		socket.connect(new InetSocketAddress(host, port), cto);
 	    else
@@ -407,7 +413,7 @@ public class SocketFetcher {
 	if (sfClass == null || sfClass.length() == 0)
 	    return null;
 
-	// dynamically load the class 
+	// dynamically load the class
 
 	ClassLoader cl = getContextClassLoader();
 	Class<?> clsSockFact = null;
@@ -419,7 +425,7 @@ public class SocketFetcher {
 	if (clsSockFact == null)
 	    clsSockFact = Class.forName(sfClass);
 	// get & invoke the getDefault() method
-	Method mthGetDefault = clsSockFact.getMethod("getDefault", 
+	Method mthGetDefault = clsSockFact.getMethod("getDefault",
 						     new Class<?>[]{});
 	SocketFactory sf = (SocketFactory)
 	    mthGetDefault.invoke(new Object(), new Object[]{});
@@ -662,7 +668,7 @@ public class SocketFetcher {
     /**
      * Check the server from the Socket connection against the server name(s)
      * as expressed in the server certificate (RFC 2595 check).
-     * 
+     *
      * @param	server		name of the server expected
      * @param   sslSocket	SSLSocket connected to the server
      * @exception	IOException	if we can't verify identity of server
@@ -693,7 +699,7 @@ public class SocketFetcher {
 
     /**
      * Do any of the names in the cert match the server name?
-     *  
+     *
      * @param	server	name of the server expected
      * @param   cert	X509Certificate to get the subject's name from
      * @return  true if it matches
@@ -714,7 +720,7 @@ public class SocketFetcher {
 	    // invoke HostnameChecker.getInstance(HostnameChecker.TYPE_LDAP)
 	    // HostnameChecker.TYPE_LDAP == 2
 	    // LDAP requires the same regex handling as we need
-	    Method getInstance = hnc.getMethod("getInstance", 
+	    Method getInstance = hnc.getMethod("getInstance",
 					new Class<?>[] { byte.class });
 	    Object hostnameChecker = getInstance.invoke(new Object(),
 					new Object[] { Byte.valueOf((byte)2) });
@@ -820,6 +826,7 @@ public class SocketFetcher {
      */
     private static void proxyConnect(Socket socket,
 				String proxyHost, int proxyPort,
+				String proxyUser, String proxyPassword,
 				String host, int port, int cto)
 				throws IOException {
 	if (logger.isLoggable(Level.FINE))
@@ -832,8 +839,22 @@ public class SocketFetcher {
 	    socket.connect(new InetSocketAddress(proxyHost, proxyPort));
 	PrintStream os = new PrintStream(socket.getOutputStream(), false,
 					    StandardCharsets.UTF_8.name());
-	os.print("CONNECT " + host + ":" + port + " HTTP/1.1\r\n");
-	os.print("Host: " + host + ":" + port + "\r\n\r\n");
+	StringBuilder requestBuilder = new StringBuilder();
+	requestBuilder.append("CONNECT ").append(host).append(":").append(port).
+			append(" HTTP/1.1\r\n");
+	requestBuilder.append("Host: ").append(host).append(":").append(port).
+			append("\r\n");
+	if (proxyUser != null && proxyPassword != null) {
+	    byte[] upbytes = (proxyUser + ':' + proxyPassword).
+				getBytes(StandardCharsets.UTF_8);
+	    String proxyHeaderValue = new String(
+		BASE64EncoderStream.encode(upbytes),
+		StandardCharsets.US_ASCII);
+	    requestBuilder.append("Proxy-Authorization: Basic ").
+				append(proxyHeaderValue).append("\r\n");
+	}
+	requestBuilder.append("Proxy-Connection: keep-alive\r\n\r\n");
+	os.print(requestBuilder.toString());
 	os.flush();
 	BufferedReader r = new BufferedReader(new InputStreamReader(
 			    socket.getInputStream(), StandardCharsets.UTF_8));
