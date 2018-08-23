@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,6 +42,7 @@ package com.sun.mail.gimap.protocol;
 
 import java.io.*;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
 
 import com.sun.mail.iap.*;
 import com.sun.mail.imap.protocol.*;
@@ -192,11 +193,12 @@ public class GmailProtocol extends IMAPProtocol {
 	handleResult(r[r.length-1]);
     }
 
+    // XXX - assume Gmail always supports UTF-8
     private Argument createLabelList(String[] labels) {
 	Argument args = new Argument();	
 	Argument itemArgs = new Argument();
 	for (int i = 0, len = labels.length; i < len; i++)
-	    itemArgs.writeAtom(labels[i]);
+	    itemArgs.writeString(labels[i], StandardCharsets.UTF_8);
 	args.writeArgument(itemArgs);
 	return args;
     }
