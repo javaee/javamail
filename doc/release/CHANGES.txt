@@ -33,6 +33,7 @@ GH  323	Support loading protocol providers using ServiceLoader
 GH  326	Apply relaxed Content-Disposition parsing to Content-Disposition params
 GH  330	Attachment filename is ignored
 GH  332	http proxy support should support authenticating to the proxy server
+GH  333	search with Unicode char throws BadCommandException with UTF8=ALLOW
 GH  334	gimap set labels error with some non english characters
 
 

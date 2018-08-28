@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2009-2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009-2018 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -112,5 +112,70 @@ public final class IMAPSearchTest {
                 server.quit();
             }
         }
+    }
+
+    /**
+     * Test that when the server supports UTF8 and the client enables it,
+     * the client doesn't issue a SEARCH CHARSET command even if the search
+     * term includes a non-ASCII character.
+     * (see RFC 6855, section 3, last paragraph)
+     */
+    @Test
+    public void testUtf8Search() {
+        TestServer server = null;
+        try {
+            server = new TestServer(new IMAPUtf8Handler() {
+		@Override
+		public void search(String line) throws IOException {
+		    if (line.contains("CHARSET"))
+			bad("CHARSET not supported");
+		    else
+			ok();
+		}
+	    });
+            server.start();
+
+            final Properties properties = new Properties();
+            properties.setProperty("mail.imap.host", "localhost");
+            properties.setProperty("mail.imap.port", "" + server.getPort());
+            final Session session = Session.getInstance(properties);
+            //session.setDebug(true);
+
+            final Store store = session.getStore("imap");
+	    Folder folder = null;
+            try {
+                store.connect("test", "test");
+                folder = store.getFolder("INBOX");
+                folder.open(Folder.READ_ONLY);
+		Message[] msgs = folder.search(new SubjectTerm("\u2019"));
+	    } catch (Exception ex) {
+		System.out.println(ex);
+		//ex.printStackTrace();
+		fail(ex.toString());
+            } finally {
+		if (folder != null)
+		    folder.close(false);
+                store.close();
+            }
+        } catch (final Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        } finally {
+            if (server != null) {
+                server.quit();
+            }
+        }
+    }
+
+    /**
+     * An IMAPHandler that enables UTF-8 support.
+     */
+    private static class IMAPUtf8Handler extends IMAPHandler {
+	{{ capabilities += " ENABLE UTF8=ACCEPT"; }}
+
+	@Override
+	public void enable(String line) throws IOException {
+	    ok();
+	}
     }
 }

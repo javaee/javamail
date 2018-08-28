@@ -2493,17 +2493,20 @@ public class IMAPProtocol extends Protocol {
      */
     private int[] search(String msgSequence, SearchTerm term)
 			throws ProtocolException, SearchException {
-	// Check if the search "text" terms contain only ASCII chars
-	if (SearchSequence.isAscii(term)) {
+	// Check if the search "text" terms contain only ASCII chars,
+	// or if utf8 support has been enabled (in which case CHARSET
+	// is not allowed; see RFC 6855, section 3, last paragraph)
+	if (supportsUtf8() || SearchSequence.isAscii(term)) {
 	    try {
 		return issueSearch(msgSequence, term, null);
 	    } catch (IOException ioex) { /* will not happen */ }
 	}
 
 	/*
-	 * The search "text" terms do contain non-ASCII chars. We need to
-	 * use SEARCH CHARSET <charset> ...
-	 *	The charsets we try to use are UTF-8 and the locale's
+	 * The search "text" terms do contain non-ASCII chars and utf8
+	 * support has not been enabled.  We need to use:
+	 * "SEARCH CHARSET <charset> ..."
+	 * The charsets we try to use are UTF-8 and the locale's
 	 * default charset. If the server supports UTF-8, great, 
 	 * always use it. Else we try to use the default charset.
 	 */
