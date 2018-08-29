@@ -22,9 +22,10 @@ and is also included in the
 ## August 29, 2018 - JavaMail 1.6.2 Final Release ##
 
 The 1.6.2 release contains bug fixes and enhancements,
-including the following significant change:
+including the following significant changes:
 
-- Define Java 9 module name - java.mail
+- Support loading protocol providers using ServiceLoader
+- http proxy support should support authenticating to the proxy server
 
 Note that the JavaMail project will be moving to the Eclipse Foundation
 as part of the
