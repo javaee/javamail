@@ -900,9 +900,13 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 <TD>boolean</TD>
 <TD>If true, enables the use of the <code>STARTTLS</code> command (if
 supported by the server) to switch the connection to a TLS-protected
-connection before issuing any login commands.  Note that an appropriate
-trust store must configured so that the client will trust the server's
-certificate.  This feature only works on J2SE 1.4 and newer systems.
+connection before issuing any login commands.
+If the server does not support STARTTLS, the connection continues without
+the use of TLS; see the
+<A HREF="#mail.imap.starttls.required"><code>mail.imap.starttls.required</code></A>
+property to fail if STARTTLS isn't supported.
+Note that an appropriate trust store must configured so that the client
+will trust the server's certificate.
 Default is false.</TD>
 </TR>
 
@@ -932,6 +936,24 @@ connections to the mail server.
 <TD>
 Specifies the port number for the HTTP web proxy server.
 Defaults to port 80.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.imap.proxy.user">mail.imap.proxy.user</A></TD>
+<TD>string</TD>
+<TD>
+Specifies the user name to use to authenticate with the HTTP web proxy server.
+By default, no authentication is done.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.imap.proxy.password">mail.imap.proxy.password</A></TD>
+<TD>string</TD>
+<TD>
+Specifies the password to use to authenticate with the HTTP web proxy server.
+By default, no authentication is done.
 </TD>
 </TR>
 

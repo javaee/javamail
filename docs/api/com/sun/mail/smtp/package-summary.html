@@ -769,9 +769,13 @@ to the <code>javax.net.ssl.SSLSocket.setEnabledCipherSuites</code> method.
 <TD>
 If true, enables the use of the <code>STARTTLS</code> command (if
 supported by the server) to switch the connection to a TLS-protected
-connection before issuing any login commands.  Note that an appropriate
-trust store must configured so that the client will trust the server's
-certificate.
+connection before issuing any login commands.
+If the server does not support STARTTLS, the connection continues without
+the use of TLS; see the
+<A HREF="#mail.smtp.starttls.required"><code>mail.smtp.starttls.required</code></A>
+property to fail if STARTTLS isn't supported.
+Note that an appropriate trust store must configured so that the client
+will trust the server's certificate.
 Defaults to false.
 </TD>
 </TR>
@@ -802,6 +806,24 @@ connections to the mail server.
 <TD>
 Specifies the port number for the HTTP web proxy server.
 Defaults to port 80.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.smtp.proxy.user">mail.smtp.proxy.user</A></TD>
+<TD>string</TD>
+<TD>
+Specifies the user name to use to authenticate with the HTTP web proxy server.
+By default, no authentication is done.
+</TD>
+</TR>
+
+<TR>
+<TD><A NAME="mail.smtp.proxy.password">mail.smtp.proxy.password</A></TD>
+<TD>string</TD>
+<TD>
+Specifies the password to use to authenticate with the HTTP web proxy server.
+By default, no authentication is done.
 </TD>
 </TR>
 

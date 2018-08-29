@@ -1,7 +1,7 @@
 			COMPATIBILITY NOTES
 			===================
 
-		    JavaMail(TM) API 1.6.1 release
+		    JavaMail(TM) API 1.6.2 release
 		    ------------------------------
 
 The JavaMail 1.6 specification is fully compatible with the JavaMail

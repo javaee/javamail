@@ -210,6 +210,29 @@ extends <a href="http://docs.oracle.com/javase/8/docs/api/java/lang/Object.html?
  protocol=smtp; type=transport; class=com.sun.mail.smtp.SMTPTransport; vendor=Oracle;
  </pre><p>
 
+ The current implementation also supports configuring providers using
+ the Java SE <a href="http://docs.oracle.com/javase/8/docs/api/java/util/ServiceLoader.html?is-external=true" title="class or interface in java.util"><code>ServiceLoader</code></a> mechanism.
+ When creating your own provider, create a <a href="../../javax/mail/Provider.html" title="class in javax.mail"><code>Provider</code></a> subclass,
+ for example:
+ <pre>
+ package com.example;
+
+ import javax.mail.Provider;
+
+ public class MyProvider extends Provider {
+     public MyProvider() {
+         super(Provider.Type.STORE, "myprot", MyStore.class.getName(),
+             "Example", null);
+     }
+ }
+ </pre>
+ Then include a file named <code>META-INF/services/javax.mail.Provider</code>
+ in your jar file that lists the name of your Provider class:
+ <pre>
+ com.example.MyProvider
+ </pre>
+ <p>
+
  <b><code>javamail.address.map</code></b> and
  <b><code>javamail.default.address.map</code></b><p>
 

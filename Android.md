@@ -27,8 +27,8 @@ build.gradle file for your Android application:
     
     dependencies {
         // use whatever the current version is...
-        compile 'com.sun.mail:android-mail:1.6.0'
-        compile 'com.sun.mail:android-activation:1.6.0'
+        compile 'com.sun.mail:android-mail:1.6.2'
+        compile 'com.sun.mail:android-activation:1.6.2'
     }
 
 
