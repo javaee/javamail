@@ -55,7 +55,7 @@ Download
 
 See the JavaMail project page to download this release.
 
-	https://javamail.java.net
+	https://javaee.github.io/javamail/
 
 
 Requirements
@@ -77,7 +77,7 @@ Installation
   ----------
 
   1. Download the javax.mail.jar file from the JavaMail project website.
-     http://java.net/projects/javamail/downloads/download/javax.mail.jar
+     https://github.com/javaee/javamail/releases
 
   2. Set your CLASSPATH to include the "javax.mail.jar" file obtained from
      the download, as well as the current directory.
@@ -94,7 +94,7 @@ Installation
       export CLASSPATH=$CLASSPATH:/u/me/download/activation/activation.jar
 
   3. Download the javamail-samples.zip file from the project website.
-     http://java.net/projects/javamail/downloads/download/javamail-samples.zip
+     https://github.com/javaee/javamail/releases
 
   4. Compile any sample program using your Java compiler. For example:
 
@@ -120,7 +120,7 @@ Installation
   -------
 
   1. Download the javax.mail.jar file from the JavaMail project website.
-     http://java.net/projects/javamail/downloads/download/javax.mail.jar
+     https://github.com/javaee/javamail/releases
 
   2. Set your CLASSPATH to include the "javax.mail.jar" file obtained from
      the download, as well as the current directory.
@@ -137,7 +137,7 @@ Installation
       set CLASSPATH=%CLASSPATH%;c:\download\activation\activation.jar
 
   3. Download the javamail-samples.zip file from the project website.
-     http://java.net/projects/javamail/downloads/download/javamail-samples.zip
+     https://github.com/javaee/javamail/releases
 
   4. Compile any sample program using your Java compiler. For example:
 
