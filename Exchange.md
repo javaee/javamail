@@ -18,7 +18,7 @@ encrypted message.  Use the workaround described in the
 
 Exchange fails to find an email address using FromTerm, FromStringTerm,
 RecipientTerm, or RecipientStringTerm.  As described in
-(this blog entry)[https://blogs.technet.microsoft.com/dkhrebin/2013/10/04/how-exchange-imap-search-in-message-header/],
+[this blog entry](https://blogs.technet.microsoft.com/dkhrebin/2013/10/04/how-exchange-imap-search-in-message-header/),
 Exchange will only find a personal name using these search terms.
 Instead, use a HeaderTerm to search for the email address.
 
