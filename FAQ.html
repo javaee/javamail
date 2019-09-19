@@ -1322,6 +1322,7 @@ needed configuration in your application:
     String username = "user";
     String password = "passwd";
     Properties props = new Properties();
+    props.setProperty("mail.smtp.host", host);
     props.setProperty("mail.smtp.ssl.enable", "true");
     // set any other needed mail.smtp.* properties here
     Session session = Session.getInstance(props);
@@ -1592,7 +1593,8 @@ needed configuration in your application:
     String username = "user@outlook.com";
     String password = "passwd";
     Properties props = new Properties();
-    props.put("mail.smtp.starttls.enable", "true");
+    props.setProperty("mail.smtp.host", host);
+    props.setProperty("mail.smtp.starttls.enable", "true");
     Session session = Session.getInstance(props);
     MimeMessage msg = new MimeMessage(session);
     // set the message content here
@@ -3046,7 +3048,8 @@ property in the Session properties.
 For example:
 <PRE>
     Properties props = new Properties();
-    props.put("mail.smtp.ssl.enable", "true");
+    props.setProperty("mail.smtp.host", host);
+    props.setProperty("mail.smtp.ssl.enable", "true");
     // or: props.put("mail.smtp.starttls.enable", "true");
     Session session = Session.getInstance(props);
     MimeMessage msg = new MimeMessage(session);
