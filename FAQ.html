@@ -5,7 +5,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 2010-2018 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2010-2020 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -984,7 +984,9 @@ the information necessary to configure JavaMail to work with your mail server.
 mail servers through a web proxy server.
 Set the "mail.<i>protocol</i>.proxy.host" and "mail.<i>protocol</i>.proxy.port"
 properties for the proxy server.
-Note that proxy server authentication is not supported.
+Proxy server BASIC authentication is supported by setting the
+"mail.<i>protocol</i>.proxy.user" and "mail.<i>protocol</i>.proxy.password"
+properties.
 </P>
 <P>
 In addition, if your proxy server supports the SOCKS V4 or V5 protocol
@@ -997,6 +999,11 @@ configure a SOCKS proxy on a per-session, per-protocol basis by setting the
 <A HREF="https://javaee.github.io/javamail/docs/api//com/sun/mail/smtp/package-summary.html">
 com.sun.mail.smtp package</A>.
 Similar properties exist for the "imap" and "pop3" protocols.
+Authentication for SOCKS servers is supported by the JDK by setting the
+"java.net.socks.username" and "java.net.socks.password" System properties
+(and thus apply to all SOCKS connections) as describe in the
+<A HREF="https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html#Proxies">JDK Networking Properties</A> documentation.
+</P>
 </P>
 <P>
 If you're using older versions of the JDK or JavaMail, you can tell the Java
@@ -1322,7 +1329,6 @@ needed configuration in your application:
     String username = "user";
     String password = "passwd";
     Properties props = new Properties();
-    props.setProperty("mail.smtp.host", host);
     props.setProperty("mail.smtp.ssl.enable", "true");
     // set any other needed mail.smtp.* properties here
     Session session = Session.getInstance(props);
@@ -1593,8 +1599,7 @@ needed configuration in your application:
     String username = "user@outlook.com";
     String password = "passwd";
     Properties props = new Properties();
-    props.setProperty("mail.smtp.host", host);
-    props.setProperty("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.starttls.enable", "true");
     Session session = Session.getInstance(props);
     MimeMessage msg = new MimeMessage(session);
     // set the message content here
@@ -3048,8 +3053,7 @@ property in the Session properties.
 For example:
 <PRE>
     Properties props = new Properties();
-    props.setProperty("mail.smtp.host", host);
-    props.setProperty("mail.smtp.ssl.enable", "true");
+    props.put("mail.smtp.ssl.enable", "true");
     // or: props.put("mail.smtp.starttls.enable", "true");
     Session session = Session.getInstance(props);
     MimeMessage msg = new MimeMessage(session);
